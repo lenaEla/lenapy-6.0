@@ -124,6 +124,17 @@ maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel = [50,40,10,15,25,35,25,15
 TANK,DISTANCE,LONG_DIST = "Tank","Distance","Longue Distance"
 DPT,HEALER,BOOSTER,MAGIC = "Bers, Obs, P.Plu, T.Bru","Ido,Alt","Ido, Eru","T.Bru, Obs, Eru"
 
+# Elementals
+ELEMENT_NEUTRAL = 0
+ELEMENT_FIRE = 1
+ELEMENT_WATER = 2
+ELEMENT_AIR = 3
+ELEMENT_EARTH = 4
+ELEMENT_LIGHT = 5
+ELEMENT_DARKNESS = 6
+
+elemEmojis = ["<:neutral:887847377917050930>","<:fire:887847475203932261>","<:water:887847459211079760>","<:air:887847440932290560>","<:earth:887847425459503114>","<:light:887847410141921362>","<:darkness:887847395067568128>"]
+
 # List of guild ids for the bots
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]

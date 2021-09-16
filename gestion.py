@@ -186,6 +186,8 @@ def saveCharFile(path,char):
             saved += str(a)+";"
         saved += "\n"
 
+        saved += str(char.element) +";\n"
+
         rewriteFile(path,saved)
         return True
     except:
@@ -292,6 +294,10 @@ def loadCharFile(path,ctx="useless"):
             rep.procuration += [int(a)]
     except:
         rep.procuration = []
+    try:
+        rep.element = int(file[11][0])
+    except:
+        rep.element = ELEMENT_NEUTRAL
 
     return rep
 
@@ -394,3 +400,6 @@ def convertStrtoHex(string : str):
         return an_integer
     except:
         return None
+
+async def loadingSlashEmbed(ctx):
+    return await ctx.channel.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))

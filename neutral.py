@@ -1,3 +1,5 @@
+"""Un projet avorté"""
+
 choiceExeptMsg = "Merci de répondre en écrivant le chiffre correspondant à ton choix"
 errorMissingPermsMsg = "Tu as pas les permissions nécéssaires pour réaliser cette commande désolée"
 errorNotDigitMsg = "Je m'attendais plutôt à un nombre à vrai dire"
