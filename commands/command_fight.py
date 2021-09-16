@@ -557,6 +557,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             self.stats = statTabl()
             self.medals = [0,0,0]
             self.healResist = 0
+            self.missedLastTurn = False
 
         def allStats(self):
             return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
@@ -1801,10 +1802,16 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
         actTurn = time.timeline[0]
         nextNotAuto,lastNotAuto = 0,0
 
+        everyoneStillThere = False
         for a in time.timeline : # Vérification du prochain joueur non automatique
-            if not(a.auto) and a.hp > 0:
-                nextNotAuto = a
-                break       
+            if not(a.auto):
+                everyoneStillThere = True
+                if a.hp > 0:
+                    nextNotAuto = a
+                    break
+
+        if not(everyoneStillThere):
+            allAuto = True
 
         if nextNotAuto != actTurn and not(auto) and not(allAuto):
             if lastNotAuto != nextNotAuto:
@@ -1813,6 +1820,10 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             elif nextNotAuto == 0:
                 await choiceMsg.edit(embed = discord.Embed(title = "Fenêtre de selection de l'action", color=light_blue,description = f"Il n'y a plus de combattants manuels en vie"),components=[])
                 lastNotAuto = nextNotAuto
+        
+        if allAuto and choiceMsg != 0:
+            await choiceMsg.delete()
+            choiceMsg = 0
   
         tempTurnMsg = f"__Début du tour de {actTurn.char.name} :__\n"
 
@@ -1905,7 +1916,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                     canMove[a] = False
 
             if not(actTurn.stun): # Tour
-                if not(actTurn.auto) and not(auto) : # Fenêtre de sélection de l'option d'un joueur non automatique
+                if not(actTurn.auto) : # Fenêtre de sélection de l'option d'un joueur non automatique
                     haveOption,unsuccess = False,False
 
                     waitingSelect = create_actionrow(create_select(options=[create_select_option("Veillez patienter...","PILLON!",'🕑',default=True)],disabled=True))
@@ -2235,6 +2246,16 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                     except:
                         await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[])
 
+                if not(actTurn.auto) and unsuccess:
+                    if actTurn.missedLastTurn == False:
+                        actTurn.missedLastTurn = True
+
+                    else:
+                        actTurn.auto = True
+
+                elif not(actTurn.auto) and not(unsuccess):
+                    actTurn.missedLastTurn = False
+            
                 if unsuccess or type(ennemi)==int: # Définition des IA
                     nearestEnnemi,nearestDistance,Cell,nearestCell = 0,9999,actTurn.cell,0
 
@@ -2497,7 +2518,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             for a in tablAllCells: # Allié le blessé
                                 if a.on != None:
                                     b = a.on
-                                    if b.team == actTurn.team and b.hp > 0:
+                                    if b.team == actTurn.team and b.hp > 0 and b.hp/b.maxHp <= 0.9:
                                         if b.hp/b.maxHp < nearestDistance:
                                             nearestEnnemi, nearestDistance, nearestCell = b,b.hp/b.maxHp,b.cell
 
@@ -2788,7 +2809,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             isAlive = ennemi.hp > 0
                             if not(isAlive) :
                                 break
-                            tempTurnMsg += f"\n__{actTurn.char.name} utilise son arme sur {ennemi.char.name} :__\n"
+                            tempTurnMsg += f"\n__{actTurn.char.name} attaque {ennemi.char.name} avec son arme :__\n"
                             tempTurnMsg += actTurn.attack(target=ennemi,value=actTurn.char.weapon.power,icon=actTurn.char.weapon.emoji,area=actTurn.char.weapon.area,use=actTurn.char.weapon.use,onArmor=actTurn.char.weapon.onArmor)
                             cmpt += 1
             
@@ -2804,8 +2825,8 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             
                     elif actTurn.char.weapon.type == TYPE_HEAL:
                         tempTurnMsg += f"\n__{actTurn.char.name} soigne {ennemi.char.name} avec son arme :__"
-                        healPowa = min(ennemi.maxHp-ennemi.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=ennemi,heal=True)))
                         for a in ennemi.cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=ALLIES):
+                            healPowa = min(a.maxHp-a.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=a,heal=True)))
                             healPowa = round(healPowa * ((100-a.healResist)/100))
                             a.healResist += int(healPowa/a.maxHp/2*100)
                             a.hp += healPowa
@@ -3135,6 +3156,9 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
                     if auto and int(ctx.author.id) == int(b.char.owner): # Le temps c'est de l'argent
                         b.char = await achivements.addCount(ctx,b.char,"quickFight")
+
+                    # Je ne veux pas d'écolière pour défendre nos terres
+                    b.char = await achivements.addCount(ctx,b.char,"school")
 
                     saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
 

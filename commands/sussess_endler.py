@@ -153,6 +153,68 @@ DROP TABLE sqlitestudio_temp_table;
 PRAGMA foreign_keys = 1;
 """
 
+maj4="""
+PRAGMA foreign_keys = 0;
+CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                          FROM achivements;
+DROP TABLE achivements;
+CREATE TABLE achivements (
+    id            INTEGER PRIMARY KEY
+                          UNIQUE,
+    aliceCount    INTEGER,
+    aliceHave     BOOLEAN,
+    clemenceCount INTEGER,
+    clemenceHave  INTEGER,
+    akiraCount    INTEGER,
+    akiraHave     BOOLEAN,
+    fightCount    INTEGER,
+    fightHave     BOOLEAN,
+    gwenCount     INTEGER,
+    gwenHave      BOOLEAN,
+    qfCount       INTEGER,
+    qfHave        BOOLEAN,
+    heleneCount   INTEGER,
+    heleneHave    BOOLEAN,
+    schoolCount   INTEGER,
+    schoolHave    BOOLEAN
+);
+INSERT INTO achivements (
+                            id,
+                            aliceCount,
+                            aliceHave,
+                            clemenceCount,
+                            clemenceHave,
+                            akiraCount,
+                            akiraHave,
+                            fightCount,
+                            fightHave,
+                            gwenCount,
+                            gwenHave,
+                            qfCount,
+                            qfHave,
+                            heleneCount,
+                            heleneHave
+                        )
+                        SELECT id,
+                               aliceCount,
+                               aliceHave,
+                               clemenceCount,
+                               clemenceHave,
+                               akiraCount,
+                               akiraHave,
+                               fightCount,
+                               fightHave,
+                               gwenCount,
+                               gwenHave,
+                               qfCount,
+                               qfHave,
+                               heleneCount,
+                               heleneHave
+                          FROM sqlitestudio_temp_table;
+DROP TABLE sqlitestudio_temp_table;
+PRAGMA foreign_keys = 1;
+"""
+
 if not(os.path.exists("./data/success.db")):
     temp = open("./data/success.db","bw")
     print("Création du fichier \"success.db\"")
@@ -185,10 +247,11 @@ class successTabl:
         self.gwen = success("Une histoire de vangeance",0,10,False,["ka","kb"],"Affontez ou faites équipe avec Gwendoline {0} fois")
         self.quickFight = success("Le temps c'est de l'argent",0,10,False,None,"Lancez {0} combats rapides")
         self.helene = success("Là où mes ailes me porteront",0,10,False,"yr","Affrontez ou faites équipe avec Hélène {0} fois")
+        self.school = success("Je ne veux pas d'écolière pour défendre nos terres",0,30,False,None,"Mi Miman tu es habiyée en écolière... Combatti {0} fois !")
 
     def tablAllSuccess(self):
         """Renvoie un tableau avec tous les objets success"""
-        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene]
+        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school]
 
     def where(self,where : str):
         if where == "alice":
@@ -205,6 +268,8 @@ class successTabl:
             return self.quickFight
         elif where == "helene":
             return self.helene
+        elif where == "school":
+            return self.school
 
     def changeCount(self,where : str,count,haveSucced):
         where = self.where(where)
@@ -334,6 +399,22 @@ class succesDb:
             self.con.commit()
             print("maj3 réalisée")
 
+        # Maj school
+        try:
+            cursor.execute("SELECT schoolCount FROM achivements;")
+        except:
+            temp = ""
+            for a in maj4:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            cursor.execute("UPDATE achivements SET schoolCount = ?, schoolHave = ?;",(0,False))
+            self.con.commit()
+            print("maj4 réalisée")
+
         # Fin des majs
         cursor.close()
 
@@ -345,8 +426,8 @@ class succesDb:
         result = cursor.fetchall()
 
         if len(result) == 0: # L'utilisateur n'est pas dans la base de donnée
-            params = (user.owner,0,False,0,False,0,False,0,False,0,False,0,False,0,False)
-            cursor.execute("INSERT INTO achivements VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params)
+            params = (user.owner,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False)
+            cursor.execute("INSERT INTO achivements VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params)
             self.con.commit()
 
             cursor.execute("SELECT * FROM achivements WHERE id = ?",(user.owner,))
@@ -361,6 +442,8 @@ class succesDb:
         achivTabl.changeCount("fight",result["fightCount"],result["fightHave"])
         achivTabl.changeCount("gwen",result["gwenCount"],result["gwenHave"])
         achivTabl.changeCount("quickFight",result["qfCount"],result["qfHave"])
+        achivTabl.changeCount("helene",result["heleneCount"],result["heleneHave"])
+        achivTabl.changeCount("school",result["schoolCount"],result["schoolHave"])
 
         return achivTabl
 
@@ -382,160 +465,11 @@ class succesDb:
             collum1,collum2 = "qfCount","qfHave"
         elif name == "Là où mes ailes me porteront":
             collum1,collum2 = "heleneCount","heleneHave"
+        elif name == "Je ne veux pas d'écolière pour défendre nos terres":
+            collum1,collum2 = "schoolCount","schoolHave"
         
         cursor.execute("UPDATE achivements SET {0} = ?, {1} = ? WHERE id = ?;".format(collum1,collum2),(achivement.count,achivement.haveSucced,user.owner,))
         cursor.close()
         self.con.commit()
         
 achivement = succesDb("success.db")
-
-createTabl = """
-CREATE TABLE achivements (
-    id            INTEGER PRIMARY KEY
-                          UNIQUE,
-    aliceCount    INTEGER,
-    aliceHave     BOOLEAN,
-    clemenceCount INTEGER,
-    clemenceHave  INTEGER,
-    akiraCount    INTEGER,
-    akiraHave     BOOLEAN
-);"""
-
-maj1 = """
-PRAGMA foreign_keys = 0;
-CREATE TABLE sqlitestudio_temp_table AS SELECT *
-                                          FROM achivements;
-DROP TABLE achivements;
-CREATE TABLE achivements (
-    id            INTEGER PRIMARY KEY
-                          UNIQUE,
-    aliceCount    INTEGER,
-    aliceHave     BOOLEAN,
-    clemenceCount INTEGER,
-    clemenceHave  INTEGER,
-    akiraCount    INTEGER,
-    akiraHave     BOOLEAN,
-    fightCount    INTEGER,
-    fightHave     BOOLEAN
-);
-INSERT INTO achivements (
-                            id,
-                            aliceCount,
-                            aliceHave,
-                            clemenceCount,
-                            clemenceHave,
-                            akiraCount,
-                            akiraHave
-                        )
-                        SELECT id,
-                               aliceCount,
-                               aliceHave,
-                               clemenceCount,
-                               clemenceHave,
-                               akiraCount,
-                               akiraHave
-                          FROM sqlitestudio_temp_table;
-DROP TABLE sqlitestudio_temp_table;
-PRAGMA foreign_keys = 1;
-"""
-
-maj2 = """PRAGMA foreign_keys = 0;
-CREATE TABLE sqlitestudio_temp_table AS SELECT *
-                                          FROM achivements;
-DROP TABLE achivements;
-CREATE TABLE achivements (
-    id            INTEGER PRIMARY KEY
-                          UNIQUE,
-    aliceCount    INTEGER,
-    aliceHave     BOOLEAN,
-    clemenceCount INTEGER,
-    clemenceHave  INTEGER,
-    akiraCount    INTEGER,
-    akiraHave     BOOLEAN,
-    fightCount    INTEGER,
-    fightHave     BOOLEAN,
-    gwenCount     INTEGER,
-    gwenHave      BOOLEAN,
-    qfCount       INTEGER,
-    qfHave        BOOLEAN
-);
-INSERT INTO achivements (
-                            id,
-                            aliceCount,
-                            aliceHave,
-                            clemenceCount,
-                            clemenceHave,
-                            akiraCount,
-                            akiraHave,
-                            fightCount,
-                            fightHave
-                        )
-                        SELECT id,
-                               aliceCount,
-                               aliceHave,
-                               clemenceCount,
-                               clemenceHave,
-                               akiraCount,
-                               akiraHave,
-                               fightCount,
-                               fightHave
-                          FROM sqlitestudio_temp_table;
-DROP TABLE sqlitestudio_temp_table;
-PRAGMA foreign_keys = 1;
-"""
-
-maj3 = """
-PRAGMA foreign_keys = 0;
-CREATE TABLE sqlitestudio_temp_table AS SELECT *
-                                          FROM achivements;
-DROP TABLE achivements;
-CREATE TABLE achivements (
-    id            INTEGER PRIMARY KEY
-                          UNIQUE,
-    aliceCount    INTEGER,
-    aliceHave     BOOLEAN,
-    clemenceCount INTEGER,
-    clemenceHave  INTEGER,
-    akiraCount    INTEGER,
-    akiraHave     BOOLEAN,
-    fightCount    INTEGER,
-    fightHave     BOOLEAN,
-    gwenCount     INTEGER,
-    gwenHave      BOOLEAN,
-    qfCount       INTEGER,
-    qfHave        BOOLEAN,
-    heleneCount   INTEGER,
-    heleneHave    BOOLEAN
-);
-INSERT INTO achivements (
-                            id,
-                            aliceCount,
-                            aliceHave,
-                            clemenceCount,
-                            clemenceHave,
-                            akiraCount,
-                            akiraHave,
-                            fightCount,
-                            fightHave,
-                            gwenCount,
-                            gwenHave,
-                            qfCount,
-                            qfHave
-                        )
-                        SELECT id,
-                               aliceCount,
-                               aliceHave,
-                               clemenceCount,
-                               clemenceHave,
-                               akiraCount,
-                               akiraHave,
-                               fightCount,
-                               fightHave,
-                               gwenCount,
-                               gwenHave,
-                               qfCount,
-                               qfHave
-                          FROM sqlitestudio_temp_table;
-DROP TABLE sqlitestudio_temp_table;
-PRAGMA foreign_keys = 1;
-"""

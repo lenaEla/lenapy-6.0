@@ -169,9 +169,9 @@ async def encylopedia(bot,ctx,destination,user):
                         mess += temp+lock+"\n"
 
                         # Première info utile
-                        if value in [0,1,2]:
+                        if value in [0,1,2,8] and type(a) == stuff:
                             mess +="*"+a.orientation+"*\n"
-                        elif value in [3,4,8]:
+                        elif value in [3,4,8] and type(a) != stuff:
                             ballerine = tablTypeStr[a.type]+" "
                             if a.use != None and a.use != HARMONIE:
                                 sandale = nameStats[a.use]
@@ -234,12 +234,15 @@ async def encylopedia(bot,ctx,destination,user):
                     else:
                         maxi = lenTabl
                     for a in tablToSee[(page+z)*5:maxi]:
-                        mess += f"**__{a.name}__**"
+                        succed = ""
+                        if a.haveSucced:
+                            succed = "~~"
+                        mess += f"**__{succed}{a.name}{succed}__**"
 
                         if a.haveSucced:
                             mess += f" ({userIcon})"
 
-                        mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{a.count}**/{a.countToSucced}"
+                        mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
 
                         recompense = ""
                         if a.recompense != [None]:
