@@ -12,17 +12,27 @@ async def new_patch(bot : discord.Client,ctx : discord.Message):
     toSend = ""
     view = patchView.readlines()
     patchView.close()
-    for a in view:
-        toSend += a
     await ctx.channel.send("Le patch note suivant a été enregistré :")
+    for a in view:
+        if len(toSend+a) <= 2000:
+            toSend += a
+        else: # If the message is to long, send it
+            await ctx.channel.send(toSend)
+            toSend = a
+    
     await ctx.channel.send(toSend)
 
-def get_patchnote():
-    """Renvoie le str contenant le patchnote"""
+async def send_patchnote(ctx):
+    """Permet d'envoyer le patchnote enregistré"""
     patchView = open("./data/patch/patch.txt","r")
     toSend = ""
     view = patchView.readlines()
     patchView.close()
     for a in view:
-        toSend += a
-    return toSend
+        if len(toSend+a) <= 2000: 
+            toSend += a
+        else: # If the message is to long, send it
+            await ctx.channel.send(toSend)
+            toSend = a
+
+    await ctx.channel.send(toSend)

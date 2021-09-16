@@ -282,7 +282,7 @@ def infoSkill(skill,user,ctx):
             temp += "\n"+skil.description
 
         if skil.type == TYPE_HEAL:
-            temp+="\nPuissance : {0}".format(skil.power)
+            temp+="\nPuissance : {0}\nUtilise : {1}".format(skil.power,nameStats[skil.use])
 
         if skil.range == AREA_MONO:
             temp += "\nCette compétence se lance **sur soi-même**"

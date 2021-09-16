@@ -330,6 +330,7 @@ class char:
         self.bonusPoints = [0,0,0,0,0,0]
         self.icon = None
         self.customColor = False
+        self.element = ELEMENT_NEUTRAL
 
     def have(self,obj):
         """Verify if the character have the object Obj"""

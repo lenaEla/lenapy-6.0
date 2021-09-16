@@ -13,16 +13,34 @@ from advance_gestion import *
 
 from commands.command_fight import teamWinDB
 
-buttonReturn = create_actionrow(create_button(2,"Retour",emoji='◀️',custom_id="-1"))
-buttonBuy = create_actionrow(create_button(1,"Acheter",getEmojiObject('<:coins:862425847523704832>'),custom_id="0"))
-buttonGift = create_actionrow(create_button(3,"Offrir",emoji='🎁',custom_id="1"))
+buttonReturn = create_button(2,"Retour",emoji='◀️',custom_id="-1")
+buttonBuy = create_button(1,"Acheter",getEmojiObject('<:coins:862425847523704832>'),custom_id="0")
+buttonGift = create_button(3,"Offrir",emoji='🎁',custom_id="1")
+allButtons = create_actionrow(buttonReturn,buttonBuy,buttonGift)
+buttonsWithoutBuy = create_actionrow(buttonReturn,buttonGift)
+onlyReturn = create_actionrow(buttonReturn)
 
-async def shop2(bot : discord.Client, ctx : discord.message, guild : server, args : list,shopping : list):
+
+haveIcon = "<:buyed:887851675124109373>" 
+allTeamHaveIcon = "<:teambuyed:887851693423853569>"
+
+async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    if os.path.exists(pathUserProfile):
+    if os.path.exists(pathUserProfile): # Does the user have a character
         user = loadCharFile(pathUserProfile,ctx)
-        msg = await loadingEmbed(ctx)
-        shopEmb = discord.Embed(title = args[0] +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRandomMsg[random.randint(0,len(shopRandomMsg)-1)]}*\n<:empty:866459463568850954>")
+        try:
+            msg = await loadingEmbed(ctx)
+        except:
+            msg = await loadingSlashEmbed(ctx)
+        shopEmb = discord.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRandomMsg[random.randint(0,len(shopRandomMsg)-1)]}*\n<:empty:866459463568850954>")
+
+        # Loading the user's team
+        if user.team != 0:
+            team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
+            teamMember = []
+            for a in team:
+                teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
+
 
         shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
         for a in shopping:
@@ -42,9 +60,25 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
         for a in [0,1,2,3]:
             for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
                 if b != None:
-                    shopField[a] += "\n"+b.emoji+ " "
-                    shopField[a] += f"{b.name} ({b.price} {emoji.coins})"
-            shopEmb.add_field(name=shopMsg[a],value=shopField[a]+"\n<:empty:866459463568850954>",inline=False)
+                    shopField[a] += f"\n{b.emoji} {b.name} ({b.price} {emoji.coins})"
+
+                    icon = ""
+                    if user.have(b):
+                        icon = " ("+haveIcon+")"
+                    
+                    if user.team != 0:
+                        allTeamHave = True
+                        for c in teamMember:
+                            if not(c.have(b)):
+                                allTeamHave = False
+                                break
+
+                        if allTeamHave:
+                            icon = " ("+allTeamHaveIcon+")"
+
+                    shopField[a] += icon
+
+            shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
 
         initMsg = msg
 
@@ -61,7 +95,7 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
             saveCharFile(pathUserProfile,user)
             await ctx.channel.send(embed=fullEmb)
 
-        while 1:
+        while 1: 
             options = []
             for a in shopped:
                 desc,escarpin ="",whatIsThat(a)
@@ -111,23 +145,23 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                     rep = a
                     break
 
-            msg = await respond.send(embed = discord.Embed(title=args[0],description="Recherche de l'objet dans les rayons..."))
+            msg = await respond.send(embed = discord.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
             if rep != None:
                 typ = whatIsThat(shopped[rep])
 
-                if typ == 0:
+                if typ == 0: # Is weapon
                     arm = shopped[rep]
                     repEmb = infoWeapon(arm,user,ctx)
 
                     if user.have(arm):
                         repEmb.set_footer(text = "Vous possédez déjà cette arme")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonGift])
+                        await msg.edit(embed = repEmb,components=[buttonsWithoutBuy])
                     elif user.currencies < arm.price:
                         repEmb.set_footer(text = "Vous n'avez pas suffisament de pièces")
-                        await msg.edit(embed = repEmb,components=[buttonReturn])
+                        await msg.edit(embed = repEmb,components=[onlyReturn])
                     else:
                         repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonBuy,buttonGift])
+                        await msg.edit(embed = repEmb,components=[allButtons])
 
                     rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift],check=check,timeout=60)
 
@@ -136,19 +170,14 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                             user.weaponInventory += [arm]
                             user.currencies = user.currencies - arm.price
                             saveCharFile(pathUserProfile,user)
-                            await msg.edit(embed = discord.Embed(title=args[0]+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"{guild.prefixe}inventory {arm.id}\" pour l'équiper"),components=[])
+                            await msg.edit(embed = discord.Embed(title="shop"+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"l!inventory {arm.id}\" pour l'équiper"),components=[],delete_after=5)
                         except:
-                            await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                            await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
 
                     elif rep.custom_id == "1":
-                        team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
-                        teamMember = []
-                        for a in team:
-                            teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
-
                         options = []
                         for a in teamMember:
-                            if arm not in a.weaponInventory:
+                            if arm not in a.weaponInventory and a.owner != user.owner:
                                 options += [create_select_option(a.name,a.owner,getEmojiObject(await getUserIcon(bot,a)))]
 
                         if options == [] :
@@ -156,7 +185,7 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                         else:
                             select = create_select(options,placeholder="À qui voulez vous offrir cet objet ?")
                         await msg.edit(embed= repEmb, components=[])
-                        await msg.edit(embed= repEmb, components=[buttonReturn,create_actionrow(select)])
+                        await msg.edit(embed= repEmb, components=[create_actionrow(buttonReturn),create_actionrow(select)])
 
                         respond = await wait_for_component(bot,components=[buttonReturn,select],timeout = 60)
                         try:
@@ -168,9 +197,9 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
                                         await temp.delete()
-                                        await msg.edit(embed = discord.Embed(title=args[0],color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                                        await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
-                                        await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                                        await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
                                     break
                         except:
                             await msg.delete()
@@ -178,38 +207,33 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                     elif rep.custom_id == "-1":
                         await msg.delete()
 
-                elif typ == 1:
+                elif typ == 1: # Is skill
                     arm = shopped[rep]
                     repEmb = infoSkill(shopped[rep],user,ctx)
-                    if user.have(arm):
+                    if user.have(arm): # Already have
                         repEmb.set_footer(text = "Vous possédez déjà cette compétence")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonGift])
-                    elif user.currencies < arm.price:
+                        await msg.edit(embed = repEmb,components=[buttonsWithoutBuy])
+                    elif user.currencies < arm.price: # Not enougth coins
                         repEmb.set_footer(text = "Vous n'avez pas suffisament de pièces")
-                        await msg.edit(embed = repEmb,components=[buttonReturn])
-                    else:
+                        await msg.edit(embed = repEmb,components=[onlyReturn])
+                    else: # Buy
                         repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonBuy,buttonGift])
+                        await msg.edit(embed = repEmb,components=[allButtons])
 
                     rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift],check=check,timeout=60)
 
-                    if rep.custom_id == "0":
+                    if rep.custom_id == "0": # Buyed
                         try:
                             user.skillInventory += [arm]
                             user.currencies = user.currencies - arm.price
                             saveCharFile(pathUserProfile,user)
-                            await msg.edit(embed = discord.Embed(title=args[0]+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"{guild.prefixe}inventory {arm.id}\" pour l'équiper"),components=[])
+                            await msg.edit(embed = discord.Embed(title="shop"+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"l!inventory {arm.id}\" pour l'équiper"),components=[],delete_after=5)
                         except:
-                            await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
-                    elif rep.custom_id == "1":
-                        team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
-                        teamMember = []
-                        for a in team:
-                            teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
-
+                            await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
+                    elif rep.custom_id == "1": # Gift
                         options = []
                         for a in teamMember:
-                            if arm not in a.skillInventory:
+                            if arm not in a.skillInventory and a.owner != user.owner:
                                 options += [create_select_option(a.name,a.owner,getEmojiObject(await getUserIcon(bot,a)))]
 
                         if options == [] :
@@ -217,7 +241,7 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                         else:
                             select = create_select(options,placeholder="À qui voulez vous offrir cet objet ?")
                         await msg.edit(embed= repEmb, components=[])
-                        await msg.edit(embed= repEmb, components=[buttonReturn,create_actionrow(select)])
+                        await msg.edit(embed= repEmb, components=[create_actionrow(buttonReturn),create_actionrow(select)])
 
                         respond = await wait_for_component(bot,components=[buttonReturn,select],timeout = 60)
                         try:
@@ -230,27 +254,27 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
                                         await msg.clear_reactions() 
                                         await temp.delete()
-                                        await msg.edit(embed = discord.Embed(title=args[0],color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                                        await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
-                                        await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                                        await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
                                     break
                         except:
                             await msg.delete()
                     elif rep.custom_id == "-1":
                         await msg.delete()
 
-                elif typ == 2:
+                elif typ == 2: # Is gear
                     arm = shopped[rep]
                     repEmb = infoStuff(arm,user,ctx)
                     if user.have(arm):
                         repEmb.set_footer(text = "Vous possédez déjà cet objet")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonGift])
+                        await msg.edit(embed = repEmb,components=[buttonsWithoutBuy])
                     elif user.currencies < arm.price:
                         repEmb.set_footer(text = "Vous n'avez pas suffisament de pièces")
-                        await msg.edit(embed = repEmb,components=[buttonReturn])
+                        await msg.edit(embed = repEmb,components=[onlyReturn])
                     else:
                         repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonBuy,buttonGift])
+                        await msg.edit(embed = repEmb,components=[allButtons])
 
                     rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift],check=check,timeout=60)
 
@@ -259,19 +283,14 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                             user.stuffInventory += [arm]
                             user.currencies = user.currencies - arm.price
                             saveCharFile(pathUserProfile,user)
-                            await msg.edit(embed = discord.Embed(title=args[0]+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"{guild.prefixe}inventory {arm.id}\" pour l'équiper"),components=[])
+                            await msg.edit(embed = discord.Embed(title="shop"+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"l!inventory {arm.id}\" pour l'équiper"),components=[],delete_after=5)
                         except:
-                            await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                            await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
 
                     elif rep.custom_id == "1":
-                        team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
-                        teamMember = []
-                        for a in team:
-                            teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
-
                         options = []
                         for a in teamMember:
-                            if arm not in a.stuffInventory:
+                            if arm not in a.stuffInventory and a.owner != user.owner:
                                 options += [create_select_option(a.name,a.owner,getEmojiObject(await getUserIcon(bot,a)))]
 
                         if options == [] :
@@ -279,7 +298,7 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                         else:
                             select = create_select(options,placeholder="À qui voulez vous offrir cet objet ?")
                         await msg.edit(embed= repEmb, components=[])
-                        await msg.edit(embed= repEmb, components=[buttonReturn,create_actionrow(select)])
+                        await msg.edit(embed= repEmb, components=[create_actionrow(buttonReturn),create_actionrow(select)])
 
                         respond = await wait_for_component(bot,components=[buttonReturn,select],timeout = 60)
                         try:
@@ -292,9 +311,9 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
                                         await msg.clear_reactions() 
                                         await temp.delete()
-                                        await msg.edit(embed = discord.Embed(title=args[0],color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                                        await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
-                                        await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                                        await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
                                     break
                         except:
                             await msg.delete()
@@ -302,18 +321,18 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                     elif rep.custom_id == "-1":
                         await msg.delete()
 
-                elif typ == 3:
+                elif typ == 3: # Is special object
                     arm = shopped[rep]
                     repEmb = infoOther(arm,user)
                     if user.have(arm):
                         repEmb.set_footer(text = "Vous possédez déjà cette arme")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonGift])
+                        await msg.edit(embed = repEmb,components=[buttonsWithoutBuy])
                     elif user.currencies < arm.price:
                         repEmb.set_footer(text = "Vous n'avez pas suffisament de pièces")
-                        await msg.edit(embed = repEmb,components=[buttonReturn])
+                        await msg.edit(embed = repEmb,components=[onlyReturn])
                     else:
                         repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
-                        await msg.edit(embed = repEmb,components=[buttonReturn,buttonBuy,buttonGift])
+                        await msg.edit(embed = repEmb,components=[allButtons])
 
                     rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift],check=check,timeout=60)
 
@@ -322,9 +341,9 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                             user.otherInventory += [arm]
                             user.currencies = user.currencies - arm.price
                             saveCharFile(pathUserProfile,user)
-                            await msg.edit(embed = discord.Embed(title=args[0]+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"{guild.prefixe}inventory {arm.id}\" pour l'équiper"),components=[])
+                            await msg.edit(embed = discord.Embed(title="shop"+ " - " +arm.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"l!inventory {arm.id}\" pour l'équiper"),components=[],delete_after=5)
                         except:
-                            await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                            await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
 
                     elif rep.custom_id == "1":
                         team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
@@ -334,7 +353,7 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
 
                         options = []
                         for a in teamMember:
-                            if arm not in a.otherInventory:
+                            if arm not in a.otherInventory and a.owner != user.owner:
                                 options += [create_select_option(a.name,a.owner,getEmojiObject(await getUserIcon(bot,a)))]
 
                         if options == [] :
@@ -342,7 +361,7 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                         else:
                             select = create_select(options,placeholder="À qui voulez vous offrir cet objet ?")
                         await msg.edit(embed= repEmb, components=[])
-                        await msg.edit(embed= repEmb, components=[buttonReturn,create_actionrow(select)])
+                        await msg.edit(embed= repEmb, components=[create_actionrow(buttonReturn),create_actionrow(select)])
 
                         respond = await wait_for_component(bot,components=[buttonReturn,select],timeout = 60)
                         try:
@@ -355,9 +374,9 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
                                         await msg.clear_reactions() 
                                         await temp.delete()
-                                        await msg.edit(embed = discord.Embed(title=args[0],color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                                        await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
-                                        await msg.edit(embed = errorEmbed(args[0],"Une erreur s'est produite"))
+                                        await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
                                     break
                         except:
                             await msg.delete()
@@ -366,4 +385,4 @@ async def shop2(bot : discord.Client, ctx : discord.message, guild : server, arg
                         await msg.delete()
 
     else:
-        await ctx.channel.send(embed = errorEmbed(args[0],"Vous n'avez pas commencé l'aventure"))
+        await ctx.channel.send(embed = errorEmbed("shop","Vous n'avez pas commencé l'aventure"))
