@@ -134,13 +134,22 @@ ELEMENT_LIGHT = 5
 ELEMENT_DARKNESS = 6
 
 elemEmojis = ["<:neutral:887847377917050930>","<:fire:887847475203932261>","<:water:887847459211079760>","<:air:887847440932290560>","<:earth:887847425459503114>","<:light:887847410141921362>","<:darkness:887847395067568128>"]
+elemDesc = [
+    "L'élément Neutre (<:neutral:887847377917050930>) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête",
+    "L'élément Feu (<:fire:887847475203932261>) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\nPénétration : + 5\nDégâts zones et distance simultanément : +10%",
+    "L'élément Eau (<:water:887847459211079760>) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.\n\nPrécision : + 10\nDégâts monocible et distance simultanément : +10%",
+    "L'élément Air (<:air:887847440932290560>) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.\n\nAgilité : + 10\nDégâts zones et mêlée simultanément : +10%",
+    "L'élément Terre (<:earth:887847425459503114>) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.\n\nRésistance : + 5\nDégâts monocible et mêlée simultanément : +10%",
+    "L'élément Lumière (<:light:887847410141921362>) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.\n\nSoins et armures : +10%",
+    "L'élément Ténèbre (<:darkness:887847395067568128>) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.\n\nDégâts indirects : + 10%"]
+elemNames = ["Neutre","Feu","Eau","Air","Terre","Lumière","Ténèbre"]
 
 # List of guild ids for the bots
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]
 
-stuffIconGuilds = [866782432997015613,878720670006132787]
-weaponIconGuilds = [866363139931242506,878720670006132787]
+stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434]
+weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434]
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):

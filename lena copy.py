@@ -1,8 +1,6 @@
 ###########################################################
 # Importations :
-from typing import Type
-from asyncio.locks import Condition
-import discord, random, gestion, os, emoji,neutral,asyncio,datetime,time,traceback,inspect
+import discord, random, os, emoji,neutral,asyncio,datetime,traceback 
 
 from discord.utils import _URL_REGEX
 
@@ -19,10 +17,11 @@ from commands.command_procuration import *
 from commands.command_points import *
 from commands.command_shop import *
 from commands.sussess_endler import *
+from commands.command_patchnote import *
 from data.database import *
 from commands.command_patchnote import *
 from discord.ext import commands, tasks
-from discord_slash import ButtonStyle, SlashCommand
+from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
 
 ###########################################################
@@ -371,7 +370,7 @@ async def on_message(ctx):
                     
                 else:
                     guildSettingsTemp = guild
-                    choiceSettings = ["Préfixe","Salon des patchnotes","Salon bots","Couleur automatique"]
+                    choiceSettings = ["Salon des patchnotes","Salon bots"]
                     etat = -1
                     while etat > -10:
                         if etat == -1:
@@ -393,26 +392,7 @@ async def on_message(ctx):
                                 except:
                                     1
 
-                        if etat == 0:
-                            await msg.edit(embed = discord.Embed(title = args[0]+" préfixe",color = light_blue,description = f"Le préfixe actuel du serveur est : **__{guild.prefixe}__**\nPar quoi voulez vous le remplacer ?\n\nVous pourrez toujours utiliser le préfixe par défaut (l!) pour la commande settings"))
-                            newPrefixe = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
-                            guildSettingsTemp.prefixe = newPrefixe.content
-                            if saveGuildSettings(pathGuildSettings,guildSettingsTemp):
-                                guild, guilds[guildscmpt] = guildSettingsTemp, guild
-                                await msg.edit(comfirmGuildSettingsChange)
-                            elif saveGuildSettings(pathGuildSettings,guild):
-                                await msg.edit(rejectGuildSettingsChange)
-                            else:
-                                os.remove(pathGuildSettings)
-                                await msg.edit(embed = errorEmbed(args[0],corruptNotice))
-
-                            try:
-                                await newPrefixe.delete()
-                            except:
-                                1
-                            etat = -10
-
-                        elif etat == 1:
+                        elif etat == 0:
                             if guild.patchnote == str(0):
                                 await msg.edit(embed = discord.Embed(title = args[0]+" : Salons de patchnote",color = light_blue,description = f"Aucun salon est n'actuellement défini comme Salon de patchnotes pour le serveur {ctx.guild.name}\nVeuillez mentionner le salon que vous souhaitez définir comme tel"))
                             else:
@@ -437,7 +417,7 @@ async def on_message(ctx):
                                 1
                             etat = -10
                                     
-                        elif etat == 2:
+                        elif etat == 1:
                             if guild.bot == str(0):
                                 await msg.edit(embed = discord.Embed(title = args[0]+" : Salon des bots",color = light_blue,description = f"Lorsqu'un salon Bot est configuré, Lenapy ne réagira qu'aux commandes envoyé dans ce dit salon (à l'exeption des commandes de modération.\nDe plus, tous messages automatiques liés aux rappels ou à l'Aventure seront envoyé dans ce salon.\n\nAucun salon est n'actuellement défini comme Salon des bots pour le serveur {ctx.guild.name}\nVeuillez mentionner le salon que vous souhaitez définir comme tel"))
                             else:
@@ -462,62 +442,6 @@ async def on_message(ctx):
                                 except:
                                     1
                                 etat = -10
-
-                        elif etat == 3:
-                            choiceColorRole = ["Désactiver","Activer","Retour"]
-                            await msg.edit(embed = discord.Embed(title = args[0]+" : Couleur automatique",color = light_blue,description = f"Lorsque cette option est activée, le bot attribura aux utilisateurs un role Couleur en fonction de la couleur qu'ils auront choisi dans l'Aventure\n\nLors de l'activation, de nouveaux roles seront crées. Par la suite, vous pourrez modifier leur nom ou leur couleur.\nSi il s'agit d'une seconde activation, le bot va recréer que les roles manqaunts.\n\nLors de la désactivation, le bot supprimera les rôles créés.\n\nActuellement, cette option est réglée sur __{(guild.colorRole.enable)}__{choice(choiceColorRole)}"))
-
-                            respond = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
-                            if not respond.content.isdigit():
-                                msg.edit(embed = errorEmbed(args[0],errorNotDigitMsg))
-                            else:
-                                repMsg = respond
-                                respond = int(respond.content)
-                                if respond > len(choiceSettings) and respond < 0:
-                                    await msg.edit(embed = errorEmbed(args[0],errorNotInRangeMsg))
-                                elif not(commands.bot_has_guild_permissions(manage_roles = False)):
-                                    await msg.edit(embed= errorEmbed(args[0],"Je n'ai pas la permission de gérer les rôles"))
-                                elif respond == 1:
-                                    await msg.edit(embed = discord.Embed(title = commandArgs(ctx)[0], description = emoji.loading))
-                                    discGuild = bot.get_guild(guild.id)
-                                    tablId,cmpt = [guild.colorRole.red,guild.colorRole.orange,guild.colorRole.yellow,guild.colorRole.green,guild.colorRole.lightBlue,guild.colorRole.blue,guild.colorRole.purple,guild.colorRole.pink,guild.colorRole.white,guild.colorRole.black],0
-                                    for a in range(len(tablId)):
-                                        if discGuild.get_role(tablId[a]) == None:
-                                            try:
-                                                newRole = await discGuild.create_role(name = f"lenapy_{colorChoice[a]}",colour = discord.Colour(colorId[a]))
-                                                print(f"Le rôle {newRole.name} a été créé sur le serveur {discGuild.name} (Id : {newRole.id})")
-                                                tablId[a] = newRole.id
-                                                cmpt += 1
-                                            except:
-                                                print(f"Echec de création de role sur le serveur {discGuild.name}")
-                                        
-                                        guild.colorRole.enable, guild.colorRole.red, guild.colorRole.orange, guild.colorRole.yellow,guild.colorRole.green,guild.colorRole.lightBlue,guild.colorRole.blue,guild.colorRole.purple,guild.colorRole.pink = 1,tablId[0],tablId[1],tablId[2],tablId[3],tablId[4],tablId[5],tablId[6],tablId[7]
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Couleur Automatique",color = light_blue,description = f"{cmpt} nouveau(x) role(s) ont été crées"))
-                                    etat = -10
-
-                                elif respond == 0:
-                                    discGuild, cmpt = bot.get_guild(guild.id), 0
-                                    await msg.edit(embed = discord.Embed(title="Chargement",description="Suppression des roles couleurs"))
-                                    for a in discGuild.roles:
-                                        for b in [guild.colorRole.red, guild.colorRole.orange, guild.colorRole.yellow,guild.colorRole.green,guild.colorRole.lightBlue,guild.colorRole.blue,guild.colorRole.purple,guild.colorRole.pink,guild.colorRole.white,guild.colorRole.black]:
-                                            if a.id == b:
-                                                try:
-                                                    await a.delete()
-                                                    print(f"Le role {a.name} a été supprimé")
-                                                    cmpt += 1
-                                                except:
-                                                    print(f"Le role {a.name} n'a pas pu être supprimé.")
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Couleur Automatique", color = light_blue, description = f"{cmpt} roles ont été supprimés"))
-                                    guild.colorRole.enable = 0
-                                    etat = -10
-
-                                elif respond == 2:
-                                    etat = -1
-
-                                try:
-                                    await repMsg.delete()
-                                except:
-                                    1
                 
                 saveGuildSettings(pathGuildSettings,guild)
 
@@ -1350,7 +1274,7 @@ async def on_message(ctx):
                             babie = server(int(ballerine.id),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
                             if babie.patchnote != 0:
                                 chan = await bot.fetch_channel(babie.patchnote)
-                                await chan.send(get_patchnote())
+                                await chan.send(send_patchnote())
                             elif babie.bot != 0:
                                 chan = await bot.fetch_channel(babie.bot)
                                 await chan.send(embed=discord.Embed(title="/patchnote",color=light_blue,description="Un nouveau patchnote est disponible, vous pouvez le voir à l'aide de /patchnote\n\n*Note : Les nouvelles commandes slash peuvent mettre jusqu'à 1 heure pour apparaitre sur vos serveur*"))
@@ -1412,11 +1336,15 @@ async def comEncyclopedia(ctx,destination):
     await encylopedia(bot,ctx,destination,user)
 
 # fight
-@slash.slash(name="fight",description="Vous permet de faire un combat normal")
-async def comFight(ctx):
+@slash.slash(name="fight",description="Vous permet de lancer un combat")
+async def normal(ctx):
     try:
         pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+        valid = True
     except:
+        pass
+    
+    if valid:
         if not existFile(pathGuildSettings):
             tempGuild = server(ctx.guild.id)
             saveGuildSettings(pathGuildSettings, tempGuild)
@@ -1425,11 +1353,10 @@ async def comFight(ctx):
         
         guild = None
 
-    for a in guilds:
-        if type(a) != int:
-            if ctx.guild.id == a.id:
-                guild = a
-                break
+        for a in guilds:
+            if type(a) != int:
+                if ctx.guild.id == a.id:
+                    guild = a
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     user = loadCharFile(pathUserProfile,ctx)
@@ -1457,7 +1384,7 @@ async def comFight(ctx):
         await fight(bot,team1,[],ctx,guild,False,slash=True)
 
     elif teamWinDB.isFightingBool(ballerine):
-        msg = await ctx.send(embed = errorEmbed(args[0],"Vous êtes déjà en train de vous battre"))
+        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"))
         await asyncio.sleep(10)
         await msg.delete()
     else:
@@ -1470,7 +1397,11 @@ async def comFight(ctx):
 async def comQuickFight(ctx):
     try:
         pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+        valid = True
     except:
+        pass
+    
+    if valid:
         if not existFile(pathGuildSettings):
             tempGuild = server(ctx.guild.id)
             saveGuildSettings(pathGuildSettings, tempGuild)
@@ -1479,11 +1410,11 @@ async def comQuickFight(ctx):
         
         guild = None
 
-    for a in guilds:
-        if type(a) != int:
-            if ctx.guild.id == a.id:
-                guild = a
-                break
+        for a in guilds:
+            if type(a) != int:
+                if ctx.guild.id == a.id:
+                    guild = a
+
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     user = loadCharFile(pathUserProfile,ctx)
     ballerine,trouv,temp = 0,False,0
@@ -1509,7 +1440,7 @@ async def comQuickFight(ctx):
         await fight(bot,team1,[],ctx,guild,slash=True)
 
     elif teamWinDB.isFightingBool(ballerine):
-        msg = await ctx.send(embed = errorEmbed(args[0],"Vous êtes déjà en train de vous battre"))
+        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"))
         await asyncio.sleep(10)
         await msg.delete()
     else:
@@ -1554,6 +1485,20 @@ async def roll(ctx,min=1,max=100):
 @slash.slash(name="shop",description="Vous permet d'entrer dans le magasin")
 async def shopSlash(ctx):
     await shop2(bot,ctx,shopping.shopping)
+
+# Inventory
+@slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",guild_ids=[615257372218097691],options=[
+    create_option("destination","Dans quel inventaire voulez-vous aller ?",4,required=True,choices=[
+        create_choice(0,"Armes"),
+        create_choice(1,"Compétences"),
+        create_choice(2,"Equipements"),
+        create_choice(3,"Objets spéciaux"),
+        create_choice(4,"Elements")
+    ]),
+    create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False)
+])
+async def invent(ctx,destination,procuration=[]):
+    await inventory(bot,ctx,["/inventory",None],[destination,procuration])
 
 ###########################################################
 # Démarrage du bot

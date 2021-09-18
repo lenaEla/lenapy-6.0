@@ -229,7 +229,7 @@ def loadCharFile(path,ctx="useless"):
     while cmpt < len(file[4]):
         temp += [findWeapon(file[4][cmpt])]
         cmpt += 1
-    rep.weaponInventory = temp
+    rep.weaponInventory = sorted(temp,key=lambda weapon : weapon.name)
 
     try:
         cmpt,temp = 0,[]
@@ -252,7 +252,7 @@ def loadCharFile(path,ctx="useless"):
                 file[6][cmpt] = file[6][cmpt][-2:]
             temp += [findSkill(file[6][cmpt])]
             cmpt += 1
-        rep.skillInventory = temp
+        rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
     except:
         rep.skillInventory = []
 
@@ -274,7 +274,7 @@ def loadCharFile(path,ctx="useless"):
                 file[8][cmpt] = file[8][cmpt][-2:]
             temp += [findStuff(file[8][cmpt])]
             cmpt += 1
-        rep.stuffInventory = temp
+        rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
     except:
         rep.stuffInventory = [bbandeau,bshirt,bshoes]
 
@@ -402,4 +402,4 @@ def convertStrtoHex(string : str):
         return None
 
 async def loadingSlashEmbed(ctx):
-    return await ctx.channel.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
+    return await ctx.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))

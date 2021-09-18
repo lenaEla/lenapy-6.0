@@ -28,11 +28,18 @@ async def send_patchnote(ctx):
     toSend = ""
     view = patchView.readlines()
     patchView.close()
+    msg = 0
     for a in view:
         if len(toSend+a) <= 2000: 
             toSend += a
         else: # If the message is to long, send it
-            await ctx.channel.send(toSend)
+            if msg == 0:
+                msg = await ctx.send(toSend)
+            else:
+                await msg.channel.send(toSend)
             toSend = a
 
-    await ctx.channel.send(toSend)
+    if msg == 0:
+        msg = await ctx.send(toSend)
+    else:
+        await msg.channel.send(toSend)

@@ -64,7 +64,7 @@ class option:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0, repetition=1,emoji = emoji.loading,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0, repetition=1,emoji = emoji.loading,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None):
         """rtfm"""
         self.name = name
         self.id = id
@@ -95,6 +95,7 @@ class weapon:
             damageOnArmor = 1.33
         self.onArmor = damageOnArmor
 
+        self.affinity = affinity
         orientation += [None]
         if len(orientation) < 2:
             if orientation[0] == None:
@@ -220,7 +221,7 @@ class skill:
      
 class stuff:
     """The main and only class for all the gears"""
-    def __init__(self,name,id,type,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0,emoji = emoji.loading,effect=None,orientation = [],position=0):
+    def __init__(self,name,id,type,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0,emoji = emoji.loading,effect=None,orientation = [],position=0,affinity = None):
         """rdtm"""
         self.name = name
         self.id = id
@@ -238,6 +239,7 @@ class stuff:
         self.emoji = emoji
         self.effect = effect
         self.position = position
+        self.affinity = affinity
 
         orientation += [None]
         if len(orientation) < 2:
@@ -362,6 +364,7 @@ class invoc:
         self.skills = skills
         self.icon = icon
         self.customColor = False
+        self.element = ELEMENT_NEUTRAL
 
     def allStats(self):
         """Return a list """
