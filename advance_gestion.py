@@ -403,7 +403,12 @@ def infoWeapon(weapon,user,ctx):
     armorBreak = ""
     if weap.onArmor != 1:
         armorBreak = f"\nDégâts sur armure : {int(weap.onArmor*100)}%"
-    repEmb.add_field(name = "__Informations Principales :__",value = f"Catégorie : {portee}\nPortée : {weap.effectiveRange}\nPuissance : {weap.power}\nPrécision par défaut : {weap.sussess}%\nNombre de tirs : {weap.repetition}\nCible : {cible}{target}{uncommun}{armorBreak}",inline = False)
+
+    element = ""
+    if weap.affinity != None:
+        element = f"\nAffinité : {elemEmojis[weap.affinity]} {elemNames[weap.affinity]}"
+
+    repEmb.add_field(name = "__Informations Principales :__",value = f"Catégorie : {portee}\nPortée : {weap.effectiveRange}\nPuissance : {weap.power}\nPrécision par défaut : {weap.sussess}%\nNombre de tirs : {weap.repetition}\nCible : {cible}{target}{uncommun}{armorBreak}{element}",inline = False)
 
     bonus,malus = "",""
     stats = [weap.strength,weap.endurance,weap.charisma,weap.agility,weap.precision,weap.intelligence,weap.resistance,weap.percing]
@@ -463,7 +468,11 @@ def infoStuff(stuff,user,ctx):
     else:
         temp="Chaussures"
 
-    repEmb = discord.Embed(title = weap.name,color = user.color, description = f"Icone : {weap.emoji}\nType : {temp}\nOrientation : {weap.orientation}")
+    element = ""
+    if weap.affinity != None:
+        element = f"\nAffinité : {elemEmojis[weap.affinity]} {elemNames[weap.affinity]}"
+
+    repEmb = discord.Embed(title = weap.name,color = user.color, description = f"Icone : {weap.emoji}\nType : {temp}\nOrientation : {weap.orientation}{element}")
 
     bonus,malus = "",""
     stats = [weap.strength,weap.endurance,weap.charisma,weap.agility,weap.precision,weap.intelligence,weap.resistance,weap.percing]

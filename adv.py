@@ -10,18 +10,18 @@ def uniqueEmoji(emoji):
     return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]  
 
 # Weapon
-splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,30,50,100,precision=10,strength=10,repetition=3,emoji = emoji.splatShot)
-roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,55,70,100,strength=15,endurance=5,resistance=5,agility=-5,emoji = emoji.roller,needRotate=False)
-splatcharger = weapon("Concentraceur","ad",RANGE_LONG,AREA_CIRCLE_5,50,60,100,agility=-5,precision=25,emoji = emoji.charger,damageOnArmor=1.5)
+splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,30,50,100,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_AIR)
+roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,55,70,100,strength=15,endurance=5,resistance=5,agility=-5,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_EARTH)
+splatcharger = weapon("Concentraceur","ad",RANGE_LONG,AREA_CIRCLE_5,50,60,100,agility=-5,precision=25,emoji = emoji.charger,damageOnArmor=1.5,affinity=ELEMENT_WATER)
 miniBrush = weapon("Epinceau","ae",RANGE_MELEE,AREA_CIRCLE_1,30,45,100,agility=10,charisma=10,repetition=5,emoji='<:inkBrush:866463573580578816>',needRotate=False)
 inkbrella = weapon("Para-Encre","ag",RANGE_MELEE,AREA_CIRCLE_2,30,45,price=100,endurance=10,resistance=10,precision=-10,strength=10,repetition=3,effect='lp',emoji='<:splatbrella:866464991255199834>',needRotate=False)
 blaster = weapon("Eclatblasteur","ah",RANGE_DIST,AREA_CIRCLE_3,35,50,150,agility=10,strength=10,percing=10,precision=-10,area=AREA_CIRCLE_1,emoji='<:blaster:866463931304378418>')
-jetSkelcher = weapon("Nettoyeur XL","ai",RANGE_LONG,AREA_CIRCLE_5,30,40,200,10,precision=10,repetition=4,emoji='<:squelsher:866464376319115281>')
-dualies = weapon("Double Encreur","aj",RANGE_DIST,AREA_CIRCLE_3,35,35,150,agility=20,repetition=4,emoji='<:splatDualies:866465264434806815>',needRotate=False)
+jetSkelcher = weapon("Nettoyeur XL","ai",RANGE_LONG,AREA_CIRCLE_5,30,40,200,10,precision=10,repetition=4,emoji='<:squelsher:866464376319115281>',affinity=ELEMENT_WATER)
+dualies = weapon("Double Encreur","aj",RANGE_DIST,AREA_CIRCLE_3,35,35,150,agility=20,repetition=4,emoji='<:splatDualies:866465264434806815>',needRotate=False,affinity=ELEMENT_AIR)
 kcharger = weapon("Concentraceur alt.","ak",RANGE_MELEE,AREA_CIRCLE_1,35,60,200,10,precision=10,repetition=3,emoji='<:kcharger:870870886939508737>')
-HunterRiffle = weapon("Fusil de chasseur","al",RANGE_DIST,AREA_CIRCLE_4,50,50,250,10,precision=10,effect="ls",emoji="<:hunterRifle:872034208095297597>")
+HunterRiffle = weapon("Fusil de chasseur","al",RANGE_DIST,AREA_CIRCLE_4,50,50,250,10,precision=10,effect="ls",emoji="<:hunterRifle:872034208095297597>",affinity=ELEMENT_NEUTRAL)
 firework = weapon("Arbalette avec feu d'artifice","am",RANGE_LONG,AREA_CIRCLE_4,35,50,150,10,precision=10,emoji='<:crossbow:871746122899664976>',area=AREA_CONE_2)
-plume = weapon("Plumes tranchantes","ao",RANGE_DIST,AREA_CIRCLE_4,40,50,250,precision=10,percing=10,repetition=1,emoji='<:plume:871893045296128030>',area=AREA_CONE_2,needRotate=False)
+plume = weapon("Plumes tranchantes","ao",RANGE_DIST,AREA_CIRCLE_4,40,50,250,precision=10,percing=10,repetition=1,emoji='<:plume:871893045296128030>',area=AREA_CONE_2,needRotate=False,affinity=ELEMENT_AIR)
 hourglass1Weap = weapon("Sablier intemporel I","ap",RANGE_DIST,AREA_CIRCLE_3,0,100,250,endurance=10,resistance=10,target=ALLIES,type=TYPE_INDIRECT_HEAL,effectOnUse="lx",emoji='<:hourglass1:872181735062908978>')
 clashBlaster = weapon("Rafa-Blasteur","aq",RANGE_MELEE,AREA_CIRCLE_2,35,40,250,endurance=10,agility=10,precision=-10,percing=10,emoji='<:clashBlaster:877666681869176853>',area=AREA_CIRCLE_1,repetition=4)
 dualies = weapon("Double Encreur","ar",RANGE_DIST,AREA_CIRCLE_4,35,40,150,agility=15,precision=15,resistance=-10,repetition=4,emoji='<:splatDualies:866465264434806815>')
@@ -31,17 +31,17 @@ squiffer = weapon("Décap' Express","au",RANGE_DIST,AREA_CIRCLE_4,45,60,300,10,a
 dualJetSkelcher = weapon("Nettoyeur Duo","av",RANGE_LONG,AREA_CIRCLE_5,30,50,200,10,intelligence=10,agility=-10,precision=10,repetition=4,emoji='<:DualSkelcher:877666662801883237>',damageOnArmor=1.33)
 butterfly = weapon("Papillon Blanc","aw",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyB:883627125561786428>',target=ALLIES,type=TYPE_HEAL,needRotate=False)
 mic = weapon("Micro mignon","ax",RANGE_LONG,AREA_CIRCLE_3,25,55,300,-10,charisma=30,emoji='<:pinkMic:878723391450927195>',needRotate=False,use=CHARISMA)
-spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,45,75,200,-10,-10,15,intelligence=20,percing=5,emoji='<:spellBook:878723144326725744>',needRotate=False,use=INTELLIGENCE,area=AREA_CIRCLE_1)
-legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,60,70,300,10,10,resistance=10,intelligence=-10,emoji='<:masterSword:880008948445478962>')
+spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,45,75,200,-10,-10,15,intelligence=20,percing=5,emoji='<:spellBook:878723144326725744>',needRotate=False,use=INTELLIGENCE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE)
+legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,60,70,300,10,10,resistance=10,intelligence=-10,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT)
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,60,90,300,20,10,-10,intelligence=-10,resistance=10,emoji='<:LameDimensionnelle:881595204484890705>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False)
 butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,0,100,250,strength=-10,intelligence=30,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_INDIRECT_DAMAGE)
-dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,70,70,500,25,endurance=10,charisma=-10,intelligence=-10,resistance=10,emoji='<:dtSword:884802145239588884>')
+dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,70,70,500,25,endurance=10,charisma=-10,intelligence=-10,resistance=10,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL)
 magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,35,70,200,endurance=10,charisma=20,resistance=10,precision=-10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
-lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,40,50,250,-20,20,0,0,-10,20,10,emoji="<:lunarBonk:887347614448746516>",use=INTELLIGENCE)
+lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,40,50,250,-20,20,0,0,-10,20,10,emoji="<:lunarBonk:887347614448746516>",use=INTELLIGENCE,affinity=ELEMENT_LIGHT)
 rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,45,60,0,intelligence=30,precision=20,strength=-15,endurance=-15,percing=5,resistance=-5,use=INTELLIGENCE,emoji='<:bloodyRap:887328737614524496>')
-fauc = weapon("Faux Tourmentée","bh",RANGE_MELEE,AREA_CIRCLE_2,55,60,0,40,10,percing=10,agility=-20,charisma=-20,emoji='<a:akifauxgif:887335929650507776>')
-serringue = weapon("Serringue","bi",RANGE_DIST,AREA_CIRCLE_3,35,100,350,0,0,20,0,0,10,10,-20,emoji='<:seringue:887402558665142343>',target=ALLIES,type=TYPE_HEAL,use=CHARISMA)
+fauc = weapon("Faux Tourmentée","bh",RANGE_MELEE,AREA_CIRCLE_2,55,60,0,40,10,percing=10,agility=-20,charisma=-20,emoji='<a:akifauxgif:887335929650507776>',affinity=ELEMENT_DARKNESS)
+serringue = weapon("Serringue","bi",RANGE_DIST,AREA_CIRCLE_3,35,100,350,0,0,20,0,0,10,10,-20,emoji='<:seringue:887402558665142343>',target=ALLIES,type=TYPE_HEAL,use=CHARISMA,affinity=ELEMENT_LIGHT)
 
 weapons = [serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework]
 
@@ -91,8 +91,9 @@ lapSkill = skill("Invocation - Lapino","yr",TYPE_INVOC,0,invocation="Lapino",coo
 adrenaline = skill("Adrénaline","yq",TYPE_HEAL,250,60,cooldown=5,emoji='<:adrenaline:887403480933863475>',use=INTELLIGENCE)
 blindage = skill("Blindage","yp",TYPE_BOOST,350,0,AREA_MONO,effect="mj",cooldown=3,use=None,emoji="<:defSupp:885899082453880934>")
 fermete = skill("Second Souffle","yo",TYPE_HEAL,350,60,AREA_MONO,emoji='<:defHeal:885899034563313684>',cooldown=5,use=ENDURANCE)
+isolement = skill("Isolement","yn",TYPE_ARMOR,500,70,AREA_MONO,emoji='<:selfProtect:887743151027126302>',cooldown=5,effect="ml")
 
-skills = [fermete,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion,splatbomb,healAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe]
+skills = [isolement,fermete,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion,splatbomb,healAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe]
 
 def addAllInSkillData():
     for a in skills:
@@ -124,24 +125,21 @@ lapino = invoc("Lapino",[PURCENTAGE,0.5],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTA
 invocTabl = [lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc]
 
 # Stuff
-uniform = stuff("Uniforme Scolaire","hd",1,100,intelligence=10,charisma=10,emoji='<:uniform:866830066008981534>',orientation=[None,BOOSTER])
+uniform = stuff("Uniforme Scolaire","hd",1,100,intelligence=10,charisma=10,emoji='<:uniform:866830066008981534>',orientation=[None,BOOSTER],affinity=ELEMENT_WATER)
 blueSnekers = stuff("Tennis Montantes Bleues","he",2,100,agility=10,endurance=5,charisma=5,emoji='<:blueHotTop:866795241721954314>')
 redSnekers = stuff("Tennis Montantes Rouge","hg",2,100,strength=10,endurance=5,resistance=5,emoji='<:redHopTop:866782609464098887>')
 encrifuge = stuff("Tenue Encrifugée","hh",1,350,endurance=5,resistance=5,effect="ld",emoji='<:encrifuge:871878276061212762>',orientation=[TANK])
 pinkFlat = stuff("Ballerines roses","hi",2,150,charisma=20,emoji='<:pinkFlat:867158156139692042>',orientation=[DISTANCE,HEALER])
 blackFlat = stuff("Ballerines noires","hj",2,150,strength=5,endurance=5,charisma=10,resistance=10,agility=-10,emoji="<:blackflat:867175685768347688>",orientation=[TANK,HEALER])
-batEarRings = stuff("Clous d'oreilles chauve-souris","hk",0,150,charisma=10,percing=10,emoji="<:batearrings:867159399395098634>",orientation=[DISTANCE,DPT],position=1)
+batEarRings = stuff("Clous d'oreilles chauve-souris","hk",0,150,charisma=10,percing=10,emoji="<:batearrings:867159399395098634>",orientation=[DISTANCE,DPT],position=1,affinity=ELEMENT_NEUTRAL)
 ironHelmet = stuff("Casque en fer","hl",0,200,endurance=10,resistance=10,emoji="<:helmet:867158650488225792>",orientation=[TANK])
-determination = stuff("Détermination","hm",0,1500,-5,-5,-5,-5,-5,-5,effect="lg",emoji='<:determination:867894180851482644>',position=2)
+determination = stuff("Détermination","hm",0,1500,-5,-5,-5,-5,-5,-5,effect="lg",emoji='<:determination:867894180851482644>',position=2,affinity=ELEMENT_NEUTRAL)
 pinkDress = stuff("Robe rose","ho",1,200,charisma=15,agility=10,strength=-5,emoji='<:pinkDress:867533070940766228>',orientation=[DISTANCE,HEALER])
 oldBooks = stuff("Vieux livres","hp",0,200,intelligence=25,agility=-15,strength=10,emoji='<:oldbooks:867533718485598208>',orientation=[DISTANCE,BOOSTER])
-jeanJacket = stuff("Veste en jean","hq",1,150,5,5,5,5,emoji='<:jeanjacket:867813124697620510>')
-blackJeanJacket = stuff("Veste en jean noire","hr",1,150,10,10,-5,intelligence=-5,percing=10,emoji='<:blackjacket:867542491666579467>',orientation=[None,DPT])
+jeanJacket = stuff("Veste en jean","hq",1,150,5,5,5,5,emoji='<:jeanjacket:867813124697620510>',affinity=ELEMENT_NEUTRAL)
+blackJeanJacket = stuff("Veste en jean noire","hr",1,150,10,10,-5,intelligence=-5,percing=10,emoji='<:blackjacket:867542491666579467>',orientation=[None,DPT],affinity=ELEMENT_EARTH)
 whiteSneakers = stuff("Baskets Blanches","hs",2,100,agility=10,intelligence=10,emoji='<:whiteSneakers:867543508496023592>',orientation=[None,BOOSTER])
-octoEmpty1 = stuff("placeolder","ht",0,0)
-octoEmpty2 = stuff("placeolder","hu",0,0)
-octoEmpty3 = stuff("placeolder","hv",0,0)
-amethystEarRings = stuff("Boucles d'oreilles en améthyste","hw",0,200,10,charisma=10,precision=10,percing=10,resistance=-10,critical=-10,emoji='<:amethystEarRings:870391874081419345>',position=1)
+amethystEarRings = stuff("Boucles d'oreilles en améthyste","hw",0,200,10,charisma=10,precision=10,percing=10,resistance=-10,critical=-10,emoji='<:amethystEarRings:870391874081419345>',position=1,affinity=ELEMENT_DARKNESS)
 anakiMask = stuff("Masque Annaki","hx",0,150,endurance=10,charisma=5,precision=10,resistance=-5,emoji='<:anakiMask:870806374009954345>',position=2)
 whiteBoots = stuff("Bottines Blanches","hy",2,200,endurance=10,agility=10,resistance=5,strength=-5,emoji='<:bottinesPunkBlanche:870807353044393994>',orientation=[TANK])
 mustangBoots = stuff("Bottines à lacets","hz",2,150,strength=5,agility=5,charisma=5,precision=5,emoji='<:mustangboots:870808390081851423>')
@@ -152,25 +150,25 @@ woodenSandals = stuff("Sandales en bois","ie",2,200,10,agility=10,resistance=5,e
 schoolShoes = stuff("Mocassins Scolaires","if",2,100,charisma=5,intelligence=10,resistance=5,emoji='<:schoolShoe:871880746426593331>',orientation=[None,BOOSTER])
 blackSnelers = stuff("Tennis Montantes Noires","ig",2,100,5,endurance=5,resistance=10,emoji='<:BlackHotTop:871880746422394970>',orientation=[TANK,DPT])
 heartLocket = stuff("Heart Locket","ih",0,300,resistance=20,emoji='<:heartLocket:871886518753570836>',orientation=[TANK],position=2)
-catEars = stuff("Oreilles de chat","ii",0,150,charisma=10,agility=10,emoji='<:catEars:871886070025957388>',orientation=[None,HEALER])
+catEars = stuff("Oreilles de chat","ii",0,150,charisma=10,agility=10,emoji='<:catEars:871886070025957388>',orientation=[None,HEALER],affinity=ELEMENT_AIR)
 batPendant = stuff("Pendantif Chauve-Souris","ij",0,200,5,5,intelligence=10,emoji='<:batPendant:871887272469995560>',position=2)
 bikini = stuff("Tenue Provocante","ik",1,69,endurance=-15,charisma=40,resistance=-10,percing=5,emoji='<:tenueProvoquante:871889591127388201>',orientation=[LONG_DIST,HEALER])
 headSG = stuff("Chapeau Squid Girl","il",0,200,strength=5,agility=10,precision=10,endurance=-5,emoji='<:headSG:874266872340680785>',orientation=[DISTANCE,DPT])
 bodySG = stuff("Tunique Squid Girl","im",1,200,10,resistance=10,emoji="<:tuniqueSG:874266874299437126>",orientation=[DISTANCE,DPT])
 shoeSG = stuff("Chaussures Squid Girl","in",2,200,agility=15,critical=5,emoji="<:shoeSG:874266873099857930>",orientation=[DISTANCE,DPT])
-flum = stuff("Fleur lumineuse","io",0,150,charisma=10,effect="lz",emoji='<:flum:876079513954557952>',orientation=[None,HEALER],position=3)
+flum = stuff("Fleur lumineuse","io",0,150,charisma=10,effect="lz",emoji='<:flum:876079513954557952>',orientation=[None,HEALER],position=3,affinity=ELEMENT_LIGHT)
 pinkShirt = stuff("Veste et jupe rose","ip",1,300,-20,charisma=25,agility=10,critical=5,emoji='<:VesteEtJupeRose:877658944045219871>',orientation=[None,HEALER])
 redDress = stuff("Robe rouge et noire","iq",1,300,20,endurance=-10,percing=5,critical=5,emoji='<:gothicRednBlackDress:877665554033414217>',orientation=[DISTANCE,DPT])
 pataarmor = stuff("Armure patapoulpe","ir",1,300,-10,20,-5,resistance=15,emoji='<:octoArmor:876783724237303829>',orientation=[TANK])
 barrette = stuff("Barette Seiche","is",0,100,charisma=10,precision=10,emoji='<:squidBar:878718467434491934>')
-squidEarRings = stuff("Boucles d'oreilles Seiche","it",0,150,charisma=15,intelligence=10,precision=-5,emoji='<:squidEarRings:878718445171126313>',orientation=[None,BOOSTER],position=1)
+squidEarRings = stuff("Boucles d'oreilles Seiche","it",0,150,charisma=15,intelligence=10,precision=-5,emoji='<:squidEarRings:878718445171126313>',orientation=[None,BOOSTER],position=1,affinity=ELEMENT_NEUTRAL)
 maidDress = stuff("Robe de soubrette","iu",1,300,-10,15,10,agility=-10,resistance=15,emoji='<:maidDress:878716791789080637>',orientation=[TANK,HEALER])
 maidHeels = stuff("Escarpins de soubrette","iv",2,300,charisma=20,endurance=10,agility=-20,resistance=10,emoji='<:maidHeels:878716728346050600>',orientation=[TANK,HEALER])
 maidHat = stuff("Coiffe de soubrette","iw",0,200,charisma=15,endurance=10,resistance=10,strength=-10,precision=-5,emoji='<:maidHat:878716744305356812>',orientation=[TANK,HEALER])
 pinkRuban = stuff("Ruban Rose","ix",0,100,charisma=20,emoji='<:pinkRuban:878718698469335060>',orientation=[DISTANCE,HEALER],position=3)
 pinkSneakers = stuff("Tennis Montantes Roses","iy",2,300,charisma=20,agility=10,intelligence=10,endurance=-10,precision=-10,emoji='<:PinkHotTop:877664496737472602>',orientation=[DISTANCE,HEALER])
 abobination = stuff("Claquettes chaussettes","iz",2,1,1,1,-100,1,1,1,1,1,1,'<:claquetteChaussette:871880745998770258>')
-legendaryTunic = stuff("Tunique de Légende","ja",1,300,15,10,resistance=10,precision=-10,agility=-5,emoji='<:LegendaryTunic:880008983618912277>',orientation=[TANK,DPT])
+legendaryTunic = stuff("Tunique de Légende","ja",1,300,15,10,resistance=10,precision=-10,agility=-5,emoji='<:LegendaryTunic:880008983618912277>',orientation=[TANK,DPT],affinity=ELEMENT_LIGHT)
 legendaryBoots = stuff("Bottes de Légende","jb",2,300,endurance=10,resistance=10,strength=5,agility=-5,emoji='<:LegendaryBoots:880008962852917313>',orientation=[TANK,DPT])
 purpleBasket = stuff("Baskets Violettes","jc",2,50,10,10,emoji='<:BasketViolette:871880746535620618>',orientation=[TANK,DPT])
 camoHat = stuff("Casquette Camouflage","jd",0,50,15,precision=25,resistance=-10,emoji='<:camohat:878721916570058754>',orientation=[LONG_DIST,DPT])
@@ -194,12 +192,24 @@ blingbling = stuff("Lunettes 18 karas","ju",0,100,5,5,5,5,-5,-5,5,5,emoji='<:lun
 legendaryHat = stuff("Exelo","jw",0,300,endurance=10,resistance=5,strength=10,agility=-5,emoji='<:excelot:882727033782812702>',orientation=[TANK,DPT])
 robeDrac = stuff("Robe draconique","jv",1,250,strength=-30,endurance=15,intelligence=10,resistance=15,emoji='<:robedraco:878572815807287297>',orientation=[TANK,DPT])
 robeLoliBlue = stuff("Robe Lolita Bleue","jx",1,300,-10,-10,10,0,0,20,-10,emoji="<:blueLolita:884212751881363467>",orientation=[DISTANCE,MAGIC])
-old = stuff("Vieux porte-clefs","jy",0,200,intelligence=25,agility=-15,strength=10,emoji='<:old:885086171754012702>')
+old = stuff("Vieux porte-clefs","jy",0,200,intelligence=25,agility=-15,strength=10,emoji='<:old:885086171754012702>',affinity=ELEMENT_WATER)
 batRuban = stuff("Noeud Chauve-Souris","jz",0,0,charisma=40,intelligence=20,strength=-20,resistance=-10,percing=-10,orientation=[LONG_DIST,HEALER],emoji='<:batRuban:887328511222763593>',position=3)
-FIACNf = stuff("Robe du FIACN","ka",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNF:887328531774836736>')
-FIACNh = stuff("Gilet du FIACN","kb",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNH:887328549437059172>')
+FIACNf = stuff("Robe du FIACN","ka",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNF:887328531774836736>',orientation=[TANK,DPT])
+FIACNh = stuff("Gilet du FIACN","kb",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNH:887328549437059172>',orientation=[TANK,DPT])
+heleneDress = stuff("Robe bleu d'Hélène","kc",1,0,charisma=25,intelligence=20,strength=-10,endurance=-10,emoji='<:heleneDress:888745359365525535>',effect='mk',affinity=ELEMENT_LIGHT,orientation=[DISTANCE,HEALER])
+heleneShoe = stuff("Babies Bleus d'Hélène","kd",2,0,strength=-10,charisma=25,intelligence=5,emoji='<:blueBabie:887857026477207592>',orientation=[DISTANCE,HEALER])
+corset = stuff("Corset d'Ordin","ke",1,500,10,5,0,0,25,-10,emoji="<:corsetordin:887757308157886465>",orientation=[DISTANCE,None])
+ggshield = stuff("Bouclier GG","kf",0,500,endurance=20,resistance=15,agility=-15,emoji='<:emoji_8:887757446658023496>',orientation=[TANK,None])
+fecaShield = stuff("Bouclier Feca","kg",0,1000,-20,15,resistance=25,emoji='<:fecashield:887757399736348722>',affinity=ELEMENT_EARTH,orientation=[TANK,None])
+kanisand = stuff("Sandales Kannivore","kh",2,250,agility=20,emoji="<:sandaleskannivores:887755801161240577>",affinity=ELEMENT_AIR)
+tsarine = stuff("Starine","ki",0,500,resistance=15,intelligence=10,endurance=10,precision=-15,emoji='<:tsarine:887755891913396245>',orientation=[TANK,None])
+dracBoot = stuff("Bottes Draconiques","kj",2,500,-10,20,resistance=10,intelligence=10,agility=-10,emoji='<:bottesdraco:885080377234968608>',orientation=[TANK,None])
 
-stuffs = [FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots]
+stuffs = [dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots]
+
+octoEmpty1 = stuff("placeolder","ht",0,0)
+octoEmpty2 = stuff("placeolder","hu",0,0)
+octoEmpty3 = stuff("placeolder","hv",0,0)
 
 def addAllInStuffData():
     for a in stuffs:
@@ -250,8 +260,10 @@ octoboum = effect("Explosion à venir !!","mg",emoji=uniqueEmoji(explosion.emoji
 think = effect("REFLECHIS !","mh",CHARISMA,intelligence=10)
 iThink = effect("Philosophé","mi",intelligence=15,turnInit=3)
 blinde = effect("Blindé","mj",resistance=20,description="Réduit les degâts subis de 20% jusqu'à votre prochain tour")
+const = effect("Constitution","mk",emoji=uniqueEmoji('<:constitution:888746214999339068>'),description="Augmente de 30 les PV max de base de toute votre équipe",turnInit = -1)
+isoled = effect("Isolé","ml",emoji=uniqueEmoji('<:selfProtect:887743151027126302>'),description="S'isoler mentalement pôur ne pas faire attention au dégâts",overhealth=70)
 
-effects = [blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAura,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE]
+effects = [isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAura,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE]
 hourglassEffects = [hourglass1]
 
 #Other
@@ -259,9 +271,10 @@ changeAspi = other("Changement d'aspiration","qa",description="Vous permet de ch
 changeAppa = other("Changement d'apparence","qb",description="Vous permet de changeer votre genre, couleur et espèce",emoji='<:changeAppa:872174182773977108>',price=500)
 changeName = other("Changement de nom","qc",description="Vous permet de changer le nom de votre personnage",emoji='<:changeName:872174155485810718>',price=500)
 restat = other("Rénitialisation des points bonus","qd",description="Vous permet de redistribuer vos points bonus",emoji='<:restats:872174136913461348>',price=500)
+elementalCristal = other("Cristal élémentaire","qe",500,description="Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory élément",emoji="<:krisTal:888070310472073257>")
 customColor = other("Couleur personnalisée","qf",500,description="Vous permet de rentrer une couleur personnalisée pour votre personnage")
 
-others = [customColor,changeAspi,changeAppa,changeName,restat]
+others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat]
 
 tablAllOcta,tablAllAllies = [],[]
 
@@ -297,12 +310,13 @@ class octarien:
         self.gender = gender
         self.description = description
         self.url = url
+        self.element = ELEMENT_NEUTRAL
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
 
 class  tmpAllie:
-    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skills=[],description="Pas de description",url=None):
+    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skills=[],description="Pas de description",url=None,element=ELEMENT_NEUTRAL):
         self.name = name
         self.species = species
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence = 0,0,0,0,0,0
@@ -320,6 +334,7 @@ class  tmpAllie:
         self.icon = emoji.icon[species][getColorId(self)]
         self.description=description
         self.url = url
+        self.element = element
 
     def changeLevel(self,level=1):
         self.level = level
@@ -355,15 +370,15 @@ for a in [0,1,2]:
 for a in [0,1]:
     tablAllOcta += [octarien("Octarien Volant",30,0,0,50,30,0,10,0,0,octoFly,4,'<:octovolant:880151493171363861>')]
 
-tablAllAllies += [tmpAllie("Lena",1,light_blue,OBSERVATEUR,splatcharger,[amethystEarRings,uniform,redSnekers],GENDER_FEMALE,[splatbomb,invocCarbE,multiMissiles],"Une inkling qui en a vu des vertes et des pas murs.\nPréfère rester loin de la mêlée et abattre ses ennemis à bonne distance","https://cdn.discordapp.com/emojis/866459302319226910.png")]
-tablAllAllies += [tmpAllie("Gwendoline",2,yellow,BERSERK,roller,[ironHelmet,FIACNf,blackFlat],GENDER_FEMALE,[courage,balayette],"Bien qu'elle essaye de l'éviter, cette jeune femme se retrouve toujours à devoir en venir aux mains pour se débarraser des gros lourds de la première ligne ennemie.\nIl est vrai aussi qu'elle n'est pas toute seule dans sa tête","https://cdn.discordapp.com/emojis/866459052132532275.png")]
-tablAllAllies += [tmpAllie("Clémence",2,red,AVENTURIER,rapiere,[batEarRings,redDress,redSnekers],GENDER_FEMALE,[bpotion,explosion,invocCarbT,poisonus],"Une vampire qui a décidé de léguer sa jeunesse éternelle à l'étude des runes et la magie","https://cdn.discordapp.com/emojis/866459004439756810.png")]
-tablAllAllies += [tmpAllie("Alice",1,pink,IDOLE,mic,[batRuban,pinkShirt,pinkSneakers],GENDER_FEMALE,[burst,courage,theSkill,healAura,cure],"Une petite fille vampirique qui veut toujours avoir l'attention sur elle. Faisant preuve d'une grande volontée, il faudrait mieux ne pas trop rester dans le coin si elle décide que vous lui faites de l'ombre","https://cdn.discordapp.com/emojis/866459344173137930.png?")]
-tablAllAllies += [tmpAllie("Shushi",1,blue,TETE_BRULE,inkbrella,[patacasque,pataarmor,patabottes],GENDER_FEMALE,[coffeeSkill,inkarmor,balayette,protect,burst],"Jeune inkling pas très douée pour le combat, à la place elle essaye de gagner du temps pour permettre à ses alliés d'éliminer l'équipe adverse","https://cdn.discordapp.com/emojis/866459319049650206.png")]
-tablAllAllies += [tmpAllie("Lohica",1,purple,ERUDIT,butterflyP,[oldBooks,uniform,schoolShoes],GENDER_FEMALE,[contrecoup,bpotion,explosion,poisonus,boom],"Une fée à l'histoire bien mouvementée. Spécialisée dans les poisons","https://cdn.discordapp.com/emojis/866459331254550558.png?v=1")]
-tablAllAllies += [tmpAllie("Hélène",2,white,ALTRUISTE,serringue,[barrette,robeLoliBlue,blueFlat],GENDER_FEMALE,[cure,lapSkill,trans],"Une fée qui estime qu'essayer de sauver la vie de ses alliés est plus efficace que si elle esseyait de terminer le combat elle-même","https://cdn.discordapp.com/emojis/871149576965455933.png?v=1")]
+tablAllAllies += [tmpAllie("Lena",1,light_blue,OBSERVATEUR,splatcharger,[amethystEarRings,uniform,redSnekers],GENDER_FEMALE,[splatbomb,invocCarbE,multiMissiles],"Une inkling qui en a vu des vertes et des pas murs.\nPréfère rester loin de la mêlée et abattre ses ennemis à bonne distance","https://cdn.discordapp.com/emojis/866459302319226910.png",ELEMENT_WATER)]
+tablAllAllies += [tmpAllie("Gwendoline",2,yellow,BERSERK,roller,[ironHelmet,FIACNf,blackFlat],GENDER_FEMALE,[courage,balayette],"Bien qu'elle essaye de l'éviter, cette jeune femme se retrouve toujours à devoir en venir aux mains pour se débarraser des gros lourds de la première ligne ennemie.\nIl est vrai aussi qu'elle n'est pas toute seule dans sa tête","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_EARTH)]
+tablAllAllies += [tmpAllie("Clémence",2,red,AVENTURIER,rapiere,[batEarRings,redDress,redSnekers],GENDER_FEMALE,[bpotion,explosion,invocCarbT,poisonus],"Une vampire qui a décidé de léguer sa jeunesse éternelle à l'étude des runes et la magie","https://cdn.discordapp.com/emojis/866459004439756810.png",ELEMENT_FIRE)]
+tablAllAllies += [tmpAllie("Alice",1,pink,IDOLE,mic,[batRuban,pinkShirt,pinkSneakers],GENDER_FEMALE,[burst,courage,theSkill,healAura,cure],"Une petite fille vampirique qui veut toujours avoir l'attention sur elle. Faisant preuve d'une grande volontée, il faudrait mieux ne pas trop rester dans le coin si elle décide que vous lui faites de l'ombre","https://cdn.discordapp.com/emojis/866459344173137930.png?",ELEMENT_LIGHT)]
+tablAllAllies += [tmpAllie("Shushi",1,blue,TETE_BRULE,inkbrella,[patacasque,pataarmor,patabottes],GENDER_FEMALE,[coffeeSkill,inkarmor,balayette,protect,burst],"Jeune inkling pas très douée pour le combat, à la place elle essaye de gagner du temps pour permettre à ses alliés d'éliminer l'équipe adverse","https://cdn.discordapp.com/emojis/866459319049650206.png",ELEMENT_AIR)]
+tablAllAllies += [tmpAllie("Lohica",1,purple,ERUDIT,butterflyP,[oldBooks,uniform,schoolShoes],GENDER_FEMALE,[contrecoup,bpotion,explosion,poisonus,boom],"Une fée à l'histoire bien mouvementée. Spécialisée dans les poisons","https://cdn.discordapp.com/emojis/866459331254550558.png?v=1",ELEMENT_DARKNESS)]
+tablAllAllies += [tmpAllie("Hélène",2,white,ALTRUISTE,serringue,[barrette,heleneDress,heleneShoe],GENDER_FEMALE,[cure,lapSkill,trans],"Une fée qui estime qu'essayer de sauver la vie de ses alliés est plus efficace que si elle esseyait de terminer le combat elle-même","https://cdn.discordapp.com/emojis/871149576965455933.png?v=1",ELEMENT_LIGHT)]
 tablAllAllies += [tmpAllie("Félicité",1,red,TETE_BRULE,dtsword,[determination,legendaryTunic,legendaryBoots],GENDER_FEMALE,[balayette,splashdown,splatbomb,monoMissiles],"Une grande pré-ado qui veut toujours tout faire, mais qui n'y arrive pas tout à fait non plus","https://cdn.discordapp.com/emojis/866459224664702977.png?v=1")]
-tablAllAllies += [tmpAllie("Akira",2,black,TETE_BRULE,fauc,[anakiMask,blackJeanJacket,blackSnelers],GENDER_MALE,[balayette,burst,splashdown],"Flora si tu as une description je veux bien","https://cdn.discordapp.com/emojis/871151069193969714.png?v=1")]
+tablAllAllies += [tmpAllie("Akira",2,black,TETE_BRULE,fauc,[anakiMask,blackJeanJacket,blackSnelers],GENDER_MALE,[balayette,burst,splashdown],"Flora si tu as une description je veux bien","https://cdn.discordapp.com/emojis/871151069193969714.png?v=1",ELEMENT_DARKNESS)]
 
 #try:
 print("Mise à jour de la base de donnée...")
