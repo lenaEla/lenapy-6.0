@@ -1,16 +1,14 @@
-from asyncio.tasks import wait_for
-from logging import disable
-import discord, random, os, pathlib,asyncio,datetime,time,traceback
+import discord, os, asyncio
 
-from discord.ext import commands, tasks
 from discord_slash.utils.manage_components import *
-from discord_slash import ButtonStyle, SlashCommand
+from discord_slash import ButtonStyle
 
 from adv import *
 from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
+from emoji import backward_arrow
 
 from commands.command_start import chooseAspiration,chooseColor,chooseName,changeCustomColor
 
@@ -19,16 +17,87 @@ inventoryMenu = create_select(
         create_select_option("Inventaire d'Arme",value="0",emoji=getEmojiObject('<:splattershot:866367647113543730>')),
         create_select_option("Inventaire de Compétences",value="1",emoji=getEmojiObject('<:splatbomb:873527088286687272>')),
         create_select_option("Inventaire d'Equipement",value="2",emoji=getEmojiObject('<:bshirt:867156711251771402>')),
-        create_select_option("Inventaire d'Objets",value="3",emoji=getEmojiObject('<:changeAppa:872174182773977108>'))
+        create_select_option("Inventaire d'Objets",value="3",emoji=getEmojiObject('<:changeAppa:872174182773977108>')),
+        create_select_option("Éléments",value="4",emoji=getEmojiObject('<:krisTal:888070310472073257>'))
         ],
     placeholder="Sélectionnez l'inventaire dans lequel vous voulez aller"
         )
 
-async def inventory(bot : discord.client, ctx : discord.message, args : list):
+retunrButton = create_button(2,"Retour",backward_arrow,"return")
+changeElemEnable = create_button(1,"Changer d'élément",getEmojiObject('<:krisTal:888070310472073257>'),"change")
+changeElemDisabled = create_button(1,"Changer d'élément",getEmojiObject('<:krisTal:888070310472073257>'),"change",disabled=True)
+
+elemOptions = []
+for a in range(0,len(elemDesc)):
+    elemOptions.append(create_select_option(elemNames[a],str(a),getEmojiObject(elemEmojis[a])))
+
+elemSelect = create_select(elemOptions,placeholder="En savoir plus ou changer d'élément")
+
+async def elements(bot : discord.client, ctx : discord.message, msg : discord.message, user : classes.char):
+    """Function to call for inventory elements.\n
+    Edit de Msg for display the actual element of the user and a short description.\n
+    Can also change the element if th user have a Elemental Cristal."""
+
+    def check(m):
+        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+
+    def checkSecond(m):
+        return m.author_id == ctx.author.id and m.origin_message.id == secondMsg.id
+
+    if user.level < 10: # The user doesn't have the level
+        elemEmbed = discord.Embed(title="__Éléments__",color=user.color,description="Les éléments renforcent la spécialisation d'un personnage en augmentant les dégâts qu'il fait suivant certaines conditions définie par l'élément choisi\nLes équipements peuvent également avoir des éléments. Avoir des équipements du même élément que soit accroie un peu leurs statistiques\n")
+        elemEmbed.add_field(name="__Contenu verouillé :__",value="Les éléments se débloquent à partir du nieau 10")
+        await msg.edit(embed=elemEmbed,components=[])
+
+    else:
+        while 1:
+            elemEmbed = discord.Embed(title="__Éléments__",color=user.color,description="Les éléments renforcent la spécialisation d'un personnage en augmentant les dégâts qu'il fait suivant certaines conditions définie par l'élément choisi\nLes équipements peuvent également avoir des éléments. Avoir des équipements du même élément que soit accroie un peu leurs statistiques\n")
+            elemEmbed.add_field(name="__Votre élément actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.element],elemEmojis[user.element]),value=elemDesc[user.element])
+            await msg.edit(embed = elemEmbed,components=[create_actionrow(elemSelect)])
+
+            try:
+                respond = await wait_for_component(bot,msg,check=check,timeout=60)
+            except:
+                await msg.edit(embed = elemEmbed,components=[])
+                break
+
+            resp = int(respond.values[0])
+            respEmb = discord.Embed(title = "__Élément : {0}__".format(elemNames[resp]),description = elemDesc[resp],color=user.color)
+            if user.have(elementalCristal) and user.level >= 10:
+                actionrow = create_actionrow(retunrButton,changeElemEnable)
+            else:
+                respEmb.set_footer(text="Vous ne possédez pas de cristaux élémentaire ou n'avez pas le niveau requis")
+                actionrow = create_actionrow(retunrButton,changeElemDisabled)
+
+            secondMsg = await respond.send(embed = respEmb,components=[actionrow])
+
+            try:
+                respond = await wait_for_component(bot,secondMsg,check=checkSecond,timeout=60)
+            except:
+                await secondMsg.delete()
+                await msg.edit(embed = elemEmbed,components=[])
+                break
+
+            if respond.custom_id == "change":
+                user.element = resp
+                user.otherInventory.remove(elementalCristal)
+                saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
+                await secondMsg.edit(embed = discord.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément a bien été modifié",color=user.color),components=[])
+                await asyncio.sleep(5)
+                await secondMsg.delete()
+            else:
+                await secondMsg.delete()
+
+
+async def inventory(bot : discord.client, ctx : discord.message, args : list,slashed = None):
     """Commande d'inventaire d'un personnage"""
     
     def checkIsAuthor(message):
         return message.author.id == ctx.author.id and message.channel.id == ctx.channe.id
+
+    if slashed != None:
+        ctx.mentions = slashed[1]
+
     if ctx.mentions == []:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     else:
@@ -42,8 +111,6 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list):
 
     if os.path.exists(pathUserProfile):
         state = 0
-        statetabl = [0,1,2,3]
-
         user = loadCharFile(pathUserProfile,ctx)
         okForCommand = True
         if ctx.mentions != []:
@@ -54,23 +121,29 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list):
 
         if okForCommand:
             if args[1] == None:
-                actionrow = create_actionrow(inventoryMenu)
-                embed = discord.Embed(title = args[0],color=user.color,description="Dans quel inventaire voulez vous aller ?")
-                msgOrigine = await ctx.channel.send(embed=embed,components=[actionrow])
+                if slashed == None:
+                    actionrow = create_actionrow(inventoryMenu)
+                    embed = discord.Embed(title = args[0],color=user.color,description="Dans quel inventaire voulez vous aller ?")
+                    msgOrigine = await ctx.channel.send(embed=embed,components=[actionrow])
 
-                on = True
-                try:
-                    menuSelect = await wait_for_component(bot, components=inventoryMenu, timeout = 60,check=check)
-                    actionrow = create_actionrow(getChoisenSelect(inventoryMenu,menuSelect.values[0]))
-                    state = int(menuSelect.values[0])
-                except:
-                    actionrow = timeoutSelect
-                    on = False
+                    on = True
+                    try:
+                        menuSelect = await wait_for_component(bot, components=inventoryMenu, timeout = 60,check=check)
+                        actionrow = create_actionrow(getChoisenSelect(inventoryMenu,menuSelect.values[0]))
+                        state = int(menuSelect.values[0])
+                    except:
+                        actionrow = timeoutSelect
+                        on = False
 
-                await msgOrigine.edit(embed=embed,components=[actionrow])
+                    await msgOrigine.edit(embed=embed,components=[actionrow])
+                
+                else:
+                    menuSelect = ctx
+                    state = slashed[0]
+                    on = True
                 
                 if on:
-                    msg = await menuSelect.send(embed = discord.Embed(title = commandArgs(ctx)[0], description = emoji.loading))
+                    msg = await menuSelect.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
                     page=0
                     while 1:
                         if state == 0:
@@ -326,6 +399,9 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list):
                             rep.add_field(name = "__Inventaire d'objets :__",value = temp,inline = False)
                             await msg.edit(embed=rep)
                             break
+
+                        elif state == 4:
+                            await elements(bot,ctx,msg,user)
 
             if len(args) > 3:
                 for a in range(2,len(args)):

@@ -643,15 +643,19 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
             if type(self.char) != invoc:
                 for a in [self.char.weapon,self.char.stuff[0],self.char.stuff[1],self.char.stuff[2]]:
-                    sumStatsBonus[0] += a.strength
-                    sumStatsBonus[1] += a.endurance
-                    sumStatsBonus[2] += a.charisma
-                    sumStatsBonus[3] += a.agility
-                    sumStatsBonus[4] += a.precision
-                    sumStatsBonus[5] += a.intelligence
-                    sumStatsBonus[6] += a.resistance
-                    sumStatsBonus[7] += a.percing
-                    sumStatsBonus[8] += a.critical
+                    valueElem = 1
+                    if a.affinity == self.char.element :
+                        valueElem = 1.1
+                    
+                    sumStatsBonus[0] += int(a.strength*valueElem)
+                    sumStatsBonus[1] += int(a.endurance*valueElem)
+                    sumStatsBonus[2] += int(a.charisma*valueElem)
+                    sumStatsBonus[3] += int(a.agility*valueElem)
+                    sumStatsBonus[4] += int(a.precision*valueElem)
+                    sumStatsBonus[5] += int(a.intelligence*valueElem)
+                    sumStatsBonus[6] += int(a.resistance*valueElem)
+                    sumStatsBonus[7] += int(a.percing*valueElem)
+                    sumStatsBonus[8] += int(a.critical*valueElem)
             else:
                 temp = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
                 temp2 = self.summoner.allStats()+[self.summoner.resistance,self.summoner.percing,self.summoner.critical]
@@ -696,6 +700,15 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 
                 if a.stun == True:
                     stuned = True
+
+            if self.char.element == ELEMENT_FIRE:
+                sumStatsBonus[7] += 5
+            elif self.char.element == ELEMENT_WATER:
+                sumStatsBonus[PRECISION] += 10
+            elif self.char.element == ELEMENT_AIR:
+                sumStatsBonus[AGILITY] += 10
+            elif self.char.element == ELEMENT_EARTH:
+                sumStatsBonus[6] += 5
 
             if type(self.char) != invoc:
                 self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence = round(self.char.strength+sumStatsBonus[0]*self.tetedepioche()[0]),round(self.char.endurance+sumStatsBonus[1]*self.tetedepioche()[0]),round(self.char.charisma+sumStatsBonus[2]),round(self.char.agility+sumStatsBonus[3]*self.tetedepioche()[1]),round(self.char.precision+sumStatsBonus[4]*self.tetedepioche()[1]),round(self.char.intelligence+sumStatsBonus[5])
@@ -780,153 +793,166 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
         def attack(self,target=0,value = 0,icon = "",area=AREA_MONO,sussess=None,maxRange=None,use=STRENGTH,onArmor = 1):
             """Méthode à appeler lorsque l'entité attaque.
             Renvoie un str contenant les messages correspondant aux actions effectuées"""
-            if sussess==None:
+            if sussess==None: # If no success is gave, use the weapon success rate
                 sussess=self.char.weapon.sussess
-            if maxRange==None:
+            if maxRange==None: # If no maxRange is gave, use the weapon max range
                 maxRange=self.char.weapon.range
+            
             popipo,critMsg,ppEffect = "","",0
-            if type(target) != int:
+
+            if type(target) != int: # If the target is valid
                 dangerMul = 1
-                if danger != None and self.team:
+                if danger != None and self.team: # get danger value
                     dangerMul = danger/100
 
-                if target.hp > 0:
+                if target.hp > 0: # If the target is alive
                     critRate = round(self.precision/6.66)+round(self.agility/6.66)+self.critical
                     popipo,immune,multiplicateur = "",False,1
-                    for a in self.effect:
+
+                    for a in self.effect: # Does the attacker trigger a effect
                         if a.trigger == TRIGGER_DEALS_DAMAGE:
                             temp = a.triggerDamage(value = a.effect.power,icon=a.icon,onArmor=onArmor)
                             value = temp[0]
                             popipo += temp[1]
 
-                    for z in target.cell.getEntityOnArea(area=area,team=self.team,wanted=ENNEMIS):
-                        pp = 0
-                        if self.char.aspiration == POIDS_PLUME:
-                            for a in self.effect:
-                                if a.effect == poidPlumeEff:
-                                    pp = a.value
-                                    ppEffect = a
-                                    break
-
-                        
-                        self.stats.totalNumberShot += 1
-                        if z.status != STATUS_DEAD and z.status != STATUS_TRUE_DEATH:
-                            if use == HARMONIE:
-                                temp = 0
-                                for a in self.allStats():
-                                    temp = max(a,temp)
-                                used = temp
-                            else:
-                                used = self.allStats()[use]
-                            damage = round(value * (used+100)/100 * (1-(min(95,z.resistance-self.percing)/100)) * dangerMul)
-                            if z == target:
-                                multiplicateur = 1
-                            else:
-                                multiplicateur = 1-(max(0.33,target.cell.distance(z.cell)*0.33))
-                            successRate = 1
-                            temp7,temp8 = self.precision,z.agility
-                            if temp7 < 0:
-                                temp8 += abs(temp7)
-                                temp7 = 0
-                            elif temp8 <= 0:
-                                temp7 += abs(temp8)
-                                temp8 = 1
-
-                            if temp7 > temp8:
-                                successRate = successRate + max((temp8-temp7)/200,0.5)
-                            else:
-                                successRate = successRate + min((temp8-temp7)/100,1)
-
-                            if random.randint(0,99)<successRate*sussess:
-
-                                for a in z.effect:
-                                    if a.effect.immunity:
-                                        immune,damage = True,0
+                    if self.hp > 0: # Does the attacker still alive ?
+                        for z in target.cell.getEntityOnArea(area=area,team=self.team,wanted=ENNEMIS): # For eatch ennemis in the area
+                            pp = 0
+                            if self.char.aspiration == POIDS_PLUME: # Apply "Poids Plume" critical bonus
+                                for a in self.effect:
+                                    if a.effect == poidPlumeEff:
+                                        pp = a.value
+                                        ppEffect = a
                                         break
 
-                                ailill = 100
-                                if not(immune):
-                                    for a in z.effect:
-                                        if a.trigger == TRIGGER_DAMAGE:
-                                            temp = a.triggerDamage(value = damage,declancher=self,icon=icon,onArmor=onArmor)
-                                            damage = temp[0]
-                                            popipo += temp[1]
-                                        if a.effect.id == "ma":
-                                            if z.cell.distance(cell=self.cell) > 2:
-                                                ailill = 25
-                                            
-                                z.refreshEffect()
+                            self.stats.totalNumberShot += 1
+                            if z.hp > 0: # If the target is alive
 
-                                # Critique
-                                critRoll = random.randint(0,99)
-                                critMsg = ""
-                                if critRoll < critRate and damage > 0:
-                                    critMsg = " (Critique !)"
-                                    multiplicateur += 0.45
-                                    self.stats.crits += 1
-                                elif critRoll < critRate + pp and self.char.aspiration == POIDS_PLUME and damage > 0:
-                                    for a in self.effect:
-                                        if a == ppEffect:
-                                            multiplicateur += 0.45
-                                            critMsg = " (Critique !)"
-                                            ppEffect.value = 0
-                                            self.stats.crits += 1
+                                # Get the stat used
+                                if use == HARMONIE:
+                                    temp = 0
+                                    for a in self.allStats():
+                                        temp = max(a,temp)
+                                    used = temp
+                                else:
+                                    used = self.allStats()[use]
+                                
+                                damage = round(value * (used+100)/100 * (1-(min(95,z.resistance-self.percing)/100))*dangerMul*self.getElementalBonus(target=z,area=area,type=TYPE_DAMAGE))
+                                
+                                # AoE reduction factor
+                                if z == target: 
+                                    multiplicateur = 1
+                                else:
+                                    multiplicateur = 1-(min(0.66,target.cell.distance(z.cell)*0.33))
+                                
+                                # Dodge / Miss
+                                successRate = 1
+                                temp7,temp8 = self.precision,z.agility
+                                if temp7 < 0:
+                                    temp8 += abs(temp7)
+                                    temp7 = 0
+                                elif temp8 <= 0:
+                                    temp7 += abs(temp8)
+                                    temp8 = 1
+
+                                if temp7 > temp8:
+                                    successRate = successRate + max((temp8-temp7)/200,0.5)
+                                else:
+                                    successRate = successRate + min((temp8-temp7)/100,1)
+
+                                # It' a hit ?
+                                if random.randint(0,99)<successRate*sussess:
+                                    for a in z.effect:
+                                        if a.effect.immunity:
+                                            immune,damage = True,0
                                             break
 
-                                effectiveDmg = round(damage*(multiplicateur+self.berserked()+self.observateur(target=z,maxRange=maxRange))*ailill/100)                                 
+                                    # "dimension déphasée" special damage reduction
+                                    ailill = 100
+                                    if not(immune):
+                                        for a in z.effect:
+                                            if a.trigger == TRIGGER_DAMAGE:
+                                                temp = a.triggerDamage(value = damage,declancher=self,icon=icon,onArmor=onArmor)
+                                                damage = temp[0]
+                                                popipo += temp[1]
+                                            if a.effect.id == "ma":
+                                                if z.cell.distance(cell=self.cell) > 2:
+                                                    ailill = 25
+                                                
+                                    z.refreshEffect()
 
-                                self.stats.shootHited += 1
-                                self.stats.damageDeal += effectiveDmg
-                                z.stats.damageRecived += effectiveDmg
-                                z.stats.numberAttacked += 1
-                                z.hp -= effectiveDmg
+                                    # Critical
+                                    critRoll = random.randint(0,99)
+                                    critMsg = ""
+                                    if critRoll < critRate and damage > 0:
+                                        critMsg = " (Critique !)"
+                                        multiplicateur += 0.45
+                                        self.stats.crits += 1
+                                    elif critRoll < critRate + pp and self.char.aspiration == POIDS_PLUME and damage > 0:
+                                        for a in self.effect:
+                                            if a == ppEffect:
+                                                multiplicateur += 0.45
+                                                critMsg = " (Critique !)"
+                                                ppEffect.value = 0
+                                                self.stats.crits += 1
+                                                break
 
-                                if use != None:
-                                    for statBoost in self.effect:
-                                        tstats = statBoost.allStats()
-                                        turnStat,actTurnStat = 0,0
-                                        if use != HARMONIE:
-                                            turnStat = self.allStats()[use]
-                                            actTurnStat = tstats[use]
-                                        elif use == HARMONIE:
-                                            for chocobot in self.allStats():
-                                                turnStat = max(turnStat,chocobot)
-                                            for chocobot in tstats:
-                                                actTurnStat = max(actTurnStat,chocobot)                                        
+                                    effectiveDmg = round(damage*(multiplicateur+self.berserked()+self.observateur(target=z,maxRange=maxRange))*ailill/100)                                 
 
-                                        if turnStat != actTurnStat:
-                                            if use == HARMONIE:
-                                                temp = 0
-                                                for a in self.allStats():
-                                                    temp = max(a,temp)
-                                                used = temp
-                                            else:
-                                                used = self.allStats()[use]
-                                            tempDmg = round(round(value * (used+100)/100 * (1-(min(95,z.resistance-self.percing)/100)) * dangerMul)*(multiplicateur+self.berserked()+self.observateur(target=z,maxRange=maxRange))*ailill/100)
-                                            dif = effectiveDmg - tempDmg
-                                            if dif < 0:
-                                                statBoost.caster.stats.damageBoosted += abs(dif)
-                                            else:
-                                                statBoost.caster.stats.damageDogded += abs(dif)
+                                    self.stats.shootHited += 1
+                                    self.stats.damageDeal += effectiveDmg
+                                    z.stats.damageRecived += effectiveDmg
+                                    z.stats.numberAttacked += 1
+                                    z.hp -= effectiveDmg
 
-                                if effectiveDmg > 0:
-                                    popipo  += f"{self.icon} {icon} → {z.icon} -{effectiveDmg} PV{critMsg}\n"
-                                if z.hp <= 0:
-                                    popipo += z.death(killer = self)
+                                    # Damage bosted
+                                    if use != None:
+                                        for statBoost in self.effect:
+                                            tstats = statBoost.allStats()
+                                            turnStat,actTurnStat = 0,0
+                                            if use != HARMONIE:
+                                                turnStat = self.allStats()[use]
+                                                actTurnStat = tstats[use]
+                                            elif use == HARMONIE:
+                                                for chocobot in self.allStats():
+                                                    turnStat = max(turnStat,chocobot)
+                                                for chocobot in tstats:
+                                                    actTurnStat = max(actTurnStat,chocobot)                                        
 
-                                for a in z.effect:
-                                    if a.effect == hourglass1:
-                                        a.value += effectiveDmg
-                                        break
-                            else:
-                                popipo += f"{z.char.name} esquive l'attaque\n"
-                                z.stats.dodge += 1
-                                z.stats.numberAttacked += 1
-                                if z.char.aspiration == POIDS_PLUME:
+                                            if turnStat != actTurnStat: # If the stat was boosted
+                                                if use == HARMONIE:
+                                                    temp = 0
+                                                    for a in self.allStats():
+                                                        temp = max(a,temp)
+                                                    used = temp
+                                                else:
+                                                    used = self.allStats()[use]
+                                                tempDmg = round(round(value * (used+100)/100 * (1-(min(95,z.resistance-self.percing)/100)) * dangerMul)*(multiplicateur+self.berserked()+self.observateur(target=z,maxRange=maxRange))*ailill/100)
+                                                dif = effectiveDmg - tempDmg
+                                                if dif < 0:
+                                                    statBoost.caster.stats.damageBoosted += abs(dif)
+                                                else:
+                                                    statBoost.caster.stats.damageDogded += abs(dif)
+
+                                    # Damage message
+                                    if effectiveDmg > 0:
+                                        popipo  += f"{self.icon} {icon} → {z.icon} -{effectiveDmg} PV{critMsg}\n"
+                                    if z.hp <= 0:
+                                        popipo += z.death(killer = self)
+
                                     for a in z.effect:
-                                        if a.effect == poidPlumeEff:
-                                            a.value += 5
+                                        if a.effect == hourglass1:
+                                            a.value += effectiveDmg
                                             break
+                                else:
+                                    popipo += f"{z.char.name} esquive l'attaque\n"
+                                    z.stats.dodge += 1
+                                    z.stats.numberAttacked += 1
+                                    if z.char.aspiration == POIDS_PLUME:
+                                        for a in z.effect:
+                                            if a.effect == poidPlumeEff:
+                                                a.value += 5
+                                                break
             else:
                 popipo =f"{self.char.name} ne sait pas quoi faire"
 
@@ -1014,7 +1040,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             else:
                 self.icon = self.char.icon
 
-        def getMedals(self,array : [list]):
+        def getMedals(self,array):
             respond = ""
             tabl = [["<:topDpt:884337213670838282>","<:secondDPT:884337233241448478>","<:thirdDPT:884337256905732107>"],["<:topHealer:884337335410491394>","<:secondHealer:884337355262160937>","<:thirdHealer:884337368407093278>"],["<:topArmor:884337281547272263>","<:secondArmor:884337300975276073>","<:thirdArmor:884337319707037736>"]]
             for z in range(0,len(array)):
@@ -1048,6 +1074,24 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 ballerine = f"{self.char.name} invoque un{accord} {summon.name}"
                 tablAliveInvoc[team] += 1
                 return {"tablEntTeam":tablEntTeam,"tablAliveInvoc":tablAliveInvoc,"timeline":timeline,"text":ballerine}
+
+        def getElementalBonus(self,target,area : int,type : int):
+            """Return the elemental damage bonus"""
+            if type not in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_ARMOR,TYPE_INDIRECT_DAMAGE]:
+                if self.char.element == ELEMENT_FIRE and area != AREA_MONO and self.cell.distance(target.cell) > 2:
+                    return 1.1
+                elif self.char.element == ELEMENT_WATER and area == AREA_MONO and self.cell.distance(target.cell) > 2:
+                    return 1.1
+                elif self.char.element == ELEMENT_AIR and area != AREA_MONO and self.cell.distance(target.cell) <= 2:
+                    return 1.1
+                elif self.char.element == ELEMENT_EARTH and area == AREA_MONO and self.cell.distance(target.cell) <= 2:
+                    return 1.1
+            elif type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_ARMOR] and self.char.element == ELEMENT_LIGHT:
+                return 1.1
+            elif type == TYPE_INDIRECT_DAMAGE and self.char.element == ELEMENT_DARKNESS:
+                return 1.1
+
+            return 1
 
     class fightEffect:
         """Classe plus pousée que Effect pour le combat"""
@@ -1747,7 +1791,20 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
         for b in tablEntTeam[a]:
             for c in [b.char.weapon,b.char.stuff[0],b.char.stuff[1],b.char.stuff[2]]:
                 if c.effect != None:
-                    tempTurnMsg += add_effect(b,b,findEffect(c.effect))
+                    if c.effect == "mk":
+                        for z in tablEntTeam[b.team]:
+                            baseHP,HPparLevel = 130,8
+                            temp = z.char.endurance
+                            for y in [z.char.weapon,z.char.stuff[0],z.char.stuff[1],z.char.stuff[2]]:
+                                temp += y.endurance
+
+                            z.hp = round((baseHP+z.char.level*HPparLevel)*((temp)/100+1))
+                            z.maxHp = round((baseHP+z.char.level*HPparLevel)*((temp)/100+1))
+                            tempTurnMsg += add_effect(b,z,findEffect(c.effect))
+                            z.refreshEffect()
+                    else:
+                        tempTurnMsg += add_effect(b,b,findEffect(c.effect))
+
             if b.char.aspiration == POIDS_PLUME:
                 tempTurnMsg += add_effect(b,b,poidPlumeEff)
             if type(b.char)==octarien and b.char.name=="Ailill" and len(tablEntTeam[0])>4:
@@ -3159,6 +3216,23 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
                     # Je ne veux pas d'écolière pour défendre nos terres
                     b.char = await achivements.addCount(ctx,b.char,"school")
+
+                    # Elementaire
+                    if b.char.level >= 10:
+                        b.char = await achivements.addCount(ctx,b.char,"elemental")
+
+                    # Soigneur de compette
+                    b.char = await achivements.addCount(ctx,b.char,"greatHeal",b.stats.heals)
+
+                    # Situation désespérée
+                    if b.char.aspiration not in [ALTRUISTE,ERUDIT,IDOLE]:
+                        b.char = await achivements.addCount(ctx,b.char,"notHealBut",b.stats.heals)
+
+                    # La meilleure défense c'est l'attaque
+                    b.char = await achivements.addCount(ctx,b.char,"greatDps",b.stats.damageDeal-b.stats.indirectDamageDeal)
+
+                    # Notre pire ennemi c'est nous même
+                    b.char = await achivements.addCount(ctx,b.char,"poison",b.stats.indirectDamageDeal)
 
                     saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
 

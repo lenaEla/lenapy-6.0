@@ -32,6 +32,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             msg = await loadingEmbed(ctx)
         except:
             msg = await loadingSlashEmbed(ctx)
+
         shopEmb = discord.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRandomMsg[random.randint(0,len(shopRandomMsg)-1)]}*\n<:empty:866459463568850954>")
 
         # Loading the user's team

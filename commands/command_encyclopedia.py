@@ -49,7 +49,7 @@ async def encylopedia(bot,ctx,destination,user):
         destSelect = create_actionrow(create_select(destOptions))        
 
         options = [
-            create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3)),
+            create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3 and value != 9)),
             create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
         ]
 
@@ -197,6 +197,12 @@ async def encylopedia(bot,ctx,destination,user):
                                         if b == tri-4:
                                             form = "**"
                                         temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
+                                if a.affinity != None:
+                                    nim = elemNames[a.affinity]
+                                    if len(nim) > 3:
+                                        nim = nim[0:3]+"."
+                                    temp += " Elem. : "+nim
+                    
                         # Création de l'option
                         mess += temp+"\n"
                         firstOptions += [create_select_option(a.name,a.id,getEmojiObject(a.emoji))]
@@ -237,7 +243,10 @@ async def encylopedia(bot,ctx,destination,user):
                         succed = ""
                         if a.haveSucced:
                             succed = "~~"
-                        mess += f"**__{succed}{a.name}{succed}__**"
+                        emo = ""
+                        if a.emoji != None:
+                            emo = a.emoji + " "
+                        mess += f"**__{succed}{emo}{a.name}{succed}__**"
 
                         if a.haveSucced:
                             mess += f" ({userIcon})"
@@ -254,8 +263,10 @@ async def encylopedia(bot,ctx,destination,user):
                                     que = findSkill(rep)
                                 elif what == 2:
                                     que = findStuff(rep)
+                                elif what == 3:
+                                    que = findOther(rep)
 
-                                recompense += que.emoji
+                                recompense += que.emoji + " "
 
                         if recompense != "":
                             mess += "\nRécompense : "+recompense
@@ -266,18 +277,14 @@ async def encylopedia(bot,ctx,destination,user):
         if page+1 < maxPage:
             firstOptions+=[create_select_option("Page suivante","next",emoji.forward_arrow)]
         
-        if value != 9:
-            firstSelect = create_select(options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
+        firstSelect = create_select(options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
+
         if msg == None:
-            if value != 9:
-                msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
-            else:
-                msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions)])
+            msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+
         else:
-            if value !=9:
-                await msg.edit(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
-            else:
-                await msg.edit(embed=embed,components=[destSelect,create_actionrow(sortOptions)])
+            await msg.edit(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+
 
         try:
             respond = await wait_for_component(bot,msg,check=check,timeout=180)
