@@ -657,7 +657,6 @@ async def downloadAllWeapPng(bot):
         background.save(f"./data/images/weapons/akifaux.png")
         print("akifaux téléchargé")
 
-
 async def downloadAllIconPng(bot):
     listEmojiHead = emoji.icon
     listDir = os.listdir("./data/images/char_icons/")

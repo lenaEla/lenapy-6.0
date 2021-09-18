@@ -110,7 +110,7 @@ carbunTSKill = skill("Eclat de Topaze","aad",TYPE_DAMAGE,0,35,AREA_MONO,area=ARE
 feeWeap = weapon("Embrassement","aae",RANGE_DIST,AREA_CIRCLE_4,15,100,0,type=TYPE_HEAL,use=CHARISMA,emoji="<:feerie:885076995522834442>",target=ALLIES,area=AREA_CIRCLE_1)
 feeEffect = effect("Murmure de l'aurore","aaf",CHARISMA,type=TYPE_INDIRECT_HEAL,power=10,emoji=uniqueEmoji('<:feerie:885076995522834442>'),trigger=TRIGGER_START_OF_TURN,turnInit=2)
 feeSkill = skill("Murmure de l'aurore","aag",TYPE_INDIRECT_HEAL,0,0,AREA_MONO,cooldown=3,area=AREA_CIRCLE_3,emoji="<:feerie:885076995522834442>",effect=feeEffect)
-titWeap = weapon("Arme","aah",RANGE_DIST,AREA_CIRCLE_2,15,70,0,0,0,0,0,0,0,0,0,0,3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2)
+titWeap = weapon("Arme","aah",RANGE_MELEE,AREA_CIRCLE_2,15,70,0,0,0,0,0,0,0,0,0,0,3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2)
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',type=TYPE_HEAL,target=ALLIES)
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,30,emoji='<:defHeal:885899034563313684>',cooldown=4)
 batSkill = skill("Cru-aile","aak",TYPE_DAMAGE,0,15,AREA_CIRCLE_2,emoji='<:defDamage:885899060488339456>',use=AGILITY)
