@@ -197,6 +197,9 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                         a.weaponInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
+
+                                        dest = await bot.fetch_user(a.owner)
+                                        await dest.send(embed = discord.Embed(title="Livraison :",description = "Vous avez reçu l'objet __{0}__ de la part de {1}".format(arm.name,user.name),color = a.color))
                                         await temp.delete()
                                         await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
@@ -253,7 +256,9 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                         a.skillInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
-                                        await msg.clear_reactions() 
+
+                                        dest = await bot.fetch_user(a.owner)
+                                        await dest.send(embed = discord.Embed(title="Livraison :",description = "Vous avez reçu l'objet __{0}__ de la part de {1}".format(arm.name,user.name),color = a.color))
                                         await temp.delete()
                                         await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
@@ -310,7 +315,9 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                         a.stuffInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
-                                        await msg.clear_reactions() 
+
+                                        dest = await bot.fetch_user(a.owner)
+                                        await dest.send(embed = discord.Embed(title="Livraison :",description = "Vous avez reçu l'objet __{0}__ de la part de {1}".format(arm.name,user.name),color = a.color))
                                         await temp.delete()
                                         await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:
@@ -373,7 +380,8 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                         a.otherInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
-                                        await msg.clear_reactions() 
+                                        dest = await bot.fetch_user(a.owner)
+                                        await dest.send(embed = discord.Embed(title="Livraison :",description = "Vous avez reçu l'objet __{0}__ de la part de {1}".format(arm.name,user.name),color = a.color))
                                         await temp.delete()
                                         await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
                                     except:

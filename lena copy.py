@@ -1487,18 +1487,22 @@ async def shopSlash(ctx):
     await shop2(bot,ctx,shopping.shopping)
 
 # Inventory
-@slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",guild_ids=[615257372218097691],options=[
-    create_option("destination","Dans quel inventaire voulez-vous aller ?",4,required=True,choices=[
-        create_choice(0,"Armes"),
-        create_choice(1,"Compétences"),
-        create_choice(2,"Equipements"),
-        create_choice(3,"Objets spéciaux"),
-        create_choice(4,"Elements")
+@slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",options=[
+    create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=True,choices=[
+        create_choice("0","Armes"),
+        create_choice("1","Compétences"),
+        create_choice("2","Equipements"),
+        create_choice("3","Objets spéciaux"),
+        create_choice("4","Elements")
     ]),
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False)
 ])
 async def invent(ctx,destination,procuration=[]):
-    await inventory(bot,ctx,["/inventory",None],[destination,procuration])
+    for a in [0,1,2,3,4]:
+        if ["Armes","Compétences","Equipements","Objets spéciaux","Elements"][a] == procuration:
+            destination = a
+            break
+    await inventory(bot,ctx,["/inventory",None],[int(destination),procuration])
 
 ###########################################################
 # Démarrage du bot

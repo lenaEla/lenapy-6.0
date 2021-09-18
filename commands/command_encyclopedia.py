@@ -342,7 +342,7 @@ async def encylopedia(bot,ctx,destination,user):
             elif value in [0,1,2]:
                 await inter.send(embed=infoStuff(findStuff(respond),user,ctx))
             elif value == 3:
-                await inter.send(embed=infoWeapon(findStuff(respond),user,ctx))
+                await inter.send(embed=infoWeapon(findWeapon(respond),user,ctx))
             elif value == 4:
                 await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
             elif value == 5:

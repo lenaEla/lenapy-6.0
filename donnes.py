@@ -33,7 +33,6 @@ manPage13 = ["Aspiration Tête Brulée","Les têtes brulées ont plus tendance �
 manPage14 = ["Aspiration Altruiste","Les altruistes vont préférer se focaliser sur leurs alliés plutôt que sur eux-même\n\n__**Passif d'Aspiration :**__\nLa puissance des boosts et soins donnés à leurs alliés est augmentée, mais ceux réalisé sur soi-même est diminuée\n\n__**Stats de base au niveau 50 :**__\nForce : 15\nEndurance : 35\nCharisme : 40\nAgilité : 35\nPrécision : 20\nIntelligence : 35"]
 manPage15 = ["Aspiration Aventurier","Les aventuriers n'ont pas vraiment envie de se spécialiser et font ce qu'il leur plait pour s'adapter à toutes situations\n\n__**Passif d'Aspiration :**__\nLorsqu'un aventurier réalise une action, il gagne 5 de statistique dans les statistiques non utilisés par cette action parmis la Force, le Charisme ou l'Intelligence pour le tour suivant\n\n__**Stats de base au niveau 50 :**__\nForce : 30\nEndurance : 30\nCharisme : 30\nAgilité : 30\nPrécision : 30\nIntelligence : 30"]
 
-
 tablDescMod = [descSettings]
 tablDescUt = [descChoose,descInvite]
 tablDescAdv = [descStart,descStats,descSolde,descInventory,descPoints,descShop,descTeam,descFight,descQuickFight,descOctogone,descTeamFight,descProcu]

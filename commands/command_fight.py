@@ -737,7 +737,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             Renvoie un str contenant les messages correspondant aux actions effectuées"""
 
             popopo = ""
-            value = round(value)
+            value = round(value*self.getElementalBonus(target,area=AREA_MONO,type = TYPE_INDIRECT_DAMAGE))
             if target.hp > 0:
                 for a in target.effect:
                     if a.effect.immunity == True and not(ignoreImmunity):
@@ -1238,7 +1238,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             """Déclanche l'effet"""
             ballerine=f"L'effet {self.effect.name} se déclanche :\n"
             if self.type == TYPE_INDIRECT_HEAL:
-                healPowa = min(self.on.maxHp - self.on.hp,round(self.effect.power * (1+self.caster.charisma/100)* self.caster.valueBoost(target = self.on)))
+                healPowa = min(self.on.maxHp - self.on.hp,round(self.effect.power * (1+self.caster.charisma/100)* self.caster.valueBoost(target = self.on)*self.caster.getElementalBonus(self.on,area = AREA_MONO,type = TYPE_INDIRECT_HEAL)))
                 for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.caster.team,wanted=ALLIES):
                     healPowa = round(healPowa * ((100-self.on.healResist)/100))
                     self.on.healResist += int(healPowa/self.on.maxHp/2*100)
@@ -2883,7 +2883,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                     elif actTurn.char.weapon.type == TYPE_HEAL:
                         tempTurnMsg += f"\n__{actTurn.char.name} soigne {ennemi.char.name} avec son arme :__"
                         for a in ennemi.cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=ALLIES):
-                            healPowa = min(a.maxHp-a.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=a,heal=True)))
+                            healPowa = min(a.maxHp-a.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=a,heal=True)* actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
                             healPowa = round(healPowa * ((100-a.healResist)/100))
                             a.healResist += int(healPowa/a.maxHp/2*100)
                             a.hp += healPowa
@@ -2922,7 +2922,6 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             if type(actTurn.char.skills[a]) == skill:
                                 print(actTurn.char.skills[a].name,actTurn.char.skills[a].id)
 
-
                     played = False
                     for a in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
                         if a == skillToUse.type:
@@ -2956,7 +2955,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                 statUse = actTurn.allStats()[statUse]
 
                             if skillToUse.id != "yt":
-                                healPowa = min(ennemi.maxHp-ennemi.hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = ennemi,heal=True)))
+                                healPowa = min(ennemi.maxHp-ennemi.hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = ennemi,heal=True)*actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
                                 for a in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES):
                                     healPowa = round(healPowa * ((100-a.healResist)/100))
                                     a.healResist += int(healPowa/a.maxHp/2*100)
@@ -2966,7 +2965,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             else:
                                 for a in range(0,len(tablEntTeam[actTurn.team])):
                                     if tablEntTeam[actTurn.team][a].hp > 0:
-                                        healPowa = min(tablEntTeam[actTurn.team][a].maxHp-tablEntTeam[actTurn.team][a].hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)))
+                                        healPowa = min(tablEntTeam[actTurn.team][a].maxHp-tablEntTeam[actTurn.team][a].hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
                                         healPowa = round(healPowa * ((100-tablEntTeam[actTurn.team][a].healResist)/100))
                                         tablEntTeam[actTurn.team][a].healResist += int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100)
                                         actTurn.stats.heals += healPowa

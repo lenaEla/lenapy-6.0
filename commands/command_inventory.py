@@ -136,14 +136,16 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                         on = False
 
                     await msgOrigine.edit(embed=embed,components=[actionrow])
-                
                 else:
                     menuSelect = ctx
                     state = slashed[0]
                     on = True
                 
                 if on:
-                    msg = await menuSelect.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
+                    if slashed == None:
+                        msg = await menuSelect.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
+                    else:
+                        msg = await ctx.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
                     page=0
                     while 1:
                         if state == 0:
@@ -190,9 +192,8 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 )
 
                             actionSelect = create_actionrow(select)
-                            actionPrevious = create_actionrow(previousBoutton)
-                            actionNext = create_actionrow(nextBoutton)
-                            actionTabl = [actionPrevious,actionNext,actionSelect]
+                            actionButtons = create_actionrow(previousBoutton,nextBoutton)
+                            actionTabl = [actionButtons,actionSelect]
 
                             await msg.edit(embed = rep,components=actionTabl)
                             def check(m):
@@ -354,9 +355,8 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 )
 
                             actionSelect = create_actionrow(select)
-                            actionPrevious = create_actionrow(previousBoutton)
-                            actionNext = create_actionrow(nextBoutton)
-                            actionTabl = [actionPrevious,actionNext,actionSelect]
+                            actionButtons = create_actionrow(previousBoutton,nextBoutton)
+                            actionTabl = [actionButtons,actionSelect]
 
                             await msg.edit(embed = rep,components=actionTabl)
                             def check(m):
