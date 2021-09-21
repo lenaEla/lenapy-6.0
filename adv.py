@@ -10,8 +10,8 @@ def uniqueEmoji(emoji):
     return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]  
 
 # Weapon
-splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,30,50,100,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_AIR)
-roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,55,70,100,strength=15,endurance=5,resistance=5,agility=-5,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_EARTH)
+splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,30,50,100,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
+roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,40,70,100,strength=15,endurance=5,resistance=5,agility=-5,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2)
 splatcharger = weapon("Concentraceur","ad",RANGE_LONG,AREA_CIRCLE_5,50,60,100,agility=-5,precision=25,emoji = emoji.charger,damageOnArmor=1.5,affinity=ELEMENT_WATER)
 miniBrush = weapon("Epinceau","ae",RANGE_MELEE,AREA_CIRCLE_1,30,45,100,agility=10,charisma=10,repetition=5,emoji='<:inkBrush:866463573580578816>',needRotate=False)
 inkbrella = weapon("Para-Encre","ag",RANGE_MELEE,AREA_CIRCLE_2,30,45,price=100,endurance=10,resistance=10,precision=-10,strength=10,repetition=3,effect='lp',emoji='<:splatbrella:866464991255199834>',needRotate=False)
@@ -23,7 +23,7 @@ HunterRiffle = weapon("Fusil de chasseur","al",RANGE_DIST,AREA_CIRCLE_4,50,50,25
 firework = weapon("Arbalette avec feu d'artifice","am",RANGE_LONG,AREA_CIRCLE_4,35,50,150,10,precision=10,emoji='<:crossbow:871746122899664976>',area=AREA_CONE_2)
 plume = weapon("Plumes tranchantes","ao",RANGE_DIST,AREA_CIRCLE_4,40,50,250,precision=10,percing=10,repetition=1,emoji='<:plume:871893045296128030>',area=AREA_CONE_2,needRotate=False,affinity=ELEMENT_AIR)
 hourglass1Weap = weapon("Sablier intemporel I","ap",RANGE_DIST,AREA_CIRCLE_3,0,100,250,endurance=10,resistance=10,target=ALLIES,type=TYPE_INDIRECT_HEAL,effectOnUse="lx",emoji='<:hourglass1:872181735062908978>')
-clashBlaster = weapon("Rafa-Blasteur","aq",RANGE_MELEE,AREA_CIRCLE_2,35,40,250,endurance=10,agility=10,precision=-10,percing=10,emoji='<:clashBlaster:877666681869176853>',area=AREA_CIRCLE_1,repetition=4)
+clashBlaster = weapon("Rafa-Blasteur","aq",RANGE_MELEE,AREA_CIRCLE_2,20,40,250,endurance=10,agility=10,precision=-10,percing=10,emoji='<:clashBlaster:877666681869176853>',area=AREA_CIRCLE_1,repetition=4)
 dualies = weapon("Double Encreur","ar",RANGE_DIST,AREA_CIRCLE_4,35,40,150,agility=15,precision=15,resistance=-10,repetition=4,emoji='<:splatDualies:866465264434806815>')
 splatling = weapon("Badigeonneur","as",RANGE_LONG,AREA_CIRCLE_5,35,30,300,precision=10,strength=10,repetition=5,emoji='<:splatling:877666764736061490>')
 flexi = weapon("Flexi-Rouleau","at",RANGE_DIST,AREA_CIRCLE_3,50,70,300,25,endurance=-10,critical=5,emoji='<:flexaRoller:877666714760925275>',needRotate=False)
@@ -31,7 +31,7 @@ squiffer = weapon("Décap' Express","au",RANGE_DIST,AREA_CIRCLE_4,45,60,300,10,a
 dualJetSkelcher = weapon("Nettoyeur Duo","av",RANGE_LONG,AREA_CIRCLE_5,30,50,200,10,intelligence=10,agility=-10,precision=10,repetition=4,emoji='<:DualSkelcher:877666662801883237>',damageOnArmor=1.33)
 butterfly = weapon("Papillon Blanc","aw",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyB:883627125561786428>',target=ALLIES,type=TYPE_HEAL,needRotate=False)
 mic = weapon("Micro mignon","ax",RANGE_LONG,AREA_CIRCLE_3,25,55,300,-10,charisma=30,emoji='<:pinkMic:878723391450927195>',needRotate=False,use=CHARISMA)
-spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,45,75,200,-10,-10,15,intelligence=20,percing=5,emoji='<:spellBook:878723144326725744>',needRotate=False,use=INTELLIGENCE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE)
+spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,-10,-10,15,intelligence=20,percing=5,emoji='<:spellBook:878723144326725744>',needRotate=False,use=INTELLIGENCE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE)
 legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,60,70,300,10,10,resistance=10,intelligence=-10,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT)
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,60,90,300,20,10,-10,intelligence=-10,resistance=10,emoji='<:LameDimensionnelle:881595204484890705>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False)
@@ -53,7 +53,7 @@ def addAllInWeaponData():
             stuffDB.edit_weapon(a)
 
 # Skill
-soupledown = skill("Choc du professeur Souplesse","zz",TYPE_DAMAGE,1500,150,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=70,ultimate=True,cooldown=4,emoji='<:splashDown1:873925948205051985>')
+soupledown = skill("Choc du professeur Souplesse","zz",TYPE_DAMAGE,1500,140,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=70,ultimate=True,cooldown=4,emoji='<:splashDown1:873925948205051985>')
 inkarmor = skill("Armure d'Encre","zy",TYPE_ARMOR,1000,ultimate=True,effect="la",emoji = '<:inkArmor:866829950463246346>',area=AREA_ALL_ALLIES,cooldown=3,range=AREA_MONO)
 coffeeSkill = skill("Suprématie du café","zx",TYPE_BOOST,500,effect=["lb","mc"],use=CHARISMA,conditionType=["reject","skill","zw"],area=AREA_ALL_ALLIES,emoji='<:coffee:867538582846963753>',cooldown=2)
 theSkill = skill("Liberté du thé","zw",TYPE_BOOST,500,effect=["lc","mc"],use=CHARISMA,conditionType=["reject","skill","zx"],area=AREA_ALL_ALLIES,emoji='<:the:867538602644602931>',cooldown=2)
@@ -68,32 +68,36 @@ unHolly = skill("Truc pas catho","zo",TYPE_MALUS,69,emoji='<:bravotakei:87720225
 chaos = skill("Chaos Chaos !","zn",TYPE_UNIQUE,1000,range=AREA_MONO,area=AREA_ALL_ENTITES,sussess=200,emoji='<a:CHAOS:762276118224961556>',cooldown=5,ultimate=True,use=None)
 contrecoup = skill("Contre-coup","zm",TYPE_INDIRECT_DAMAGE,250,effect="ln",cooldown=2,emoji='<:aftershock:882889694269038592>',use=INTELLIGENCE)
 boom = skill("Réaction en chaîne","zl",TYPE_INDIRECT_DAMAGE,250,effect="lv",cooldown=2,emoji='<:bimbamboum:873698494874017812>',use=INTELLIGENCE)
-balayette = skill("Baleyette","zk",TYPE_DAMAGE,100,50,range=AREA_MONO,area=AREA_CIRCLE_1,emoji='<:baleyette:873924668963291147>',cooldown=2)
+balayette = skill("Baleyette","zk",TYPE_DAMAGE,100,40,range=AREA_MONO,area=AREA_CIRCLE_1,emoji='<:baleyette:873924668963291147>',cooldown=2)
 firstheal = skill("Premiers secours","zj",TYPE_HEAL,100,25,emoji="<:bandage:873542442484396073>")
 cure = skill("Guérison","zi",TYPE_HEAL,250,60,cooldown=3,emoji='<:cure:873542385731244122>')
 healAura = skill("Aura de Lumière","zh",TYPE_INDIRECT_HEAL,250,cooldown=3,range=AREA_MONO,area=AREA_CIRCLE_2,effect="ly",emoji="<:AdL:873548073769533470>")
-splatbomb = skill("Bombe splash","zg",TYPE_DAMAGE,100,cooldown=2,area=AREA_CIRCLE_1,power=60,emoji='<:splatbomb:873527088286687272>')
-explosion = skill("Explosion","zf",TYPE_DAMAGE,1000,power=200,ultimate=True,cooldown=10,area=AREA_CIRCLE_2,sussess=80,effectOnSelf="mb",use=INTELLIGENCE,emoji='<a:explosion:882627170944573471>')
+splatbomb = skill("Bombe splash","zg",TYPE_DAMAGE,100,cooldown=2,area=AREA_CIRCLE_1,power=45,emoji='<:splatbomb:873527088286687272>')
+explosion = skill("Explosion","zf",TYPE_DAMAGE,1000,power=180,ultimate=True,cooldown=10,area=AREA_CIRCLE_2,sussess=80,effectOnSelf="mb",use=INTELLIGENCE,emoji='<a:explosion:882627170944573471>')
 protect = skill("Orbe défensif","ze",TYPE_ARMOR,200,emoji='<:orbeDef:873725544427053076>',effect="md",cooldown=3)
 poisonus = skill("Vent empoisonné","zd",TYPE_INDIRECT_DAMAGE,500,emoji='<:estabistia:883123793730609172>',effect="me",cooldown=5,area=AREA_CIRCLE_1,use=INTELLIGENCE)
 invocBat = skill("Invocation - Chauve-souris","zc",TYPE_INVOC,500,invocation="Chauve-Souris",emoji="<:Bat:884899538685530163>",use=None,shareCooldown=True)
 multiMissiles = skill("Multi-Missiles","zb",TYPE_INDIRECT_DAMAGE,750,range=AREA_MONO,ultimate=True,emoji='<:tentamissile:884757344397951026>',effect="mf",cooldown=3,area=AREA_ALL_ENNEMIES)
 monoMissiles = skill("Mono-Missiles","za",TYPE_INDIRECT_DAMAGE,250,range=AREA_CIRCLE_7,emoji='<:monomissile:884757360193708052>',effect="mf",cooldown=2)
-splashdown = skill("Choc Chromatique","yz",TYPE_DAMAGE,500,150,AREA_MONO,ultimate=True,emoji='<:splashdown:884803808402735164>',cooldown=5,area=AREA_CIRCLE_2,damageOnArmor=5)
+splashdown = skill("Choc Chromatique","yz",TYPE_DAMAGE,500,140,AREA_MONO,ultimate=True,emoji='<:splashdown:884803808402735164>',cooldown=5,area=AREA_CIRCLE_2,damageOnArmor=5)
 invocCarbE = skill("Invocation - Carbuncle Emeraude","yy",TYPE_INVOC,500,invocation="Carbuncle Emeraude",emoji="<:carbuncleE:884899235332522016>",cooldown=4,range=AREA_CIRCLE_3,use=None,shareCooldown=True)
 invocCarbT = skill("Invocation - Carbuncle Topaze","yx",TYPE_INVOC,500,invocation="Carbuncle Topaze",emoji="<:carbuncleT:884899263459500053>",cooldown=4,range=AREA_CIRCLE_3,use=None,shareCooldown=True)
 invocFee = skill("Invocation - Fée Soignante","yw",TYPE_INVOC,500,0,AREA_CIRCLE_3,cooldown=4,invocation="Fée soignante",emoji="<:selene:885077160862318602>",use=None,shareCooldown=True)
 thinkSkill = skill("Réfléchis !","yv",TYPE_BOOST,250,0,emoji="<:think:885240853696765963>",effect="mh",use=CHARISMA,cooldown = 3)
 descart = skill("Je pense donc je suis","yu",TYPE_BOOST,250,range=AREA_MONO,emoji="<:descartes:885240392860188672>",effect='mi',cooldown=4,use=None)
 trans = skill("Transcendance","yt",TYPE_UNIQUE,0,initCooldown=3,cooldown=7,emoji="<:limiteBreak:886657642553032824>",description="Un sort particulier qui a un effet différent en fonction de l'aspiration du lanceur\n\n__Berserkeur :__ Dégâts mono\n__Poids Plume, Tête Brûlée :__Dégâts en ligne\n__Idole, Altruiste :__ Soins sur toute l'équipe (et resurrection)\n__Erudit, Observateur :__ Dégâts en cercle\n__Aventurier :__ Invoque \"Titania\"\n\nCette compétence utilise la statistique la plus élevée du lanceur\n\nUtiliser Transcendance vous empêche d'utiliser une compétence ultime lors du prochain tour",use=HARMONIE,shareCooldown=True)
-burst = skill("Bombe ballon","ys",TYPE_DAMAGE,0,35,area=AREA_CIRCLE_1,sussess=60,emoji='<:burstBomb:887328853683474444>')
+burst = skill("Bombe ballon","ys",TYPE_DAMAGE,0,30,area=AREA_CIRCLE_1,sussess=60,emoji='<:burstBomb:887328853683474444>')
 lapSkill = skill("Invocation - Lapino","yr",TYPE_INVOC,0,invocation="Lapino",cooldown=4,shareCooldown=True,emoji='<:lapino:885899196836757527>')
 adrenaline = skill("Adrénaline","yq",TYPE_HEAL,250,60,cooldown=5,emoji='<:adrenaline:887403480933863475>',use=INTELLIGENCE)
 blindage = skill("Blindage","yp",TYPE_BOOST,350,0,AREA_MONO,effect="mj",cooldown=3,use=None,emoji="<:defSupp:885899082453880934>")
 fermete = skill("Second Souffle","yo",TYPE_HEAL,350,60,AREA_MONO,emoji='<:defHeal:885899034563313684>',cooldown=5,use=ENDURANCE)
 isolement = skill("Isolement","yn",TYPE_ARMOR,500,70,AREA_MONO,emoji='<:selfProtect:887743151027126302>',cooldown=5,effect="ml")
+bombRobot = skill("Invocation - Bombe Robot","ym",TYPE_INVOC,500,0,AREA_CIRCLE_3,invocation="Bombe Robot",cooldown=2,shareCooldown=True,emoji='<:autobomb:887747538994745394>')
+linx = skill("Œuil de Linx","yl",TYPE_BOOST,500,range=AREA_MONO,area=AREA_CIRCLE_2,emoji='<:noeuil:887743235131322398>',effect="mm",cooldown=4)
+stalactic = skill("Stalactite","yk",TYPE_DAMAGE,300,60,emoji='<:stalactit:889089667088142346>',cooldown=3,sussess=60)
+uppercut = skill("Uppercut","yj",TYPE_DAMAGE,200,50,AREA_CIRCLE_1,emoji='<:uppercut:889091033718194196>',cooldown=2)
 
-skills = [isolement,fermete,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion,splatbomb,healAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe]
+skills = [uppercut,stalactic,linx,bombRobot,isolement,fermete,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion,splatbomb,healAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe]
 
 def addAllInSkillData():
     for a in skills:
@@ -114,6 +118,10 @@ titWeap = weapon("Arme","aah",RANGE_MELEE,AREA_CIRCLE_2,15,70,0,0,0,0,0,0,0,0,0,
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',type=TYPE_HEAL,target=ALLIES)
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,30,emoji='<:defHeal:885899034563313684>',cooldown=4)
 batSkill = skill("Cru-aile","aak",TYPE_DAMAGE,0,15,AREA_CIRCLE_2,emoji='<:defDamage:885899060488339456>',use=AGILITY)
+autoWeap = weapon("NoneWeap","aal",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:empty:866459463568850954>")
+autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus,silent=True)
+autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,75,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff)
+
 
 batInvoc = invoc("Chauve-Souris",aspiration=TETE_BRULE,strength=[PURCENTAGE,1],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.6],agility=[PURCENTAGE,1],precision=[PURCENTAGE,0.8],intelligence=[PURCENTAGE,0.8],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans tant de rechargement",skills=[batSkill])
 carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.8],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,1.1],20,10,[PURCENTAGE,2],TETE_BRULE,["<:ce1:884889724114841610>","<:ce2:884889693374775357>"],carbunE,[carbunSkill],description="Une invocation utlisant son **Intelligence** pour vaincre des groupes d'ennemis de loin")
@@ -121,8 +129,9 @@ carbuncleT = invoc("Carbuncle Topaze",[PURCENTAGE,0.8],[PURCENTAGE,2.5],[PURCENT
 feeInv = invoc("Fée soignante",[PURCENTAGE,0.5],[PURCENTAGE,0.8],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.8],[PURCENTAGE,0.8],10,0,0,ALTRUISTE,["<:fee1:885076945333805086>","<:fee2:885076961695760386>"],feeWeap,[feeSkill],gender=GENDER_FEMALE,description="Une fée qui soigne ses alliés grace à sa magie curative")
 titania = invoc("Titania",[HARMONIE],[HARMONIE],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],25,10,25,OBSERVATEUR,["<:tita1:886663550796431390>","<:tita2:886663565220651028>"],titWeap,[],GENDER_FEMALE)
 lapino = invoc("Lapino",[PURCENTAGE,0.5],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,0.5],10,0,0,ALTRUISTE,['<:lapino1:885899366966112266>','<:lapino2:885899382539571221>'],lapinoWeap,[lapinoSkill],description="Fidèle Lapino d'Hélène, il la suit partout là où elle aura besoin de lui")
+autoBomb = invoc("Bombe Robot",[PURCENTAGE,0.8],50,0,0,0,0,20,0,0,AVENTURIER,["<:auto1:887747795497394267>","<:auto2:887747819866312735>"],autoWeap,[autoSkill])
 
-invocTabl = [lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc]
+invocTabl = [autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc]
 
 # Stuff
 uniform = stuff("Uniforme Scolaire","hd",1,100,intelligence=10,charisma=10,emoji='<:uniform:866830066008981534>',orientation=[None,BOOSTER],affinity=ELEMENT_WATER)
@@ -255,15 +264,16 @@ stuned = effect("Etourdit","mb",emoji=uniqueEmoji('<:stun:882597448898474024>'),
 defensive = effect("Orbe défensif","md",emoji=sameSpeciesEmoji('<:orbe1:873725384359837776>','<:orbe2:873725400730202123>'),overhealth=40,description='Donne de l\'armure à un allié',stat=INTELLIGENCE,trigger=TRIGGER_DAMAGE,turnInit=1)
 cafeine = effect("Désaltéré","mc",emoji=uniqueEmoji('<:cafeine:883253781024870401>'),turnInit = 4, description = "L'abus de caféine (ou théine c' est la même chose) est dangereureux pout la santé",silent=True)
 estal = effect("Poison d'Estialba","me",emoji=uniqueEmoji('<:estialba:884223390804766740>'),turnInit=3,stat=INTELLIGENCE,description="Un virulant poison, faisant la sinistre renommée des fées de cette île",trigger=TRIGGER_START_OF_TURN,stackable=True,power=40,type=TYPE_INDIRECT_DAMAGE,lvl=3)
-missiles = effect("Ciblé","mf",emoji=uniqueEmoji('<:tentamissile:884757344397951026>'),stat=STRENGTH,description="Au début de son tour, le ciel tombera sur la tête du Ciblé et ses alliés proches !",trigger=TRIGGER_START_OF_TURN,power=35,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1)
+missiles = effect("Ciblé","mf",emoji=uniqueEmoji('<:tentamissile:884757344397951026>'),stat=STRENGTH,description="Au début de son tour, le ciel tombera sur la tête du Ciblé et ses alliés proches !",trigger=TRIGGER_START_OF_TURN,power=25,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1)
 octoboum = effect("Explosion à venir !!","mg",emoji=uniqueEmoji(explosion.emoji),turnInit=3)
 think = effect("REFLECHIS !","mh",CHARISMA,intelligence=10)
 iThink = effect("Philosophé","mi",intelligence=15,turnInit=3)
 blinde = effect("Blindé","mj",resistance=20,description="Réduit les degâts subis de 20% jusqu'à votre prochain tour")
 const = effect("Constitution","mk",emoji=uniqueEmoji('<:constitution:888746214999339068>'),description="Augmente de 30 les PV max de base de toute votre équipe",turnInit = -1)
 isoled = effect("Isolé","ml",emoji=uniqueEmoji('<:selfProtect:887743151027126302>'),description="S'isoler mentalement pôur ne pas faire attention au dégâts",overhealth=70)
+nouil = effect("Œuil de Linx","mm",emoji=uniqueEmoji('<:noeuil:887743235131322398>'),precision=30)
 
-effects = [isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAura,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE]
+effects = [nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAura,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE]
 hourglassEffects = [hourglass1]
 
 #Other
