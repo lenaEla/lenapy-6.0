@@ -37,10 +37,12 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
         # Loading the user's team
         if user.team != 0:
+            await msg.edit(embed = discord.Embed(title="/shop",description="Chargement de l'équipe..."))
             team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
             teamMember = []
             for a in team:
-                teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
+                if a != int(ctx.author.id):
+                    teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
 
 
         shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
@@ -146,7 +148,10 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                     rep = a
                     break
 
-            msg = await respond.send(embed = discord.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
+            try:
+                msg = await respond.send(embed = discord.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
+            except:
+                msg = await initMsg.channel.send(embed = discord.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
             if rep != None:
                 typ = whatIsThat(shopped[rep])
 
@@ -193,7 +198,10 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             for a in teamMember:
                                 if a.owner == respond.values[0]:
                                     try:
-                                        temp = await respond.send("Envoie du cadeau...")
+                                        try:
+                                            temp = await respond.send("Envoie du cadeau...")
+                                        except:
+                                            temp = await initMsg.channel.send("Envoie du cadeau...")
                                         a.weaponInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
@@ -252,7 +260,10 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             for a in teamMember:
                                 if a.owner == respond.values[0]:
                                     try:
-                                        temp = await respond.send("Envoie du cadeau...")
+                                        try:
+                                            temp = await respond.send("Envoie du cadeau...")
+                                        except:
+                                            temp = await initMsg.channel.send("Envoie du cadeau...")
                                         a.skillInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
@@ -311,7 +322,10 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             for a in teamMember:
                                 if a.owner == respond.values[0]:
                                     try:
-                                        temp = await respond.send("Envoie du cadeau...")
+                                        try:
+                                            temp = await respond.send("Envoie du cadeau...")
+                                        except:
+                                            temp = await initMsg.channel.send("Envoie du cadeau...")
                                         a.stuffInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
@@ -376,7 +390,10 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             for a in teamMember:
                                 if a.owner == respond.values[0]:
                                     try:
-                                        temp = await respond.send("Envoie du cadeau...")
+                                        try:
+                                            temp = await respond.send("Envoie du cadeau...")
+                                        except:
+                                            temp = await initMsg.channel.send("Envoie du cadeau...")
                                         a.otherInventory += [arm]
                                         user.currencies = user.currencies - arm.price
                                         saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)

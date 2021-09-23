@@ -1,4 +1,5 @@
 import discord, os, asyncio
+from discord.errors import DiscordException
 
 from discord_slash.utils.manage_components import *
 from discord_slash import ButtonStyle
@@ -18,14 +19,14 @@ inventoryMenu = create_select(
         create_select_option("Inventaire de Compétences",value="1",emoji=getEmojiObject('<:splatbomb:873527088286687272>')),
         create_select_option("Inventaire d'Equipement",value="2",emoji=getEmojiObject('<:bshirt:867156711251771402>')),
         create_select_option("Inventaire d'Objets",value="3",emoji=getEmojiObject('<:changeAppa:872174182773977108>')),
-        create_select_option("Éléments",value="4",emoji=getEmojiObject('<:krisTal:888070310472073257>'))
+        create_select_option("Éléments",value="4",emoji=getEmojiObject('<:krysTal:888070310472073257>'))
         ],
     placeholder="Sélectionnez l'inventaire dans lequel vous voulez aller"
         )
 
 retunrButton = create_button(2,"Retour",backward_arrow,"return")
-changeElemEnable = create_button(1,"Changer d'élément",getEmojiObject('<:krisTal:888070310472073257>'),"change")
-changeElemDisabled = create_button(1,"Changer d'élément",getEmojiObject('<:krisTal:888070310472073257>'),"change",disabled=True)
+changeElemEnable = create_button(1,"Changer d'élément",getEmojiObject('<:krysTal:888070310472073257>'),"change")
+changeElemDisabled = create_button(1,"Changer d'élément",getEmojiObject('<:krysTal:888070310472073257>'),"change",disabled=True)
 
 elemOptions = []
 for a in range(0,len(elemDesc)):
@@ -69,7 +70,10 @@ async def elements(bot : discord.client, ctx : discord.message, msg : discord.me
                 respEmb.set_footer(text="Vous ne possédez pas de cristaux élémentaire ou n'avez pas le niveau requis")
                 actionrow = create_actionrow(retunrButton,changeElemDisabled)
 
-            secondMsg = await respond.send(embed = respEmb,components=[actionrow])
+            try:
+                secondMsg = await respond.send(embed = respEmb,components=[actionrow])
+            except:
+                secondMsg = await ctx.channel.send(embed = respEmb,components=[actionrow])
 
             try:
                 respond = await wait_for_component(bot,secondMsg,check=checkSecond,timeout=60)
@@ -96,9 +100,9 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
         return message.author.id == ctx.author.id and message.channel.id == ctx.channe.id
 
     if slashed != None:
-        ctx.mentions = slashed[1]
+        ctx.mentions = [slashed[1]]
 
-    if ctx.mentions == []:
+    if ctx.mentions == [] or ctx.mentions == [None]:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     else:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
@@ -113,7 +117,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
         state = 0
         user = loadCharFile(pathUserProfile,ctx)
         okForCommand = True
-        if ctx.mentions != []:
+        if ctx.mentions != [] and ctx.mentions != [None]:
             if ctx.author.id not in user.procuration:
                 okForCommand = False
             else:
@@ -204,12 +208,19 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             try:
                                 if respond.custom_id == "back":
                                     page -= 1
-                                    temp = await respond.send("Page changée !")
-                                    await temp.delete()
+                                    try:
+                                        temp = await respond.send("Page changée !")
+                                        await temp.delete()
+                                    except:
+                                        pass
+                                    
                                 elif respond.custom_id == "forward":
                                     page += 1
-                                    temp = await respond.send("Page changée !")
-                                    await temp.delete()
+                                    try:
+                                        temp = await respond.send("Page changée !")
+                                        await temp.delete()
+                                    except:
+                                        pass
                             except:
                                 pass
 
@@ -288,12 +299,18 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             try:
                                 if respond.custom_id == "back":
                                     page -= 1
-                                    temp = await respond.send("Page changée !")
-                                    await temp.delete()
+                                    try:
+                                        temp = await respond.send("Page changée !")
+                                        await temp.delete()
+                                    except:
+                                        pass
                                 elif respond.custom_id == "forward":
                                     page += 1
-                                    temp = await respond.send("Page changée !")
-                                    await temp.delete()
+                                    try:
+                                        temp = await respond.send("Page changée !")
+                                        await temp.delete()
+                                    except:
+                                        pass
                             except:
                                 pass
 
@@ -366,12 +383,18 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             try:
                                 if respond.custom_id == "back":
                                     page -= 1
-                                    temp = await respond.send("Page changée !")
-                                    await temp.delete()
+                                    try:
+                                        temp = await respond.send("Page changée !")
+                                        await temp.delete()
+                                    except:
+                                        pass
                                 elif respond.custom_id == "forward":
                                     page += 1
-                                    temp = await respond.send("Page changée !")
-                                    await temp.delete()
+                                    try:
+                                        temp = await respond.send("Page changée !")
+                                        await temp.delete()
+                                    except:
+                                        pass
                             except:
                                 pass
 
@@ -411,10 +434,12 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
             if args[1] != None:
                 inv = whatIsThat(args[1])
                 if inv != None:
-                    msg = await loadingEmbed(ctx)
-                    if inv == 0:
+                    if slashed==None:
+                        msg = await loadingEmbed(ctx)
+                    else: 
+                        msg = await loadingSlashEmbed(ctx)
+                    if inv == 0: # Weapon
                         weap = findWeapon(args[1])
-                        
                         repEmb = infoWeapon(weap,user,ctx)
                         
                         trouv = False
@@ -437,15 +462,18 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             def checkisReaction(reaction, user):
                                 return user == ctx.author and str(reaction.emoji) ==  weap.emoji
 
-                            await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
-                            user.weapon = weap
-                            if saveCharFile(pathUserProfile,user):
+                            try:
+                                await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
+                                user.weapon = weap
+                                if saveCharFile(pathUserProfile,user):
+                                    await msg.clear_reactions()
+                                    await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle arme a bien été équipée"))
+                                else:
+                                    await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
+                            except asyncio.TimeoutError:
                                 await msg.clear_reactions()
-                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle arme a bien été équipée"))
-                            else:
-                                await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
 
-                    elif inv == 1:
+                    elif inv == 1: # Skills
                         weap = findSkill(args[1])
 
                         emb = infoSkill(weap,user,ctx)
@@ -549,9 +577,8 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue",components=[]))
                                         break
                         
-                    elif inv == 2:
+                    elif inv == 2: # Stuff
                         weap = findStuff(args[1])
-
                         emb = infoStuff(weap,user,ctx)
 
                         trouv = False
@@ -574,14 +601,16 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                             def checkisReaction(reaction, user):
                                 return user == ctx.author and str(reaction.emoji) ==  weap.emoji
-
-                            await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
-                            user.stuff[weap.type] = weap
-                            if saveCharFile(pathUserProfile,user):
+                            try:
+                                await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
+                                user.stuff[weap.type] = weap
+                                if saveCharFile(pathUserProfile,user):
+                                    await msg.clear_reactions()
+                                    await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvel équipement a bien été équipée"))
+                                else:
+                                    await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
+                            except asyncio.TimeoutError:
                                 await msg.clear_reactions()
-                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvel équipement a bien été équipée"))
-                            else:
-                                await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                     
                     elif inv == 3:
                         obj = findOther(args[1])
@@ -598,111 +627,123 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                         else:
                             repEmb.set_footer(text = "Cliquez sur l'icone de l'objet l'utiliser")
                             await msg.edit(embed = repEmb)
-                            await msg.add_reaction( obj.emoji)
+                            if obj != elementalCristal:
+                                await msg.add_reaction(obj.emoji)
 
                             def checkisReaction(reaction, user):
                                 return user == ctx.author and str(reaction.emoji) ==  obj.emoji
 
-                            await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
+                            try:
+                                await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
 
-                            if obj==changeAspi:
-                                try:
-                                    user.aspiration = await chooseAspiration(bot,msg,ctx,user,args)
-                                    if user.aspiration != False:
-                                        user = restats(user)
-
-                                        user.otherInventory.remove(changeAspi)
-                                        if saveCharFile(pathUserProfile,user):
-                                            await msg.clear_reactions()
-                                            await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
-                                        else:
-                                            await msg.clear_reactions()
-                                            await msg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
-                                except:
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
-                            elif obj==changeAppa:
-                                await msg.clear_reactions()
-                                await msg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
-                                await msg.add_reaction('<:ikaLBlue:866459302319226910>')
-                                await msg.add_reaction('<:takoLBlue:866459095875190804>')
-
-                                def checkIsAuthorReact1(reaction,user):
-                                    return user == ctx.author and reaction.message == msg and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
-
-                                respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
-
-                                if str(respond[0]) == '<:ikaLBlue:866459302319226910>':
-                                    user.species = 1
-                                else:
-                                    user.species = 2
-                                
-                                await msg.clear_reactions()
-                                await msg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
-                                await msg.add_reaction('♂️')
-                                await msg.add_reaction('♀️')
-                                await msg.add_reaction(emoji.forward_arrow)
-                                def checkIsAuthorReact(reaction,user):
-                                    return user == ctx.author and reaction.message == msg and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
-
-                                respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
-                                testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',emoji.forward_arrow]
-                                for a in range(0,len(titouille)):
-                                    if str(respond[0]) == titouille[a]:
-                                        user.gender = testouille[a]
-
-                                await msg.clear_reactions()
-
-                                user = await chooseColor(bot,msg,ctx,user,args)
-
-                                if user != False:
-                                    user.otherInventory.remove(changeAppa)
-                                    saveCharFile(pathUserProfile,user)
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
-
-                            elif obj==changeName: 
-                                await msg.clear_reactions()
-                                await msg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
-                                timeout = False
-                                
-                                try:
-                                    respond = await bot.wait_for("message",timeout = 60,check = checkIsAuthorReact)
-                                except:
-                                    timeout = True
-
-                                if not(timeout):    
-                                    user.name = respond.content
-                                    user.otherInventory.remove(changeName)
-
+                                if obj==changeAspi:
                                     try:
-                                        await respond.delete()
+                                        user.aspiration = await chooseAspiration(bot,msg,ctx,user,args)
+                                        if user.aspiration != False:
+                                            user = restats(user)
+
+                                            user.otherInventory.remove(changeAspi)
+                                            if saveCharFile(pathUserProfile,user):
+                                                await msg.clear_reactions()
+                                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
+                                            else:
+                                                await msg.clear_reactions()
+                                                await msg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
                                     except:
-                                        print("Il me manque la permission de supprimer des messages")
+                                        await msg.clear_reactions()
+                                        await msg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
+                                elif obj==changeAppa:
+                                    await msg.clear_reactions()
+                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
+                                    await msg.add_reaction('<:ikaLBlue:866459302319226910>')
+                                    await msg.add_reaction('<:takoLBlue:866459095875190804>')
+
+                                    def checkIsAuthorReact1(reaction,user):
+                                        return user == ctx.author and reaction.message == msg and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
+
+                                    respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
+
+                                    if str(respond[0]) == '<:ikaLBlue:866459302319226910>':
+                                        user.species = 1
+                                    else:
+                                        user.species = 2
+                                    
+                                    await msg.clear_reactions()
+                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
+                                    await msg.add_reaction('♂️')
+                                    await msg.add_reaction('♀️')
+                                    await msg.add_reaction(emoji.forward_arrow)
+                                    def checkIsAuthorReact(reaction,user):
+                                        return user == ctx.author and reaction.message == msg and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
+
+                                    respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
+                                    testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',emoji.forward_arrow]
+                                    for a in range(0,len(titouille)):
+                                        if str(respond[0]) == titouille[a]:
+                                            user.gender = testouille[a]
+
+                                    await msg.clear_reactions()
+
+                                    user = await chooseColor(bot,msg,ctx,user,args)
+
+                                    if user != False:
+                                        user.otherInventory.remove(changeAppa)
+                                        saveCharFile(pathUserProfile,user)
+                                        await msg.clear_reactions()
+                                        await msg.edit(embed = discord.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
+                                elif obj==changeName: 
+                                    await msg.clear_reactions()
+                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
+                                    timeout = False
+                                    
+                                    try:
+                                        respond = await bot.wait_for("message",timeout = 60,check = checkIsAuthorReact)
+                                    except:
+                                        timeout = True
+
+                                    if not(timeout):    
+                                        user.name = respond.content
+                                        user.otherInventory.remove(changeName)
+
+                                        try:
+                                            await respond.delete()
+                                        except:
+                                            print("Il me manque la permission de supprimer des messages")
+
+                                        saveCharFile(pathUserProfile,user)
+                                        await msg.clear_reactions()
+                                        await msg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !"))
+                                    else:
+                                        await msg.add_reaction('🕛')                
+                                elif obj==restat:
+                                    await msg.clear_reactions()
+                                    restats(user)
+                                    user.otherInventory.remove(restat)
 
                                     saveCharFile(pathUserProfile,user)
                                     await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !"))
-                                else:
-                                    await msg.add_reaction('🕛')
+                                    await msg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
+                                elif obj==customColor:
+                                    user = await changeCustomColor(bot,msg,ctx,user,args)
+                                    if user != None:
+                                        user.otherInventory.remove(customColor)
+                                        saveCharFile(pathUserProfile,user)
+                                        await msg.clear_reactions()
+                                        await msg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
+                            except asyncio.TimeoutError:
+                                await msg.clear_reactions()
                 
-                            elif obj==restat:
-                                await msg.clear_reactions()
-                                restats(user)
-                                user.otherInventory.remove(restat)
-
-                                saveCharFile(pathUserProfile,user)
-                                await msg.clear_reactions()
-                                await msg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
-
-                            elif obj==customColor:
-                                user = await changeCustomColor(bot,msg,ctx,user,args)
-                                if user != None:
-                                    user.otherInventory.remove(customColor)
-                                    saveCharFile(pathUserProfile,user)
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
                 else:
-                    await ctx.channel.send(embed = errorEmbed(args[0],"Rien de trouvé, désolé"))
+                    if slashed==None:
+                        await ctx.channel.send(embed = errorEmbed(args[0],"Rien de trouvé, désolé"))
+                    else:
+                        temp = await ctx.channel.send(embed = errorEmbed(args[0],"Rien de trouvé, désolé"))
+                        await asyncio.sleep(5)
+                        await temp.delete()
         else:
-            await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"))
+            if slashed == None:
+                await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"))
+            else:
+                await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"))
+                await asyncio.sleep(5)
+                await temp.delete()

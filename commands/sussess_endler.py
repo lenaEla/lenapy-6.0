@@ -382,7 +382,7 @@ class successTabl:
         self.clemence = success("La quête de la nuit",10,"clemence",recompense="bg",description="Affontez ou faites équipe avec Clémence {0} fois",emoji='<:takoRed:866459004439756810>')
         self.akira = success("Seconde impression",10,"akira",recompense="bh",description="Affontez ou faites équipe avec Akira {0} fois",emoji='<:takoBlack:871151069193969714>')
         self.fight = success("L'ivresse du combat",1,"fight",recompense="ys",description="Faire {0} combat manuel",emoji='<:splattershotJR:866367630465433611>')
-        self.gwen = success("Une histoire de vangeance",10,"gwen",["ka","kb"],"Affontez ou faites équipe avec Gwendoline {0} fois",emoji='<:takoYellow:866459052132532275>')
+        self.gwen = success("Une histoire de vangeance",10,"gwen",["ka","kb"],"Affontez ou faites équipe avec Gwen {0} fois",emoji='<:takoYellow:866459052132532275>')
         self.quickFight = success("Le temps c'est de l'argent",10,"quickFight",None,"Lancez {0} combats rapides",'<:hourglass1:872181651801772052>')
         self.helene = success("Là où mes ailes me porteront",10,"helene","yr","Affrontez ou faites équipe avec Hélène {0} fois",'<:takoWhite:871149576965455933>')
         self.school = success("Je ne veux pas d'écolière pour défendre nos terres",30,"school",None,"Mi Miman tu es habiyée en écolière... Combatti {0} fois !",'<:splattershot:866367647113543730>')
