@@ -11,7 +11,7 @@ def uniqueEmoji(emoji):
 
 # Weapon
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,30,50,100,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
-roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,40,70,100,strength=15,endurance=5,resistance=5,agility=-5,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2)
+roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,40,70,100,strength=15,endurance=5,resistance=5,agility=-5,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2,damageOnArmor=0.8)
 splatcharger = weapon("Concentraceur","ad",RANGE_LONG,AREA_CIRCLE_5,50,60,100,agility=-5,precision=25,emoji = emoji.charger,damageOnArmor=1.5,affinity=ELEMENT_WATER)
 miniBrush = weapon("Epinceau","ae",RANGE_MELEE,AREA_CIRCLE_1,30,45,100,agility=10,charisma=10,repetition=5,emoji='<:inkBrush:866463573580578816>',needRotate=False)
 inkbrella = weapon("Para-Encre","ag",RANGE_MELEE,AREA_CIRCLE_2,30,45,price=100,endurance=10,resistance=10,precision=-10,strength=10,repetition=3,effect='lp',emoji='<:splatbrella:866464991255199834>',needRotate=False)
@@ -22,7 +22,7 @@ kcharger = weapon("Concentraceur alt.","ak",RANGE_MELEE,AREA_CIRCLE_1,35,60,200,
 HunterRiffle = weapon("Fusil de chasseur","al",RANGE_DIST,AREA_CIRCLE_4,50,50,250,10,precision=10,effect="ls",emoji="<:hunterRifle:872034208095297597>",affinity=ELEMENT_NEUTRAL)
 firework = weapon("Arbalette avec feu d'artifice","am",RANGE_LONG,AREA_CIRCLE_4,35,50,150,10,precision=10,emoji='<:crossbow:871746122899664976>',area=AREA_CONE_2)
 plume = weapon("Plumes tranchantes","ao",RANGE_DIST,AREA_CIRCLE_4,40,50,250,precision=10,percing=10,repetition=1,emoji='<:plume:871893045296128030>',area=AREA_CONE_2,needRotate=False,affinity=ELEMENT_AIR)
-hourglass1Weap = weapon("Sablier intemporel I","ap",RANGE_DIST,AREA_CIRCLE_3,0,100,250,endurance=10,resistance=10,target=ALLIES,type=TYPE_INDIRECT_HEAL,effectOnUse="lx",emoji='<:hourglass1:872181735062908978>')
+hourglass1Weap = weapon("Sablier intemporel I","ap",RANGE_DIST,AREA_CIRCLE_3,20,100,250,endurance=10,resistance=10,target=ALLIES,type=TYPE_HEAL,effectOnUse="lx",emoji='<:hourglass1:872181735062908978>',use=CHARISMA)
 clashBlaster = weapon("Rafa-Blasteur","aq",RANGE_MELEE,AREA_CIRCLE_2,20,40,250,endurance=10,agility=10,precision=-10,percing=10,emoji='<:clashBlaster:877666681869176853>',area=AREA_CIRCLE_1,repetition=4)
 dualies = weapon("Double Encreur","ar",RANGE_DIST,AREA_CIRCLE_4,35,40,150,agility=15,precision=15,resistance=-10,repetition=4,emoji='<:splatDualies:866465264434806815>')
 splatling = weapon("Badigeonneur","as",RANGE_LONG,AREA_CIRCLE_5,35,30,300,precision=10,strength=10,repetition=5,emoji='<:splatling:877666764736061490>')
@@ -53,7 +53,7 @@ def addAllInWeaponData():
             stuffDB.edit_weapon(a)
 
 # Skill
-soupledown = skill("Choc du professeur Souplesse","zz",TYPE_DAMAGE,1500,140,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=70,ultimate=True,cooldown=4,emoji='<:splashDown1:873925948205051985>')
+soupledown = skill("Choc Ténébreux","zz",TYPE_DAMAGE,1500,140,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=70,ultimate=True,cooldown=4,emoji='<:splashDown1:873925948205051985>')
 inkarmor = skill("Armure d'Encre","zy",TYPE_ARMOR,1000,ultimate=True,effect="la",emoji = '<:inkArmor:866829950463246346>',area=AREA_ALL_ALLIES,cooldown=3,range=AREA_MONO)
 coffeeSkill = skill("Suprématie du café","zx",TYPE_BOOST,500,effect=["lb","mc"],use=CHARISMA,conditionType=["reject","skill","zw"],area=AREA_ALL_ALLIES,emoji='<:coffee:867538582846963753>',cooldown=2)
 theSkill = skill("Liberté du thé","zw",TYPE_BOOST,500,effect=["lc","mc"],use=CHARISMA,conditionType=["reject","skill","zx"],area=AREA_ALL_ALLIES,emoji='<:the:867538602644602931>',cooldown=2)
@@ -76,23 +76,23 @@ splatbomb = skill("Bombe splash","zg",TYPE_DAMAGE,100,cooldown=2,area=AREA_CIRCL
 explosion = skill("Explosion","zf",TYPE_DAMAGE,1000,power=180,ultimate=True,cooldown=10,area=AREA_CIRCLE_2,sussess=80,effectOnSelf="mb",use=INTELLIGENCE,emoji='<a:explosion:882627170944573471>')
 protect = skill("Orbe défensif","ze",TYPE_ARMOR,200,emoji='<:orbeDef:873725544427053076>',effect="md",cooldown=3)
 poisonus = skill("Vent empoisonné","zd",TYPE_INDIRECT_DAMAGE,500,emoji='<:estabistia:883123793730609172>',effect="me",cooldown=5,area=AREA_CIRCLE_1,use=INTELLIGENCE)
-invocBat = skill("Invocation - Chauve-souris","zc",TYPE_INVOC,500,invocation="Chauve-Souris",emoji="<:Bat:884899538685530163>",use=None,shareCooldown=True)
+invocBat = skill("Invocation - Chauve-souris","zc",TYPE_INVOC,500,invocation="Chauve-Souris",emoji="<:cutybat:884899538685530163>",shareCooldown=True,use=AGILITY)
 multiMissiles = skill("Multi-Missiles","zb",TYPE_INDIRECT_DAMAGE,750,range=AREA_MONO,ultimate=True,emoji='<:tentamissile:884757344397951026>',effect="mf",cooldown=3,area=AREA_ALL_ENNEMIES)
 monoMissiles = skill("Mono-Missiles","za",TYPE_INDIRECT_DAMAGE,250,range=AREA_CIRCLE_7,emoji='<:monomissile:884757360193708052>',effect="mf",cooldown=2)
 splashdown = skill("Choc Chromatique","yz",TYPE_DAMAGE,500,140,AREA_MONO,ultimate=True,emoji='<:splashdown:884803808402735164>',cooldown=5,area=AREA_CIRCLE_2,damageOnArmor=5)
-invocCarbE = skill("Invocation - Carbuncle Emeraude","yy",TYPE_INVOC,500,invocation="Carbuncle Emeraude",emoji="<:carbuncleE:884899235332522016>",cooldown=4,range=AREA_CIRCLE_3,use=None,shareCooldown=True)
-invocCarbT = skill("Invocation - Carbuncle Topaze","yx",TYPE_INVOC,500,invocation="Carbuncle Topaze",emoji="<:carbuncleT:884899263459500053>",cooldown=4,range=AREA_CIRCLE_3,use=None,shareCooldown=True)
-invocFee = skill("Invocation - Fée Soignante","yw",TYPE_INVOC,500,0,AREA_CIRCLE_3,cooldown=4,invocation="Fée soignante",emoji="<:selene:885077160862318602>",use=None,shareCooldown=True)
+invocCarbE = skill("Invocation - Carbuncle Emeraude","yy",TYPE_INVOC,500,invocation="Carbuncle Emeraude",emoji="<:carbuncleE:884899235332522016>",cooldown=4,range=AREA_CIRCLE_3,shareCooldown=True,use=INTELLIGENCE)
+invocCarbT = skill("Invocation - Carbuncle Topaze","yx",TYPE_INVOC,500,invocation="Carbuncle Topaze",emoji="<:carbuncleT:884899263459500053>",cooldown=4,range=AREA_CIRCLE_3,shareCooldown=True,use=ENDURANCE)
+invocFee = skill("Invocation - Fée Soignante","yw",TYPE_INVOC,500,0,AREA_CIRCLE_3,cooldown=4,invocation="Fée soignante",emoji="<:selene:885077160862318602>",shareCooldown=True,use=CHARISMA)
 thinkSkill = skill("Réfléchis !","yv",TYPE_BOOST,250,0,emoji="<:think:885240853696765963>",effect="mh",use=CHARISMA,cooldown = 3)
 descart = skill("Je pense donc je suis","yu",TYPE_BOOST,250,range=AREA_MONO,emoji="<:descartes:885240392860188672>",effect='mi',cooldown=4,use=None)
 trans = skill("Transcendance","yt",TYPE_UNIQUE,0,initCooldown=3,cooldown=7,emoji="<:limiteBreak:886657642553032824>",description="Un sort particulier qui a un effet différent en fonction de l'aspiration du lanceur\n\n__Berserkeur :__ Dégâts mono\n__Poids Plume, Tête Brûlée :__Dégâts en ligne\n__Idole, Altruiste :__ Soins sur toute l'équipe (et resurrection)\n__Erudit, Observateur :__ Dégâts en cercle\n__Aventurier :__ Invoque \"Titania\"\n\nCette compétence utilise la statistique la plus élevée du lanceur\n\nUtiliser Transcendance vous empêche d'utiliser une compétence ultime lors du prochain tour",use=HARMONIE,shareCooldown=True)
 burst = skill("Bombe ballon","ys",TYPE_DAMAGE,0,30,area=AREA_CIRCLE_1,sussess=60,emoji='<:burstBomb:887328853683474444>')
-lapSkill = skill("Invocation - Lapino","yr",TYPE_INVOC,0,invocation="Lapino",cooldown=4,shareCooldown=True,emoji='<:lapino:885899196836757527>')
+lapSkill = skill("Invocation - Lapino","yr",TYPE_INVOC,0,invocation="Lapino",cooldown=4,shareCooldown=True,emoji='<:lapino:885899196836757527>',use=CHARISMA)
 adrenaline = skill("Adrénaline","yq",TYPE_HEAL,250,60,cooldown=5,emoji='<:adrenaline:887403480933863475>',use=INTELLIGENCE)
 blindage = skill("Blindage","yp",TYPE_BOOST,350,0,AREA_MONO,effect="mj",cooldown=3,use=None,emoji="<:defSupp:885899082453880934>")
 fermete = skill("Second Souffle","yo",TYPE_HEAL,350,60,AREA_MONO,emoji='<:defHeal:885899034563313684>',cooldown=5,use=ENDURANCE)
 isolement = skill("Isolement","yn",TYPE_ARMOR,500,70,AREA_MONO,emoji='<:selfProtect:887743151027126302>',cooldown=5,effect="ml")
-bombRobot = skill("Invocation - Bombe Robot","ym",TYPE_INVOC,500,0,AREA_CIRCLE_3,invocation="Bombe Robot",cooldown=2,shareCooldown=True,emoji='<:autobomb:887747538994745394>')
+bombRobot = skill("Invocation - Bombe Robot","ym",TYPE_INVOC,500,0,AREA_CIRCLE_3,invocation="Bombe Robot",cooldown=2,shareCooldown=True,emoji='<:autobomb:887747538994745394>',use=STRENGTH)
 linx = skill("Œuil de Linx","yl",TYPE_BOOST,500,range=AREA_MONO,area=AREA_CIRCLE_2,emoji='<:noeuil:887743235131322398>',effect="mm",cooldown=4)
 stalactic = skill("Stalactite","yk",TYPE_DAMAGE,300,60,emoji='<:stalactit:889089667088142346>',cooldown=3,sussess=60)
 uppercut = skill("Uppercut","yj",TYPE_DAMAGE,200,50,AREA_CIRCLE_1,emoji='<:uppercut:889091033718194196>',cooldown=2)
@@ -122,13 +122,12 @@ autoWeap = weapon("NoneWeap","aal",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:empt
 autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus,silent=True)
 autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,75,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff)
 
-
-batInvoc = invoc("Chauve-Souris",aspiration=TETE_BRULE,strength=[PURCENTAGE,1],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.6],agility=[PURCENTAGE,1],precision=[PURCENTAGE,0.8],intelligence=[PURCENTAGE,0.8],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans tant de rechargement",skills=[batSkill])
-carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.8],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,1.1],20,10,[PURCENTAGE,2],TETE_BRULE,["<:ce1:884889724114841610>","<:ce2:884889693374775357>"],carbunE,[carbunSkill],description="Une invocation utlisant son **Intelligence** pour vaincre des groupes d'ennemis de loin")
-carbuncleT = invoc("Carbuncle Topaze",[PURCENTAGE,0.8],[PURCENTAGE,2.5],[PURCENTAGE,0.6],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,0.7],[PURCENTAGE,1],0,10,BERSERK,["<:ct1:884889748274028666>","<:ct2:884889807111749662>"],batWeap,[carbunTSKill],description="Une invocation résistante qui n'a pas froid au yeux et viendra sauter dans la mêlée")
-feeInv = invoc("Fée soignante",[PURCENTAGE,0.5],[PURCENTAGE,0.8],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.8],[PURCENTAGE,0.8],10,0,0,ALTRUISTE,["<:fee1:885076945333805086>","<:fee2:885076961695760386>"],feeWeap,[feeSkill],gender=GENDER_FEMALE,description="Une fée qui soigne ses alliés grace à sa magie curative")
-titania = invoc("Titania",[HARMONIE],[HARMONIE],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],25,10,25,OBSERVATEUR,["<:tita1:886663550796431390>","<:tita2:886663565220651028>"],titWeap,[],GENDER_FEMALE)
-lapino = invoc("Lapino",[PURCENTAGE,0.5],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,0.5],10,0,0,ALTRUISTE,['<:lapino1:885899366966112266>','<:lapino2:885899382539571221>'],lapinoWeap,[lapinoSkill],description="Fidèle Lapino d'Hélène, il la suit partout là où elle aura besoin de lui")
+batInvoc = invoc("Chauve-Souris",aspiration=TETE_BRULE,strength=[PURCENTAGE,1],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.6],agility=[PURCENTAGE,1],precision=[PURCENTAGE,0.8],intelligence=[PURCENTAGE,0.8],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans tant de rechargement",skills=[batSkill],element=ELEMENT_AIR)
+carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.8],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,1.1],20,10,[PURCENTAGE,2],TETE_BRULE,["<:ce1:884889724114841610>","<:ce2:884889693374775357>"],carbunE,[carbunSkill],description="Une invocation utlisant son **Intelligence** pour vaincre des groupes d'ennemis de loin",element=ELEMENT_FIRE)
+carbuncleT = invoc("Carbuncle Topaze",[PURCENTAGE,0.8],[PURCENTAGE,2.5],[PURCENTAGE,0.6],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,0.7],[PURCENTAGE,1],0,10,BERSERK,["<:ct1:884889748274028666>","<:ct2:884889807111749662>"],batWeap,[carbunTSKill],description="Une invocation résistante qui n'a pas froid au yeux et viendra sauter dans la mêlée",element=ELEMENT_AIR)
+feeInv = invoc("Fée soignante",[PURCENTAGE,0.5],[PURCENTAGE,0.8],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.8],[PURCENTAGE,0.8],10,0,0,ALTRUISTE,["<:fee1:885076945333805086>","<:fee2:885076961695760386>"],feeWeap,[feeSkill],gender=GENDER_FEMALE,description="Une fée qui soigne ses alliés grace à sa magie curative",element=ELEMENT_LIGHT)
+titania = invoc("Titania",[HARMONIE],[HARMONIE],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],25,10,25,OBSERVATEUR,["<:tita1:886663550796431390>","<:tita2:886663565220651028>"],titWeap,[],GENDER_FEMALE,ELEMENT_AIR)
+lapino = invoc("Lapino",[PURCENTAGE,0.5],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.8],[PURCENTAGE,0.8],[PURCENTAGE,0.5],10,0,0,ALTRUISTE,['<:lapino1:885899366966112266>','<:lapino2:885899382539571221>'],lapinoWeap,[lapinoSkill],description="Fidèle Lapino d'Hélène, il la suit partout là où elle aura besoin de lui",element=ELEMENT_LIGHT)
 autoBomb = invoc("Bombe Robot",[PURCENTAGE,0.8],50,0,0,0,0,20,0,0,AVENTURIER,["<:auto1:887747795497394267>","<:auto2:887747819866312735>"],autoWeap,[autoSkill])
 
 invocTabl = [autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc]
@@ -205,8 +204,8 @@ old = stuff("Vieux porte-clefs","jy",0,200,intelligence=25,agility=-15,strength=
 batRuban = stuff("Noeud Chauve-Souris","jz",0,0,charisma=40,intelligence=20,strength=-20,resistance=-10,percing=-10,orientation=[LONG_DIST,HEALER],emoji='<:batRuban:887328511222763593>',position=3)
 FIACNf = stuff("Robe du FIACN","ka",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNF:887328531774836736>',orientation=[TANK,DPT])
 FIACNh = stuff("Gilet du FIACN","kb",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNH:887328549437059172>',orientation=[TANK,DPT])
-heleneDress = stuff("Robe bleu d'Hélène","kc",1,0,charisma=25,intelligence=20,strength=-10,endurance=-10,emoji='<:heleneDress:888745359365525535>',effect='mk',affinity=ELEMENT_LIGHT,orientation=[DISTANCE,HEALER])
-heleneShoe = stuff("Babies Bleus d'Hélène","kd",2,0,strength=-10,charisma=25,intelligence=5,emoji='<:blueBabie:887857026477207592>',orientation=[DISTANCE,HEALER])
+heleneDress = stuff("Robe bleue d'Hélène","kc",1,0,charisma=25,intelligence=20,strength=-10,endurance=-10,emoji='<:heleneDress:888745359365525535>',effect='mk',affinity=ELEMENT_LIGHT,orientation=[DISTANCE,HEALER])
+heleneShoe = stuff("Babies bleues d'Hélène","kd",2,0,strength=-10,charisma=25,intelligence=5,emoji='<:blueBabie:887857026477207592>',orientation=[DISTANCE,HEALER])
 corset = stuff("Corset d'Ordin","ke",1,500,10,5,0,0,25,-10,emoji="<:corsetordin:887757308157886465>",orientation=[DISTANCE,None])
 ggshield = stuff("Bouclier GG","kf",0,500,endurance=20,resistance=15,agility=-15,emoji='<:emoji_8:887757446658023496>',orientation=[TANK,None])
 fecaShield = stuff("Bouclier Feca","kg",0,1000,-20,15,resistance=25,emoji='<:fecashield:887757399736348722>',affinity=ELEMENT_EARTH,orientation=[TANK,None])
@@ -272,8 +271,9 @@ blinde = effect("Blindé","mj",resistance=20,description="Réduit les degâts su
 const = effect("Constitution","mk",emoji=uniqueEmoji('<:constitution:888746214999339068>'),description="Augmente de 30 les PV max de base de toute votre équipe",turnInit = -1)
 isoled = effect("Isolé","ml",emoji=uniqueEmoji('<:selfProtect:887743151027126302>'),description="S'isoler mentalement pôur ne pas faire attention au dégâts",overhealth=70)
 nouil = effect("Œuil de Linx","mm",emoji=uniqueEmoji('<:noeuil:887743235131322398>'),precision=30)
+lostSoul = effect("Âme en peine","mn",emoji=uniqueEmoji('<:lostSoul:887853918665707621>'),turnInit=3,trigger=TRIGGER_ON_REMOVE,silent=True,type=TYPE_UNIQUE)
 
-effects = [nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAura,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE]
+effects = [lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAura,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE]
 hourglassEffects = [hourglass1]
 
 #Other
@@ -281,7 +281,7 @@ changeAspi = other("Changement d'aspiration","qa",description="Vous permet de ch
 changeAppa = other("Changement d'apparence","qb",description="Vous permet de changeer votre genre, couleur et espèce",emoji='<:changeAppa:872174182773977108>',price=500)
 changeName = other("Changement de nom","qc",description="Vous permet de changer le nom de votre personnage",emoji='<:changeName:872174155485810718>',price=500)
 restat = other("Rénitialisation des points bonus","qd",description="Vous permet de redistribuer vos points bonus",emoji='<:restats:872174136913461348>',price=500)
-elementalCristal = other("Cristal élémentaire","qe",500,description="Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory élément",emoji="<:krisTal:888070310472073257>")
+elementalCristal = other("Cristal élémentaire","qe",500,description="Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory élément",emoji="<:krysTal:888070310472073257>")
 customColor = other("Couleur personnalisée","qf",500,description="Vous permet de rentrer une couleur personnalisée pour votre personnage")
 
 others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat]
@@ -326,7 +326,7 @@ class octarien:
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
 
 class  tmpAllie:
-    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skills=[],description="Pas de description",url=None,element=ELEMENT_NEUTRAL):
+    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skills=[],description="Pas de description",url=None,element=ELEMENT_NEUTRAL,variant = False):
         self.name = name
         self.species = species
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence = 0,0,0,0,0,0
@@ -345,6 +345,7 @@ class  tmpAllie:
         self.description=description
         self.url = url
         self.element = element
+        self.variant = variant
 
     def changeLevel(self,level=1):
         self.level = level
@@ -380,24 +381,32 @@ for a in [0,1,2]:
 for a in [0,1]:
     tablAllOcta += [octarien("Octarien Volant",30,0,0,50,30,0,10,0,0,octoFly,4,'<:octovolant:880151493171363861>')]
 
-tablAllAllies += [tmpAllie("Lena",1,light_blue,OBSERVATEUR,splatcharger,[amethystEarRings,uniform,redSnekers],GENDER_FEMALE,[splatbomb,invocCarbE,multiMissiles],"Une inkling qui en a vu des vertes et des pas murs.\nPréfère rester loin de la mêlée et abattre ses ennemis à bonne distance","https://cdn.discordapp.com/emojis/866459302319226910.png",ELEMENT_WATER)]
-tablAllAllies += [tmpAllie("Gwendoline",2,yellow,BERSERK,roller,[ironHelmet,FIACNf,blackFlat],GENDER_FEMALE,[courage,balayette],"Bien qu'elle essaye de l'éviter, cette jeune femme se retrouve toujours à devoir en venir aux mains pour se débarraser des gros lourds de la première ligne ennemie.\nIl est vrai aussi qu'elle n'est pas toute seule dans sa tête","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_EARTH)]
-tablAllAllies += [tmpAllie("Clémence",2,red,AVENTURIER,rapiere,[batEarRings,redDress,redSnekers],GENDER_FEMALE,[bpotion,explosion,invocCarbT,poisonus],"Une vampire qui a décidé de léguer sa jeunesse éternelle à l'étude des runes et la magie","https://cdn.discordapp.com/emojis/866459004439756810.png",ELEMENT_FIRE)]
-tablAllAllies += [tmpAllie("Alice",1,pink,IDOLE,mic,[batRuban,pinkShirt,pinkSneakers],GENDER_FEMALE,[burst,courage,theSkill,healAura,cure],"Une petite fille vampirique qui veut toujours avoir l'attention sur elle. Faisant preuve d'une grande volontée, il faudrait mieux ne pas trop rester dans le coin si elle décide que vous lui faites de l'ombre","https://cdn.discordapp.com/emojis/866459344173137930.png?",ELEMENT_LIGHT)]
-tablAllAllies += [tmpAllie("Shushi",1,blue,TETE_BRULE,inkbrella,[patacasque,pataarmor,patabottes],GENDER_FEMALE,[coffeeSkill,inkarmor,balayette,protect,burst],"Jeune inkling pas très douée pour le combat, à la place elle essaye de gagner du temps pour permettre à ses alliés d'éliminer l'équipe adverse","https://cdn.discordapp.com/emojis/866459319049650206.png",ELEMENT_AIR)]
-tablAllAllies += [tmpAllie("Lohica",1,purple,ERUDIT,butterflyP,[oldBooks,uniform,schoolShoes],GENDER_FEMALE,[contrecoup,bpotion,explosion,poisonus,boom],"Une fée à l'histoire bien mouvementée. Spécialisée dans les poisons","https://cdn.discordapp.com/emojis/866459331254550558.png?v=1",ELEMENT_DARKNESS)]
-tablAllAllies += [tmpAllie("Hélène",2,white,ALTRUISTE,serringue,[barrette,heleneDress,heleneShoe],GENDER_FEMALE,[cure,lapSkill,trans],"Une fée qui estime qu'essayer de sauver la vie de ses alliés est plus efficace que si elle esseyait de terminer le combat elle-même","https://cdn.discordapp.com/emojis/871149576965455933.png?v=1",ELEMENT_LIGHT)]
-tablAllAllies += [tmpAllie("Félicité",1,red,TETE_BRULE,dtsword,[determination,legendaryTunic,legendaryBoots],GENDER_FEMALE,[balayette,splashdown,splatbomb,monoMissiles],"Une grande pré-ado qui veut toujours tout faire, mais qui n'y arrive pas tout à fait non plus","https://cdn.discordapp.com/emojis/866459224664702977.png?v=1")]
-tablAllAllies += [tmpAllie("Akira",2,black,TETE_BRULE,fauc,[anakiMask,blackJeanJacket,blackSnelers],GENDER_MALE,[balayette,burst,splashdown],"Flora si tu as une description je veux bien","https://cdn.discordapp.com/emojis/871151069193969714.png?v=1",ELEMENT_DARKNESS)]
+# Alliés temporaires
+tablAllAllies = [
+    tmpAllie("Lena",1,light_blue,OBSERVATEUR,splatcharger,[amethystEarRings,uniform,redSnekers],GENDER_FEMALE,[splatbomb,invocCarbE,multiMissiles],"Une inkling qui en a vu des vertes et des pas murs.\nPréfère rester loin de la mêlée et abattre ses ennemis à bonne distance","https://cdn.discordapp.com/emojis/866459302319226910.png",ELEMENT_WATER),
+    tmpAllie("Gwendoline",2,yellow,TETE_BRULE,roller,[anakiMask,blackJeanJacket,blackFlat],GENDER_FEMALE,[uppercut],"Bien qu'elle essaye de l'éviter, cette jeune femme se retrouve toujours à devoir en venir aux mains pour se débarraser des gros lourds de la première ligne ennemie.\nIl est vrai aussi qu'elle n'est pas toute seule dans sa tête","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_EARTH),
+    tmpAllie("Clémence",2,red,AVENTURIER,rapiere,[batEarRings,redDress,redSnekers],GENDER_FEMALE,[bpotion,explosion,invocCarbT,poisonus],"Une vampire qui a décidé de léguer sa jeunesse éternelle à l'étude des runes et la magie","https://cdn.discordapp.com/emojis/866459004439756810.png",ELEMENT_FIRE),
+    tmpAllie("Alice",1,pink,IDOLE,mic,[batRuban,pinkShirt,pinkSneakers],GENDER_FEMALE,[burst,courage,theSkill,healAura,cure],"Une petite fille vampirique qui veut toujours avoir l'attention sur elle. Faisant preuve d'une grande volontée, il faudrait mieux ne pas trop rester dans le coin si elle décide que vous lui faites de l'ombre","https://cdn.discordapp.com/emojis/866459344173137930.png?",ELEMENT_LIGHT),
+    tmpAllie("Shushi",1,blue,TETE_BRULE,inkbrella,[patacasque,pataarmor,patabottes],GENDER_FEMALE,[coffeeSkill,inkarmor,balayette,protect,burst],"Jeune inkling pas très douée pour le combat, à la place elle essaye de gagner du temps pour permettre à ses alliés d'éliminer l'équipe adverse","https://cdn.discordapp.com/emojis/866459319049650206.png",ELEMENT_AIR),
+    tmpAllie("Lohica",1,purple,ERUDIT,butterflyP,[oldBooks,uniform,schoolShoes],GENDER_FEMALE,[contrecoup,bpotion,explosion,poisonus,boom],"Une fée à l'histoire bien mouvementée. Spécialisée dans les poisons","https://cdn.discordapp.com/emojis/866459331254550558.png?v=1",ELEMENT_DARKNESS),
+    tmpAllie("Hélène",2,white,ALTRUISTE,serringue,[barrette,heleneDress,heleneShoe],GENDER_FEMALE,[cure,lapSkill,trans],"Une fée qui estime qu'essayer de sauver la vie de ses alliés est plus efficace que si elle esseyait de terminer le combat elle-même","https://cdn.discordapp.com/emojis/871149576965455933.png?v=1",ELEMENT_LIGHT),
+    tmpAllie("Félicité",1,red,TETE_BRULE,dtsword,[determination,legendaryTunic,legendaryBoots],GENDER_FEMALE,[balayette,splashdown,splatbomb,monoMissiles],"Une grande pré-ado qui veut toujours tout faire, mais qui n'y arrive pas tout à fait non plus","https://cdn.discordapp.com/emojis/866459224664702977.png?v=1"),
+    tmpAllie("Akira",2,black,TETE_BRULE,fauc,[anakiMask,blackJeanJacket,blackSnelers],GENDER_MALE,[balayette,burst,splashdown],"Flora si tu as une description je veux bien","https://cdn.discordapp.com/emojis/871151069193969714.png?v=1",ELEMENT_DARKNESS)
+]
 
-#try:
+tablVarAllies = [
+    tmpAllie("Lina",1,black,POIDS_PLUME,kcharger,[amethystEarRings,pullBrown,blackFlat],GENDER_FEMALE,[splatbomb,balayette,soupledown],"Là où se trouve la Lumière se trouvent les Ténèbres","https://cdn.discordapp.com/emojis/871149560284741632.png?v=1",ELEMENT_DARKNESS,variant=True),
+    tmpAllie("Altikia",2,yellow,ALTRUISTE,inkbrella,[maidHat,maidDress,maidHeels],GENDER_FEMALE,[healAura,inkarmor,isolement],"Une personnalité de Gwen qui préfère se concentrer sur ses alliés","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_LIGHT,variant=True),
+    tmpAllie("Klironovia",2,yellow,BERSERK,roller,[ironHelmet,FIACNf,blackFlat],GENDER_FEMALE,[courage,balayette,splashdown],"Une personnalité de Gwen bien plus violente que les deux autres","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_AIR,variant=True),
+    tmpAllie("Shihu",1,black,OBSERVATEUR,squiffer,[amethystEarRings,blackJeanJacket,blackFlat],GENDER_FEMALE,[splatbomb,stalactic],"\"Eye veut zuste un pi d'attenchions...\" - Shushi","https://cdn.discordapp.com/emojis/871149560284741632.png?v=1",ELEMENT_DARKNESS,variant=True)
+]
+
+
 print("Mise à jour de la base de donnée...")
 addAllInWeaponData()
 addAllInSkillData()
 addAllInStuffData()
 print("Mise à jour de la base de donnée réalisée")
-#except:
-    #print("La base de donnée n'a pas été mise à jour")
 
 
 def findWeapon(WeaponId):
@@ -494,7 +503,7 @@ def findInvoc(name):
     return None
 
 def findAllie(name):
-    for a in tablAllAllies:
+    for a in tablAllAllies+tablVarAllies:
         if a.name == name:
             return a
     return None

@@ -344,7 +344,7 @@ class char:
 
 class invoc:
     """The main class for summons. Similar the "char" class, but with only the fight's necessery attributs"""
-    def __init__(self,name,strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,aspiration,icon,weapon,skills=[],gender=GENDER_OTHER,description="Pas de description"):
+    def __init__(self,name,strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,aspiration,icon,weapon,skills=[],gender=GENDER_OTHER,description="Pas de description",element=ELEMENT_NEUTRAL):
         self.name = name
         self.level = 0
         self.team = 0
@@ -364,7 +364,7 @@ class invoc:
         self.skills = skills
         self.icon = icon
         self.customColor = False
-        self.element = ELEMENT_NEUTRAL
+        self.element = element
 
     def allStats(self):
         """Return a list """
