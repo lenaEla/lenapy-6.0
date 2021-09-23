@@ -1539,6 +1539,13 @@ async def invent(ctx,destination,procuration=None,nom=None):
         nom = [None]
     await inventory(bot,ctx,["/inventory"]+empty+nom,[int(destination),procuration])
 
+# Points
+@slash.slash(name="points",description="Vous permet de répartir vos points bonus",options=[
+    create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False)
+])
+async def pts(ctx,procuration=None):
+    await points(bot,ctx, ["/points",None],procuration,slashed=True)
+
 ###########################################################
 # Démarrage du bot
 if os.path.exists("../Kawi/"):

@@ -386,30 +386,29 @@ def infoWeapon(weapon,user,ctx):
     else:
         portee = "Longue distance"
     
+    info = "\n__Cible :__ "
+    if weap.target == ALLIES:
+        info += "**Alliés**"
+    else:
+        info += "Ennemis"
+
     cible = weap.area  
     if cible == AREA_MONO:
         cible = "Monocible"
     else:
         cible = "Dégâts de zone"
-
-    target = ""
-    if weap.target == ALLIES:
-        target ="\nCette arme cible les **alliés**"
-
-    uncommun = ""
-    if weap.use != STRENGTH:
-        uncommun = f"\nCette arme utilise la statistique de **{nameStats[weap.use]}**"
-
-    armorBreak = ""
-    if weap.onArmor != 1:
-        armorBreak = f"\nDégâts sur armure : {int(weap.onArmor*100)}%"
+    
+    info += "\n__Zone d'effet :__ " + cible + f"\n__Statistique utilisée :__ {nameStats[weap.use]}"
+    
+    if weap.onArmor != 1 and weap.type == TYPE_DAMAGE:
+        info = f"\n__Dégâts sur armure :__ **{int(weap.onArmor*100)}**%"
 
     element = ""
     if weap.affinity != None:
-        element = f"\nAffinité : {elemEmojis[weap.affinity]} {elemNames[weap.affinity]}"
+        element = f"\n__Affinité :__ {elemEmojis[weap.affinity]} {elemNames[weap.affinity]}"
 
-    repEmb.add_field(name = "__Informations Principales :__",value = f"Catégorie : {portee}\nPortée : {weap.effectiveRange}\nPuissance : {weap.power}\nPrécision par défaut : {weap.sussess}%\nNombre de tirs : {weap.repetition}\nCible : {cible}{target}{uncommun}{armorBreak}{element}",inline = False)
-
+    repEmb.add_field(name = "__Informations Principales :__",value = f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__{tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}\n__Précision par défaut :__ {weap.sussess}%\n__Nombre de tirs :__ {weap.repetition}\n<:empty:866459463568850954>")
+    repEmb.add_field(name="__Statistiques secondaires :__",value=f'{element}{info}\n<:empty:866459463568850954>',inline=True)
     bonus,malus = "",""
     stats = [weap.strength,weap.endurance,weap.charisma,weap.agility,weap.precision,weap.intelligence,weap.resistance,weap.percing]
     names = nameStats+nameStats2
@@ -420,9 +419,9 @@ def infoWeapon(weapon,user,ctx):
             malus += f"{names[a]} : {stats[a]}\n"
 
     if bonus != "":
-        repEmb.add_field(name ="__Bonus de statistiques :__",value = bonus,inline = False)
+        repEmb.add_field(name ="__Bonus de statistiques :__",value = bonus+"\n<:empty:866459463568850954>",inline = False)
     if malus != "":
-        repEmb.add_field(name="__Malus de statistiques :__",value = malus, inline = False)
+        repEmb.add_field(name="__Malus de statistiques :__",value = malus+"\n<:empty:866459463568850954>", inline = False)
 
     
     ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
@@ -450,11 +449,11 @@ def infoWeapon(weapon,user,ctx):
 
 
     if weap.effect != None:
-        repEmb.add_field(name="__Effet Passif :__",value = "Cette arme accorde un effet passif à son porteur",inline=False)
+        repEmb.add_field(name="<:empty:866459463568850954>\n__Effet Passif :__",value = "Cette arme accorde un effet passif à son porteur",inline=False)
         infoEffect(weap.effect,user,repEmb,ctx)
 
     if weap.effectOnUse != None:
-        repEmb.add_field(name="__Effet à l'utilisation :__",value = "Cette arme donne un effet à la cible",inline=False)
+        repEmb.add_field(name="<:empty:866459463568850954>\n__Effet à l'utilisation :__",value = "Cette arme donne un effet à la cible",inline=False)
         infoEffect(weap.effectOnUse,user,repEmb,ctx)
     return repEmb
 
@@ -789,13 +788,16 @@ async def getUserIcon(bot,user):
         return customIconDB.getCustomIcon(user)
 
 def infoInvoc(invoc,embed):
-    rep = f"__Aspiration de l'invocation:__ {inspi[invoc.aspiration]}\n__Description :__ {invoc.description}\n\n**__Statistiques :__**\n*\"Invoc\" est un raccourci pour \"Statistique de l'Invocateur\"*\n"
+    rep = f"__Aspiration de l'invocation:__ {inspi[invoc.aspiration]}\n__Elément de l'invocation :__ {elemEmojis[invoc.element]} {elemNames[invoc.element]}\n__Description :__ {invoc.description}\n\n**__Statistiques :__**\n*\"Invoc\" est un raccourci pour \"Statistique de l'Invocateur\"*\n"
 
     stats = invoc.allStats()+[invoc.resistance,invoc.percing,invoc.critical]
     names = nameStats+nameStats2
     for a in range(0,len(stats)):
         if type(stats[a]) == list:
-            rep += f"\n__{names[a]} :__ Invoc x{stats[a][1]}"
+            if stats[a][0] == PURCENTAGE:
+                rep += f"\n__{names[a]} :__ Invoc x{stats[a][1]}"
+            elif stats[a][0] == HARMONIE :
+                 rep += f"\n__{names[a]} :__ Invoc : Harmonie"
         else:
             rep += f"\n__{names[a]} :__ {stats[a]}"
 
@@ -806,11 +808,14 @@ def infoInvoc(invoc,embed):
             ranged=["Monocible","Zone"][int(a.area != AREA_MONO)]
             rep += f"\n{a.emoji} {a.name} ({tablTypeStr[a.type]}, {ranged})"
 
-    embed.add_field(name=invoc.name,value=rep,inline = False)
+    embed.add_field(name="__"+invoc.name+"__",value=rep,inline = False)
     return embed
 
 def infoAllie(allie):
-    rep = f"__Aspiration :__ {inspi[allie.aspiration]}\n__Description :__\n{allie.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
+    var = ""
+    if allie.variant:
+        var = "Cet allié temporaire est une variante d'un autre allié temporaire\n\n"
+    rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]}\n__Description :__\n{allie.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
     allMaxStats, accStats, dressStats, flatsStats = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel],allie.stuff[0].allStats(),allie.stuff[1].allStats(),allie.stuff[2].allStats()
     for a in range(0,len(allMaxStats)):
         temp,tempi = allMaxStats[a][allie.aspiration],accStats[a]+dressStats[a]+flatsStats[a]
