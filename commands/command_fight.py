@@ -780,14 +780,12 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 else:
                     self.status = STATUS_TRUE_DEATH
                     
-                if type(self.char) != invoc:
+            if type(self.char) != invoc and self.status != STATUS_RESURECTED:
+                if self.char.deadIcon == None:
                     self.icon = [None,'<:spIka:866465882540605470>' ,'<:spTako:866465864399323167>','<:spOcta:866465980586786840>'][self.char.species]
+                else:
+                    self.icon = self.char.deadIcon
             
-            elif self.status == STATUS_TRUE_DEATH:
-                if type(self.char) != invoc:
-                    self.icon = [None,'<:spIka:866465882540605470>' ,'<:spTako:866465864399323167>','<:spOcta:866465980586786840>'][self.char.species]
-                self.cell.on = None
-
             elif self.status == STATUS_RESURECTED:
                 pipistrelle += add_effect(self,self,onceButNotTwice)
 
@@ -1291,6 +1289,8 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
         def triggerRemove(self):
             if not(self.effect.silent):
                 message = f'L\'effet __{self.effect.name}__ se déclanche :\n'
+            else:
+                message = ""
             if self.type == TYPE_UNIQUE:
                 if self.effect == hourglass1 and self.on.hp > 0:
                     heal = min(self.on.maxHp - self.on.hp, round(self.value * 0.75))
@@ -1301,6 +1301,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 elif self.effect == lostSoul:
                     if self.on.status == STATUS_DEAD:
                         self.on.status = STATUS_TRUE_DEATH
+                        message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
 
             return message
 
@@ -1569,11 +1570,19 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 aleaMax = len(tablAllOcta)-1
                 alreadyFall = []
 
+            oneVAll = False
             if len(team2) < len(team1):
                 if random.randint(0,99) <= 33:
                     temp = random.randint(0,len(tablBoss)-1)
                     bottine = tablBoss[temp]
-                    alea = octarien(bottine.name,bottine.strength,bottine.endurance,bottine.charisma,bottine.agility,bottine.precision,bottine.intelligence,bottine.resistance,bottine.percing,bottine.critical,bottine.weapon,bottine.exp,bottine.icon,bottine.skills,bottine.aspiration,bottine.gender)
+
+                    if bottine.oneVAll:
+                        print("[Big shot]")
+                        oneVAll = True
+                        littleTeam = len(team1)/8
+                    else:
+                        littleTeam = 1
+                    alea = octarien(bottine.name,bottine.strength*littleTeam,bottine.endurance*littleTeam,bottine.charisma*littleTeam,bottine.agility*littleTeam,bottine.precision*littleTeam,bottine.intelligence*littleTeam,bottine.resistance,bottine.percing,bottine.critical,bottine.weapon,bottine.exp,bottine.icon,bottine.skills,bottine.aspiration,bottine.gender,deadIcon=bottine.deadIcon)
                     alea.level = lvlMax
                     tempStats = alea.allStats()
                     for b in range(0,len(tempStats)):
@@ -1583,7 +1592,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                     team2 += [alea]
                     logs += "{0} have been added into team2\n".format(alea.name)
 
-            while len(team2) < len(team1):
+            while len(team2) < len(team1) and not(oneVAll):
                 temp = random.randint(0,aleaMax)
                 if temp not in alreadyFall:
                     alreadyFall += [temp]
@@ -2810,10 +2819,10 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                         if randomSkill.range != AREA_MONO:
                             nearestEnnemi,nearestDistance,myCell,nearestCell,dpt = 0,100,actTurn.cell,0,[]
                             for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lineOfSight=True,effect=randomSkill.effect): # Allié le blessé
-                                if a.aspiration == BERSERK or a.aspiration == OBSERVATEUR or a.aspiration == POIDS_PLUME or a.aspiration == TETE_BRULE:
+                                if a.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
                                     dpt.append(a)
 
-                            for a in dpt: 
+                            for a in dpt:
                                 if a.team == actTurn.team and a.hp > 0:
                                     if a.hp/a.maxHp < nearestDistance:
                                         nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
@@ -2949,7 +2958,11 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             isAlive = ennemi.hp > 0
                             if not(isAlive) :
                                 break
-                            tempTurnMsg += f"\n__{actTurn.char.name} attaque {ennemi.char.name} avec son arme :__\n"
+                            if actTurn.char.weapon.message == None:
+                                tempTurnMsg += f"\n__{actTurn.char.name} attaque {ennemi.char.name} avec son arme :__\n"
+                            else:
+                                tempTurnMsg += "\n__"+actTurn.char.weapon.message.format(actTurn.char.name,ennemi.char.name)+"__\n"
+                            
                             ballerine = actTurn.attack(target=ennemi,value=actTurn.char.weapon.power,icon=actTurn.char.weapon.emoji,area=actTurn.char.weapon.area,use=actTurn.char.weapon.use,onArmor=actTurn.char.weapon.onArmor)
                             logs+= ballerine
                             tempTurnMsg += ballerine
@@ -2968,7 +2981,11 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                         
                     elif actTurn.char.weapon.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]: # None agressive Weapon
                         logs += "\n\n{0} is healing {1} with their weapon".format(actTurn.char.name,ennemi.char.name)
-                        tempTurnMsg += f"\n__{actTurn.char.name} soigne {ennemi.char.name} avec son arme :__\n"
+                        if actTurn.char.weapon.message == None:
+                            tempTurnMsg += f"\n__{actTurn.char.name} soigne {ennemi.char.name} avec son arme :__\n"
+                        else:
+                            tempTurnMsg += "\n__"+actTurn.char.weapon.message.format(actTurn.char.name,ennemi.char.name)+"__\n"
+
                         for a in ennemi.cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=ALLIES):
                             healPowa = min(a.maxHp-a.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=a,heal=True)* actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
                             healPowa = round(healPowa * ((100-a.healResist)/100))
@@ -3016,7 +3033,10 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
                 elif optionChoice == OPTION_SKILL: #Skill :(
                     logs += "\n\n{0} is using {1} on {2}".format(actTurn.char.name,skillToUse.name,ennemi.char.name)
-                    tempTurnMsg += f"\n__{actTurn.char.name} utilise la compétence {skillToUse.name} :__\n"
+                    if skillToUse.message == None:
+                        tempTurnMsg += f"\n__{actTurn.char.name} utilise la compétence {skillToUse.name} :__\n"
+                    else: 
+                        tempTurnMsg += "\n__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
                     trouv=False
                     for a in range(0,5):
                         if type(actTurn.char.skills[a]) == skill:
@@ -3083,7 +3103,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                     a.healResist += int(healPowa/a.maxHp/2*100)
                                     actTurn.stats.heals += healPowa
                                     a.hp += healPowa
-                                    ballerine = f"\n{actTurn.icon} {skillToUse.emoji}→ {a.icon} +{healPowa} PV"
+                                    ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {a.icon} +{healPowa} PV\n"
                                     logs+= ballerine + ". {0}'s healing resist : +{1}".format(a.char.name,int(healPowa/a.maxHp/2*100))
                                     tempTurnMsg += ballerine
                                 played=True
@@ -3182,7 +3202,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
     for a in range(0,len(tablEntTeam[1])):
         if type(tablEntTeam[1][a].char) == char:
-            tablEntTeam[1][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[0][a].char.owner) + ".prof",ctx)
+            tablEntTeam[1][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[1][a].char.owner) + ".prof",ctx)
         
     winners = int(not(everyoneDead[1]))
     if not(octogone and type(team2[0])==tmpAllie and team2[0].name=='Lena' and len(team2) == 1 and not(winners)):
@@ -3213,7 +3233,8 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
         listClassement = [dptClass,healClass,shieldClass]
 
-        teamWinDB.addResultToStreak(team1[0],everyoneDead[1])
+        if not(octogone):
+            teamWinDB.addResultToStreak(team1[0],everyoneDead[1])
         team = team1[0].team
         if team == 0:
             team = team1[0].owner
@@ -3486,3 +3507,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             await msgStats.clear_reactions()
     
     await msg.clear_reactions()
+    try:
+        await msgStats.clear_reations()
+    except:
+        pass

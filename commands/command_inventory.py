@@ -744,6 +744,4 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
             if slashed == None:
                 await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"))
             else:
-                await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"))
-                await asyncio.sleep(5)
-                await temp.delete()
+                await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"),delete_after=5)
