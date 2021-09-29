@@ -1,12 +1,9 @@
-import os,discord,asyncio,emoji,copy
-from os import listdir
+import os,discord,emoji,copy
 from classes import *
 from gestion import *
-from asyncio.locks import Condition
 from adv import *
-
 from discord_slash.utils.manage_components import *
-from discord_slash import ButtonStyle, SlashCommand
+
 
 timeoutSelect = create_select(
     options=[create_select_option("Timeout","Parfois je me demande ce que ferais Lena si elle pensais par elle même",emoji='🕛',default=True)],

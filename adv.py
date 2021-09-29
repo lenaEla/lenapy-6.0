@@ -7,7 +7,7 @@ stuffDB =  dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
 
 def uniqueEmoji(emoji):
-    return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]  
+    return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
 
 # Weapon
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,30,50,100,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
@@ -18,7 +18,7 @@ inkbrella = weapon("Para-Encre","ag",RANGE_MELEE,AREA_CIRCLE_2,30,45,price=100,e
 blaster = weapon("Eclatblasteur","ah",RANGE_DIST,AREA_CIRCLE_3,35,50,150,agility=10,strength=10,percing=10,precision=-10,area=AREA_CIRCLE_1,emoji='<:blaster:866463931304378418>')
 jetSkelcher = weapon("Nettoyeur XL","ai",RANGE_LONG,AREA_CIRCLE_5,30,40,200,10,precision=10,repetition=4,emoji='<:squelsher:866464376319115281>',affinity=ELEMENT_WATER)
 dualies = weapon("Double Encreur","aj",RANGE_DIST,AREA_CIRCLE_3,35,35,150,agility=20,repetition=4,emoji='<:splatDualies:866465264434806815>',needRotate=False,affinity=ELEMENT_AIR)
-kcharger = weapon("Concentraceur alt.","ak",RANGE_MELEE,AREA_CIRCLE_1,35,60,200,10,precision=10,repetition=3,emoji='<:kcharger:870870886939508737>')
+kcharger = weapon("Concentraceur alt.","ak",RANGE_MELEE,AREA_CIRCLE_1,35,60,200,10,precision=10,repetition=3,emoji='<:kcharger:870870886939508737>',message="{0} frappe {1} avec son arme :")
 HunterRiffle = weapon("Fusil de chasseur","al",RANGE_DIST,AREA_CIRCLE_4,50,50,250,10,precision=10,effect="ls",emoji="<:hunterRifle:872034208095297597>",affinity=ELEMENT_NEUTRAL)
 firework = weapon("Arbalette avec feu d'artifice","am",RANGE_LONG,AREA_CIRCLE_4,35,50,150,10,precision=10,emoji='<:crossbow:871746122899664976>',area=AREA_CONE_2)
 plume = weapon("Plumes tranchantes","ao",RANGE_DIST,AREA_CIRCLE_4,40,50,250,precision=10,percing=10,repetition=1,emoji='<:plume:871893045296128030>',area=AREA_CONE_2,needRotate=False,affinity=ELEMENT_AIR)
@@ -29,21 +29,22 @@ splatling = weapon("Badigeonneur","as",RANGE_LONG,AREA_CIRCLE_5,35,30,300,precis
 flexi = weapon("Flexi-Rouleau","at",RANGE_DIST,AREA_CIRCLE_3,50,70,300,25,endurance=-10,critical=5,emoji='<:flexaRoller:877666714760925275>',needRotate=False)
 squiffer = weapon("Décap' Express","au",RANGE_DIST,AREA_CIRCLE_4,45,60,300,10,agility=15,precision=10,resistance=-5,endurance=-10,emoji='<:skiffer:877666730225328138>')
 dualJetSkelcher = weapon("Nettoyeur Duo","av",RANGE_LONG,AREA_CIRCLE_5,30,50,200,10,intelligence=10,agility=-10,precision=10,repetition=4,emoji='<:DualSkelcher:877666662801883237>',damageOnArmor=1.33)
-butterfly = weapon("Papillon Blanc","aw",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyB:883627125561786428>',target=ALLIES,type=TYPE_HEAL,needRotate=False)
-mic = weapon("Micro mignon","ax",RANGE_LONG,AREA_CIRCLE_3,25,55,300,-10,charisma=30,emoji='<:pinkMic:878723391450927195>',needRotate=False,use=CHARISMA)
-spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,-10,-10,15,intelligence=20,percing=5,emoji='<:spellBook:878723144326725744>',needRotate=False,use=INTELLIGENCE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE)
+butterfly = weapon("Papillon Blanc","aw",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyB:883627125561786428>',target=ALLIES,type=TYPE_HEAL,needRotate=False,message="{0} demande à son papillon de soigner {1} :")
+mic = weapon("Micro mignon","ax",RANGE_LONG,AREA_CIRCLE_3,25,55,300,-10,charisma=30,emoji='<:pinkMic:878723391450927195>',needRotate=False,use=CHARISMA,message="{0} pousse la chansonnette !")
+spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,-10,-10,15,intelligence=20,percing=5,emoji='<:spellBook:878723144326725744>',needRotate=False,use=INTELLIGENCE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE,message="{0} lance une boule de feu sur {1}")
 legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,60,70,300,10,10,resistance=10,intelligence=-10,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT)
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,60,90,300,20,10,-10,intelligence=-10,resistance=10,emoji='<:LameDimensionnelle:881595204484890705>')
-butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False)
-butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,0,100,250,strength=-10,intelligence=30,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_INDIRECT_DAMAGE)
-dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,70,70,500,25,endurance=10,charisma=-10,intelligence=-10,resistance=10,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL)
-magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,35,70,200,endurance=10,charisma=20,resistance=10,precision=-10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
+butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,35,80,150,-5,-5,20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
+butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,0,100,250,strength=-10,intelligence=30,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_INDIRECT_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :")
+dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,70,70,500,25,endurance=10,charisma=-10,intelligence=-15,resistance=10,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL)
+magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,35,70,200,-10,endurance=10,charisma=20,resistance=10,precision=-10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
 lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,40,50,250,-20,20,0,0,-10,20,10,emoji="<:lunarBonk:887347614448746516>",use=INTELLIGENCE,affinity=ELEMENT_LIGHT)
 rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,45,60,0,intelligence=30,precision=20,strength=-15,endurance=-15,percing=5,resistance=-5,use=INTELLIGENCE,emoji='<:bloodyRap:887328737614524496>')
 fauc = weapon("Faux Tourmentée","bh",RANGE_MELEE,AREA_CIRCLE_2,55,60,0,40,10,percing=10,agility=-20,charisma=-20,emoji='<a:akifauxgif:887335929650507776>',affinity=ELEMENT_DARKNESS)
-serringue = weapon("Serringue","bi",RANGE_DIST,AREA_CIRCLE_3,35,100,350,0,0,20,0,0,10,10,-20,emoji='<:seringue:887402558665142343>',target=ALLIES,type=TYPE_HEAL,use=CHARISMA,affinity=ELEMENT_LIGHT)
+serringue = weapon("Serringue","bi",RANGE_DIST,AREA_CIRCLE_3,35,100,350,0,0,20,0,0,10,10,-20,emoji='<:seringue:887402558665142343>',target=ALLIES,type=TYPE_HEAL,use=CHARISMA,affinity=ELEMENT_LIGHT,message="{0} fait une perfusion à {1}")
+bigshot = weapon("[Big shot]","bj",RANGE_DIST,AREA_CIRCLE_4,70,60,1997,20,-20,0,0,0,10,0,10,emoji='<:bigshot:892756699277037569>',message="{0} PROPOSE UN [Big shot] À {1} :",area=AREA_LINE_2)
 
-weapons = [serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework]
+weapons = [bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework]
 
 def addAllInWeaponData():
     for a in weapons:
@@ -52,19 +53,21 @@ def addAllInWeaponData():
         except:
             stuffDB.edit_weapon(a)
 
+
+
 # Skill
-soupledown = skill("Choc Ténébreux","zz",TYPE_DAMAGE,1500,140,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=70,ultimate=True,cooldown=4,emoji='<:splashDown1:873925948205051985>')
+soupledown = skill("Choc Ténébreux","zz",TYPE_DAMAGE,1500,140,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=70,ultimate=True,cooldown=4,emoji='<:darkdown:892350717384347648>')
 inkarmor = skill("Armure d'Encre","zy",TYPE_ARMOR,1000,ultimate=True,effect="la",emoji = '<:inkArmor:866829950463246346>',area=AREA_ALL_ALLIES,cooldown=3,range=AREA_MONO)
-coffeeSkill = skill("Suprématie du café","zx",TYPE_BOOST,500,effect=["lb","mc"],use=CHARISMA,conditionType=["reject","skill","zw"],area=AREA_ALL_ALLIES,emoji='<:coffee:867538582846963753>',cooldown=2)
-theSkill = skill("Liberté du thé","zw",TYPE_BOOST,500,effect=["lc","mc"],use=CHARISMA,conditionType=["reject","skill","zx"],area=AREA_ALL_ALLIES,emoji='<:the:867538602644602931>',cooldown=2)
+coffeeSkill = skill("Suprématie du café","zx",TYPE_BOOST,500,effect=["lb","mc"],use=CHARISMA,conditionType=["reject","skill","zw"],area=AREA_ALL_ALLIES,emoji='<:coffee:867538582846963753>',cooldown=2,message="{0} prend le café avec ses alliés :")
+theSkill = skill("Liberté du thé","zw",TYPE_BOOST,500,effect=["lc","mc"],use=CHARISMA,conditionType=["reject","skill","zx"],area=AREA_ALL_ALLIES,emoji='<:the:867538602644602931>',cooldown=2,message="{0} prend le thé avec ses alliés :")
 gpotion = skill("Potion tonifiante","zv",TYPE_BOOST,200,emoji="<:bpotion:867165268911849522>",use=INTELLIGENCE,cooldown=3,effect="le",area=AREA_MONO,range=AREA_MONO)
-bpotion = skill("Potion étrange","zu",TYPE_MALUS,200,cooldown=3,effect="lf",emoji="<:dpotion:867165281617182760>",use=INTELLIGENCE,area=AREA_CIRCLE_1)
+bpotion = skill("Potion étrange","zu",TYPE_MALUS,200,cooldown=3,effect="lf",emoji="<:dpotion:867165281617182760>",use=INTELLIGENCE,area=AREA_CIRCLE_1,message="{0} lance une {1} sur {2}")
 zelian = skill("R","zt",TYPE_INDIRECT_REZ,1000,cooldown=5,effect="lj",emoji='<:chronoshift:867872479719456799>',use=None)
 courage = skill("Motivation","zs",TYPE_BOOST,500,emoji ='<:charge:866832551112081419>',area=AREA_CIRCLE_2,use=CHARISMA,effect="lk",cooldown=3,range=AREA_MONO)
 nostalgia = skill("Nostalgie","zr",TYPE_MALUS,500,emoji='<:nostalgia:867162802783649802>',effect="lm",cooldown=3,use=INTELLIGENCE)
-draw25 = skill("Stop attacking or draw 25","zq",TYPE_MALUS,300,25,emoji="<:draw25:869982277701103616>",use=None,effect="lq",cooldown = 3,area=AREA_ALL_ENNEMIES,range=AREA_MONO,ultimate=True,conditionType=["exclusive","aspiration",ERUDIT])
-siropMenthe = skill("Neutralité du Sirop de Menthe","zp",TYPE_BOOST,500,effect=["lu","mc"],use=CHARISMA,area=AREA_ALL_ALLIES,emoji='<:menthe:867538622797054042>',cooldown=2)
-unHolly = skill("Truc pas catho","zo",TYPE_MALUS,69,emoji='<:bravotakei:877202258348113960>',effect="lw",use=CHARISMA)
+draw25 = skill("Stop attacking or draw 25","zq",TYPE_MALUS,300,25,emoji="<:draw25:869982277701103616>",use=None,effect="lq",cooldown = 3,area=AREA_ALL_ENNEMIES,range=AREA_MONO,ultimate=True,conditionType=["exclusive","aspiration",ERUDIT],message="{0} utilise sa carte joker !")
+siropMenthe = skill("Neutralité du Sirop de Menthe","zp",TYPE_BOOST,500,effect=["lu","mc"],use=CHARISMA,area=AREA_ALL_ALLIES,emoji='<:menthe:867538622797054042>',cooldown=2,message="{0} prend un sirop de menthe avec ses alliés :")
+unHolly = skill("Truc pas catho","zo",TYPE_MALUS,69,emoji='<:bravotakei:877202258348113960>',effect="lw",use=CHARISMA,message="{0} || des trucs pas catho à destination de|| {2}")
 chaos = skill("Chaos Chaos !","zn",TYPE_UNIQUE,1000,range=AREA_MONO,area=AREA_ALL_ENTITES,sussess=200,emoji='<a:CHAOS:762276118224961556>',cooldown=5,ultimate=True,use=None)
 contrecoup = skill("Contre-coup","zm",TYPE_INDIRECT_DAMAGE,250,effect="ln",cooldown=2,emoji='<:aftershock:882889694269038592>',use=INTELLIGENCE)
 boom = skill("Réaction en chaîne","zl",TYPE_INDIRECT_DAMAGE,250,effect="lv",cooldown=2,emoji='<:bimbamboum:873698494874017812>',use=INTELLIGENCE)
@@ -84,13 +87,13 @@ invocCarbE = skill("Invocation - Carbuncle Emeraude","yy",TYPE_INVOC,500,invocat
 invocCarbT = skill("Invocation - Carbuncle Topaze","yx",TYPE_INVOC,500,invocation="Carbuncle Topaze",emoji="<:carbuncleT:884899263459500053>",cooldown=4,range=AREA_CIRCLE_3,shareCooldown=True,use=ENDURANCE)
 invocFee = skill("Invocation - Fée Soignante","yw",TYPE_INVOC,500,0,AREA_CIRCLE_3,cooldown=4,invocation="Fée soignante",emoji="<:selene:885077160862318602>",shareCooldown=True,use=CHARISMA)
 thinkSkill = skill("Réfléchis !","yv",TYPE_BOOST,250,0,emoji="<:think:885240853696765963>",effect="mh",use=CHARISMA,cooldown = 3)
-descart = skill("Je pense donc je suis","yu",TYPE_BOOST,250,range=AREA_MONO,emoji="<:descartes:885240392860188672>",effect='mi',cooldown=4,use=None)
+descart = skill("Je pense donc je suis","yu",TYPE_BOOST,250,range=AREA_MONO,emoji="<:descartes:885240392860188672>",effect='mi',cooldown=4,use=None,message="{0} a trouvé le sens de la vie !")
 trans = skill("Transcendance","yt",TYPE_UNIQUE,0,initCooldown=3,cooldown=7,emoji="<:limiteBreak:886657642553032824>",description="Un sort particulier qui a un effet différent en fonction de l'aspiration du lanceur\n\n__Berserkeur :__ Dégâts mono\n__Poids Plume, Tête Brûlée :__Dégâts en ligne\n__Idole, Altruiste :__ Soins sur toute l'équipe (et resurrection)\n__Erudit, Observateur :__ Dégâts en cercle\n__Aventurier :__ Invoque \"Titania\"\n\nCette compétence utilise la statistique la plus élevée du lanceur\n\nUtiliser Transcendance vous empêche d'utiliser une compétence ultime lors du prochain tour",use=HARMONIE,shareCooldown=True)
 burst = skill("Bombe ballon","ys",TYPE_DAMAGE,0,30,area=AREA_CIRCLE_1,sussess=60,emoji='<:burstBomb:887328853683474444>')
 lapSkill = skill("Invocation - Lapino","yr",TYPE_INVOC,0,invocation="Lapino",cooldown=4,shareCooldown=True,emoji='<:lapino:885899196836757527>',use=CHARISMA)
 adrenaline = skill("Adrénaline","yq",TYPE_HEAL,250,60,cooldown=5,emoji='<:adrenaline:887403480933863475>',use=INTELLIGENCE)
 blindage = skill("Blindage","yp",TYPE_BOOST,350,0,AREA_MONO,effect="mj",cooldown=3,use=None,emoji="<:defSupp:885899082453880934>")
-fermete = skill("Second Souffle","yo",TYPE_HEAL,350,60,AREA_MONO,emoji='<:defHeal:885899034563313684>',cooldown=5,use=ENDURANCE)
+fermete = skill("Second Souffle","yo",TYPE_HEAL,350,80,AREA_MONO,emoji='<:defHeal:885899034563313684>',cooldown=5,use=ENDURANCE)
 isolement = skill("Isolement","yn",TYPE_ARMOR,500,70,AREA_MONO,emoji='<:selfProtect:887743151027126302>',cooldown=5,effect="ml")
 bombRobot = skill("Invocation - Bombe Robot","ym",TYPE_INVOC,500,0,AREA_CIRCLE_3,invocation="Bombe Robot",cooldown=2,shareCooldown=True,emoji='<:autobomb:887747538994745394>',use=STRENGTH)
 linx = skill("Œuil de Linx","yl",TYPE_BOOST,500,range=AREA_MONO,area=AREA_CIRCLE_2,emoji='<:noeuil:887743235131322398>',effect="mm",cooldown=4)
@@ -179,18 +182,18 @@ abobination = stuff("Claquettes chaussettes","iz",2,1,1,1,-100,1,1,1,1,1,1,'<:cl
 legendaryTunic = stuff("Tunique de Légende","ja",1,300,15,10,resistance=10,precision=-10,agility=-5,emoji='<:LegendaryTunic:880008983618912277>',orientation=[TANK,DPT],affinity=ELEMENT_LIGHT)
 legendaryBoots = stuff("Bottes de Légende","jb",2,300,endurance=10,resistance=10,strength=5,agility=-5,emoji='<:LegendaryBoots:880008962852917313>',orientation=[TANK,DPT])
 purpleBasket = stuff("Baskets Violettes","jc",2,50,10,10,emoji='<:BasketViolette:871880746535620618>',orientation=[TANK,DPT])
-camoHat = stuff("Casquette Camouflage","jd",0,50,15,precision=25,resistance=-10,emoji='<:camohat:878721916570058754>',orientation=[LONG_DIST,DPT])
+camoHat = stuff("Casquette Camouflage","jd",0,50,15,precision=25,resistance=-10,intelligence=-10,emoji='<:camohat:878721916570058754>',orientation=[LONG_DIST,DPT])
 blueFlat = stuff("Ballerines Blues","je",2,100,intelligence=15,charisma=10,resistance=-5,emoji='<:blueflat:881209954902638602>',orientation=[DISTANCE,BOOSTER])
 redFlat = stuff("Ballerines Rouges","jf",2,100,20,resistance=-5,percing=5,emoji='<:redflat:881209970568364173>',orientation=[DISTANCE,DPT])
 redHeels = stuff("Escarpins Rouges","jg",2,150,strength=20,resistance=-10,percing=10,emoji='<:heelsRed:881339121795215410>',orientation=[DISTANCE,DPT])
 whiteHeels = stuff("Escarpins Blancs","jh",2,150,charisma=15,intelligence=15,resistance=-10,emoji='<:heelsWhite:881339137410609162>',orientation=[DISTANCE,BOOSTER])
 blackHeels = stuff("Escarpins Noirs","ji",2,150,10,percing=10,endurance=10,resistance=10,agility=-20,emoji='<:heelsBlack:881339167357935616>',orientation=[TANK,DPT])
-heroHead = stuff("Casque Héroïque","jj",0,250,20,-10,critical=5,percing=-5,emoji='<:heroicheadset:881326928802496562>',orientation=[DISTANCE,DPT])
+heroHead = stuff("Casque Héroïque","jj",0,250,20,-10,percing=10,emoji='<:heroicheadset:881326928802496562>',orientation=[DISTANCE,DPT])
 heroBody = stuff("Veste Héroïque","jk",1,250,10,10,precision=10,intelligence=-10,emoji='<:herojacket:881326964328255508>',orientation=[DISTANCE,DPT])
 heroShoe = stuff("Baskets Héroïques","jl",2,250,10,critical=5,percing=5,emoji='<:heroshoe:881326998511833098>',orientation=[DISTANCE,DPT])
 intemCharpe = stuff("Echarpe Intemporelle","jm",0,250,charisma=25,precision=-5,emoji='<:intemcharpe:882006603350568960>',orientation=[None,HEALER],position=2)
 intemNorak = stuff("Anorack Intemporel","jn",1,250,charisma=20,resistance=10,strength=-5,percing=-5,emoji='<:intemnorak:882006589870075944>',orientation=[DISTANCE,HEALER])
-intemShoe = stuff("Tennis Montantes Intemporelles","jo",2,250,charisma=30,resistance=5,percing=-5,emoji='<:intemtennis:882006616961073253>',orientation=[DISTANCE,HEALER])
+intemShoe = stuff("Tennis Montantes Intemporelles","jo",2,250,charisma=30,resistance=5,percing=-15,emoji='<:intemtennis:882006616961073253>',orientation=[DISTANCE,HEALER])
 patacasque = stuff("Casque Patapoutre","jp",0,200,resistance=10,endurance=10,orientation=[TANK,None],emoji='<:patacasque:881334720732991529>')
 patabottes = stuff("Bottes Patapoutres","jq",2,200,resistance=15,endurance=5,orientation=[TANK,None],emoji='<:pataboots:881334739183730689>')
 lunettesOv = stuff("Lunettes ovales","jr",0,100,strength=10,precision=10,emoji='<:lunettesovales:881965054830997534>',orientation=[None,DPT])
@@ -198,22 +201,27 @@ masqueTub = stuff("Masque et tuba","js",0,100,resistance=10,precision=10,emoji='
 casqueColor = stuff("Casque coloré","jt",0,150,charisma=15,intelligence=15,agility=-5,precision=-5,emoji="<:colorheadset:881326908149727253>",orientation=[None,BOOSTER])
 blingbling = stuff("Lunettes 18 karas","ju",0,100,5,5,5,5,-5,-5,5,5,emoji='<:lunettes18kara:881965006483251263>')
 legendaryHat = stuff("Exelo","jw",0,300,endurance=10,resistance=5,strength=10,agility=-5,emoji='<:excelot:882727033782812702>',orientation=[TANK,DPT])
-robeDrac = stuff("Robe draconique","jv",1,250,strength=-30,endurance=15,intelligence=10,resistance=15,emoji='<:robedraco:878572815807287297>',orientation=[TANK,DPT])
-robeLoliBlue = stuff("Robe Lolita Bleue","jx",1,300,-10,-10,10,0,0,20,-10,emoji="<:blueLolita:884212751881363467>",orientation=[DISTANCE,MAGIC])
+robeDrac = stuff("Robe draconique","jv",1,250,strength=-30,endurance=15,intelligence=20,resistance=15,emoji='<:robedraco:878572815807287297>',orientation=[TANK,DPT])
+robeLoliBlue = stuff("Robe Lolita Bleue","jx",1,300,-10,0,10,0,0,30,-10,emoji="<:blueLolita:884212751881363467>",orientation=[DISTANCE,MAGIC])
 old = stuff("Vieux porte-clefs","jy",0,200,intelligence=25,agility=-15,strength=10,emoji='<:old:885086171754012702>',affinity=ELEMENT_WATER)
 batRuban = stuff("Noeud Chauve-Souris","jz",0,0,charisma=40,intelligence=20,strength=-20,resistance=-10,percing=-10,orientation=[LONG_DIST,HEALER],emoji='<:batRuban:887328511222763593>',position=3)
-FIACNf = stuff("Robe du FIACN","ka",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNF:887328531774836736>',orientation=[TANK,DPT])
-FIACNh = stuff("Gilet du FIACN","kb",1,0,40,10,resistance=10,critical=-5,agility=-15,precision=-10,emoji='<:FIACNH:887328549437059172>',orientation=[TANK,DPT])
+FIACNf = stuff("Robe du FIACN","ka",1,0,40,10,resistance=10,critical=-5,agility=-20,precision=-15,emoji='<:FIACNF:887328531774836736>',orientation=[TANK,DPT])
+FIACNh = stuff("Gilet du FIACN","kb",1,0,40,10,resistance=10,critical=-5,agility=-20,precision=-15,emoji='<:FIACNH:887328549437059172>',orientation=[TANK,DPT])
 heleneDress = stuff("Robe bleue d'Hélène","kc",1,0,charisma=25,intelligence=20,strength=-10,endurance=-10,emoji='<:heleneDress:888745359365525535>',effect='mk',affinity=ELEMENT_LIGHT,orientation=[DISTANCE,HEALER])
 heleneShoe = stuff("Babies bleues d'Hélène","kd",2,0,strength=-10,charisma=25,intelligence=5,emoji='<:blueBabie:887857026477207592>',orientation=[DISTANCE,HEALER])
-corset = stuff("Corset d'Ordin","ke",1,500,10,5,0,0,25,-10,emoji="<:corsetordin:887757308157886465>",orientation=[DISTANCE,None])
+corset = stuff("Corset d'Ordin","ke",1,500,10,0,-5,0,25,-10,emoji="<:corsetordin:887757308157886465>",orientation=[DISTANCE,None])
 ggshield = stuff("Bouclier GG","kf",0,500,endurance=20,resistance=15,agility=-15,emoji='<:emoji_8:887757446658023496>',orientation=[TANK,None])
 fecaShield = stuff("Bouclier Feca","kg",0,1000,-20,15,resistance=25,emoji='<:fecashield:887757399736348722>',affinity=ELEMENT_EARTH,orientation=[TANK,None])
 kanisand = stuff("Sandales Kannivore","kh",2,250,agility=20,emoji="<:sandaleskannivores:887755801161240577>",affinity=ELEMENT_AIR)
 tsarine = stuff("Starine","ki",0,500,resistance=15,intelligence=10,endurance=10,precision=-15,emoji='<:tsarine:887755891913396245>',orientation=[TANK,None])
 dracBoot = stuff("Bottes Draconiques","kj",2,500,-10,20,resistance=10,intelligence=10,agility=-10,emoji='<:bottesdraco:885080377234968608>',orientation=[TANK,None])
+darkMaidFlats = stuff("Ballerines de soubrette des Ténèbres","kk",2,500,10,10,agility=25,resistance=10,charisma=-15,precision=-10,intelligence=-10,emoji='<:linaflats:890598400624586763>',orientation=[TANK,DPT],affinity=ELEMENT_DARKNESS)
+darkMaidDress = stuff("Robe de soubrette des Ténèbres","kl",1,500,5,10,agility=15,resistance=15,critical=-5,precision=-10,charisma=-10,emoji="<:linadress:890598423152185364>",orientation=[TANK,DPT],affinity=ELEMENT_DARKNESS)
+darkMaidPendants = stuff("Boucles d'oreilles de soubrette des Ténèbres","km",0,500,10,10,-10,25,-10,-10,resistance=5,emoji='<:linapendant:890599104902754326>',orientation=[TANK,DPT],affinity=ELEMENT_DARKNESS,position=1)
+darkbabie = stuff("Babies noires","kn",2,250,20,-20,precision=20,emoji='<:bbabies:892351703230320670>',affinity=ELEMENT_DARKNESS)
+krysCorn = stuff("Serre-Tête en KrysTal","ko",0,250,endurance=15,resistance=10,agility=-5,emoji='<:krysCorn:892350678620586004>',affinity=ELEMENT_EARTH)
 
-stuffs = [dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots]
+stuffs = [darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots]
 
 octoEmpty1 = stuff("placeolder","ht",0,0)
 octoEmpty2 = stuff("placeolder","hu",0,0)
@@ -263,13 +271,13 @@ stuned = effect("Etourdit","mb",emoji=uniqueEmoji('<:stun:882597448898474024>'),
 defensive = effect("Orbe défensif","md",emoji=sameSpeciesEmoji('<:orbe1:873725384359837776>','<:orbe2:873725400730202123>'),overhealth=40,description='Donne de l\'armure à un allié',stat=INTELLIGENCE,trigger=TRIGGER_DAMAGE,turnInit=1)
 cafeine = effect("Désaltéré","mc",emoji=uniqueEmoji('<:cafeine:883253781024870401>'),turnInit = 4, description = "L'abus de caféine (ou théine c' est la même chose) est dangereureux pout la santé",silent=True)
 estal = effect("Poison d'Estialba","me",emoji=uniqueEmoji('<:estialba:884223390804766740>'),turnInit=3,stat=INTELLIGENCE,description="Un virulant poison, faisant la sinistre renommée des fées de cette île",trigger=TRIGGER_START_OF_TURN,stackable=True,power=40,type=TYPE_INDIRECT_DAMAGE,lvl=3)
-missiles = effect("Ciblé","mf",emoji=uniqueEmoji('<:tentamissile:884757344397951026>'),stat=STRENGTH,description="Au début de son tour, le ciel tombera sur la tête du Ciblé et ses alliés proches !",trigger=TRIGGER_START_OF_TURN,power=25,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1)
+missiles = effect("Ciblé","mf",emoji=uniqueEmoji('<:tentamissile:884757344397951026>'),stat=STRENGTH,description="Au début de son tour, le ciel tombera sur la tête du Ciblé et ses alliés proches !",trigger=TRIGGER_START_OF_TURN,power=20,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1)
 octoboum = effect("Explosion à venir !!","mg",emoji=uniqueEmoji(explosion.emoji),turnInit=3)
 think = effect("REFLECHIS !","mh",CHARISMA,intelligence=10)
 iThink = effect("Philosophé","mi",intelligence=15,turnInit=3)
 blinde = effect("Blindé","mj",resistance=20,description="Réduit les degâts subis de 20% jusqu'à votre prochain tour")
 const = effect("Constitution","mk",emoji=uniqueEmoji('<:constitution:888746214999339068>'),description="Augmente de 30 les PV max de base de toute votre équipe",turnInit = -1)
-isoled = effect("Isolé","ml",emoji=uniqueEmoji('<:selfProtect:887743151027126302>'),description="S'isoler mentalement pôur ne pas faire attention au dégâts",overhealth=70)
+isoled = effect("Isolé","ml",emoji=uniqueEmoji('<:selfProtect:887743151027126302>'),description="S'isoler mentalement pôur ne pas faire attention au dégâts",overhealth=70,stat=INTELLIGENCE)
 nouil = effect("Œuil de Linx","mm",emoji=uniqueEmoji('<:noeuil:887743235131322398>'),precision=30)
 lostSoul = effect("Âme en peine","mn",emoji=uniqueEmoji('<:lostSoul:887853918665707621>'),turnInit=3,trigger=TRIGGER_ON_REMOVE,silent=True,type=TYPE_UNIQUE)
 
@@ -282,7 +290,7 @@ changeAppa = other("Changement d'apparence","qb",description="Vous permet de cha
 changeName = other("Changement de nom","qc",description="Vous permet de changer le nom de votre personnage",emoji='<:changeName:872174155485810718>',price=500)
 restat = other("Rénitialisation des points bonus","qd",description="Vous permet de redistribuer vos points bonus",emoji='<:restats:872174136913461348>',price=500)
 elementalCristal = other("Cristal élémentaire","qe",500,description="Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory élément",emoji="<:krysTal:888070310472073257>")
-customColor = other("Couleur personnalisée","qf",500,description="Vous permet de rentrer une couleur personnalisée pour votre personnage")
+customColor = other("Couleur personnalisée","qf",500,description="Vous permet de rentrer une couleur personnalisée pour votre personnage",emoji='<:changeColor:892350738322300958>')
 
 others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat]
 
@@ -300,7 +308,7 @@ flyfishweap = weapon("Flyfish","og",2,AREA_CIRCLE_7,0,100,0,effectOnUse="mf",typ
 octoBoumWeap = weapon("noneWeap","oh",1,AREA_CIRCLE_1,0,0,0,effect="mg") 
 
 class octarien:
-    def __init__(self,name,maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,resistance,percing,critical,weapon,exp,icon,skill=["0","0","0","0","0"],aspiration=-1,gender=GENDER_OTHER,description="",url=""):
+    def __init__(self,name,maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,resistance,percing,critical,weapon,exp,icon,skill=["0","0","0","0","0"],aspiration=-1,gender=GENDER_OTHER,description="",url="",deadIcon=None,oneVAll = False):
         self.name = name
         self.species = 3
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence = maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence
@@ -321,12 +329,14 @@ class octarien:
         self.description = description
         self.url = url
         self.element = ELEMENT_NEUTRAL
+        self.deadIcon = deadIcon
+        self.oneVAll = oneVAll
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
 
 class  tmpAllie:
-    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skills=[],description="Pas de description",url=None,element=ELEMENT_NEUTRAL,variant = False):
+    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skills=[],description="Pas de description",url=None,element=ELEMENT_NEUTRAL,variant = False,deadIcon=None):
         self.name = name
         self.species = species
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence = 0,0,0,0,0,0
@@ -346,6 +356,7 @@ class  tmpAllie:
         self.url = url
         self.element = element
         self.variant = variant
+        self.deadIcon = deadIcon
 
     def changeLevel(self,level=1):
         self.level = level
@@ -371,9 +382,15 @@ tablAllOcta += [octarien("Aéro-benne",60,20,25,50,50,50,10,0,0,flyfishweap,5,'<
 tablAllOcta += [octarien("Aéro-benne",60,20,25,50,50,50,10,0,0,flyfishweap,5,'<:flyfish:884757237522907236>',description="Un Salmioche qui s'est passionné pour l'aviation")]
 tablAllOcta += [octarien("OctoBOUM",30,-30,10,0,0,200,-10,0,0,octoBoumWeap,5,'<:octoboom:884810545457418271>',[explosion],description="Un octarien qui a placé tous ses points dans ses envies pirotechniques")]
 
-tablBoss = []
-tablBoss += [octarien("Ailill",80,20,0,30,50,50,10,10,0,depha,10,'<a:Ailill:882040705814503434>',[balayette],BERSERK,GENDER_FEMALE,description="Une humaine à qui la vie n'a pas vraiment souris. Du coup elle passe ses nerfs sur les autres.\nEnfin les autres plus faibles qu'elle évidamment\n\nSi il y a 5 combattants ou plus dans une équipe, les dégâts infligés à Ailill sont réduits si l'attaquant est trop éloigné")]
-tablBoss += [octarien("OctoSniper",50,20,10,0,50,20,15,0,0,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens")]
+spamSkill1 = skill("A Call For You","aaa",TYPE_DAMAGE,0,60,area=AREA_CONE_3,sussess=50,emoji='<:call:892757436203671572>',cooldown=3,message="HOT {0} IN YOUR AREA HAVE A [Message] FOR {2} :")
+spamSkill2 = skill("BIG SHOT","aaa",TYPE_DAMAGE,0,100,area=AREA_LINE_5,sussess=70,ultimate=True,cooldown=5,message="[Press F1] FOR HELP :",emoji='<:bigshot:892757453442277417>')
+
+
+tablBoss = [
+    octarien("Ailill",80,20,0,30,50,50,10,10,0,depha,10,'<a:Ailill:882040705814503434>',[balayette],BERSERK,GENDER_FEMALE,description="Une humaine à qui la vie n'a pas vraiment souris. Du coup elle passe ses nerfs sur les autres.\nEnfin les autres plus faibles qu'elle évidamment\n\nSi il y a 5 combattants ou plus dans une équipe, les dégâts infligés à Ailill sont réduits si l'attaquant est trop éloigné"),
+    octarien("OctoSniper",50,20,10,0,50,20,15,0,0,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens"),
+    octarien("SPAMTON NEO",250,1500,100,45,45,200,30,10,25,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True)
+]
 
 for a in [0,1,2]:
     tablAllOcta += [octarien("Octaling",30,30,30,30,30,30,10,0,0,weapons[random.randint(0,len(weapons)-1)],5,'<:Octaling:866461984018137138>')]
@@ -395,12 +412,11 @@ tablAllAllies = [
 ]
 
 tablVarAllies = [
-    tmpAllie("Lina",1,black,POIDS_PLUME,kcharger,[amethystEarRings,pullBrown,blackFlat],GENDER_FEMALE,[splatbomb,balayette,soupledown],"Là où se trouve la Lumière se trouvent les Ténèbres","https://cdn.discordapp.com/emojis/871149560284741632.png?v=1",ELEMENT_DARKNESS,variant=True),
+    tmpAllie("Lina",1,black,POIDS_PLUME,kcharger,[darkMaidPendants,darkMaidDress,darkMaidFlats],GENDER_FEMALE,[splatbomb,balayette,soupledown],"Là où se trouve la Lumière se trouvent les Ténèbres","https://cdn.discordapp.com/emojis/871149560284741632.png?v=1",ELEMENT_DARKNESS,variant=True),
     tmpAllie("Altikia",2,yellow,ALTRUISTE,inkbrella,[maidHat,maidDress,maidHeels],GENDER_FEMALE,[healAura,inkarmor,isolement],"Une personnalité de Gwen qui préfère se concentrer sur ses alliés","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_LIGHT,variant=True),
     tmpAllie("Klironovia",2,yellow,BERSERK,roller,[ironHelmet,FIACNf,blackFlat],GENDER_FEMALE,[courage,balayette,splashdown],"Une personnalité de Gwen bien plus violente que les deux autres","https://cdn.discordapp.com/emojis/866459052132532275.png",ELEMENT_AIR,variant=True),
     tmpAllie("Shihu",1,black,OBSERVATEUR,squiffer,[amethystEarRings,blackJeanJacket,blackFlat],GENDER_FEMALE,[splatbomb,stalactic],"\"Eye veut zuste un pi d'attenchions...\" - Shushi","https://cdn.discordapp.com/emojis/871149560284741632.png?v=1",ELEMENT_DARKNESS,variant=True)
 ]
-
 
 print("Mise à jour de la base de donnée...")
 addAllInWeaponData()
@@ -408,6 +424,16 @@ addAllInSkillData()
 addAllInStuffData()
 print("Mise à jour de la base de donnée réalisée")
 
+print("\nVérification de l'équilibrage des stuffs...")
+for a in stuffs+weapons:
+    ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
+    sumation = 0
+    for b in ballerine:
+        sumation += b
+
+    if sumation != 20 and a.effect == None and a.name != "Claquettes chaussettes":
+        print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
+print("Vérification de l'équilibrage des stuffs terminée")
 
 def findWeapon(WeaponId):
     typi = type(WeaponId)

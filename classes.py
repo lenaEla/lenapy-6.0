@@ -64,7 +64,7 @@ class option:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0, repetition=1,emoji = emoji.loading,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0, repetition=1,emoji = emoji.loading,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None):
         """rtfm"""
         self.name = name
         self.id = id
@@ -94,6 +94,7 @@ class weapon:
         if self.range == 2 and damageOnArmor == 1:
             damageOnArmor = 1.33
         self.onArmor = damageOnArmor
+        self.message = message
 
         self.affinity = affinity
         orientation += [None]
@@ -114,12 +115,12 @@ class weapon:
         """Return a list with the mains stats of the weapon"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
 
-mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,25,45,0,10,charisma=5,agility=10,repetition=5,emoji = emoji.fist)
+mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,25,45,0,10,agility=10,repetition=5,emoji = emoji.fist)
 splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,20,35,0,agility=10,charisma=5,strength=5,repetition=5,emoji = emoji.splatJr)
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = emoji.loading,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False):
+    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = emoji.loading,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None):
         """rtfm"""
         self.name = name
         self.id = id
@@ -149,6 +150,7 @@ class skill:
 
         self.onArmor = damageOnArmor
         self.invocation = invocation
+        self.message = message
         
         if type(self.effect)!=list:
             self.effect = [self.effect]
@@ -333,6 +335,7 @@ class char:
         self.icon = None
         self.customColor = False
         self.element = ELEMENT_NEUTRAL
+        self.deadIcon = None
 
     def have(self,obj):
         """Verify if the character have the object Obj"""

@@ -18,6 +18,7 @@ from commands.command_points import *
 from commands.command_shop import *
 from commands.sussess_endler import *
 from commands.command_patchnote import *
+from commands.command_help import *
 from data.database import *
 from commands.command_patchnote import *
 from discord.ext import commands, tasks
@@ -332,7 +333,7 @@ async def on_error(error1,error2):
         else:
             await error2.add_reaction('🕛')
 
-@bot.event
+"""@bot.event
 async def on_slash_command_error(error1,error2):
     if error1.author.id != 769999212422234122 and error1.author.id != 623211750832996354:
         if "TimeoutError" not in traceback.format_exc():
@@ -355,7 +356,7 @@ async def on_slash_command_error(error1,error2):
             else:
                 await error2.add_reaction('<:LenaWhat:760884455727955978>')
         else:
-            await error2.add_reaction('🕛')
+            await error2.add_reaction('🕛')"""
 ###########################################################
 # Commandes
 begoneTabl = []
@@ -875,283 +876,11 @@ async def on_message(ctx):
                 else:
                     await ctx.channel.send("Tu n'a pas commencé l'aventure")
 
-            elif args[0] == guild.prefixe + "inventory" and checkIsBotChannel(ctx,guild,bot):
-                await inventory(bot,ctx,args)
-
-            elif args[0] == guild.prefixe + "points" and checkIsBotChannel(ctx,guild,bot):
-                await points(bot,ctx,args)
-
             elif args[0] == guild.prefixe + "invite" and checkIsBotChannel(ctx,guild,bot):
                 if os.path.exists("../Kawi/"):
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=769999212422234122&permissions=1074097216&scope=bot%20applications.commands'))
                 else:
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
-
-            elif args[0] == guild.prefixe + "help" and checkIsBotChannel(ctx,guild,bot):
-                msg,etat = await loadingEmbed(ctx), 0
-                def checkIsAuthor(message):
-                    return message.channel.id == ctx.channel.id and message.author.id == ctx.author.id
-
-                while etat >=0:
-                    if etat == 0:
-                        choiceMain = ["Modération","Utilitaire","Aventure"]
-                        await msg.edit(embed= discord.Embed(title = args[0],color = 0x94d4e4, description = "Voici les principales catégories de commandes :"+choice(choiceMain)))
-                        respond = await bot.wait_for("message",timeout=60,check=checkIsAuthor)
-
-                        if not respond.content.isdigit():
-                                await msg.edit(embed = errorEmbed(args[0],errorNotDigitMsg))
-                                etat = -1
-                        else:
-                            repMsg = respond
-                            respond = int(respond.content)
-                            if respond < len(choiceMain) and respond >= 0:
-                                etat = respond+1
-                            else:
-                                await msg.edit(embed = errorEmbed(args[0],errorNotInRangeMsg))
-                                etat = -1
-
-                            try:
-                                await repMsg.delete()
-                            except:
-                                1
-                            
-                    else:
-                        choiceMain = [""]+choiceMain
-                        choiceMod = ["settings","Retour"]
-                        choiceUt = ["choose","invite","Retour"]
-                        choiceAdv = ["start","stats","solde","inventory","points","shop","team","fight","quickFight","octogone","teamFight","procuration","Retour"]
-
-                        tablChoice = ["",choiceMod,choiceUt,choiceAdv]
-                        tablCat = ["","Voici les commandes de modération :","Voici les commandes utilitaires :","Voici les commandes de l'Aventure"]
-                        await msg.edit(embed= discord.Embed(title = args[0]+" : "+choiceMain[etat],color = light_blue, description = tablCat[etat]+choice(tablChoice[etat])))
-                        respond = await bot.wait_for("message",timeout=60,check=checkIsAuthor)
-
-                        if not respond.content.isdigit():
-                                await msg.edit(embed = errorEmbed(args[0],errorNotDigitMsg))
-                        else:
-                            repMsg = respond
-                            respond = int(respond.content)
-                            if not(respond < len(tablChoice[etat]) and respond >= 0):
-                                await msg.edit(embed = errorEmbed(args[0],errorNotInRangeMsg))
-                                etat = -1
-                            else:
-                                tablDes = ["",tablDescMod,tablDescUt,tablDescAdv]
-                                if respond == len(tablDes[etat]):
-                                    etat = 0
-                                    try:
-                                        await repMsg.delete()
-                                    except:
-                                        1
-                                else:
-                                    try:
-                                        await repMsg.delete()
-                                    except:
-                                        1
-
-                                    await msg.edit(embed = discord.Embed(title = args[0]+ " : "+tablChoice[etat][respond],color = light_blue,description = tablDes[etat][respond]))
-                                    etat = -1
-  
-            elif args[0] == guild.prefixe + "team" and checkIsBotChannel(ctx,guild,bot):
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-
-                if os.path.exists(pathUserProfile):
-                    user = quickLoadCharFile(pathUserProfile)
-                    Qsave = user[1]
-                    user = user[0]
-                    pathTeam = absPath + "/userTeams/" + user.team +".team"
-                    if args[1] == None:
-                        msg = await loadingEmbed(ctx)
-                        if user.team == "0":
-                            await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Vous n'avez pas d'équipe pour le moment"))
-                        else:
-                            file = readSaveFiles(pathTeam)
-                            if len(file[0]) == 1:
-                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Vous êtes seul dans votre équipe pour le moment"))
-                            else:
-                                temp = ""
-                                for a in file[0]:
-                                    temp2 = loadCharFile(absPath + "/userProfile/" + a + ".prof")
-                                    temp3 = "L'utilisateur n'a pas parlé depuis la mise en ligne du bot"
-
-                                    temp3 = await bot.fetch_user(int(a))
-                                    temp3 = temp3.name
-
-                                    ballerine = f'{inspi[temp2.aspiration][0:3]}. | {elemEmojis[temp2.element]} | {temp2.weapon.emoji} | {temp2.stuff[0].emoji} {temp2.stuff[1].emoji} {temp2.stuff[2].emoji} | '
-                                    for b in temp2.skills:
-                                        if type(b)==skill:
-                                            ballerine+=b.emoji
-                                    ballerine+="\n\n"
-
-                                    icon = await getUserIcon(bot,temp2)
-                                    temp += f"__{icon} **{temp2.name}** ({temp3})__\n{ballerine}"
-                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp))
-
-                    if args[1] == "up":
-                        msg = await loadingEmbed(ctx)
-                        if not(os.path.exists(pathTeam) and user.team != "0"):
-                            rdm = str(random.randint(1,10000))
-                            pathTeam = absPath + "/userTeams/" + rdm +".team"
-                            rewriteFile(pathTeam,f"{str(user.owner)};")
-                            user.team = rdm
-                            quickSaveCharFile(pathUserProfile,[user,Qsave])
-
-                        noneCap,selfAdd,temp = True,False,readSaveFiles(absPath + "/userTeams/" + user.team +".team")
-                        
-                        if len(temp[0]) >= 8:
-                            noneCap = False      
-
-                        if ctx.author == ctx.mentions[0]:
-                            selfAdd = True          
-
-                        if noneCap and not(selfAdd):
-                            mention = ctx.mentions[0]
-                            if os.path.exists(absPath + "/userProfile/" + str(mention.id) + ".prof"):
-                                allReadyinTeam,allReadyInThatTeam,mate = False, False,quickLoadCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof")
-                                
-                                if mate[0].team != "0":
-                                    allReadyinTeam = True
-                                    if mate[0].team == user.team:
-                                        allReadyInThatTeam = True
-
-
-                                if not(allReadyinTeam):
-                                    await msg.edit(embed = discord.Embed(title = args[0]+ " "+args[1], color = user.color, description = f"{mention.mention}, {ctx.author.mention} vous propose de rejoidre son équipe. Qu'en dites vous ?"))
-                                    await msg.add_reaction(emoji.check)
-                                    await msg.add_reaction(emoji.cross)
-
-                                    def checkisIntendedUser(reaction,user):
-                                        return user == mention
-
-                                    try:
-                                        reaction = await bot.wait_for("reaction_add",timeout=60,check=checkisIntendedUser)
-                                        if str(reaction[0]) == emoji.check:
-                                            mate[0].team = user.team
-                                            quickSaveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
-
-                                            file = readSaveFiles(pathTeam)
-                                            file[0] += [str(mention.id)]
-                                            saveSaveFiles(pathTeam,file)
-                                            await msg.clear_reactions()
-                                            await msg.edit(embed = discord.Embed(title=args[0]+ " "+args[1],color = user.color,description = "Vous faites dorénavent parti de la même équipe"))
-                                    except:
-                                        await msg.clear_reactions()
-                                
-                                elif allReadyInThatTeam:
-                                    await msg.edit(embed = errorEmbed(args[0]+ " "+args[1],"Ce joueur est déjà dans ton équipe"))
-                                elif allReadyinTeam:
-                                    await msg.edit(embed = errorEmbed(args[0]+ " "+args[1],"Ce joueur est déjà dans une équipe"))
-
-                            else:
-                                await msg.edit(embed = errorEmbed(args[0]+ " "+args[1],"Cet utilisateur n'a pas commencé l'aventure"))  
-                        
-                        elif selfAdd:
-                            await msg.edit(embed = errorEmbed(args[0]+ " "+args[1],"Tu veux te rajouter toi-même dans ta propre équipe ?"))
-                        elif not(noneCap):
-                            await msg.edit(embed = errorEmbed(args[0]+ " "+args[1],"Votre équipe a déjà atteint son nombre maximal de membre"))
-
-                    elif args[1] == "quit":
-                        if user.team != "0":
-                            team = readSaveFiles(pathTeam)
-                            team[0].remove(str(ctx.author.id))
-                            user.team = "0"
-
-                            saveSaveFiles(pathTeam,team)
-                            await ctx.channel.send(embed = discord.Embed(title = args[0]+ " "+args[1],color = user.color, description = "Vous avez bien quitté votre équipe"))
-
-                        else:
-                            await ctx.channel.send(embed = errorEmbed(args[0]+ " "+args[1],"Vous n'avez aucune équipe à quitter"))
-                    quickSaveCharFile(pathUserProfile,[user,Qsave])
-
-            elif args[0] == guild.prefixe + "shop" and checkIsBotChannel(ctx,guild,bot):
-                await shop2(bot,ctx,shopping.shopping)
-
-            elif args[0] == guild.prefixe + "fight" and checkIsBotChannel(ctx,guild,bot):
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                user = loadCharFile(pathUserProfile,ctx)
-                ballerine,trouv,temp = 0,False,0
-                if user.team == 0:
-                    ballerine = user.owner
-                else:
-                    ballerine = user.team
-
-                cooldownOk = True
-                timing = teamWinDB.getFightCooldown(ballerine)
-                if timing > 0:
-                    cooldownOk = False
-
-                if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
-                    teamWinDB.changeFighting(ballerine,True)
-                    team1 = []
-                    if user.team != 0:
-                        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-                        for a in file[0]:
-                            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-                    else:
-                        team1 = [user]
-
-                    await fight(bot,team1,[],ctx,guild,False)
-
-                elif teamWinDB.isFightingBool(ballerine):
-                    await ctx.channel.send(embed = errorEmbed(args[0],"Vous êtes déjà en train de vous battre"))
-                else:
-                    await ctx.channel.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"))
-
-            elif args[0] == guild.prefixe + "quickFight" and checkIsBotChannel(ctx,guild,bot):
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                user = loadCharFile(pathUserProfile,ctx)
-                ballerine,trouv,temp = 0,False,0
-                if user.team == 0:
-                    ballerine = user.owner
-                else:
-                    ballerine = user.team
-
-                cooldownOk = True
-                timing = teamWinDB.getFightCooldown(ballerine,True)
-                if timing > 0 :
-                    cooldownOk = False
-
-                if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
-                    team1 = []
-                    if user.team != 0:
-                        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-                        for a in file[0]:
-                            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-                    else:
-                        team1 = [user]
-
-                    await fight(bot,team1,[],ctx,guild)
-
-                elif teamWinDB.isFightingBool(ballerine):
-                    await ctx.channel.send(embed = errorEmbed(args[0],"Vous êtes déjà en train de vous battre"))
-                else:
-                    await ctx.channel.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"))
-
-            elif args[0] == guild.prefixe + "octogone":
-                pathUserProfile,ballerine = absPath + "/userProfile/" + str(ctx.author.id) + ".prof",""
-                if os.path.exists(pathUserProfile):
-                    if not(checkIsBotChannel(ctx,guild,bot)) and ctx.author.id == 213027252953284609:
-                        ballerine = "Tu va te calmer Léna, tu es pas dans le bon salon pour octogone quelqu'un"
-                        if not(os.path.exists(absPath + "/userProfile/" + ctx.mentions[0].id + ".prof")):
-                            ballerine += f"\nEn plus {ctx.mentions[0].name} n'a même pas commencé l'aventure"
-                    elif checkIsBotChannel(ctx,guild,bot) and ctx.author.id == 213027252953284609 and not(os.path.exists(absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof")) and not((ctx.mentions[0].id in [623211750832996354,769999212422234122])):
-                        ballerine = f'{ctx.mentions[0].name} n\'a pas commencé l\'aventure Léna'
-
-                    elif checkIsBotChannel(ctx,guild,bot) and os.path.exists(absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"):
-                        await fight(bot,[loadCharFile(pathUserProfile)],[loadCharFile(absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof")],ctx,guild,auto=False,octogone=True)
-
-                    elif checkIsBotChannel(ctx,guild,bot) and (ctx.mentions[0].id in [623211750832996354,769999212422234122]):
-                        temp = loadCharFile(pathUserProfile)
-                        tempi = tablAllAllies[0]
-                        tempi.changeLevel(temp.level)
-                        await fight(bot,[temp],[tempi],ctx,guild,auto=False,octogone=True)
-
-                    elif checkIsBotChannel(ctx,guild,bot):
-                        await ctx.channel.send(f"{ctx.mentions[0].name} n'a pas commencé l'aventure")
-                    else:
-                        await ctx.channel.send("ok")
-
-                    if ballerine != "":
-                        await ctx.channel.send(ballerine)
 
             elif args[0] == guild.prefixe + "manuel" and checkIsBotChannel(ctx,guild,bot):
                 msg,manPage,chapterInt = await loadingEmbed(ctx),0,0
@@ -1214,50 +943,8 @@ async def on_message(ctx):
                         await msg.remove_reaction(str(reaction[0]),reaction[1])
 
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                if os.path.exists(pathUserProfile):
-                    user = loadCharFile(pathUserProfile,ctx)
-                    userAchiv = achivement.getSuccess(user)
-                    for a in userAchiv.tablAllSuccess():
-                        a = a.toDict()
-                        print(a["name"],a["count"])
-     
-            elif args[0] == guild.prefixe + "teamFight" and checkIsBotChannel(ctx,guild,bot):
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                if os.path.exists(pathUserProfile):
-                    user = loadCharFile(pathUserProfile,ctx)
-                    ballerine,trouv,temp = 0,False,0
-                    if user.team == 0:
-                        ballerine = user.owner
-                    else:
-                        ballerine = user.team
-
-                    team1 = []
-                    if user.team != 0:
-                        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-                        for a in file[0]:
-                            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-                    else:
-                        team1 = [user]
-
-
-                    team2 = []
-                    pathOctogonedProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
-                    if os.path.exists(pathOctogonedProfile):
-                        octogoned = loadCharFile(pathOctogonedProfile,ctx)
-                        if octogoned.team != 0:
-                            file = readSaveFiles(absPath + "/userTeams/" + str(octogoned.team) + ".team")
-                            for a in file[0]:
-                                team2 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-                        else:
-                            team2 = [octogoned]
-
-                        await fight(bot,team1,team2,ctx,guild,False,octogone=True)
-                    else:
-                        await ctx.channel.send("L'utilisateur mentioné n'a pas commencé l'aventure")
-                else:
-                    await ctx.channel.send("Tu n'as pas commencé l'aventure")
-        
+                await ctx.channel.send(ctx.mentions[0].avatar)
+            
             elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
                 await procuration(ctx)
         
@@ -1312,7 +999,7 @@ async def on_message(ctx):
                 """except:
                     print(f"Une erreur est survenue sur le message de {ctx.author.name}")"""
 
-# encyclopedia
+# encyclopedia ----------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
     create_option(
         name="destination", description="Que voulez vous consulter ?", required=True,option_type=3,
@@ -1336,7 +1023,7 @@ async def comEncyclopedia(ctx,destination):
         
     await encylopedia(bot,ctx,destination,user)
 
-# encyclopedia-test
+# encyclopedia-test -----------------------------------
 @slash.slash(name="encyclopedia_test",guild_ids = [615257372218097691],description="Vous permet de consulter l'encyclopédie", options=[
     create_option(
         name="destination", description="Que voulez vous consulter ?", required=True,option_type=3,
@@ -1360,8 +1047,11 @@ async def comEncyclopedia(ctx,destination):
         
     await encylopedia(bot,ctx,destination,user)
 
-# fight
-@slash.slash(name="fight",description="Vous permet de lancer un combat")
+# FIGHT -----------------------------------------------
+@slash.slash(name="fight",description="test",options=[])
+
+# normal fight
+@slash.subcommand(base="fight",name="normal",description="Permet de lancer un combat normal")
 async def normal(ctx):
     try:
         pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
@@ -1417,8 +1107,8 @@ async def normal(ctx):
         await asyncio.sleep(10)
         await msg.delete()
 
-# quickFight
-@slash.slash(name="quickFight",description="Vous permet de faire un combat en sautant directement à la fin")
+# quick fight
+@slash.subcommand(base="fight",name="quick",description="Vous permet de faire un combat en sautant directement à la fin")
 async def comQuickFight(ctx):
     try:
         pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
@@ -1473,7 +1163,118 @@ async def comQuickFight(ctx):
         await asyncio.sleep(10)
         await msg.delete()
 
-# cooldown
+# octogone fight
+@slash.subcommand(base="fight",name="octogone",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
+    create_option("versus","Affronter qui ?",6,required=True)
+])
+async def octogone(ctx,versus):
+    try:
+        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+        valid = True
+    except:
+        pass
+    
+    if valid:
+        if not existFile(pathGuildSettings):
+            tempGuild = server(ctx.guild.id)
+            saveGuildSettings(pathGuildSettings, tempGuild)
+            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
+            guilds.append(tempGuild) 
+        
+        guild = None
+
+        for a in guilds:
+            if type(a) != int:
+                if ctx.guild.id == a.id:
+                    guild = a
+
+    pathUserProfile,ballerine = absPath + "/userProfile/" + str(ctx.author.id) + ".prof",""
+    if os.path.exists(pathUserProfile):
+        if not(checkIsBotChannel(ctx,guild,bot)) and ctx.author.id == 213027252953284609:
+            ballerine = "Tu va te calmer Léna, tu es pas dans le bon salon pour octogone quelqu'un"
+            if not(os.path.exists(absPath + "/userProfile/" + versus.id + ".prof")):
+                ballerine += f"\nEn plus {versus.name} n'a même pas commencé l'aventure"
+        elif checkIsBotChannel(ctx,guild,bot) and ctx.author.id == 213027252953284609 and not(os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof")) and not((versus.id in [623211750832996354,769999212422234122])):
+            ballerine = f'{versus.name} n\'a pas commencé l\'aventure Léna'
+
+        elif checkIsBotChannel(ctx,guild,bot) and os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof"):
+            await fight(bot,[loadCharFile(pathUserProfile)],[loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")],ctx,guild,auto=False,octogone=True,slash=True)
+
+        elif checkIsBotChannel(ctx,guild,bot) and (versus.id in [623211750832996354,769999212422234122]):
+            temp = loadCharFile(pathUserProfile)
+            tempi = tablAllAllies[0]
+            tempi.changeLevel(temp.level)
+            await fight(bot,[temp],[tempi],ctx,guild,auto=False,octogone=True,slash=True)
+
+        elif checkIsBotChannel(ctx,guild,bot):
+            await ctx.send(f"{versus.name} n'a pas commencé l'aventure",delete_after=5)
+        else:
+            await ctx.send("ok",delete_after=5)
+
+        if ballerine != "":
+            await ctx.send(ballerine,delete_after=5)
+
+# team fight
+@slash.subcommand(base="fight",name="team",description="Affrontez l'équipe de quelqu'un avec la votre",options=[
+    create_option("versus","Affronter qui ?",6,required=True)
+])
+async def teamFight(ctx,versus):
+    try:
+        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+        valid = True
+    except:
+        pass
+    
+    if valid:
+        if not existFile(pathGuildSettings):
+            tempGuild = server(ctx.guild.id)
+            saveGuildSettings(pathGuildSettings, tempGuild)
+            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
+            guilds.append(tempGuild) 
+        
+        guild = None
+
+        for a in guilds:
+            if type(a) != int:
+                if ctx.guild.id == a.id:
+                    guild = a
+
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    if os.path.exists(pathUserProfile):
+        user = loadCharFile(pathUserProfile,ctx)
+        ballerine,trouv,temp = 0,False,0
+        if user.team == 0:
+            ballerine = user.owner
+        else:
+            ballerine = user.team
+
+        team1 = []
+        if user.team != 0:
+            file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
+            for a in file[0]:
+                team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        else:
+            team1 = [user]
+
+
+        team2 = []
+        pathOctogonedProfile = absPath + "/userProfile/" + str(versus.id) + ".prof"
+        if os.path.exists(pathOctogonedProfile):
+            octogoned = loadCharFile(pathOctogonedProfile,ctx)
+            if octogoned.team != 0:
+                file = readSaveFiles(absPath + "/userTeams/" + str(octogoned.team) + ".team")
+                for a in file[0]:
+                    team2 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+            else:
+                team2 = [octogoned]
+
+            await fight(bot,team1,team2,ctx,guild,False,octogone=True,slash=True)
+        else:
+            await ctx.send("L'utilisateur mentioné n'a pas commencé l'aventure",delete_after=5)
+    else:
+        await ctx.send("Tu n'as pas commencé l'aventure",delete_after=5)
+
+# cooldown ---------------------------------------------
 @slash.slash(name="cooldowns",description="Vous donne les cooldowns des commandes /fight et /quickFight pour votre équipe")
 async def cooldowns(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
@@ -1545,6 +1346,153 @@ async def invent(ctx,destination,procuration=None,nom=None):
 ])
 async def pts(ctx,procuration=None):
     await points(bot,ctx, ["/points",None],procuration,slashed=True)
+
+# TEAM ------------------------------------------------------------------------
+@slash.slash(name="team",description="Permet de gérer son équipe",options=[])
+
+# team view
+@slash.subcommand(base="team",name="view",description="Permet de voir les équipements de votre équipe ou de celle de quelqu'un d'autre",options=[
+    create_option("joueur","Voir l'équipe d'un autre joueur",6,required=False)
+])
+async def teamView(ctx,joueur=None):
+    if joueur==None:
+        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    else:
+        pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
+
+    if os.path.exists(pathUserProfile):
+        user = quickLoadCharFile(pathUserProfile)
+        user = user[0]
+        pathTeam = absPath + "/userTeams/" + user.team +".team"
+        msg = await loadingSlashEmbed(ctx)
+        if user.team == "0":
+            if int(user.owner) == int(ctx.author.id):
+                await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "Vous n'avez pas d'équipe pour le moment"))
+            else:
+                await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "{0} pas d'équipe pour le moment".format(user.name)))
+        else:
+            file = readSaveFiles(pathTeam)
+            if len(file[0]) == 1:
+                if int(user.owner) == int(ctx.author.id):
+                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "Vous êtes seul dans votre équipe pour le moment"))
+                else:
+                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "{0} est seul dans son équipe pour le moment".format(user.name)))
+            else:
+                temp = ""
+                for a in file[0]:
+                    temp2 = loadCharFile(absPath + "/userProfile/" + a + ".prof")
+                    temp3 = None
+
+                    temp3 = await bot.fetch_user(int(a))
+                    temp3 = temp3.name
+
+                    ballerine = f'{inspi[temp2.aspiration][0:3]}. | {elemEmojis[temp2.element]} | {temp2.weapon.emoji} | {temp2.stuff[0].emoji} {temp2.stuff[1].emoji} {temp2.stuff[2].emoji} | '
+                    for b in temp2.skills:
+                        if type(b)==skill:
+                            ballerine+=b.emoji
+                    ballerine+="\n\n"
+
+                    icon = await getUserIcon(bot,temp2)
+                    temp += f"__{icon} **{temp2.name}** ({temp3})__\n{ballerine}"
+                if int(user.owner) == int(ctx.author.id):
+                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp))
+                else:
+                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp))
+
+# team add
+@slash.subcommand(base="team",name="add",description="Permet de rajouter un joueur dans son équipe",options=[
+    create_option("joueur","Le joueur à rajouter",6,required=True)
+])
+async def teamAdd(ctx,joueur):
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    if os.path.exists(pathUserProfile):
+        user = quickLoadCharFile(pathUserProfile)
+        Qsave = user[1]
+        user = user[0]
+        pathTeam = absPath + "/userTeams/" + user.team +".team"
+        msg = await loadingSlashEmbed(ctx)
+
+        if not(os.path.exists(pathTeam) and user.team != "0"):
+            rdm = str(random.randint(1,10000))
+            pathTeam = absPath + "/userTeams/" + rdm +".team"
+            rewriteFile(pathTeam,f"{str(user.owner)};")
+            user.team = rdm
+            quickSaveCharFile(pathUserProfile,[user,Qsave])
+
+        noneCap,selfAdd,temp = True,False,readSaveFiles(absPath + "/userTeams/" + user.team +".team")
+
+        if len(temp[0]) >= 8:
+            noneCap = False      
+
+        if ctx.author == joueur:
+            selfAdd = True          
+
+        if noneCap and not(selfAdd):
+            mention = joueur
+            if os.path.exists(absPath + "/userProfile/" + str(mention.id) + ".prof"):
+                allReadyinTeam,allReadyInThatTeam,mate = False, False,quickLoadCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof")
+                
+                if mate[0].team != "0":
+                    allReadyinTeam = True
+                    if mate[0].team == user.team:
+                        allReadyInThatTeam = True
+
+
+                if not(allReadyinTeam):
+                    await msg.edit(embed = discord.Embed(title = "/team add "+joueur.name, color = user.color, description = f"{mention.mention}, {ctx.author.mention} vous propose de rejoidre son équipe. Qu'en dites vous ?"))
+                    await msg.add_reaction(emoji.check)
+                    await msg.add_reaction(emoji.cross)
+
+                    def checkisIntendedUser(reaction,user):
+                        return user == mention
+
+                    try:
+                        reaction = await bot.wait_for("reaction_add",timeout=60,check=checkisIntendedUser)
+                        if str(reaction[0]) == emoji.check:
+                            mate[0].team = user.team
+                            quickSaveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
+
+                            file = readSaveFiles(pathTeam)
+                            file[0] += [str(mention.id)]
+                            saveSaveFiles(pathTeam,file)
+                            await msg.clear_reactions()
+                            await msg.edit(embed = discord.Embed(title="/team add "+joueur.name,color = user.color,description = "Vous faites dorénavent parti de la même équipe"))
+                    except:
+                        await msg.clear_reactions()
+                
+                elif allReadyInThatTeam:
+                    await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Ce joueur est déjà dans ton équipe"))
+                elif allReadyinTeam:
+                    await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Ce joueur est déjà dans une équipe"))
+
+            else:
+                await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Cet utilisateur n'a pas commencé l'aventure"))  
+
+# team quit
+@slash.subcommand(base="team",name="quit",description="Permet de quitter son équipe")
+async def teamQuit(ctx):
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    if os.path.exists(pathUserProfile):
+        user = quickLoadCharFile(pathUserProfile)
+        Qsave = user[1]
+        user = user[0]
+        pathTeam = absPath + "/userTeams/" + user.team +".team"
+
+    if user.team != "0":
+        team = readSaveFiles(pathTeam)
+        team[0].remove(str(ctx.author.id))
+        user.team = "0"
+
+        saveSaveFiles(pathTeam,team)
+        await ctx.send(embed = discord.Embed(title = "/team quit",color = user.color, description = "Vous avez bien quitté votre équipe"))
+        quickSaveCharFile(pathUserProfile,[user,Qsave])
+    else:
+        await ctx.send(embed = errorEmbed("/team quit","Vous n'avez aucune équipe à quitter"))
+    
+# HELP ----------------------------------------------------------------
+@slash.slash(name="help",description="Ouvre la page d'aide du bot")
+async def helpCom(ctx):
+    await helpBot(bot,ctx)
 
 ###########################################################
 # Démarrage du bot
