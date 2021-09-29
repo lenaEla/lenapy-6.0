@@ -1,19 +1,3 @@
-descSettings = "⚠ Cette commande nécessite que l'utilisateur ai la permission de gérer les salons.\n\nPermet d'initialiser le menu des paramètres du serveur.\nDe là, vous pourrez modifier le préfixe du bot, définir le salon Patchnote ou le salon Bot et activer/désactiver les couleurs automatiques."
-descChoose = "Permet de choisir aléatoirement parmit plusieurs options données.\n\nl!choose *Option 1*| *Option 2* | *...* | *Option n*"
-descInvite = "Renvoie un lien d'invitation pour inviter Lenapy sur un serveur.\n\n⚠ Vous devez avoir la permission de gérer le serveur en question"
-descStart = "Si vous n'avez pas commencé l'aventure, permet d'initialiser le menu de départ\nVous sera demandé de choisir l'espèce, le nom, la couleur et l'aspiration de votre personnage.\n\n- Une fois choisi, il vous sera impossible de changer le nom et l'espèce de votre personnage (Privilège administrateur)\n- La couleur sera affiché sur tous les embeds en rapport avec votre personnage. Si l'option Couleur Automatique est activée sur le serveur, vous receverez un role correspodant.\n- L'aspiration détermine les statistiques de base de votre personnage et leur augmentation"
-descStats = "Vous permet de voir les statistiques de votre personnage, ainsi que votre équipement."
-descSolde = "Vous permet de voir la solde actuelle de votre personnage."
-descInventory = "Vous permet de voir les armes et compétences dans votre inventaire.\n\nEntrez \"inventory (id)\" ou \"inventory (Nom de l'arme)\" pour avoir plus d'information sur une arme ou compétence. Si vous la possédez, vous permettra de l'équiper."
-descPoints = "Vous permet de répartir vos points bonus obtenu grace aux montées de niveau"
-descShop = "Vous permet de dépenser vos pièces pour acheter Armes, Compétences ou Equipement"
-descTeam = "Vous permet de vous grouper avec d'autre joueurs\n\nl!team : Permet de vérifier les joueurs de votre équipe\nl!team up @mention : Permet de grouper un joueur, avec son concentemant\nl!team quit : Vous permet de quitter votre équipe"
-descFight = "Vous permet de lancer un combat contre une équipe de PNJ aléatoire\nSi votre équipe comporte moins de 3 joueurs, des PNJ y seront rajoutés temporairement\n\nCette commande a 1 heure de cooldown par équipe"
-descQuickFight = "Même chose que l!fight, mais affiche directement l'écran de fin\n\nCooldown : 3 heures par équipe"
-descOctogone = "Lance un combat 1v1 contre l'utilisteur mentionné. Les combats PVP ne rapportent pas d'exp"
-descTeamFight = "Lance un combat en équipe contre l'utilisteur mentionné. Les combats PVP ne rapportent pas d'exp"
-descProcu = "Permet à un autre utilisateur d'avoir accès à votre inventaire pour équiper des trucs à votre place"
-
 manPage0 = ["Manuel de l'Aventure - Par Lena","**__Sommaire :__**"]
 
 manPage1 = ["Généralités","L'Avanture consiste à la réaliser plusieurs missons réparties en plusieurs chapitres.\n\nCes missions sont scénarisés et consistes en une succession d'événements prédéfinies qui vont mettre vos statistiques à l'épreuve"]
@@ -33,9 +17,6 @@ manPage13 = ["Aspiration Tête Brulée","Les têtes brulées ont plus tendance �
 manPage14 = ["Aspiration Altruiste","Les altruistes vont préférer se focaliser sur leurs alliés plutôt que sur eux-même\n\n__**Passif d'Aspiration :**__\nLa puissance des boosts et soins donnés à leurs alliés est augmentée, mais ceux réalisé sur soi-même est diminuée\n\n__**Stats de base au niveau 50 :**__\nForce : 15\nEndurance : 35\nCharisme : 40\nAgilité : 35\nPrécision : 20\nIntelligence : 35"]
 manPage15 = ["Aspiration Aventurier","Les aventuriers n'ont pas vraiment envie de se spécialiser et font ce qu'il leur plait pour s'adapter à toutes situations\n\n__**Passif d'Aspiration :**__\nLorsqu'un aventurier réalise une action, il gagne 5 de statistique dans les statistiques non utilisés par cette action parmis la Force, le Charisme ou l'Intelligence pour le tour suivant\n\n__**Stats de base au niveau 50 :**__\nForce : 30\nEndurance : 30\nCharisme : 30\nAgilité : 30\nPrécision : 30\nIntelligence : 30"]
 
-tablDescMod = [descSettings]
-tablDescUt = [descChoose,descInvite]
-tablDescAdv = [descStart,descStats,descSolde,descInventory,descPoints,descShop,descTeam,descFight,descQuickFight,descOctogone,descTeamFight,descProcu]
 tablPage = [manPage0,manPage1,manPage2,manPage3,manPage4,manPage5,manPage6,manPage7,manPage8,manPage9,manPage10,manPage11,manPage12,manPage13,manPage14,manPage15]
 chapter = [[manPage0],[manPage1,manPage2,manPage3,manPage4,manPage5,manPage6],[manPage7,manPage8,manPage9,manPage10,manPage11,manPage12,manPage13,manPage14,manPage15]]
 chapterName = [None,"Combat B.A.BA","Les personnages"]
