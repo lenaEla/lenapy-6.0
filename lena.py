@@ -341,22 +341,19 @@ async def on_slash_command_error(error1,error2):
                 babie = datetime.datetime.now()
                 ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue\nUn rapport d'erreur a été envoyé")
                 errorChannel = await bot.fetch_channel(error1.channel.id)
-                await errorChannel.send(embed = ballerine,delete_after=5)
+                await errorChannel.send(embed = ballerine,delete_after=10)
 
                 ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue")
                 ballerine.add_field(name="__Serveur :__",value=f"**{error1.author.guild.name}**\n{error1.channel.name}")
                 ballerine.add_field(name="__Heure :__",value=babie.strftime("%m/%d/%Y, %H:%M:%S"))
                 if len(traceback.format_exc()) > 1024:
-                    ballerine.add_field(name="__Erreur :__",value="(...)\n"+traceback.format_exc()[-1000:],inline=False)
+                    ballerine.add_field(name="__Erreur :__",value="(...)\n"+traceback.format_exc()[-1010:],inline=False)
                 else:
-                    ballerine.add_field(name="__Erreur :__",value=error2,inline=False)
+                    ballerine.add_field(name="__Erreur :__",value=traceback.format_exc(),inline=False)
 
                 errorChannel = await bot.fetch_channel(808394788126064680)
-                await errorChannel.send(embed = ballerine)
-            else:
-                await error2.add_reaction('<:LenaWhat:760884455727955978>')
-        else:
-            await error2.add_reaction('🕛')"""
+                await errorChannel.send(embed = ballerine)"""
+
 ###########################################################
 # Commandes
 begoneTabl = []
@@ -495,11 +492,9 @@ async def on_message(ctx):
                             try:
                                 pathUserProfile = absPath + "/userProfile/" + a
                                 user = loadCharFile(pathUserProfile,ctx)
-                                user = restats(user)
+                                user = silentRestats(user)
 
                                 saveCharFile(pathUserProfile,user)
-                                owner = await bot.fetch_user(user.owner)
-                                await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"Votre profil a été restats de force par un administrateur.\n\nVous avez obtenus les statistiques correspondant à votre aspiration et votre niveau et vous avez récupéré vos {user.points} points bonus, que vous pouvez redistribuer à votre guise"))
                                 print(f"{user.name} a bien été restat")
                             except:
                                 pass
@@ -1315,30 +1310,87 @@ async def shopSlash(ctx):
 # Inventory
 @slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",options=[
     create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=True,choices=[
-        create_choice("0","Armes"),
-        create_choice("1","Compétences"),
-        create_choice("2","Equipements"),
-        create_choice("3","Objets spéciaux"),
-        create_choice("4","Elements")
+        create_choice("Armes","Armes"),
+        create_choice("Compétences","Compétences"),
+        create_choice("Equipements","Equipements"),
+        create_choice("Objets spéciaux","Objets spéciaux"),
+        create_choice("Elements","Elements")
     ]),
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False),
     create_option("nom","Le nom ou l'identifiant d'un objet. Les espaces peuvent être remplacés par des _",3,required=False)
 ])
 async def invent(ctx,destination,procuration=None,nom=None):
+    to = False
     for a in [0,1,2,3,4]:
         if ["Armes","Compétences","Equipements","Objets spéciaux","Elements"][a] == destination:
             destination = a
             break
     
-    empty = []
+    empty = [None]
     if procuration != None:
-        empty = [None]
+        empty = [procuration.mention]
 
     if nom != None:
-        nom = [nom.replace("_"," "),None]
+        nom = nom.replace("_"," ")
+        nom = nom.lower()
+        while nom.endswith(" "):
+            nom = nom[0:-1]
+
+        if whatIsThat(nom) == None:
+            research = weapons[:]+skills[:]+stuffs[:]+others[:]
+            lastResarch = []
+            nameTempCmpt,lenName = 0, len(nom)
+            while 1:
+                lastResarch = research[:]
+                if nameTempCmpt+3 <= lenName:
+                    nameTempCmpt += 3
+                else:
+                    nameTempCmpt = lenName
+
+                for a in research[:]:
+                    temp = a.name.lower()
+                    if not(temp.startswith(nom[0:nameTempCmpt])):
+                        research.remove(a)
+
+                leni = len(research)
+                if leni == 1:
+                    nom = research[0].name
+                    break
+                elif leni <= 0 or nameTempCmpt == lenName:
+                    desc = ""
+                    options = []
+                    for a in lastResarch:
+                        desc += "{0} {1}\n".format(a.emoji,a.name)
+                        options += [create_select_option(a.name,a.name,getEmojiObject(a.emoji))]
+
+                    if len(options) <= 25:
+                        select = create_select(options,placeholder="Sélectionnez un objet :")
+                    else:
+                        await ctx.send(embed=discord.Embed(title="/inventory",description="L'objet spécifié n'a pas été trouvé, et le nom donné est trop vague\nVeuillez réessayer avec un paramètre Nom plus précis"),delete_after=10)
+                        to = True
+                        break
+                    msg = await ctx.send(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(select)])
+
+                    def check(m):
+                        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+
+                    try:
+                        respond = await wait_for_component(bot,components=select,check=check,timeout=60)
+                    except:
+                        await msg.delete()
+                        to = True
+                        break
+
+                    nom = respond.values[0]
+                    await msg.edit(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                    break           
+        
+        nom = [nom,None]
+        
     else:
         nom = [None]
-    await inventory(bot,ctx,["/inventory"]+empty+nom,[int(destination),procuration])
+    if not(to):
+        await inventory(bot,ctx,["/inventory"]+empty+nom,[int(destination),procuration])
 
 # Points
 @slash.slash(name="points",description="Vous permet de répartir vos points bonus",options=[
