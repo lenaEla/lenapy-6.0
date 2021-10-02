@@ -8,6 +8,7 @@ from gestion import *
 from advance_gestion import *
 from discord.ext import commands, tasks
 from commands.sussess_endler import *
+from traceback import format_exc
 
 teamWinDB = dbHandler("teamVic.db")
 
@@ -16,8 +17,11 @@ async def loadingEmbed(ctx):
 async def loadingSlashEmbed(ctx):
     return await ctx.channel.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
 
+AI_DPT,AI_BOOST,AI_MALUS,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT = 0,1,2,3,4,5
+
 async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False,slash=False):
-    logs = ""
+    now = datetime.datetime.now()
+    logs,haveError = "[{0}]\n".format(now.strftime("%H:%M:%S, %D/%m/%Y")),False
     try:
         print(ctx.author.name + " a lancé un combat")
     except:
@@ -37,65 +41,90 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
         def getArea(self,area=AREA_MONO,team=0):
             rep = []
 
-            tablArea = [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7]
-            for a in tablArea:
-                if area == a:
-                    for b in tablAllCells:
-                        if self.distance(cell=b) <= a:
+            # Circles
+            if area in [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7]:
+                dist = area
+                if area > AREA_CIRCLE_7:
+                    if area <= AREA_DONUT_7:
+                        dist -= AREA_DONUT_1-1
+                    elif area <= AREA_DIST_7:
+                        dist -= AREA_DIST_3-3
+
+                for a in tablAllCells:
+                    if self.distance(cell=a) <= dist:
+                        rep.append(a)
+
+                if area > AREA_CIRCLE_7 and area <= AREA_DONUT_7: # If donut, remove the center
+                    rep.remove(self)
+                elif area > AREA_DONUT_7 and area <= AREA_DIST_7: # If dist only, remove melee
+                    for a in rep[:]:
+                        if self.distance(cell=a) <= 2:
+                            rep.remove(a)
+            elif area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
+
+                for b in tablAllCells:
+                    if b.on != None:
+                        if area == AREA_ALL_ALLIES and b.on.team == team:
                             rep+=[b]
+                        elif area == AREA_ALL_ENNEMIES and b.on.team != team:
+                            rep+=[b]
+                        elif area == AREA_ALL_ENTITES:
+                            rep+=[b]
+            elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
+                start,yDiff,xMax = self.x,0,area-10
+                areaTabl = []
 
-            tablArea = [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]
-            for a in tablArea:
-                if a == area:
-                    for b in tablAllCells:
-                        if b.on != None:
-                            if a == AREA_ALL_ALLIES and b.on.team == team:
-                                rep+=[b]
-                            elif a == AREA_ALL_ENNEMIES and b.on.team != team:
-                                rep+=[b]
-                            elif a == AREA_ALL_ENTITES:
-                                rep+=[b]
+                if team==0:
+                    ite = 0
+                    while start <= 5 and ite <= xMax:
+                        for y in range(0,yDiff+1):
+                            if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
+                                areaTabl.append(findCell(start,self.y+y))
+                            if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
+                                areaTabl.append(findCell(start,self.y-y))
+                        start += 1
+                        yDiff += 1
+                        ite+=1
+                else:
+                    ite = 0
+                    while start >= 0 and ite <= xMax:
+                        for y in range(0,yDiff+1):
+                            if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
+                                areaTabl.append(findCell(start,self.y+y))
+                            if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
+                                areaTabl.append(findCell(start,self.y-y))
+                        start -= 1
+                        yDiff += 1
+                        ite+=1
 
-            tablArea = [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]
-            for a in tablArea:
-                if area == a:
-                    start,yDiff,xMax = self.x,0,area-10
-                    areaTabl = []
-
-                    if team==0:
-                        ite = 0
-                        while start <= 5 and ite <= xMax:
-                            for y in range(0,yDiff+1):
-                                if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
-                                    areaTabl.append(findCell(start,self.y+y))
-                                if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
-                                    areaTabl.append(findCell(start,self.y-y))
-                            start += 1
-                            yDiff += 1
-                            ite+=1
-                    else:
-                        ite = 0
-                        while start >= 0 and ite <= xMax:
-                            for y in range(0,yDiff+1):
-                                if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
-                                    areaTabl.append(findCell(start,self.y+y))
-                                if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
-                                    areaTabl.append(findCell(start,self.y-y))
-                            start -= 1
-                            yDiff += 1
-                            ite+=1
-
-                    return areaTabl
-
-            if area in [17,18,19,20,21]: # Lignes
+                return areaTabl
+            elif area in [17,18,19,20,21]: # Lines
                 for a in tablAllCells:
                     if self.y == a.y and abs(a.x - self.x) <= area-16:
                         rep.append(a)
-
-            if area==AREA_MONO:
-                return [self]
+            elif area in [AREA_ARC_1,AREA_ARC_2,AREA_ARC_3]: # Arcs
+                cmptx = 1
+                while cmptx < area - 32:
+                    if team == 0:
+                        cell1 = findCell(self.x-cmptx,self.y-cmptx)
+                        if cell1 != None:
+                            rep.append(cell1)
+                        cell2 = findCell(self.x-cmptx,self.y+cmptx)
+                        if cell2 != None:
+                            rep.append(cell2)
+                    if team == 1:
+                        cell1 = findCell(self.x+cmptx,self.y-cmptx)
+                        if cell1 != None:
+                            rep.append(cell1)
+                        cell2 = findCell(self.x+cmptx,self.y+cmptx)
+                        if cell2 != None:
+                            rep.append(cell2)
+                    cmptx+=1
+                rep.append(self)
+            elif area==AREA_MONO:
+                return [self]            
             return rep
-
+    
         def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=100,dead=False,effect=[None],ignoreInvoc = False):
             rep = []
             if type(effect)!=list:
@@ -564,6 +593,56 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             self.healResist = 0
             self.missedLastTurn = False
 
+            finded = False
+            self.IA = AI_AVENTURE
+
+            if self.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
+                self.IA = AI_DPT
+
+            elif self.char.aspiration == IDOLE:
+                self.IA = AI_BOOST
+
+            elif self.char.aspiration == ALTRUISTE:
+                self.IA = AI_ALTRUISTE
+
+            elif ERUDIT == self.char.aspiration:
+                offSkill,SuppSkill = 0,0
+                for b in [self.char.weapon]+self.char.skills:
+                    if type(b) in [weapon,skill]:
+                        if b.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                            offSkill += 1
+                        else:
+                            SuppSkill += 1
+                    
+                if SuppSkill >= offSkill:
+                    self.IA = AI_MALUS
+                else:
+                    self.IA = AI_OFFERUDIT
+
+            if self.IA == AI_AVENTURE:
+                offSkill,SuppSkill,healSkill,armorSkill,invocSkill = 0,0,0,0,0
+                for b in [self.char.weapon]+self.char.skills:
+                    if type(b) in [weapon,skill]:
+                        if b.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                            offSkill += 1
+                        elif b.type in [TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR]:
+                            SuppSkill += 1
+                        elif b.type in [TYPE_HEAL]:
+                            healSkill += 1
+                        elif b.type in [TYPE_INVOC]:
+                            invocSkill += 1
+                    
+                if max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == offSkill:
+                    self.IA = AI_OFFERUDIT
+                elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == SuppSkill:
+                    self.IA = AI_BOOST
+                elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == healSkill:
+                    self.IA = AI_ALTRUISTE
+                elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == armorSkill:
+                    self.IA = AI_BOOST
+                elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == invocSkill:
+                    self.IA = AI_AVENTURE
+
         def allStats(self):
             return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
 
@@ -742,7 +821,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             Renvoie un str contenant les messages correspondant aux actions effectuées"""
 
             popopo = ""
-            value = round(value*self.getElementalBonus(target,area=AREA_MONO,type = TYPE_INDIRECT_DAMAGE))
+            value = round(value)
             if target.hp > 0:
                 for a in target.effect:
                     if a.effect.immunity == True and not(ignoreImmunity):
@@ -750,9 +829,10 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                         break
 
                 target.hp -= value
-                self.stats.damageDeal += value
-                self.stats.indirectDamageDeal += value
-                target.stats.damageRecived += value
+                if value <= 9000:
+                    self.stats.damageDeal += value
+                    self.stats.indirectDamageDeal += value
+                    target.stats.damageRecived += value
                 popopo = f"{self.icon} {icon} → {target.icon} -{value} PV\n"
 
                 if target.hp <= 0:
@@ -812,7 +892,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                     dangerMul = danger/100
 
                 if target.hp > 0: # If the target is alive
-                    critRate = round(self.precision/6.66)+round(self.agility/6.66)+self.critical
+                    critRate = round(self.precision/3.33)+round(self.agility/6.66)+self.critical
                     popipo,immune,multiplicateur = "",False,1
 
                     for a in self.effect: # Does the attacker trigger a effect
@@ -821,7 +901,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                             value = temp[0]
                             popipo += temp[1]
 
-                    if self.hp > 0: # Does the attacker still alive ?
+                    if self.hp > 0 and target.hp > 0: # Does the attacker still alive ?
                         for z in target.cell.getEntityOnArea(area=area,team=self.team,wanted=ENNEMIS): # For eatch ennemis in the area
                             pp = 0
                             if self.char.aspiration == POIDS_PLUME: # Apply "Poids Plume" critical bonus
@@ -1132,7 +1212,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 if self.trigger == TRIGGER_ON_REMOVE:
                     temp += self.triggerRemove()
                 self.remove = True
-                if not(self.effect.silent) or self.on.hp > 0:
+                if not(self.effect.silent) and self.on.hp > 0:
                     temp += f"{self.on.char.name} n'est plus sous l'effet __{self.effect.name}__\n"
             return temp
 
@@ -1155,16 +1235,12 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
             elif self.type == TYPE_INDIRECT_DAMAGE and self.value>0:
                 variable = ""
-                stat,damage = None,self.effect.power
+                damageBase = self.effect.power
                 if self.effect.stat == None:
-                    pass
-                elif self.effect.stat == INTELLIGENCE:
-                    stat = self.caster.intelligence
-                elif self.effect.stat == CHARISMA:
-                    stat = self.caster.icharisma
-                elif self.effect.stat == STRENGTH:
-                    stat = self.caster.strength
-                
+                    stat = None
+                else:
+                    stat = self.caster.allStats()[self.effect.stat]
+
                 whoTarget = ALLIES
                 if self.on.team == self.caster.team and self.on != self.caster:
                     whoTarget = ENNEMIS
@@ -1175,7 +1251,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                         reduc = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
 
                     if stat != None:
-                        damage = damage * (1+(stat/self.on.erudit())) * (1-min(95,self.on.resistance-self.caster.percing)/100) * (reduc)
+                        damage = damageBase * (1+(stat/self.caster.erudit())) * (1-min(95,self.on.resistance-self.caster.percing)/100) * reduc * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
 
                     variable += self.caster.indirectAttack(a,value=damage,icon = self.icon)
                 temp2[1] = f"L'effet __{self.effect.name}__ se déclanche :\n{variable}{self.decate(value=1)}"
@@ -1202,15 +1278,9 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
 
             elif self.type == TYPE_INDIRECT_DAMAGE and self.value>0:
                 variable = ""
-                stat,damage = None,self.effect.power
+                stat,damageBase = self.caster.allStats()[self.effect.stat],self.effect.power
                 if self.effect.stat == None:
-                    pass
-                elif self.effect.stat == INTELLIGENCE:
-                    stat = self.caster.intelligence
-                elif self.effect.stat == CHARISMA:
-                    stat = self.caster.icharisma
-                elif self.effect.stat == STRENGTH:
-                    stat = self.caster.strength
+                    stat = None
                 
                 whoTarget = ALLIES
                 if self.on.team == self.caster.team and self.on != self.caster:
@@ -1222,7 +1292,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                         reduc = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
 
                     if stat != None:
-                        damage = damage * (1+(stat/self.on.erudit())) * (1-min(95,self.on.resistance-self.caster.percing)/100) * (reduc)
+                        damage = damageBase * (1+(stat/self.caster.erudit())) * (1-min(95,self.on.resistance-self.caster.percing)/100) * (reduc) * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
 
                     variable += self.caster.indirectAttack(a,value=damage,icon = self.icon)
                 temp += f"L'effet __{self.effect.name}__ se déclanche :\n{variable}{self.decate(value=1)}"
@@ -1255,16 +1325,18 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
             elif self.type == TYPE_INDIRECT_DAMAGE and self.value>0:
                 variable = ""
                 if self.effect.stat != None:
-                    stat,damage = self.caster.allStats()[self.effect.stat],self.effect.power
+                    stat,damageBase = self.caster.allStats()[self.effect.stat],self.effect.power
                     whoTarget = ALLIES
                     if self.on.team == self.caster.team and self.on != self.caster:
                         whoTarget = ENNEMIS
 
+
                     for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.on.team,wanted=whoTarget):
+                        selfElem = self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
                         areaMul = 1
                         if a != self.on:
                             areaMul = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
-                        damage = damage * (1+(stat/self.on.erudit())) * (1-min(95,self.on.resistance-self.caster.percing)/100) * areaMul
+                        damage = damageBase * (1+(stat/self.caster.erudit())) * (1-min(95,self.on.resistance-self.caster.percing)/100) * areaMul * selfElem
                         variable += self.caster.indirectAttack(a,value=damage,icon = self.icon)
                     ballerine = f"L'effet __{self.effect.name}__ se déclanche :\n{variable}{self.decate(value=1)}"
                 else:
@@ -1283,7 +1355,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 self.decate(value=1)
             elif self.type == TYPE_UNIQUE:
                 if self.effect == poidPlumeEff:
-                    self.value = 0
+                    self.value = self.value//2
             return temp
 
         def triggerRemove(self):
@@ -1597,7 +1669,7 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                 if temp not in alreadyFall:
                     alreadyFall += [temp]
                     bottine = tablAllOcta[temp]
-                    alea = octarien(bottine.name,bottine.strength,bottine.endurance,bottine.charisma,bottine.agility,bottine.precision,bottine.intelligence,bottine.resistance,bottine.percing,bottine.critical,bottine.weapon,bottine.exp,bottine.icon,bottine.skills,bottine.aspiration,bottine.gender)
+                    alea = octarien(bottine.name,bottine.strength,bottine.endurance,bottine.charisma,bottine.agility,bottine.precision,bottine.intelligence,bottine.resistance,bottine.percing,bottine.critical,bottine.weapon,bottine.exp,bottine.icon,bottine.skills,bottine.aspiration,bottine.gender,deadIcon=bottine.deadIcon)
                     alea.level = lvlMax
                     tempStats = alea.allStats()
                     for b in range(0,len(tempStats)):
@@ -1924,213 +1996,202 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
     fight = True
     
     # Début effectif du combat --------------------------------------------------------------------------------
-    while fight:
-        everyoneDead = [True,True]
-        actTurn = time.timeline[0]
-        nextNotAuto,lastNotAuto = 0,0
+    try:   
+        while fight:
+            everyoneDead = [True,True]
+            actTurn = time.timeline[0]
+            nextNotAuto,lastNotAuto = 0,0
 
-        everyoneStillThere = False
-        for a in time.timeline : # Vérification du prochain joueur non automatique
-            if not(a.auto):
-                everyoneStillThere = True
-                if a.hp > 0:
-                    nextNotAuto = a
-                    break
+            everyoneStillThere = False
+            for a in time.timeline : # Vérification du prochain joueur non automatique
+                if not(a.auto):
+                    everyoneStillThere = True
+                    if a.hp > 0:
+                        nextNotAuto = a
+                        break
 
-        if not(everyoneStillThere):
-            allAuto = True
+            if not(everyoneStillThere):
+                allAuto = True
 
-        if nextNotAuto != actTurn and not(auto) and not(allAuto):
-            if lastNotAuto != nextNotAuto:
-                await choiceMsg.edit(embed = discord.Embed(title = "Fenêtre de selection de l'action", color=nextNotAuto.char.color,description = f"En attente du tour de {nextNotAuto.char.name} {emoji.loading}"),components=[])
-                lastNotAuto = nextNotAuto
-            elif nextNotAuto == 0:
-                await choiceMsg.edit(embed = discord.Embed(title = "Fenêtre de selection de l'action", color=light_blue,description = f"Il n'y a plus de combattants manuels en vie"),components=[])
-                lastNotAuto = nextNotAuto
-        
-        if allAuto and choiceMsg != 0:
-            await choiceMsg.delete()
-            choiceMsg = 0
-  
-        tempTurnMsg = f"__Début du tour de {actTurn.char.name} :__\n"
+            if nextNotAuto != actTurn and not(auto) and not(allAuto):
+                if lastNotAuto != nextNotAuto:
+                    await choiceMsg.edit(embed = discord.Embed(title = "Fenêtre de selection de l'action", color=nextNotAuto.char.color,description = f"En attente du tour de {nextNotAuto.char.name} {emoji.loading}"),components=[])
+                    lastNotAuto = nextNotAuto
+                elif nextNotAuto == 0:
+                    await choiceMsg.edit(embed = discord.Embed(title = "Fenêtre de selection de l'action", color=light_blue,description = f"Il n'y a plus de combattants manuels en vie"),components=[])
+                    lastNotAuto = nextNotAuto
+            
+            if allAuto and choiceMsg != 0:
+                await choiceMsg.delete()
+                choiceMsg = 0
+    
+            tempTurnMsg = f"__Début du tour de {actTurn.char.name} :__\n"
 
-        if actTurn == time.begin:
-            tour += 1
-            logs += "\n\n=========\nTurn {0}\n=========".format(tour)
+            if actTurn == time.begin:
+                tour += 1
+                logs += "\n\n=========\nTurn {0}\n=========".format(tour)
 
-            for a in [0,1]:
-                for b in tablEntTeam[a]:
-                    if b.hp > 0:
-                        b.stats.survival = tour
-
-            if tour >= 16:
-                tempTurnMsg += f"\nMort subite !\nTous les combattants perdent {10*(tour-15)} PV\n"
                 for a in [0,1]:
                     for b in tablEntTeam[a]:
                         if b.hp > 0:
-                            b.hp -= 10*(tour-15)
-                            if b.hp <= 0:
-                                tempTurnMsg += b.death(killer=b)
+                            b.stats.survival = tour
 
-        for c in [0,1]:
-            for d in tablEntTeam[c]:
-                if d.hp > 0 and type(d.char) != invoc:
-                    everyoneDead[c] = False
-                    break
+                if tour >= 16:
+                    tempTurnMsg += f"\nMort subite !\nTous les combattants perdent {10*(tour-15)} PV\n"
+                    for a in [0,1]:
+                        for b in tablEntTeam[a]:
+                            if b.hp > 0:
+                                b.hp -= 10*(tour-15)
+                                if b.hp <= 0:
+                                    tempTurnMsg += b.death(killer=b)
 
-        if everyoneDead[0] or everyoneDead[1]:
-            break
+            for c in [0,1]:
+                for d in tablEntTeam[c]:
+                    if d.hp > 0 and type(d.char) != invoc:
+                        everyoneDead[c] = False
+                        break
 
-        embInfo = discord.Embed(title = "Combat <:turf:810513139740573696>",color = light_blue)
+            if everyoneDead[0] or everyoneDead[1]:
+                break
 
-        if dangerThub != None:
-            embInfo.set_thumbnail(url=dangerThub)
-        embInfo.add_field(name = "__Carte__",value=map(),inline = False)
-        embInfo.add_field(name = "__Timeline__",value=time.icons(),inline = False)
+            embInfo = discord.Embed(title = "Combat <:turf:810513139740573696>",color = light_blue)
 
-        # Tour en cours -------------------------------------------------------------------------------------
-        wasAlive = actTurn.hp > 0
-        temp,atRange = "",actTurn.atRange()
-        nbTargetAtRange = len(atRange)
-        tempTurnMsg += actTurn.startOfTurn(tablEntTeam=tablEntTeam)
+            if dangerThub != None:
+                embInfo.set_thumbnail(url=dangerThub)
+            embInfo.add_field(name = "__Carte__",value=map(),inline = False)
+            embInfo.add_field(name = "__Timeline__",value=time.icons(),inline = False)
 
-        infoOp,cmpt = [],0
-        for a in [0,1]:
-            for b in tablEntTeam[a]:
-                if type(b.char) != invoc:
-                    infoOp += [create_select_option(b.char.name,str(cmpt),getEmojiObject(b.icon),f"PV : {max(0,b.hp)} ({max(0,round(b.hp/b.maxHp*100))}%), R.S. : {b.healResist}%")]
-                cmpt+=1
-        infoSelect = create_select(infoOp,placeholder="Voir les PVs des combattants")
+            # Tour en cours -------------------------------------------------------------------------------------
+            wasAlive = actTurn.hp > 0
+            temp,atRange = "",actTurn.atRange()
+            nbTargetAtRange = len(atRange)
+            tempTurnMsg += actTurn.startOfTurn(tablEntTeam=tablEntTeam)
 
-        if wasAlive and actTurn.hp <= 0: # Died from poison
-            temp2 = actTurn.allStats()
-            
-            for a in range(0,len(nameStats)): # Affichage des statistiques
-                temp += f"{nameStats[a]} : {temp2[a]}\n"
+            infoOp,cmpt = [],0
+            for a in [0,1]:
+                for b in tablEntTeam[a]:
+                    if type(b.char) != invoc:
+                        infoOp += [create_select_option(b.char.name,str(cmpt),getEmojiObject(b.icon),f"PV : {max(0,b.hp)} ({max(0,round(b.hp/b.maxHp*100))}%), R.S. : {b.healResist}%")]
+                    cmpt+=1
+            infoSelect = create_select(infoOp,placeholder="Voir les PVs des combattants")
 
-            embInfo.add_field(name = f"__{actTurn.icon} {actTurn.char.name}__",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
-            embInfo.add_field(name = "__Liste des effets :__",value=actTurn.effectIcons(),inline = True)
-            embInfo.add_field(name = "__Statistiques :__",value = temp,inline = True)
+            if wasAlive and actTurn.hp <= 0: # Died from poison
+                temp2 = actTurn.allStats()
+                
+                for a in range(0,len(nameStats)): # Affichage des statistiques
+                    temp += f"{nameStats[a]} : {temp2[a]}\n"
 
-            if not(auto):
-                await msg.edit(embed = embInfo, components=[create_actionrow(infoSelect)])
-                await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
-                await asyncio.sleep(2+(len(tempTurnMsg)/1000)*5)
-    
-        elif actTurn.hp > 0:
-            logs += "\n\nTurn {0} - {1} :".format(tour,actTurn.char.name)
-            temp2 = actTurn.allStats()
-            
-            for a in range(0,len(nameStats)): # Affichage des statistiques
-                temp += f"{nameStats[a]} : {temp2[a]}\n"
+                embInfo.add_field(name = f"__{actTurn.icon} {actTurn.char.name}__",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
+                embInfo.add_field(name = "__Liste des effets :__",value=actTurn.effectIcons(),inline = True)
+                embInfo.add_field(name = "__Statistiques :__",value = temp,inline = True)
 
-            embInfo.add_field(name = f"__{actTurn.icon} {actTurn.char.name}__",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
-            embInfo.add_field(name = "__Liste des effets :__",value=actTurn.effectIcons(),inline = True)
-            embInfo.add_field(name = "__Statistiques :__",value = temp,inline = True)
-
-            if not(auto):
-                await msg.edit(embed = embInfo,components=[create_actionrow(infoSelect)])
-                if nextNotAuto == actTurn:
+                if not(auto):
+                    await msg.edit(embed = embInfo, components=[create_actionrow(infoSelect)])
                     await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
+                    await asyncio.sleep(2+(len(tempTurnMsg)/1000)*5)
+        
+            elif actTurn.hp > 0:
+                logs += "\n\nTurn {0} - {1} :".format(tour,actTurn.char.name)
+                temp2 = actTurn.allStats()
+                
+                for a in range(0,len(nameStats)): # Affichage des statistiques
+                    temp += f"{nameStats[a]} : {temp2[a]}\n"
 
-            cmpt,iteration,ennemi = 0,actTurn.char.weapon.repetition,0
+                embInfo.add_field(name = f"__{actTurn.icon} {actTurn.char.name}__",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
+                embInfo.add_field(name = "__Liste des effets :__",value=actTurn.effectIcons(),inline = True)
+                embInfo.add_field(name = "__Statistiques :__",value = temp,inline = True)
 
-            optionChoice,unsuccess = OPTION_SKIP,True
-            canMove,cellx,celly = [True,True,True,True],actTurn.cell.x,actTurn.cell.y
-            surrondings = [findCell(cellx-1,celly),findCell(cellx+1,celly),findCell(cellx,celly-1),findCell(cellx,celly+1)]
-            for a in range(0,len(surrondings)):
-                if surrondings[a] != None:
-                    if surrondings[a].on != None and surrondings[a].on.status != STATUS_TRUE_DEATH:
+                if not(auto):
+                    await msg.edit(embed = embInfo,components=[create_actionrow(infoSelect)])
+                    if nextNotAuto == actTurn:
+                        await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
+
+                cmpt,iteration,ennemi = 0,actTurn.char.weapon.repetition,0
+
+                optionChoice,unsuccess = OPTION_SKIP,True
+                canMove,cellx,celly = [True,True,True,True],actTurn.cell.x,actTurn.cell.y
+                surrondings = [findCell(cellx-1,celly),findCell(cellx+1,celly),findCell(cellx,celly-1),findCell(cellx,celly+1)]
+                for a in range(0,len(surrondings)):
+                    if surrondings[a] != None:
+                        if surrondings[a].on != None and surrondings[a].on.status != STATUS_TRUE_DEATH:
+                            canMove[a] = False
+                    else:
                         canMove[a] = False
-                else:
-                    canMove[a] = False
 
-            if not(actTurn.stun): # Tour
-                if not(actTurn.auto) : # Fenêtre de sélection de l'option d'un joueur non automatique
-                    haveOption,unsuccess = False,False
+                if not(actTurn.stun): # Tour
+                    if not(actTurn.auto) : # Fenêtre de sélection de l'option d'un joueur non automatique
+                        haveOption,unsuccess = False,False
 
-                    waitingSelect = create_actionrow(create_select(options=[create_select_option("Veillez patienter...","PILLON!",'🕑',default=True)],disabled=True))
-                    dateLimite = datetime.datetime.now() + datetime.timedelta(seconds=30)
+                        waitingSelect = create_actionrow(create_select(options=[create_select_option("Veillez patienter...","PILLON!",'🕑',default=True)],disabled=True))
+                        dateLimite = datetime.datetime.now() + datetime.timedelta(seconds=30)
 
-                    haveIterate = False
+                        haveIterate = False
 
-                    def checkIsPlayerReact(reaction,user):
-                        return user == awaitedUsr and reaction.message == choiceMsg
-                        
-                    def check(m):
-                        return int(m.author_id) == int(actTurn.char.owner) and m.origin_message.id == choiceMsg.id
+                        def checkIsPlayerReact(reaction,user):
+                            return user == awaitedUsr and reaction.message == choiceMsg
+                            
+                        def check(m):
+                            return int(m.author_id) == int(actTurn.char.owner) and m.origin_message.id == choiceMsg.id
 
-                    while not(haveOption) and not(unsuccess):
-                        choiceMsgTemp,tempTabl,tabltabl,canBeUsed = "",[actTurn.char.weapon],[0]+actTurn.cooldowns,[]
+                        while not(haveOption) and not(unsuccess):
+                            choiceMsgTemp,tempTabl,tabltabl,canBeUsed = "",[actTurn.char.weapon],[0]+actTurn.cooldowns,[]
 
-                        for a in actTurn.char.skills:
-                            if a != None and a != "0":
-                                tempTabl += [a]
-                            else:
-                                tempTabl += [None]
+                            for a in actTurn.char.skills:
+                                if a != None and a != "0":
+                                    tempTabl += [a]
+                                else:
+                                    tempTabl += [None]
 
-                        for a in range(0,len(tabltabl)):
-                            if tempTabl[a] != None:
-                                if tabltabl[a] == 0:
-                                    if type(tempTabl[a]) == weapon and len(actTurn.atRange()) > 0:
-                                        canBeUsed += [tempTabl[a]]
-                                        choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name} (Cibles à portée : {str(nbTargetAtRange)})\n"
-                                    elif type(tempTabl[a]) != weapon:
-                                        babie = [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE,TYPE_DAMAGE]
-                                        target = ALLIES
-                                        for b in babie:
-                                            if tempTabl[a].type == b:
-                                                target = ENNEMIS
-                                                break
+                            for a in range(0,len(tabltabl)):
+                                if tempTabl[a] != None:
+                                    if tabltabl[a] == 0:
+                                        if type(tempTabl[a]) == weapon and len(actTurn.atRange()) > 0:
+                                            canBeUsed += [tempTabl[a]]
+                                            choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name} (Cibles à portée : {str(nbTargetAtRange)})\n"
+                                        elif type(tempTabl[a]) != weapon:
+                                            babie = [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE,TYPE_DAMAGE]
+                                            target = ALLIES
+                                            for b in babie:
+                                                if tempTabl[a].type == b:
+                                                    target = ENNEMIS
+                                                    break
 
-                                        healMsg = ""
-                                        if tempTabl[a].type == TYPE_HEAL:
-                                            healMsg = f" (<:INeedHealing:881587796287057951> x {len(actTurn.cell.getEntityOnArea(area=tempTabl[a].range,team=actTurn.team,wanted=target,lifeUnderPurcentage=50))})"
+                                            healMsg = ""
+                                            if tempTabl[a].type == TYPE_HEAL:
+                                                healMsg = f" (<:INeedHealing:881587796287057951> x {len(actTurn.cell.getEntityOnArea(area=tempTabl[a].range,team=actTurn.team,wanted=target,lifeUnderPurcentage=50))})"
 
-                                        line = tempTabl[a].type in babie
-                                        if tempTabl[a].range != AREA_MONO:
-                                            if (tempTabl[a].type != TYPE_INVOC and len(actTurn.cell.getEntityOnArea(area=tempTabl[a].range,team=actTurn.team,wanted=target,lineOfSight=line)) > 0) or (tempTabl[a].type == TYPE_INVOC and tablAliveInvoc[actTurn.team] <3):
-                                                canBeUsed += [tempTabl[a]] 
-                                                choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name}{healMsg}\n"
-                                        else:
-                                            if type(tempTabl[a]) == weapon:
-                                                effect = tempTabl[a].effectOnUse
+                                            line = tempTabl[a].type in babie
+                                            if tempTabl[a].range != AREA_MONO:
+                                                if (tempTabl[a].type != TYPE_INVOC and len(actTurn.cell.getEntityOnArea(area=tempTabl[a].range,team=actTurn.team,wanted=target,lineOfSight=line)) > 0) or (tempTabl[a].type == TYPE_INVOC and tablAliveInvoc[actTurn.team] <3):
+                                                    canBeUsed += [tempTabl[a]] 
+                                                    choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name}{healMsg}\n"
                                             else:
-                                                effect = tempTabl[a].effect
-                                            if (tempTabl[a].type != TYPE_INVOC and len(actTurn.cell.getEntityOnArea(area=tempTabl[a].area,team=actTurn.team,wanted=target,lineOfSight=line,effect=effect)) > 0) or (tempTabl[a].type == TYPE_INVOC and tablAliveInvoc[actTurn.team] <3):                                        
-                                                canBeUsed += [tempTabl[a]]
-                                                choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name}{healMsg}\n"
+                                                if type(tempTabl[a]) == weapon:
+                                                    effect = tempTabl[a].effectOnUse
+                                                else:
+                                                    effect = tempTabl[a].effect
+                                                if (tempTabl[a].type != TYPE_INVOC and len(actTurn.cell.getEntityOnArea(area=tempTabl[a].area,team=actTurn.team,wanted=target,lineOfSight=line,effect=effect)) > 0) or (tempTabl[a].type == TYPE_INVOC and tablAliveInvoc[actTurn.team] <3):                                        
+                                                    canBeUsed += [tempTabl[a]]
+                                                    choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name}{healMsg}\n"
 
-                        choiceMsgTemp += "\n"
-                        if canMove[0] or canMove[1] or canMove[2] or canMove[3]:
-                            canBeUsed += [option("Déplacement",'👟')]
-                            choiceMsgTemp += "👟 Déplacement\n"
+                            choiceMsgTemp += "\n"
+                            if canMove[0] or canMove[1] or canMove[2] or canMove[3]:
+                                canBeUsed += [option("Déplacement",'👟')]
+                                choiceMsgTemp += "👟 Déplacement\n"
 
-                        canBeUsed += [option("Passer",'🚫')]
-                        choiceMsgTemp += "🚫 Passer"
+                            canBeUsed += [option("Passer",'🚫')]
+                            choiceMsgTemp += "🚫 Passer"
 
-                        mainOptions,cmpt = [],0
-                        for a in canBeUsed:
-                            desc = ""
-                            if type(a) != option:
-                                if a.area == AREA_MONO:
-                                    desc = "Monocible"
-                                else:
-                                    desc = "Zone"
+                            mainOptions,cmpt = [],0
+                            for a in canBeUsed:
+                                desc = ""
+                                if type(a) != option:
+                                    if a.area == AREA_MONO:
+                                        desc = "Monocible"
+                                    else:
+                                        desc = "Zone"
 
-                                if type(a) == weapon:
-                                    stat = a.use
-                                    if stat != None and stat != HARMONIE:
-                                        stat = nameStats[a.use]
-                                    elif stat == None:
-                                        stat = "Fixe"
-                                    elif stat == HARMONIE:
-                                        stat = "Harmonie"
-
-                                    desc += f" - {tablTypeStr[a.type]} ({a.power}) - {stat}"
-                                else:
-                                    powy = ""
-                                    if a.power > 0:
+                                    if type(a) == weapon:
                                         stat = a.use
                                         if stat != None and stat != HARMONIE:
                                             stat = nameStats[a.use]
@@ -2138,835 +2199,873 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                             stat = "Fixe"
                                         elif stat == HARMONIE:
                                             stat = "Harmonie"
-                                        powy = f"{a.power} {stat}"
-                                    
-                                    desc += f" - {tablTypeStr[a.type]} {powy}"
 
-                                mainOptions += [create_select_option(a.name,str(cmpt),getEmojiObject(a.emoji),desc)]
-                            else:
-                                mainOptions += [create_select_option(a.name,str(cmpt),a.emoji)]
-                            cmpt += 1
+                                        desc += f" - {tablTypeStr[a.type]} ({a.power}) - {stat}"
+                                    else:
+                                        powy = ""
+                                        if a.power > 0:
+                                            stat = a.use
+                                            if stat != None and stat != HARMONIE:
+                                                stat = nameStats[a.use]
+                                            elif stat == None:
+                                                stat = "Fixe"
+                                            elif stat == HARMONIE:
+                                                stat = "Harmonie"
+                                            powy = f"{a.power} {stat}"
+                                        
+                                        desc += f" - {tablTypeStr[a.type]} {powy}"
 
-                        mainSelect = create_select(options=mainOptions,placeholder = "Séléctionnez une option :")
+                                    mainOptions += [create_select_option(a.name,str(cmpt),getEmojiObject(a.emoji),desc)]
+                                else:
+                                    mainOptions += [create_select_option(a.name,str(cmpt),a.emoji)]
+                                cmpt += 1
 
-                        if haveIterate:
-                            timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[waitingSelect])
-                            await asyncio.sleep(3)
-                            dateLimite = dateLimite+datetime.timedelta(seconds=3)
-                        
-                        timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                        await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[create_actionrow(mainSelect)])
-                        haveIterate = True
-                        awaitedUsr = await bot.fetch_user(actTurn.char.owner)
+                            mainSelect = create_select(options=mainOptions,placeholder = "Séléctionnez une option :")
 
-                        validoption = False
-                        while not(validoption):
-                            timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                            try:
-                                react = await wait_for_component(bot,components=mainSelect,check=check,timeout = timeLimite)
-                            except:
-                                unsuccess = True
-                                break
-
-                            mainSelect = create_actionrow(getChoisenSelect(mainSelect,react.values[0]))
-                            react = canBeUsed[int(react.values[0])]
-                            validoption = True
-
-                        choiceMsgTemp = ""
+                            if haveIterate:
+                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[waitingSelect])
+                                await asyncio.sleep(3)
+                                dateLimite = dateLimite+datetime.timedelta(seconds=3)
                             
-                        if type(react) == weapon:
-                            weapOptions = []
-                            for a in range(0,nbTargetAtRange):
-                                choiceMsgTemp += f"{a} - {atRange[a].quickEffectIcons()}"
-                                desc = f"PV : {int(atRange[a].hp/atRange[a].maxHp*100)}%, Pos : {atRange[a].cell.x} - {atRange[a].cell.y}"
-                                if react.area != AREA_MONO:
-                                    desc += f", Zone : {len(atRange[a].cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=actTurn.char.weapon.target))}"
-                                weapOptions += [create_select_option(atRange[a].char.name,str(a),getEmojiObject(atRange[a].icon),desc)]
-
-                            weapOptions += [create_select_option("Retour",str(a+1),emoji.backward_arrow)]
-                            weapSelect = create_select(options=weapOptions,placeholder="Sélectionnez une cible :")
-
-                            if len(weapOptions) == 2:
-                                temp,cmpt =[],0
-                                for a in weapOptions:
-                                    temp+=[create_button(1+cmpt,a["label"],a["emoji"],a["value"])]
-                                    cmpt += 1
-
-                                weapSelect = [create_actionrow(temp[0],temp[1])]
-
-                                dateLimite = dateLimite+datetime.timedelta(seconds=3)
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+weapSelect)
-
-                            elif choiceMsgTemp != "":
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
-                                await asyncio.sleep(3)
-                                dateLimite = dateLimite+datetime.timedelta(seconds=3)
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,create_actionrow(weapSelect)])
-
                             timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                            try:
-                                react = await wait_for_component(bot,messages=choiceMsg,check=check,timeout=timeLimite)
-                            except:
-                                unsuccess = True
-                                await choiceMsg.clear_reactions()
-                                break
+                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[create_actionrow(mainSelect)])
+                            haveIterate = True
+                            awaitedUsr = await bot.fetch_user(actTurn.char.owner)
 
-                            if len(weapOptions) > 2:
-                                selectedOptionSelect = [getChoisenSelect(weapSelect,react.values[0])]
-                            else:
-                                selectedOptionSelect = None
+                            validoption = False
+                            while not(validoption):
+                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                try:
+                                    react = await wait_for_component(bot,components=mainSelect,check=check,timeout = timeLimite)
+                                except:
+                                    unsuccess = True
+                                    break
 
-                            optionChoice = OPTION_WEAPON
-                            try:
-                                value = int(react.values[0])
-                            except:
-                                value = int(react.custom_id)
-                            if value<len(atRange):
-                                ennemi = atRange[value]
-                                haveOption = True
+                                mainSelect = create_actionrow(getChoisenSelect(mainSelect,react.values[0]))
+                                react = canBeUsed[int(react.values[0])]
+                                validoption = True
 
-                        elif type(react) == skill:
-                            skillOptions = []
-                            skillToUse,nbTargetAtRangeSkill,targetAtRangeSkill = react,0,[]
-                            ballerine, babie= [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
-                            if skillToUse.range != AREA_MONO:                    
-                                for a in ballerine:
-                                    if a == skillToUse.type:
-                                        targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.range,team=actTurn.team,wanted=ALLIES)
-                                        break
-                                for a in babie:
-                                    if a == skillToUse.type:
-                                        targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True)
-                                        break
-
-                            else:
-                                for a in ballerine:
-                                    if a == skillToUse.type:
-                                        targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES)
-                                        break
-                                for a in babie:
-                                    if a == skillToUse.type:
-                                        targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True)
-                                        break
-
-                                if skillToUse.type == TYPE_UNIQUE:
-                                    targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALL)
-                                choiceMsgTemp += "Les combattants suivants seront affectés par la compétence :\n"
-
-                            if skillToUse.type != TYPE_INVOC:
-                                nbTargetAtRangeSkill = len(targetAtRangeSkill)
-
-                                for a in range(0,nbTargetAtRangeSkill):
-                                    choiceMsgTemp += f"{a} - {targetAtRangeSkill[a].quickEffectIcons()}"
-                                    desc = f"PV : {int(targetAtRangeSkill[a].hp/targetAtRangeSkill[a].maxHp*100)}%, Pos : {targetAtRangeSkill[a].cell.x} - {targetAtRangeSkill[a].cell.y}"
-                                    if react.area not in [AREA_MONO,AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
-                                        if react.type in ballerine:
-                                            wanted = ALLIES
-                                        else:
-                                            wanted = ENNEMIS
-                                        desc += f", Zone : {len(targetAtRangeSkill[a].cell.getEntityOnArea(area=react.area,team=actTurn.team,wanted=wanted))}"
-                                    skillOptions += [create_select_option(targetAtRangeSkill[a].char.name,str(a),getEmojiObject(targetAtRangeSkill[a].icon),desc)]
+                            choiceMsgTemp = ""
                                 
-                                if react.area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES] or react.range == AREA_MONO:
-                                    skillOptions = [create_select_option("Valider",'✅','✅')]
+                            if type(react) == weapon:
+                                weapOptions = []
+                                for a in range(0,nbTargetAtRange):
+                                    choiceMsgTemp += f"{a} - {atRange[a].quickEffectIcons()}"
+                                    desc = f"PV : {int(atRange[a].hp/atRange[a].maxHp*100)}%, Pos : {atRange[a].cell.x} - {atRange[a].cell.y}"
+                                    if react.area != AREA_MONO:
+                                        desc += f", Zone : {len(atRange[a].cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=actTurn.char.weapon.target))}"
+                                    weapOptions += [create_select_option(atRange[a].char.name,str(a),getEmojiObject(atRange[a].icon),desc)]
 
-                            else:
-                                choiceMsgTemp =f"Voulez vous invoquer {skillToUse.invocation} ?"
-                                skillOptions = [create_select_option("Valider",'✅','✅')]
+                                weapOptions += [create_select_option("Retour",str(a+1),emoji.backward_arrow)]
+                                weapSelect = create_select(options=weapOptions,placeholder="Sélectionnez une cible :")
 
-                            skillOptions += [create_select_option("Retour",str(a+1),emoji.backward_arrow)]
-                            skillSelect = create_select(options=skillOptions)
+                                if len(weapOptions) == 2:
+                                    temp,cmpt =[],0
+                                    for a in weapOptions:
+                                        temp+=[create_button(1+cmpt,a["label"],a["emoji"],a["value"])]
+                                        cmpt += 1
 
-                            if len(skillOptions) == 2:
-                                temp,cmpt =[],0
-                                for a in skillOptions:
-                                    tipe = 1
-                                    if a["label"] == 'Valider':
-                                        tipe = 3
-                                    elif a["label"] == "Retour":
-                                        tipe = 2
-                                    temp+=[create_button(tipe,a["label"],a["emoji"],a["value"])]
-                                    cmpt += 1
+                                    weapSelect = [create_actionrow(temp[0],temp[1])]
 
-                                skillSelect = [create_actionrow(temp[0],temp[1])]
-
-                                dateLimite = dateLimite+datetime.timedelta(seconds=3)
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+skillSelect)
-
-                            elif choiceMsgTemp != "":                                
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
-                                await asyncio.sleep(3)
-                                dateLimite = dateLimite+datetime.timedelta(seconds=3)
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+[create_actionrow(skillSelect)])
-
-                            await choiceMsg.clear_reactions()
-                            try:
-                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                react = await wait_for_component(bot,messages=choiceMsg,timeout = timeLimite,check=check)
-                            except:
-                                unsuccess = True
-                                await choiceMsg.clear_reactions()
-                                break
-
-                            if len(skillOptions) > 2:
-                                selectedOptionSelect = [getChoisenSelect(skillSelect,react.values[0])]
-                            else:
-                                selectedOptionSelect = None
-
-                            optionChoice = OPTION_SKILL
-                            try:
-                                value = react.values[0]
-                            except:
-                                value = react.custom_id[0]
-
-                            if value == '✅':
-                                ennemi = actTurn
-                                optionChoice = OPTION_SKILL
-                                haveOption = True
-                                break
-                            elif int(value) < len(targetAtRangeSkill):
-                                ennemi = targetAtRangeSkill[int(value)]
-                                optionChoice = OPTION_SKILL
-                                haveOption = True
-                                break
-
-                        elif type(react) == option:
-                            if react.emoji == '🚫':
-                                choiceOption = OPTION_SKIP
-
-                            elif react.emoji == '👟':
-                                await choiceMsg.clear_reactions()
-                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Dans quelle direction voulez vous aller ?").set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'))
-                                moveEmoji = ['⬅️','➡️','⬆️','⬇️']
-                                for a in range(0,4):
-                                    if canMove[a]:
-                                        await choiceMsg.add_reaction(moveEmoji[a])
-
-                                choiceToMove = None
-                                while choiceToMove == None:
+                                    dateLimite = dateLimite+datetime.timedelta(seconds=3)
                                     timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
-                                    try:
-                                        choiceMove = await bot.wait_for("reaction_add",timeout=timeLimite,check=checkIsPlayerReact)
-                                    except:
-                                        unsuccess = True
-                                        break
-                                    for a in range(0,4):
-                                        if str(choiceMove[0]) == moveEmoji[a]:
-                                            choiceToMove = [surrondings[a].x,surrondings[a].y]
-                                            optionChoice = OPTION_MOVE
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+weapSelect)
+
+                                elif choiceMsgTemp != "":
+                                    timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
+                                    await asyncio.sleep(3)
+                                    dateLimite = dateLimite+datetime.timedelta(seconds=3)
+                                    timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,create_actionrow(weapSelect)])
+
+                                timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                try:
+                                    react = await wait_for_component(bot,messages=choiceMsg,check=check,timeout=timeLimite)
+                                except:
+                                    unsuccess = True
+                                    await choiceMsg.clear_reactions()
+                                    break
+
+                                if len(weapOptions) > 2:
+                                    selectedOptionSelect = [getChoisenSelect(weapSelect,react.values[0])]
+                                else:
+                                    selectedOptionSelect = None
+
+                                optionChoice = OPTION_WEAPON
+                                try:
+                                    value = int(react.values[0])
+                                except:
+                                    value = int(react.custom_id)
+                                if value<len(atRange):
+                                    ennemi = atRange[value]
+                                    haveOption = True
+
+                            elif type(react) == skill:
+                                skillOptions = []
+                                skillToUse,nbTargetAtRangeSkill,targetAtRangeSkill = react,0,[]
+                                ballerine, babie= [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
+                                if skillToUse.range != AREA_MONO:                    
+                                    for a in ballerine:
+                                        if a == skillToUse.type:
+                                            targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.range,team=actTurn.team,wanted=ALLIES)
+                                            break
+                                    for a in babie:
+                                        if a == skillToUse.type:
+                                            targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True)
                                             break
 
-                            unsuccess=False
-                            ennemi = actTurn
-                            haveOption=True
-
-                    logs += "\nManual fighter. Option selected : {0}".format(["Use Weapon","Use Skill","Move","Skip"][optionChoice])
-                    await choiceMsg.clear_reactions()
-                    try:
-                        if selectedOptionSelect != None:
-                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[mainSelect]+selectedOptionSelect)
-                        else:
-                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[mainSelect])
-                    except:
-                        await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[])
-
-                if not(actTurn.auto) and unsuccess:
-                    if actTurn.missedLastTurn == False:
-                        actTurn.missedLastTurn = True
-
-                    else:
-                        actTurn.auto = True
-
-                elif not(actTurn.auto) and not(unsuccess):
-                    actTurn.missedLastTurn = False
-            
-                if unsuccess or type(ennemi)==int: # Définition des IA
-                    nearestEnnemi,nearestDistance,Cell,nearestCell = 0,9999,actTurn.cell,0
-
-                    for a in tablAllCells: # Ennemi le plus proche
-                        if a.on != None:
-                            if a.on.team != actTurn.team and a.on.hp > 0:
-                                if Cell.distance(cell=a) < nearestDistance:
-                                    nearestEnnemi, nearestDistance, nearestCell = a.on,Cell.distance(cell=a),a
-
-                    ennemi = nearestEnnemi
-                    
-                    # Définition du type d'IA :
-                    AI_DPT,AI_BOOST,AI_MALUS,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT = 0,1,2,3,4,5
-                    choisenIA,finded = AI_AVENTURE,False
-
-                    for a in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
-                        if a == actTurn.char.aspiration:
-                            choisenIA = AI_DPT
-                            finded = True
-                            break
-                    if not(finded) and actTurn.char.aspiration == IDOLE:
-                        choisenIA = AI_BOOST
-                        finded = True
-                    if not(finded) and actTurn.char.aspiration == ALTRUISTE:
-                        choisenIA = AI_ALTRUISTE
-                        finded = True
-                    if not(finded) and ERUDIT == actTurn.char.aspiration:
-                        offSkill,SuppSkill = 0,0
-                        for b in [actTurn.char.weapon]+actTurn.char.skills:
-                            if type(b) in [weapon,skill]:
-                                if b.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
-                                    offSkill += 1
                                 else:
-                                    SuppSkill += 1
-                            
-                        if SuppSkill >= offSkill:
-                            choisenIA = AI_MALUS
-                        else:
-                            choisenIA = AI_OFFERUDIT
-                        finded = True
+                                    for a in ballerine:
+                                        if a == skillToUse.type:
+                                            targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES)
+                                            break
+                                    for a in babie:
+                                        if a == skillToUse.type:
+                                            targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True)
+                                            break
 
-                    if choisenIA == AI_AVENTURE:
-                        offSkill,SuppSkill,healSkill,armorSkill,invocSkill = 0,0,0,0,0
-                        for b in [actTurn.char.weapon]+actTurn.char.skills:
-                            if type(b) in [weapon,skill]:
-                                if b.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
-                                    offSkill += 1
-                                elif b.type in [TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR]:
-                                    SuppSkill += 1
-                                elif b.type in [TYPE_HEAL]:
-                                    healSkill += 1
-                                elif b.type in [TYPE_INVOC]:
-                                    invocSkill += 1
-                            
-                        if max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == offSkill:
-                            choisenIA = AI_OFFERUDIT
-                        elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == SuppSkill:
-                            choisenIA = AI_BOOST
-                        elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == healSkill:
-                            choisenIA = AI_ALTRUISTE
-                        elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == armorSkill:
-                            choisenIA = AI_BOOST
-                        elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == invocSkill:
-                            choisenIA = AI_AVENTURE
+                                    if skillToUse.type == TYPE_UNIQUE:
+                                        targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALL)
+                                    choiceMsgTemp += "Les combattants suivants seront affectés par la compétence :\n"
 
-                    lastDPT = True
-                    for b in tablEntTeam[actTurn.team]:
-                        if b.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
-                            lastDPT = False
-                            break
+                                if skillToUse.type != TYPE_INVOC:
+                                    nbTargetAtRangeSkill = len(targetAtRangeSkill)
 
-                    if (len(actTurn.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=actTurn.team,wanted=ENNEMIS)) > 0 and (actTurn.char.aspiration not in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]) and actTurn.char.weapon.range != RANGE_MELEE) or lastDPT:
-                        choisenIA = AI_OFFERUDIT
+                                    for a in range(0,nbTargetAtRangeSkill):
+                                        choiceMsgTemp += f"{a} - {targetAtRangeSkill[a].quickEffectIcons()}"
+                                        desc = f"PV : {int(targetAtRangeSkill[a].hp/targetAtRangeSkill[a].maxHp*100)}%, Pos : {targetAtRangeSkill[a].cell.x} - {targetAtRangeSkill[a].cell.y}"
+                                        if react.area not in [AREA_MONO,AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
+                                            if react.type in ballerine:
+                                                wanted = ALLIES
+                                            else:
+                                                wanted = ENNEMIS
+                                            desc += f", Zone : {len(targetAtRangeSkill[a].cell.getEntityOnArea(area=react.area,team=actTurn.team,wanted=wanted))}"
+                                        skillOptions += [create_select_option(targetAtRangeSkill[a].char.name,str(a),getEmojiObject(targetAtRangeSkill[a].icon),desc)]
+                                    
+                                    if react.area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES] or react.range == AREA_MONO:
+                                        skillOptions = [create_select_option("Valider",'✅','✅')]
 
-                    logs += "\nAuto Fighter. Selected AI : {0}".format(["AI Damage","AI Boost","AI Malus","AI Aventurer","AI Healer","AI agressive supp"][choisenIA])
-                    # Définition des probabilités :
-                    probaAtkWeap = [70,30,40,30,30,40]
-                    probaHealWeap = [0,70,30,30,80,10]
-                    probaIndirectWeap = [20,30,40,30,20,50]
-                    probaReaSkill = [50,150,100,30,150,100]
-                    probIndirectReacSkill = [30,150,100,30,150,80]
-                    probaAtkSkill = [50,40,70,30,40,70]
-                    probaIndirectAtkSkill = [30,40,70,30,40,120]
-                    probaHealSkill = [30,100,40,30,130,50]
-                    probaBoost = [30,130,50,30,70,70]
-                    probaMalus = [45,40,100,30,50,70]
-                    probaArmor = [35,100,50,30,70,70]
+                                else:
+                                    choiceMsgTemp =f"Voulez vous invoquer {skillToUse.invocation} ?"
+                                    skillOptions = [create_select_option("Valider",'✅','✅')]
 
-                    if actTurn.char.weapon.name == "noneWeap":
-                        probaHealWeap = [0,0,0,0,0,0]
-                        probaIndirectWeap = [0,0,0,0,0,0]
-                        probaAtkWeap = [0,0,0,0,0,0]
-                    else:
-                        if actTurn.char.weapon.type == TYPE_DAMAGE:
-                            probaHealWeap = [0,0,0,0,0,0]
-                            probaIndirectWeap = [0,0,0,0,0,0]
-                        elif actTurn.char.weapon.type == TYPE_HEAL:
-                            probaAtkWeap = [0,0,0,0,0,0]
-                            probaIndirectWeap = [0,0,0,0,0,0]
-                        else:
-                            probaHealWeap = [0,0,0,0,0,0]
-                            probaAtkWeap = [0,0,0,0,0,0]
+                                skillOptions += [create_select_option("Retour",str(a+1),emoji.backward_arrow)]
+                                skillSelect = create_select(options=skillOptions)
 
-                    healSkill,atkSkill,reaSkill,indirectReaSkill,indirectAtkSkill,boostSkill,malusSkill,armorSkill,invocSkill = [],[],[],[],[],[],[],[],[]
+                                if len(skillOptions) == 2:
+                                    temp,cmpt =[],0
+                                    for a in skillOptions:
+                                        tipe = 1
+                                        if a["label"] == 'Valider':
+                                            tipe = 3
+                                        elif a["label"] == "Retour":
+                                            tipe = 2
+                                        temp+=[create_button(tipe,a["label"],a["emoji"],a["value"])]
+                                        cmpt += 1
 
-                    for a in range(0,5): # Catégorisation des sorts
-                        actskill = actTurn.char.skills[a]
-                        if actTurn.cooldowns[a] == 0 and actskill != None and actskill != "0":
-                            if actskill.range == AREA_MONO:
-                                allieAtRange,ennemiAtRange = len(actTurn.cell.getEntityOnArea(area=actskill.area,team=actTurn.team,wanted=ALLIES,effect=actskill.effect,ignoreInvoc=True))> 0,len(actTurn.cell.getEntityOnArea(area=actskill.area,team=actTurn.team,wanted=ENNEMIS,effect=actskill.effect))> 0
-                                if (actskill.type == TYPE_HEAL or actskill.type == TYPE_INDIRECT_HEAL) and len(actTurn.cell.getEntityOnArea(area=actskill.area,team=actTurn.team,wanted=ALLIES,effect=actskill.effect,lifeUnderPurcentage=90,ignoreInvoc = True))> 0 and (actskill.id != "yt"):
-                                    healSkill.append(actskill)
-                                elif actskill.type == TYPE_DAMAGE and ennemiAtRange:
-                                    atkSkill.append(actskill)
-                                elif actskill.type == TYPE_RESURECTION:
-                                    reaSkill.append(actskill)
-                                elif actskill.type == TYPE_INDIRECT_REZ and allieAtRange:
-                                    indirectReaSkill.append(actskill)
-                                elif actskill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange:
-                                    indirectAtkSkill.append(actskill)
-                                elif actskill.type == TYPE_BOOST and allieAtRange:
-                                    boostSkill.append(actskill)
-                                elif actskill.type == TYPE_MALUS and ennemiAtRange:
-                                    malusSkill.append(actskill)
-                                elif actskill.type == TYPE_ARMOR and allieAtRange:
-                                    armorSkill.append(actskill)
-                                elif actskill.type == TYPE_UNIQUE:
-                                    for b in [chaos]: # Boost
-                                        if b == actskill:
-                                            boostSkill.append(b)
+                                    skillSelect = [create_actionrow(temp[0],temp[1])]
 
-                                elif actskill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actskill.range,team=actTurn.team))>0:
-                                    temp = actTurn.cell.getEmptyCellsInArea(area=actskill.range,team=actTurn.team)
-                                    for b in temp[:]:
-                                        if actTurn.team == 0:
-                                            if b.x > 2:
-                                                temp.remove(b)
-                                        elif b.x < 3:
-                                            temp.remove(a)                                            
+                                    dateLimite = dateLimite+datetime.timedelta(seconds=3)
+                                    timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+skillSelect)
 
-                                    invocSkill.append(actskill)
+                                elif choiceMsgTemp != "":                                
+                                    timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
+                                    await asyncio.sleep(3)
+                                    dateLimite = dateLimite+datetime.timedelta(seconds=3)
+                                    timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+[create_actionrow(skillSelect)])
 
-                                elif actskill.id == "yt":
-                                    sumHp,sumMaxHp = 0,0
-                                    for b in tablEntTeam[actTurn.team]:
-                                        sumHp += max(0,b.hp)
-                                        sumMaxHp += b.maxHp
-                                    if sumHp / sumMaxHp <= 0.5:
-                                        healSkill.append(actskill)
-                                
+                                await choiceMsg.clear_reactions()
+                                try:
+                                    timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                    react = await wait_for_component(bot,messages=choiceMsg,timeout = timeLimite,check=check)
+                                except:
+                                    unsuccess = True
+                                    await choiceMsg.clear_reactions()
+                                    break
+
+                                if len(skillOptions) > 2:
+                                    selectedOptionSelect = [getChoisenSelect(skillSelect,react.values[0])]
+                                else:
+                                    selectedOptionSelect = None
+
+                                optionChoice = OPTION_SKILL
+                                try:
+                                    value = react.values[0]
+                                except:
+                                    value = react.custom_id[0]
+
+                                if value == '✅':
+                                    ennemi = actTurn
+                                    optionChoice = OPTION_SKILL
+                                    haveOption = True
+                                    break
+                                elif int(value) < len(targetAtRangeSkill):
+                                    ennemi = targetAtRangeSkill[int(value)]
+                                    optionChoice = OPTION_SKILL
+                                    haveOption = True
+                                    break
+
+                            elif type(react) == option:
+                                if react.emoji == '🚫':
+                                    choiceOption = OPTION_SKIP
+
+                                elif react.emoji == '👟':
+                                    await choiceMsg.clear_reactions()
+                                    await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Dans quelle direction voulez vous aller ?").set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'))
+                                    moveEmoji = ['⬅️','➡️','⬆️','⬇️']
+                                    for a in range(0,4):
+                                        if canMove[a]:
+                                            await choiceMsg.add_reaction(moveEmoji[a])
+
+                                    choiceToMove = None
+                                    while choiceToMove == None:
+                                        timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
+                                        try:
+                                            choiceMove = await bot.wait_for("reaction_add",timeout=timeLimite,check=checkIsPlayerReact)
+                                        except:
+                                            unsuccess = True
+                                            break
+                                        for a in range(0,4):
+                                            if str(choiceMove[0]) == moveEmoji[a]:
+                                                choiceToMove = [surrondings[a].x,surrondings[a].y]
+                                                optionChoice = OPTION_MOVE
+                                                break
+
+                                unsuccess=False
+                                ennemi = actTurn
+                                haveOption=True
+
+                        logs += "\nManual fighter. Option selected : {0}".format(["Use Weapon","Use Skill","Move","Skip"][optionChoice])
+                        await choiceMsg.clear_reactions()
+                        try:
+                            if selectedOptionSelect != None:
+                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[mainSelect]+selectedOptionSelect)
                             else:
-                                allieAtRange,ennemiAtRange = len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ALLIES,lineOfSight = True,effect=actskill.effect,ignoreInvoc = True))> 0,len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True,effect=actskill.effect))> 0
-                                if (actskill.type == TYPE_HEAL or actskill.type == TYPE_INDIRECT_HEAL) and len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=actskill.effect,ignoreInvoc = True))> 0:
-                                    healSkill.append(actskill)
-                                elif actskill.type == TYPE_DAMAGE and ennemiAtRange:
-                                    atkSkill.append(actskill)
-                                elif actskill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ALLIES,dead=True)):
-                                    reaSkill.append(actskill)
-                                elif actskill.type == TYPE_INDIRECT_REZ and allieAtRange:
-                                    indirectReaSkill.append(actskill)
-                                elif actskill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange:
-                                    indirectAtkSkill.append(actskill)
-                                elif actskill.type == TYPE_BOOST and allieAtRange:
-                                    boostSkill.append(actskill)
-                                elif actskill.type == TYPE_MALUS and ennemiAtRange:
-                                    malusSkill.append(actskill)
-                                elif actskill.type == TYPE_ARMOR and allieAtRange:
-                                    armorSkill.append(actskill)
-                                elif actskill.type == TYPE_UNIQUE:
-                                    for b in [chaos]: # Boost
-                                        if b == actskill:
-                                            boostSkill.append(b)
-                                
-                                elif actskill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actskill.range,team=actTurn.team))>0:
-                                    invocSkill.append(actskill)
-               
-                    isTMinDanger, isTeamMateDown = False, False
-                    for a in tablEntTeam[actTurn.team]:
-                        if a.hp / a.maxHp <= 0.35:
-                            isTMinDanger = True
-                        elif a.hp <= 0:
-                            isTeamMateDown = True
+                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[mainSelect])
+                        except:
+                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emoji.loading),components=[])
 
-                    if not(isTMinDanger):
-                        probIndirectReacSkill = [0,0,0,0,0,0]
-                    else:
-                        probaHealSkill = [30,120,40,50,150,150]
-
-                    if not(isTeamMateDown):
-                        probaReaSkill = [0,0,0,0,0,0]
-
-                    probTabl = [probaReaSkill,probIndirectReacSkill,probaAtkSkill,probaIndirectAtkSkill,probaHealSkill,probaBoost,probaMalus,probaArmor]
-                    for a in range(0,8):
-                        analyse = [reaSkill,indirectReaSkill,atkSkill,indirectAtkSkill,healSkill,boostSkill,malusSkill,armorSkill][a]
-                        if len(analyse) == 0:
-                            probTabl[a] = [0,0,0,0,0,0]
-
-                    if len(invocSkill) > 0 and tablAliveInvoc[actTurn.team]<3:
-                        if actTurn.char.aspiration == AVENTURIER:
-                            probaInvoc = [65,65,65,65,65,65]
-                        else:
-                            probaInvoc = [40,40,40,40,40,40]
-                    else:
-                        probaInvoc = [0,0,0,0,0,0]
-
-                    totalProba = probaAtkWeap[choisenIA]+probaHealWeap[choisenIA]
-                    for a in probTabl:
-                        totalProba+= a[choisenIA]
-        
-                    totalProba += probaIndirectWeap[choisenIA]+probaInvoc[choisenIA] + 1
-                    probaRoll = random.randint(0,totalProba) -1
-                    logs += "\nTotal Proba : {0} - ProbaRoll : {1}".format(totalProba,probaRoll)
-
-                    optionChoisen = False
-
-                    if probaRoll <= probaAtkWeap[choisenIA] and probaAtkWeap[choisenIA] > 0: #Attaque à l'arme
-                        logs += "\nSelected option : Damage with weapon"
-                        nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
-                        if nbTargetAtRange > 0:
-                            for a in atRange: # Ennemi le plus proche
-                                if a.team != actTurn.team and a.hp > 0:
-                                    if myCell.distance(cell=a.cell) < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
-            
-                            optionChoice,ennemi = OPTION_WEAPON,nearestEnnemi
+                    if not(actTurn.auto) and unsuccess:
+                        if actTurn.missedLastTurn == False:
+                            actTurn.missedLastTurn = True
 
                         else:
-                            logs += "\nNo target at range. Trying to move"
-                            for a in tablAllCells: # Ennemi le plus proche
-                                if a.on != None:
-                                    b = a.on
-                                    if b.team != actTurn.team and b.hp > 0:
-                                        if myCell.distance(cell=b.cell) < nearestDistance:
-                                            nearestEnnemi, nearestDistance, nearestCell = b,myCell.distance(cell=b.cell),b.cell
-                            optionChoice,Cell = OPTION_MOVE,actTurn.cell
-                            if Cell.x - nearestCell.x > 0 and canMove[0]:
-                                choiceToMove = [Cell.x-1,Cell.y]
-                            elif Cell.x - nearestCell.x < 0 and canMove[1]:
-                                choiceToMove = [Cell.x +1,Cell.y]
-                            elif Cell.y - nearestCell.y > 0 and canMove[2]:
-                                choiceToMove = [Cell.x,Cell.y -1]
-                            elif Cell.y - nearestCell.y < 0 and canMove[3]:
-                                choiceToMove = [Cell.x,Cell.y +1]
-                            else:
-                                logs += "\nNo valid cells found. Skipping the turn"
-                                optionChoice=OPTION_SKIP
+                            actTurn.auto = True
 
-                        optionChoisen = True
-                    else:
-                        probaRoll -= probaAtkWeap[choisenIA]
+                    elif not(actTurn.auto) and not(unsuccess):
+                        actTurn.missedLastTurn = False
+                
+                    if unsuccess or type(ennemi)==int: # Définition des IA
+                        nearestEnnemi,nearestDistance,Cell,nearestCell = 0,9999,actTurn.cell,0
 
-                    if probaRoll <= probaHealWeap[choisenIA] and probaHealWeap[choisenIA] > 0 and not(optionChoisen): #Soins à l'arme
-                        mostDamageAllie,mDAHp,Cell,nearestCell = 0,1,actTurn.cell,0
-                        logs += "\nSelected option : Heal with weapon"
+                        for a in tablAllCells: # Ennemi le plus proche
+                            if a.on != None:
+                                if a.on.team != actTurn.team and a.on.hp > 0:
+                                    if Cell.distance(cell=a) < nearestDistance:
+                                        nearestEnnemi, nearestDistance, nearestCell = a.on,Cell.distance(cell=a),a
+
+                        ennemi = nearestEnnemi
                         
-                        if nbTargetAtRange > 0:
-                            for a in atRange: # Allié le blessé
-                                if a.team == actTurn.team and a.hp > 0:
-                                    if a.hp/a.maxHp < mDAHp:
-                                        mostDamageAllie, mDAHp = a,a.hp/a.maxHp
+                        # Définition du type d'IA :
+                        choisenIA = actTurn.IA
 
-                            optionChoice,ennemi = OPTION_WEAPON,mostDamageAllie
-                                        
-                        else:
-                            logs += "\nNo target at range. Trying to move"
-                            nearestEnnemi, nearestDistance, nearestCell = 0,1,0
-                            for a in tablAllCells: # Allié le blessé
-                                if a.on != None:
-                                    b = a.on
-                                    if b.team == actTurn.team and b.hp > 0 and b.hp/b.maxHp <= 0.9:
-                                        if b.hp/b.maxHp < nearestDistance:
-                                            nearestEnnemi, nearestDistance, nearestCell = b,b.hp/b.maxHp,b.cell
+                        lastDPT = True
+                        for b in tablEntTeam[actTurn.team]:
+                            if b.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
+                                lastDPT = False
+                                break
 
-                            optionChoice,Cell = OPTION_MOVE,actTurn.cell
-                            if Cell.x - nearestCell.x > 0 and canMove[0]:
-                                choiceToMove = [Cell.x-1,Cell.y]
-                            elif Cell.x - nearestCell.x < 0 and canMove[1]:
-                                choiceToMove = [Cell.x +1,Cell.y]
-                            elif Cell.y - nearestCell.y > 0 and canMove[2]:
-                                choiceToMove = [Cell.x,Cell.y -1]
-                            elif Cell.y - nearestCell.y < 0 and canMove[3]:
-                                choiceToMove = [Cell.x,Cell.y +1]
-                            else:
-                                optionChoice=OPTION_SKIP
-                                logs += "\nNo valid cells found. Skipping the turn"
-
-                        optionChoisen = True
-                    elif not(optionChoisen):
-                        probaRoll -= probaHealWeap[choisenIA]
-
-                    if probaRoll <= probTabl[0][choisenIA] and probTabl[0][choisenIA] > 0 and not(optionChoisen): # Résurection
-                        logs += "\nSelected option : Resurection Skill"
-                        for a in tablEntTeam[actTurn.team]:
+                        team2see = [team1,team2][int(not(actTurn.team))][:]
+                        team2compare = tablEntTeam[int(not(actTurn.team))][:]
+                        for a in team2compare[:]:
                             if a.hp <= 0:
-                                optionChoice = OPTION_SKILL
-                                if len(reaSkill) > 1:
-                                    skillToUse = reaSkill[random.randint(0,len(reaSkill)-1)]
-                                else:
-                                    skillToUse = reaSkill[0]
-                                ennemi = a
-                                optionChoisen = true
-                                break
-                    
-                        optionChoisen=True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[0][choisenIA]
-
-                    if probaRoll <= probTabl[1][choisenIA] and probTabl[1][choisenIA] > 0 and not(optionChoisen): # Résurection indirect:
-                        logs += "\nSelected option : Indirect resurection skill"
-                        for a in tablEntTeam[actTurn.team]:
-                            if a.hp <= 0.3 and a.hp > 0:
-                                optionChoice = OPTION_SKILL
-                                if len(indirectReaSkill) > 1:
-                                    skillToUse = indirectReaSkill[random.randint(0,len(reaSkill)-1)]
-                                else:
-                                    skillToUse = indirectReaSkill[0]
-                                ennemi = a
-                                optionChoisen = true
-                                break
-
-                        optionChoisen = True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[1][choisenIA]
-        
-                    if probaRoll <= probTabl[2][choisenIA] and probTabl[2][choisenIA] > 0 and not(optionChoisen): # Sort de dégâts
-                        logs += "\nSelected option : Damage skill"
-                        if len(atkSkill) > 1:
-                            randomSkill = atkSkill[random.randint(0,len(atkSkill)-1)]
-                        else:
-                            randomSkill = atkSkill[0]
-
-                        if randomSkill == trans:
-                            randomSkill = copy.deepcopy(randomSkill)
-                            if actTurn.char.aspiration in [BERSERK,TETE_BRULE,POIDS_PLUME,ERUDIT,OBSERVATEUR]:
-                                randomSkill.type = TYPE_DAMAGE
-                                if actTurn.char.aspiration == BERSERK:
-                                    randomSkill.power = 180
-                                else:
-                                    randomSkill.power = 135
-                                    if randomSkill.type in [TETE_BRULE,POIDS_PLUME]:
-                                        randomSkill.area = AREA_LINE_6
-                                        randomSkill.range = AREA_MONO
-                                    elif randomSkill.type in [ERUDIT,OBSERVATEUR]:
-                                        randomSkill.type = CIRCLE_AREA_2
-                                
-                        if randomSkill.range != AREA_MONO:
-                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0 # Ennemi le plus proche
-                            for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=randomSkill.effect):
-                                if a.team != actTurn.team and a.hp > 0:
-                                    if myCell.distance(cell=a.cell) < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
-
-                            optionChoice = OPTION_SKILL
-                            skillToUse = randomSkill
-                            ennemi = nearestEnnemi
-
-                        else:
-                            if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS)) > 0:
-                                optionChoice = OPTION_SKILL
-                                skillToUse = randomSkill
-                                ennemi = actTurn
-
-                        optionChoisen=True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[2][choisenIA]
-
-                    if probaRoll <= probTabl[3][choisenIA] and probTabl[3][choisenIA] > 0 and not(optionChoisen): # Dégâts indirects
-                        logs += "\nSelected option : Indirect damage skill"
-                        if len(indirectAtkSkill) > 1:
-                            randomSkill = indirectAtkSkill[random.randint(0,len(indirectAtkSkill)-1)]
-                        else:
-                            randomSkill = indirectAtkSkill[0]
-
-                        if randomSkill.range != AREA_MONO:
-                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0 # Ennemi le plus proche
-                            for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=randomSkill.effect):
-                                if a.team != actTurn.team and a.hp > 0:
-                                    if myCell.distance(cell=a.cell) < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
-
-                            optionChoice = OPTION_SKILL
-                            skillToUse = randomSkill
-                            ennemi = nearestEnnemi
-
-                        else:
-                            if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS)) > 0:
-                                optionChoice = OPTION_SKILL
-                                skillToUse = randomSkill
-                                ennemi = actTurn
-
-                        optionChoisen=True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[3][choisenIA]
-
-                    if probaRoll <= probTabl[4][choisenIA] and probTabl[4][choisenIA] > 0 and not(optionChoisen): # Heal
-                        logs += "\nSelected option : Healing skill"
-                        if len(healSkill) > 1:
-                            randomSkill = healSkill[random.randint(0,len(healSkill)-1)]
-                        else:
-                            randomSkill = healSkill[0]
-
-                        if randomSkill.range != AREA_MONO:
-                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
-                            for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=randomSkill.effect): # Allié le blessé
-                                if a.team == actTurn.team and a.hp > 0:
-                                    if a.hp/a.maxHp < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
-
-                            optionChoice = OPTION_SKILL
-                            skillToUse = randomSkill
-                            ennemi = nearestEnnemi
-
-                        else:
-                            if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect)) > 0 or (randomSkill == trans and actTurn.char.aspiration in [ALTRUISTE,IDOLE]):
-                                optionChoice = OPTION_SKILL
-                                skillToUse = randomSkill
-                                ennemi = actTurn
+                                team2compare.remove(a)
                         
-                        optionChoisen = True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[4][choisenIA]
+                        ennemiesdying = False
+                        if  len(team2compare) / len(team2see) <= 0.33:
+                            ennemiesdying = True
 
-                    if probaRoll <= probTabl[5][choisenIA] and probTabl[5][choisenIA] > 0 and not(optionChoisen): # Boost
-                        logs += "\nSelected option : Buff skill"
-                        if len(boostSkill) > 1:
-                            randomSkill = boostSkill[random.randint(0,len(boostSkill)-1)]
+                        if (len(actTurn.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=actTurn.team,wanted=ENNEMIS)) > 0 and (actTurn.char.aspiration not in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]) and actTurn.char.weapon.range != RANGE_MELEE) or lastDPT or ennemiesdying:
+                            choisenIA = AI_OFFERUDIT
+
+                        logs += "\nAuto Fighter. Selected AI : {0}".format(["AI Damage","AI Boost","AI Malus","AI Aventurer","AI Healer","AI agressive supp"][choisenIA])
+                        # Définition des probabilités :
+                        # [DPT,BOOST,MALUS,AVENTURE,ALTRUISTE,OFFERUt]
+
+                        probaAtkWeap = [70,30,40,30,30,40] 
+                        probaHealWeap = [0,70,30,30,80,10]
+                        probaIndirectWeap = [20,30,40,30,20,50]
+                        probaReaSkill = [50,150,100,30,150,100]
+                        probIndirectReacSkill = [30,150,100,30,150,80]
+                        probaAtkSkill = [50,40,70,30,40,70]
+                        probaIndirectAtkSkill = [30,40,70,30,40,120]
+                        probaHealSkill = [30,100,40,30,130,50]
+                        probaBoost = [30,130,50,30,70,70]
+                        probaMalus = [45,40,100,30,50,70]
+                        probaArmor = [35,100,50,30,70,70]
+
+                        # Weapons proba's ----------------------------------
+                        if actTurn.char.weapon.name == "noneWeap":
+                            probaHealWeap = [0,0,0,0,0,0]
+                            probaIndirectWeap = [0,0,0,0,0,0]
+                            probaAtkWeap = [0,0,0,0,0,0]
                         else:
-                            randomSkill = boostSkill[0]
+                            if actTurn.char.weapon.type == TYPE_DAMAGE:
+                                probaHealWeap = [0,0,0,0,0,0]
+                                probaIndirectWeap = [0,0,0,0,0,0]
+                            elif actTurn.char.weapon.type == TYPE_HEAL:
+                                probaAtkWeap = [0,0,0,0,0,0]
+                                probaIndirectWeap = [0,0,0,0,0,0]
+                            else:
+                                probaHealWeap = [0,0,0,0,0,0]
+                                probaAtkWeap = [0,0,0,0,0,0]
 
-                        if randomSkill.range != AREA_MONO:
-                            nearestEnnemi,nearestDistance,myCell,nearestCell,dpt = 0,100,actTurn.cell,0,[]
-                            for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lineOfSight=True,effect=randomSkill.effect): # Allié le blessé
-                                if a.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
-                                    dpt.append(a)
+                        # Do we have a big buff ? If yes, maybe we should consider using skills if we can't attack
+                        bigbuffy = False
+                        for a in actTurn.effect:
+                            if a.type == TYPE_BOOST and a.allStats()[actTurn.char.weapon.use] > 0:
+                                logs += "\nThe stat used by the weapon is boosted"
+                                bigbuffy = True
+                                break
 
-                            for a in dpt:
-                                if a.team == actTurn.team and a.hp > 0:
-                                    if a.hp/a.maxHp < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
+                        if bigbuffy and nbTargetAtRange < 0:
+                            logs += " but no target in the range of the weapon is found"
+                            haveOffSkills = False
+                            for a in (0,1,2,3,4):
+                                if actTurn.cooldowns[a] <= 0 and type(actTurn.skills[a]) == skill:
+                                    if actTurn.skills[a].type == TYPE_DAMAGE:
+                                        if (actTurn.skills[a].range == AREA_MONO and len(actTurn.cell.getEntityOnArea(area=actTurn.skills[a].area,team=actTurn.team,wanted=ENNEMIS,effect=actTurn.skills[a].effect))> 0) or (actTurn.skills[a].range != AREA_MONO and len(actTurn.cell.getEntityOnArea(area=actTurn.skills[a].range,team=actTurn.team,wanted=ENNEMIS,effect=actTurn.skills[a].effect))> 0):
+                                            haveOffSkills = True
+                                            break
+
+                            if haveOffSkills:
+                                probaHealWeap = [0,0,0,0,0,0]
+                                probaIndirectWeap = [0,0,0,0,0,0]
+                                probaAtkWeap = [0,0,0,0,0,0]
+                                logs += "\nSomes offensives skills with targets at range have been found. Weapon's proba neutralized"
+                            else:
+                                logs += "\nNo available offensives skills have been found"
+
+                        healSkill,atkSkill,reaSkill,indirectReaSkill,indirectAtkSkill,boostSkill,malusSkill,armorSkill,invocSkill = [],[],[],[],[],[],[],[],[]
+
+                        for a in range(0,5): # Catégorisation des sorts
+                            actskill = actTurn.char.skills[a]
+                            if actTurn.cooldowns[a] == 0 and actskill != None and actskill != "0":
+                                if actskill.range == AREA_MONO: # If the skill is launch on self
+                                    allieAtRange,ennemiAtRange = len(actTurn.cell.getEntityOnArea(area=actskill.area,team=actTurn.team,wanted=ALLIES,effect=actskill.effect,ignoreInvoc=True))> 0,len(actTurn.cell.getEntityOnArea(area=actskill.area,team=actTurn.team,wanted=ENNEMIS,effect=actskill.effect))> 0
+                                    if (actskill.type == TYPE_HEAL or actskill.type == TYPE_INDIRECT_HEAL) and len(actTurn.cell.getEntityOnArea(area=actskill.area,team=actTurn.team,wanted=ALLIES,effect=actskill.effect,lifeUnderPurcentage=90,ignoreInvoc = True))> 0 and (actskill.id != "yt"):
+                                        healSkill.append(actskill)
+                                    elif actskill.type == TYPE_DAMAGE and ennemiAtRange: # Damage skills
+                                        atkSkill.append(actskill)
+                                    elif actskill.type == TYPE_RESURECTION: # Resu skills (none lol)
+                                        reaSkill.append(actskill)
+                                    elif actskill.type == TYPE_INDIRECT_REZ and allieAtRange: # Indirect Resu skills (Zelian R)
+                                        indirectReaSkill.append(actskill)
+                                    elif actskill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange: # Indirect damage skills
+                                        indirectAtkSkill.append(actskill)
+                                    elif actskill.type == TYPE_BOOST and allieAtRange: # Buff skills
+                                        boostSkill.append(actskill)
+                                    elif actskill.type == TYPE_MALUS and ennemiAtRange: # Debuff skills
+                                        malusSkill.append(actskill)
+                                    elif actskill.type == TYPE_ARMOR and allieAtRange: # Armor skills
+                                        armorSkill.append(actskill)
+                                    elif actskill.type == TYPE_UNIQUE: # Other
+                                        for b in [chaos]: # Boost
+                                            if b == actskill:
+                                                boostSkill.append(b)
+
+                                    elif actskill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actskill.range,team=actTurn.team))>0: # Invocation
+                                        temp = actTurn.cell.getEmptyCellsInArea(area=actskill.range,team=actTurn.team)
+                                        for b in temp[:]:
+                                            if actTurn.team == 0:
+                                                if b.x > 2:
+                                                    temp.remove(b)
+                                            elif b.x < 3:
+                                                temp.remove(a)                                            
+
+                                        invocSkill.append(actskill)
+
+                                    elif actskill.id == "yt": 
+                                        sumHp,sumMaxHp = 0,0
+                                        for b in tablEntTeam[actTurn.team]:
+                                            sumHp += max(0,b.hp)
+                                            sumMaxHp += b.maxHp
+                                        if sumHp / sumMaxHp <= 0.5:
+                                            healSkill.append(actskill)
+                                    
+                                else: # The skill is cast on others
+                                    allieAtRange,ennemiAtRange = len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ALLIES,lineOfSight = True,effect=actskill.effect,ignoreInvoc = True))> 0,len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True,effect=actskill.effect))> 0
+                                    if (actskill.type == TYPE_HEAL or actskill.type == TYPE_INDIRECT_HEAL) and len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=actskill.effect,ignoreInvoc = True))> 0:
+                                        healSkill.append(actskill)
+                                    elif actskill.type == TYPE_DAMAGE and ennemiAtRange:
+                                        atkSkill.append(actskill)
+                                    elif actskill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actskill.range,team=actTurn.team,wanted=ALLIES,dead=True)):
+                                        reaSkill.append(actskill)
+                                    elif actskill.type == TYPE_INDIRECT_REZ and allieAtRange:
+                                        indirectReaSkill.append(actskill)
+                                    elif actskill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange:
+                                        indirectAtkSkill.append(actskill)
+                                    elif actskill.type == TYPE_BOOST and allieAtRange:
+                                        boostSkill.append(actskill)
+                                    elif actskill.type == TYPE_MALUS and ennemiAtRange:
+                                        if actskills not in [boom]: 
+                                            malusSkill.append(actskill)
+                                        elif actskill == boom: # Si il ne reste qu'un ennemi, ne pas prendre en compte Réaction en chaîne
+                                            team2see = tablEntTeam[int(not(actTurn.team))][:]
+                                            for b in team2see[:]:
+                                                if b.hp <= 0:
+                                                    team2see.remove(b)
+
+                                            if len(team2see) > 1:
+                                                malusSkill.append(boom)
+
+                                    elif actskill.type == TYPE_ARMOR and allieAtRange:
+                                        armorSkill.append(actskill)
+                                    elif actskill.type == TYPE_UNIQUE:
+                                        for b in [chaos]: # Boost
+                                            if b == actskill:
+                                                boostSkill.append(b)
+                                    
+                                    elif actskill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actskill.range,team=actTurn.team))>0:
+                                        invocSkill.append(actskill)
+                
+                        isTMinDanger, isTeamMateDown = False, False
+                        for a in tablEntTeam[actTurn.team]:
+                            if a.hp / a.maxHp <= 0.35:
+                                isTMinDanger = True
+                            elif a.hp <= 0:
+                                isTeamMateDown = True
+
+                        if not(isTMinDanger):
+                            probIndirectReacSkill = [0,0,0,0,0,0]
+                        else:
+                            probaHealSkill = [30,120,40,50,150,150]
+
+                        if not(isTeamMateDown):
+                            probaReaSkill = [0,0,0,0,0,0]
+
+                        probTabl = [probaReaSkill,probIndirectReacSkill,probaAtkSkill,probaIndirectAtkSkill,probaHealSkill,probaBoost,probaMalus,probaArmor]
+                        for a in range(0,8):
+                            analyse = [reaSkill,indirectReaSkill,atkSkill,indirectAtkSkill,healSkill,boostSkill,malusSkill,armorSkill][a]
+                            if len(analyse) == 0:
+                                probTabl[a] = [0,0,0,0,0,0]
+
+                        if len(invocSkill) > 0 and tablAliveInvoc[actTurn.team]<3:
+                            if actTurn.char.aspiration == AVENTURIER:
+                                probaInvoc = [65,65,65,65,65,65]
+                            else:
+                                probaInvoc = [40,40,40,40,40,40]
+                        else:
+                            probaInvoc = [0,0,0,0,0,0]
+
+                        totalProba = probaAtkWeap[choisenIA]+probaHealWeap[choisenIA]
+                        for a in probTabl:
+                            totalProba+= a[choisenIA]
+            
+                        totalProba += probaIndirectWeap[choisenIA]+probaInvoc[choisenIA] + 1
+                        probaRoll = random.randint(0,totalProba) -1
+                        logs += "\nTotal Proba : {0} - ProbaRoll : {1}".format(totalProba,probaRoll)
+
+                        optionChoisen = False
+
+                        if probaRoll <= probaAtkWeap[choisenIA] and probaAtkWeap[choisenIA] > 0: #Attaque à l'arme
+                            logs += "\nSelected option : Damage with weapon"
+                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
+                            if nbTargetAtRange > 0:
+                                for a in atRange: # Ennemi le plus proche
+                                    if a.team != actTurn.team and a.hp > 0:
+                                        if myCell.distance(cell=a.cell) < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
+                
+                                optionChoice,ennemi = OPTION_WEAPON,nearestEnnemi
+
+                            else:
+                                logs += "\nNo target at range. Trying to move"
+                                for a in tablAllCells: # Ennemi le plus proche
+                                    if a.on != None:
+                                        b = a.on
+                                        if b.team != actTurn.team and b.hp > 0:
+                                            if myCell.distance(cell=b.cell) < nearestDistance:
+                                                nearestEnnemi, nearestDistance, nearestCell = b,myCell.distance(cell=b.cell),b.cell
+                                optionChoice,Cell = OPTION_MOVE,actTurn.cell
+                                if Cell.x - nearestCell.x > 0 and canMove[0]:
+                                    choiceToMove = [Cell.x-1,Cell.y]
+                                elif Cell.x - nearestCell.x < 0 and canMove[1]:
+                                    choiceToMove = [Cell.x +1,Cell.y]
+                                elif Cell.y - nearestCell.y > 0 and canMove[2]:
+                                    choiceToMove = [Cell.x,Cell.y -1]
+                                elif Cell.y - nearestCell.y < 0 and canMove[3]:
+                                    choiceToMove = [Cell.x,Cell.y +1]
+                                else:
+                                    logs += "\nNo valid cells found. Skipping the turn"
+                                    optionChoice=OPTION_SKIP
+
+                            optionChoisen = True
+                        else:
+                            probaRoll -= probaAtkWeap[choisenIA]
+
+                        if probaRoll <= probaHealWeap[choisenIA] and probaHealWeap[choisenIA] > 0 and not(optionChoisen): #Soins à l'arme
+                            mostDamageAllie,mDAHp,Cell,nearestCell = 0,1,actTurn.cell,0
+                            logs += "\nSelected option : Heal with weapon"
+                            
+                            if nbTargetAtRange > 0:
+                                for a in atRange: # Allié le blessé
+                                    if a.team == actTurn.team and a.hp > 0:
+                                        if a.hp/a.maxHp < mDAHp:
+                                            mostDamageAllie, mDAHp = a,a.hp/a.maxHp
+
+                                optionChoice,ennemi = OPTION_WEAPON,mostDamageAllie
+                                            
+                            else:
+                                logs += "\nNo target at range. Trying to move"
+                                nearestEnnemi, nearestDistance, nearestCell = 0,1,0
+                                for a in tablAllCells: # Allié le blessé
+                                    if a.on != None:
+                                        b = a.on
+                                        if b.team == actTurn.team and b.hp > 0 and b.hp/b.maxHp <= 0.9:
+                                            if b.hp/b.maxHp < nearestDistance:
+                                                nearestEnnemi, nearestDistance, nearestCell = b,b.hp/b.maxHp,b.cell
+
+                                optionChoice,Cell = OPTION_MOVE,actTurn.cell
+                                if Cell.x - nearestCell.x > 0 and canMove[0]:
+                                    choiceToMove = [Cell.x-1,Cell.y]
+                                elif Cell.x - nearestCell.x < 0 and canMove[1]:
+                                    choiceToMove = [Cell.x +1,Cell.y]
+                                elif Cell.y - nearestCell.y > 0 and canMove[2]:
+                                    choiceToMove = [Cell.x,Cell.y -1]
+                                elif Cell.y - nearestCell.y < 0 and canMove[3]:
+                                    choiceToMove = [Cell.x,Cell.y +1]
+                                else:
+                                    optionChoice=OPTION_SKIP
+                                    logs += "\nNo valid cells found. Skipping the turn"
+
+                            optionChoisen = True
+                        elif not(optionChoisen):
+                            probaRoll -= probaHealWeap[choisenIA]
+
+                        if probaRoll <= probTabl[0][choisenIA] and probTabl[0][choisenIA] > 0 and not(optionChoisen): # Résurection
+                            logs += "\nSelected option : Resurection Skill"
+                            for a in tablEntTeam[actTurn.team]:
+                                if a.hp <= 0:
+                                    optionChoice = OPTION_SKILL
+                                    if len(reaSkill) > 1:
+                                        skillToUse = reaSkill[random.randint(0,len(reaSkill)-1)]
+                                    else:
+                                        skillToUse = reaSkill[0]
+                                    ennemi = a
+                                    optionChoisen = true
+                                    break
+                        
+                            optionChoisen=True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[0][choisenIA]
+
+                        if probaRoll <= probTabl[1][choisenIA] and probTabl[1][choisenIA] > 0 and not(optionChoisen): # Résurection indirect:
+                            logs += "\nSelected option : Indirect resurection skill"
+                            for a in tablEntTeam[actTurn.team]:
+                                if a.hp <= 0.3 and a.hp > 0:
+                                    optionChoice = OPTION_SKILL
+                                    if len(indirectReaSkill) > 1:
+                                        skillToUse = indirectReaSkill[random.randint(0,len(reaSkill)-1)]
+                                    else:
+                                        skillToUse = indirectReaSkill[0]
+                                    ennemi = a
+                                    optionChoisen = true
+                                    break
+
+                            optionChoisen = True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[1][choisenIA]
+            
+                        if probaRoll <= probTabl[2][choisenIA] and probTabl[2][choisenIA] > 0 and not(optionChoisen): # Sort de dégâts
+                            logs += "\nSelected option : Damage skill"
+                            if len(atkSkill) > 1:
+                                randomSkill = atkSkill[random.randint(0,len(atkSkill)-1)]
+                            else:
+                                randomSkill = atkSkill[0]
+
+                            if randomSkill == trans:
+                                randomSkill = copy.deepcopy(randomSkill)
+                                if actTurn.char.aspiration in [BERSERK,TETE_BRULE,POIDS_PLUME,ERUDIT,OBSERVATEUR]:
+                                    randomSkill.type = TYPE_DAMAGE
+                                    if actTurn.char.aspiration == BERSERK:
+                                        randomSkill.power = 180
+                                    else:
+                                        randomSkill.power = 135
+                                        if randomSkill.type in [TETE_BRULE,POIDS_PLUME]:
+                                            randomSkill.area = AREA_LINE_6
+                                            randomSkill.range = AREA_MONO
+                                        elif randomSkill.type in [ERUDIT,OBSERVATEUR]:
+                                            randomSkill.type = CIRCLE_AREA_2
+                                    
+                            if randomSkill.range != AREA_MONO:
+                                nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0 # Ennemi le plus proche
+                                for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=randomSkill.effect):
+                                    if a.team != actTurn.team and a.hp > 0:
+                                        if myCell.distance(cell=a.cell) < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
 
                                 optionChoice = OPTION_SKILL
                                 skillToUse = randomSkill
                                 ennemi = nearestEnnemi
 
-                        else:
-                            if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect)) > 0:
-                                optionChoice = OPTION_SKILL
-                                skillToUse = randomSkill
-                                ennemi = actTurn
-
-                        optionChoisen = True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[5][choisenIA]
-                    
-                    if probaRoll <= probTabl[6][choisenIA] and probTabl[6][choisenIA] > 0 and not(optionChoisen): # Malus
-                        logs += "\nSelected option : Debuff skill"
-                        if len(malusSkill) > 1:
-                            randomSkill = malusSkill[random.randint(0,len(malusSkill)-1)]
-                        else:
-                            randomSkill = malusSkill[0]
-
-                        if randomSkill.range != AREA_MONO:
-                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0 # Ennemi le plus proche
-                            for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=randomSkill.effect):
-                                if a.team != actTurn.team and a.hp > 0:
-                                    if myCell.distance(cell=a.cell) < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
-
-                            optionChoice = OPTION_SKILL
-                            skillToUse = randomSkill
-                            ennemi = nearestEnnemi
-
-                        else:
-                            if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS,effect=randomSkill.effect)) > 0:
-                                optionChoice = OPTION_SKILL
-                                skillToUse = randomSkill
-                                ennemi = actTurn
-
-                        optionChoisen=True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[6][choisenIA]
-            
-                    if probaRoll <= probTabl[7][choisenIA] and probTabl[7][choisenIA] > 0 and not(optionChoisen): # Armure
-                        logs += "\nSelected option : Armor skill"
-                        if len(armorSkill) > 1:
-                            randomSkill = armorSkill[random.randint(0,len(armorSkill)-1)]
-                        else:
-                            randomSkill = armorSkill[0]
-
-                        if randomSkill.range != AREA_MONO:
-                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
-                            for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=randomSkill.effect): # Allié le blessé
-                                if a.team == actTurn.team and a.hp > 0:
-                                    if a.hp/a.maxHp < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
-
-                            optionChoice = OPTION_SKILL
-                            skillToUse = randomSkill
-                            ennemi = nearestEnnemi
-
-                        else:
-                            if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect)) > 0:
-                                optionChoice = OPTION_SKILL
-                                skillToUse = randomSkill
-                                ennemi = actTurn
-                        
-                        optionChoisen = True
-                    elif not(optionChoisen):
-                        probaRoll -= probTabl[7][choisenIA]
-
-                    if probaRoll <= probaIndirectWeap[choisenIA] and probaIndirectWeap[choisenIA] > 0 and not(optionChoisen): #Attaque à l'arme indirecte
-                        logs += "\nSelected option : Indirect damages with weapon"
-                        nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
-                        if nbTargetAtRange > 0:
-                            for a in atRange: # Ennemi le plus proche
-                                if a.team != actTurn.team and a.hp > 0:
-                                    if myCell.distance(cell=a.cell) < nearestDistance:
-                                        nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
-            
-                            optionChoice,ennemi = OPTION_WEAPON,nearestEnnemi
-
-                        else:
-                            for a in tablAllCells: # Ennemi le plus proche
-                                if a.on != None:
-                                    b = a.on
-                                    if b.team != actTurn.team and b.hp > 0:
-                                        if myCell.distance(cell=b.cell) < nearestDistance:
-                                            nearestEnnemi, nearestDistance, nearestCell = b,myCell.distance(cell=b.cell),b.cell
-                            
-                            optionChoice,Cell = OPTION_MOVE,actTurn.cell
-                            if Cell.x - nearestCell.x > 0 and canMove[0]:
-                                choiceToMove = [Cell.x-1,Cell.y]
-                            elif Cell.x - nearestCell.x < 0 and canMove[1]:
-                                choiceToMove = [Cell.x +1,Cell.y]
-                            elif Cell.y - nearestCell.y > 0 and canMove[2]:
-                                choiceToMove = [Cell.x,Cell.y -1]
-                            elif Cell.y - nearestCell.y < 0 and canMove[3]:
-                                choiceToMove = [Cell.x,Cell.y +1]
                             else:
-                                optionChoice=OPTION_SKIP
+                                if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS)) > 0:
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = actTurn
 
-                        optionChoisen = True
-                    elif not(optionChoisen):
-                        probaRoll -= probaIndirectWeap[choisenIA]
-        
-                    if probaRoll <= probaInvoc[choisenIA] and probaInvoc[choisenIA] > 0 and not(optionChoisen): #Invocation
-                        logs += "\nSelected option : Summon skill"
-                        if len(invocSkill) > 1:
-                            randomSkill = invocSkill[random.randint(0,len(invocSkill)-1)]
-                        else:
-                            randomSkill = invocSkill[0]
+                            optionChoisen=True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[2][choisenIA]
 
-                        optionChoice = OPTION_SKILL
-                        skillToUse = randomSkill
-                        optionChoisen = True
+                        if probaRoll <= probTabl[3][choisenIA] and probTabl[3][choisenIA] > 0 and not(optionChoisen): # Dégâts indirects
+                            logs += "\nSelected option : Indirect damage skill"
+                            if len(indirectAtkSkill) > 1:
+                                randomSkill = indirectAtkSkill[random.randint(0,len(indirectAtkSkill)-1)]
+                            else:
+                                randomSkill = indirectAtkSkill[0]
 
-                    elif not(optionChoisen):
-                        probaRoll -= probaInvoc[choisenIA]
+                            if randomSkill.range != AREA_MONO:
+                                nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0 # Ennemi le plus proche
+                                for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=randomSkill.effect):
+                                    if a.team != actTurn.team and a.hp > 0:
+                                        if myCell.distance(cell=a.cell) < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
 
-                if type(ennemi) == int:
-                    logs += "\nNo target have been found. Skipping the turn"
-                    optionChoice = OPTION_SKIP
+                                optionChoice = OPTION_SKILL
+                                skillToUse = randomSkill
+                                ennemi = nearestEnnemi
 
-                if optionChoice == OPTION_WEAPON: #Option : Attaque
-                    if actTurn.char.weapon.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]: # Agressive Weapon
-                        logs += "\n{0} is attacking {1} with their weapon\n".format(actTurn.char.name,ennemi.char.name)
-                        cmpt = 0
-                        while cmpt < iteration:
-                            isAlive = ennemi.hp > 0
-                            if not(isAlive) :
-                                break
+                            else:
+                                if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS)) > 0:
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = actTurn
+
+                            optionChoisen=True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[3][choisenIA]
+
+                        if probaRoll <= probTabl[4][choisenIA] and probTabl[4][choisenIA] > 0 and not(optionChoisen): # Heal
+                            logs += "\nSelected option : Healing skill"
+                            if len(healSkill) > 1:
+                                randomSkill = healSkill[random.randint(0,len(healSkill)-1)]
+                            else:
+                                randomSkill = healSkill[0]
+
+                            if randomSkill.range != AREA_MONO:
+                                nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
+                                for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=randomSkill.effect): # Allié le blessé
+                                    if a.team == actTurn.team and a.hp > 0:
+                                        if a.hp/a.maxHp < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
+
+                                optionChoice = OPTION_SKILL
+                                skillToUse = randomSkill
+                                ennemi = nearestEnnemi
+
+                            else:
+                                if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect)) > 0 or (randomSkill == trans and actTurn.char.aspiration in [ALTRUISTE,IDOLE]):
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = actTurn
+                            
+                            optionChoisen = True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[4][choisenIA]
+
+                        if probaRoll <= probTabl[5][choisenIA] and probTabl[5][choisenIA] > 0 and not(optionChoisen): # Boost
+                            logs += "\nSelected option : Buff skill"
+                            if len(boostSkill) > 1:
+                                randomSkill = boostSkill[random.randint(0,len(boostSkill)-1)]
+                            else:
+                                randomSkill = boostSkill[0]
+
+                            if randomSkill.range != AREA_MONO:
+                                nearestEnnemi,nearestDistance,myCell,nearestCell,dpt = 0,100,actTurn.cell,0,[]
+                                for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lineOfSight=True,effect=randomSkill.effect): # Allié le blessé
+                                    if a.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE]:
+                                        dpt.append(a)
+
+                                for a in dpt:
+                                    if a.team == actTurn.team and a.hp > 0:
+                                        if a.hp/a.maxHp < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
+
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = nearestEnnemi
+
+                            else:
+                                if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect)) > 0:
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = actTurn
+
+                            optionChoisen = True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[5][choisenIA]
+                        
+                        if probaRoll <= probTabl[6][choisenIA] and probTabl[6][choisenIA] > 0 and not(optionChoisen): # Malus
+                            logs += "\nSelected option : Debuff skill"
+                            if len(malusSkill) > 1:
+                                randomSkill = malusSkill[random.randint(0,len(malusSkill)-1)]
+                            else:
+                                randomSkill = malusSkill[0]
+
+                            if randomSkill.range != AREA_MONO:
+                                nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0 # Ennemi le plus proche
+                                for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=randomSkill.effect):
+                                    if a.team != actTurn.team and a.hp > 0:
+                                        if myCell.distance(cell=a.cell) < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
+
+                                optionChoice = OPTION_SKILL
+                                skillToUse = randomSkill
+                                ennemi = nearestEnnemi
+
+                            else:
+                                if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS,effect=randomSkill.effect)) > 0:
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = actTurn
+
+                            optionChoisen=True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[6][choisenIA]
+                
+                        if probaRoll <= probTabl[7][choisenIA] and probTabl[7][choisenIA] > 0 and not(optionChoisen): # Armure
+                            logs += "\nSelected option : Armor skill"
+                            if len(armorSkill) > 1:
+                                randomSkill = armorSkill[random.randint(0,len(armorSkill)-1)]
+                            else:
+                                randomSkill = armorSkill[0]
+
+                            if randomSkill.range != AREA_MONO:
+                                nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
+                                for a in actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=randomSkill.effect): # Allié le blessé
+                                    if a.team == actTurn.team and a.hp > 0:
+                                        if a.hp/a.maxHp < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
+
+                                optionChoice = OPTION_SKILL
+                                skillToUse = randomSkill
+                                ennemi = nearestEnnemi
+
+                            else:
+                                if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect)) > 0:
+                                    optionChoice = OPTION_SKILL
+                                    skillToUse = randomSkill
+                                    ennemi = actTurn
+                            
+                            optionChoisen = True
+                        elif not(optionChoisen):
+                            probaRoll -= probTabl[7][choisenIA]
+
+                        if probaRoll <= probaIndirectWeap[choisenIA] and probaIndirectWeap[choisenIA] > 0 and not(optionChoisen): #Attaque à l'arme indirecte
+                            logs += "\nSelected option : Indirect damages with weapon"
+                            nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
+                            if nbTargetAtRange > 0:
+                                for a in atRange: # Ennemi le plus proche
+                                    if a.team != actTurn.team and a.hp > 0:
+                                        if myCell.distance(cell=a.cell) < nearestDistance:
+                                            nearestEnnemi, nearestDistance, nearestCell = a,myCell.distance(cell=a.cell),a.cell
+                
+                                optionChoice,ennemi = OPTION_WEAPON,nearestEnnemi
+
+                            else:
+                                for a in tablAllCells: # Ennemi le plus proche
+                                    if a.on != None:
+                                        b = a.on
+                                        if b.team != actTurn.team and b.hp > 0:
+                                            if myCell.distance(cell=b.cell) < nearestDistance:
+                                                nearestEnnemi, nearestDistance, nearestCell = b,myCell.distance(cell=b.cell),b.cell
+                                
+                                optionChoice,Cell = OPTION_MOVE,actTurn.cell
+                                if Cell.x - nearestCell.x > 0 and canMove[0]:
+                                    choiceToMove = [Cell.x-1,Cell.y]
+                                elif Cell.x - nearestCell.x < 0 and canMove[1]:
+                                    choiceToMove = [Cell.x +1,Cell.y]
+                                elif Cell.y - nearestCell.y > 0 and canMove[2]:
+                                    choiceToMove = [Cell.x,Cell.y -1]
+                                elif Cell.y - nearestCell.y < 0 and canMove[3]:
+                                    choiceToMove = [Cell.x,Cell.y +1]
+                                else:
+                                    optionChoice=OPTION_SKIP
+
+                            optionChoisen = True
+                        elif not(optionChoisen):
+                            probaRoll -= probaIndirectWeap[choisenIA]
+            
+                        if probaRoll <= probaInvoc[choisenIA] and probaInvoc[choisenIA] > 0 and not(optionChoisen): #Invocation
+                            logs += "\nSelected option : Summon skill"
+                            if len(invocSkill) > 1:
+                                randomSkill = invocSkill[random.randint(0,len(invocSkill)-1)]
+                            else:
+                                randomSkill = invocSkill[0]
+
+                            optionChoice = OPTION_SKILL
+                            skillToUse = randomSkill
+                            optionChoisen = True
+
+                        elif not(optionChoisen):
+                            probaRoll -= probaInvoc[choisenIA]
+
+                    if type(ennemi) == int:
+                        logs += "\nNo target have been found. Skipping the turn"
+                        optionChoice = OPTION_SKIP
+
+                    if optionChoice == OPTION_WEAPON: #Option : Attaque
+                        if actTurn.char.weapon.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]: # Agressive Weapon
+                            logs += "\n{0} is attacking {1} with their weapon\n".format(actTurn.char.name,ennemi.char.name)
+                            cmpt = 0
+                            while cmpt < iteration:
+                                isAlive = ennemi.hp > 0
+                                if not(isAlive) :
+                                    break
+                                if actTurn.char.weapon.message == None:
+                                    tempTurnMsg += f"\n__{actTurn.char.name} attaque {ennemi.char.name} avec son arme :__\n"
+                                else:
+                                    tempTurnMsg += "\n__"+actTurn.char.weapon.message.format(actTurn.char.name,ennemi.char.name)+"__\n"
+                                
+                                ballerine = actTurn.attack(target=ennemi,value=actTurn.char.weapon.power,icon=actTurn.char.weapon.emoji,area=actTurn.char.weapon.area,use=actTurn.char.weapon.use,onArmor=actTurn.char.weapon.onArmor)
+                                logs+= ballerine
+                                tempTurnMsg += ballerine
+                                cmpt += 1
+
+                                if actTurn.char.weapon.effectOnUse != None:
+                                    ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse))
+                                    logs+= ballerine
+                                    tempTurnMsg += ballerine
+
+                                    for a in hourglassEffects:
+                                        if a == findEffect(actTurn.char.weapon.effectOnUse):
+                                            add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
+                                            break
+                                    ennemi.refreshEffect()
+                                            
+                        elif actTurn.char.weapon.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]: # None agressive Weapon
+                            logs += "\n\n{0} is healing {1} with their weapon".format(actTurn.char.name,ennemi.char.name)
                             if actTurn.char.weapon.message == None:
-                                tempTurnMsg += f"\n__{actTurn.char.name} attaque {ennemi.char.name} avec son arme :__\n"
+                                tempTurnMsg += f"\n__{actTurn.char.name} soigne {ennemi.char.name} avec son arme :__\n"
                             else:
                                 tempTurnMsg += "\n__"+actTurn.char.weapon.message.format(actTurn.char.name,ennemi.char.name)+"__\n"
-                            
-                            ballerine = actTurn.attack(target=ennemi,value=actTurn.char.weapon.power,icon=actTurn.char.weapon.emoji,area=actTurn.char.weapon.area,use=actTurn.char.weapon.use,onArmor=actTurn.char.weapon.onArmor)
-                            logs+= ballerine
-                            tempTurnMsg += ballerine
-                            cmpt += 1
+
+                            for a in ennemi.cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=ALLIES):
+                                healPowa = min(a.maxHp-a.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=a,heal=True)* actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
+                                healPowa = round(healPowa * ((100-a.healResist)/100))
+                                a.healResist += int(healPowa/a.maxHp/2*100)
+                                a.hp += healPowa
+                                actTurn.stats.heals += healPowa
+                                ballerine = f"{actTurn.icon} {actTurn.char.weapon.emoji} → {a.icon} +{healPowa} PV\n"
+                                logs+= ballerine + ". {0}'s healing resist : +{1}".format(a.char.name,int(healPowa/a.maxHp/2*100))
+                                tempTurnMsg += ballerine
 
                             if actTurn.char.weapon.effectOnUse != None:
                                 ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse))
@@ -2978,25 +3077,10 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                         add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
                                         break
                                 ennemi.refreshEffect()
-                                        
-                    elif actTurn.char.weapon.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]: # None agressive Weapon
-                        logs += "\n\n{0} is healing {1} with their weapon".format(actTurn.char.name,ennemi.char.name)
-                        if actTurn.char.weapon.message == None:
-                            tempTurnMsg += f"\n__{actTurn.char.name} soigne {ennemi.char.name} avec son arme :__\n"
-                        else:
-                            tempTurnMsg += "\n__"+actTurn.char.weapon.message.format(actTurn.char.name,ennemi.char.name)+"__\n"
 
-                        for a in ennemi.cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=ALLIES):
-                            healPowa = min(a.maxHp-a.hp,round(actTurn.char.weapon.power * (1+actTurn.charisma/100)* actTurn.valueBoost(target=a,heal=True)* actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
-                            healPowa = round(healPowa * ((100-a.healResist)/100))
-                            a.healResist += int(healPowa/a.maxHp/2*100)
-                            a.hp += healPowa
-                            actTurn.stats.heals += healPowa
-                            ballerine = f"{actTurn.icon} {actTurn.char.weapon.emoji} → {a.icon} +{healPowa} PV\n"
-                            logs+= ballerine + ". {0}'s healing resist : +{1}".format(a.char.name,int(healPowa/a.maxHp/2*100))
-                            tempTurnMsg += ballerine
-
-                        if actTurn.char.weapon.effectOnUse != None:
+                        elif actTurn.char.weapon.effectOnUse != None: # Other weapons
+                            logs += "\n\n{0} is using their weapon on {1}".format(actTurn.char.name,ennemi.char.name)
+                            tempTurnMsg += f"\n__{actTurn.char.name} utilise son arme sur {ennemi.char.name} :__\n"
                             ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse))
                             logs+= ballerine
                             tempTurnMsg += ballerine
@@ -3007,62 +3091,48 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                     break
                             ennemi.refreshEffect()
 
-                    elif actTurn.char.weapon.effectOnUse != None: # Other weapons
-                        logs += "\n\n{0} is using their weapon on {1}".format(actTurn.char.name,ennemi.char.name)
-                        tempTurnMsg += f"\n__{actTurn.char.name} utilise son arme sur {ennemi.char.name} :__\n"
-                        ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse))
-                        logs+= ballerine
-                        tempTurnMsg += ballerine
+                    elif optionChoice == OPTION_MOVE: #Option : Déplacement
+                        logs += "\n\n{0} is moving".format(actTurn.char.name)
+                        temp = actTurn.cell
+                        actTurn.move(x=choiceToMove[0],y=choiceToMove[1])
+                        logs += "\n{0} have been moved from {1}:{2} to {3}:{4}".format(actTurn.char.name,temp.x,temp.y,choiceToMove[0],choiceToMove[1])
+                        tempTurnMsg+= "\n"+actTurn.char.name+" se déplace\n"
 
-                        for a in hourglassEffects:
-                            if a == findEffect(actTurn.char.weapon.effectOnUse):
-                                add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
-                                break
-                        ennemi.refreshEffect()
+                    elif optionChoice == OPTION_SKIP: #Passage de tour
+                        logs += "\n\n{0} is skipping their turn".format(actTurn.char.name)
+                        tempTurnMsg += f"\n{actTurn.char.name}  passe son tour\n"
 
-                elif optionChoice == OPTION_MOVE: #Option : Déplacement
-                    logs += "\n\n{0} is moving".format(actTurn.char.name)
-                    temp = actTurn.cell
-                    actTurn.move(x=choiceToMove[0],y=choiceToMove[1])
-                    logs += "\n{0} have been moved from {1}:{2} to {3}:{4}".format(actTurn.char.name,temp.x,temp.y,choiceToMove[0],choiceToMove[1])
-                    tempTurnMsg+= "\n"+actTurn.char.name+" se déplace\n"
-
-                elif optionChoice == OPTION_SKIP: #Passage de tour
-                    logs += "\n\n{0} is skipping their turn".format(actTurn.char.name)
-                    tempTurnMsg += f"\n{actTurn.char.name}  passe son tour\n"
-
-                elif optionChoice == OPTION_SKILL: #Skill :(
-                    logs += "\n\n{0} is using {1} on {2}".format(actTurn.char.name,skillToUse.name,ennemi.char.name)
-                    if skillToUse.message == None:
-                        tempTurnMsg += f"\n__{actTurn.char.name} utilise la compétence {skillToUse.name} :__\n"
-                    else: 
-                        tempTurnMsg += "\n__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
-                    trouv=False
-                    for a in range(0,5):
-                        if type(actTurn.char.skills[a]) == skill:
-                            if skillToUse.id == actTurn.char.skills[a].id:
-                                actTurn.cooldowns[a] = skillToUse.cooldown
-                                trouv=True
-                            if skillToUse.id == "yt" and actTurn.char.skills[a].ultimate and actTurn.cooldowns[a] < 2:
-                                actTurn.cooldowns[a] = 2
-                    
-                    if skillToUse.shareCooldown :
-                        for a in tablEntTeam[actTurn.team]:
-                            for b in range(0,len(a.char.skills)):
-                                if type(a.char.skills[b]) == skill:
-                                    if a.char.skills[b].id == skillToUse.id:
-                                        a.cooldowns[b] = skillToUse.cooldown
-                    
-                    if not(trouv):
-                        print("Capacitée non trouvée !!")
-                        print(skillToUse.name,skillToUse.id)
+                    elif optionChoice == OPTION_SKILL: #Skill :(
+                        logs += "\n\n{0} is using {1} on {2}".format(actTurn.char.name,skillToUse.name,ennemi.char.name)
+                        if skillToUse.message == None:
+                            tempTurnMsg += f"\n__{actTurn.char.name} utilise la compétence {skillToUse.name} :__\n"
+                        else: 
+                            tempTurnMsg += "\n__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
+                        trouv=False
                         for a in range(0,5):
                             if type(actTurn.char.skills[a]) == skill:
-                                print(actTurn.char.skills[a].name,actTurn.char.skills[a].id)
+                                if skillToUse.id == actTurn.char.skills[a].id:
+                                    actTurn.cooldowns[a] = skillToUse.cooldown
+                                    trouv=True
+                                if skillToUse.id == "yt" and actTurn.char.skills[a].ultimate and actTurn.cooldowns[a] < 2:
+                                    actTurn.cooldowns[a] = 2
+                        
+                        if skillToUse.shareCooldown :
+                            for a in tablEntTeam[actTurn.team]:
+                                for b in range(0,len(a.char.skills)):
+                                    if type(a.char.skills[b]) == skill:
+                                        if a.char.skills[b].id == skillToUse.id:
+                                            a.cooldowns[b] = skillToUse.cooldown
+                        
+                        if not(trouv):
+                            print("Capacitée non trouvée !!")
+                            print(skillToUse.name,skillToUse.id)
+                            for a in range(0,5):
+                                if type(actTurn.char.skills[a]) == skill:
+                                    print(actTurn.char.skills[a].name,actTurn.char.skills[a].id)
 
-                    played = False
-                    for a in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
-                        if a == skillToUse.type:
+                        played = False
+                        if skillToUse.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
                             for b in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES):
                                 for c in skillToUse.effect:
                                     effect = findEffect(c)
@@ -3070,444 +3140,469 @@ async def fight(bot,team1,team2,ctx,guild,auto = True,contexte=[],octogone=False
                                     logs += "{0} gave the {1} effect at {2} for {3} turns\n".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
                                 b.refreshEffect()
                             played=True
-                            break
 
-                    if not(played):
-                        for a in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS]:
-                            if a == skillToUse.type:
-                                for y in skillToUse.effect:
-                                    for b in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENNEMIS):
-                                        effect = findEffect(y)
-                                        tempTurnMsg += add_effect(actTurn,b,effect)
-                                        logs += "{0} gave the {1} effect at {2} for {3} turns\n".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
-                                    b.refreshEffect()
-                                played=True
-                                break
+                        if not(played) and skillToUse.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS]:
+                            for y in skillToUse.effect:
+                                for b in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENNEMIS):
+                                    effect = findEffect(y)
+                                    tempTurnMsg += add_effect(actTurn,b,effect)
+                                    logs += "\n{0} gave the {1} effect at {2} for {3} turns".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
+                                b.refreshEffect()
+                            played=True
 
-                    if not(played) and skillToUse.type == TYPE_HEAL:
-                        if ennemi.hp > 0:
-                            statUse = skillToUse.use
-                            if statUse == None:
-                                statUse = 0
-                            elif statUse == HARMONIE:
-                                temp = actTurn.allStats()
-                                for a in temp:
-                                    statUse = max(a,statUse)
-                            else:
-                                statUse = actTurn.allStats()[statUse]
+                        if not(played) and skillToUse.type == TYPE_HEAL:
+                            if ennemi.hp > 0:
+                                statUse = skillToUse.use
+                                if statUse == None:
+                                    statUse = 0
+                                elif statUse == HARMONIE:
+                                    temp = actTurn.allStats()
+                                    for a in temp:
+                                        statUse = max(a,statUse)
+                                else:
+                                    statUse = actTurn.allStats()[statUse]
 
-                            if skillToUse.id != "yt": # Any normal healing skill
-                                healPowa = min(ennemi.maxHp-ennemi.hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = ennemi,heal=True)*actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
-                                for a in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES):
-                                    healPowa = round(healPowa * ((100-a.healResist)/100))
-                                    a.healResist += int(healPowa/a.maxHp/2*100)
-                                    actTurn.stats.heals += healPowa
-                                    a.hp += healPowa
-                                    ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {a.icon} +{healPowa} PV\n"
-                                    logs+= ballerine + ". {0}'s healing resist : +{1}".format(a.char.name,int(healPowa/a.maxHp/2*100))
-                                    tempTurnMsg += ballerine
-                                played=True
-                            else: # Limitebreak Heal
-                                for a in range(0,len(tablEntTeam[actTurn.team])):
-                                    if tablEntTeam[actTurn.team][a].hp > 0:
-                                        healPowa = min(tablEntTeam[actTurn.team][a].maxHp-tablEntTeam[actTurn.team][a].hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
-                                        healPowa = round(healPowa * ((100-tablEntTeam[actTurn.team][a].healResist)/100))
-                                        tablEntTeam[actTurn.team][a].healResist += int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100)
+                                if skillToUse.id != "yt": # Any normal healing skill
+                                    healPowa = min(ennemi.maxHp-ennemi.hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = ennemi,heal=True)*actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
+                                    for a in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES):
+                                        healPowa = round(healPowa * ((100-a.healResist)/100))
+                                        a.healResist += int(healPowa/a.maxHp/2*100)
                                         actTurn.stats.heals += healPowa
-                                        tablEntTeam[actTurn.team][a].hp += healPowa
-                                        ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {tablEntTeam[actTurn.team][a].icon} +{healPowa} PV\n"
-                                        logs+= ballerine + ". {0}'s healing resist : +{1}".format(tablEntTeam[actTurn.team][a].char.name,int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100))
+                                        a.hp += healPowa
+                                        ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {a.icon} +{healPowa} PV\n"
+                                        logs+= ballerine + ". {0}'s healing resist : +{1}".format(a.char.name,int(healPowa/a.maxHp/2*100))
                                         tempTurnMsg += ballerine
-                                    elif tablEntTeam[actTurn.team][a].status == STATUS_DEAD:
-                                        healPowa = min(tablEntTeam[actTurn.team][a].maxHp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*0.3))
-                                        actTurn.stats.allieResurected += 1
-                                        actTurn.stats.heals += healPowa
-                                        tablEntTeam[actTurn.team][a].healResist += int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100)
-                                        tablEntTeam[actTurn.team][a].hp = healPowa
-                                        tablEntTeam[actTurn.team][a].status = STATUS_RESURECTED
-                                        if type(tablEntTeam[actTurn.team][a].char) == octarien:
-                                            tablEntTeam[actTurn.team][a].icon = tablEntTeam[actTurn.team][a].char.icon
-                                        elif type(tablEntTeam[actTurn.team][a].char) == tmpAllie:
-                                            tablEntTeam[actTurn.team][a].icon = emoji.icon[tablEntTeam[actTurn.team][a].char.species][getColorId(tablEntTeam[actTurn.team][a].char)]
-                                        else:
-                                            tablEntTeam[actTurn.team][a].icon = await getUserIcon(bot,tablEntTeam[actTurn.team][a].char)
+                                    played=True
+                                else: # Limitebreak Heal
+                                    for a in range(0,len(tablEntTeam[actTurn.team])):
+                                        if tablEntTeam[actTurn.team][a].hp > 0:
+                                            healPowa = min(tablEntTeam[actTurn.team][a].maxHp-tablEntTeam[actTurn.team][a].hp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(a,area = AREA_MONO,type = TYPE_HEAL)))
+                                            healPowa = round(healPowa * ((100-tablEntTeam[actTurn.team][a].healResist)/100))
+                                            tablEntTeam[actTurn.team][a].healResist += int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100)
+                                            actTurn.stats.heals += healPowa
+                                            tablEntTeam[actTurn.team][a].hp += healPowa
+                                            ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {tablEntTeam[actTurn.team][a].icon} +{healPowa} PV\n"
+                                            logs+= ballerine + ". {0}'s healing resist : +{1}".format(tablEntTeam[actTurn.team][a].char.name,int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100))
+                                            tempTurnMsg += ballerine
+                                        elif tablEntTeam[actTurn.team][a].status == STATUS_DEAD:
+                                            healPowa = min(tablEntTeam[actTurn.team][a].maxHp,round(skillToUse.power * (1+statUse/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*0.3))
+                                            actTurn.stats.allieResurected += 1
+                                            actTurn.stats.heals += healPowa
+                                            tablEntTeam[actTurn.team][a].healResist += int(healPowa/tablEntTeam[actTurn.team][a].maxHp/2*100)
+                                            tablEntTeam[actTurn.team][a].hp = healPowa
+                                            tablEntTeam[actTurn.team][a].status = STATUS_RESURECTED
+                                            if type(tablEntTeam[actTurn.team][a].char) == octarien:
+                                                tablEntTeam[actTurn.team][a].icon = tablEntTeam[actTurn.team][a].char.icon
+                                            elif type(tablEntTeam[actTurn.team][a].char) == tmpAllie:
+                                                tablEntTeam[actTurn.team][a].icon = emoji.icon[tablEntTeam[actTurn.team][a].char.species][getColorId(tablEntTeam[actTurn.team][a].char)]
+                                            else:
+                                                tablEntTeam[actTurn.team][a].icon = await getUserIcon(bot,tablEntTeam[actTurn.team][a].char)
 
-                                        add_effect(actTurn,tablEntTeam[actTurn.team][a],onceButNotTwice)
-                                        tempTurnMsg += f"{tablEntTeam[actTurn.team][a].char.name} est ressucité{tablEntTeam[actTurn.team][a].accord()} !\n"
-                                        ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {tablEntTeam[actTurn.team][a].icon} +{healPowa} PV\n"
-                                        tempTurnMsg += ballerine
-                                        logs += "\n{0} have been resurected. "+ballerine
-                                played=True
+                                            add_effect(actTurn,tablEntTeam[actTurn.team][a],onceButNotTwice)
+                                            tempTurnMsg += f"{tablEntTeam[actTurn.team][a].char.name} est ressucité{tablEntTeam[actTurn.team][a].accord()} !\n"
+                                            ballerine = f"{actTurn.icon} {skillToUse.emoji}→ {tablEntTeam[actTurn.team][a].icon} +{healPowa} PV\n"
+                                            tempTurnMsg += ballerine
+                                            logs += "\n{0} have been resurected. "+ballerine
+                                    played=True
 
-                    if not(played) and skillToUse.type == TYPE_INVOC:
-                        summoned = actTurn.summon(findInvoc(skillToUse.invocation),time,actTurn.cell.getCellForSummon(skillToUse.range,actTurn.team,findInvoc(skillToUse.invocation),actTurn),tablEntTeam,tablAliveInvoc)
-                        tempTurnMsg += summoned["text"]+"\n"
-                        logs += "\n"+summoned["text"]
-                        time = summoned["timeline"]
-                        tablEntTeam = summoned["tablEntTeam"]
-                        tablAliveInvoc = summoned["tablAliveInvoc"]
-                        played = True
-
-                    if skillToUse.type == TYPE_UNIQUE:
-                        if skillToUse == chaos:
-                            for a in [0,1]:
-                                for b in tablEntTeam[a]:
-                                    tempTurnMsg += add_effect(actTurn,b,effects[random.randint(0,len(effects)-1)])
+                        if not(played) and skillToUse.type == TYPE_INVOC:
+                            summoned = actTurn.summon(findInvoc(skillToUse.invocation),time,actTurn.cell.getCellForSummon(skillToUse.range,actTurn.team,findInvoc(skillToUse.invocation),actTurn),tablEntTeam,tablAliveInvoc)
+                            tempTurnMsg += summoned["text"]+"\n"
+                            logs += "\n"+summoned["text"]
+                            time = summoned["timeline"]
+                            tablEntTeam = summoned["tablEntTeam"]
+                            tablAliveInvoc = summoned["tablAliveInvoc"]
                             played = True
 
-                    if not(played):
-                        ballerine = actTurn.attack(target=ennemi,value=skillToUse.power,icon=skillToUse.emoji,area=skillToUse.area,sussess=skillToUse.sussess,use=skillToUse.use,onArmor=skillToUse.onArmor)
-                        tempTurnMsg += ballerine
-                        logs += "\n"+ballerine
+                        if skillToUse.type == TYPE_UNIQUE:
+                            if skillToUse == chaos:
+                                chaosTabl = effects[:]
+                                for a in chaosTabl[:]:
+                                    if a in chaosProhib:
+                                        chaosTabl.remove(a)
 
-                    if skillToUse.effectOnSelf != None:
-                        tempTurnMsg += add_effect(actTurn,actTurn,findEffect(skillToUse.effectOnSelf))
-                        actTurn.refreshEffect()
+                                lenChaos = len(chaosTabl)-1
+                                for a in [0,1]:
+                                    for b in tablEntTeam[a]:
+                                        if b.hp > 0:
+                                            tempTurnMsg += add_effect(actTurn,b,chaosTabl[random.randint(0,lenChaos)])
+                                            b.refreshEffect()
+                                played = True
 
-            else:
-                end = actTurn.accord()
-                if end != "e":
-                    end = "s"
+                        if not(played):
+                            ballerine = actTurn.attack(target=ennemi,value=skillToUse.power,icon=skillToUse.emoji,area=skillToUse.area,sussess=skillToUse.sussess,use=skillToUse.use,onArmor=skillToUse.onArmor)
+                            tempTurnMsg += ballerine
+                            logs += "\n"+ballerine
 
-                tempTurnMsg += f"\n{actTurn.char.name} est étourdi{end} !\n"
+                        if skillToUse.effectOnSelf != None:
+                            tempTurnMsg += add_effect(actTurn,actTurn,findEffect(skillToUse.effectOnSelf))
+                            actTurn.refreshEffect()
 
-            tempTurnMsg += "\n__Fin du tour__\n"
-            tempTurnMsg += actTurn.endOfTurn()
-            if not(auto):
-                await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
-                await asyncio.sleep(2+(len(tempTurnMsg)/1000)*5)
-        
-        eot = time.endOfTurn(tablEntTeam,tablAliveInvoc)
-        tablAliveInvoc = eot["tablAliveInvoc"]
-        tablEntTeam = eot["tablEntTeam"]
-
-        for c in [0,1]:
-            for d in tablEntTeam[c]:
-                if d.hp > 0 and type(d.char) != invoc:
-                    everyoneDead[c] = False
-                    break
-
-        if everyoneDead[0] or everyoneDead[1]:
-            fight = False
-    
-    # Fin du combat
-    logs += "\n\n=================\nEnd of the fight"
-    try:
-        print(ctx.author.name + " a fini son combat")
-    except:
-        pass
-    for a in range(0,len(tablEntTeam[0])):
-        if type(tablEntTeam[0][a].char) == char:
-            tablEntTeam[0][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[0][a].char.owner) + ".prof",ctx)
-
-    for a in range(0,len(tablEntTeam[1])):
-        if type(tablEntTeam[1][a].char) == char:
-            tablEntTeam[1][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[1][a].char.owner) + ".prof",ctx)
-        
-    winners = int(not(everyoneDead[1]))
-    if not(octogone and type(team2[0])==tmpAllie and team2[0].name=='Lena' and len(team2) == 1 and not(winners)):
-        for z in (0,1):
-            for a in tablEntTeam[z]:
-                if type(a.char) == invoc:
-                    a.hp = 0
-
-        eot = time.endOfTurn(tablEntTeam,tablAliveInvoc)
-        tablAliveInvoc = eot["tablAliveInvoc"]
-        tablEntTeam = eot["tablEntTeam"]
-
-        temp = tablEntTeam[:]
-        temp = temp[0]+temp[1]
-
-        dptClass = sorted(temp,key=lambda student: student.stats.damageDeal,reverse=True)
-        for a in dptClass:
-            if a.stats.damageDeal < 1:
-                dptClass.remove(a)
-        healClass = sorted(temp,key=lambda student: student.stats.heals,reverse=True)
-        for a in healClass:
-            if a.stats.heals < 1:
-                healClass.remove(a)
-        shieldClass = sorted(temp,key=lambda student: student.stats.shieldGived,reverse=True)
-        for a in shieldClass:
-            if a.stats.shieldGived < 1:
-                shieldClass.remove(a)
-
-        listClassement = [dptClass,healClass,shieldClass]
-
-        if not(octogone):
-            teamWinDB.addResultToStreak(team1[0],everyoneDead[1])
-        team = team1[0].team
-        if team == 0:
-            team = team1[0].owner
-        if isLenapy and not(octogone):
-            teamWinDB.refreshFightCooldown(team,auto)
-        if not(octogone):
-            teamWinDB.changeFighting(team,False)
-
-        temp= ["",""]
-        for a in [0,1]:
-            for b in tablEntTeam[a]:
-                temp[a] += f"{b.icon} {b.char.name}{b.getMedals(listClassement)}\n"
-
-        temp1 = discord.Embed(title = "__Résultats du combat :__",color = [0x2996E5,red][winners])
-        temp1.add_field(name="__Vainqueurs :__",value=temp[winners],inline=True)
-        temp1.add_field(name="Perdants :",value=temp[not(winners)],inline=True)
-        
-        if not(octogone):
-            gainExp, gainCoins, allOcta,gainMsg = 0,tour*10,True,""
-            for a in tablEntTeam[1]:
-                if type(a.char) == octarien:
-                    gainExp += a.char.exp
-                elif type(a.char) == tmpAllie:
-                    gainExp += 5
                 else:
-                    allOcta = False
+                    end = actTurn.accord()
+                    if end != "e":
+                        end = "s"
 
-            truc = 0
-            try:
-                if winStreak > 7:
-                    truc = (winStreak-7) * 0.05
-            except:
-                pass
+                    tempTurnMsg += f"\n{actTurn.char.name} est étourdi{end} !\n"
 
-            multiStr,multi = "",max(1,8/len(team1)+truc)
-            if multi > 1:
-                multiStr = f" *(bonus exp : + {int(multi*100-100)}%)*"
-
-            gainInit = str(gainExp)
-            gainExp = int(gainExp*multi)
-            if winners:
-                gainInit = str(int(gainInit)//2)
-                gainExp = gainExp//2
-                gainCoins = gainCoins//2
-
-            gainMsg = f"Points d'expériences : {gainInit}{multiStr}\nPièces : {gainCoins}\n"
-
-            for a in tablEntTeam[0]: #Attribution de l'exp et loot
-                if type(a.char) == char:
-                    path = absPath + "/userProfile/" + str(a.char.owner) + ".prof"
-                    temp = a.char
-                    a.char = await addExpUser(bot,guild,path,ctx,exp=gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1),coins=gainCoins)
-                    if a.char == None:
-                        temp.exp += gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
-                        temp.currencies += gainCoins
-                        a.char = temp
-                    if random.randint(0,99) < 20 and allOcta:
-                        drop = listAllBuyableShop[:]
-                        temp = drop[:]
-                        
-                        for b in drop:
-                            if a.char.have(obj=b):
-                                temp.remove(b)
-
-                        if len(temp) > 0 and not(winners):
-                            rand = temp[random.randint(0,len(temp)-1)]
-                            newTemp = whatIsThat(rand)
-
-                            if newTemp == 0:
-                                a.char.weaponInventory += [rand]
-                            elif newTemp == 1:
-                                a.char.skillInventory += [rand]
-                            elif newTemp == 2:
-                                a.char.stuffInventory += [rand]
-
-                            saveCharFile(path,a.char)
-                            gainMsg += f"{await getUserIcon(bot,a.char)} → {rand.emoji} {rand.name}\n"
-
-                        elif len(temp) == 0:
-                            print(f"{a.char.name} a looté un truc mais a déjà tout")
-
-            temp1.add_field(name="<:empty:866459463568850954>\n__Gains de l'équipe joueur :__",value = gainMsg,inline=False)
-    else:
-        temp1 = discord.Embed(title = "on_message",color=red,description="Une erreur est survenue :)\nUn rapport d'erreur n'a pas été envoyé")
-
-    if not(auto):
-        await turnMsg.delete()
-        if not(allAuto):
-            await choiceMsg.delete()
-        await msg.edit(embed = temp1,components=[])
-    else:
-        if slash:
-            msg = await ctx.send(embed = temp1,components=[])
-        else:
-            msg = await ctx.channel.send(embed = temp1,components=[])
-
-    # ------------ Succès -------------- #
-    if not(octogone):
-        isAlice = False
-        isClemence = False
-        isAkira = False
-        isGwen = False
-        isHelene = False
-
-        for a in [0,1]:
-            for b in tablEntTeam[a]:
-                if type(b.char) == tmpAllie:
-                    if b.char.name == "Alice":
-                        isAlice = True
-                    elif b.char.name == "Clémence":
-                        isClemence = True
-                    elif b.char.name == "Akira":
-                        isAkira = True
-                    elif b.char.name in ["Gwendoline","Altikia","Klironovia"]:
-                        isGwen = True
-                    elif b.char.name == "Hélène":
-                        isHelene = True
-
-        for a in [0,1]:
-            for b in tablEntTeam[a]:
-                if type(b.char) == char:
-                    achivements = achivement.getSuccess(b.char)
-                    if not(b.auto): # Ivresse du combat
-                        b.char = await achivements.addCount(ctx,b.char,"fight")
-
-                    if isAlice: # Souvenez vous que chaque roses a des épines
-                        b.char = await achivements.addCount(ctx,b.char,"alice")
-                    if isClemence: # La quête de la nuit
-                        b.char = await achivements.addCount(ctx,b.char,"clemence")
-                    if isAkira: # Seconde impression
-                        b.char = await achivements.addCount(ctx,b.char,"akira")
-                    if isGwen: # Une histoire de vangeance
-                        b.char = await achivements.addCount(ctx,b.char,"gwen")
-                    if isHelene: # Là où mes ailes me porteront
-                        b.char = await achivements.addCount(ctx,b.char,"helene")
-
-                    if auto and int(ctx.author.id) == int(b.char.owner): # Le temps c'est de l'argent
-                        b.char = await achivements.addCount(ctx,b.char,"quickFight")
-
-                    # Je ne veux pas d'écolière pour défendre nos terres
-                    b.char = await achivements.addCount(ctx,b.char,"school")
-
-                    # Elementaire
-                    if b.char.level >= 10:
-                        b.char = await achivements.addCount(ctx,b.char,"elemental")
-
-                    # Soigneur de compette
-                    b.char = await achivements.addCount(ctx,b.char,"greatHeal",b.stats.heals)
-
-                    # Situation désespérée
-                    if b.char.aspiration not in [ALTRUISTE,ERUDIT,IDOLE]:
-                        b.char = await achivements.addCount(ctx,b.char,"notHealBut",b.stats.heals)
-
-                    # La meilleure défense c'est l'attaque
-                    b.char = await achivements.addCount(ctx,b.char,"greatDps",b.stats.damageDeal-b.stats.indirectDamageDeal)
-
-                    # Notre pire ennemi c'est nous même
-                    b.char = await achivements.addCount(ctx,b.char,"poison",b.stats.indirectDamageDeal)
-
-                    saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
-
-    await msg.add_reaction(emoji.plus)
-    await msg.add_reaction('📄')
-    timeout = False
-    def checkIsPlusReact(reaction,user):
-        return user.id != bot.user.id and reaction.message.id == msg.id and (str(reaction) in [emoji.plus,'📄'])
-    while 1:
-        try:
-            react = await bot.wait_for("reaction_add",timeout=60,check=checkIsPlusReact)
-        except:
-            await msg.clear_reactions()
-            break
-
-        if str(react[0]) == '📄':
-            date = datetime.datetime.now()
-            date = date.strftime("%H_%M")
-            fich = open("./data/{0}_{1}.txt".format(ctx.author.name,date),"w")
-            if not(isLenapy):
-                fich.write(logs.replace('\u2192','prohibited'))
-            else:
-                fich.write(logs)
-            fich.close()
-            opened = open("./data/{0}_{1}.txt".format(ctx.author.name,date),"rb")
-            if slash:
-                await ctx.send("Voici les logs du combat :",file=discord.File(fp=opened))
-            else:
-                await ctx.channel.send("Voici les logs du combat :",file=discord.File(fp=opened))
-            opened.close()
-            os.remove("./data/{0}_{1}.txt".format(ctx.author.name,date))
-            await msg.clear_reaction('📄')
-
-        elif str(react[0]) == emoji.plus:
-            await msg.clear_reaction('📄')
-            if not(slash):
-                msgStats = await loadingEmbed(ctx)
-            else:
-                msgStats = await loadingSlashEmbed(ctx)
-
-            tablReaction = ['⏪',emoji.backward_arrow,emoji.forward_arrow,'⏩']
-            actuTeam = 0
-            actuEntity = 0
-            def checkIsReact(reaction,user):
-                temp = False
-                for a in tablReaction:
-                    if str(reaction)==a:
-                        temp=True
-                        break
-                return user != bot.user and reaction.message == msgStats and temp
-  
-            while 1: # Tableau des statistiques
-                actu = tablEntTeam[actuTeam][actuEntity]
-                stats = actu.stats
-
-                if type(actu.char) == char:
-                    userIcon = await getUserIcon(bot,actu.char)
-                else:
-                    userIcon = actu.char.icon
-
-                statsEm = discord.Embed(title = "__Statistiques de "+ userIcon +" "+actu.char.name+"__",color=actu.char.color)
-                ballerine =[[stats.ennemiKill,stats.damageDeal,stats.indirectDamageDeal,stats.damageOnShield,stats.damageBoosted],[stats.allieResurected,stats.heals,stats.damageDogded,stats.shieldGived],[stats.survival,stats.damageRecived,round(stats.shootHited/stats.totalNumberShot*100),round(stats.dodge/stats.numberAttacked*100),round(stats.crits/stats.totalNumberShot*100)]]
-                babie = [["Ennemis tués :","Dégâts infligés :","Dont indirects :","Dégâts sur armure :","Dégâts Boostés :"],["Alliés ressucités :","Soins effectués :","Dégâts réduits :","Armure fournie :"],["Tours survécus :","Dégâts reçus :","Taux de précision : ","Taux d'esquive :","Taux de coup critique :"]]
-                sneaker = ["__Stats offensives__","__Stats altruistes__","__Stats personnels__"]
-                for a in [0,1,2]:
-                    statMsg = ""
-                    for b in range(0,len(ballerine[a])):
-                        temp = "**"
-                        purcent = ""
-                        if babie[a][b].startswith("Taux"):
-                            purcent = " %"
-                        if ballerine[a][b] == 0:
-                            temp =""
-                        statMsg += f"\n{babie[a][b]} {temp}{str(ballerine[a][b])}{temp}{purcent}"
-                    statsEm.add_field(name=sneaker[a],value=statMsg+"\n<:empty:866459463568850954>",inline = False)
-                await msgStats.edit(embed = statsEm)
-
-                for a in tablReaction:
-                    await msgStats.add_reaction(a)
-
-                try:
-                    react = await bot.wait_for("reaction_add",timeout = 60,check = checkIsReact)
-                    reaction = react
-                except:
-                    break
-
-                for a in [0,1,2,3]:
-                    if str(react[0]) == tablReaction[a]:
-                        react = a
-                        break
-
-                if react == 0:
-                    actuTeam,actuEntity = 0,0
-                elif react == 1:
-                    if actuEntity == 0:
-                        actuTeam = int(not(actuTeam))
-                        actuEntity = len(tablEntTeam[actuTeam])-1
-                    else:
-                        actuEntity -= 1
-                elif react == 2:
-                    if actuEntity == len(tablEntTeam[actuTeam])-1:
-                        actuTeam = int(not(actuTeam))
-                        actuEntity = 0
-                    else:
-                        actuEntity += 1
-                elif react == 3:
-                    actuTeam,actuEntity = 1,0
+                tempTurnMsg += "\n__Fin du tour__\n"
+                tempTurnMsg += actTurn.endOfTurn()
+                if not(auto):
+                    await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
+                    await asyncio.sleep(2+(len(tempTurnMsg)/1000)*5)
             
-                await msgStats.remove_reaction(str(reaction[0]),reaction[1])
+            eot = time.endOfTurn(tablEntTeam,tablAliveInvoc)
+            tablAliveInvoc = eot["tablAliveInvoc"]
+            tablEntTeam = eot["tablEntTeam"]
 
-            break
-            await msgStats.clear_reactions()
-    
-    await msg.clear_reactions()
-    try:
-        await msgStats.clear_reations()
+            for c in [0,1]:
+                for d in tablEntTeam[c]:
+                    if d.hp > 0 and type(d.char) != invoc:
+                        everyoneDead[c] = False
+                        break
+
+            if everyoneDead[0] or everyoneDead[1]:
+                fight = False
+        
+        # Fin du combat
+        logs += "\n\n=================\nEnd of the fight"
     except:
-        pass
+        team = team1[0].team
+        teamWinDB.changeFighting(team,False)
+        logs += "\n"+format_exc()
+        date = datetime.datetime.now()
+        date = date.strftime("%H_%M")
+        fich = open("./data/{0}_{1}.txt".format(ctx.author.name,date),"w")
+        if not(isLenapy):
+            fich.write(logs.replace('\u2192','prohibited'))
+        else:
+            fich.write(logs)
+        fich.close()
+        opened = open("./data/{0}_{1}.txt".format(ctx.author.name,date),"rb")
+
+        try:
+            await ctx.send("Une erreur est survenue durant le combat",file=discord.File(fp=opened))
+        except:
+            await msg.channel.send("Une erreur est survenue durant le combat",file=discord.File(fp=opened))
+
+        opened.close()
+        os.remove("./data/{0}_{1}.txt".format(ctx.author.name,date))
+        haveError = True
+
+    if not(haveError):
+        print(ctx.author.name + " a fini son combat")
+
+        for a in range(0,len(tablEntTeam[0])):
+            if type(tablEntTeam[0][a].char) == char:
+                tablEntTeam[0][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[0][a].char.owner) + ".prof",ctx)
+
+        for a in range(0,len(tablEntTeam[1])):
+            if type(tablEntTeam[1][a].char) == char:
+                tablEntTeam[1][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[1][a].char.owner) + ".prof",ctx)
+            
+        winners = int(not(everyoneDead[1]))
+        if not(octogone and type(team2[0])==tmpAllie and team2[0].name=='Lena' and len(team2) == 1 and not(winners)):
+            for z in (0,1):
+                for a in tablEntTeam[z]:
+                    if type(a.char) == invoc:
+                        a.hp = 0
+
+            eot = time.endOfTurn(tablEntTeam,tablAliveInvoc)
+            tablAliveInvoc = eot["tablAliveInvoc"]
+            tablEntTeam = eot["tablEntTeam"]
+
+            temp = tablEntTeam[:]
+            temp = temp[0]+temp[1]
+
+            dptClass = sorted(temp,key=lambda student: student.stats.damageDeal,reverse=True)
+            for a in dptClass:
+                if a.stats.damageDeal < 1:
+                    dptClass.remove(a)
+            healClass = sorted(temp,key=lambda student: student.stats.heals,reverse=True)
+            for a in healClass:
+                if a.stats.heals < 1:
+                    healClass.remove(a)
+            shieldClass = sorted(temp,key=lambda student: student.stats.shieldGived,reverse=True)
+            for a in shieldClass:
+                if a.stats.shieldGived < 1:
+                    shieldClass.remove(a)
+
+            listClassement = [dptClass,healClass,shieldClass]
+
+            if not(octogone):
+                teamWinDB.addResultToStreak(team1[0],everyoneDead[1])
+            team = team1[0].team
+            if team == 0:
+                team = team1[0].owner
+            if isLenapy and not(octogone):
+                teamWinDB.refreshFightCooldown(team,auto)
+            if not(octogone):
+                teamWinDB.changeFighting(team,False)
+
+            temp= ["",""]
+            for a in [0,1]:
+                for b in tablEntTeam[a]:
+                    temp[a] += f"{b.icon} {b.char.name}{b.getMedals(listClassement)}\n"
+
+            temp1 = discord.Embed(title = "__Résultats du combat :__",color = [0x2996E5,red][winners])
+            temp1.add_field(name="__Vainqueurs :__",value=temp[winners],inline=True)
+            temp1.add_field(name="Perdants :",value=temp[not(winners)],inline=True)
+            
+            if not(octogone):
+                gainExp, gainCoins, allOcta,gainMsg = 0,tour*10,True,""
+                for a in tablEntTeam[1]:
+                    if type(a.char) == octarien:
+                        gainExp += a.char.exp
+                    elif type(a.char) == tmpAllie:
+                        gainExp += 5
+                    else:
+                        allOcta = False
+
+                truc = 0
+                try:
+                    if winStreak > 7:
+                        truc = (winStreak-7) * 0.05
+                except:
+                    pass
+
+                multiStr,multi = "",max(1,8/len(team1)+truc)
+                if multi > 1:
+                    multiStr = f" *(bonus exp : + {int(multi*100-100)}%)*"
+
+                gainInit = str(gainExp)
+                gainExp = int(gainExp*multi)
+                if winners:
+                    gainInit = str(int(gainInit)//2)
+                    gainExp = gainExp//2
+                    gainCoins = gainCoins//2
+
+                gainMsg = f"Points d'expériences : {gainInit}{multiStr}\nPièces : {gainCoins}\n"
+
+                for a in tablEntTeam[0]: #Attribution de l'exp et loot
+                    if type(a.char) == char:
+                        path = absPath + "/userProfile/" + str(a.char.owner) + ".prof"
+                        temp = a.char
+                        a.char = await addExpUser(bot,guild,path,ctx,exp=gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1),coins=gainCoins)
+                        if a.char == None:
+                            temp.exp += gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
+                            temp.currencies += gainCoins
+                            a.char = temp
+                        if random.randint(0,99) < 20 and allOcta:
+                            drop = listAllBuyableShop[:]
+                            temp = drop[:]
+                            
+                            for b in drop:
+                                if a.char.have(obj=b):
+                                    temp.remove(b)
+
+                            if len(temp) > 0 and not(winners):
+                                rand = temp[random.randint(0,len(temp)-1)]
+                                newTemp = whatIsThat(rand)
+
+                                if newTemp == 0:
+                                    a.char.weaponInventory += [rand]
+                                elif newTemp == 1:
+                                    a.char.skillInventory += [rand]
+                                elif newTemp == 2:
+                                    a.char.stuffInventory += [rand]
+
+                                saveCharFile(path,a.char)
+                                gainMsg += f"{await getUserIcon(bot,a.char)} → {rand.emoji} {rand.name}\n"
+
+                            elif len(temp) == 0:
+                                print(f"{a.char.name} a looté un truc mais a déjà tout")
+
+                temp1.add_field(name="<:empty:866459463568850954>\n__Gains de l'équipe joueur :__",value = gainMsg,inline=False)
+        else:
+            temp1 = discord.Embed(title = "on_message",color=red,description="Une erreur est survenue :)\nUn rapport d'erreur n'a pas été envoyé")
+
+        if not(auto):
+            await turnMsg.delete()
+            if not(allAuto):
+                await choiceMsg.delete()
+            await msg.edit(embed = temp1,components=[])
+        else:
+            if slash:
+                msg = await ctx.send(embed = temp1,components=[])
+            else:
+                msg = await ctx.channel.send(embed = temp1,components=[])
+
+        # ------------ Succès -------------- #
+        if not(octogone):
+            isAlice = False
+            isClemence = False
+            isAkira = False
+            isGwen = False
+            isHelene = False
+
+            for a in [0,1]:
+                for b in tablEntTeam[a]:
+                    if type(b.char) == tmpAllie:
+                        if b.char.name == "Alice":
+                            isAlice = True
+                        elif b.char.name == "Clémence":
+                            isClemence = True
+                        elif b.char.name == "Akira":
+                            isAkira = True
+                        elif b.char.name in ["Gwendoline","Altikia","Klironovia"]:
+                            isGwen = True
+                        elif b.char.name == "Hélène":
+                            isHelene = True
+
+            for a in [0,1]:
+                for b in tablEntTeam[a]:
+                    if type(b.char) == char:
+                        achivements = achivement.getSuccess(b.char)
+                        if not(b.auto): # Ivresse du combat
+                            b.char = await achivements.addCount(ctx,b.char,"fight")
+
+                        if isAlice: # Souvenez vous que chaque roses a des épines
+                            b.char = await achivements.addCount(ctx,b.char,"alice")
+                        if isClemence: # La quête de la nuit
+                            b.char = await achivements.addCount(ctx,b.char,"clemence")
+                        if isAkira: # Seconde impression
+                            b.char = await achivements.addCount(ctx,b.char,"akira")
+                        if isGwen: # Une histoire de vangeance
+                            b.char = await achivements.addCount(ctx,b.char,"gwen")
+                        if isHelene: # Là où mes ailes me porteront
+                            b.char = await achivements.addCount(ctx,b.char,"helene")
+
+                        if auto and int(ctx.author.id) == int(b.char.owner): # Le temps c'est de l'argent
+                            b.char = await achivements.addCount(ctx,b.char,"quickFight")
+
+                        # Je ne veux pas d'écolière pour défendre nos terres
+                        b.char = await achivements.addCount(ctx,b.char,"school")
+
+                        # Elementaire
+                        if b.char.level >= 10:
+                            b.char = await achivements.addCount(ctx,b.char,"elemental")
+
+                        # Soigneur de compette
+                        b.char = await achivements.addCount(ctx,b.char,"greatHeal",b.stats.heals)
+
+                        # Situation désespérée
+                        if b.char.aspiration not in [ALTRUISTE,ERUDIT,IDOLE]:
+                            b.char = await achivements.addCount(ctx,b.char,"notHealBut",b.stats.heals)
+
+                        # La meilleure défense c'est l'attaque
+                        b.char = await achivements.addCount(ctx,b.char,"greatDps",b.stats.damageDeal-b.stats.indirectDamageDeal)
+
+                        # Notre pire ennemi c'est nous même
+                        b.char = await achivements.addCount(ctx,b.char,"poison",b.stats.indirectDamageDeal)
+
+                        saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
+
+        await msg.add_reaction(emoji.plus)
+        await msg.add_reaction('📄')
+        timeout = False
+        def checkIsPlusReact(reaction,user):
+            return user.id != bot.user.id and reaction.message.id == msg.id and (str(reaction) in [emoji.plus,'📄'])
+        while 1:
+            try:
+                react = await bot.wait_for("reaction_add",timeout=60,check=checkIsPlusReact)
+            except:
+                await msg.clear_reactions()
+                break
+
+            if str(react[0]) == '📄':
+                date = datetime.datetime.now()
+                date = date.strftime("%H_%M")
+                fich = open("./data/{0}_{1}.txt".format(ctx.author.name,date),"w")
+                if not(isLenapy):
+                    fich.write(logs.replace('\u2192','prohibited'))
+                else:
+                    fich.write(logs)
+                fich.close()
+                opened = open("./data/{0}_{1}.txt".format(ctx.author.name,date),"rb")
+                if slash:
+                    await msg.channel.send("Voici les logs du combat :",file=discord.File(fp=opened))
+
+                opened.close()
+                os.remove("./data/{0}_{1}.txt".format(ctx.author.name,date))
+                await msg.clear_reaction('📄')
+
+            elif str(react[0]) == emoji.plus:
+                await msg.clear_reaction('📄')
+                if not(slash):
+                    msgStats = await loadingEmbed(ctx)
+                else:
+                    msgStats = await loadingSlashEmbed(ctx)
+
+                tablReaction = ['⏪',emoji.backward_arrow,emoji.forward_arrow,'⏩']
+                actuTeam = 0
+                actuEntity = 0
+                def checkIsReact(reaction,user):
+                    temp = False
+                    for a in tablReaction:
+                        if str(reaction)==a:
+                            temp=True
+                            break
+                    return user != bot.user and reaction.message == msgStats and temp
+    
+                while 1: # Tableau des statistiques
+                    actu = tablEntTeam[actuTeam][actuEntity]
+                    stats = actu.stats
+
+                    if type(actu.char) == char:
+                        userIcon = await getUserIcon(bot,actu.char)
+                    else:
+                        userIcon = actu.char.icon
+
+                    statsEm = discord.Embed(title = "__Statistiques de "+ userIcon +" "+actu.char.name+"__",color=actu.char.color)
+                    ballerine =[[stats.ennemiKill,stats.damageDeal,stats.indirectDamageDeal,stats.damageOnShield,stats.damageBoosted],[stats.allieResurected,stats.heals,stats.damageDogded,stats.shieldGived],[stats.survival,stats.damageRecived,round(stats.shootHited/stats.totalNumberShot*100),round(stats.dodge/stats.numberAttacked*100),round(stats.crits/stats.totalNumberShot*100)]]
+                    babie = [["Ennemis tués :","Dégâts infligés :","Dont indirects :","Dégâts sur armure :","Dégâts Boostés :"],["Alliés ressucités :","Soins effectués :","Dégâts réduits :","Armure fournie :"],["Tours survécus :","Dégâts reçus :","Taux de précision : ","Taux d'esquive :","Taux de coup critique :"]]
+                    sneaker = ["__Stats offensives__","__Stats altruistes__","__Stats personnels__"]
+                    for a in [0,1,2]:
+                        statMsg = ""
+                        for b in range(0,len(ballerine[a])):
+                            temp = "**"
+                            purcent = ""
+                            if babie[a][b].startswith("Taux"):
+                                purcent = " %"
+                            if ballerine[a][b] == 0:
+                                temp =""
+                            statMsg += f"\n{babie[a][b]} {temp}{str(ballerine[a][b])}{temp}{purcent}"
+                        statsEm.add_field(name=sneaker[a],value=statMsg+"\n<:empty:866459463568850954>",inline = False)
+                    await msgStats.edit(embed = statsEm)
+
+                    for a in tablReaction:
+                        await msgStats.add_reaction(a)
+
+                    try:
+                        react = await bot.wait_for("reaction_add",timeout = 60,check = checkIsReact)
+                        reaction = react
+                    except:
+                        break
+
+                    for a in [0,1,2,3]:
+                        if str(react[0]) == tablReaction[a]:
+                            react = a
+                            break
+
+                    if react == 0:
+                        actuTeam,actuEntity = 0,0
+                    elif react == 1:
+                        if actuEntity == 0:
+                            actuTeam = int(not(actuTeam))
+                            actuEntity = len(tablEntTeam[actuTeam])-1
+                        else:
+                            actuEntity -= 1
+                    elif react == 2:
+                        if actuEntity == len(tablEntTeam[actuTeam])-1:
+                            actuTeam = int(not(actuTeam))
+                            actuEntity = 0
+                        else:
+                            actuEntity += 1
+                    elif react == 3:
+                        actuTeam,actuEntity = 1,0
+                
+                    await msgStats.remove_reaction(str(reaction[0]),reaction[1])
+
+                break
+                await msgStats.clear_reactions()
+        
+        await msg.clear_reactions()
+        try:
+            await msgStats.clear_reations()
+        except:
+            pass

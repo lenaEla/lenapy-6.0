@@ -256,27 +256,27 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                         await msg.edit(embed= repEmb, components=[create_actionrow(buttonReturn),create_actionrow(select)])
 
                         respond = await wait_for_component(bot,components=[buttonReturn,select],timeout = 60)
-                        try:
-                            for a in teamMember:
-                                if a.owner == respond.values[0]:
-                                    try:
-                                        try:
-                                            temp = await respond.send("Envoie du cadeau...")
-                                        except:
-                                            temp = await initMsg.channel.send("Envoie du cadeau...")
-                                        a.skillInventory += [arm]
-                                        user.currencies = user.currencies - arm.price
-                                        saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
+                        #try:
+                        for a in teamMember:
+                            if a.owner == respond.values[0]:
+                                #try:
+                                try:
+                                    temp = await respond.send("Envoie du cadeau...")
+                                except:
+                                    temp = await initMsg.channel.send("Envoie du cadeau...")
+                                a.skillInventory += [arm]
+                                user.currencies = user.currencies - arm.price
+                                saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
 
-                                        dest = await bot.fetch_user(a.owner)
-                                        await dest.send(embed = discord.Embed(title="Livraison :",description = "Vous avez reçu l'objet __{0}__ de la part de {1}".format(arm.name,user.name),color = a.color))
-                                        await temp.delete()
-                                        await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
-                                    except:
-                                        await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
-                                    break
-                        except:
-                            await msg.delete()
+                                dest = await bot.fetch_user(a.owner)
+                                await dest.send(embed = discord.Embed(title="Livraison :",description = "Vous avez reçu l'objet __{0}__ de la part de {1}".format(arm.name,user.name),color = a.color))
+                                await temp.delete()
+                                await msg.edit(embed = discord.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [create_actionrow(getChoisenSelect(select,respond.values[0]))],delete_after=5)
+                                #except:
+                                    #await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
+                                break
+                        #except:
+                            #await msg.delete()
                     elif rep.custom_id == "-1":
                         await msg.delete()
 
@@ -368,11 +368,6 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             await msg.edit(embed = errorEmbed("shop","Une erreur s'est produite"))
 
                     elif rep.custom_id == "1":
-                        team = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
-                        teamMember = []
-                        for a in team:
-                            teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
-
                         options = []
                         for a in teamMember:
                             if arm not in a.otherInventory and a.owner != user.owner:
