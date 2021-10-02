@@ -164,7 +164,7 @@ class skill:
                 cmpt+=1
 
             if self.condition[0] == 0:
-                listExclu = ["weapon","aspiration"]
+                listExclu = ["weapon","aspiration","element"]
                 cmpt = 0
                 for a in listExclu:
                     if conditionType[1] == a:
@@ -199,18 +199,22 @@ class skill:
         """Verify if the User have the conditions to equip the skill"""
         if self.condition != []:
             conds = self.condition
-            if conds[0] == 0:
-                if conds[1] == 0:
+            if conds[0] == 0: # Reject
+                if conds[1] == 0: # Conds Weapon
                     if user.weapon != findWeapon(conds[2]):
                         return False
-                else:
+                elif conds[1] == 1: # Conds Aspi
                     if user.aspiration != conds[2]:
                         return False
-            elif conds[0] == 1:
+                elif conds[1] == 2: #Conds Elem
+                    if user.element != conds[2]:
+                        return False
+
+            elif conds[0] == 1: 
                 userstats = user.allStats()
                 if userstats[conds[1]] < conds[2]:
                     return False
-            elif conds[0] == 2:
+            elif conds[0] == 2: # Reject
                 if conds[1] == 0:
                     if user.weapon == findWeapon(conds[2]):
                         return False
@@ -262,7 +266,7 @@ class stuff:
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0,emoji=[['<:ink1buff:866828199156252682>','<ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octariandebuff:866828390853247006>']],overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0,emoji=[['<:ink1buff:866828199156252682>','<:ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octariandebuff:866828390853247006>']],overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False):
         """rtfm"""
         self.name = name
         self.id = id

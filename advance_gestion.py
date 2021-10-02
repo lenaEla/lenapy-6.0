@@ -49,68 +49,94 @@ def visuArea(area,wanted,ranged=True):
         def getArea(self,area=AREA_MONO,team=0):
             rep = []
 
-            tablArea = [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7]
-            for a in tablArea:
-                if area == a:
-                    for b in tablAllCells:
-                        if self.distance(cell=b) <= a:
+            # Circles
+            if area in [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7]:
+                dist = area
+                if area > AREA_CIRCLE_7:
+                    if area <= AREA_DONUT_7:
+                        dist -= AREA_DONUT_1-1
+                    elif area <= AREA_DIST_7:
+                        dist -= AREA_DIST_3-3
+
+                for a in tablAllCells:
+                    if self.distance(cell=a) <= dist:
+                        rep.append(a)
+
+                if area > AREA_CIRCLE_7 and area <= AREA_DONUT_7: # If donut, remove the center
+                    rep.remove(self)
+                elif area > AREA_DONUT_7 and area <= AREA_DIST_7: # If dist only, remove melee
+                    for a in rep[:]:
+                        if self.distance(cell=a) <= 2:
+                            rep.remove(a)
+
+            elif area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
+
+                for b in tablAllCells:
+                    if b.on != None:
+                        if a == AREA_ALL_ALLIES and b.on.team == team:
+                            rep+=[b]
+                        elif a == AREA_ALL_ENNEMIES and b.on.team != team:
+                            rep+=[b]
+                        elif a == AREA_ALL_ENTITES:
                             rep+=[b]
 
-            tablArea = [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]
-            for a in tablArea:
-                if a == area:
-                    for b in tablAllCells:
-                        if b.on != None:
-                            if a == AREA_ALL_ALLIES and b.on.team == team:
-                                rep+=[b]
-                            elif a == AREA_ALL_ENNEMIES and b.on.team != team:
-                                rep+=[b]
-                            elif a == AREA_ALL_ENTITES:
-                                rep+=[b]
+            elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
+                start,yDiff,xMax = self.x,0,area-10
+                areaTabl = []
 
-            tablArea = [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]
-            for a in tablArea:
-                if area == a:
-                    start,yDiff,xMax = self.x,0,area-10
-                    areaTabl = []
+                if team==0:
+                    ite = 0
+                    while start <= 5 and ite <= xMax:
+                        for y in range(0,yDiff+1):
+                            if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
+                                areaTabl.append(findCell(start,self.y+y))
+                            if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
+                                areaTabl.append(findCell(start,self.y-y))
+                        start += 1
+                        yDiff += 1
+                        ite+=1
+                else:
+                    ite = 0
+                    while start >= 0 and ite <= xMax:
+                        for y in range(0,yDiff+1):
+                            if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
+                                areaTabl.append(findCell(start,self.y+y))
+                            if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
+                                areaTabl.append(findCell(start,self.y-y))
+                        start -= 1
+                        yDiff += 1
+                        ite+=1
 
-                    if team==0:
-                        ite = 0
-                        while start <= 5 and ite <= xMax:
-                            for y in range(0,yDiff+1):
-                                if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
-                                    areaTabl.append(findCell(start,self.y+y))
-                                if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
-                                    areaTabl.append(findCell(start,self.y-y))
-                            start += 1
-                            yDiff += 1
-                            ite+=1
-                    else:
-                        ite = 0
-                        while start >= 0 and ite <= xMax:
-                            for y in range(0,yDiff+1):
-                                if findCell(start,self.y+y) not in areaTabl and findCell(start,self.y+y) != None:
-                                    areaTabl.append(findCell(start,self.y+y))
-                                if findCell(start,self.y-y) not in areaTabl and findCell(start,self.y-y) != None:
-                                    areaTabl.append(findCell(start,self.y-y))
-                            start -= 1
-                            yDiff += 1
-                            ite+=1
+                return areaTabl
 
-                    return areaTabl
-
-            if area in [17,18,19,20,21]: # Lignes
+            elif area in [17,18,19,20,21]: # Lines
                 for a in tablAllCells:
                     if self.y == a.y and abs(a.x - self.x) <= area-16:
                         rep.append(a)
 
-            if area==AREA_MONO:
-                return [self]
-            return rep
+            elif area in [AREA_ARC_1,AREA_ARC_2,AREA_ARC_3]: # Arcs
+                cmptx = 1
+                while cmptx < area - 32:
+                    if team == 0:
+                        cell1 = findCell(self.x-cmptx,self.y-cmptx)
+                        if cell1 != None:
+                            rep.append(cell1)
+                        cell2 = findCell(self.x-cmptx,self.y+cmptx)
+                        if cell2 != None:
+                            rep.append(cell2)
+                    if team == 1:
+                        cell1 = findCell(self.x+cmptx,self.y-cmptx)
+                        if cell1 != None:
+                            rep.append(cell1)
+                        cell2 = findCell(self.x+cmptx,self.y+cmptx)
+                        if cell2 != None:
+                            rep.append(cell2)
+                    cmptx+=1
+                rep.append(self)
 
-            if area==AREA_MONO:
-
+            elif area==AREA_MONO:
                 return [self]
+            
             return rep
 
     def findCell(x,y):
@@ -129,9 +155,9 @@ def visuArea(area,wanted,ranged=True):
     visibleCell = findCell(2,2)
     if not(ranged):
         visibleCell = findCell(3,2)
-    elif AREA_CIRCLE_4 == area:
+    elif area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
         visibleCell = findCell(1,2)
-    elif AREA_CIRCLE_5 == area or AREA_CIRCLE_6 == area or AREA_CIRCLE_7 == area:
+    elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
         visibleCell = findCell(0,2)
 
     visibleArea = visibleCell.getArea(area=area)
@@ -151,10 +177,16 @@ def visuArea(area,wanted,ranged=True):
     if ranged:
         lines[visibleCell.y][visibleCell.x] = "<:ikaWhite:871149538554044466>"
     else:
-        if wanted==ENNEMIS:
-            lines[2][3] = "<:ikaRedTargeted2:873118129541238814>"
+        if findCell(3,2) in visibleArea: 
+            if wanted==ENNEMIS:
+                lines[2][3] = "<:ikaRedTargeted2:873118129541238814>"                       # Memo : Lines[y][x]
+            else:    
+                lines[2][3] = '<:ikaLBTargeted1:873118128958214166>'
         else:
-            lines[2][3] = '<:ikaLBTargeted1:873118128958214166>'
+            if wanted==ENNEMIS:
+                lines[2][3] = '<:ikaRed:866459224664702977>'
+            else:
+                lines[2][3] = '<:ikaLBlue:866459302319226910>'
     
 
     temp = ""
@@ -165,7 +197,7 @@ def visuArea(area,wanted,ranged=True):
 
     return temp
 
-def infoEffect(effId,user,embed,ctx):
+def infoEffect(effId,user,embed,ctx,self=False):
     effTmp,boucle,iteration ="",True,False
     while boucle:
         eff = findEffect(effId)
@@ -233,7 +265,10 @@ def infoEffect(effId,user,embed,ctx):
                         break
             break
         else:
-            embed.add_field(name = "**__Effet :__**",value = effTmp,inline = False)
+            if not(self):
+                embed.add_field(name = "<:empty:866459463568850954>\n**__Effet :__**",value = effTmp,inline = False)
+            else:
+                embed.add_field(name = "<:empty:866459463568850954>\n**__Effet sur soi :__**",value = effTmp,inline = False)
             if eff.area != AREA_MONO:
                 ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
                 for a in ballerine:
@@ -269,14 +304,19 @@ def infoSkill(skill,user,ctx):
         else:
             temp += f"\nCette compétence se lance sur **soi-même**"
         
-        if skil.use != STRENGTH :
-            temp += f"\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
+        if skil.use != STRENGTH:
+            if skil.use not in [None,HARMONIE]:
+                temp += f"\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
+            elif skil.use == None:
+                temp += f"\nCette compétence inflige un montant **fixe** de dégâts"
+            elif skil.use == HARMONIE:
+                temp += f"\nCette compétence utilise la statistique d'**Harmonie**"
 
     else:
         temp+=tablTypeStr[skil.type]
 
         if skil.description != None:
-            temp += "\n"+skil.description
+            temp += "\n"+skil.description+"\n"
 
         if skil.type == TYPE_HEAL:
             temp+="\nPuissance : {0}\nUtilise : {1}".format(skil.power,nameStats[skil.use])
@@ -324,6 +364,8 @@ def infoSkill(skill,user,ctx):
                 temp += "l'arme "+findWeapon(skil.condition[2]).name+"**"
             elif skil.condition[1] == 1:
                 temp += "l'aspiration **"+inspi[skil.condition[2]]+"**"
+            elif skil.condition[1] == 2:
+                temp += "l'élément **"+elemNames [skil.condition[2]]+"**"
         elif skil.condition[0] == 1:
             temp += f"nécessite que la statistique **{nameStats[skil.condition[1]]}** du personnage soit à **{skil.condition[2]}**"
         elif skil.condition[0] == 2:
@@ -351,7 +393,6 @@ def infoSkill(skill,user,ctx):
                 repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ENNEMIS))
                 break
 
-
     if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENNEMIES and skil.area != AREA_ALL_ENTITES:
         ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
         for a in ballerine:
@@ -367,6 +408,9 @@ def infoSkill(skill,user,ctx):
     if skil.effect != [None]:
         for a in skil.effect:
             repEmb = infoEffect(a,user,repEmb,ctx)
+
+    if skil.effectOnSelf != None:
+        repEmb = infoEffect(skil.effectOnSelf,user,repEmb,ctx,True)
 
     if skil.invocation != None:
         repEmb = infoInvoc(findInvoc(skil.invocation),repEmb)
@@ -511,6 +555,14 @@ def restats(user):
 
     return userMajStats(user,stats)
 
+def silentRestats(user):
+    stats = user.allStats()
+    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel]
+    for a in range(0,len(stats)):
+        stats[a] = round(allMax[a][user.aspiration]*0.1+allMax[a][user.aspiration]*0.9*user.level/50)+user.bonusPoints[a]
+
+    return userMajStats(user,stats)
+
 async def addExpUser(bot,guild,path,ctx,exp = 3,coins = 0):
     user = quickLoadCharFile(path)
 
@@ -595,6 +647,7 @@ async def downloadAllHeadGearPng(bot):
                     guild = await bot.fetch_guild(b)
                     emoji_2 = await guild.fetch_emoji(emojiObject[1])
                 except:
+
                     pass
 
             if emoji_2 != None:

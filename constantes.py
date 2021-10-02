@@ -8,28 +8,43 @@ import os
 
 #Constantes :
 # Area of effects
-AREA_MONO = 0
-AREA_CIRCLE_1 = 1
+AREA_MONO = 0 # Caster only
+AREA_CIRCLE_1 = 1 # Circles (target include)
 AREA_CIRCLE_2 = 2
 AREA_CIRCLE_3 = 3
 AREA_CIRCLE_4 = 4
 AREA_CIRCLE_5 = 5
 AREA_CIRCLE_6 = 6
 AREA_CIRCLE_7 = 7
-AREA_ALL_ALLIES = 8
-AREA_ALL_ENNEMIES = 9
-AREA_ALL_ENTITES = 10
-AREA_CONE_2 = 11
+AREA_ALL_ALLIES = 8 # All allies
+AREA_ALL_ENNEMIES = 9 # All ennemies
+AREA_ALL_ENTITES = 10 # All
+AREA_CONE_2 = 11 # Cones
 AREA_CONE_3 = 12
 AREA_CONE_4 = 13
 AREA_CONE_5 = 14
 AREA_CONE_6 = 15
 AREA_CONE_7 = 16
-AREA_LINE_2 = 17
+AREA_LINE_2 = 17 # Lines from target
 AREA_LINE_3 = 18
 AREA_LINE_4 = 19
 AREA_LINE_5 = 20
 AREA_LINE_6 = 21
+AREA_DONUT_1 = 22 # Circles (target exclude)
+AREA_DONUT_2 = 23
+AREA_DONUT_3 = 24
+AREA_DONUT_4 = 25
+AREA_DONUT_5 = 26
+AREA_DONUT_6 = 27
+AREA_DONUT_7 = 28
+AREA_DIST_3 = 29 # Circles (Must be > 2)
+AREA_DIST_4 = 30
+AREA_DIST_5 = 31
+AREA_DIST_6 = 32
+AREA_DIST_7 = 33
+AREA_ARC_1 = 34 # Arc
+AREA_ARC_2 = 35
+AREA_ARC_3 = 36
 
 # Weapon's range
 RANGE_MELEE = 0
@@ -101,7 +116,7 @@ inspi = ["Berserkeur","Observateur","Poids plume","Idole","Erudit","Tête brulé
 ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0,1,2,3,4
 
 # Selected options for fight
-OPTION_SKIP,OPTION_WEAPON,OPTION_MOVE,OPTION_SKILL = 0,1,2,3
+OPTION_WEAPON,OPTION_SKILL,OPTION_MOVE,OPTION_SKIP = 0,1,2,3
 
 # Genders. 2 for default
 GENDER_MALE, GENDER_FEMALE, GENDER_OTHER = 0,1,2
@@ -118,7 +133,77 @@ colorChoice = ["Rouge","Orange","Jaune","Vert","Bleu Clair","Bleu","Violet","Ros
 
 # Aspiration's max stats
 # Refert to Aspiration's constants value
-maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel = [50,40,10,15,25,35,25,15,30],[60,20,15,15,30,35,35,35,30],[30,25,25,55,20,25,30,45,30],[15,25,65,25,20,30,30,35,30],[20,35,35,30,35,35,25,20,30],[5,35,30,40,50,20,35,30,30]
+maxStrength = [
+    50, # Ber
+    50, # Obs
+    30, # Poi
+    15, # Ido
+    25, # Eru
+    45, # Tet
+    25, # Omae wa mou shinderu
+    15, # Alt
+    35  # Ave
+]
+
+maxEndur = [
+    60, # Ber
+    20, # Obs
+    20, # Poi
+    15, # Ido
+    30, # Eru
+    45, # Tet
+    35, # Nani
+    45, # Alt
+    30  # Ave
+]
+
+maxChar = [
+    30, # Ber
+    35, # Obs
+    25, # Poi
+    55, # Ido
+    35, # Eru
+    25, # Tet
+    30, # Ohoh
+    55, # Alt
+    30  # Ave
+]
+
+maxAgi = [
+    15, # Ber
+    25, # Obs
+    65, # Poi
+    30, # Ido
+    25, # Eru
+    25, # Tet
+    30, # You dare approche me
+    35, # Alt
+    35  # Ave
+]
+
+maxPreci = [
+    30, # Ber
+    35, # Obs
+    35, # Poi
+    30, # Ido
+    35, # Eru
+    25, # Tet
+    25, # Insted of running away form me
+    20, # Alt
+    35  # Ave
+]
+
+maxIntel = [
+    15,  # Ber
+    35, # Obs
+    30, # Poi
+    50, # Ido
+    50, # Eru
+    35, # Tet
+    35, # I can't beet yout shit without be any closer
+    30, # Alt
+    35  # Ave
+]
 
 # Constants for "orientation" field for skills
 TANK,DISTANCE,LONG_DIST = "Tank","Distance","Longue Distance"

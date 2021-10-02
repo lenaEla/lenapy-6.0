@@ -95,17 +95,18 @@ async def elements(bot : discord.client, ctx : discord.message, msg : discord.me
 
 async def inventory(bot : discord.client, ctx : discord.message, args : list,slashed = None):
     """Commande d'inventaire d'un personnage"""
-    
+    msg = None
     def checkIsAuthor(message):
         return message.author.id == ctx.author.id and message.channel.id == ctx.channe.id
 
-    if slashed != None:
+    if args[1] != None:
         ctx.mentions = [slashed[1]]
-
-    if ctx.mentions == [] or ctx.mentions == [None]:
-        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    else:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
+    else:
+        ctx.mentions = []
+        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+
+    args.remove(args[1])
 
     def checkIsAuthorReact(reaction,user):
         return user == ctx.author and int(reaction.message.id) == int(msg.id)
@@ -120,36 +121,18 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
         if ctx.mentions != [] and ctx.mentions != [None]:
             if ctx.author.id not in user.procuration:
                 okForCommand = False
-            else:
-                args.remove(args[1])
 
         if okForCommand:
             if args[1] == None:
-                if slashed == None:
-                    actionrow = create_actionrow(inventoryMenu)
-                    embed = discord.Embed(title = args[0],color=user.color,description="Dans quel inventaire voulez vous aller ?")
-                    msgOrigine = await ctx.channel.send(embed=embed,components=[actionrow])
-
-                    on = True
-                    try:
-                        menuSelect = await wait_for_component(bot, components=inventoryMenu, timeout = 60,check=check)
-                        actionrow = create_actionrow(getChoisenSelect(inventoryMenu,menuSelect.values[0]))
-                        state = int(menuSelect.values[0])
-                    except:
-                        actionrow = timeoutSelect
-                        on = False
-
-                    await msgOrigine.edit(embed=embed,components=[actionrow])
-                else:
-                    menuSelect = ctx
-                    state = slashed[0]
-                    on = True
+                menuSelect = ctx
+                state = slashed[0]
+                on = True
                 
                 if on:
-                    if slashed == None:
-                        msg = await menuSelect.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
-                    else:
+                    try:
                         msg = await ctx.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
+                    except:
+                        msg = await ctx.channel.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
                     page=0
                     while 1:
                         if state == 0:
@@ -227,8 +210,6 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             try:
                                 args[1] = respond.values[0]
                                 args += [None]
-                                await msg.delete()
-                                await msgOrigine.delete()
                                 break
                             except:
                                 pass
@@ -259,7 +240,10 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     pass
 
                             for a in listOfSkills:
-                                temp += f"{ a.emoji} {a.name} ({a.id})\n"
+                                conds = ""
+                                if not(a.havConds(user)):
+                                    conds = "`"
+                                temp += f"{a.emoji} {conds}{a.name} ({a.id}){conds}\n"
 
                             temp += f"\nPage **{page+1}** sur {maxPage+1}"
                             
@@ -317,8 +301,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             try:
                                 args[1] = respond.values[0]
                                 args += [None]
-                                await msg.delete()
-                                await msgOrigine.delete()
+
                                 break
                             except:
                                 pass
@@ -401,8 +384,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             try:
                                 args[1] = respond.values[0]
                                 args += [None]
-                                await msg.delete()
-                                await msgOrigine.delete()
+
                                 break
                             except:
                                 pass
@@ -432,12 +414,13 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                         args[1] += " "+args[a]
             
             if args[1] != None:
+                if msg == None:
+                    try:
+                        msg = await ctx.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
+                    except:
+                        msg = await ctx.channel.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
                 inv = whatIsThat(args[1])
                 if inv != None:
-                    if slashed==None:
-                        msg = await loadingEmbed(ctx)
-                    else: 
-                        msg = await loadingSlashEmbed(ctx)
                     if inv == 0: # Weapon
                         weap = findWeapon(args[1])
                         repEmb = infoWeapon(weap,user,ctx)
@@ -493,14 +476,14 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cette compétence")
-                            await msg.edit(embed = emb)
+                            await msg.edit(embed = emb,components=[])
 
                         elif ballerine:
                             emb.set_footer(text = "Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?")
-                            await msg.edit(embed = emb)
+                            await msg.edit(embed = emb,components=[])
                             await msg.add_reaction(emoji.check)
                             def checkisReaction(reaction, user):
-                                return user == ctx.author and reaction.message == msg
+                                return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id)
 
                             react = None
                             try:
@@ -520,7 +503,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         elif not(weap.havConds(user=user)):
                             emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
-                            await msg.edit(embed = emb)
+                            await msg.edit(embed = emb,components=[])
 
                         else:
                             hasUltimate=False
@@ -588,15 +571,15 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cet équipement")
-                            await msg.edit(embed = emb)
+                            await msg.edit(embed = emb,components=[])
 
                         elif weap == user.stuff[weap.type]:
                             emb.set_footer(text = "Vous portez cet équipement")
-                            await msg.edit(embed = emb)
+                            await msg.edit(embed = emb,components=[])
 
                         else:
                             emb.set_footer(text = "Cliquez sur l'icone de l'équipement pour l'équiper")
-                            await msg.edit(embed = emb)
+                            await msg.edit(embed = emb,components=[])
                             await msg.add_reaction(weap.emoji)
 
                             def checkisReaction(reaction, user):
