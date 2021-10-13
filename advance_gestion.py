@@ -1,8 +1,9 @@
-import os,discord,emoji,copy
+import os,discord,emoji,copy,requests,io
 from classes import *
 from gestion import *
 from adv import *
 from discord_slash.utils.manage_components import *
+from PIL import Image
 
 
 timeoutSelect = create_select(
@@ -70,14 +71,13 @@ def visuArea(area,wanted,ranged=True):
                             rep.remove(a)
 
             elif area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
-
                 for b in tablAllCells:
                     if b.on != None:
-                        if a == AREA_ALL_ALLIES and b.on.team == team:
+                        if area == AREA_ALL_ALLIES and b.on.team == team:
                             rep+=[b]
-                        elif a == AREA_ALL_ENNEMIES and b.on.team != team:
+                        elif area == AREA_ALL_ENNEMIES and b.on.team != team:
                             rep+=[b]
-                        elif a == AREA_ALL_ENTITES:
+                        elif area == AREA_ALL_ENTITES:
                             rep+=[b]
 
             elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
@@ -217,8 +217,12 @@ def infoEffect(effId,user,embed,ctx,self=False):
         Powa = ""
         if eff.power > 0:
             Powa = "\nPuissance : "+str(max(eff.power,eff.overhealth))
-        effTmp+=f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\nDurée : {tamp}\nStatistique prise en compte : **{Stat}**{Powa}\n"
-        stats = [eff.strength,eff.endurance,eff.charisma,eff.agility,eff.precision,eff.intelligence,eff.resistance,eff.percing,eff.critical,eff.overhealth,eff.redirection]
+        
+        cumu = ""
+        if eff.stackable:
+            cumu = "\nCet effet est __cumulable__"
+        effTmp+=f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\nDurée : {tamp}\nStatistique prise en compte : **{Stat}**{Powa}{cumu}\n"
+        stats = eff.allStats()+[eff.resistance,eff.percing,eff.critical,eff.overhealth,eff.redirection]
         names = nameStats+nameStats2+["Armure","Redirection"]
         for a in range(len(stats)):
             if stats[a] > 0:
@@ -296,13 +300,13 @@ def infoSkill(skill,user,ctx):
             temp +=  "Monocible\n"
         else:
             temp += "Dégâts de zone\n"
-
-        portee = skil.range
-        if skill.range != AREA_MONO:
-            temp += f"Portée : {skil.range}\n"
-
-        else:
+        
+        if skil.range == AREA_MONO:
             temp += f"\nCette compétence se lance sur **soi-même**"
+
+        if skil.onArmor != 1:
+            temp += "\nDégâts sur armure : **{0}%**".format(skil.onArmor*100)
+        
         
         if skil.use != STRENGTH:
             if skil.use not in [None,HARMONIE]:
@@ -418,7 +422,7 @@ def infoSkill(skill,user,ctx):
 
 def infoWeapon(weapon,user,ctx):
     weap = weapon
-    repEmb = discord.Embed(title = weap.name,color = user.color, description = f"Icone : {weap.emoji}")
+    repEmb = discord.Embed(title = unhyperlink(weap.name),color = user.color, description = f"Icone : {weap.emoji}")
     portee = weap.range
     if portee == 0:
         portee = "Mêlée"
@@ -451,7 +455,7 @@ def infoWeapon(weapon,user,ctx):
     repEmb.add_field(name = "__Informations Principales :__",value = f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__{tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}\n__Précision par défaut :__ {weap.sussess}%\n__Nombre de tirs :__ {weap.repetition}\n<:empty:866459463568850954>")
     repEmb.add_field(name="__Statistiques secondaires :__",value=f'{element}{info}\n<:empty:866459463568850954>',inline=True)
     bonus,malus = "",""
-    stats = [weap.strength,weap.endurance,weap.charisma,weap.agility,weap.precision,weap.intelligence,weap.resistance,weap.percing]
+    stats = weap.allStats()+[weap.resistance,weap.percing,weap.critical]
     names = nameStats+nameStats2
     for a in range(len(stats)):
         if stats[a] > 0:
@@ -515,7 +519,7 @@ def infoStuff(stuff,user,ctx):
     repEmb = discord.Embed(title = weap.name,color = user.color, description = f"Icone : {weap.emoji}\nType : {temp}\nOrientation : {weap.orientation}{element}")
 
     bonus,malus = "",""
-    stats = [weap.strength,weap.endurance,weap.charisma,weap.agility,weap.precision,weap.intelligence,weap.resistance,weap.percing]
+    stats = weap.allStats()+[weap.resistance,weap.percing]
     names = nameStats+nameStats2
     for a in range(len(stats)):
         if stats[a] > 0:
@@ -541,23 +545,23 @@ def infoOther(other,user):
     return repEmb
 
 def userMajStats(user,tabl):
-    user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence = tabl[0],tabl[1],tabl[2],tabl[3],tabl[4],tabl[5]
+    user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie = tabl[0],tabl[1],tabl[2],tabl[3],tabl[4],tabl[5],tabl[6]
     return user
 
 def restats(user):
     stats = user.allStats()
-    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel]
+    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
     for a in range(0,len(stats)):
         stats[a] = round(allMax[a][user.aspiration]*0.1+allMax[a][user.aspiration]*0.9*user.level/50)
 
     user.points = user.level
-    user.bonusPoints = [0,0,0,0,0,0]
+    user.bonusPoints = [0,0,0,0,0,0,0]
 
     return userMajStats(user,stats)
 
 def silentRestats(user):
     stats = user.allStats()
-    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel]
+    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
     for a in range(0,len(stats)):
         stats[a] = round(allMax[a][user.aspiration]*0.1+allMax[a][user.aspiration]*0.9*user.level/50)+user.bonusPoints[a]
 
@@ -595,17 +599,15 @@ async def addExpUser(bot,guild,path,ctx,exp = 3,coins = 0):
         perso.points = perso.points + 1
 
         temp = perso.allStats()
-        up,bonus = [0,0,0,0,0,0],[0,0,0,0,0,0]
-        tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel]
+        up,bonus = [0,0,0,0,0,0,0],[0,0,0,0,0,0,0]
+        tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
         stats = perso.allStats()
         for a in range(0,len(stats)):
             stats[a] = round(tabl[a][perso.aspiration]*0.1+tabl[a][perso.aspiration]*0.9*perso.level/50+perso.bonusPoints[a])
-            bonus[a] = perso.bonusPoints[a]
             temp[a] = round(tabl[a][perso.aspiration]*0.1+tabl[a][perso.aspiration]*0.9*(perso.level+1)/50+perso.bonusPoints[a])
             up[a] = temp[a]-stats[a]
 
-
-        perso.strength, perso.endurance, perso.charisma, perso.agility, perso.precision, perso.intelligence = temp[0]+bonus[0],temp[1]+bonus[1],temp[2]+bonus[2],temp[3]+bonus[3],temp[4]+bonus[4],temp[5]+bonus[5]
+        perso.strength, perso.endurance, perso.charisma, perso.agility, perso.precision, perso.intelligence, perso.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
 
         ballerine = await bot.fetch_user(perso.owner)
         lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = perso.color,description = f"Le personnage de {ballerine.mention} ({perso.name}) a gagné un niveau !\n\nForce : {perso.strength} (+{up[0]})\nEndurance : {perso.endurance} (+{up[1]})\nCharisme : {perso.charisma} (+{up[2]})\nAgilité : {perso.agility} (+{up[3]})\nPrécision : {perso.precision} (+{up[4]})\nIntelligence : {perso.intelligence} (+{up[5]})\n\nVous avez {perso.points} bonus à répartir en utilisant la commande \"points\".")
@@ -786,6 +788,8 @@ async def makeCustomIcon(bot,user):
     elif pos == 3:
         accessoire = accessoire.rotate(30)
         position = (round(background.size[0]*0.28-accessoire.size[0]/2+8),13)
+    elif pos == 4:
+        position = (round(background.size[0]*0.25-accessoire.size[0]/2),75)
 
     # Collage de l'accessoire
     background.paste(accessoire,position,accessoire)
@@ -866,7 +870,7 @@ def infoAllie(allie):
     if allie.variant:
         var = "Cet allié temporaire est une variante d'un autre allié temporaire\n\n"
     rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]}\n__Description :__\n{allie.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
-    allMaxStats, accStats, dressStats, flatsStats = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel],allie.stuff[0].allStats(),allie.stuff[1].allStats(),allie.stuff[2].allStats()
+    allMaxStats, accStats, dressStats, flatsStats = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie],allie.stuff[0].allStats(),allie.stuff[1].allStats(),allie.stuff[2].allStats()
     for a in range(0,len(allMaxStats)):
         temp,tempi = allMaxStats[a][allie.aspiration],accStats[a]+dressStats[a]+flatsStats[a]
         rep += f"\n__{nameStats[a]}__ : {temp} ({tempi})"

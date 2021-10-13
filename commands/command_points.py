@@ -30,8 +30,8 @@ async def points(bot : discord.client, ctx : discord.message, args : [str], proc
                 def check(m):
                     return m.author_id == ctx.author.id and int(m.origin_message.id) == int(msg.id)
 
-                choiceStat = ["Force","Endurance","Charisme","Agilité","Précision","Intelligence"]
-                tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel]
+                choiceStat = nameStats
+                tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
                 temp = user.allStats()
 
                 msgTemp = "\n"
@@ -47,7 +47,8 @@ async def points(bot : discord.client, ctx : discord.message, args : [str], proc
                         create_select_option("Charisme","2"),
                         create_select_option("Agilité","3"),
                         create_select_option("Précision","4"),
-                        create_select_option("Intelligence","5")
+                        create_select_option("Intelligence","5"),
+                        create_select_option("Magie","6")
                     ],
                     placeholder="Dans quelle catégorie voulez-vous rajouter vos points ?"
                 )
@@ -63,7 +64,7 @@ async def points(bot : discord.client, ctx : discord.message, args : [str], proc
                 ballerine = respond
                 respond = int(ballerine.values[0])
                 temp = user.allStats()
-                tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel]
+                tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
 
                 stat = temp[respond]
                 trueStat = stat-user.bonusPoints[respond]
@@ -82,7 +83,7 @@ async def points(bot : discord.client, ctx : discord.message, args : [str], proc
                         if resp <= user.points and resp >= 0 and user.bonusPoints[respond]+resp <= 30:
                             temp[respond] = temp[respond]+resp
                             user.points -= resp
-                            user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5]
+                            user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
                             user.bonusPoints[respond] += resp
                             await msg.edit(embed = discord.Embed(title = f"{args[0]} : {choiceStat[respond]}", color = user.color, description = "Vos points ont bien été attribué !"),components=[])
                             saveCharFile(pathUserProfile,user)

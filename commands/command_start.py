@@ -16,10 +16,13 @@ aspirationMenu = create_select(
         create_select_option("Observateur",value="1"),
         create_select_option("Poids Plume",value="2"),
         create_select_option("Idole",value="3"),
-        create_select_option("Erudit",value="4"),
+        create_select_option("Prévoyant",value="4"),
         create_select_option("Tête Brulée",value="5"),
+        create_select_option("Mage",value="6"),
         create_select_option("Altruiste",value="7"),
-        create_select_option("Aventurier",value="8")
+        create_select_option("Invocateur",value="8"),
+        create_select_option("Enchanteur",value="9"),
+        create_select_option("Protecteur",value="10"),
         ],
     placeholder="Sélectionnez une aspiration pour avoir plus d'informations dessus"
     )
@@ -43,7 +46,7 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
     while not(choosed):
         action = create_actionrow(aspirationMenu)
         await msg.clear_reactions()
-        await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = f"Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 8 aspirations qui sont : \n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Erudit\n- Tête Brulée\n- Altruiste\n- Aventurier\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
+        await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = f"Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 8 aspirations qui sont :\n\n- Berserkeur (Tank, DPT Force)\n- Observateur (Distance, DPT Force)\n- Poids Plume (Tank, DPT Critique)\n- Idole (Distance, Support)\n- Prévoyant (Distance, Support)\n- Tête Brulée (Distance, DPT Hybride)\n- Mage (Distance, DPT Magique)\n- Altruiste (Distance, Support)\n- Invocateur (Hybride)\n- Enchanteur (Tank, DPT Magique)\n- Protecteur (Tank, Support)\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
 
         def check(m):
             return m.author_id == ctx.author.id and m.origin_message.id == msg.id
@@ -57,8 +60,8 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
 
         if haveReaction:
             action = create_actionrow(aspirationMenuD)
-            await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = f"Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 8 aspirations qui sont : \n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Erudit\n- Tête Brulée\n- Altruiste\n- Aventurier\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
-            inspiDesc = [manPage8[1],manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],"Aspiration supprimée",manPage14[1],manPage15[1]]
+            await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = f"Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 8 aspirations qui sont :\n\n- Berserkeur (Tank, DPT Force)\n- Observateur (Distance, DPT Force)\n- Poids Plume (Tank, DPT Critique)\n- Idole (Distance, Support)\n- Prévoyant (Distance, Support)\n- Tête Brulée (Distance, DPT Hybride)\n- Mage (Distance, DPT Magique)\n- Altruiste (Distance, Support)\n- Invocateur (Hybride)\n- Enchanteur (Tank, DPT Magique)\n- Protecteur (Tank, Support)\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
+            inspiDesc = [manPage8[1],manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],manPage14[1],manPage15[1],manPage16[1],manPage17[1],manPage18[1]]
 
             msg2 = await respond.send(embed = discord.Embed(title = args[0] + " : "+inspi[int(respond.values[0])],color = user.color,description = f"{inspiDesc[int(respond.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"))
 
@@ -187,17 +190,17 @@ async def changeCustomColor(bot,msg,ctx,user,args):
 
     return None   
 
-async def start(bot : discord.client, ctx : discord.message, guild : server, args : list):
+async def start(bot : discord.client, ctx : discord.message, args : list):
     """Commande de création de personnage"""
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
 
     if not os.path.exists(pathUserProfile):
         def checkIsAuthor(message):
-            return ctx.author == message.author
+            return int(ctx.author.id) == int(message.author.id)
 
         still = True
         user = char(ctx.author.id)
-        msg = await loadingEmbed(ctx)
+        msg = await loadingSlashEmbed(ctx)
 
         user = await chooseName(bot,msg,ctx,args,user)
 
@@ -210,7 +213,7 @@ async def start(bot : discord.client, ctx : discord.message, guild : server, arg
             await msg.add_reaction('<:takoLBlue:866459095875190804>')
 
             def checkIsAuthorReact1(reaction,user):
-                return user == ctx.author and reaction.message == msg and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
+                return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
 
             respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
 
@@ -226,7 +229,7 @@ async def start(bot : discord.client, ctx : discord.message, guild : server, arg
             await msg.add_reaction('♀️')
             await msg.add_reaction(emoji.forward_arrow)
             def checkIsAuthorReact(reaction,user):
-                return user == ctx.author and reaction.message == msg and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
+                return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
 
             respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
             testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',emoji.forward_arrow]
@@ -250,10 +253,10 @@ async def start(bot : discord.client, ctx : discord.message, guild : server, arg
                 await msg.clear_reactions()
                 if saveCharFile(pathUserProfile,user):
                     await msg.delete()
-                    await ctx.channel.send(embed = discord.Embed(title = args[0], color= user.color, description = f"Tout a bien été enregistré !\nN'hésite pas à utiliser la commande {guild.prefixe}help pour connaître les commandes de l'Aventure\nOu bien juste lire le manuel avec {guild.prefixe}manuel"))
+                    await ctx.channel.send(embed = discord.Embed(title = args[0], color= user.color, description = f"Tout a bien été enregistré !\nN'hésite pas à utiliser la commande /help pour connaître les commandes de l'Aventure\nOu bien juste lire le manuel avec /manuel"))
                 else:
                     await msg.delete()
-                    await ctx.channel.send(embed = discord.Embed(title = args[0], color= red, description = rejectProfileStart))
+                    await ctx.channel.send(embed = discord.Embed(title = args[0], color= red, description = "Un truc c'est mal passé, l'aventure attendra"))
                     os.remove(pathUserProfile)
             else:
                 still = False

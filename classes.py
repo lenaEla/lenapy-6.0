@@ -5,8 +5,6 @@ Here are grouped up the bases classes of the bot, and some very basic functions
 
 import emoji,pathlib
 from constantes import *
-from PIL import Image
-import io
 
 absPath = str(pathlib.Path(__file__).parent.resolve())
 
@@ -64,7 +62,7 @@ class option:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0, repetition=1,emoji = emoji.loading,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None):
         """rtfm"""
         self.name = name
         self.id = id
@@ -75,12 +73,12 @@ class weapon:
         self.agility = agility
         self.precision = precision
         self.intelligence = intelligence
+        self.magie = magie
         self.resistance = resistance
         self.percing = percing
         self.critical = critical
         self.power = power
         self.repetition = repetition
-        self.emoji = emoji
         self.sussess = sussess
         self.price = price
         self.area = area
@@ -111,16 +109,32 @@ class weapon:
         else:
             self.orientation = orientation[0] + " - "+orientation[1]
 
+        if emoji == None:
+            if self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                self.emoji='<:defDamage:885899060488339456>'
+            elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
+                self.emoji='<:defHeal:885899034563313684>'
+            elif self.type in [TYPE_BOOST,TYPE_INVOC]:
+                self.emoji='<:defSupp:885899082453880934>'
+            elif self.type in [TYPE_ARMOR]:
+                self.emoji='<:defarmor:895446300848427049>'
+            elif self.type in [TYPE_MALUS]:
+                self.emoji='<:defMalus:895448159675904001>'
+            else:
+                self.emoji='<:LenaWhat:760884455727955978>'
+        else:
+            self.emoji=emoji
+
     def allStats(self):
         """Return a list with the mains stats of the weapon"""
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
 mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,25,45,0,10,agility=10,repetition=5,emoji = emoji.fist)
 splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,20,35,0,agility=10,charisma=5,strength=5,repetition=5,emoji = emoji.splatJr)
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = emoji.loading,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None):
+    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None):
         """rtfm"""
         self.name = name
         self.id = id
@@ -130,7 +144,6 @@ class skill:
         self.conditionType = 0
         self.condition = conditionType
         self.ultimate = ultimate
-        self.emoji = emoji
         self.effect = effect
         self.range = range
         self.secondary = secondary
@@ -195,15 +208,28 @@ class skill:
         if area == AREA_ALL_ALLIES or area == AREA_ALL_ENNEMIES or area == AREA_ALL_ENTITES:
             self.range = AREA_MONO
 
+        if emoji == None:
+            if self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                self.emoji='<:defDamage:885899060488339456>'
+            elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
+                self.emoji='<:defHeal:885899034563313684>'
+            elif self.type in [TYPE_BOOST,TYPE_INVOC]:
+                self.emoji='<:defSupp:885899082453880934>'
+            elif self.type in [TYPE_ARMOR]:
+                self.emoji='<:defarmor:895446300848427049>'
+            elif self.type in [TYPE_MALUS]:
+                self.emoji='<:defMalus:895448159675904001>'
+            else:
+                self.emoji='<:LenaWhat:760884455727955978>'
+        else:
+            self.emoji=emoji
+
     def havConds(self,user=0):
         """Verify if the User have the conditions to equip the skill"""
         if self.condition != []:
             conds = self.condition
             if conds[0] == 0: # Reject
-                if conds[1] == 0: # Conds Weapon
-                    if user.weapon != findWeapon(conds[2]):
-                        return False
-                elif conds[1] == 1: # Conds Aspi
+                if conds[1] == 1: # Conds Aspi
                     if user.aspiration != conds[2]:
                         return False
                 elif conds[1] == 2: #Conds Elem
@@ -214,20 +240,11 @@ class skill:
                 userstats = user.allStats()
                 if userstats[conds[1]] < conds[2]:
                     return False
-            elif conds[0] == 2: # Reject
-                if conds[1] == 0:
-                    if user.weapon == findWeapon(conds[2]):
-                        return False
-                else:
-                    for a in user.skills:
-                        if a != None and a!="0":
-                            if a == conds[2]:
-                                return False
         return True
      
 class stuff:
     """The main and only class for all the gears"""
-    def __init__(self,name,id,type,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0,emoji = emoji.loading,effect=None,orientation = [],position=0,affinity = None):
+    def __init__(self,name,id,type,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effect=None,orientation = [],position=0,affinity = None):
         """rdtm"""
         self.name = name
         self.id = id
@@ -239,12 +256,23 @@ class stuff:
         self.agility = agility
         self.precision = precision
         self.intelligence = intelligence
+        self.magie = magie
         self.resistance = resistance
         self.percing = percing
         self.critical = critical
         self.emoji = emoji
-        self.effect = effect
         self.position = position
+
+        if emoji == None:
+            if self.type == 0:
+                self.emoji='<:defHead:896928743967301703>'
+                self.position = 4
+            elif self.type == 1:
+                self.emoji='<:defMid:896928729673109535>'
+            elif self.type == 2:
+                self.emoji='<:defShoes:896928709330731018>'
+    
+        self.effect = effect
         self.affinity = affinity
 
         orientation += [None]
@@ -262,18 +290,19 @@ class stuff:
             self.orientation = orientation[0] + " - "+orientation[1]
 
     def allStats(self):
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
+emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,resistance=0,percing=0,critical=0,emoji=[['<:ink1buff:866828199156252682>','<:ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octariandebuff:866828390853247006>']],overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False):
         """rtfm"""
         self.name = name
         self.id = id
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
         self.overhealth = overhealth
         self.redirection = redirection
-        self.emoji = emoji
         self.reject = reject
         self.description = description
         self.turnInit = turnInit
@@ -292,10 +321,30 @@ class effect:
         self.stun = stun
         self.stackable = stackable
 
+        if emoji == None:
+            if self.type in [TYPE_BOOST]:
+                self.emoji=[['<:ink1buff:866828199156252682>','<:ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octarianbuff:866828373345959996>']]
+            elif self.type in [TYPE_MALUS]:
+                self.emoji=[['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
+            elif self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                self.emoji=[["<:ikadamage1:895723391212978207>","<:ikadamage2:895723465389264897>"],["<:takodamage1:895723442177982516>","<:takodamage1:895723496196415508>"],[None,"<:octariandamage:895723525954998272>"]]
+            elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
+                self.emoji=[["<:ikaheal1:895722730664632321>","<:ikaheal2:895722783034732594>"],["<:takoheal1:895722755025162281>","<:takoheal2:895722806430548001>"],[None,"<:octarianheal:895722827188166698>"]]
+            elif self.type in [TYPE_ARMOR]:
+                self.emoji=[["<:ikashield:895723993351458877>","<:ikashield2:895724022501892217>"],["<:takoshield1:895724008350318602>","<:takoshield2:895724040348659772>"],[None,"<:octarianshield:895724055909515265>"]]
+            else:
+                self.emoji=[['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>']]
+        else:
+            self.emoji=emoji
+
     def setTurnInit(self,newTurn = 1):
         """Change the "turnInit" value. Why I need a function for that ?"""
         self.turnInit = newTurn
         return self
+
+    def allStats(self):
+        """Return a list with the mains stats of the weapon"""
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
 class other:
     """The class for all the "specials objets" categorie"""
@@ -323,7 +372,7 @@ class char:
         self.color = color
         self.team = 0
         self.gender = GENDER_OTHER
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence = 0,0,0,0,0,0
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
         self.resistance,self.percing,self.critical = 0,0,0
         self.aspiration = -1
         self.points = 0
@@ -335,7 +384,7 @@ class char:
         self.stuffInventory = [bbandeau,bshirt,bshoes]
         self.otherInventory = []
         self.procuration = []
-        self.bonusPoints = [0,0,0,0,0,0]
+        self.bonusPoints = [0,0,0,0,0,0,0]
         self.icon = None
         self.customColor = False
         self.element = ELEMENT_NEUTRAL
@@ -347,11 +396,11 @@ class char:
 
     def allStats(self):
         """Return a list of all main stats of the character"""
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
 class invoc:
     """The main class for summons. Similar the "char" class, but with only the fight's necessery attributs"""
-    def __init__(self,name,strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,aspiration,icon,weapon,skills=[],gender=GENDER_OTHER,description="Pas de description",element=ELEMENT_NEUTRAL):
+    def __init__(self,name,strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,aspiration,icon,weapon,skill=[],gender=GENDER_OTHER,description="Pas de description",element=ELEMENT_NEUTRAL):
         self.name = name
         self.level = 0
         self.team = 0
@@ -359,23 +408,23 @@ class invoc:
         self.color = 0
         self.species = 1
 
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
         self.weapon = weapon
 
         self.description = description
         
-        while len(skills)<5:
-            skills.append("0")
+        while len(skill)<5:
+            skill.append("0")
 
-        self.skills = skills
+        self.skills = skill
         self.icon = icon
         self.customColor = False
         self.element = element
 
     def allStats(self):
         """Return a list """
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence]
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
 def getColorId(user: char):
     """Return the color indice of the user. Only use for summons, now"""

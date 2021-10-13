@@ -1,11 +1,10 @@
 ###########################################################
 # Importations :
-import discord, random, os, emoji,neutral,asyncio,datetime,traceback 
+import discord, random, os, emoji ,asyncio ,datetime , traceback
 
-from discord.utils import _URL_REGEX
-
-from adv import *
+from data.database import *
 from classes import *
+from adv import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
@@ -19,7 +18,6 @@ from commands.command_shop import *
 from commands.sussess_endler import *
 from commands.command_patchnote import *
 from commands.command_help import *
-from data.database import *
 from commands.command_patchnote import *
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
@@ -50,53 +48,13 @@ ctxChannel = 0
 listGuildSet = os.listdir(absPath + "/guildSettings/")
 guilds = list(range(0,len(listGuildSet)))
 
-choiceExeptMsg = "missingMood.choiceExeptMsg"
-errorMissingPermsMsg = "missingMood.errorMissingPermsMsg"
-errorNotDigitMsg = "missingMood.errorNotDigitMsg"
-errorNotInRangeMsg = "missingMood.errorNotInRangeMsg"
-comfirmGuildSettingsChange = "missin.gMoodcomfirmGuildSettingsChange"
-rejectGuildSettingsChange = "MissingMood.rejectGuildSettingsChange"
-corruptNotice = "MissingMood.corruptNotice"
-errorNotAChannel = "MissingMood.errorNotAChannel"
-chooseMsg1 = "MissingMood.chooseMsg1"
-chooseMsg2 = "MissingMood.chooseMsg2"
-chooseMsg3 = "MissingMood.chooseMsg3"
-errorUnknowMsg = "MissingMood.errorUnknowMsg"
-comfirmProfileStart = "MissingMood.comfirmProfileStart"
-rejectProfileStart = "MissingMood.rejectProfileStart"
-startAlReadyStarted = "MissingMood.startAlReadyStarted"
-currenties = "MissingMood.currenties"
-
-###########################################################
-# Mood
-
-mood = 0
-
-if mood == 0: # Neutral
-    choiceExeptMsg = neutral.choiceExeptMsg
-    errorMissingPermsMsg = neutral.errorMissingPermsMsg
-    errorNotDigitMsg = neutral.errorNotDigitMsg
-    errorNotInRangeMsg = neutral.errorNotInRangeMsg
-    comfirmGuildSettingsChange = neutral.comfirmGuildSettingsChange
-    rejectGuildSettingsChange = neutral.rejectGuildSettingsChange
-    corruptNotice = neutral.corruptNotice
-    errorNotAChannel = neutral.errorNotAChannel
-    chooseMsg1 = neutral.chooseMsg1
-    chooseMsg2 = neutral.chooseMsg2
-    chooseMsg3 = neutral.chooseMsg3
-    errorUnknowMsg = neutral.errorUnknowMsg
-    comfirmProfileStart = neutral.comfirmProfileStart
-    rejectProfileStart = neutral.rejectProfileStart
-    startAlReadyStarted = neutral.startAlReadyStarted
-    currenties = neutral.currenties
-
 ###########################################################
 # Initialisation
 allShop = weapons + skills + stuffs + others
 
 class shopClass:
     def __init__(self,shopList : list):
-        self.shopping = [None,None,None,None,None,None,None,None,None,None,None,None]
+        self.shopping = [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None]
         if shopList != False:
             for a in range(0,len(shopList)):
                 if a != None:
@@ -115,7 +73,7 @@ class shopClass:
         ballerine = datetime.datetime.now() + datetime.timedelta(hours=3)+horaire
 
         await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
-        validShop = False
+
         shopWeap,shopSkill,shopStuff,ShopOther = [],[],[],others[:]
         for a in weapons:
             if a.price > 0:
@@ -129,7 +87,7 @@ class shopClass:
             if a.price > 0:
                 shopStuff.append(a)
         
-        temp = [3,3,5,1]
+        temp = [4,4,6,2]
         tablShop = [shopWeap,shopSkill,shopStuff,ShopOther]
         cmp = 0
         for a in [0,1,2,3]:
@@ -141,7 +99,6 @@ class shopClass:
                 cmpt+=1
                 cmp+=1
             
-        weaps,skils,stufs,othes = [],[],[],[]
         temp = ""
         stuffDB.addShop(shopping)
         for a in shopping:
@@ -153,8 +110,30 @@ class shopClass:
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
 
-@tasks.loop(hours=3)
-async def skillVerif():
+@tasks.loop(seconds=1)
+async def oneClock():
+    tick = datetime.datetime.now()
+    if tick.second%60 == 0 and not(minuteClock.is_running()):
+        minuteClock.start()
+        
+@tasks.loop(minutes=1)
+async def minuteClock():
+    if oneClock.is_running():
+        oneClock.stop()
+    tick = datetime.datetime.now()
+    if tick.minute%60 == 0 and not(hourClock.is_running()):
+        hourClock.start()
+        
+@tasks.loop(hours=1)
+async def hourClock():
+    if minuteClock.is_running():
+        minuteClock.stop()
+    teamWinDB.resetAllFightingStatus()
+    tick = datetime.datetime.now()+horaire
+    if tick.hour%3==0:
+        await shopping.newShop()
+
+    # Skill Verif
     for z in os.listdir(absPath + "/userProfile/"):
         user = loadCharFile(absPath + "/userProfile/" + z)
         allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
@@ -183,7 +162,7 @@ async def skillVerif():
             elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
                 haveUltimate = True
 
-        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory]
+        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
         for y in tablInventory:
             allReadySee = []
             for a in y:
@@ -196,7 +175,7 @@ async def skillVerif():
                     user.currencies += a.price
 
         if modifStuff > 0:
-            user.weaponInventory,user.skillInventory,user.stuffInventory = tablInventory[0],tablInventory[1],tablInventory[2]
+            user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
             babie += "\n\nCes objets vous ont été remboursés"
 
 
@@ -212,57 +191,13 @@ async def skillVerif():
                 await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=message))
             except:
                 pass
-            print(f"Les compétences de {user.name} ont été mises à jours")
-
-@tasks.loop(hours=1)
-async def fightCooldownRefresh():
-    asuppr = []
-    for a in actualyFight:
-        now = datetime.datetime.now()
-        timeD = now - a[1]
-        if timeD.total_seconds() > 3600:
-            asuppr.append(a)
-
-    for a in asuppr:
-        actualyFight.remove(a)
-
-    asuppr = []
-    for a in actualyQuickFight:
-        now = datetime.datetime.now()
-        timeD = now - a[1]
-        if timeD.total_seconds() > 3600*3:
-            asuppr.append(a)
-
-    for a in asuppr:
-        actualyQuickFight.remove(a)
-
-@tasks.loop(seconds=1)
-async def oneClock():
-    tick = datetime.datetime.now()
-    if tick.second%60 == 0 and not(minuteClock.is_running()):
-        minuteClock.start()
-        
-@tasks.loop(minutes=1)
-async def minuteClock():
-    if oneClock.is_running():
-        oneClock.stop()
-    tick = datetime.datetime.now()
-    if tick.minute%60 == 0 and not(hourClock.is_running()):
-        hourClock.start()
-        
-@tasks.loop(hours=1)
-async def hourClock():
-    if minuteClock.is_running():
-        minuteClock.stop()
-    teamWinDB.resetAllFightingStatus()
-    tick = datetime.datetime.now()+horaire
-    if tick.hour%3==0:
-        await shopping.newShop()
+            print(f"Le profile de {user.name} ont été mises à jours")
 
 @bot.event
 async def on_ready():
     print("\n-----------------------------\nLe bot est en ligne. Début de la phase d'initialisation post-online !\n----------------------\n")
     cmpt = 0
+    teamWinDB.resetAllFightingStatus()
     while cmpt < len(listGuildSet):
         if listGuildSet[cmpt] != "index.set":
             try:
@@ -287,13 +222,8 @@ async def on_ready():
 
         await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
 
-        if not(oneClock.is_running()):
-            oneClock.start()
-
-    if not(fightCooldownRefresh.is_running()):
-        fightCooldownRefresh.start()
-    if not(skillVerif.is_running()):
-        skillVerif.start()
+    if not(oneClock.is_running()):
+        oneClock.start()
 
     teamWinDB.resetAllFightingStatus()
 
@@ -304,6 +234,65 @@ async def on_ready():
     await downloadAllIconPng(bot)
     print("Mise à jour des fichiers data terminée")
     
+    for z in os.listdir(absPath + "/userProfile/"):
+        user = loadCharFile(absPath + "/userProfile/" + z)
+        allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
+        ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
+        babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
+
+        for a in range(0,5):
+            if user.skills[a] != None and user.skills[a] != "0":
+                if user.skills[a] in allReadySee:
+                    ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
+                    modifSkill += 1
+                    user.skills[a] = "0"
+                else:
+                    allReadySee+=[user.skills[a]]
+
+            if user.skills[a] != "0" and user.skills[a] != None:
+                if not(user.skills[a].havConds(user=user)):
+                    ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
+                    modifSkill += 1
+                    user.skills[a] = "0"
+
+            if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
+                ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
+                modifSkill += 1
+                user.skills[a] = "0"
+            elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
+                haveUltimate = True
+
+        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
+        for y in tablInventory:
+            allReadySee = []
+            for a in y:
+                if a not in allReadySee:
+                    allReadySee.append(a)
+                else:
+                    babie += f"\n__{a.name}__ (Doublon)"
+                    modifStuff += 1
+                    y.remove(a)
+                    user.currencies += a.price
+
+        if modifStuff > 0:
+            user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
+            babie += "\n\nCes objets vous ont été remboursés"
+
+
+        if modifSkill+modifStuff > 0:
+            saveCharFile(absPath + "/userProfile/" + z,user)
+            try:
+                toUser = await bot.fetch_user(user.owner)
+                message = ""
+                if modifSkill > 0:
+                    message+=ballerine+"\n"
+                if modifStuff > 0:
+                    message+=babie
+                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=message))
+            except:
+                pass
+            print(f"Le profile de {user.name} ont été mises à jours")
+
     started = True
     print("\n-----------------------------\nFin de l'initialisation\n-----------------------------\n")
 
@@ -389,7 +378,7 @@ async def on_message(ctx):
                     return message.author.id == ctx.author.id
                     
                 if ctx.author.guild_permissions.manage_channels == False:
-                    await msg.edit(embed = errorEmbed(args[0],errorMissingPermsMsg))
+                    await msg.edit(embed = errorEmbed(args[0],"Tu as pas les permissions nécéssaires pour réaliser cette commande désolée"))
                     
                 else:
                     guildSettingsTemp = guild
@@ -401,12 +390,12 @@ async def on_message(ctx):
                             respond = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
 
                             if not respond.content.isdigit():
-                                await msg.edit(embed = errorEmbed(args[0],errorNotDigitMsg))
+                                await msg.edit(embed = errorEmbed(args[0],"Je m'attendais plutôt à un nombre à vrai dire"))
                             else:
                                 repMsg = respond
                                 respond = int(respond.content)
                                 if not(respond < len(choiceSettings) and respond >= 0):
-                                    await msg.edit(embed = errorEmbed(args[0],errorNotInRangeMsg))
+                                    await msg.edit(embed = errorEmbed(args[0],"Ta réponse ne correspond à aucune option"))
                                 else:
                                     etat = respond
 
@@ -426,14 +415,14 @@ async def on_message(ctx):
                                 newPatchnotes = newPatchnotes.channel_mentions[0].id
                                 guildSettingsTemp.patchnote = newPatchnotes
                                 if saveGuildSettings(pathGuildSettings,guildSettingsTemp):
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Patchnote",description =comfirmGuildSettingsChange))
+                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Patchnote",description ="Les nouveaux paramètres ont bien été sauvegardé"))
                                 elif saveGuildSettings(pathGuildSettings,guild):
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Patchnote",description =rejectGuildSettingsChange))
+                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Patchnote",description ="Une erreur est survenue. L'opération est annulée"))
                                 else:
                                     os.remove(pathGuildSettings)
-                                    await msg.edit(embed = errorEmbed(args[0],corruptNotice))
+                                    await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue. Une corruption a été détecté. Fichier supprimé"))
                             except:
-                                    await msg.edit(embed = errorEmbed(args[0],errorNotAChannel))
+                                    await msg.edit(embed = errorEmbed(args[0],"Tu ne m'a pas mentionné un salon"))
                             try:
                                 await newPatchnotes.delete()
                             except:
@@ -452,14 +441,14 @@ async def on_message(ctx):
                                     newBotChannel = newBotChannel.channel_mentions[0].id
                                     guildSettingsTemp.bot = newBotChannel
                                     if saveGuildSettings(pathGuildSettings,guildSettingsTemp):
-                                        await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Bot",description =comfirmGuildSettingsChange))
+                                        await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Bot",description ="Les nouveaux paramètres ont bien été sauvegardé"))
                                     elif saveGuildSettings(pathGuildSettings,guild):
-                                        await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Bot",description =rejectGuildSettingsChange))
+                                        await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Bot",description ="Une erreur est survenue. L'opération est annulée"))
                                     else:
                                         os.remove(pathGuildSettings)
-                                        await msg.edit(embed = errorEmbed(args[0],corruptNotice))
+                                        await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue. Une corruption a été détecté. Fichier supprimé"))
                                 except:
-                                    await msg.edit(embed = errorEmbed(args[0],errorNotAChannel))
+                                    await msg.edit(embed = errorEmbed(args[0],"Tu ne m'a pas mentionné un salon"))
                                 try:
                                     await repMsg.delete()
                                 except:
@@ -489,16 +478,13 @@ async def on_message(ctx):
                 elif args[1] == "forceRestat":
                     if args[2] == "all":
                         for a in os.listdir(absPath + "/userProfile/"):
-                            try:
-                                pathUserProfile = absPath + "/userProfile/" + a
-                                user = loadCharFile(pathUserProfile,ctx)
-                                user = silentRestats(user)
+                            pathUserProfile = absPath + "/userProfile/" + a
+                            user = loadCharFile(pathUserProfile,ctx)
+                            user = silentRestats(user)
 
-                                saveCharFile(pathUserProfile,user)
-                                print(f"{user.name} a bien été restat")
-                            except:
-                                pass
-
+                            saveCharFile(pathUserProfile,user)
+                            print(f"{user.name} a bien été restat")
+                        
                     else:
                         try:
                             stated = ctx.mentions[0]
@@ -769,8 +755,6 @@ async def on_message(ctx):
                     await shopping.newShop()
                     await ctx.add_reaction('❄')
 
-                await ctx.add_reaction(emoji.cat)
-
                 #except:
                     #await ctx.add_reaction('<:LenaWhat:760884455727955978>')
 
@@ -787,87 +771,14 @@ async def on_message(ctx):
                     temp += " "
                 choBet += [temp]
 
-                rep = discord.Embed(title = "**l!choose**",color = light_blue,description = (randRep([chooseMsg1,chooseMsg2,chooseMsg3])+"__"+random.choice(choBet)+"__\n"))
+                rep = discord.Embed(title = "**l!choose**",color = light_blue,description = (randRep(["À quoi bon, de toutes façons tu vas choisir ce qui t'interresse vraiment\nMais bon voilà : ","Je doute que tu tiennes compte de mon avis mais j'ai choisi ","Selon l'allignement des étoiles, tu va devoir prendre "])+"__"+random.choice(choBet)+"__\n"))
                 await ctx.channel.send(embed = rep)
-
-            elif args[0] == guild.prefixe + "start" and checkIsBotChannel(ctx,guild,bot):
-                await start(bot,ctx,guild,args)
 
             elif args[0] == guild.prefixe + "solde" and checkIsBotChannel(ctx,guild,bot):
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
                 if os.path.exists(pathUserProfile):
                     user = loadCharFile(pathUserProfile,ctx)
-                    await ctx.channel.send(embed = discord.Embed(title = "Porte monnaie", description = f"{currenties} {user.currencies} {emoji.coins}",color = user.color))
-                else:
-                    await ctx.channel.send("Tu n'a pas commencé l'aventure")
-
-            elif args[0] == guild.prefixe + "stats" and checkIsBotChannel(ctx,guild,bot):
-                if ctx.mentions == [] and args[1] == None:
-                    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                else:
-                    try:
-                        pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
-                    except:
-                        pathUserProfile = absPath + "/userProfile/" + args[1][3:-1] + ".prof"
-
-                if os.path.exists(pathUserProfile):
-                    msg = await loadingEmbed(ctx)
-                    user = loadCharFile(pathUserProfile,ctx)
-
-                    if os.path.exists("../Kawi/"):
-                        iconGuildList = ShushyCustomIcons
-                    else:
-                        iconGuildList = LenaCustomIcons
-
-                    url_em = None
-                    for icGuild in iconGuildList:
-                        icGuild = await bot.fetch_guild(icGuild)
-                        try:
-                            url_em = await icGuild.fetch_emoji(getEmojiObject(await getUserIcon(bot,user))["id"])
-                        except:
-                            pass
-
-                    if url_em != None:
-                        url_em = str(url_em.url)
-
-                    rep = discord.Embed(title = f"__Page de statistique de {user.name}__",color = user.color,description = f"__Niveau :__ {user.level}\n__Expérience :__ {user.exp} / {user.level*50-20}")
-                    print(url_em)
-                    rep.set_thumbnail(url=url_em)
-                    rep.add_field(name = "__Aspiration :__",value = inspi[user.aspiration],inline = False)
-
-                    sumStatsBonus = [0,0,0,0,0,0,0,0,0]
-
-                    for a in [user.weapon,user.stuff[0],user.stuff[1],user.stuff[2]]:
-                        sumStatsBonus[0] += a.strength
-                        sumStatsBonus[1] += a.endurance
-                        sumStatsBonus[2] += a.charisma
-                        sumStatsBonus[3] += a.agility
-                        sumStatsBonus[4] += a.precision
-                        sumStatsBonus[5] += a.intelligence
-                        sumStatsBonus[6] += a.resistance
-                        sumStatsBonus[7] += a.percing
-                        sumStatsBonus[8] += a.critical
-
-                    for a in range(len(sumStatsBonus)):
-                        if sumStatsBonus[a] > 0:
-                            sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
-
-                    rep.add_field(name = "__Statistiques principaux :__",value = f"Force : {user.strength} ({sumStatsBonus[0]})\nEndurance : {user.endurance} ({sumStatsBonus[1]})\nCharisme : {user.charisma} ({sumStatsBonus[2]})\nAgilité : {user.agility} ({sumStatsBonus[3]})\nPrécision : {user.precision} ({sumStatsBonus[4]})\nIntelligence : {user.intelligence} ({sumStatsBonus[5]})",inline= True)
-                    rep.add_field(name = "__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[6]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[7]})\nCritique : {user.critical} ({sumStatsBonus[8]})",inline = True)
-                    rep.set_thumbnail(url = 'https://cdn.discordapp.com/emojis/866459463568850954.png?v=1')
-                    tempStuff,tempSkill = "",""
-                    for a in [0,1,2]:
-                        tempStuff += f"{ user.stuff[a].emoji} {user.stuff[a].name}\n"
-
-                    for a in [0,1,2,3,4]:
-                        try:
-                            tempSkill += f"{ user.skills[a].emoji} {user.skills[a].name}\n"
-                        except:
-                            tempSkill += f"Slot [{a+1}] : Pas de compétence équipée\n"
-
-                    rep.add_field(name = "__Equipement :__",value = f"__Arme :__\n{ user.weapon.emoji} {user.weapon.name}\n\n__Vêtements :__\n{tempStuff}\n__Compétences :__\n{tempSkill}",inline = False)
-                    await msg.edit(embed = rep)
-
+                    await ctx.channel.send(embed = discord.Embed(title = "Porte monnaie", description = f"Ta solde actuelle est de {user.currencies} {emoji.coins}",color = user.color))
                 else:
                     await ctx.channel.send("Tu n'a pas commencé l'aventure")
 
@@ -877,68 +788,8 @@ async def on_message(ctx):
                 else:
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
 
-            elif args[0] == guild.prefixe + "manuel" and checkIsBotChannel(ctx,guild,bot):
-                msg,manPage,chapterInt = await loadingEmbed(ctx),0,0
-                if args[1] != None and args[1].isdigit():
-                    manPage = int(args[1])
-                def checkReaction(reaction, user):
-                    return reaction.message == msg and user == ctx.author and (str(reaction) == emoji.backward_arrow or str(reaction) == emoji.forward_arrow or str(reaction) == '⏪' or str(reaction) == '⏩') 
-                while 1:
-                    if manPage < lenChapter[chapterInt]:
-                        chapterInt-=1
-                    elif chapterInt != len(lenChapter)-1:
-                        if manPage >= lenChapter[chapterInt+1]:
-                            chapterInt+=1
-    
-                    ballerine = discord.Embed(title = "__"+tablPage[manPage][0]+" :__",color = light_blue,description = tablPage[manPage][1]).set_footer(text=f"Page {manPage} / {len(tablPage)-1}")
-                    if len(tablPage[manPage]) == 3:
-                        ballerine.set_image(url=tablPage[manPage][2])
-                    await msg.edit(embed = ballerine)
-                    await msg.add_reaction('⏪')
-                    await msg.add_reaction(emoji.backward_arrow)
-                    await msg.add_reaction(emoji.forward_arrow)
-                    await msg.add_reaction('⏩')
-
-                    reaction = None
-                    try:
-                        reaction = await bot.wait_for("reaction_add",timeout=380,check=checkReaction)
-                    except:
-                        await msg.clear_reactions()
-                        break
-
-                    if reaction != None:
-                        if str(reaction[0]) == emoji.backward_arrow:
-                            if manPage == 0:
-                                manPage = len(tablPage)-1
-                            else:
-                                manPage -= 1                   
-
-                        elif str(reaction[0]) == emoji.forward_arrow:
-                            if manPage == len(tablPage)-1:
-                                manPage = 0
-                            else:
-                                manPage += 1
-
-                        elif str(reaction[0]) == '⏪':
-                            if chapterInt==0:
-                                print(chapterInt,lenChapter[len(lenChapter)-1])
-                                manPage = lenChapter[len(lenChapter)-1]
-                            else:
-                                manPage = lenChapter[chapterInt]
-                        
-                        elif str(reaction[0]) == '⏩':
-                            print(chapterInt,len(lenChapter)-1)
-                            if chapterInt==len(lenChapter)-1:
-                                manPage = 0
-                            else:
-                                print(lenChapter[chapterInt+1])
-                                manPage = lenChapter[chapterInt+1]
-
-
-                        await msg.remove_reaction(str(reaction[0]),reaction[1])
-
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                await ctx.channel.send(ctx.mentions[0].avatar)
+                await ctx.channel.send(embed=discord.Embed(title="Titre",description="[Concentraceur](https://splatoon.fandom.com/fr/wiki/Concentraceur#:~:text=Le%20Concentraceur%20est%20un%20sniper,met%20du%20temps%20a%20tirer.)"))
             
             elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
                 await procuration(ctx)
@@ -974,25 +825,24 @@ async def on_message(ctx):
             elif args[0] == "l!new_patch" and ctx.author.id == 213027252953284609:
                 await new_patch(bot,ctx)
                 for a in guilds:
-                    if type(a) != int:
-                        ballerine = await bot.fetch_guild(a.id)
-                        if ballerine != None:
-                            guildSettings = readSaveFiles(absPath + "/guildSettings/"+str(ballerine.id)+".set")
-                            babie = server(int(ballerine.id),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
-                            if babie.patchnote != 0:
-                                chan = await bot.fetch_channel(babie.patchnote)
-                                await chan.send(send_patchnote())
-                            elif babie.bot != 0:
-                                chan = await bot.fetch_channel(babie.bot)
-                                await chan.send(embed=discord.Embed(title="/patchnote",color=light_blue,description="Un nouveau patchnote est disponible, vous pouvez le voir à l'aide de /patchnote\n\n*Note : Les nouvelles commandes slash peuvent mettre jusqu'à 1 heure pour apparaitre sur vos serveur*"))
-
+                    try:
+                        if type(a) != int:
+                            ballerine = await bot.fetch_guild(a.id)
+                            if ballerine != None:
+                                guildSettings = readSaveFiles(absPath + "/guildSettings/"+str(ballerine.id)+".set")
+                                babie = server(int(ballerine.id),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
+                                if babie.patchnote != 0:
+                                    chan = await bot.fetch_channel(babie.patchnote)
+                                    await chan.send(send_patchnote())
+                                elif babie.bot != 0:
+                                    chan = await bot.fetch_channel(babie.bot)
+                                    await chan.send(embed=discord.Embed(title="/patchnote",color=light_blue,description="Un nouveau patchnote est disponible, vous pouvez le voir à l'aide de /patchnote\n\n*Note : Les nouvelles commandes slash peuvent mettre jusqu'à 1 heure pour apparaitre sur vos serveur*"))
+                    except:
+                        pass
         else:
             pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
             if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
-                #try:
                 await addExpUser(bot,guild,pathUserProfile,ctx,3,len(set(ctx.content)))
-                """except:
-                    print(f"Une erreur est survenue sur le message de {ctx.author.name}")"""
 
 # encyclopedia ----------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
@@ -1284,7 +1134,7 @@ async def cooldowns(ctx):
             fsaccord = "s"
         if fqseconds > 1:
             fqsaccord = "s"
-        msg = await ctx.send(embed = discord.Embed(title=f"__Cooldowns de l'équipe :__",description=f"__Fight__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__QuickFight__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",color=user.color))
+        msg = await ctx.send(embed = discord.Embed(title=f"__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",color=user.color))
         await asyncio.sleep(10)
         await msg.delete()
 
@@ -1309,7 +1159,7 @@ async def shopSlash(ctx):
 
 # Inventory
 @slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",options=[
-    create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=True,choices=[
+    create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=False,choices=[
         create_choice("Armes","Armes"),
         create_choice("Compétences","Compétences"),
         create_choice("Equipements","Equipements"),
@@ -1319,78 +1169,85 @@ async def shopSlash(ctx):
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False),
     create_option("nom","Le nom ou l'identifiant d'un objet. Les espaces peuvent être remplacés par des _",3,required=False)
 ])
-async def invent(ctx,destination,procuration=None,nom=None):
+async def invent(ctx,destination=None,procuration=None,nom=None):
     to = False
-    for a in [0,1,2,3,4]:
-        if ["Armes","Compétences","Equipements","Objets spéciaux","Elements"][a] == destination:
-            destination = a
-            break
-    
-    empty = [None]
-    if procuration != None:
-        empty = [procuration.mention]
-
-    if nom != None:
-        nom = nom.replace("_"," ")
-        nom = nom.lower()
-        while nom.endswith(" "):
-            nom = nom[0:-1]
-
-        if whatIsThat(nom) == None:
-            research = weapons[:]+skills[:]+stuffs[:]+others[:]
-            lastResarch = []
-            nameTempCmpt,lenName = 0, len(nom)
-            while 1:
-                lastResarch = research[:]
-                if nameTempCmpt+3 <= lenName:
-                    nameTempCmpt += 3
-                else:
-                    nameTempCmpt = lenName
-
-                for a in research[:]:
-                    temp = a.name.lower()
-                    if not(temp.startswith(nom[0:nameTempCmpt])):
-                        research.remove(a)
-
-                leni = len(research)
-                if leni == 1:
-                    nom = research[0].name
-                    break
-                elif leni <= 0 or nameTempCmpt == lenName:
-                    desc = ""
-                    options = []
-                    for a in lastResarch:
-                        desc += "{0} {1}\n".format(a.emoji,a.name)
-                        options += [create_select_option(a.name,a.name,getEmojiObject(a.emoji))]
-
-                    if len(options) <= 25:
-                        select = create_select(options,placeholder="Sélectionnez un objet :")
-                    else:
-                        await ctx.send(embed=discord.Embed(title="/inventory",description="L'objet spécifié n'a pas été trouvé, et le nom donné est trop vague\nVeuillez réessayer avec un paramètre Nom plus précis"),delete_after=10)
-                        to = True
-                        break
-                    msg = await ctx.send(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(select)])
-
-                    def check(m):
-                        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
-
-                    try:
-                        respond = await wait_for_component(bot,components=select,check=check,timeout=60)
-                    except:
-                        await msg.delete()
-                        to = True
-                        break
-
-                    nom = respond.values[0]
-                    await msg.edit(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
-                    break           
-        
-        nom = [nom,None]
-        
+    if destination == None and nom==None:
+        await ctx.send(embed=discord.Embed(title="/inventory",description="Les champs \"destination\" et \"nom\" ne peuvent pas être tous les deux vides"),delete_after=15)
+        to = True
     else:
-        nom = [None]
+        for a in [0,1,2,3,4]:
+            if ["Armes","Compétences","Equipements","Objets spéciaux","Elements"][a] == destination:
+                destination = a
+                break
+
+        if destination != None:
+            destination = int(destination)
+        
+        empty = [None]
+        if procuration != None:
+            empty = [procuration.mention]
+
+        if nom != None:
+            nom = nom.replace("_"," ")
+            nom = nom.lower()
+            while nom.endswith(" "):
+                nom = nom[0:-1]
+
+            if whatIsThat(nom) == None:
+                research = weapons[:]+skills[:]+stuffs[:]+others[:]
+                lastResarch = []
+                nameTempCmpt,lenName = 0, len(nom)
+                while 1:
+                    lastResarch = research[:]
+                    if nameTempCmpt+3 <= lenName:
+                        nameTempCmpt += 3
+                    else:
+                        nameTempCmpt = lenName
+
+                    for a in research[:]:
+                        temp = a.name.lower()
+                        if not(temp.startswith(nom[0:nameTempCmpt])):
+                            research.remove(a)
+
+                    leni = len(research)
+                    if leni == 1:
+                        nom = research[0].name
+                        break
+                    elif leni <= 0 or nameTempCmpt == lenName:
+                        desc = ""
+                        options = []
+                        for a in lastResarch:
+                            desc += "{0} {1}\n".format(a.emoji,a.name)
+                            options += [create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.emoji))]
+
+                        if len(options) <= 25:
+                            select = create_select(options,placeholder="Sélectionnez un objet :")
+                        else:
+                            await ctx.send(embed=discord.Embed(title="/inventory",description="L'objet spécifié n'a pas été trouvé, et le nom donné est trop vague\nVeuillez réessayer avec un paramètre Nom plus précis"),delete_after=10)
+                            to = True
+                            break
+                        msg = await ctx.send(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(select)])
+
+                        def check(m):
+                            return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+
+                        try:
+                            respond = await wait_for_component(bot,components=select,check=check,timeout=60)
+                        except:
+                            await msg.delete()
+                            to = True
+                            break
+
+                        nom = respond.values[0]
+                        await msg.edit(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                        break           
+            
+            nom = [nom,None]
+            
+        else:
+            nom = [None]
     if not(to):
-        await inventory(bot,ctx,["/inventory"]+empty+nom,[int(destination),procuration])
+        await inventory(bot,ctx,["/inventory"]+empty+nom,[destination,procuration])
 
 # Points
 @slash.slash(name="points",description="Vous permet de répartir vos points bonus",options=[
@@ -1546,11 +1403,138 @@ async def teamQuit(ctx):
 async def helpCom(ctx):
     await helpBot(bot,ctx)
 
+# START
+@slash.slash(name="start",description="Permet de commence l'aventure")
+async def started(ctx):
+    await start(bot,ctx,["/start"])
+
+# STATS
+@slash.slash(name="stats",description="Permet de voir vos statistiques ou celles d'un autre joueur",options=[
+    create_option("joueur","Voir les statistiques d'un autre joueur",6,False)
+])
+async def stats(ctx,joueur=None):
+    if joueur == None:
+        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    else:
+        pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
+
+    if os.path.exists(pathUserProfile):
+        msg = await loadingSlashEmbed(ctx)
+        user = loadCharFile(pathUserProfile,ctx)
+
+        userIcon = await getUserIcon(bot,user)
+
+        rep = discord.Embed(title = f"__Page de statistique de {user.name} {userIcon}__",color = user.color,description = f"__Niveau :__ {user.level}\n__Expérience :__ {user.exp} / {user.level*50-20}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]}\n<:empty:866459463568850954>")
+ 
+        rep.add_field(name = "__Aspiration :__",value = inspi[user.aspiration],inline = False)
+
+        sumStatsBonus = [0,0,0,0,0,0,0,0,0,0]
+
+        for a in [user.weapon,user.stuff[0],user.stuff[1],user.stuff[2]]:
+            sumStatsBonus[0] += a.strength
+            sumStatsBonus[1] += a.endurance
+            sumStatsBonus[2] += a.charisma
+            sumStatsBonus[3] += a.agility
+            sumStatsBonus[4] += a.precision
+            sumStatsBonus[5] += a.intelligence
+            sumStatsBonus[6] += a.magie
+            sumStatsBonus[7] += a.resistance
+            sumStatsBonus[8] += a.percing
+            sumStatsBonus[9] += a.critical
+
+        for a in range(len(sumStatsBonus)):
+            if sumStatsBonus[a] > 0:
+                sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
+
+        rep.add_field(name = "__Statistiques principaux :__",value = f"Force : {user.strength} ({sumStatsBonus[0]})\nEndurance : {user.endurance} ({sumStatsBonus[1]})\nCharisme : {user.charisma} ({sumStatsBonus[2]})\nAgilité : {user.agility} ({sumStatsBonus[3]})\nPrécision : {user.precision} ({sumStatsBonus[4]})\nIntelligence : {user.intelligence} ({sumStatsBonus[5]})\nMagie : {user.magie} ({sumStatsBonus[6]})",inline= True)
+        rep.add_field(name = "__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[7]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[8]})\nCritique : {user.critical} ({sumStatsBonus[9]})",inline = True)
+        tempStuff,tempSkill = "",""
+        for a in [0,1,2]:
+            tempStuff += f"{ user.stuff[a].emoji} {user.stuff[a].name}\n"
+
+        for a in [0,1,2,3,4]:
+            try:
+                tempSkill += f"{ user.skills[a].emoji} {user.skills[a].name}\n"
+            except:
+                tempSkill += f"Slot [{a+1}] : Pas de compétence équipée\n"
+
+        rep.add_field(name = "__Equipement :__",value = f"__Arme :__\n{ user.weapon.emoji} {user.weapon.name}\n\n__Vêtements :__\n{tempStuff}\n__Compétences :__\n{tempSkill}",inline = False)
+        await msg.edit(embed = rep)
+
+    else:
+        if joueur == None:
+            await ctx.send("Tu n'a pas commencé l'aventure")
+        else:
+            await ctx.send("{0} n'a pas commencé l'aventure".format(joueur.name))
+
+# MANUEL
+@slash.slash(name="manuel",description="Permet de consulter le manuel de l'Aventure",options=[
+    create_option("page","Spécifiez une page à laquelle ouvrir le manuel",4,False)
+])
+async def manuel(ctx,page=0):
+    msg,manPage,chapterInt,ini = await loadingSlashEmbed(ctx),page,0,True
+    def checkReaction(reaction, user):
+        return int(reaction.message.id) == int(msg.id) and int(user.id) == int(ctx.author.id) and (str(reaction) == emoji.backward_arrow or str(reaction) == emoji.forward_arrow or str(reaction) == '⏪' or str(reaction) == '⏩') 
+    
+    while 1:
+        if manPage < lenChapter[chapterInt]:
+            chapterInt-=1
+        elif chapterInt != len(lenChapter)-1:
+            if manPage >= lenChapter[chapterInt+1]:
+                chapterInt+=1
+
+        ballerine = discord.Embed(title = "__"+tablPage[manPage][0]+" :__",color = light_blue,description = tablPage[manPage][1]).set_footer(text=f"Page {manPage} / {len(tablPage)-1}")
+        
+        if len(tablPage[manPage]) == 3:
+            ballerine.set_image(url=tablPage[manPage][2])
+
+        await msg.edit(embed = ballerine)
+        if ini:
+            await msg.add_reaction('⏪')
+            await msg.add_reaction(emoji.backward_arrow)
+            await msg.add_reaction(emoji.forward_arrow)
+            await msg.add_reaction('⏩')
+            ini = False
+
+        reaction = None
+        try:
+            reaction = await bot.wait_for("reaction_add",timeout=380,check=checkReaction)
+        except:
+            await msg.clear_reactions()
+            break
+
+        if reaction != None:
+            if str(reaction[0]) == emoji.backward_arrow:
+                if manPage == 0:
+                    manPage = len(tablPage)-1
+                else:
+                    manPage -= 1                   
+
+            elif str(reaction[0]) == emoji.forward_arrow:
+                if manPage == len(tablPage)-1:
+                    manPage = 0
+                else:
+                    manPage += 1
+
+            elif str(reaction[0]) == '⏪':
+                if chapterInt==0:
+                    manPage = lenChapter[len(lenChapter)-1]
+                else:
+                    manPage = lenChapter[chapterInt]
+            
+            elif str(reaction[0]) == '⏩':
+                if chapterInt==len(lenChapter)-1:
+                    manPage = 0
+                else:
+                    manPage = lenChapter[chapterInt+1]
+
+            await msg.remove_reaction(str(reaction[0]),reaction[1])
+
 ###########################################################
 # Démarrage du bot
 if os.path.exists("../Kawi/"):
-    print("Kawiiiiii")
+    print("\nKawiiiiii")
     bot.run(shushipy)
 else:
-    print("Il semblerait que je sois seule cette fois. Je m'occuperais de Shushi une autre fois")
+    print("\nIl semblerait que je sois seule cette fois. Je m'occuperais de Shushi une autre fois")
     bot.run(lenapy)

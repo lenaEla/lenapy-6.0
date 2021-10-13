@@ -147,51 +147,51 @@ def saveGuildSettings(path,server):
         return False
 
 def saveCharFile(path,char):
-    try:
-        saved = ""
-        for a in [char.owner,char.name,char.level,char.exp,char.currencies,char.species,char.color,char.team,int(char.customColor)]:
-            saved += str(a)+";"
-        saved += "\n"
-        for a in [char.strength,char.endurance,char.charisma,char.agility,char.precision,char.intelligence,char.aspiration,char.gender]:
-            saved += str(a)+";"
-        saved += "\n"
-        for a in [char.resistance,char.percing,char.critical,char.points]:
-            saved += str(a)+";"
-        for a in char.bonusPoints:
-            saved += str(a)+";"
-        saved += "\n"
-        saved += (char.weapon.id) +";\n"
-        for a in char.weaponInventory:
+    #try:
+    saved = ""
+    for a in [char.owner,char.name,char.level,char.exp,char.currencies,char.species,char.color,char.team,int(char.customColor)]:
+        saved += str(a)+";"
+    saved += "\n"
+    for a in [char.strength,char.endurance,char.charisma,char.agility,char.precision,char.intelligence,char.magie,char.aspiration,char.gender]:
+        saved += str(a)+";"
+    saved += "\n"
+    for a in [char.resistance,char.percing,char.critical,char.points]:
+        saved += str(a)+";"
+    for a in char.bonusPoints:
+        saved += str(a)+";"
+    saved += "\n"
+    saved += (char.weapon.id) +";\n"
+    for a in char.weaponInventory:
+        saved += a.id+";"
+    saved += "\n"
+    for a in char.skills:
+        try:
             saved += a.id+";"
-        saved += "\n"
-        for a in char.skills:
-            try:
-                saved += a.id+";"
-            except:
-                saved += "0;"
-        saved += "\n"
-        for a in char.skillInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in char.stuff:
-            saved += a.id+";"
-        saved += "\n"
-        for a in char.stuffInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in char.otherInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in char.procuration:
-            saved += str(a)+";"
-        saved += "\n"
+        except:
+            saved += "0;"
+    saved += "\n"
+    for a in char.skillInventory:
+        saved += a.id+";"
+    saved += "\n"
+    for a in char.stuff:
+        saved += a.id+";"
+    saved += "\n"
+    for a in char.stuffInventory:
+        saved += a.id+";"
+    saved += "\n"
+    for a in char.otherInventory:
+        saved += a.id+";"
+    saved += "\n"
+    for a in char.procuration:
+        saved += str(a)+";"
+    saved += "\n"
 
-        saved += str(char.element) +";\n"
+    saved += str(char.element) +";\n"
 
-        rewriteFile(path,saved)
-        return True
-    except:
-        return False
+    rewriteFile(path,saved)
+    return True
+    #except:
+        #return False
 
 def loadCharFile(path,ctx="useless"):
     """The Ctx option is there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used"""
@@ -208,22 +208,26 @@ def loadCharFile(path,ctx="useless"):
         rep.customColor = bool(int(file[0][8]))
     except:
         rep.customColor = False
+    
     try:
-        rep.gender = int(file[1][7])
+        rep.gender = int(file[1][8])
     except:
-        rep.gender = GENDER_OTHER
-    rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6])
+        rep.gender = int(file[1][7])
+        file[1][7] = file[1][6]
+        file[1][6] = 0
+
+    rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
     rep.resistance,rep.percing,rep.critical,rep.points = int(file[2][0]),int(file[2][1]),int(file[2][2]),int(file[2][3])
     try:
         temp = []
-        for a in file[2][4:10]:
+        for a in file[2][4:11]:
             temp += [int(a)]
-        if len(temp) == 6:
+        if len(temp) == 7:
             rep.bonusPoints = temp
         else:
-            print(file[2][4:10])
+            rep.bonusPoints = temp[0:6]+[0]+temp[6:]
     except:
-        rep.bonusPoints = [0,0,0,0,0,0]
+        rep.bonusPoints = [0,0,0,0,0,0,0]
     rep.weapon = findWeapon(file[3][0])
     cmpt,temp = 0,[]
     while cmpt < len(file[4]):
@@ -245,16 +249,16 @@ def loadCharFile(path,ctx="useless"):
     except:
         rep.skills = ["0","0","0","0","0"]
 
-    try:
-        cmpt,temp = 0,[]
-        while cmpt < len(file[6]):
-            if len(file[6][cmpt]) > 2:
-                file[6][cmpt] = file[6][cmpt][-2:]
-            temp += [findSkill(file[6][cmpt])]
-            cmpt += 1
-        rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
-    except:
-        rep.skillInventory = []
+    #try:
+    cmpt,temp = 0,[]
+    while cmpt < len(file[6]):
+        if len(file[6][cmpt]) > 2:
+            file[6][cmpt] = file[6][cmpt][-2:]
+        temp += [findSkill(file[6][cmpt])]
+        cmpt += 1
+    rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
+    """except:
+        rep.skillInventory = []"""
 
     try:
         cmpt,temp = 0,[]
@@ -403,3 +407,16 @@ def convertStrtoHex(string : str):
 
 async def loadingSlashEmbed(ctx):
     return await ctx.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
+
+def unhyperlink(text : str):
+    """Return the text of Text without the hyperlink"""
+    if text[0] == "[":
+        temp = ""
+        for a in text[1:]:
+            if a != "]":
+                temp += a
+            else:
+                temp.upper()
+                return temp+"]"
+    else:
+        return text
