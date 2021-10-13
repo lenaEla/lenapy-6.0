@@ -5,7 +5,6 @@ Here stand the first brick of the bot
 from datetime import timedelta
 import os
 
-
 #Constantes :
 # Area of effects
 AREA_MONO = 0 # Caster only
@@ -98,19 +97,23 @@ CHARISMA = 2
 AGILITY = 3
 PRECISION = 4
 INTELLIGENCE = 5
-PURCENTAGE = 6
-FIXE = 7
-HARMONIE = 8
+MAGIE = 6
+RESISTANCE = 7
+PENETRATION = 8
+CRITICAL = 9
+PURCENTAGE = 11
+FIXE = 12
+HARMONIE = 13
 
-nameStats,nameStats2 = ["Force","Endurance","Charisme","Agilité","Précision","Intelligence"],["Résistance","Pénétration","Critique"]
+nameStats,nameStats2 = ["Force","Endurance","Charisme","Agilité","Précision","Intelligence","Magie"],["Résistance","Pénétration","Critique"]
 allNameStats = nameStats+nameStats2
 
 # Status for entities
 STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED,STATUS_TRUE_DEATH = 0,1,2,3
 
 # Aspirations
-BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, ERUDIT, TETE_BRULE, STRATEGE, ALTRUISTE, AVENTURIER = 0,1,2,3,4,5,6,7,8
-inspi = ["Berserkeur","Observateur","Poids plume","Idole","Erudit","Tête brulée","Stratège","Altruiste","Aventurier"]
+BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0,1,2,3,4,5,6,7,8,9,10
+inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prevoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
 
 # "Target" values
 ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0,1,2,3,4
@@ -140,9 +143,11 @@ maxStrength = [
     15, # Ido
     25, # Eru
     45, # Tet
-    25, # Omae wa mou shinderu
+    25, # Mag
     15, # Alt
-    35  # Ave
+    35, # Ave
+    25, # Enc
+    15  # Pro
 ]
 
 maxEndur = [
@@ -152,9 +157,11 @@ maxEndur = [
     15, # Ido
     30, # Eru
     45, # Tet
-    35, # Nani
+    15, # Mag
     45, # Alt
-    30  # Ave
+    30, # Ave
+    50, # Enc
+    50  # Pro
 ]
 
 maxChar = [
@@ -164,46 +171,79 @@ maxChar = [
     55, # Ido
     35, # Eru
     25, # Tet
-    30, # Ohoh
+    40, # Mag
     55, # Alt
-    30  # Ave
+    30, # Ave
+    30, # Enc
+    45  # Pro
 ]
 
 maxAgi = [
-    15, # Ber
+    25, # Ber
     25, # Obs
     65, # Poi
     30, # Ido
     25, # Eru
-    25, # Tet
-    30, # You dare approche me
+    30, # Tet
+    20, # Mag
     35, # Alt
-    35  # Ave
+    35, # Ave
+    35, # Enc
+    35  # Pro
 ]
 
 maxPreci = [
     30, # Ber
-    35, # Obs
+    40, # Obs
     35, # Poi
     30, # Ido
     35, # Eru
     25, # Tet
-    25, # Insted of running away form me
+    35, # Mag
     20, # Alt
-    35  # Ave
+    30, # Ave
+    25, # Enc
+    15  # Pro
 ]
 
 maxIntel = [
-    15,  # Ber
-    35, # Obs
-    30, # Poi
-    50, # Ido
+    15, # Ber
+    15, # Obs
+    20, # Poi
+    55, # Ido
     50, # Eru
     35, # Tet
-    35, # I can't beet yout shit without be any closer
+    20, # Mag
     30, # Alt
-    35  # Ave
+    30, # Ave
+    10, # Enc
+    45  # Pro
 ]
+
+maxMagie = [
+    10, # Ber
+    35, # Obs
+    25, # Poi
+    20, # Ido
+    20, # Eru
+    15, # Tet
+    65, # Mag
+    20, # Alt
+    30, # Ave
+    45, # Enc
+    15  # Pro
+]
+
+for a in range(0,len(inspi)):
+    summation = 0
+    for b in (maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie):
+        try:
+            summation += b[a]
+        except:
+            pass
+
+    if summation != 220:
+        print("{0} n'a pas le bon cumul de stats : {1}".format(inspi[a],summation))
 
 # Constants for "orientation" field for skills
 TANK,DISTANCE,LONG_DIST = "Tank","Distance","Longue Distance"
@@ -246,20 +286,25 @@ else:
 isLenapy = not(os.path.exists("../Kawi"))
 
 # Tabl of random messages for the shop
-shopRandomMsg,rollMessage = [],[]
-shopRandomMsg += ['<:ikaLBlue:866459302319226910> : "Si j\'en crois la loi, je suis sensée vous rappeller que vous acceptez d\'utiliser vos armes à vos risques et périls.\nJe suis en aucun cas responsable si elle vous explose dans les mains et que vous la passez à gauche"']
-shopRandomMsg += ['<:ikaLBlue:866459302319226910> : "Si quelqu\'un vois l\'autre fanatique des fleurs roses, vous pourrez lui dire qu\'il y en a une qui a poussée dans mon shop ?"']
-shopRandomMsg += ['<:ikaLBlue:866459302319226910> : "Hônnetement, ça fait un moment que j\'ai arrêté de compter le nombre de canettes de Coca que me dois Léna"']
-shopRandomMsg += ['<:ikaLBlue:866459302319226910> : "Des fleurs roses, blues, jaunes... Je dois vous rappeler que vous partez pas en mission jardinage ?"']
-shopRandomMsg += ["<:ikaLBlue:866459302319226910> : \"Faites attention si Alice vous rejoint pour un combat. Il est fort probable qu'elle cherche à obtenir des infos sur vous plutôt que de vaincre vos ennemis\""]
-shopRandomMsg += ["<:ikaPink:866459344173137930> : \"J'aime bien les vêtements que tu proposes, mais ça manque de rose...\"\n<:ikaLBlue:866459302319226910> : \"C'est une blague j'espère\""]
-shopRandomMsg += ["<a:Ailill:882040705814503434> : \"ReeaperrDusst ? ... Je ssuis prêêtee à pariier ma têtee qu'iil a jammais été oriiginal de saa vie\""]
-shopRandomMsg += ["<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`"]
-shopRandomMsg += ["<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`\n<:ikaBlue:866459319049650206> : `Regarde les pop-corns avec un air interresée`"]
-shopRandomMsg += ["<:ikaPink:866459344173137930> : \"Flum POWA !\""]
-shopRandomMsg += ["<:ikaPink:866459344173137930> : \"Flum POWA !\"\n<:takoRed:866459004439756810> : \"Les coquelicots c'est mieux je trouve\"\n<:ikaPink:866459344173137930> : \"N'importe quoi ! Ce sont les roses les plus jolies !\"\n<:ikaLBlue:866459302319226910> : \"Vous trois, vous pourriez arrêter de débattre dans mon shop, s'il vous plait ?\""]
-shopRandomMsg += ["<:ikaLBlue:866459302319226910> : \"Tiens, Clémence, j'ai trouvé un drôle de livre ces derniers temps et vu que tu t'y connais un peu en runes et magie, je me demandais si tu pouvais essayer de m'apprendre un peu comment m'en servir...\"\n<:takoRed:866459004439756810> : \"Heu... ok\""]
-shopRandomMsg += ["<:takoRed:866459004439756810> : \"Ah, Lena. J'ai jeté un coup d'œil à ton livre et heu... Tu as au moins une idée de ce qu'est un Carbuncle ?\"\n<:ikaLBlue:866459302319226910> : \"Absolument pas\"\n<:takoRed:866459004439756810> : \"... Ça va être long...\""]
+rollMessage = []
+shopRandomMsg = [
+    '<:ikaLBlue:866459302319226910> : "Si j\'en crois la loi, je suis sensée vous rappeller que vous acceptez d\'utiliser vos armes à vos risques et périls.\nJe suis en aucun cas responsable si elle vous explose dans les mains et que vous la passez à gauche"',
+    '<:ikaLBlue:866459302319226910> : "Si quelqu\'un vois l\'autre fanatique des fleurs roses, vous pourrez lui dire qu\'il y en a une qui a poussée dans mon shop ?"',
+    '<:ikaLBlue:866459302319226910> : "Hônnetement, ça fait un moment que j\'ai arrêté de compter le nombre de canettes de Coca que me dois Léna"',
+    '<:ikaLBlue:866459302319226910> : "Des fleurs roses, blues, jaunes... Je dois vous rappeler que vous partez pas en mission jardinage ?"',
+    "<:ikaLBlue:866459302319226910> : \"Faites attention si Alice vous rejoint pour un combat. Il est fort probable qu'elle cherche à obtenir des infos sur vous plutôt que de vaincre vos ennemis\"",
+    "<:ikaPink:866459344173137930> : \"J'aime bien les vêtements que tu proposes, mais ça manque de rose...\"\n<:ikaLBlue:866459302319226910> : \"C'est une blague j'espère\"",
+    "<a:Ailill:882040705814503434> : \"ReeaperrDusst ? ... Je ssuis prêêtee à pariier ma têtee qu'iil a jammais été oriiginal de saa vie\"",
+    "<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`",
+    "<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`\n<:ikaBlue:866459319049650206> : `Regarde les pop-corns avec un air interresée`",
+    "<:ikaPink:866459344173137930> : \"Flum POWA !\"",
+    "<:ikaPink:866459344173137930> : \"Flum POWA !\"\n<:takoRed:866459004439756810> : \"Les coquelicots c'est mieux je trouve\"\n<:ikaPink:866459344173137930> : \"N'importe quoi ! Ce sont les roses les plus jolies !\"\n<:ikaLBlue:866459302319226910> : \"Vous trois, vous pourriez arrêter de débattre dans mon shop, s'il vous plait ?\"",
+    "<:ikaLBlue:866459302319226910> : \"Tiens, Clémence, j'ai trouvé un drôle de livre ces derniers temps et vu que tu t'y connais un peu en runes et magie, je me demandais si tu pouvais essayer de m'apprendre un peu comment m'en servir...\"\n<:takoRed:866459004439756810> : \"Heu... ok\"",
+    "<:takoRed:866459004439756810> : \"Ah, Lena. J'ai jeté un coup d'œil à ton livre et heu... Tu as au moins une idée de ce qu'est un Carbuncle ?\"\n<:ikaLBlue:866459302319226910> : \"Absolument pas\"\n<:takoRed:866459004439756810> : \"... Ça va être long...\"",
+    '<:ikaLBlue:866459302319226910> : "Si quelqu\'un vois Ly, vous pourrez lui dire que ma proposition tiens toujours ?"',
+    '<:takoRed:866459004439756810> : "Hum... j\'ai trouvé des trucs qui pourrait t\'interresser lors de ma dernière escapade dans les ruines d\'Elidyn, Lena"\n<:ikaLBlue:866459302319226910> : "Ow ? Montre pour voir ?"',
+    '<:ikaBlack:871149560284741632> : "On a tous une part sombre en nous. Si vous voulez je peux vous aider à la trouver"'
+]
 
 # Same, but for the roll command
 rollMessage += ["Selon toute vraisemblance ce sera un **{0}**","Puisse la chance être avec toi... **{0}** !","Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**","Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
