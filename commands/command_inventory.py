@@ -1,5 +1,4 @@
 import discord, os, asyncio
-from discord.errors import DiscordException
 
 from discord_slash.utils.manage_components import *
 from discord_slash import ButtonStyle
@@ -92,13 +91,9 @@ async def elements(bot : discord.client, ctx : discord.message, msg : discord.me
             else:
                 await secondMsg.delete()
 
-
 async def inventory(bot : discord.client, ctx : discord.message, args : list,slashed = None):
     """Commande d'inventaire d'un personnage"""
     msg = None
-    def checkIsAuthor(message):
-        return message.author.id == ctx.author.id and message.channel.id == ctx.channe.id
-
     if args[1] != None:
         ctx.mentions = [slashed[1]]
         pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
@@ -109,10 +104,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
     args.remove(args[1])
 
     def checkIsAuthorReact(reaction,user):
-        return user == ctx.author and int(reaction.message.id) == int(msg.id)
-
-    def check(m):
-        return m.author_id == ctx.author.id and m.origin_message.id == msgOrigine.id
+        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id)
 
     if os.path.exists(pathUserProfile):
         state = 0
@@ -124,7 +116,6 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
         if okForCommand:
             if args[1] == None:
-                menuSelect = ctx
                 state = slashed[0]
                 on = True
                 
@@ -171,7 +162,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                             options=[]
                             for a in listOfWeapon:
-                                options += [create_select_option(a.name,a.id,getEmojiObject(a.emoji))]
+                                options += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
 
                             select=create_select(
                                 options=options,
@@ -243,6 +234,8 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 conds = ""
                                 if not(a.havConds(user)):
                                     conds = "`"
+                                if a in user.skills:
+                                    conds = "__"
                                 temp += f"{a.emoji} {conds}{a.name} ({a.id}){conds}\n"
 
                             temp += f"\nPage **{page+1}** sur {maxPage+1}"
@@ -263,14 +256,15 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             for a in listOfSkills:
                                 options += [create_select_option(a.name,a.id,getEmojiObject(a.emoji))]
 
-                            select=create_select(
-                                options=options,
-                                placeholder="Sélectionnez un objet pour avoir plus d'informations dessus"
-                                )
+                            
 
-                            if len(select["options"]) <= 0:
+                            if len(options) <= 0:
                                 select=create_select([create_select_option("Bah alors on viens de commencer ?","Waw !")],placeholder="Vous n'avez pas de compétences",disabled = True)
-
+                            else:
+                                select=create_select(
+                                    options=options,
+                                    placeholder="Sélectionnez un objet pour avoir plus d'informations dessus"
+                                )
                             actionSelect = create_actionrow(select)
                             actionButtons = create_actionrow(previousBoutton,nextBoutton)
                             actionTabl = [actionButtons,actionSelect]
@@ -329,7 +323,10 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     pass
 
                             for a in listOfStuffs:
-                                temp += f"{ a.emoji} {a.name} ({a.id})\n"
+                                equip = ''
+                                if a in [user.stuff[0],user.stuff[1],user.stuff[2]]:
+                                    equip = '__'
+                                temp += f"{a.emoji} {equip}{a.name} ({a.id}){equip}\n"
 
                             temp += f"\nPage **{page+1}** sur {maxPage+1}"
                             
@@ -362,7 +359,10 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             def check(m):
                                 return m.author_id == ctx.author.id and m.origin_message.id == msg.id
 
-                            respond = await wait_for_component(bot, components=actionTabl, check=check)
+                            try:
+                                respond = await wait_for_component(bot, components=actionTabl, check=check)
+                            except:
+                                await msg.edit(embed = rep,components=[])
                             try:
                                 if respond.custom_id == "back":
                                     page -= 1
@@ -395,18 +395,36 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                         elif state == 3:
                             rep = discord.Embed(title = f"__Inventaire de {user.name} - Objet__ :",color = user.color,description = "Pour avoir plus d'information sur un objet, réalisez la commande \"inventory (id)\"")
                             temp = ""
+                            options = []
                             for a in user.otherInventory:
-                                    temp += f"{a.emoji} {a.name} ({a.id})\n"
+                                temp += f"{a.emoji} {a.name} ({a.id})\n"
+                                options.append(create_select_option(a.name,a.id,getEmojiObject(a.emoji)))
                             
                             if temp == "":
                                 temp = "Votre inventaire est vide"
+                                rep.add_field(name = "__Inventaire d'objets :__",value = temp,inline = False)
+                                await msg.edit(embed=rep,components=[])
+                                break
+                            else:
+                                rep.add_field(name = "__Inventaire d'objets :__",value = temp,inline = False)
 
-                            rep.add_field(name = "__Inventaire d'objets :__",value = temp,inline = False)
-                            await msg.edit(embed=rep)
-                            break
+                                select = create_select(options,placeholder="Sélectionnez un objet pour avoir plus d'informations dessus")
+                                await msg.edit(embed=rep,components=[create_actionrow(select)])
+
+                                def check(m):
+                                    return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+                                try:
+                                    respond = await wait_for_component(bot, components=select, check=check)
+                                except:
+                                    await msg.edit(embed=rep,components=[])
+                                    break
+
+                                args[1] = respond.values[0]
+                                break
 
                         elif state == 4:
                             await elements(bot,ctx,msg,user)
+                            break
 
             if len(args) > 3:
                 for a in range(2,len(args)):
@@ -432,14 +450,14 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             repEmb.set_footer(text = "Vous ne possédez pas cette arme")
-                            await msg.edit(embed = repEmb)
+                            await msg.edit(embed = repEmb,components=[])
                         elif weap == user.weapon:
                             repEmb.set_footer(text = "Vous utilisez déjà cette arme")
-                            await msg.edit(embed = repEmb)
+                            await msg.edit(embed = repEmb,components=[])
 
                         else:
                             repEmb.set_footer(text = "Cliquez sur l'icone de l'arme pour l'équiper")
-                            await msg.edit(embed = repEmb)
+                            await msg.edit(embed = repEmb,components=[])
                             await msg.add_reaction(weap.emoji)
 
                             def checkisReaction(reaction, user):
@@ -450,7 +468,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 user.weapon = weap
                                 if saveCharFile(pathUserProfile,user):
                                     await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle arme a bien été équipée"))
+                                    await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle arme a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))])
                                 else:
                                     await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                             except asyncio.TimeoutError:
@@ -555,7 +573,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             user.skills[a] = weap
                                             saveCharFile(pathUserProfile,user)
                                             await pondu.delete()
-                                            await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description="Vous avez bien équipé votre compétence !",components=[]))
+                                            await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))]))
                                         except:
                                             await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue",components=[]))
                                         break
@@ -589,7 +607,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 user.stuff[weap.type] = weap
                                 if saveCharFile(pathUserProfile,user):
                                     await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvel équipement a bien été équipée"))
+                                    await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvel équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))])
                                 else:
                                     await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                             except asyncio.TimeoutError:
@@ -605,16 +623,20 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             repEmb.set_footer(text = "Vous ne possédez pas cet objet")
-                            await msg.edit(embed = repEmb)
+                            await msg.edit(embed = repEmb,components=[])
 
                         else:
-                            repEmb.set_footer(text = "Cliquez sur l'icone de l'objet l'utiliser")
-                            await msg.edit(embed = repEmb)
+                            if obj != elementalCristal:
+                                repEmb.set_footer(text = "Cliquez sur l'icone de l'objet l'utiliser")
+                            else:
+                                repEmb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Element")
+                            
+                            await msg.edit(embed = repEmb,components=[])
                             if obj != elementalCristal:
                                 await msg.add_reaction(obj.emoji)
 
                             def checkisReaction(reaction, user):
-                                return user == ctx.author and str(reaction.emoji) ==  obj.emoji
+                                return int(user.id) == int(ctx.author.id) and str(reaction.emoji) ==  obj.emoji
 
                             try:
                                 await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
@@ -642,7 +664,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     await msg.add_reaction('<:takoLBlue:866459095875190804>')
 
                                     def checkIsAuthorReact1(reaction,user):
-                                        return user == ctx.author and reaction.message == msg and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
+                                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
 
                                     respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
 
@@ -657,7 +679,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     await msg.add_reaction('♀️')
                                     await msg.add_reaction(emoji.forward_arrow)
                                     def checkIsAuthorReact(reaction,user):
-                                        return user == ctx.author and reaction.message == msg and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
+                                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
 
                                     respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
                                     testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',emoji.forward_arrow]
@@ -691,11 +713,11 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                         try:
                                             await respond.delete()
                                         except:
-                                            print("Il me manque la permission de supprimer des messages")
+                                            pass
 
                                         saveCharFile(pathUserProfile,user)
                                         await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !"))
+                                        await msg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !",components=[]))
                                     else:
                                         await msg.add_reaction('🕛')                
                                 elif obj==restat:
@@ -707,12 +729,12 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     await msg.clear_reactions()
                                     await msg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
                                 elif obj==customColor:
-                                    user = await changeCustomColor(bot,msg,ctx,user,args)
-                                    if user != None:
-                                        user.otherInventory.remove(customColor)
-                                        saveCharFile(pathUserProfile,user)
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
+                                        user = await changeCustomColor(bot,msg,ctx,user,args)
+                                        if user != None:
+                                            user.otherInventory.remove(customColor)
+                                            saveCharFile(pathUserProfile,user)
+                                            await msg.clear_reactions()
+                                            await msg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
                             except asyncio.TimeoutError:
                                 await msg.clear_reactions()
                 

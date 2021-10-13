@@ -92,56 +92,59 @@ async def helpBot(bot,ctx):
 
     try:
         respond = await wait_for_component(bot,components=categorieSelect,check=check,timeout=60)
+        continu = True
     except:
         await msg.delete()
+        continu = False
 
-    tablToSee,value = [], int(respond.values[0])
-    for a in range(0,len(tablCat)):
-        if value == a:
-            tablToSee = sorted(tablCat[a],key= lambda com: com["name"])
-            break
+    if continu:
+        tablToSee,value = [], int(respond.values[0])
+        for a in range(0,len(tablCat)):
+            if value == a:
+                tablToSee = sorted(tablCat[a],key= lambda com: com["name"])
+                break
 
-    leni = len(tablToSee)
-    page,maxPage = 0,leni//10
-    if leni%10 == 0:
-        maxPage -= 1
-    
-    while 1:
-        commandInfoOptions = []
-        if page > 0:
-            commandInfoOptions.append(create_select_option("Page précédente","0",description="Retournez à la page précédente"))
-        maxi,desc = (page+1)*10,"__Page **{0}** / {1}__\n".format(page+1,maxPage+1)
-        if maxi > leni:
-            maxi = leni
-        for a in tablToSee[page*10:maxi]:
-            desc += f'\n__/{a["name"]}__\n*{a["short"]}*\n'
-            commandInfoOptions.append(create_select_option(a["name"],a["name"],description=a["short"]))
-
+        leni = len(tablToSee)
+        page,maxPage = 0,leni//10
+        if leni%10 == 0:
+            maxPage -= 1
         
-        if page < maxPage:
-            commandInfoOptions.append(create_select_option("Page suivante","1",description="Allez à la page suivante"))
-        commandInfoSelect = create_select(commandInfoOptions,placeholder="Sélectionnez une commande pour avoir plus d'informations")
-        await msg.edit(embed = discord.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[create_actionrow(commandInfoSelect)])
-        
-        try:
-            respond = await wait_for_component(bot,components=commandInfoSelect,check=check,timeout=60)
-        except:
-            await msg.edit(embed = discord.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[timeoutSelect])
-            break
+        while 1:
+            commandInfoOptions = []
+            if page > 0:
+                commandInfoOptions.append(create_select_option("Page précédente","0",description="Retournez à la page précédente"))
+            maxi,desc = (page+1)*10,"__Page **{0}** / {1}__\n".format(page+1,maxPage+1)
+            if maxi > leni:
+                maxi = leni
+            for a in tablToSee[page*10:maxi]:
+                desc += f'\n__/{a["name"]}__\n*{a["short"]}*\n'
+                commandInfoOptions.append(create_select_option(a["name"],a["name"],description=a["short"]))
 
-        value2 = respond.values[0]
-        if value2 == "0":
-            page -= 1
-        elif value2 == "1":
-            page += 1
-        else:
-            wanted = None
-            for a in tablToSee:
-                if a["name"] == value2:
-                        wanted=a
-                        break
+            
+            if page < maxPage:
+                commandInfoOptions.append(create_select_option("Page suivante","1",description="Allez à la page suivante"))
+            commandInfoSelect = create_select(commandInfoOptions,placeholder="Sélectionnez une commande pour avoir plus d'informations")
+            await msg.edit(embed = discord.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[create_actionrow(commandInfoSelect)])
+            
+            try:
+                respond = await wait_for_component(bot,components=commandInfoSelect,check=check,timeout=60)
+            except:
+                await msg.edit(embed = discord.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[timeoutSelect])
+                break
 
-            if wanted != None:
-                await respond.send(embed=discord.Embed(title="__/help {0}__".format(wanted["name"]),color=light_blue,description=wanted["long"]),delete_after=30)
+            value2 = respond.values[0]
+            if value2 == "0":
+                page -= 1
+            elif value2 == "1":
+                page += 1
             else:
-                await respond.send("La commande n'a pas pu être retrouvée :/")
+                wanted = None
+                for a in tablToSee:
+                    if a["name"] == value2:
+                            wanted=a
+                            break
+
+                if wanted != None:
+                    await respond.send(embed=discord.Embed(title="__/help {0}__".format(wanted["name"]),color=light_blue,description=wanted["long"]),delete_after=30)
+                else:
+                    await respond.send("La commande n'a pas pu être retrouvée :/")

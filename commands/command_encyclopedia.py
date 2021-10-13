@@ -66,14 +66,15 @@ async def encylopedia(bot,ctx,destination,user):
                 create_select_option("Agilité","7",'🤸',default=7==tri),
                 create_select_option("Précision","8",'🏹',default=8==tri),
                 create_select_option("Intelligence","9",'🎓',default=9==tri),
-                create_select_option("Résistance","10",'🛡️',default=10==tri),
-                create_select_option("Pénétration","11",'🗡️',default=11==tri),
-                create_select_option("Critique","12",'🎲',default=12==tri)]
+                create_select_option("Magie","10",'🧙',default=10==tri),
+                create_select_option("Résistance","11",'🛡️',default=11==tri),
+                create_select_option("Pénétration","12",'🗡️',default=12==tri),
+                create_select_option("Critique","13",'🎲',default=13==tri)]
 
         if value in [9]:
             options += [
-            create_select_option("Terminés","13",'🔓',default=13==tri),
-            create_select_option("Non terminés","14",'🔒',default=14==tri)
+            create_select_option("Terminés","14",'🔓',default=13==tri),
+            create_select_option("Non terminés","15",'🔒',default=14==tri)
             ]
 
         sortOptions = create_select(options)
@@ -123,7 +124,35 @@ async def encylopedia(bot,ctx,destination,user):
                 tablToSee = achivement.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
 
-            tablToSee.sort(key=lambda stuff:stuff.name,reverse=reverse)
+            if value in [0,1,2,3]:
+                if tri in [0,1]:
+                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=not(tri))
+                elif tri in [2,3]:
+                    tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
+                elif tri == 4:
+                    tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                elif tri == 5:
+                    tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
+                elif tri == 6:
+                    tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                elif tri == 7:
+                    tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
+                elif tri == 8:
+                    tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
+                elif tri == 9:
+                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                elif tri == 10:
+                    tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                elif tri == 11:
+                    tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
+                elif tri == 12:
+                    tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                elif tri == 13:
+                    tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+                elif tri in [14,15]:
+                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(tri-13))
+            else:
+                tablToSee.sort(key=lambda ballerine:ballerine.name)
             lenTabl = len(tablToSee)
             maxPage=(lenTabl-1)//5
             page=0
@@ -145,126 +174,9 @@ async def encylopedia(bot,ctx,destination,user):
         if page != 0:
             firstOptions+=[create_select_option("Page précédente","return",emoji.backward_arrow)]
         
-        for z in [0,1]:
-            if page+z <= maxPage:
-                if value < 5 or value == 8:
-                    mess=""
-                    if page+z != maxPage:
-                        maxi = (page+1+z)*5
-                    else:
-                        maxi = lenTabl
-                    for a in tablToSee[(page+z)*5:maxi]:
-                        # Nom, posession
-                        mess += f"\n{a.emoji} **__{a.name}__** "
-                        temp=""
-                        if user.have(a):
-                            temp += userIcon
-                        if temp!="":
-                            temp = "("+temp+")"
-
-                        lock = ""
-                        if a not in listAllBuyableShop:
-                            lock = "(<:coinsn_t:885921771071627304>)"
-                        mess += temp+lock+"\n"
-
-                        # Première info utile
-                        if value in [0,1,2,8] and type(a) == stuff:
-                            mess +="*"+a.orientation+"*\n"
-                        elif value in [3,4,8] and type(a) != stuff:
-                            ballerine = tablTypeStr[a.type]+" "
-                            if a.use != None and a.use != HARMONIE:
-                                sandale = nameStats[a.use]
-                            elif a.use == None:
-                                sandale = "Fixe"
-                            elif a.use == HARMONIE:
-                                sandale = "Harmonie"
-
-                            if value == 3:
-                                babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
-                            else:
-                                babie=''
-                            mess += f"*{babie}{ballerine} - {sandale}*\n"
-
-                        # Statistiques
-                        temp = ""
-                        if value in [0,1,2,3,8]:
-                            if type(a) != skill:
-                                stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.resistance,a.percing,a.critical],["For","End","Cha","Agi","Pre","Int","Rés","Pén","Cri"]
-                                for b in range(0,len(stats)):
-                                    if stats[b] != 0:
-                                        form = ""
-                                        if b == tri-4:
-                                            form = "**"
-                                        temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
-                                if a.affinity != None:
-                                    nim = elemNames[a.affinity]
-                                    if len(nim) > 3:
-                                        nim = nim[0:3]+"."
-                                    temp += " Elem. : "+nim
-                    
-                        # Création de l'option
-                        mess += temp+"\n"
-                        firstOptions += [create_select_option(a.name,a.id,getEmojiObject(a.emoji))]
-                elif value != 9:
-                    mess = ""
-                    if page+z != maxPage:
-                        maxi = (page+1+z)*5
-                    else:
-                        maxi = lenTabl
-                    for a in tablToSee[(page+z)*5:maxi]:
-                        if type(a) == octarien:
-                            mess += f"{a.icon} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
-                            firstOptions+=[create_select_option(a.name,a.name,getEmojiObject(a.icon))]
-                        else:
-                            mess += f"{emoji.icon[a.species][getColorId(a)]} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
-                            firstOptions+=[create_select_option(a.name,a.name,getEmojiObject(emoji.icon[a.species][getColorId(a)]))]
-
-                        for b in a.skills:
-                            if type(b) == skill:
-                                mess += f" {b.emoji}"
-
-                        mess+="\n\n"    
-                else:
-                    mess = ""
-                    if page+z != maxPage:
-                        maxi = (page+1+z)*5
-                    else:
-                        maxi = lenTabl
-                    for a in tablToSee[(page+z)*5:maxi]:
-                        succed = ""
-                        if a.haveSucced:
-                            succed = "~~"
-                        emo = ""
-                        if a.emoji != None:
-                            emo = a.emoji + " "
-                        mess += f"**__{succed}{emo}{a.name}{succed}__**"
-
-                        if a.haveSucced:
-                            mess += f" ({userIcon})"
-
-                        mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
-
-                        recompense = ""
-                        if a.recompense != [None]:
-                            for rep in a.recompense:
-                                what = whatIsThat(rep)
-                                if what == 0:
-                                    que = findWeapon(rep)
-                                elif what == 1:
-                                    que = findSkill(rep)
-                                elif what == 2:
-                                    que = findStuff(rep)
-                                elif what == 3:
-                                    que = findOther(rep)
-
-                                recompense += que.emoji + " "
-
-                        if recompense != "":
-                            mess += "\nRécompense : "+recompense
-
-                        mess+="\n\n"
-
-                if len(mess) > 1024: # Mess abrégé
+        if lenTabl != 0:
+            for z in [0,1]:
+                if page+z <= maxPage:
                     if value < 5 or value == 8:
                         mess=""
                         if page+z != maxPage:
@@ -273,10 +185,10 @@ async def encylopedia(bot,ctx,destination,user):
                             maxi = lenTabl
                         for a in tablToSee[(page+z)*5:maxi]:
                             # Nom, posession
-                            mess += f"\n**__{a.name}__** "
+                            mess += f"\n{a.emoji} **__{a.name}__** "
                             temp=""
                             if user.have(a):
-                                temp += emoji.check
+                                temp += userIcon
                             if temp!="":
                                 temp = "("+temp+")"
 
@@ -307,7 +219,7 @@ async def encylopedia(bot,ctx,destination,user):
                             temp = ""
                             if value in [0,1,2,3,8]:
                                 if type(a) != skill:
-                                    stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.resistance,a.percing,a.critical],["For","End","Cha","Agi","Pre","Int","Rés","Pén","Cri"]
+                                    stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri"]
                                     for b in range(0,len(stats)):
                                         if stats[b] != 0:
                                             form = ""
@@ -321,7 +233,8 @@ async def encylopedia(bot,ctx,destination,user):
                                         temp += " Elem. : "+nim
                         
                             # Création de l'option
-                            mess += temp+"\n"          
+                            mess += temp+"\n"
+                            firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
                     elif value != 9:
                         mess = ""
                         if page+z != maxPage:
@@ -330,13 +243,15 @@ async def encylopedia(bot,ctx,destination,user):
                             maxi = lenTabl
                         for a in tablToSee[(page+z)*5:maxi]:
                             if type(a) == octarien:
-                                mess += f"__{a.name}__\n{inspi[a.aspiration]} | {a.weapon.name} |"
+                                mess += f"{a.icon} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
+                                firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
                             else:
-                                mess += f"__{a.name}__\n{inspi[a.aspiration]} | {a.weapon.name} |"
+                                mess += f"{emoji.icon[a.species][getColorId(a)]} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
+                                firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(emoji.icon[a.species][getColorId(a)]))]
 
                             for b in a.skills:
                                 if type(b) == skill:
-                                    mess += f" {b.name}"
+                                    mess += f" {b.emoji}"
 
                             mess+="\n\n"    
                     else:
@@ -349,11 +264,13 @@ async def encylopedia(bot,ctx,destination,user):
                             succed = ""
                             if a.haveSucced:
                                 succed = "~~"
-
-                            mess += f"**__{succed}{a.name}{succed}__**"
+                            emo = ""
+                            if a.emoji != None:
+                                emo = a.emoji + " "
+                            mess += f"**__{succed}{emo}{a.name}{succed}__**"
 
                             if a.haveSucced:
-                                mess += f" ({emoji.check})"
+                                mess += f" ({userIcon})"
 
                             mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
 
@@ -370,15 +287,129 @@ async def encylopedia(bot,ctx,destination,user):
                                     elif what == 3:
                                         que = findOther(rep)
 
-                                    recompense += que.name + " "
+                                    recompense += que.emoji + " "
 
                             if recompense != "":
                                 mess += "\nRécompense : "+recompense
 
                             mess+="\n\n"
-                                
-                embed = embed.add_field(name="<:empty:866459463568850954>\n__"+fullValue[value] + f" - Page {page+z+1} sur {maxPage+1}__",value=mess,inline=False)
 
+                    if len(mess) > 1024: # Mess abrégé
+                        if value < 5 or value == 8:
+                            mess=""
+                            if page+z != maxPage:
+                                maxi = (page+1+z)*5
+                            else:
+                                maxi = lenTabl
+                            for a in tablToSee[(page+z)*5:maxi]:
+                                # Nom, posession
+                                mess += f"\n**__{a.name}__** "
+                                temp=""
+                                if user.have(a):
+                                    temp += emoji.check
+                                if temp!="":
+                                    temp = "("+temp+")"
+
+                                lock = ""
+                                if a not in listAllBuyableShop:
+                                    lock = "(<:coinsn_t:885921771071627304>)"
+                                mess += temp+lock+"\n"
+
+                                # Première info utile
+                                if value in [0,1,2,8] and type(a) == stuff:
+                                    mess +="*"+a.orientation+"*\n"
+                                elif value in [3,4,8] and type(a) != stuff:
+                                    ballerine = tablTypeStr[a.type]+" "
+                                    if a.use != None and a.use != HARMONIE:
+                                        sandale = nameStats[a.use]
+                                    elif a.use == None:
+                                        sandale = "Fixe"
+                                    elif a.use == HARMONIE:
+                                        sandale = "Harmonie"
+
+                                    if value == 3:
+                                        babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
+                                    else:
+                                        babie=''
+                                    mess += f"*{babie}{ballerine} - {sandale}*\n"
+
+                                # Statistiques
+                                temp = ""
+                                if value in [0,1,2,3,8]:
+                                    if type(a) != skill:
+                                        stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.resistance,a.percing,a.critical],["For","End","Cha","Agi","Pre","Int","Rés","Pén","Cri"]
+                                        for b in range(0,len(stats)):
+                                            if stats[b] != 0:
+                                                form = ""
+                                                if b == tri-4:
+                                                    form = "**"
+                                                temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
+                                        if a.affinity != None:
+                                            nim = elemNames[a.affinity]
+                                            if len(nim) > 3:
+                                                nim = nim[0:3]+"."
+                                            temp += " Elem. : "+nim
+                            
+                                # Création de l'option
+                                mess += temp+"\n"          
+                        elif value != 9:
+                            mess = ""
+                            if page+z != maxPage:
+                                maxi = (page+1+z)*5
+                            else:
+                                maxi = lenTabl
+                            for a in tablToSee[(page+z)*5:maxi]:
+                                if type(a) == octarien:
+                                    mess += f"__{a.name}__\n{inspi[a.aspiration]} | {a.weapon.name} |"
+                                else:
+                                    mess += f"__{a.name}__\n{inspi[a.aspiration]} | {a.weapon.name} |"
+
+                                for b in a.skills:
+                                    if type(b) == skill:
+                                        mess += f" {b.name}"
+
+                                mess+="\n\n"    
+                        else:
+                            mess = ""
+                            if page+z != maxPage:
+                                maxi = (page+1+z)*5
+                            else:
+                                maxi = lenTabl
+                            for a in tablToSee[(page+z)*5:maxi]:
+                                succed = ""
+                                if a.haveSucced:
+                                    succed = "~~"
+
+                                mess += f"**__{succed}{a.name}{succed}__**"
+
+                                if a.haveSucced:
+                                    mess += f" ({emoji.check})"
+
+                                mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
+
+                                recompense = ""
+                                if a.recompense != [None]:
+                                    for rep in a.recompense:
+                                        what = whatIsThat(rep)
+                                        if what == 0:
+                                            que = findWeapon(rep)
+                                        elif what == 1:
+                                            que = findSkill(rep)
+                                        elif what == 2:
+                                            que = findStuff(rep)
+                                        elif what == 3:
+                                            que = findOther(rep)
+
+                                        recompense += que.name + " "
+
+                                if recompense != "":
+                                    mess += "\nRécompense : "+recompense
+
+                                mess+="\n\n"
+                                    
+                    embed = embed.add_field(name="<:empty:866459463568850954>\n__"+fullValue[value] + f" - Page {page+z+1} sur {maxPage+1}__",value=mess,inline=False)
+        else:
+            embed = embed.add_field(name="<:empty:866459463568850954>\n__"+fullValue[value],value="Cette catégorie est vide",inline=False)
         if page+1 < maxPage:
             firstOptions+=[create_select_option("Page suivante","next",emoji.forward_arrow)]
         
@@ -420,13 +451,15 @@ async def encylopedia(bot,ctx,destination,user):
                 elif respond == 9:
                     tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
                 elif respond == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
                 elif respond == 11:
-                    tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                 elif respond == 12:
+                    tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                elif respond == 13:
                     tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
-                elif respond in [13,14]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(respond-13))
+                elif respond in [14,15]:
+                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(respond-14))
             tri=respond
 
         else:
