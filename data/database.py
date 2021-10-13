@@ -118,7 +118,10 @@ class dbHandler():
         cursor = self.con.cursor()
         params = (headgearId,headgearFile)
         query = "INSERT INTO head_has_png VALUES (?,?);"
-        cursor.execute(query,params)
+        try:
+            cursor.execute(query,params)
+        except:
+            curso.execute("UPDATE head_has_png SET fichier = ? WHERE accessoire = ?",(headgearFile,headgearId))
         cursor.close()
         self.con.commit()
 
@@ -126,7 +129,10 @@ class dbHandler():
         cursor = self.con.cursor()
         params = (weapId,weapFile)
         query = "INSERT INTO weap_has_png VALUES (?,?);"
-        cursor.execute(query,params)
+        try:
+            cursor.execute(query,params)
+        except:
+            curso.execute("UPDATE weap_has_png SET file = ? WHERE weapon = ?",(weapFile,weapId))
         cursor.close()
         self.con.commit()
 
@@ -191,6 +197,8 @@ class dbHandler():
         cursor.execute(query)
         result = cursor.fetchall()
         cursor.close()
+        if len(result) == 0:
+            return "defHead.png"
         return result[0]["fichier"]
 
     def getCustomIcon(self,user):
