@@ -3,7 +3,7 @@ base classes module
 Here are grouped up the bases classes of the bot, and some very basic functions
 """
 
-import emoji,pathlib
+import emoji,pathlib,copy
 from constantes import *
 
 absPath = str(pathlib.Path(__file__).parent.resolve())
@@ -35,7 +35,7 @@ class server:
         self.colorRole = autoColor(0)
 
 class statTabl:
-    """A class that is use to store the entity's stats for the post fight medals and inflate his ego"""
+    """A class that is use to store the entity's stats for the post fight medals and inflate their ego"""
     def __init__(self):
         self.damageDeal = 0
         self.indirectDamageDeal = 0
@@ -53,6 +53,8 @@ class statTabl:
         self.damageBoosted = 0
         self.damageDogded = 0
         self.shieldGived = 0
+        self.estialba = 0
+        self.bleeding = 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -62,9 +64,10 @@ class option:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price : int,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say=""):
         """rtfm"""
         self.name = name
+        self.say = say
         self.id = id
         self.range = range
         self.strength = strength
@@ -89,10 +92,21 @@ class weapon:
         self.type = type
         self.needRotate = needRotate
         self.use = use
+        self.say = ""
         if self.range == 2 and damageOnArmor == 1:
             damageOnArmor = 1.33
         self.onArmor = damageOnArmor
         self.message = message
+
+        self.negativeHeal = negativeHeal
+        self.negativeShield = negativeShield
+        self.negativeDirect = negativeDirect
+        self.negativeIndirect = negativeIndirect
+        self.negativeBoost = negativeBoost
+
+        if (self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]) and self.use == STRENGTH:
+            self.use = CHARISMA
+            print("{0} : Wrong stat taken. Taken the Charisma stat insted".format(name))
 
         self.affinity = affinity
         orientation += [None]
@@ -125,18 +139,49 @@ class weapon:
         else:
             self.emoji=emoji
 
+        expectPrice = 100
+        expectPrice += self.power * 4
+        expectPrice += self.precision * 2
+        if self.effect != None or self.effectOnUse != None:
+            expectPrice += 200
+
+        if expectPrice != price and price != 0:
+            self.price = expectPrice
+
+        if self.type == TYPE_DAMAGE and self.power != 0 and sussess != 0:
+            expectation = 75 - 5*effectiveRange
+
+            if self.area != AREA_MONO:
+                expectation = expectation * 0.7
+            if self.use != STRENGTH:
+                expectation = expectation * 0.8
+            if self.effect != None or self.effectOnUse != None:
+                if self.id not in ["ob"]:
+                    expectation = expectation * 0.8
+                else:
+                    expectation = expectation * 0.9
+            expectation = int(expectation)
+
+            reality = int(self.power * self.repetition * self.sussess/100)
+            if reality != expectation:
+                suggest = int(expectation / (self.repetition * self.sussess/100))
+                if suggest != self.power:
+                    print("{0} : Expected {1} finalPower, got {2}. Suggested basePower : {3}".format(self.name,expectation,reality,suggest))
+
     def allStats(self):
         """Return a list with the mains stats of the weapon"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
-mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,25,45,0,10,agility=10,repetition=5,emoji = emoji.fist)
-splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,20,35,0,agility=10,charisma=5,strength=5,repetition=5,emoji = emoji.splatJr)
+mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,31,45,0,10,agility=10,repetition=5,emoji = emoji.fist)
+splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,agility=10,charisma=5,strength=5,repetition=5,emoji = emoji.splatJr)
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None):
+    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1):
         """rtfm"""
         self.name = name
+        self.repetition = repetition
+        self.say = say
         self.id = id
         self.type = types
         self.power = power
@@ -165,6 +210,15 @@ class skill:
         self.invocation = invocation
         self.message = message
         
+        if types==TYPE_PASSIVE:
+            self.area=AREA_MONO
+            self.range=AREA_MONO
+            self.initCooldown=99
+            if self.effectOnSelf == None:
+                self.effectOnSelf = effect
+                self.effect=None
+                print("{0} : EffectOnSelf not found ! Taken the effect in Effect field insted !".format(name))
+
         if type(self.effect)!=list:
             self.effect = [self.effect]
 
@@ -219,12 +273,14 @@ class skill:
                 self.emoji='<:defarmor:895446300848427049>'
             elif self.type in [TYPE_MALUS]:
                 self.emoji='<:defMalus:895448159675904001>'
+            elif self.type in [TYPE_RESURECTION,TYPE_INDIRECT_REZ]:
+                self.emoji='<:renisurection:873723658315644938>'
             else:
                 self.emoji='<:LenaWhat:760884455727955978>'
         else:
             self.emoji=emoji
 
-    def havConds(self,user=0):
+    def havConds(self,user):
         """Verify if the User have the conditions to equip the skill"""
         if self.condition != []:
             conds = self.condition
@@ -240,16 +296,16 @@ class skill:
                 userstats = user.allStats()
                 if userstats[conds[1]] < conds[2]:
                     return False
-        return True
-     
+        return user.level >= 5
+
 class stuff:
     """The main and only class for all the gears"""
-    def __init__(self,name,id,type,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effect=None,orientation = [],position=0,affinity = None):
+    def __init__(self,name,id,types,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effect=None,orientation = [],position=0,affinity = None,negativeShield=0,negativeHeal=0,negativeDirect=0,negativeIndirect=0,negativeBoost=0):
         """rdtm"""
         self.name = name
         self.id = id
         self.price = price
-        self.type = type
+        self.type = types
         self.strength = strength
         self.endurance = endurance
         self.charisma = charisma
@@ -263,6 +319,21 @@ class stuff:
         self.emoji = emoji
         self.position = position
 
+        self.negativeHeal = negativeHeal
+        self.negativeShield = negativeShield
+        self.negativeDirect = negativeDirect
+        self.negativeIndirect = negativeIndirect
+        self.negativeBoost = negativeBoost
+
+        if price != 0:
+            sumStats = 0
+            for stat in [strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,negativeHeal,negativeBoost,negativeDirect,negativeIndirect,negativeBoost]:
+                sumStats += abs(stat)
+            tempPrice = (sumStats-20)*5+100
+            if effect != None:
+                tempPrice += 200
+            self.price = tempPrice
+
         if emoji == None:
             if self.type == 0:
                 self.emoji='<:defHead:896928743967301703>'
@@ -275,51 +346,87 @@ class stuff:
         self.effect = effect
         self.affinity = affinity
 
-        orientation += [None]
-        if len(orientation) < 2:
-            if orientation[0] == None:
-                self.orientation = "Neutre"
-
-        elif orientation[0] == None and orientation[1] != None:
-            self.orientation = "Neutre - "+ orientation[1]
-        elif orientation[0] == None:
-            self.orientation = "Neutre"
-        elif orientation[1] == None:
-            self.orientation = orientation[0] + " - Neutre"
+        if type(orientation) != list:
+            self.orientation = orientation
         else:
-            self.orientation = orientation[0] + " - "+orientation[1]
+            orientation += [None]
+            if len(orientation) < 2:
+                if orientation[0] == None:
+                    self.orientation = "Neutre"
+
+            elif orientation[0] == None and orientation[1] != None:
+                self.orientation = "Neutre - "+ orientation[1]
+            elif orientation[0] == None:
+                self.orientation = "Neutre"
+            elif orientation[1] == None:
+                self.orientation = orientation[0] + " - Neutre"
+            else:
+                if orientation == [LONG_DIST,DPT,None]:
+                    self.orientation = LONG_DIST + " - Obs, T.Bru"
+                elif orientation == [TANK,DPT,None]:
+                    self.orientation = TANK + " - Bers, P.Plu"
+                else:
+                    self.orientation = orientation[0] + " - "+orientation[1]
+
+        summation = 0
+        for stat in [self.strength,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.percing,self.percing,self.critical]:
+            if stat > 0:
+                summation += stat
+        for stat in [self.negativeHeal,self.negativeBoost,self.negativeShield,self.negativeDirect,self.negativeIndirect]:
+            if stat < 0:
+                summation += abs(stat)
+        for stat in [self.endurance,self.resistance]:
+            if stat > 0:
+                summation += round(stat/2)
+
+        cmpt = 0
+        while 20 + cmpt * 10 <= summation:
+            cmpt += 1
+        self.minLvl = cmpt * 5
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
+    def havConds(self,user):
+        return user.level >= self.minLvl
 
 emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0):
         """rtfm"""
-        self.name = name
-        self.id = id
+        self.name = name                    # Name of the effect
+        self.id = id                        # The id. 2 characters
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
-        self.overhealth = overhealth
-        self.redirection = redirection
-        self.reject = reject
-        self.description = description
-        self.turnInit = turnInit
-        self.stat = stat
-        self.onTrigger = onTrigger
-        self.trigger = trigger
-        self.immunity = immunity
-        self.callOnTrigger = callOnTrigger
-        self.silent = silent
-        self.power = power
-        self.lvl = lvl
-        self.type = type
-        self.ignoreImmunity = ignoreImmunity
-        self.area=area
-        self.unclearable = unclearable
-        self.stun = stun
-        self.stackable = stackable
+        self.overhealth = overhealth        # Base shield power
+        self.redirection = redirection      # Damage redirection ratio. Unuse yet
+        self.reject = reject                # A list of the rejected effects
+        self.description = description.format(power)      # A (quick) description of the effect
+        self.turnInit = turnInit            # How many turn does the effect stay ?
+        self.stat = stat                    # Wich stat is use by the effect ?
+        self.onTrigger = onTrigger          # Unused
+        if (overhealth > 0 or redirection > 0) and trigger==TRIGGER_PASSIVE:
+            self.trigger = TRIGGER_DAMAGE   # If the effect give armor, he triggers automatiquely on damage
+        else:
+            self.trigger = trigger          # When does the effect triggers ?
+        self.immunity = immunity            # Does the effect give a immunity ?
+        self.callOnTrigger = callOnTrigger  # A list of effect given when the first one trigger
+        self.silent = silent                # Do the effect is showed in the fight ?
+        self.power = power                  # The base power for heals and indirect damages
+        self.lvl = lvl                      # How many times can the effect trigger ?
+        self.type = type                    # The type of the effect
+        self.ignoreImmunity = ignoreImmunity    # Does the damage of this effect ignore immunities ?
+        self.area=area                      # The area of effect of the effect
+        self.unclearable = unclearable      # Does the effect is unclearable ?
+        self.stun = stun                    # Does the effect is a stun effect ?
+        self.stackable = stackable          # Does the effect is stackable ?
+        self.replica = replique             # Does the effect is a replica of a skill ?
+        self.replicaTarget = None           # The Target of the replica
+        self.translucide = translucide      # Does the effect make the entity translucide ?
+        self.untargetable = untargetable    # Does the effect make the entity untargetable ?
+        self.invisible = invisible
+        self.aggro = aggro
 
         if emoji == None:
             if self.type in [TYPE_BOOST]:
@@ -336,6 +443,9 @@ class effect:
                 self.emoji=[['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>']]
         else:
             self.emoji=emoji
+
+        if self.emoji[0] == "<":
+            self.emoji = [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
 
     def setTurnInit(self,newTurn = 1):
         """Change the "turnInit" value. Why I need a function for that ?"""
@@ -364,8 +474,8 @@ class char:
     def __init__(self,owner,name = "",level = 1,species=0,color=red):
         """rtfm. realy."""
         self.owner = owner
-        self.name = name
-        self.level = level
+        self.name = str(name)
+        self.level = int(level)
         self.exp = 0
         self.currencies = 0
         self.species = species
@@ -389,6 +499,7 @@ class char:
         self.customColor = False
         self.element = ELEMENT_NEUTRAL
         self.deadIcon = None
+        self.says = says()
 
     def have(self,obj):
         """Verify if the character have the object Obj"""
@@ -421,7 +532,8 @@ class invoc:
         self.icon = icon
         self.customColor = False
         self.element = element
-
+        self.says = says()
+        
     def allStats(self):
         """Return a list """
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
@@ -431,3 +543,13 @@ def getColorId(user: char):
     for b in range(0,len(colorId)):
         if user.color == colorId[b]:
             return b
+
+incurable = effect("Incurable","incur",power=100,description="Diminue les soins reçus par la cible de **(puissance)**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent",emoji=[['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>']])
+
+incur = []
+for num in range(0,10):
+    incurTemp = copy.deepcopy(incurable)
+    incurTemp.power = 10*num
+    incurTemp.name = "Incurable ({0})".format(10*num)
+    incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant ou égal est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent".format(10*num)
+    incur.append(incurTemp)
