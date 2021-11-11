@@ -3,10 +3,11 @@ from discord_slash.utils.manage_components import create_actionrow, create_selec
 from adv import *
 from constantes import *
 from gestion import getEmojiObject, whatIsThat
-from advance_gestion import infoStuff,infoWeapon,infoSkill,getUserIcon,infoAllie,infoEffect,infoEnnemi
+from advance_gestion import infoStuff,infoWeapon,infoSkill,getUserIcon,infoAllie,infoEnnemi
 from commands.sussess_endler import *
 
-def changeDefault(select,value : int):
+def changeDefault(select : dict, value : int):
+    """Chance the default value from a Select Menu for the selected option"""
     value = str(value)
     temp = copy.deepcopy(select)
     for a in temp["options"]:
@@ -17,10 +18,12 @@ def changeDefault(select,value : int):
 
     return temp
 
-async def encylopedia(bot,ctx,destination,user):
+async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, destination : int, user : char):
+    """The main function for the encyclopedia command"""
+
     def check(m):
         return m.author_id == ctx.author.id and m.origin_message.id == msg.id
-    
+
     msg = None
     stuffed = [[],[],[]]
     for a in [0,1,2]:
@@ -28,7 +31,7 @@ async def encylopedia(bot,ctx,destination,user):
             if b.type == a:
                 stuffed[a].append(b.emoji)
 
-
+    # Randomly select emojis for the "Destionation" select Menu
     opValues,value,fullValue=["accessoires","vetements","chaussures","armes","competences","tempAlies","ennemies","boss","locked","achivements"],0,["Accessoires","Vêtements","Chaussures","Armes","Compétences","Alliés","Ennemis","Boss","Objets non-possédés","Succès"]
     valueIcon = [stuffed[0][random.randint(0,len(stuffed[0])-1)],stuffed[1][random.randint(0,len(stuffed[1])-1)],stuffed[2][random.randint(0,len(stuffed[2])-1)],weapons[random.randint(0,len(weapons)-1)].emoji,skills[random.randint(0,len(skills)-1)].emoji,tablAllAllies[random.randint(0,len(tablAllAllies)-1)].icon,tablAllOcta[random.randint(0,len(tablAllOcta)-1)].icon,tablBoss[random.randint(0,len(tablBoss)-1)].icon,'<:splatted2:727586393173524570>','<:ls1:868838101752098837>']
     tri = 0
@@ -38,15 +41,17 @@ async def encylopedia(bot,ctx,destination,user):
             break
 
     needRemake = True
-    reverse=False
     userIcon = await getUserIcon(bot,user)
+
+    # Start the command
     while 1:
         destOptions = []
         for a in range(0,len(opValues)):
             destOptions+=[create_select_option(fullValue[a],opValues[a],getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[value])]
 
-        destSelect = create_actionrow(create_select(destOptions))        
+        destSelect = create_actionrow(create_select(destOptions))
 
+        # The options for the filter menu. Change with the selected destination
         options = [
             create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3 and value != 9)),
             create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
@@ -79,7 +84,7 @@ async def encylopedia(bot,ctx,destination,user):
 
         sortOptions = create_select(options)
     
-        if needRemake:
+        if needRemake:                          # The "TablToSee" generation
             tablToSee = []
             if value in [0,1,2]:
                 for a in stuffs:
@@ -126,7 +131,7 @@ async def encylopedia(bot,ctx,destination,user):
 
             if value in [0,1,2,3]:
                 if tri in [0,1]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=not(tri))
+                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
                 elif tri in [2,3]:
                     tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
                 elif tri == 4:
@@ -154,268 +159,161 @@ async def encylopedia(bot,ctx,destination,user):
             else:
                 tablToSee.sort(key=lambda ballerine:ballerine.name)
             lenTabl = len(tablToSee)
-            maxPage=(lenTabl-1)//5
+            maxPage=lenTabl//10
             page=0
             needRemake = False
 
-        if value in [0,1,2,3,4,8]:
+        # Base description for the selected destination
+        if value in [0,1,2,3,4,8]:                          # Stuffs, Weapons and Skills
             desc = f"{userIcon} : Vous possédez déjà cet objet\n<:coinsn_t:885921771071627304> : Cet ebjet ne peut pas être obtenu dans le Magasin ou en butin"
-        elif value == 5:
+        elif value == 5:                                    # Alliés Temps
             desc = "Les alliés temporaires rejoignent automatiquement un combat pour remplir les équipes en dessous de 4 membres"
-        elif value == 6:
+        elif value == 6:                                    # Ennemis
             desc = "Les ennemis sont là pour vous opposer une petite résistance tout de même"
-        elif value == 7:
+        elif value == 7:                                    # Boss's
             desc = "Chaque combat a une chance sur trois de voir un Boss parmis les ennemis"
-        elif value == 9:
+        elif value == 9:                                    # Sussess
             desc = "Liste des succès :"
 
-        embed = discord.Embed(title="Encyclopédie",description=desc,color=user.color)
         firstOptions = []
         if page != 0:
             firstOptions+=[create_select_option("Page précédente","return",emoji.backward_arrow)]
-        
-        if lenTabl != 0:
-            for z in [0,1]:
-                if page+z <= maxPage:
-                    if value < 5 or value == 8:
-                        mess=""
-                        if page+z != maxPage:
-                            maxi = (page+1+z)*5
+
+        if lenTabl != 0: # Génération des pages
+            if value < 5 or value == 8:
+                mess=""
+                if page != maxPage:
+                    maxi = (page+1)*10
+                else:
+                    maxi = lenTabl
+                for a in tablToSee[(page)*10:maxi]:
+                    # Nom, posession
+                    mess += f"\n{a.emoji} **__{a.name}__** "
+                    temp=""
+                    if user.have(a):
+                        temp += userIcon
+                    if temp!="":
+                        temp = "("+temp+")"
+
+                    lock = ""
+                    if a not in listAllBuyableShop:
+                        lock = "(<:coinsn_t:885921771071627304>)"
+                    mess += temp+lock+"\n"
+
+                    # Première info utile
+                    if value in [0,1,2,8] and type(a) == stuff:
+                        mess +="*"+a.orientation+"*\n"
+                    elif value in [3,4,8] and type(a) != stuff:
+                        ballerine = tablTypeStr[a.type]+" "
+                        if a.use != None and a.use != HARMONIE:
+                            sandale = nameStats[a.use]
+                        elif a.use == None:
+                            sandale = "Fixe"
+                        elif a.use == HARMONIE:
+                            sandale = "Harmonie"
+
+                        if value == 3:
+                            babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
                         else:
-                            maxi = lenTabl
-                        for a in tablToSee[(page+z)*5:maxi]:
-                            # Nom, posession
-                            mess += f"\n{a.emoji} **__{a.name}__** "
-                            temp=""
-                            if user.have(a):
-                                temp += userIcon
-                            if temp!="":
-                                temp = "("+temp+")"
+                            babie=''
+                        mess += f"*{babie}{ballerine} - {sandale}*\n"
 
-                            lock = ""
-                            if a not in listAllBuyableShop:
-                                lock = "(<:coinsn_t:885921771071627304>)"
-                            mess += temp+lock+"\n"
-
-                            # Première info utile
-                            if value in [0,1,2,8] and type(a) == stuff:
-                                mess +="*"+a.orientation+"*\n"
-                            elif value in [3,4,8] and type(a) != stuff:
-                                ballerine = tablTypeStr[a.type]+" "
-                                if a.use != None and a.use != HARMONIE:
-                                    sandale = nameStats[a.use]
-                                elif a.use == None:
-                                    sandale = "Fixe"
-                                elif a.use == HARMONIE:
-                                    sandale = "Harmonie"
-
-                                if value == 3:
-                                    babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
-                                else:
-                                    babie=''
-                                mess += f"*{babie}{ballerine} - {sandale}*\n"
-
-                            # Statistiques
-                            temp = ""
-                            if value in [0,1,2,3,8]:
-                                if type(a) != skill:
-                                    stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri"]
-                                    for b in range(0,len(stats)):
-                                        if stats[b] != 0:
-                                            form = ""
-                                            if b == tri-4:
-                                                form = "**"
-                                            temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
-                                    if a.affinity != None:
-                                        nim = elemNames[a.affinity]
-                                        if len(nim) > 3:
-                                            nim = nim[0:3]+"."
-                                        temp += " Elem. : "+nim
-                        
-                            # Création de l'option
-                            mess += temp+"\n"
-                            firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
-                    elif value != 9:
-                        mess = ""
-                        if page+z != maxPage:
-                            maxi = (page+1+z)*5
-                        else:
-                            maxi = lenTabl
-                        for a in tablToSee[(page+z)*5:maxi]:
-                            if type(a) == octarien:
-                                mess += f"{a.icon} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
-                                firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
-                            else:
-                                mess += f"{emoji.icon[a.species][getColorId(a)]} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
-                                firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(emoji.icon[a.species][getColorId(a)]))]
-
-                            for b in a.skills:
-                                if type(b) == skill:
-                                    mess += f" {b.emoji}"
-
-                            mess+="\n\n"    
+                    # Statistiques
+                    temp = ""
+                    if value in [0,1,2,3,8]:
+                        if type(a) != skill:
+                            stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
+                            for b in range(0,len(stats)):
+                                if stats[b] != 0:
+                                    form = ""
+                                    if b == tri-4:
+                                        form = "**"
+                                    temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
+                            if a.affinity != None:
+                                nim = elemNames[a.affinity]
+                                if len(nim) > 3:
+                                    nim = nim[0:3]+"."
+                                temp += " Elem. : "+nim
+                
+                    # Création de l'option
+                    mess += temp+"\n"
+                    firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
+            elif value != 9:
+                mess = ""
+                if page != maxPage:
+                    maxi = (page+1)*10
+                else:
+                    maxi = lenTabl
+                for a in tablToSee[(page)*10:maxi]:
+                    if type(a) == octarien:
+                        mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]}. | {a.weapon.emoji} |"
+                        firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
                     else:
-                        mess = ""
-                        if page+z != maxPage:
-                            maxi = (page+1+z)*5
-                        else:
-                            maxi = lenTabl
-                        for a in tablToSee[(page+z)*5:maxi]:
-                            succed = ""
-                            if a.haveSucced:
-                                succed = "~~"
-                            emo = ""
-                            if a.emoji != None:
-                                emo = a.emoji + " "
-                            mess += f"**__{succed}{emo}{a.name}{succed}__**"
+                        mess += f"{a.icon} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
+                        firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
 
-                            if a.haveSucced:
-                                mess += f" ({userIcon})"
+                    for b in a.skills:
+                        if type(b) == skill:
+                            mess += f" {b.emoji}"
 
-                            mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
+                    mess+="\n\n"
+            else:
+                mess = ""
+                if page != maxPage:
+                    maxi = (page+1)*10
+                else:
+                    maxi = lenTabl
+                for a in tablToSee[(page)*10:maxi]:
+                    succed = ""
+                    if a.haveSucced:
+                        succed = "~~"
+                    emo = ""
+                    if a.emoji != None:
+                        emo = a.emoji + " "
+                    mess += f"**__{succed}{emo}{a.name}{succed}__**"
 
-                            recompense = ""
-                            if a.recompense != [None]:
-                                for rep in a.recompense:
-                                    what = whatIsThat(rep)
-                                    if what == 0:
-                                        que = findWeapon(rep)
-                                    elif what == 1:
-                                        que = findSkill(rep)
-                                    elif what == 2:
-                                        que = findStuff(rep)
-                                    elif what == 3:
-                                        que = findOther(rep)
+                    if a.haveSucced:
+                        mess += f" ({userIcon})"
 
-                                    recompense += que.emoji + " "
+                    mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
 
-                            if recompense != "":
-                                mess += "\nRécompense : "+recompense
+                    recompense = ""
+                    if a.recompense != [None]:
+                        for rep in a.recompense:
+                            what = whatIsThat(rep)
+                            if what == 0:
+                                que = findWeapon(rep)
+                            elif what == 1:
+                                que = findSkill(rep)
+                            elif what == 2:
+                                que = findStuff(rep)
+                            elif what == 3:
+                                que = findOther(rep)
 
-                            mess+="\n\n"
+                            recompense += que.emoji + " "
 
-                    if len(mess) > 1024: # Mess abrégé
-                        if value < 5 or value == 8:
-                            mess=""
-                            if page+z != maxPage:
-                                maxi = (page+1+z)*5
-                            else:
-                                maxi = lenTabl
-                            for a in tablToSee[(page+z)*5:maxi]:
-                                # Nom, posession
-                                mess += f"\n**__{a.name}__** "
-                                temp=""
-                                if user.have(a):
-                                    temp += emoji.check
-                                if temp!="":
-                                    temp = "("+temp+")"
+                    if recompense != "":
+                        mess += "\nRécompense : "+recompense
 
-                                lock = ""
-                                if a not in listAllBuyableShop:
-                                    lock = "(<:coinsn_t:885921771071627304>)"
-                                mess += temp+lock+"\n"
+                    mess+="\n\n"
 
-                                # Première info utile
-                                if value in [0,1,2,8] and type(a) == stuff:
-                                    mess +="*"+a.orientation+"*\n"
-                                elif value in [3,4,8] and type(a) != stuff:
-                                    ballerine = tablTypeStr[a.type]+" "
-                                    if a.use != None and a.use != HARMONIE:
-                                        sandale = nameStats[a.use]
-                                    elif a.use == None:
-                                        sandale = "Fixe"
-                                    elif a.use == HARMONIE:
-                                        sandale = "Harmonie"
+            if len(mess) > 4056: # Mess abrégé
+                mess = unemoji(mess)
 
-                                    if value == 3:
-                                        babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
-                                    else:
-                                        babie=''
-                                    mess += f"*{babie}{ballerine} - {sandale}*\n"
-
-                                # Statistiques
-                                temp = ""
-                                if value in [0,1,2,3,8]:
-                                    if type(a) != skill:
-                                        stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.resistance,a.percing,a.critical],["For","End","Cha","Agi","Pre","Int","Rés","Pén","Cri"]
-                                        for b in range(0,len(stats)):
-                                            if stats[b] != 0:
-                                                form = ""
-                                                if b == tri-4:
-                                                    form = "**"
-                                                temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
-                                        if a.affinity != None:
-                                            nim = elemNames[a.affinity]
-                                            if len(nim) > 3:
-                                                nim = nim[0:3]+"."
-                                            temp += " Elem. : "+nim
-                            
-                                # Création de l'option
-                                mess += temp+"\n"          
-                        elif value != 9:
-                            mess = ""
-                            if page+z != maxPage:
-                                maxi = (page+1+z)*5
-                            else:
-                                maxi = lenTabl
-                            for a in tablToSee[(page+z)*5:maxi]:
-                                if type(a) == octarien:
-                                    mess += f"__{a.name}__\n{inspi[a.aspiration]} | {a.weapon.name} |"
-                                else:
-                                    mess += f"__{a.name}__\n{inspi[a.aspiration]} | {a.weapon.name} |"
-
-                                for b in a.skills:
-                                    if type(b) == skill:
-                                        mess += f" {b.name}"
-
-                                mess+="\n\n"    
-                        else:
-                            mess = ""
-                            if page+z != maxPage:
-                                maxi = (page+1+z)*5
-                            else:
-                                maxi = lenTabl
-                            for a in tablToSee[(page+z)*5:maxi]:
-                                succed = ""
-                                if a.haveSucced:
-                                    succed = "~~"
-
-                                mess += f"**__{succed}{a.name}{succed}__**"
-
-                                if a.haveSucced:
-                                    mess += f" ({emoji.check})"
-
-                                mess += f"\n*{a.description.format(a.countToSucced)}*\nProgression : **{min(a.count,a.countToSucced)}**/{a.countToSucced}"
-
-                                recompense = ""
-                                if a.recompense != [None]:
-                                    for rep in a.recompense:
-                                        what = whatIsThat(rep)
-                                        if what == 0:
-                                            que = findWeapon(rep)
-                                        elif what == 1:
-                                            que = findSkill(rep)
-                                        elif what == 2:
-                                            que = findStuff(rep)
-                                        elif what == 3:
-                                            que = findOther(rep)
-
-                                        recompense += que.name + " "
-
-                                if recompense != "":
-                                    mess += "\nRécompense : "+recompense
-
-                                mess+="\n\n"
-                                    
-                    embed = embed.add_field(name="<:empty:866459463568850954>\n__"+fullValue[value] + f" - Page {page+z+1} sur {maxPage+1}__",value=mess,inline=False)
         else:
-            embed = embed.add_field(name="<:empty:866459463568850954>\n__"+fullValue[value],value="Cette catégorie est vide",inline=False)
-        if page+1 < maxPage:
-            firstOptions+=[create_select_option("Page suivante","next",emoji.forward_arrow)]
-        
-        firstSelect = create_select(options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
+            mess = "Il n'y a rien à afficher dans cette catégorie"
 
-        if msg == None:
+        if page < maxPage:
+            firstOptions+=[create_select_option("Page suivante","next",emoji.forward_arrow)]
+
+        if len(firstOptions) > 0:
+            firstSelect = create_select(options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
+        else:
+            firstSelect = create_select(options=[create_select_option("None","None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
+
+        embed = discord.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n\n".format(page+1,maxPage+1)+mess,color=user.color)
+
+        if msg == None:     # Send the message for the first loop
             msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
 
         else:
@@ -467,9 +365,9 @@ async def encylopedia(bot,ctx,destination,user):
             respond = respond.values[0]
 
             if respond == "return":
-                page -= 2
+                page -= 1
             elif respond == "next":
-                page += 2
+                page += 1
 
             elif respond in opValues:
                 for a in range(0,len(opValues)):
@@ -484,9 +382,71 @@ async def encylopedia(bot,ctx,destination,user):
             elif value == 4:
                 await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
             elif value == 5:
-                await inter.send(embed=infoAllie(findAllie(respond)))
+                options = []
+                ally = findAllie(respond)
+                cmpt = 0
+                for stuffy in [ally.weapon]+ally.skills+ally.stuff:
+                    if type(stuffy) in [skill,weapon,stuff]:
+                        options.append(create_select_option(stuffy.name,str(cmpt),getEmojiObject(stuffy.emoji)))
+                    cmpt+=1
+                returnButton = create_button(1,"Retour",custom_id="return")
+                select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
+
+                tempMachin = await inter.send(embed=infoAllie(ally),components=[create_actionrow(returnButton),create_actionrow(select)])
+                while 1:
+                    try:
+                        resp2 = await wait_for_component(bot,messages=tempMachin,timeout=60)
+                    except:
+                        await tempMachin.edit(embed=infoAllie(ally),components=[])
+                        break
+                    try:
+                        resp3 = int(resp2.values[0])
+                        tablStuff = [ally.weapon]+ally.skills+ally.stuff
+                        try:
+                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=30)
+                        except:
+                            try:
+                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=30)
+                            except:
+                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=30)
+                    except:
+                        await tempMachin.delete()
+                        break
+
             elif value in [6,7]:
-                await inter.send(embed=infoEnnemi(findEnnemi(respond)))
+                options = []
+                ennemi = findEnnemi(respond)
+                cmpt = 0
+                for stuffy in [ennemi.weapon]+ennemi.skills:
+                    if type(stuffy) in [skill,weapon]:
+                        options.append(create_select_option(stuffy.name,str(cmpt),getEmojiObject(stuffy.emoji)))
+                    cmpt+=1
+
+                returnButton = create_button(1,"Retour",custom_id="return")
+                select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
+
+                tempMachin = await inter.send(embed=infoEnnemi(ennemi),components=[create_actionrow(returnButton),create_actionrow(select)])
+
+                while 1:
+                    try:
+                        resp2 = await wait_for_component(bot,messages=tempMachin,timeout=60)
+                    except:
+                        await tempMachin.edit(embed=infoEnnemi(ennemi),components=[])
+                        break
+                    try:
+                        resp3 = int(resp2.values[0])
+                        tablStuff = [ennemi.weapon]+ennemi.skills
+                        try:
+                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=30)
+                        except:
+                            try:
+                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=30)
+                            except:
+                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=30)
+                    except:
+                        await tempMachin.delete()
+                        break
+
             elif value == 8:
                 what = whatIsThat(respond)
                 if what == 0:
