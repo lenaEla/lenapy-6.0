@@ -90,7 +90,7 @@ async def chooseName(bot : discord.client, msg : discord.message, ctx: discord.m
     await msg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
     haveName = False
     def checkIsAuthor(message):
-        return ctx.author == message.author
+        return int(ctx.author.id) == int(message.author.id)
     try:
         respond = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
         user.name = respond.content
@@ -113,7 +113,7 @@ async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.
         ballerine += f"{emoji.icon[user.species][a]} - {colorChoice[a]}\n"
     babie = []
     if user.customColor:
-        ballerine += ["<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]+" - Couleur personnalisé ("+hex(user.color)+")\n"
+        ballerine += [None,"<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]+" - Couleur personnalisé ("+hex(user.color)+")\n"
         babie = [create_select_option("Couleur personnalisée","Custom",description=hex(user.color),emoji=getEmojiObject(["<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]))]
 
     options = [optionIka,optionTako][user.species-1] + babie

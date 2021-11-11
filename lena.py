@@ -21,7 +21,7 @@ from commands.command_help import *
 from commands.command_patchnote import *
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
-from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
 from data.bot_tokens import lenapy, shushipy
 
 ###########################################################
@@ -41,6 +41,8 @@ existDir(absPath + "/data/images/headgears/")
 existDir(absPath + "/data/images/weapons/")
 existDir(absPath + "/data/images/char_icons/")
 existDir(absPath + "/data/patch/")
+existDir(absPath + "/data/fightLogs/")
+existDir(absPath + "/data/images/elemIcon/")
 
 actualyFight,actualyQuickFight = [],[]
 pathUserProfile = absPath + "/userProfile/"
@@ -70,7 +72,7 @@ class shopClass:
     
     async def newShop(self):
         shopping = list(range(0,len(self.shopping)))
-        ballerine = datetime.datetime.now() + datetime.timedelta(hours=3)+horaire
+        ballerine = datetime.datetime.now() + (datetime.timedelta(hours=3)+horaire)
 
         await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
 
@@ -107,6 +109,109 @@ class shopClass:
         print("\n--------------\nLe nouveau shop est :"+temp+"\n------------")
         self.shopping = shopping
 
+async def inventoryVerif(bot):
+    for z in os.listdir(absPath + "/userProfile/"):
+        user = loadCharFile(absPath + "/userProfile/" + z)
+        allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
+        ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
+        babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
+
+        for a in range(0,5):
+            if user.skills[a] != None and user.skills[a] != "0":
+                if user.skills[a] in allReadySee:
+                    ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
+                    modifSkill += 1
+                    user.skills[a] = "0"
+                else:
+                    allReadySee+=[user.skills[a]]
+
+            if user.skills[a] != "0" and user.skills[a] != None:
+                if not(user.skills[a].havConds(user=user)):
+                    ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
+                    modifSkill += 1
+                    user.skills[a] = "0"
+
+            if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
+                ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
+                modifSkill += 1
+                user.skills[a] = "0"
+            elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
+                haveUltimate = True
+
+        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
+        for y in tablInventory:
+            allReadySee = []
+            for a in y:
+                if a not in allReadySee:
+                    allReadySee.append(a)
+                else:
+                    babie += f"\n__{a.name}__ (Doublon)"
+                    modifStuff += 1
+                    y.remove(a)
+                    user.currencies += a.price
+
+        if modifStuff > 0:
+            user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
+            babie += "\n\nCes objets vous ont été remboursés"
+
+        if modifSkill+modifStuff > 0:
+            saveCharFile(absPath + "/userProfile/" + z,user)
+            try:
+                toUser = await bot.fetch_user(user.owner)
+                message = ""
+                if modifSkill > 0:
+                    message+=ballerine+"\n"
+                if modifStuff > 0:
+                    message+=babie
+                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=message))
+            except:
+                pass
+
+            print(f"Le profil de {user.name} a été mise à jour")
+
+        temp = ""
+        for equip in user.stuff:
+            if not(equip.havConds(user)):
+                change = getAutoStuff(equip,user)
+                user.stuff[equip.type] = change
+
+                temp += "{0} {2} -> {1} {3}\n".format(equip.emoji,change.emoji,equip.name,change.name)
+
+        if temp != "":
+            temp = "Vous ne respectez pas les conditions de niveaux d'un ou plusieurs de vos équipements\nLe(s) équipement(s) suivant a(ont) automatiquement été remplacé(s) :\n\n"+temp
+            saveCharFile(absPath + "/userProfile/" + z,user)
+            try:
+                toUser = await bot.fetch_user(user.owner)
+                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=temp))
+            except:
+                pass
+
+            print(f"Le profil de {user.name} a été mise à jour")
+
+        errorElem = False
+        if user.level < 20 and user.element in [ELEMENT_SPACE,ELEMENT_TIME,ELEMENT_LIGHT,ELEMENT_DARKNESS]:
+            errorElem = True
+        elif user.level < 10 and user.element != ELEMENT_NEUTRAL:
+            errorElem = True
+
+        if errorElem:
+            temp = ""
+            user.element = ELEMENT_NEUTRAL
+            if user.have(elementalCristal):
+                user.currencies += elementalCristal.price
+                temp = "Vous avez été crédité de {0} <:coins:862425847523704832>".format(elementalCristal)
+            else:
+                user.otherInventory.append(elementalCristal)
+                temp = "Vous avez obtenu un {0} {1}".format(elementalCristal.emoji,elementalCristal.name)
+            saveCharFile(absPath + "/userProfile/" + z,user)
+
+            try:
+                toUser = await bot.fetch_user(user.owner)
+                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description="Votre élément de ne respecte pas les restrictions de niveau\n\n"+temp))
+            except:
+                pass
+
+
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
 
@@ -123,7 +228,7 @@ async def minuteClock():
     tick = datetime.datetime.now()
     if tick.minute%60 == 0 and not(hourClock.is_running()):
         hourClock.start()
-        
+
 @tasks.loop(hours=1)
 async def hourClock():
     if minuteClock.is_running():
@@ -133,92 +238,47 @@ async def hourClock():
     if tick.hour%3==0:
         await shopping.newShop()
 
-    # Skill Verif
-    for z in os.listdir(absPath + "/userProfile/"):
-        user = loadCharFile(absPath + "/userProfile/" + z)
-        allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
-        ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
-        babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
-
-        for a in range(0,5):
-            if user.skills[a] != None and user.skills[a] != "0":
-                if user.skills[a] in allReadySee:
-                    ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
-                    modifSkill += 1
-                    user.skills[a] = "0"
-                else:
-                    allReadySee+=[user.skills[a]]
-
-            if user.skills[a] != "0" and user.skills[a] != None:
-                if not(user.skills[a].havConds(user=user)):
-                    ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
-                    modifSkill += 1
-                    user.skills[a] = "0"
-
-            if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
-                ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
-                modifSkill += 1
-                user.skills[a] = "0"
-            elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
-                haveUltimate = True
-
-        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
-        for y in tablInventory:
-            allReadySee = []
-            for a in y:
-                if a not in allReadySee:
-                    allReadySee.append(a)
-                else:
-                    babie += f"\n__{a.name}__ (Doublon)"
-                    modifStuff += 1
-                    y.remove(a)
-                    user.currencies += a.price
-
-        if modifStuff > 0:
-            user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
-            babie += "\n\nCes objets vous ont été remboursés"
-
-
-        if modifSkill+modifStuff > 0:
-            saveCharFile(absPath + "/userProfile/" + z,user)
+    if tick.hour==0:
+        for log in os.listdir("./data/fightLogs/"):
             try:
-                toUser = await bot.fetch_user(user.owner)
-                message = ""
-                if modifSkill > 0:
-                    message+=ballerine+"\n"
-                if modifStuff > 0:
-                    message+=babie
-                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=message))
+                os.remove("./data/fightLogs/"+log)
+                print("{0} supprimé".format("./data/fightLogs/"+log))
             except:
-                pass
-            print(f"Le profile de {user.name} ont été mises à jours")
+                print("{0} n'a pas pu être supprimé".format("./data/fightLogs/"+log))
+
+    # Skill Verif
+    await inventoryVerif(bot)
 
 @bot.event
 async def on_ready():
     print("\n-----------------------------\nLe bot est en ligne. Début de la phase d'initialisation post-online !\n----------------------\n")
     cmpt = 0
     teamWinDB.resetAllFightingStatus()
-    while cmpt < len(listGuildSet):
-        if listGuildSet[cmpt] != "index.set":
-            try:
-                guildSettings = readSaveFiles(absPath + "/guildSettings/"+listGuildSet[cmpt])
-                guilds[cmpt] = server(int(listGuildSet[cmpt][0:-4]),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
-                guilds[cmpt].colorRole.enable, guilds[cmpt].colorRole.red, guilds[cmpt].colorRole.orange, guilds[cmpt].colorRole.yellow, guilds[cmpt].colorRole.green, guilds[cmpt].colorRole.lightBlue, guilds[cmpt].colorRole.blue, guilds[cmpt].colorRole.purple, guilds[cmpt].colorRole.pink = bool(int(guildSettings[1][0][1:])),int(guildSettings[1][1]),int(guildSettings[1][2]),int(guildSettings[1][3]),int(guildSettings[1][4]),int(guildSettings[1][5]),int(guildSettings[1][6]),int(guildSettings[1][7]),int(guildSettings[1][8])
+    lastTime = datetime.datetime.now().second
+    lenGuild = len(listGuildSet)
+    print("Chargement des fichiers de guilds... 0%")
+    while cmpt < lenGuild:
+        try:
+            guildSettings = readSaveFiles(absPath + "/guildSettings/"+listGuildSet[cmpt])
+            guilds[cmpt] = server(int(listGuildSet[cmpt][0:-4]),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
+            guilds[cmpt].colorRole.enable, guilds[cmpt].colorRole.red, guilds[cmpt].colorRole.orange, guilds[cmpt].colorRole.yellow, guilds[cmpt].colorRole.green, guilds[cmpt].colorRole.lightBlue, guilds[cmpt].colorRole.blue, guilds[cmpt].colorRole.purple, guilds[cmpt].colorRole.pink = bool(int(guildSettings[1][0][1:])),int(guildSettings[1][1]),int(guildSettings[1][2]),int(guildSettings[1][3]),int(guildSettings[1][4]),int(guildSettings[1][5]),int(guildSettings[1][6]),int(guildSettings[1][7]),int(guildSettings[1][8])
 
-                guild = await bot.fetch_guild(guilds[cmpt].id)
-                guilds[cmpt].name = guild.name
+            guild = await bot.fetch_guild(guilds[cmpt].id)
+            guilds[cmpt].name = guild.name
 
-                print(f"Le fichier du serveur {guilds[cmpt].name} a été chargé")
-            except:
-                print(f"Erreur dans le chargement du fichier {listGuildSet[cmpt]}")
-                os.remove(absPath + "/guildSettings/"+listGuildSet[cmpt])
+        except:
+            os.remove(absPath + "/guildSettings/"+listGuildSet[cmpt])
+
+        now = datetime.datetime.now().second
+        if now >= lastTime + 2 or (now <= 2 and now >= lastTime + 2 - 60):
+            print("Chargement des fichiers de guilds... {0}%".format(round((cmpt/lenGuild)*100)))
+            lastTime = now
 
         cmpt += 1
 
+    print("Chargement des fichiers de guilds terminé !\n")
     if bidule != False:
-        ballerine = bidule["Date"] + datetime.timedelta(hours=3)
-        if not(os.path.exists("../Kawi")):
-            ballerine = bidule["Date"] + datetime.timedelta(hours=5)
+        ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
 
         await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
 
@@ -232,68 +292,11 @@ async def on_ready():
     await downloadAllHeadGearPng(bot)
     await downloadAllWeapPng(bot)
     await downloadAllIconPng(bot)
+    await downloadElementIcon(bot)
     print("Mise à jour des fichiers data terminée")
     
-    for z in os.listdir(absPath + "/userProfile/"):
-        user = loadCharFile(absPath + "/userProfile/" + z)
-        allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
-        ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
-        babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
+    await inventoryVerif(bot)
 
-        for a in range(0,5):
-            if user.skills[a] != None and user.skills[a] != "0":
-                if user.skills[a] in allReadySee:
-                    ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
-                    modifSkill += 1
-                    user.skills[a] = "0"
-                else:
-                    allReadySee+=[user.skills[a]]
-
-            if user.skills[a] != "0" and user.skills[a] != None:
-                if not(user.skills[a].havConds(user=user)):
-                    ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
-                    modifSkill += 1
-                    user.skills[a] = "0"
-
-            if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
-                ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
-                modifSkill += 1
-                user.skills[a] = "0"
-            elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
-                haveUltimate = True
-
-        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
-        for y in tablInventory:
-            allReadySee = []
-            for a in y:
-                if a not in allReadySee:
-                    allReadySee.append(a)
-                else:
-                    babie += f"\n__{a.name}__ (Doublon)"
-                    modifStuff += 1
-                    y.remove(a)
-                    user.currencies += a.price
-
-        if modifStuff > 0:
-            user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
-            babie += "\n\nCes objets vous ont été remboursés"
-
-
-        if modifSkill+modifStuff > 0:
-            saveCharFile(absPath + "/userProfile/" + z,user)
-            try:
-                toUser = await bot.fetch_user(user.owner)
-                message = ""
-                if modifSkill > 0:
-                    message+=ballerine+"\n"
-                if modifStuff > 0:
-                    message+=babie
-                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=message))
-            except:
-                pass
-            print(f"Le profile de {user.name} ont été mises à jours")
-
-    started = True
     print("\n-----------------------------\nFin de l'initialisation\n-----------------------------\n")
 
 @bot.event
@@ -721,7 +724,10 @@ async def on_message(ctx):
                     os.rmdir("./data/images")
                     print(f"{path} supprimé")
                     await refresh("Suppression de la base de données")
-                    customIconDB.dropCustomDB()
+                    try:
+                        customIconDB.dropCustomDB()
+                    except:
+                        pass
                     await refresh("Supression des emojis")
                     iconGuildList = []
                     if os.path.exists("../Kawi/"):
@@ -729,27 +735,54 @@ async def on_message(ctx):
                     else:
                         iconGuildList = LenaCustomIcons
 
+                    allEmojisNum = 0
+                    for a in iconGuildList:
+                        emojiGuild = await bot.fetch_guild(a)
+                        allEmojisNum += len(emojiGuild.emojis)
+
+                    cmpt = 0
+                    now = datetime.datetime.now().second
+                    lastTime = copy.deepcopy(now)
                     for a in iconGuildList:
                         emojiGuild = await bot.fetch_guild(a)
 
                         for b in emojiGuild.emojis:
                             await b.delete()
+                            cmpt += 1
+
+                            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+                                await refresh("Supression des emojis ({0} %)".format(int(cmpt/allEmojisNum*100)))
+                                lastTime = now
 
                     await refresh("Création des dossiers...")
                     existDir(absPath + "/data/images/")
                     existDir(absPath + "/data/images/headgears/")
                     existDir(absPath + "/data/images/weapons/")
                     existDir(absPath + "/data/images/char_icons/")
+                    existDir(absPath + "/data/images/elemIcon/")
                     await refresh("Création de la base de donnée")
                     base = open("./data/custom_icon.db","w")
                     base.close()
                     customIconDB.remarkeCustomDB()
-                    await refresh("Téléchargements des icones d'accessoires...")
-                    await downloadAllHeadGearPng(bot)
-                    await refresh("Téléchargements des icones d'armes...")
-                    await downloadAllWeapPng(bot)
+                    await downloadAllHeadGearPng(bot,msg,lastTime)
+                    await downloadAllWeapPng(bot,msg,lastTime)
                     await refresh("Téléchargements des icones de bases...")
                     await downloadAllIconPng(bot)
+                    await downloadElementIcon(bot)
+
+                    allChar = os.listdir("./userProfile/")
+                    lenAllChar = len(allChar)
+                    cmpt = 0
+
+                    for num in allChar:
+                        user = loadCharFile("./userProfile/"+num)
+                        await getUserIcon(bot,user)
+                        cmpt += 1
+
+                        if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+                            await refresh("Création des émojis ({0} %)".format(int(cmpt/lenAllChar*100)))
+                            lastTime = now
+
                     await refresh("Fini !")
                 elif args[1] == "forceShop":
                     await shopping.newShop()
@@ -789,11 +822,13 @@ async def on_message(ctx):
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
 
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                await ctx.channel.send(embed=discord.Embed(title="Titre",description="[Concentraceur](https://splatoon.fandom.com/fr/wiki/Concentraceur#:~:text=Le%20Concentraceur%20est%20un%20sniper,met%20du%20temps%20a%20tirer.)"))
-            
+                await fight(bot,[tablBoss[4]],[tablBoss[2]],ctx,guild,octogone=True)
+                await fight(bot,[tablBoss[4]],[tablBoss[1]],ctx,guild,octogone=True)
+                await fight(bot,[tablBoss[1]],[tablBoss[2]],ctx,guild,octogone=True)
+
             elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
                 await procuration(ctx)
-        
+
             elif args[0] == guild.prefixe + "icon" and checkIsBotChannel(ctx,guild,bot):
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
                 await ctx.add_reaction(emoji.loading)
@@ -821,7 +856,7 @@ async def on_message(ctx):
                         await ctx.channel.send(embed=errorEmbed(args[0],"L'icone de votre personnage n'a pas pu être récupéré"))
                 else:
                     await ctx.channel.send(embed=errorEmbed(args[0],"Vous n'avez pas commencé l'aventure"))
-                
+
             elif args[0] == "l!new_patch" and ctx.author.id == 213027252953284609:
                 await new_patch(bot,ctx)
                 for a in guilds:
@@ -842,7 +877,7 @@ async def on_message(ctx):
         else:
             pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
             if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
-                await addExpUser(bot,guild,pathUserProfile,ctx,3,len(set(ctx.content)))
+                await addExpUser(bot,guild,pathUserProfile,ctx,3,3)
 
 # encyclopedia ----------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
@@ -1125,7 +1160,9 @@ async def cooldowns(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile,ctx)
-        fcooldown,fseconds,fqcooldown,fqseconds,faccord,fqaccord,fsaccord,fqsaccord = teamWinDB.getFightCooldown(user.team)//60,teamWinDB.getFightCooldown(user.team)%60,teamWinDB.getFightCooldown(user.team,True)//60,teamWinDB.getFightCooldown(user.team,True)%60,"","","",""
+        cd = teamWinDB.getFightCooldown(user.team)
+        cd2 = teamWinDB.getFightCooldown(user.team,True)
+        fcooldown,fseconds,fqcooldown,fqseconds,faccord,fqaccord,fsaccord,fqsaccord = cd//60,cd%60,cd2//60,cd2%60,"","","",""
         if fcooldown > 1:
             faccord = "s"
         if fqcooldown > 1:
@@ -1134,9 +1171,10 @@ async def cooldowns(ctx):
             fsaccord = "s"
         if fqseconds > 1:
             fqsaccord = "s"
-        msg = await ctx.send(embed = discord.Embed(title=f"__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",color=user.color))
-        await asyncio.sleep(10)
-        await msg.delete()
+        if not(teamWinDB.isFightingBool(int(user.team))):
+            await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
+        else:
+            await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : En combat <:turf:810513139740573696>\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
 
 # Patchnote
 @slash.slash(name="patchnote",description="Renvoie le dernier patchnote du bot")
@@ -1157,35 +1195,39 @@ async def roll(ctx,min=1,max=100):
 async def shopSlash(ctx):
     await shop2(bot,ctx,shopping.shopping)
 
+@slash.slash(name="shop_2",description="Vous permet d'entrer dans le magasin",guild_ids = [615257372218097691])
+async def shopSlash2(ctx):
+    await shop2(bot,ctx,shopping.shopping)
+
 # Inventory
 @slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",options=[
     create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=False,choices=[
-        create_choice("Armes","Armes"),
+        create_choice("Equipement","Equipement"),
+        create_choice("Arme","Arme"),
         create_choice("Compétences","Compétences"),
-        create_choice("Equipements","Equipements"),
         create_choice("Objets spéciaux","Objets spéciaux"),
         create_choice("Elements","Elements")
     ]),
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False),
     create_option("nom","Le nom ou l'identifiant d'un objet. Les espaces peuvent être remplacés par des _",3,required=False)
 ])
-async def invent(ctx,destination=None,procuration=None,nom=None):
+async def invent2(ctx,destination=None,procuration=None,nom=None):
     to = False
     if destination == None and nom==None:
         await ctx.send(embed=discord.Embed(title="/inventory",description="Les champs \"destination\" et \"nom\" ne peuvent pas être tous les deux vides"),delete_after=15)
         to = True
     else:
-        for a in [0,1,2,3,4]:
-            if ["Armes","Compétences","Equipements","Objets spéciaux","Elements"][a] == destination:
+        for a in range(5):
+            if ["Equipement","Arme","Compétences","Objets spéciaux","Elements"][a] == destination:
                 destination = a
                 break
 
-        if destination != None:
-            destination = int(destination)
-        
-        empty = [None]
         if procuration != None:
-            empty = [procuration.mention]
+            user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
+            procurTemp = procuration.mention
+        else:
+            user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+            procurTemp = None
 
         if nom != None:
             nom = nom.replace("_"," ")
@@ -1206,7 +1248,7 @@ async def invent(ctx,destination=None,procuration=None,nom=None):
 
                     for a in research[:]:
                         temp = a.name.lower()
-                        if not(temp.startswith(nom[0:nameTempCmpt])):
+                        if nom[0:nameTempCmpt] not in temp:
                             research.remove(a)
 
                     leni = len(research)
@@ -1243,11 +1285,14 @@ async def invent(ctx,destination=None,procuration=None,nom=None):
                         break           
             
             nom = [nom,None]
-            
+
         else:
             nom = [None]
     if not(to):
-        await inventory(bot,ctx,["/inventory"]+empty+nom,[destination,procuration])
+        if nom != [None] or destination == 4:
+            await inventory(bot,ctx,["/inventory"]+[procurTemp]+nom,[destination,procuration])
+        else:
+            await inventoryV2(bot,ctx,destination,user)
 
 # Points
 @slash.slash(name="points",description="Vous permet de répartir vos points bonus",options=[
@@ -1295,18 +1340,28 @@ async def teamView(ctx,joueur=None):
                     temp3 = await bot.fetch_user(int(a))
                     temp3 = temp3.name
 
-                    ballerine = f'{inspi[temp2.aspiration][0:3]}. | {elemEmojis[temp2.element]} | {temp2.weapon.emoji} | {temp2.stuff[0].emoji} {temp2.stuff[1].emoji} {temp2.stuff[2].emoji} | '
+                    ballerine = f'{aspiEmoji[temp2.aspiration]} | {elemEmojis[temp2.element]} | {temp2.weapon.emoji} | {temp2.stuff[0].emoji} {temp2.stuff[1].emoji} {temp2.stuff[2].emoji} | '
                     for b in temp2.skills:
                         if type(b)==skill:
                             ballerine+=b.emoji
                     ballerine+="\n\n"
 
                     icon = await getUserIcon(bot,temp2)
-                    temp += f"__{icon} **{temp2.name}** ({temp3})__\n{ballerine}"
+
+                    points = ""
+                    if temp2.points > 0:
+                        points = " *(+)*"
+                    temp += f"__{icon} **{temp2.name}** ({temp3})__{points}\n{ballerine}"
+
                 if int(user.owner) == int(ctx.author.id):
-                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp))
+                    embed = discord.Embed(title = "/team view",color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp)
                 else:
-                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp))
+                    embed = discord.Embed(title = "/team view",color = user.color,description = "__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp)
+
+                embed.add_field(name="<:empty:866459463568850954>\n__Résultats des derniers combats :__",value=teamWinDB.getVictoryStreakStr(user))
+
+                await msg.edit(embed = embed)
+
 
 # team add
 @slash.subcommand(base="team",name="add",description="Permet de rajouter un joueur dans son équipe",options=[
@@ -1397,7 +1452,7 @@ async def teamQuit(ctx):
         quickSaveCharFile(pathUserProfile,[user,Qsave])
     else:
         await ctx.send(embed = errorEmbed("/team quit","Vous n'avez aucune équipe à quitter"))
-    
+
 # HELP ----------------------------------------------------------------
 @slash.slash(name="help",description="Ouvre la page d'aide du bot")
 async def helpCom(ctx):
@@ -1425,10 +1480,11 @@ async def stats(ctx,joueur=None):
         userIcon = await getUserIcon(bot,user)
 
         rep = discord.Embed(title = f"__Page de statistique de {user.name} {userIcon}__",color = user.color,description = f"__Niveau :__ {user.level}\n__Expérience :__ {user.exp} / {user.level*50-20}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]}\n<:empty:866459463568850954>")
- 
-        rep.add_field(name = "__Aspiration :__",value = inspi[user.aspiration],inline = False)
 
-        sumStatsBonus = [0,0,0,0,0,0,0,0,0,0]
+        rep.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
+        rep.add_field(name = "__Aspiration :__",value = aspiEmoji[user.aspiration] + " " + inspi[user.aspiration],inline = False)
+
+        sumStatsBonus = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
         for a in [user.weapon,user.stuff[0],user.stuff[1],user.stuff[2]]:
             sumStatsBonus[0] += a.strength
@@ -1441,13 +1497,18 @@ async def stats(ctx,joueur=None):
             sumStatsBonus[7] += a.resistance
             sumStatsBonus[8] += a.percing
             sumStatsBonus[9] += a.critical
+            sumStatsBonus[10] += a.negativeHeal *-1
+            sumStatsBonus[11] += a.negativeBoost *-1
+            sumStatsBonus[12] += a.negativeShield *-1
+            sumStatsBonus[13] += a.negativeDirect *-1
+            sumStatsBonus[14] += a.negativeIndirect *-1
 
         for a in range(len(sumStatsBonus)):
             if sumStatsBonus[a] > 0:
                 sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
 
-        rep.add_field(name = "__Statistiques principaux :__",value = f"Force : {user.strength} ({sumStatsBonus[0]})\nEndurance : {user.endurance} ({sumStatsBonus[1]})\nCharisme : {user.charisma} ({sumStatsBonus[2]})\nAgilité : {user.agility} ({sumStatsBonus[3]})\nPrécision : {user.precision} ({sumStatsBonus[4]})\nIntelligence : {user.intelligence} ({sumStatsBonus[5]})\nMagie : {user.magie} ({sumStatsBonus[6]})",inline= True)
-        rep.add_field(name = "__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[7]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[8]})\nCritique : {user.critical} ({sumStatsBonus[9]})",inline = True)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques principaux :__",value = f"Force : {user.strength} ({sumStatsBonus[0]})\nEndurance : {user.endurance} ({sumStatsBonus[1]})\nCharisme : {user.charisma} ({sumStatsBonus[2]})\nAgilité : {user.agility} ({sumStatsBonus[3]})\nPrécision : {user.precision} ({sumStatsBonus[4]})\nIntelligence : {user.intelligence} ({sumStatsBonus[5]})\nMagie : {user.magie} ({sumStatsBonus[6]})",inline= True)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[7]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[8]})\nCritique : {user.critical} ({sumStatsBonus[9]})\n\nSoins : {sumStatsBonus[10]}\nBoost et Malus : {sumStatsBonus[11]}\nArmures : {sumStatsBonus[12]}\nDégâts directs : {sumStatsBonus[13]}\nDégâts indirects : {sumStatsBonus[14]}\n\nLes statistiques d'actions s'ajoutent à vos statistiques quand vous réalisez l'action en question",inline = True)
         tempStuff,tempSkill = "",""
         for a in [0,1,2]:
             tempStuff += f"{ user.stuff[a].emoji} {user.stuff[a].name}\n"
@@ -1458,7 +1519,7 @@ async def stats(ctx,joueur=None):
             except:
                 tempSkill += f"Slot [{a+1}] : Pas de compétence équipée\n"
 
-        rep.add_field(name = "__Equipement :__",value = f"__Arme :__\n{ user.weapon.emoji} {user.weapon.name}\n\n__Vêtements :__\n{tempStuff}\n__Compétences :__\n{tempSkill}",inline = False)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Equipement :__",value = f"__Arme :__\n{ user.weapon.emoji} {user.weapon.name}\n\n__Vêtements :__\n{tempStuff}\n__Compétences :__\n{tempSkill}",inline = False)
         await msg.edit(embed = rep)
 
     else:
@@ -1529,6 +1590,71 @@ async def manuel(ctx,page=0):
                     manPage = lenChapter[chapterInt+1]
 
             await msg.remove_reaction(str(reaction[0]),reaction[1])
+
+# SEE LOGS
+@slash.slash(name="SeeFightLogs",description="Permet de consulter les logs des combats du jour",guild_ids=[615257372218097691])
+async def seeLogs(ctx):
+    listLogs = os.listdir("./data/fightLogs/")
+    listLogs.sort(key=lambda name: name[-8:])
+
+    page = 0
+    maxPage = len(listLogs) // 24
+    msg = None
+    while 1:
+        desc = "__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)
+        option = []
+        maxi = min(len(listLogs),(page+1)*24)
+        for log in listLogs[page*24:maxi]:
+            desc += "> - {0}\n".format(log)
+            option.append(create_select_option(log,log))
+
+        embed = discord.Embed(title="__Logs des combats du jour__",color=light_blue,description=desc)
+
+        if len(option) > 0:
+            select = create_select(option)
+        else:
+            select = create_select([create_select_option("disabled","0")],placeholder="Il n'y a aucun logs à afficher",disabled=True)
+
+        if page != 0:
+            previousBoutton = create_button(ButtonStyle(2),"Page précédente",emoji.backward_arrow,"back")
+        else:
+            previousBoutton = create_button(ButtonStyle(2),"Page précédente",emoji.backward_arrow,"back",disabled=True)
+        if page != maxPage:
+            nextBoutton = create_button(ButtonStyle(2),"Page suivante",emoji.forward_arrow,"forward")
+        else:
+            nextBoutton = create_button(ButtonStyle(2),"Page suivante",emoji.forward_arrow,"forward",disabled=True)
+
+        buttons = create_actionrow(previousBoutton,nextBoutton)
+
+        if msg == None:
+            try:
+                msg = await ctx.send(embed=embed,components=[create_actionrow(select),buttons])
+            except:
+                msg = await ctx.channel.send(embed=embed,components=[create_actionrow(select),buttons])
+        else:
+            await msg.edit(embed=embed,components=[create_actionrow(select),buttons])
+
+        try:
+            respond = await wait_for_component(bot,msg,timeout=180)
+        except:
+            break
+        
+        try:
+            resp = respond.values[0]
+        except:
+            resp = respond.custom_id
+        if resp not in ["back","forward"]:
+            opened = open("./data/fightLogs/{0}".format(resp),"rb")
+            try:
+                await respond.send("Voici les logs du combat :",file=discord.File(fp=opened))
+            except:
+                await ctx.channel.send("Voici les logs du combat :",file=discord.File(fp=opened))
+            opened.close()
+        elif resp == "back":
+            page -= 1
+        elif resp == "forward":
+            page += 1
+
 
 ###########################################################
 # Démarrage du bot

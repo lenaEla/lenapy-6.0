@@ -1,6 +1,72 @@
-import os, sqlite3, classes, datetime
+import os, sqlite3, classes, datetime,adv
 
 from discord_slash.utils.manage_components import create_button
+
+majTeamVic1 = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
+                                            FROM teamVictory;
+
+    DROP TABLE teamVictory;
+
+    CREATE TABLE teamVictory (
+        id                     PRIMARY KEY
+                            UNIQUE
+                            NOT NULL,
+        [1],
+        [2],
+        [3],
+        [4],
+        [5],
+        [6],
+        [7],
+        [8],
+        [9],
+        [10],
+        lastFight,
+        lastQuickFight,
+        isFighting     BOOLEAN,
+        totalWin,
+        totalFight
+    );
+
+    INSERT INTO teamVictory (
+                                id,
+                                [1],
+                                [2],
+                                [3],
+                                [4],
+                                [5],
+                                [6],
+                                [7],
+                                [8],
+                                [9],
+                                [10],
+                                lastFight,
+                                lastQuickFight,
+                                isFighting
+                            )
+                            SELECT id,
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                lastFight,
+                                lastQuickFight,
+                                isFighting
+                            FROM sqlitestudio_temp_table0;
+
+    DROP TABLE sqlitestudio_temp_table0;
+
+    PRAGMA foreign_keys = 1;
+"""
 
 class dbHandler():
     def __init__(self, database : str):
@@ -8,110 +74,53 @@ class dbHandler():
         self.con.row_factory = sqlite3.Row
         self.database = database
 
-    def create_weapon(self, weapon : classes.weapon):
-        if type(weapon) == classes.weapon:
+        if database=="teamVic.db":
             cursor = self.con.cursor()
-            params = (weapon.name,weapon.id,weapon.range,weapon.effectiveRange,weapon.power,weapon.sussess,weapon.price,weapon.strength,weapon.endurance,weapon.charisma,weapon.agility,weapon.precision,weapon.intelligence,weapon.resistance,weapon.percing,weapon.critical,weapon.repetition,weapon.emoji,weapon.area,weapon.effect,weapon.effectOnUse,weapon.target,weapon.type,weapon.orientation)
-            query = "INSERT INTO weapon VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-        else:
-            print("Le paramètre donné n'est pas une arme")
 
-    def edit_weapon(self,weapon : classes.weapon):
-        if type(weapon) == classes.weapon:
-            cursor = self.con.cursor()
-            params = (weapon.name,weapon.range,weapon.effectiveRange,weapon.power,weapon.sussess,weapon.price,weapon.strength,weapon.endurance,weapon.charisma,weapon.agility,weapon.precision,weapon.intelligence,weapon.resistance,weapon.percing,weapon.critical,weapon.repetition,weapon.emoji,weapon.area,weapon.effect,weapon.effectOnUse,weapon.target,weapon.type,weapon.orientation,weapon.id)
-            query = f"UPDATE weapon SET name = ?, range = ?,effectiveRange = ?, power = ?, sussess = ?,price = ?, strength = ?, endurance = ?, charisma = ?, agility = ?, precision = ?, intelligence = ?, resistance = ?, percing = ?, critical = ?, repetition = ?, emoji = ?, area = ?, effect = ?, effectOnUse = ?, target = ?, type = ?, orientation = ? WHERE id = ?;"
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-        else:
-            print("Le paramètre donné n'est pas une arme")
-       
-    def create_skill(self, skill : classes.skill):
-        if type(skill) == classes.skill:
-            cursor = self.con.cursor()
-            effectStr = ""
-            for a in skill.effect:
-                if a != None:
-                    if type(a)!=str:
-                        effectStr += a.id
+            # MajTeamVic1
+            try:
+                cursor.execute("SELECT totalWin FROM teamVictory;")
+            except:
+                temp = ""
+                for a in majTeamVic1:
+                    if a != ";":
+                        temp+=a
                     else:
-                        effectStr +=a
-                    effectStr += " - "
-            if effectStr =="":
-                 effectStr = None
-            params = (skill.name,skill.id,skill.type,skill.price,skill.power,skill.range,skill.conditionType,skill.ultimate,skill.secondary,skill.emoji,effectStr,skill.cooldown,skill.area,skill.sussess)
-            query = "INSERT INTO skill VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-        else:
-            print("Le paramètre donné n'est pas une compétence")
+                        cursor.execute(temp)
+                        temp = ""
 
-    def edit_skill(self,skill : classes.skill):
-        if type(skill) == classes.skill:
-            cursor = self.con.cursor()
-            effectStr = ""
-            for a in skill.effect:
-                if a != None:
-                    if type(a)!=str:
-                        effectStr += a.id
-                    else:
-                        effectStr +=a
-                    effectStr += " - "
-            if effectStr =="":
-                 effectStr = None
-            params = (skill.name,skill.type,skill.price,skill.power,skill.range,skill.conditionType,skill.ultimate,skill.secondary,skill.emoji,effectStr,skill.cooldown,skill.area,skill.sussess,skill.id)
-            query = "UPDATE skill SET name = ?,type = ?, price = ?, power = ?, range = ?, conditionType = ?, ultimate = ?, secondary = ?, emoji = ?, effect = ?, cooldown = ?, area = ?, sussess = ? WHERE id = ?;"
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-        else:
-            print("Le paramètre donné n'est pas une compétence")
-
-    def create_gear(self, gear : classes.stuff):
-        if type(gear) == classes.stuff:
-            cursor = self.con.cursor()
-            params = (gear.name,gear.id,gear.type,gear.strength,gear.endurance,gear.charisma,gear.agility,gear.precision,gear.intelligence,gear.resistance,gear.percing,gear.critical,gear.emoji,gear.effect,gear.orientation)
-            query = "INSERT INTO gear VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-        else:
-            print("Le paramètre donné n'est pas un équipement")
-
-    def edit_gear(self, gear : classes.stuff):
-        if type(gear) == classes.stuff:
-            cursor = self.con.cursor()
-            params = (gear.name,gear.type,gear.strength,gear.endurance,gear.charisma,gear.agility,gear.precision,gear.intelligence,gear.resistance,gear.percing,gear.critical,gear.emoji,gear.effect,gear.orientation,gear.id)
-            query = "UPDATE gear SET name = ?, type = ?, strength = ?, endurance = ?, charisma = ?, agility = ?, precision = ?, intelligence = ?, resistance = ?, percing = ?, critical = ?, emoji = ?, effect = ?,orientation = ? WHERE id = ?;"
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-        else:
-            print("Le paramètre donné n'est pas un équipement")
-
+                cursor.execute("UPDATE teamVictory SET totalWin = ?, totalFight = ?;",(0,0))
+                self.con.commit()
+                print("majTeamVic1 réalisée")
+        
     def getAllHeadGear(self):
-        cursor = self.con.cursor()
+        """cursor = self.con.cursor()
         query = "SELECT emoji FROM gear WHERE type = 0;"
         cursor.execute(query)
         result = cursor.fetchall()
         cursor.close()
         for a in range(0,len(result)):
-            result[a] = result[a]["emoji"]
+            result[a] = result[a]["emoji"]"""
+
+        result = []
+        for gear in adv.stuffs:
+            if gear.type == 0:
+                result.append(gear.emoji)
         return result
 
     def getAllWeap(self):
-        cursor = self.con.cursor()
+        """cursor = self.con.cursor()
         query = "SELECT emoji FROM weapon"
         cursor.execute(query)
         result = cursor.fetchall()
         cursor.close()
         for a in range(0,len(result)):
             result[a] = result[a]["emoji"]
+        return result"""
+
+        result = []
+        for weapon in adv.weapons:
+            result.append(weapon.emoji)
         return result
 
     def addHeadGearImageFiles(self,headgearId,headgearFile):
@@ -121,7 +130,10 @@ class dbHandler():
         try:
             cursor.execute(query,params)
         except:
-            curso.execute("UPDATE head_has_png SET fichier = ? WHERE accessoire = ?",(headgearFile,headgearId))
+            try:
+                cursor.execute("UPDATE head_has_png SET fichier = ? WHERE accessoire = ?",(headgearFile,headgearId))
+            except:
+                pass
         cursor.close()
         self.con.commit()
 
@@ -132,7 +144,10 @@ class dbHandler():
         try:
             cursor.execute(query,params)
         except:
-            curso.execute("UPDATE weap_has_png SET file = ? WHERE weapon = ?",(weapFile,weapId))
+            try:
+                cursor.execute("UPDATE weap_has_png SET file = ? WHERE weapon = ?",(weapFile,weapId))
+            except:
+                pass
         cursor.close()
         self.con.commit()
 
@@ -140,17 +155,24 @@ class dbHandler():
         cursor = self.con.cursor()
         params = (species,color,file)
         query = "INSERT INTO color_icon VALUES (?,?,?);"
-        cursor.execute(query,params)
+        try:
+            cursor.execute(query,params)
+        except:
+            pass
         cursor.close()
         self.con.commit()
 
     def getIdFromEmoji(self,emoji,where):
-        cursor = self.con.cursor()
+        """cursor = self.con.cursor()
         query = f"SELECT id FROM {where} WHERE emoji = ?;"
         cursor.execute(query,(emoji,))
         result = cursor.fetchall()
         cursor.close()
-        return result[0]["id"]
+        return result[0]["id"]"""
+
+        for obj in adv.stuffs + adv.weapons:
+            if obj.emoji == emoji:
+                return obj.id
 
     def haveCustomIcon(self,user):
         cursor = self.con.cursor()
@@ -226,7 +248,7 @@ class dbHandler():
             team = user.owner
         cursor = self.con.cursor()
         query = f"SELECT * FROM teamVictory WHERE id = ?;"
-        cursor.execute(query,(team,))
+        cursor.execute(query,(int(team),))
         result = cursor.fetchall()
 
         if len(result) > 0:
@@ -239,8 +261,8 @@ class dbHandler():
             return win
 
         else:
-            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-            params = (team,True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,)
+            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
@@ -248,20 +270,78 @@ class dbHandler():
 
         cursor.close()
 
+    def getVictoryStreakStr(self,user):
+        team = user.team
+        if user.team == 0:
+            team = user.owner
+        cursor = self.con.cursor()
+        query = f"SELECT * FROM teamVictory WHERE id = ?;"
+        cursor.execute(query,(int(team),))
+        result = cursor.fetchall()
+
+        if len(result) > 0:
+            result = result[0]
+            win = ""
+            tabl = [result["1"],result["2"],result["3"],result["4"],result["5"],result["6"],result["7"],result["8"],result["9"],result["10"]]
+            cmpt = 0
+            winCmpt = 0
+            while cmpt < 10:
+                if tabl[cmpt]:
+                    win += "🟢"
+                    winCmpt += 1
+                else:
+                    win += "🔴"
+
+                if cmpt != 9:
+                    win += ","
+
+                cmpt += 1
+            win += "\n__Taux de victoire des derniers combats :__ {0}%".format(int(winCmpt/10*100))
+            try:
+                win += "\n__Taux de victoire total :__ {0}%".format(round(result["totalWin"]/result["totalFight"]*100,1))
+            except:
+                pass
+            return win
+
+        else:
+            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
+            cursor.execute(query,params)
+            cursor.close()
+            self.con.commit()
+            return "🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴"
+
+        cursor.close()
+    
     def addResultToStreak(self,user,resultat : bool):
         team = user.team
         if team == 0:
             team = user.owner
         cursor = self.con.cursor()
         query = f"SELECT * FROM teamVictory WHERE id = ?;"
-        cursor.execute(query,(team,))
-        result = cursor.fetchall()[0]
+        cursor.execute(query,(int(team),))
+        result = cursor.fetchall()
+        if len(result) > 0:
+            result = result[0]
+        else:
+            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
+            cursor.execute(query,params)
+            cursor.close()
+            self.con.commit()
+            query = f"SELECT * FROM teamVictory WHERE id = ?;"
+            cursor.execute(query,(team,))
+            result = cursor.fetchall()[0]
 
-        params = (resultat, result["1"], result["2"], result["3"], result["4"], result["5"], result["6"], result["7"], result["8"], result["9"], team,)
-        query = "UPDATE teamVictory SET '1'=?, '2'=?, '3'=?, '4'=?, '5'=?, '6'=?, '7'=?, '8'=?, '9'=?, '10'=? WHERE id = ?;"
+        nbWin = result["totalWin"]
+        nbWin += int(resultat)
+
+        params = (resultat, result["1"], result["2"], result["3"], result["4"], result["5"], result["6"], result["7"], result["8"], result["9"], nbWin, result["totalFight"]+1, team,)
+        query = "UPDATE teamVictory SET '1'=?, '2'=?, '3'=?, '4'=?, '5'=?, '6'=?, '7'=?, '8'=?, '9'=?, '10'=?, totalWin = ?, totalFight=? WHERE id = ?;"
         cursor.execute(query,params)
         self.con.commit()
         cursor.close()
+
     def addShop(self,shop : list):
         cursor = self.con.cursor()
         cursor.execute("DELETE FROM shop;")
