@@ -117,6 +117,7 @@ STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED,STATUS_TRUE_DEATH = 0,1,2,3
 BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0,1,2,3,4,5,6,7,8,9,10
 inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prevoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
 aspiEmoji = ['<:ber:903135970625462312>','<:obs:903136012975357952>','<:poi:903135992066752543>','<:ido:903136216659152896>','<:pre:903136196044136488>','<:tet:903136049834889317>','<:mag:903136070017884190>','<:alt:903136159037804545>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:903136237945253899>']
+
 # "Target" values
 ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0,1,2,3,4
 
@@ -276,11 +277,22 @@ elemDesc = [
 ]
 elemNames = ["Neutre","Feu","Eau","Air","Terre","Lumière","Ténèbre","Astral","Temporel"]
 
+
+def uniqueEmoji(emoji):
+    return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
+
+def sameSpeciesEmoji(team1,team2):
+    return [[team1,team2],[team1,team2],[team1,team2]]
+
+dangerEm = sameSpeciesEmoji('<a:dangerB:898372745023336448>','<a:dangerR:898372723150041139>')
+untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
+hourglassEmoji = [['<:hourglass1:872181651801772052>','<:hourglass2:872181632801603644>'],['<:hourglass1:872181651801772052>','<:hourglass2:872181632801603644>'],['<:hourglass1:872181651801772052>','<:hourglass2:872181632801603644>']]
+
 # List of guild ids for the bots
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]
 
-stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331]
+stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667]
 weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261]
 
 # For some time related stuff. Time from server != time from France
@@ -331,7 +343,10 @@ shopRandomMsg = [
     '<:lena:899120815205929010> : "Tu sais que tu va finir par traumatiser des gens avec tes \"Boum boum\" toi ?"\n<:shihu:899117502800461824> : "Mi z\'est drole les Boum Boum..."',
     '<:clemence:899117538519154758> : "Hé Powehi, je me suis retrouvée avec plein de Rotten Flesh lors de ma dernière expédition, tu veux que je te les passes ?"\n<:powehi:906202079213797448> : "Oh que oui !"',
     '<:gweny:906303014665617478> : "Toujours à regarder les étoiles ?"\n<:powehi:906202079213797448> : "J\'ai une question Gwendoline... Tu réagirais comment si tu étais bloquée dans ce monde après ta mort et ne pouvais que regarder les autres être vivant te fuir dès que tu t\'approches trop d\'eux ?"\n<:gweny:906303014665617478> : "Oh heu... Je sais pas vraiment désolée. Compliqué de se mettre à ta place, j\'en ai bien peur"\n<:powehi:906202079213797448> : "C\'est pas grave, merci quand même..."',
-    '`En entrant dans une pièce présumée vide, vous êtes surpris de voir des reflets lumineux dans un coin. En allant l\'examiner, vous découvrez Shushi et Sixtine qui dorment l\'une contre l\'autre. Au sol se trouve un lecteur de musique`\n\n📱 [Liste de musique en file d\'attente](https://bit.ly/3D6Ltdh)'
+    '`En entrant dans une pièce présumée vide, vous êtes surpris de voir des reflets lumineux dans un coin. En allant l\'examiner, vous découvrez Shushi et Sixtine qui dorment l\'une contre l\'autre. Au sol se trouve un lecteur de musique`\n\n📱 [Liste de musique en file d\'attente](https://bit.ly/3D6Ltdh)',
+    "<:lena:899120815205929010> : \"Qu'est-ce que l'EEv3 ? J'aurais peut-être dû te dire ça avant de t'envoyer taper les octariens à tout bout de champ...\"\n\n`Elle s'adossa à un mur, en réfléchissant à comment elle pourrait expliquer ça sans dépasser la limite de caractère`\n\n<:lena:899120815205929010> : \"Pour commencer, l'Escadron Espadon (premier du nom) était le nom de l'armée de mon peuple, les Inklings, lors de la Grande Guerre de Territoire. Déjà si tu en est arrivé à là j'en déduis que tu es pas Flora. Je te passe les détails, mais on l'a gagné.\nUn siècle plus tard, les Octariens ont relancé une offensive contre Chromapolis, mais qui fût repoussé par l'Escadron Espadon Nouvelle Version, nouvellement reformé à l'occasion. Oh ça n'a pas empêché les Octariens de lancer d'autres offensives, et c'est au cours de l'une d'elle que j'ai rejoins les rangs.\n\nLe temps à passé, et au final je me suis retrouvé à la tête de l'Escadron. C'est à ce moment là que j'ai décidé d'en faire une société un peu moins secrète et fait batir ce QG tout en changeant le nom de l'Escadron une nouvelle fois pour Escadron Espadon 3e Version.\nNotre role premier consiste évidamment à protéger Chromapolis contre les agressions, mais ces derniers temps, plusieurs failles dimentionnels sont apparues menacent la notre.\n\nC'est là que tu rentre en jeu {0}. Ouais bon, je vais continuer de t'appeller {1} enfaite. Plus court. Donc bref, comme tu peux t'en douter, tu, et ton équipe, viens de l'une de ses failles des dimensions de l'imaginaire et avec votre aide j'aimerais bien tirer au clair toute cette histoire. Comme tu aura pu le remarquer, les Octariens aussi ont saisi cette occasion pour renforcer leurs rangs, et poussent leurs assauts à un autre niveau que précédamment, mais tant que les équipes d'interventions comme vous seront là, j'ai pas vraiment de soucis à me faire.\"",
+    "<:lena:899120815205929010> : \"La plupart des armes que tu trouveras dans cet arsenal viennent de d'autres dimensions tu t'en doute. Mais elles ont toutes été vérifiées par notre expert qui les as toutes certifiées avec un \"Dans les conditions normales d'utilisation, sans danger pour l'utilisateur\". Va savoir ce qui se passe dans des conditions anormales, par contre.\"",
+    "<:lena:899120815205929010> : \"À quoi sert mon équie des \"Temp's\" ? Basiquement on remplie la tienne si elle contient pas assez de membre pour partir en mission, mais de temps en temps on organise des combats d'entrainement contre des équipes d'intervention, histoire de tester des armes et compétences. Et puis ça vous change de vos adversaires habituels.\""
 ]
 
 # Same, but for the roll command
