@@ -494,7 +494,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             SuppSkill += 1
                     
                 if SuppSkill >= offSkill:
-                    self.IA = AI_MALUS
+                    self.IA = AI_BOOST
                 else:
                     self.IA = AI_OFFERUDIT
 
@@ -750,11 +750,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 for a in target.effect:
                     if a.effect.immunity == True and not(ignoreImmunity):
                         value = 0
-                    if a.effect.absolutShield and a.effect.value > 0:
+                    if a.effect.absolutShield and a.value > 0:
                         dmg = min(value,a.value)
-                        popopo += f"{declancher.icon} {icon} → {a.icon}{a.on.icon} -{dmg} PV\n"
+                        popopo += f"{self.icon} {icon} → {a.icon}{a.on.icon} -{dmg} PV\n"
                         popopo += a.decate(value=dmg)
-                        declancher.stats.damageOnShield += dmg
+                        self.stats.damageOnShield += dmg
                         if a.value <= 0:
                             reduc = a.on.char.level
                             if a.effect.lightShield:
@@ -1584,7 +1584,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             self.caster.stats.bleeding += damage
                     ballerine = f"{variable}{self.decate(value=1)}"
                 else:
-                    for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.on.team,wanted=whoTarget,directTarget=False):
+                    for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.caster.team,wanted=ENNEMIS,directTarget=False):
                         damage = self.effect.power
                         variable += self.caster.indirectAttack(a,value=damage,icon = self.icon,name=self.effect.name)
                     
@@ -1634,7 +1634,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     message = f'{self.caster.icon} {self.icon}→ {self.on.icon} +{heal}\n'
 
                 elif self.effect == lostSoul:
-                    if self.on.status == STATUS_DEAD:
+                    doesMemAliceCast = False
+                    for ent in tablEntTeam[self.on.team]:
+                        for eff in ent.effect:
+                            if eff.id == memAliceCast.id:
+                                doesMemAliceCast = True
+                    if self.on.status == STATUS_DEAD and not(doesMemAliceCast):
                         self.on.status = STATUS_TRUE_DEATH
                         message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
 
@@ -1974,16 +1979,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             alea = tablToSee[temp]
             copyTablTemp.remove(alea)
             
-            if temp == 0 and random.randint(0,99) < 10:
-                alea = tablVarAllies[0]
-            elif temp == 1:
+            if alea.isAlly("Lena") and random.randint(0,99) < 10:
+                alea = copy.deepcopy(findAllie("Luna"))
+            elif alea.isAlly("Gwendoline"):
                 bidule = random.randint(0,99)
                 if bidule < 50:
-                    alea = tablVarAllies[1]                        
+                    alea = copy.deepcopy(findAllie("Klironovia"))
                 elif bidule < 60:
-                    alea = tablVarAllies[2]
-            elif temp == 4 and random.randint(0,99) < 10:
-                alea = tablVarAllies[3]
+                    alea = copy.deepcopy(findAllie("Altikia"))
+            elif alea.isAlly("Shushi") and random.randint(0,99) < 10:
+                alea = copy.deepcopy(findAllie("Shihu"))
 
             alea.changeLevel(lvlMax)
             autoHead = getAutoStuff(alea.stuff[0],alea)
@@ -2027,22 +2032,23 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if alea.oneVAll:
                         oneVAll = True
                         littleTeam = len(team1)/8
-                    else:
-                        littleTeam = 1
-                    alea.level = lvlMax
-                    tempStats = alea.allStats()
-                    for b in range(0,len(tempStats)):
-                        tempStats[b] = round(tempStats[b]*0.1+tempStats[b]*0.9*lvlMax/50)
+                        alea.strenght = int(alea.strength * littleTeam)
+                        alea.endurance = int(alea.endurance * littleTeam)
+                        alea.charisma = int(alea.charisma * littleTeam)
+                        alea.agility = int(alea.agility * littleTeam)
+                        alea.precision = int(alea.precision * littleTeam)
+                        alea.intelligence = int(alea.intelligence * littleTeam)
+                        alea.magie = int(alea.magie * littleTeam)
 
-                    alea.strength,alea.endurance,alea.charisma,alea.agility,alea.precision,alea.intelligence = tempStats[0],tempStats[1],tempStats[2],tempStats[3],tempStats[4],tempStats[5]
-                    team2 += [alea]
+                    alea.changeLeve(lvlMax)
+                    team2.append(alea)
                     logs += "{0} have been added into team2\n".format(alea.name)
 
                     if alea.name == "Luna":
-                        alea = copy.deepcopy(tablVarAllies[4])
+                        alea = copy.deepcopy(findAllie("Shushi (Alt.)"))
                         alea.changeLevel(lvlMax)
 
-                        team1 += [alea]
+                        team1.append(alea)
                         logs += "{0} have been added into team1\n".format(alea.name)
 
             tablOctaTemp = copy.deepcopy(tablAllOcta)
@@ -2056,16 +2062,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 alea = tablOctaTemp[temp]
                 tablOctaTemp.remove(alea)
-                alea.level = lvlMax
-                tempStats = alea.allStats()
-                for b in range(0,len(tempStats)):
-                    tempStats[b] = round(tempStats[b]*0.1+tempStats[b]*0.9*lvlMax/50)
-
-                alea.strength,alea.endurance,alea.charisma,alea.agility,alea.precision,alea.intelligence,alea.magie = tempStats[0],tempStats[1],tempStats[2],tempStats[3],tempStats[4],tempStats[5],tempStats[6]
-                if alea.level < 10:
-                    alea.element = ELEMENT_NEUTRAL
+                alea.changeLevel(lvlMax)
                 
-                team2 += [alea]
+                team2.append(alea)
                 logs += "{0} have been added into team2\n".format(alea.name)
 
         else: # Vs temp ally team
@@ -3530,7 +3529,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             else:
                                                 skillToUse = indirectReaSkill[0]
                                             ennemi = a
-                                            optionChoisen = true
+                                            optionChoisen = True
                                             break
 
                                     optionChoisen = True
@@ -4193,18 +4192,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         opened.close()
         haveError = True
 
-    if not(haveError):
+    if not(haveError):                  # Post find things
         print(ctx.author.name + " a fini son combat")
 
-        for a in range(0,len(tablEntTeam[0])):
+        for a in range(0,len(tablEntTeam[0])):      # Reload the char files (in case of changes)
             if type(tablEntTeam[0][a].char) == char:
                 tablEntTeam[0][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[0][a].char.owner) + ".prof",ctx)
 
-        for a in range(0,len(tablEntTeam[1])):
+        for a in range(0,len(tablEntTeam[1])):      # Reload the char files (in case of changes)
             if type(tablEntTeam[1][a].char) == char:
                 tablEntTeam[1][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[1][a].char.owner) + ".prof",ctx)
 
-        winners = int(not(everyoneDead[1]))
+        winners = int(not(everyoneDead[1]))         # The winning team. 0 -> Blue, 1 -> Red
+
         if not(octogone and type(team2[0])==tmpAllie and team2[0].name=='Lena' and len(team2) == 1 and not(winners)):
             for z in (0,1):
                 for a in tablEntTeam[z]:

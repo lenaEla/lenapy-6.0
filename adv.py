@@ -140,6 +140,31 @@ class octarien:
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+    
+    def changeLevel(self,level=1):
+        self.level = level
+        stats = self.allStats()
+        for a in range(0,len(stats)):
+            stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50)
+
+        if self.level < 25:
+            self.skills[4] = "0"
+        if self.level < 20:
+            self.skills[3] = "0"
+        if self.level < 15:
+            self.skills[2] = "0"
+        if self.level < 10:
+            self.skills[1] = "0"
+
+        if self.level < 10:
+            self.element = ELEMENT_NEUTRAL
+        elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
+            self.element = random.randint(0,3)
+
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
+
+    def isAlly(self,name : str):
+        return False
 
 class tmpAllie:
     def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skill=[],description="Pas de description",url="",element=ELEMENT_NEUTRAL,variant = False,deadIcon=None,icon = None,bonusPoints = [None,None],say=says()):
@@ -183,10 +208,27 @@ class tmpAllie:
                 bPoints -= distribute
                 stats[a] += distribute
 
+        if self.level < 25:
+            self.skills[4] = "0"
+        if self.level < 20:
+            self.skills[3] = "0"
+        if self.level < 15:
+            self.skills[2] = "0"
+        if self.level < 10:
+            self.skills[1] = "0"
+
+        if self.level < 10:
+            self.element = ELEMENT_NEUTRAL
+        elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
+            self.element = random.randint(0,3)
+
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
+    def isAlly(self,name : str):
+        return self.name == name
 
 for a in [0,1]: # Octo shield
     tablAllOcta += [octarien("OctoShield",40,150,20,30,30,10,0,35,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier")]
@@ -251,6 +293,23 @@ for a in [0,1,2]: # OctoMage2
 # OctoSnipe
 tablAllOcta += [octarien("OctoSniper",150,30,20,0,75,20,15,15,0,0,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15)]
 
+# Kitsune Sisters
+charming = effect("Sous le charme II","kitsuneSisterEff",CHARISMA,strength=-3,magie=-3,charisma=-3,intelligence=-3,resistance=-1,stackable=True,type=TYPE_MALUS,description="Vous devriez plutôt vous concentrer sur le combat plutôt que sur celles qui sont en train de vous tuer doucement...",emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"))
+
+liuWeapEff = effect("Kitsune de la terre","liuWeapEff",CHARISMA,endurance=10,agility=10,turnInit=-1,unclearable=True,silent=True)
+liuWeap = weapon("Sable","liuWeap",RANGE_MELEE,AREA_CIRCLE_2,27,50,repetition=3,strength=10,magie=10,charisma=10,effect=liuWeapEff,effectOnUse=charming,use=MAGIE)
+liaWeapEff = effect("Kitsune des vents","liaWeapEff",CHARISMA,agility=10,precision=10,turnInit=-1,unclearable=True,silent=True)
+liaWeap = weapon("Vent","liaWeap",RANGE_MELEE,AREA_CIRCLE_2,16,50,repetition=5,charisma=10,magie=10,agility=10,effect=liuWeapEff,effectOnUse=charming,use=MAGIE)
+lioWeapEff = effect("Kitsune de l'eau","lioWeapEff",CHARISMA,intelligence=10,magie=10,turnInit=-1,unclearable=True,silent=True)
+lioWeap = weapon("Ecume","lioWeap",RANGE_LONG,AREA_CIRCLE_5,64,50,charisma=20,effect=lioWeapEff,effectOnUse=charming,use=MAGIE)
+lieWeapEff = effect("Kitsune du feu","lieWeapEff",CHARISMA,intelligence=10,magie=10,turnInit=-1,unclearable=True,silent=True)
+lieWeap = weapon("Braise","lieWeap",RANGE_LONG,AREA_CIRCLE_4,48,50,charisma=10,magie=10,area=AREA_CIRCLE_1,effect=lieWeapEff,effectOnUse=charming,use=MAGIE)
+
+tablAllOcta.append(octarien("Liu",30,100,35,80,10,20,80,35,0,0,liuWeap,7,'<:liu:908754674449018890>',[earthStrike,earthCircle,rocklance],POIDS_PLUME,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20))
+tablAllOcta.append(octarien("Lia",20,70,50,100,50,35,80,35,0,0,liaWeap,7,'<:lia:908754741226520656>',[airStrike,airCircle,storm2],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20))
+tablAllOcta.append(octarien("Lio",20,50,100,35,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,eting,renisurection],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20))
+tablAllOcta.append(octarien("Liz",10,30,100,35,20,35,120,35,0,0,lieWeap,7,'<:lie:908754710121574470>',[fireCircle,pyro,infinitFire],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20))
+
 # Boss special skills ----------------------------------------------------------------
 spamSkill1 = skill("A Call For You","aaa",TYPE_DAMAGE,0,70,area=AREA_CONE_3,sussess=50,emoji='<:call:892757436203671572>',cooldown=3,message="HOT {0} IN YOUR AREA HAVE A [[Message](https://fr.wikipedia.org/wiki/Message)] FOR [{2}] :")
 spamSkill2 = skill("BIG SHOT","aaa",TYPE_DAMAGE,0,130,area=AREA_LINE_5,sussess=70,ultimate=True,cooldown=5,message="[[Press F1](https://forums.commentcamarche.net/forum/affich-19023080-press-f1-to-continue-del-to-enter-setup)] FOR HELP :",emoji='<:bigshot:892757453442277417>')
@@ -301,8 +360,8 @@ feliSplash.say = "Vous m'en direz des nouvelles !"
 tablAllAllies = [
     tmpAllie("Lena",1,light_blue,OBSERVATEUR,splatcharger,[amethystEarRings,lightBlueJacket,lightBlueFlats],GENDER_FEMALE,[splatbomb,bigMonoLaser2,trans,shot,multishot],"Une inkling qui en a vu des vertes et des pas murs.\nPréfère rester loin de la mêlée et abattre ses ennemis à bonne distance","https://cdn.discordapp.com/emojis/899120815205929010.png",ELEMENT_WATER,icon='<:lena:899120815205929010>',bonusPoints=[STRENGTH,PRECISION],say=lenaSays),
     tmpAllie("Gwendoline",2,yellow,POIDS_PLUME,roller,[anakiMask,FIACNf,blackFlat],GENDER_FEMALE,[defi,splashdown,balayette,airStrike],"Bien qu'elle essaye de l'éviter, cette jeune femme se retrouve toujours à devoir en venir aux mains pour se débarraser des gros lourds de la première ligne ennemie.\nIl est vrai aussi qu'elle n'est pas toute seule dans sa tête","https://cdn.discordapp.com/emojis/906303014665617478.png",ELEMENT_AIR,bonusPoints=[STRENGTH,ENDURANCE],icon='<:gweny:906303014665617478>'),
-    tmpAllie("Clémence",2,red,MAGE,rapiere,[indeci1,indeci2,indeci3],GENDER_FEMALE,[bleedingArrow,poisonus,bleedingDague,clemInnerDark,invocCarbunR],"Une vampire qui a décidé de léguer sa jeunesse éternelle à l'étude des runes et la magie","https://cdn.discordapp.com/emojis/899117538519154758.png",ELEMENT_DARKNESS,icon='<:clemence:899117538519154758>',bonusPoints=[MAGIE,STRENGTH],say=clemSays),
-    tmpAllie("Alice",1,pink,IDOLE,mic,[batRuban,aliceDress,aliceShoes],GENDER_FEMALE,[invocBat2,vampirisme,theSkill,croissance,memAlice2],"Une petite fille vampirique qui veut toujours avoir l'attention sur elle. Faisant preuve d'une grande volontée, il faudrait mieux ne pas trop rester dans le coin si elle décide que vous lui faites de l'ombre","https://cdn.discordapp.com/emojis/899117566683934770.png",ELEMENT_LIGHT,icon='<:alice:899117566683934770>',bonusPoints=[CHARISMA,INTELLIGENCE],say=aliceSays),
+    tmpAllie("Clémence",2,red,MAGE,rapiere,[indeci1,indeci2,indeci3],GENDER_FEMALE,[bleedingArrow,poisonus,bleedingDague,clemInnerDark,invocCarbunR],"Une vampire qui a décidé de léguer sa jeunesse éternelle à l'étude des runes et la magie","https://cdn.discordapp.com/emojis/899117538519154758.png",ELEMENT_DARKNESS,icon='<:clemence:899117538519154758>',bonusPoints=[MAGIE,STRENGTH],say=clemSays,deadIcon='<:AliceOut:908756108045332570>'),
+    tmpAllie("Alice",1,pink,IDOLE,mic,[batRuban,aliceDress,aliceShoes],GENDER_FEMALE,[invocBat2,vampirisme,theSkill,croissance,memAlice2],"Une petite fille vampirique qui veut toujours avoir l'attention sur elle. Faisant preuve d'une grande volontée, il faudrait mieux ne pas trop rester dans le coin si elle décide que vous lui faites de l'ombre","https://cdn.discordapp.com/emojis/899117566683934770.png",ELEMENT_LIGHT,icon='<:alice:899117566683934770>',bonusPoints=[CHARISMA,INTELLIGENCE],say=aliceSays,deadIcon='<:AliceOut:908756108045332570>'),
     tmpAllie("Shushi",1,blue,ENCHANTEUR,airspell,[tankmage3,tankmage2,tankmage1],GENDER_FEMALE,[ferocite,invocCarbT,storm2,storm,suppr],"Jeune inkling pas très douée pour le combat, à la place elle essaye de gagner du temps pour permettre à ses alliés d'éliminer l'équipe adverse","https://cdn.discordapp.com/emojis/899117520211042334.png",ELEMENT_AIR,icon='<:shushi:899117520211042334>',bonusPoints=[MAGIE,ENDURANCE],say=shushiSays),
     tmpAllie("Lohica",1,purple,MAGE,butterflyP,[old,robeLoliBlue,blueFlat],GENDER_FEMALE,[lohicaFocal,poisonus,heriteEstialba,dark2],"Une fée à l'histoire bien mouvementée. Spécialisée dans les poisons","https://cdn.discordapp.com/emojis/899694452334022706.png",ELEMENT_DARKNESS,bonusPoints=[MAGIE,STRENGTH],icon='<a:lohicaGif:900378281877057658>',deadIcon='<:flowernt:894550324705120266>'),
     tmpAllie("Hélène",2,white,ALTRUISTE,serringue,[barrette,heleneDress,heleneShoe],GENDER_FEMALE,[cure,lapSkill,renisurection,eting,revitalisation],"Une fée qui estime qu'essayer de sauver la vie de ses alliés est plus efficace que si elle esseyait de terminer le combat elle-même","https://cdn.discordapp.com/emojis/906303162854543390.png",ELEMENT_LIGHT,bonusPoints=[CHARISMA,INTELLIGENCE],icon='<:helene:906303162854543390>'),
@@ -434,7 +493,6 @@ if not(isLenapy):
         print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
 
     print("\nVérification de l'équilibrage des stuffs terminée")
-
 
 def findWeapon(WeaponId) -> weapon:
     typi = type(WeaponId)

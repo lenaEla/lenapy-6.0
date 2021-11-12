@@ -976,16 +976,77 @@ async def normal(ctx):
         else:
             team1 = [user]
 
-        await fight(bot,team1,[],ctx,guild,False,slash=True)
+        # Random event
+        fun = random.randint(0,99)
+
+        fightAnyway = True
+        if fun < 1:                # But nobody came
+            teamIcon = ""
+            for wonderfullIdea in team1:
+                teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
+
+            temp1 = discord.Embed(title = "__Résultats du combat :__",color = black,description="__Danger :__ <a:bnc:908762423111081994>\n__Nombre de tours :__ <a:bnc:908762423111081994>\n__Durée :__ <a:bnc:908762423111081994>")
+            temp1.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=teamIcon,inline=True)
+            temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",value="[[But nobody came](https://bit.ly/3wDwyF3)]",inline=True)
+
+            await ctx.send(embed = temp1,components=[])
+            fightAnyway = False
+
+        elif fun < 3:              # All OctoHeals ! Yes, it's for you H
+            temp = team1
+            temp.sort(key=lambda overheal: overheal.level,reverse=True)
+            maxLvl = temp[0].level
+
+            team2 = []
+            lenBoucle = max(4,len(team1))
+            cmpt = 0
+
+            if maxLvl < tablAllOcta[42].baseLvl:
+                alea = copy.deepcopy(tablAllOcta[6])
+            else:
+                alea = copy.deepcopy(tablAllOcta[42])
+
+            alea.changeLevel(maxLvl)
+
+            while cmpt < lenBoucle:
+                team2.append(alea)
+                cmpt += 1
+
+            permaIncur30 = copy.deepcopy(incur[3])
+            permaIncur30.turnInit, permaIncur30.unclearable = -1, True
+
+            await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaIncur30]])
+            fightAnyway = False
+
+        elif fun < 5:              # All Temmies
+            temp = team1
+            temp.sort(key=lambda overheal: overheal.level,reverse=True)
+            maxLvl = temp[0].level
+
+            team2 = []
+            lenBoucle = max(4,len(team1))
+            cmpt = 0
+
+            alea = copy.deepcopy(findEnnemi("Temmie"))
+            alea.changeLevel(maxLvl)
+
+            while cmpt < lenBoucle:
+                team2.append(alea)
+                cmpt += 1
+
+            permaDamageDown = classes.effect("Malus de dégâts (20%)","damageDown",percing=-20,turnInit=-1,type=TYPE_MALUS,unclearable=True)
+            permaDamageDown.turnInit, permaDamageDown.unclearable = -1, True
+
+            await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaDamageDown]])
+            fightAnyway = False
+
+        if fightAnyway:
+            await fight(bot,team1,[],ctx,guild,False,slash=True)
 
     elif teamWinDB.isFightingBool(ballerine):
-        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"))
-        await asyncio.sleep(10)
-        await msg.delete()
+        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
     else:
-        msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"))
-        await asyncio.sleep(10)
-        await msg.delete()
+        msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
 
 # quick fight
 @slash.subcommand(base="fight",name="quick",description="Vous permet de faire un combat en sautant directement à la fin")
