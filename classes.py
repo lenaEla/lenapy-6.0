@@ -327,7 +327,7 @@ class stuff:
 
         if price != 0:
             sumStats = 0
-            for stat in [strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,negativeHeal,negativeBoost,negativeDirect,negativeIndirect,negativeBoost]:
+            for stat in [strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,negativeHeal,negativeBoost,negativeShield,negativeDirect,negativeIndirect]:
                 sumStats += abs(stat)
             tempPrice = (sumStats-20)*5+100
             if effect != None:
