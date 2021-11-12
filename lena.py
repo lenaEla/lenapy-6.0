@@ -220,7 +220,7 @@ async def oneClock():
     tick = datetime.datetime.now()
     if tick.second%60 == 0 and not(minuteClock.is_running()):
         minuteClock.start()
-        
+
 @tasks.loop(minutes=1)
 async def minuteClock():
     if oneClock.is_running():

@@ -394,7 +394,7 @@ emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:8668282968334664
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False):
         """rtfm"""
         self.name = name                    # Name of the effect
         self.id = id                        # The id. 2 characters
@@ -427,6 +427,8 @@ class effect:
         self.untargetable = untargetable    # Does the effect make the entity untargetable ?
         self.invisible = invisible
         self.aggro = aggro
+        self.lightShield = lightShield
+        self.absolutShield = absolutShield
 
         if emoji == None:
             if self.type in [TYPE_BOOST]:
@@ -553,3 +555,5 @@ for num in range(0,10):
     incurTemp.name = "Incurable ({0})".format(10*num)
     incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant ou égal est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent".format(10*num)
     incur.append(incurTemp)
+
+intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement")

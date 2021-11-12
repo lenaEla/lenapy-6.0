@@ -1049,7 +1049,7 @@ def infoEnnemi(ennemi : octarien):
     return embed
 
 def getAutoStuff(object: stuff, user: char):
-    if user.level >= object.minLvl:
+    if user.level//5 == object.minLvl//5:
         return object
     else:
         tablAllStats = object.allStats()+[object.resistance,object.percing,object.critical]+[object.negativeHeal*-1,object.negativeBoost*-1,object.negativeShield*-1,object.negativeDirect*-1,object.negativeIndirect*-1]
@@ -1100,7 +1100,9 @@ def getAutoStuff(object: stuff, user: char):
             return temp
 
         for stuffy in tablToSee[:]:
-            if stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0:
+            if (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 >= stuffy.minLvl//5):
+                tablToSee.remove(stuffy)
+            elif (stuffy.minLvl < user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 <= stuffy.minLvl//5):
                 tablToSee.remove(stuffy)
 
         if len(tablToSee) > 0:
