@@ -23,7 +23,7 @@ hunter = effect("Chasseur","ls",None,emoji=uniqueEmoji('<:chasseur:8710976733342
 hunterBuff = effect("Hunterbuff","lt",None,critical=100,precision=500,silent=True)
 menthe = effect("Mentiné","lu",INTELLIGENCE,percing=5,resistance=5,critical=10,reject=["mc"],description="Boost la résistance, la pénétration et le critique de vos alliés",emoji=uniqueEmoji('<:menthe:867538622797054042>'))
 badaboum = effect("Ça fait bim bam boum","lv",MAGIE,emoji=emojiMalus,aggro=10,turnInit=2,trigger=TRIGGER_DEATH,power=100,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_2)
-charme = effect("Sous le charme","lw",CHARISMA,-10,resistance=-10,magie=-10,emoji=emojiMalus,description="Heu peut-être plus tard la description",type=TYPE_MALUS)
+charme = effect("Sous le charme","lw",CHARISMA,-10,resistance=-10,magie=-10,description="Heu peut-être plus tard la description",type=TYPE_MALUS,emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"))
 jetlag = effect("Jetlag",'jetLag',None,emoji=uniqueEmoji('<:jetlag:872181671372402759>'),silent=True,description="Le porteur de cet effet est insenssible aux sorts/armes de type \"Sablier\"")
 hourglass1 = effect("Rollback","lx",None,trigger=TRIGGER_ON_REMOVE,type=TYPE_UNIQUE,emoji=hourglassEmoji,description="Lorsque l'initiateur de cet effet commence son prochain tour, le porteur récupèrera 75% des PV perdues depuis que cet effet est actif",reject=[jetlag])
 lightAuraEffect = effect("Aura de Lumière I","ly",CHARISMA,turnInit=-1,power=10,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_END_OF_TURN,emoji=sameSpeciesEmoji("<:AdL1:873549174052892672>","<:AdL2:873549232601182249>"),description="Bénissez vos alliés proches et offrez leur des soins sur plusieurs tours",area=AREA_CIRCLE_2)

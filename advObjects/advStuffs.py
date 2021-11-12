@@ -149,8 +149,10 @@ chemV = stuff("Chemise verte","mt",1,1,strength=15,agility=15,magie=-10,emoji='<
 chemB = stuff("Chemise bleue","mu",1,1,magie=25,resistance=-5,emoji='<:chemFlan:907386970827788368>')
 chemN = stuff("Chemise noire","mv",1,1,strength=25,endurance=20,resistance=15,agility=-20,negativeIndirect=20,emoji='<:chemN:907386972161572896>',orientation=[TANK,DPT])
 chemR = stuff("Chemise rose",'mw',1,1,negativeHeal=-30,negativeDirect=10,emoji='<:chemR:907386968046985226>',orientation=[None,HEALER])
-coiffeInfirmR = stuff("Coiffe d'infirmier rose","mx",0,1,negativeHeal=-20,emoji='<:coiffeInfirmR:907386964888653824>',orientation=[None,HEALER])
-coiffeInfirmB = stuff("Coiffe d'infirmier bleu","my",0,1,negativeShield=-20,emoji='<:coiffeInfirmB:907386964288868373>',orientation=[None,BOOSTER])
+
+coiffeInfirmR = stuff("Coiffe d'infirmier rose","mx",0, price=1, negativeHeal=-20, emoji='<:coiffeInfirmR:907386964888653824>', orientation=[None,HEALER])
+coiffeInfirmB = stuff("Coiffe d'infirmier bleu","my",0, price=1, negativeShield=-20, emoji='<:coiffeInfirmB:907386964288868373>', orientation=[None,BOOSTER])
+
 blueNoeud = stuff("Noeud bleu",'mz',0,1,intelligence=30,negativeHeal=10,emoji='<:noeudB:907386968013418497>',orientation=[None,BOOSTER])
 whiteNoeud = stuff("Noeud blanc",'na',0,1,negativeHeal=-30,negativeBoost=5,negativeShield=5,emoji='<:noeudBl:907386972505522178>',orientation=[None,HEALER])
 giletShirt = stuff("Gilet avec T-shirt",'nb',1,1,endurance=10,resistance=10,magie=10,negativeIndirect=10,emoji='<:giletTshirt:907386967472365618>',orientation=[TANK,MAGIC])
@@ -174,5 +176,4 @@ blueCharpe = stuff("Écharpe bleue","ns",0,1,emoji='<:bluecharpe:908549607133421
 bandNoir = stuff("Bandana Noir","nt",0,1,emoji='<:nbn:908554373796343908>',strength=25,agility=25,endurance=20,resistance=10,negativeDirect=-10,precision=-10,magie=-25,critical=-10,negativeIndirect=25)
 blueVC = stuff("Veste et chemise bleus","nu",1,1,emoji='<:bsj:908551535796035644>',intelligence=30,negativeShield=-30,endurance=10,charisma=20,negativeHeal=20,negativeIndirect=30,resistance=-10,percing=-10)
 bhBoots = stuff("Bottes gravité","nv",2,1,emoji='<:bhBoots:908489324750860309>',endurance=40,resistance=20,agility=20,charisma=20,intelligence=20,negativeIndirect=35,negativeDirect=35,negativeBoost=30)
-bhPull = stuff("Pull gravité","nw",1,1,emoji='<:bhBoots:908489324750860309>',endurance=50,resistance=25,strength=20,magie=20,precision=10,negativeHeal=35,negativeShield=35,percing=-10,agility=-25)
-
+bhPull = stuff("Pull gravité","nw",1,1,emoji='<:bhPull:908489339925856266>',endurance=50,resistance=25,strength=20,magie=20,precision=10,negativeHeal=35,negativeShield=35,percing=-10,agility=-25)
