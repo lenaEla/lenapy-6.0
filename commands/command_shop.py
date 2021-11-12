@@ -32,7 +32,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
         except:
             msg = await loadingSlashEmbed(ctx)
 
-        shopRdMsg = shopRandomMsg[random.randint(0,len(shopRandomMsg)-1)]
+        shopRdMsg = shopRandomMsg[random.randint(0,len(shopRandomMsg)-1)].format(ctx.author.name,user.name)
         initMsg = msg
         while 1: 
             # Loading the user's team
