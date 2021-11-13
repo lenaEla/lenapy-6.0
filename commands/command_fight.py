@@ -28,7 +28,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     isJohn = False
 
     tablIsPnjVar = [isAlice,isClemence,isAkira,isGwen,isHelene,isIcealia,isShehisa,isPowehi,isLena,isShushi,isFeli,isSixtine,isLohica,isJohn]               # Those ones are use for the Temp's special interractions and the success related to them
-    tablIsPnjName = ["Alice","Clémence","Akira",["Gwendoline","Altikia","Klironovia"],"Hélène","Icealia","Shehisa","Powehi","Lena","Shushi","Félicité",",Sixtine""Lohica","John"]
+    tablIsPnjName = ["Alice","Clémence","Akira",["Gwendoline","Altikia","Klironovia"],"Hélène","Icealia","Shehisa","Powehi","Lena","Shushi","Félicité","Sixtine","Lohica","John"]
 
     alicePing = False         # Will Alice say it ?
     now = datetime.datetime.now()
@@ -2061,12 +2061,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             aleaMax = len(tablAllOcta)-1
             alreadyFall = []
 
+            tablOctaTemp = copy.deepcopy(tablAllOcta)
             oneVAll = False
             if len(team2) < len(team1) and lvlMax >= 15:
-                if random.randint(0,99) <= 20:
-                    copyTablBoss = copy.deepcopy(tablBoss)
+                if random.randint(0,99) < 20:               # Boss ?
+
                     temp = random.randint(0,len(tablBoss)-1)
-                    alea = copyTablBoss[temp]
+                    alea = copy.deepcopy(tablBoss[temp])
                     if alea.oneVAll:
                         oneVAll = True
                         littleTeam = len(team1)/8
@@ -2082,14 +2083,22 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     team2.append(alea)
                     logs += "{0} have been added into team2\n".format(alea.name)
 
-                    if alea.name == "Luna":
+                    if alea.isPnj("Luna"):
                         alea = copy.deepcopy(findAllie("Shushi (Alt.)"))
                         alea.changeLevel(lvlMax)
-
                         team1.append(alea)
                         logs += "{0} have been added into team1\n".format(alea.name)
 
-            tablOctaTemp = copy.deepcopy(tablAllOcta)
+                elif random.randint(0,99) < 10:              # Kitsune sisters ?
+                    for name in ["Liu","Lia","Lio","Liz"]:
+                        for alea in tablOctaTemp[:]:
+                            if alea.isPnj(name):
+                                tablOctaTemp.remove(alea)
+                                alea.changeLevel(lvlMax)
+                                team2.append(alea)
+                                logs += "{0} have been added into team2\n".format(alea.name)
+                                break
+
             for octa in tablOctaTemp[:]:
                 if octa.baseLvl > lvlMax:
                     tablOctaTemp.remove(octa)
@@ -2184,6 +2193,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 logs += "{0} have been added into team2\n".format(alea.name)
     elif octogone:
         danger=100
+    else:
+        winStreak = teamWinDB.getVictoryStreak(team1[0])
+        danger = altDanger[winStreak]
 
     tablTeam,tablEntTeam,cmpt = [team1,team2],[[],[]],0
     readyMsg,msg,cmpt = None,None,0
