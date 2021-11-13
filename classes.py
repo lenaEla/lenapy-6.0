@@ -259,7 +259,7 @@ class skill:
                 
                 self.condition[2] = conditionType[2]
 
-        if area == AREA_ALL_ALLIES or area == AREA_ALL_ENNEMIES or area == AREA_ALL_ENTITES:
+        if area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
             self.range = AREA_MONO
 
         if emoji == None:
@@ -327,11 +327,11 @@ class stuff:
 
         if price != 0:
             sumStats = 0
-            for stat in [strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,negativeHeal,negativeBoost,negativeShield,negativeDirect,negativeIndirect]:
-                sumStats += abs(stat)
-            tempPrice = (sumStats-20)*5+100
+            for stat in [strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,negativeHeal*-1,negativeBoost*-1,negativeShield*-1,negativeDirect*-1,negativeIndirect*-1]:
+                sumStats += max(0,stat)
+            tempPrice = int((sumStats-20)*7.5)+100
             if effect != None:
-                tempPrice += 200
+                tempPrice += 100
             self.price = tempPrice
 
         if emoji == None:
