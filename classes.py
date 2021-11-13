@@ -507,6 +507,9 @@ class char:
         """Verify if the character have the object Obj"""
         return obj in self.weaponInventory or obj in self.skillInventory or obj in self.stuffInventory or obj in self.otherInventory
 
+    def isPnj(self,name : str):
+        return False
+
     def allStats(self):
         """Return a list of all main stats of the character"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
@@ -539,6 +542,9 @@ class invoc:
     def allStats(self):
         """Return a list """
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+    
+    def isPnj(self,name : str):
+        return False
 
 def getColorId(user: char):
     """Return the color indice of the user. Only use for summons, now"""
