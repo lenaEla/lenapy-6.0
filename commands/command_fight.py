@@ -14,6 +14,24 @@ teamWinDB = dbHandler("teamVic.db")
 AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHANT = 0,1,2,3,4,5,6,7
 
 async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashContext,guild,auto = True,contexte=[],octogone=False,slash=False):
+    isAlice = False
+    isClemence = False
+    isAkira = False
+    isGwen = False
+    isHelene = False
+    isIcealia = False
+    isShehisa = False
+    isPowehi = False
+    isLena = False
+    isShushi = False
+    isFeli = False
+    isSixtine = False
+    isLohica = False
+    isJohn = False
+
+    tablIsPnjVar = [isAlice,isClemence,isAkira,isGwen,isHelene,isIcealia,isShehisa,isPowehi,isLena,isShushi,isFeli,isSixtine,isLohica,isJohn]
+    tablIsPnjName = ["Alice","Clémence","Akira",["Gwendoline","Altikia","Klironovia"],"Hélène","Icealia","Shehisa","Powehi","Lena","Shushi","Félicité","Sixtine","Lohica","John"]
+
     alicePing = False         # Will Alice say it ?
     now = datetime.datetime.now()
     logs,haveError = "[{0}]\n".format(now.strftime("%H:%M:%S, %d/%m/%Y")),False
@@ -795,10 +813,28 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             if killer.char.says.onKill != None and random.randint(0,99)<33:
                 pipistrelle += "{0} : *\"{1}\"*\n".format(killer.icon,killer.char.says.onKill)
-            if self.char == tmpAllie and self.char.name == "Alice" and random.randint(0,99) < 1:
-                    pipistrelle += "{0} : *\"{1}\"*\n".format(self.icon,"Tss... J'aurais du tous vous écraser quand je l'aurais pu...")
-                    alicePing = True
-            elif self.char.says.onDeath != None and random.randint(0,99)<33:
+
+            if self.isPnj("Alice") and random.randint(0,99) < 1:
+                pipistrelle += "{0} : *\"{1}\"*\n".format(self.icon,"Tss... J'aurais du tous vous écraser quand je l'aurais pu...")
+                alicePing = True
+
+            elif (self.isPnj("Shushi") or self.isPnj("Shihu")) and isLena:
+                pipistrelle += "{0} : *\"{1}\"*\n".format('<:lena:909047343876288552>','Shu- Ok là on va sérieusement commencer à se calmer.')
+                for ent in tablEntTeam[self.team]:
+                    if ent.isPnj("Lena"):
+                        mater = classes.effect("Instinct maternelle","ohFuckYou",strength=ent.char.level,turnInit=-1,emoji=uniqueEmoji('<:angry:862321601978040350>'))
+                        pipistrelle += add_effect(ent,ent,mater)
+                        ent.refreshEffects()
+
+            elif random.randint(0,99)<33:
+                if self.isPnj("Hina") and isLohica:
+                    pipistrelle += "{0} : *\"{1}\"*\n".format('<a:lohicaGif:900378281877057658>','Ts. Encore par terre toi ?')
+                elif self.isPnj("Clémence") and isJohn:
+                    pipistrelle += "{0} : *\"{1}\"*\n".format('<:john:908887592756449311>','Clémence !')
+                elif self.isPnj("Félicité") and isAlice:
+                    pipistrelle += "{0} : *\"{1}\"*\n".format('<:alice:908902054959939664>','Féli ! On se retrouve à la maison !')
+
+                elif self.char.says.onDeath != None:
                     pipistrelle += "{0} : *\"{1}\"*\n".format(self.icon,self.char.says.onDeath)
 
             for a in self.effect:
@@ -1082,8 +1118,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             string += " {0}\n".format(a.name)
                         except:
                             string += "\n".format(a.name)
-
-                    print(string)
 
                 for effOn in eff.on.effect:
                     if effOn.effect.id == eff.effect.id and effOn.caster.id == self.id and effOn.unique_id == eff.unique_id:
@@ -1385,10 +1419,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:
                 return ""
 
-        def isTmp(self, name : str) -> bool:
+        def isPnj(self, name : str) -> bool:
             """Return if the entity is a temp's with the name given"""
-            return type(self.char) == tmpAllie and self.char.name == name
-
+            return self.char.isPnj(name)
+    
     class fightEffect:
         """Classe plus pousée que Effect pour le combat"""
 
@@ -1424,7 +1458,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if self.trigger == TRIGGER_ON_REMOVE:
                     temp += self.triggerRemove()
                 self.remove = True
-                if not(self.effect.silent) and self.on.hp > 0:
+                if not(self.effect.silent) and self.on.hp > 0 and self.effect.id not in (astralShield.id,timeShield.id):
                     temp += f"{self.on.char.name} n'est plus sous l'effet __{self.effect.name}__\n"
             return temp
 
@@ -1501,7 +1535,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             return temp2
 
-        def triggerDeath(self,killer=None,uniqueID=copy.copy(uniqueID)):
+        def triggerDeath(self,killer=None,uniqueID=copy.copy(uniqueID)) -> str:
             """Déclanche l'effet"""
             temp = ""
             if self.type==TYPE_INDIRECT_REZ:
@@ -1555,7 +1589,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             return temp
 
-        def triggerStartOfTurn(self,uniqueID=copy.copy(uniqueID)):
+        def triggerStartOfTurn(self,uniqueID=copy.copy(uniqueID)) -> str:
             """Déclanche l'effet"""
             ballerine=f"L'effet __{self.effect.name}__ se déclanche :\n"
             if self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:              # Heal Indirect
@@ -1604,7 +1638,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 self.on.refreshEffects()
             return ballerine
 
-        def triggerEndOfTurn(self,uniqueID=copy.copy(uniqueID)):
+        def triggerEndOfTurn(self,uniqueID=copy.copy(uniqueID)) -> str:
             """Déclanche l'effet"""
             temp = ""
             if self.type == TYPE_INDIRECT_DAMAGE:
@@ -1621,7 +1655,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             return temp
 
-        def triggerRemove(self,uniqueID=copy.copy(uniqueID)):
+        def triggerRemove(self,uniqueID=copy.copy(uniqueID)) -> str:
             if not(self.effect.silent):
                 message = f'L\'effet __{self.effect.name}__ se déclanche :\n'
             else:
@@ -1642,6 +1676,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if self.on.status == STATUS_DEAD and not(doesMemAliceCast):
                         self.on.status = STATUS_TRUE_DEATH
                         message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
+                    elif doesMemAliceCast:
+                        self.leftTurn += 1
 
             if self.effect.callOnTrigger != None:
                 for a in [0,1]:
@@ -1756,7 +1792,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         """Méthode qui rajoute l'effet Effet à l'entity Target lancé par Caster dans la liste d'attente des effets"""
         valid,id,popipo = False,0,""
         valid = True
-        if effect.reject != None:
+
+        # Does the effect can be applied ?
+        if effect.reject != None:                                           # The effect reject other effects
             for a in effect.reject:
                 for b in target.effect:
                     if a == b.effect.id:
@@ -1766,21 +1804,24 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if not(valid):
                     break
         for a in target.effect:
-            if a.effect.id == effect.id and not(effect.stackable):
-                if a.effect.id == incurable.id:
-                    if a.effect.power < effect.power:
+            if a.effect.id == effect.id and not(effect.stackable):          # The effect insn't stackable
+                if a.effect.id == incurable.id:                                 # But is't Healn't
+                    if a.effect.power < effect.power:                               # A better Healn't
+                        diff = effect.power - a.effect.power
                         a.effect.power = effect.power
                         a.caster = caster
-                    else:
+                        popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
+                    else:                                                           # A less powerful Healn't
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
-                elif not(effect.silent):
+                
+                elif not(effect.silent):                                        # It's not Healn't
                     popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
                 valid = False
                 break
                 
         if valid:
             valid = False
-            while not(valid):
+            while not(valid):                                               # Why Lena. Why ?
                 id,trouv = random.randint(1000,9999),False
 
                 for a in allEffectInFight:
@@ -1793,16 +1834,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             icon = effect.emoji[caster.char.species-1][caster.team]
 
-            if effect.overhealth > 0:                   # Armor
+            if effect.overhealth > 0:                                       # Armor Effect
                 temp = caster.allStats()
                 value = effect.overhealth
-                friablility = max(1-(max(0,turn-5) / 20),0.1)
-                if effect.stat != None:
+                friablility = max(1-(max(0,turn-5) / 20),0.1)                   # Reduct over time
+                if effect.stat != None:                                         # Classical armor effect
                     value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + temp[effect.stat]-caster.negativeShield+100)/100 * friablility)
-                elif not(ignoreEndurance):
+                elif not(ignoreEndurance):                                      # Semi-fixe armor effect
                     value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + 100)/100 * friablility)
-                else:
-                    value = round(effect.overhealth * caster.valueBoost(target=target))
+                else:                                                           # Fixe armor effect
+                    value = round(effect.overhealth)
 
                 if caster.char.aspiration == PREVOYANT:
                     value = int(value*1.2)                      # Shield +20%
@@ -1831,10 +1872,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 uniqueID += 1
 
-            else:
+            else:                                                           # Any other effect
                 addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl,unique_id=uniqueID))
                 name = effect.name
-                if name.endswith("é"):
+                if name.endswith("é"):                                      # Add a "e" if the caracter is a girl
                     name += target.accord()
                 if not(effect.silent):
                     if effect.turnInit > 0:
@@ -1849,7 +1890,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 if effect.id == estal.id:                               # If is the Estialba effect
                     for eff in caster.effect:
-                        if eff.effect.id == heriteEstialbaEff.id:       # If the caster has Herite Estialba, give also the Estal 2 effect
+                        if eff.effect.id == heriteEstialbaEff.id:           # If the caster has Herite Estialba, give also the Estal 2 effect
                             effect=estal2
                             icon = effect.emoji[caster.char.species-1][caster.team]
                             addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl,unique_id=uniqueID))
@@ -1861,9 +1902,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             target.refreshEffects()
                             uniqueID += 1
                             break
-                elif effect.id == hemoragie.id:
+                elif effect.id == hemoragie.id:                         # If is the hemorragic effect
                     for eff in caster.effect:
-                        if eff.effect.id == heriteLesathEff.id:       # If the caster has Herite Lesath, give also the Bleeding 2 effect
+                        if eff.effect.id == heriteLesathEff.id:             # If the caster has Herite Lesath, give also the Bleeding 2 effect
                             effect=hemoragie2
                             icon = effect.emoji[caster.char.species-1][caster.team]
                             addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl))
@@ -1885,12 +1926,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
         for a in tablAllCells:
             temp = '<:empty:866459463568850954>'
-            #temp = f'{str(a.x)}-{str(a.y)}'
+            #temp = f'{str(a.x)}-{str(a.y)}'                        Show cells ID
             if a.on != None:
                 if a.on.status == STATUS_DEAD:
                     temp = ['<:ls1:868838101752098837>','<:ls2:868838465180151838>'][a.on.team]
                 elif a.on.status != STATUS_TRUE_DEATH:
-                    if a.on.invisible:
+                    if a.on.invisible:                              # If the entity is invisible, don't show it. Logic
                         temp = '<:empty:866459463568850954>'
                     else:
                         temp = a.on.icon
@@ -1908,7 +1949,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         return temp
 
     def visibleArea(cells,middle):
-        """Renvoie un str contenant la carte du combat en mettant en évidence les cellules Cells"""
+        """Renvoie un str contenant la carte du combat en mettant en évidence les cellules Cells\n
+        Used for testings"""
         line1,line2,line3,line4,line5 = [None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None]
         lines = [line1,line2,line3,line4,line5]
 
@@ -1979,16 +2021,31 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             alea = tablToSee[temp]
             copyTablTemp.remove(alea)
             
-            if alea.isAlly("Lena") and random.randint(0,99) < 10:
+            if alea.isPnj("Lena") and random.randint(0,99) < 10:
                 alea = copy.deepcopy(findAllie("Luna"))
-            elif alea.isAlly("Gwendoline"):
+            elif alea.isPnj("Gwendoline"):
                 bidule = random.randint(0,99)
                 if bidule < 50:
                     alea = copy.deepcopy(findAllie("Klironovia"))
                 elif bidule < 60:
                     alea = copy.deepcopy(findAllie("Altikia"))
-            elif alea.isAlly("Shushi") and random.randint(0,99) < 10:
+            elif alea.isPnj("Shushi") and random.randint(0,99) < 10:
                 alea = copy.deepcopy(findAllie("Shihu"))
+
+            for cmpt in range(len(tablIsPnjVar)):
+                if type(tablIsPnjName[cmpt]) != list:
+                    if alea.isPnj(tablIsPnjName[cmpt]):
+                        tablIsPnjVar[cmpt] = True
+                        break
+
+                else:
+                    for name in tablIsPnjName[cmpt]:
+                        if alea.isPnj(name):
+                            tablIsPnjVar[cmpt] = True
+                            break
+                    
+                    if alea.isPnj(name):
+                        break
 
             alea.changeLevel(lvlMax)
             autoHead = getAutoStuff(alea.stuff[0],alea)
@@ -2040,7 +2097,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         alea.intelligence = int(alea.intelligence * littleTeam)
                         alea.magie = int(alea.magie * littleTeam)
 
-                    alea.changeLeve(lvlMax)
+                    alea.changeLevel(lvlMax)
                     team2.append(alea)
                     logs += "{0} have been added into team2\n".format(alea.name)
 
@@ -2126,8 +2183,21 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 alea.changeLevel(lvlMax)
                 alea.stuff = [getAutoStuff(alea.stuff[0],alea),getAutoStuff(alea.stuff[1],alea),getAutoStuff(alea.stuff[2],alea)]
-                if alea.level < 10:
-                    alea.element = ELEMENT_NEUTRAL
+
+                for cmpt in range(len(tablIsPnjVar)):
+                    if type(tablIsPnjName[cmpt]) != list:
+                        if alea.isPnj(tablIsPnjName[cmpt]):
+                            tablIsPnjVar[cmpt] = True
+                            break
+
+                    else:
+                        for name in tablIsPnjName[cmpt]:
+                            if alea.isPnj(name):
+                                tablIsPnjVar[cmpt] = True
+                                break
+                        
+                        if alea.isPnj(name):
+                            break
 
                 team2 += [alea]
                 logs += "{0} have been added into team2\n".format(alea.name)
@@ -2269,7 +2339,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         allReady = False
         already, awaited,awaitedChar = [],[],[]
 
-        readyMsg = await ctx.channel.send(embed=discord.Embed(title="[Inserez une blague ici]"))
+        readyMsg = await ctx.channel.send(embed=discord.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg)-1)]))
 
         for a in tablEntTeam: # Génération du tableau des utilisateurs devant confirmer leur présence
             for b in a:
@@ -2365,7 +2435,77 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     for team in [0,1]:
         for ent in tablEntTeam[team]:
             if ent.char.says.start != None and random.randint(0,99)<33:
-                tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,ent.char.says.start)
+                if ent.isPnj("Alice"):                          # Alice specials interractions
+                    if isHelene:                                    # Helene in the fight
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"__Arf, pourquoi je dois faire équipe avec elle déjà (＃￣0￣) ?__")
+                        if isClemence:
+                            if random.randint(0,99) < 50:
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:clemence:908902579554111549>',"__S'il te plait Alice, commence pas... Elle fait même pas le même taff que toi.__")
+                                if isLena:
+                                    tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:lena:909047343876288552>',"Je sais que c'est tentant de se parler avec des ultra-sons quand on a votre ouïe, mais si vous pôuviez plutôt vous concentrer sur le combat ce sera cool")
+                            else:
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:clemence:908902579554111549>',"Je l'ai entendue celle là !")
+                
+                    elif isFeli and isSixtine and isClemence:         # All sisters in the fight
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"Allez ! Un p'tit combat en famille !")
+
+                    elif isFeli or isSixtine:           # A sister in the fight (except Clémence)
+                        tempMsg = "Allez Féli ! On fonce !"
+                        if isSixtine:
+                            tempMsg = "Courrage Sixtine ! Ça va aller !"
+
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,tempMsg)
+                    else:
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,ent.char.says.start)
+
+                elif ent.isPnj("Clémence"):                     # Clémence spécials interractions
+                    if isAlice or isFeli or isSixtine:          # With her sisters
+                        tempTabl = []
+                        if isAlice:
+                            tempTabl.append("Hé Alice, ça va être le moment de tester tes compétences non ?")
+                        if isFeli:
+                            tempTabl.append("Surtout, oublie pas de *pas* en faire trop Féli")
+                        if isSixtine:
+                            tempTabl.append("Sixtine, je devrais avoir ramenné des vielles peintures, ça t'interresse de regarder ça après le combat ?")
+
+                        rand = tempTabl[random.randint(0,len(tempTabl)-1)]
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,rand)
+
+                        if rand == "Sixtine, je devrais avoir ramenné des vielles peintures, ça t'interresse de regarder ça après le combat ?":
+                            if randon.randint(0,99) < 50:
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:sixtine:908819887059763261>',"Oh heu... Je comptais plutôt faire une sieste après moi...")
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"Pas de soucis")
+                            else:
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:sixtine:908819887059763261>',"Oh heu... Pourquoi pas...")
+
+                    else:
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,ent.char.says.start)
+                
+                elif ent.isPnj("Shushi"):
+                    if isLena:
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"Allez Miman ! Ti va touz les défonzer !")
+                        if random.randint(0,99) < 50:
+                            if random.randint(0,99) < 50:
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:lena:909047343876288552>',"Voyons Shushi, c'est quoi ce language ?")
+                            else:
+                                tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:lena:909047343876288552>',"`Ricane`")
+
+                    else:
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,ent.char.says.start)
+
+                elif ent.isPnj("Shihu"):
+                    if isLena:
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"Z'est le doit au Boum Boum ?")
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format('<:lena:909047343876288552>',"`Ricane` Allez vas-y")
+                    else:
+                        tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,ent.char.says.start)
+
+                elif ent.isPnj("John") and isClemence and random.randint(0,99) < 50:
+                    tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"D-Dit Clémence, ça te dirais une balade sous la pleine lune avec moi après ça ?")
+                    tempTurnMsg += "<:clemence:908902579554111549> : *\"Hum ? Oh heu... Pourquoi pas écoute\"*\n"
+
+                else:
+                    tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,ent.char.says.start)
 
     if tempTurnMsg != "__Début du combat :__\n":
         tempTurnMsg += "\n"
@@ -4167,9 +4307,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         team = team1[0].team
         teamWinDB.changeFighting(team,False)
         logs += "\n"+format_exc()
-
-        print(logs[-1000:])
-
         date = datetime.datetime.now()+horaire
         date = date.strftime("%H%M")
         fich = open("./data/fightLogs/ERROR_{0}_{1}.txt".format(ctx.author.name,date),"w")
@@ -4425,35 +4562,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
         # ------------ Succès -------------- #
         if not(octogone):
-            isAlice = False
-            isClemence = False
-            isAkira = False
-            isGwen = False
-            isHelene = False
-            isIcealia = False
-            isShehisa = False
-            isPowehi = False
-
-            for a in [0,1]:
-                for b in tablEntTeam[a]:
-                    if type(b.char) == tmpAllie:
-                        if b.char.name == "Alice":
-                            isAlice = True
-                        elif b.char.name == "Clémence":
-                            isClemence = True
-                        elif b.char.name == "Akira":
-                            isAkira = True
-                        elif b.char.name in ["Gwendoline","Altikia","Klironovia"]:
-                            isGwen = True
-                        elif b.char.name == "Hélène":
-                            isHelene = True
-                        elif b.char.name == "Icealia":
-                            isIcealia = True
-                        elif b.char.name == "Shehisa":
-                            isShehisa = True
-                        elif b.char.name == "Powehi":
-                            isPowehi = True
-
             for a in [0,1]:
                 for b in tablEntTeam[a]:
                     if type(b.char) == char:
