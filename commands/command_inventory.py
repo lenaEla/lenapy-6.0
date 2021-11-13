@@ -621,7 +621,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,destination : int ,user : classes.char):
     """New function for the user's inventory. Heavely copied from encyclopedia"""
     if destination == 4:
-        msg = await ctx.send(embed = discord.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg))]))
+        msg = await ctx.send(embed = discord.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg)-1)]))
         await elements(bot,ctx,msg,user)
     else:
         def check(m):
@@ -681,17 +681,14 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                     tablToSee.remove(ski)
                         else:
                             for ski in tablToSee[:]:
-                                if skil.type not in see:
+                                if ski.type not in see:
                                     tablToSee.remove(ski)
                 elif value == 3:
                     tablToSee = user.otherInventory
                 
-                if value in [0,1,2]:
-                    if tri in [0,1]:
-                        tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
-                    elif tri in [2,3]:
-                        tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
-                    elif tri == 4:
+                if value in [0,1]:
+                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
+                    if tri == 4:
                         tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
                     elif tri == 5:
                         tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
@@ -711,6 +708,12 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
                     elif tri == 13:
                         tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+                elif value == 2 and tri in [14,16]:
+                    tablToSee.sort(key=lambda ballerine:ballerine.power,reverse=True)
+                elif value == 2 and tri in [15]:
+                    tablToSee.sort(key=lambda ballerine:findEffect(ballerine.effect).power,reverse=True)
+                elif value == 2 and tri in [17]:
+                    tablToSee.sort(key=lambda ballerine:findEffect(ballerine.effect).overhealth,reverse=True)
                 else:
                     tablToSee.sort(key=lambda ballerine:ballerine.name)
 
@@ -788,8 +791,11 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             affinity = ""
                             if type(a) == stuff and a.affinity != None:
                                 affinity = elemEmojis[a.affinity]
-                            elif type(a) == skill and a.condition != [] and a.condition[:2] == [0, 2]:
-                                affinity = elemEmojis[a.condition[2]]
+                            elif type(a) == skill and a.condition != []:
+                                if a.condition[:2] == [0, 2]:
+                                    affinity = elemEmojis[a.condition[2]]
+                                elif a.condition[:2] == [0, 1]:
+                                    affinity = aspiEmoji[a.condition[2]]
                             if affinity != "":
                                 affinity = " - "+affinity
 
