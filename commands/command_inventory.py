@@ -238,8 +238,8 @@ async def blablaEdit(bot : discord.client, ctx : discord.message, msg : discord.
     await msg.edit(embed=discord.Embed(title="/inventory say",color=user.color,description="Votre Blablator a été consommé"))
 
 async def inventory(bot : discord.client, ctx : discord.message, args : list,slashed = None,delete=False):
-    """Commande d'inventaire d'un personnage"""
-    msg = None
+    """Old function for the user's inventory. Still called when we go a id"""
+    oldMsg = None
     if args[1] != None:
         ctx.mentions = [slashed[1]]
         pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
@@ -250,7 +250,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
     args.remove(args[1])
 
     def checkIsAuthorReact(reaction,user):
-        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id)
+        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id)
 
     if os.path.exists(pathUserProfile):
         state = 0
@@ -262,11 +262,11 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
         if okForCommand:
             if args[1] != None:
-                if msg == None:
+                if oldMsg == None:
                     try:
-                        msg = await ctx.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
+                        oldMsg = await ctx.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
                     except:
-                        msg = await ctx.channel.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
+                        oldMsg = await ctx.channel.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
                 inv = whatIsThat(args[1])
                 if inv != None:
                     if inv == 0: # Weapon
@@ -280,36 +280,36 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             repEmb.set_footer(text = "Vous ne possédez pas cette arme")
-                            await msg.edit(embed = repEmb,components=[])
+                            await oldMsg.edit(embed = repEmb,components=[])
                         elif weap == user.weapon:
                             repEmb.set_footer(text = "Vous utilisez déjà cette arme")
-                            await msg.edit(embed = repEmb,components=[])
+                            await oldMsg.edit(embed = repEmb,components=[])
 
                         else:
                             repEmb.set_footer(text = "Cliquez sur l'icone de l'arme pour l'équiper")
                             compareButton = create_button(ButtonStyle.grey,"Comparer",getEmojiObject(user.weapon.emoji),custom_id="compare")
-                            await msg.edit(embed = repEmb,components=[returnAndConfirmActionRow,create_actionrow(compareButton)])
+                            await oldMsg.edit(embed = repEmb,components=[returnAndConfirmActionRow,create_actionrow(compareButton)])
 
                             def check(m):
-                                return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+                                return m.author_id == ctx.author.id and m.origin_message.id == oldMsg.id
 
                             while 1:
                                 try:
-                                    rep = await wait_for_component(bot,timeout=60,check=check,messages=msg)
+                                    rep = await wait_for_component(bot,timeout=60,check=check,messages=oldMsg)
                                 except:
                                     if delete :
-                                        await msg.delete()
+                                        await oldMsg.delete()
                                     else:
-                                        await msg.edit(embed = repEmb,components=[])
+                                        await oldMsg.edit(embed = repEmb,components=[])
                                     break
 
                                 if rep.custom_id == "confirm":
                                     user.weapon = weap
                                     if saveCharFile(pathUserProfile,user):
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
+                                        await oldMsg.clear_reactions()
+                                        await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                                     else:
-                                        await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
+                                        await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                                 elif rep.custom_id == "compare":
                                     await compare(bot,rep,user,weap)
                                 else:
@@ -335,17 +335,17 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cette compétence")
-                            await msg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[])
 
                         elif ballerine:
                             emb.set_footer(text = "Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?")
-                            await msg.edit(embed = emb,components=[returnAndConfirmActionRow])
+                            await oldMsg.edit(embed = emb,components=[returnAndConfirmActionRow])
 
                             def check(m):
-                                return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+                                return m.author_id == ctx.author.id and m.origin_message.id == oldMsg.id
 
                             try:
-                                rep = await wait_for_component(bot,timeout=60,check=check,messages=msg)
+                                rep = await wait_for_component(bot,timeout=60,check=check,messages=oldMsg)
                                 if rep.custom_id == "confirm":
                                     for a in range(0,5):
                                         if user.skills[a] == weap:
@@ -353,13 +353,13 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             break
 
                                     saveCharFile(pathUserProfile,user)
-                                    await msg.edit(embed = discord.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),delete_after=5,components=[])
+                                    await oldMsg.edit(embed = discord.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),delete_after=5,components=[])
                             except:
-                                await msg.delete()
+                                await oldMsg.delete()
 
                         elif not(weap.havConds(user=user)):
                             emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
-                            await msg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[])
 
                         else:
                             hasUltimate=False
@@ -385,22 +385,22 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             select = create_select(options,placeholder="Sélectionnez un emplacement")
 
                             emb.set_footer(text = "Cliquez sur l'icone d'emplacement pour équiper")
-                            await msg.edit(embed = emb,components=[create_actionrow(returnButton),create_actionrow(select)])
+                            await oldMsg.edit(embed = emb,components=[create_actionrow(returnButton),create_actionrow(select)])
                             def check(m):
-                                return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+                                return m.author_id == ctx.author.id and m.origin_message.id == oldMsg.id
 
                             react = None
                             try:
-                                react = await wait_for_component(bot,messages=msg,timeout=60,check=check)
+                                react = await wait_for_component(bot,messages=oldMsg,timeout=60,check=check)
                             except:
                                 if delete :
-                                    await msg.delete()
+                                    await oldMsg.delete()
                                 else:
-                                    await msg.edit(embed = emb,components=[])
+                                    await oldMsg.edit(embed = emb,components=[])
 
                             if react != None:
                                 try:
-                                    await msg.edit(embed = emb,components=[create_actionrow(getChoisenSelect(select,react.values[0]))])
+                                    await oldMsg.edit(embed = emb,components=[create_actionrow(getChoisenSelect(select,react.values[0]))])
 
                                     for a in [0,1,2,3,4]:
                                         ballerine,babie = False,react.values[0] == str(a+1)
@@ -411,12 +411,12 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             try:
                                                 user.skills[a] = weap
                                                 saveCharFile(pathUserProfile,user)
-                                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))]),delete_after=5)
+                                                await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))]),delete_after=5)
                                             except:
-                                                await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue",components=[]))
+                                                await oldMsg.edit(embed = errorEmbed(args[0],"Une erreur est survenue",components=[]))
                                             break
                                 except:
-                                    await msg.delete()
+                                    await oldMsg.delete()
 
                     elif inv == 2: # Stuff
                         weap = findStuff(args[1])
@@ -429,43 +429,49 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cet équipement")
-                            await msg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[])
 
                         elif weap == user.stuff[weap.type]:
                             emb.set_footer(text = "Vous portez déjà cet équipement")
-                            await msg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[])
 
                         elif weap.minLvl > user.level:
                             emb.set_footer(text = "Cet équipement donne trop de statistiques pour votre niveau")
-                            await msg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[])
 
 
                         else:
                             emb.set_footer(text = "Cliquez sur l'icone de l'équipement pour l'équiper")
                             compareButton = create_button(ButtonStyle.grey,"Comparer",getEmojiObject(user.stuff[weap.type].emoji),custom_id="compare")
-                            await msg.edit(embed = emb,components=[returnAndConfirmActionRow,create_actionrow(compareButton)])
+                            await oldMsg.edit(embed = emb,components=[returnAndConfirmActionRow,create_actionrow(compareButton)])
 
                             def check(m):
-                                return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+                                return m.author_id == ctx.author.id and m.origin_message.id == oldMsg.id
 
 
                             while 1:
                                 try:
-                                    rep = await wait_for_component(bot,timeout=60,check=check,messages=msg)
+                                    rep = await wait_for_component(bot,timeout=60,check=check,messages=oldMsg)
                                 except:
                                     if delete :
-                                        await msg.delete()
+                                        try:
+                                            await oldMsg.delete()
+                                        except:
+                                            pass
                                     else:
-                                        await msg.edit(embed = emb,components=[])
+                                        try:
+                                            await oldMsg.edit(embed = emb,components=[])
+                                        except:
+                                            pass
                                     break
 
                                 if rep.custom_id == "confirm":
                                     user.stuff[weap.type] = weap
                                     if saveCharFile(pathUserProfile,user):
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
+                                        await oldMsg.clear_reactions()
+                                        await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                                     else:
-                                        await msg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
+                                        await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                                 elif rep.custom_id == "compare":
                                     await compare(bot,rep,user,weap)
                                 else:
@@ -481,7 +487,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             repEmb.set_footer(text = "Vous ne possédez pas cet objet")
-                            await msg.edit(embed = repEmb,components=[])
+                            await oldMsg.edit(embed = repEmb,components=[])
 
                         else:
                             if obj != elementalCristal:
@@ -489,9 +495,9 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                             else:
                                 repEmb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Element")
                             
-                            await msg.edit(embed = repEmb,components=[])
+                            await oldMsg.edit(embed = repEmb,components=[])
                             if obj != elementalCristal:
-                                await msg.add_reaction(obj.emoji)
+                                await oldMsg.add_reaction(obj.emoji)
 
                             def checkisReaction(reaction, user):
                                 return int(user.id) == int(ctx.author.id) and str(reaction.emoji) ==  obj.emoji
@@ -501,28 +507,28 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                                 if obj==changeAspi:
                                     try:
-                                        user.aspiration = await chooseAspiration(bot,msg,ctx,user,args)
+                                        user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user,args)
                                         if user.aspiration != False:
                                             user = restats(user)
 
                                             user.otherInventory.remove(changeAspi)
                                             if saveCharFile(pathUserProfile,user):
-                                                await msg.clear_reactions()
-                                                await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
+                                                await oldMsg.clear_reactions()
+                                                await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
                                             else:
-                                                await msg.clear_reactions()
-                                                await msg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
+                                                await oldMsg.clear_reactions()
+                                                await oldMsg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
                                     except:
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
+                                        await oldMsg.clear_reactions()
+                                        await oldMsg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
                                 elif obj==changeAppa:
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
-                                    await msg.add_reaction('<:ikaLBlue:866459302319226910>')
-                                    await msg.add_reaction('<:takoLBlue:866459095875190804>')
+                                    await oldMsg.clear_reactions()
+                                    await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
+                                    await oldMsg.add_reaction('<:ikaLBlue:866459302319226910>')
+                                    await oldMsg.add_reaction('<:takoLBlue:866459095875190804>')
 
                                     def checkIsAuthorReact1(reaction,user):
-                                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
+                                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
 
                                     respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
 
@@ -531,13 +537,13 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     else:
                                         user.species = 2
                                     
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
-                                    await msg.add_reaction('♂️')
-                                    await msg.add_reaction('♀️')
-                                    await msg.add_reaction(emoji.forward_arrow)
+                                    await oldMsg.clear_reactions()
+                                    await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
+                                    await oldMsg.add_reaction('♂️')
+                                    await oldMsg.add_reaction('♀️')
+                                    await oldMsg.add_reaction(emoji.forward_arrow)
                                     def checkIsAuthorReact(reaction,user):
-                                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
+                                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
 
                                     respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
                                     testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',emoji.forward_arrow]
@@ -545,18 +551,18 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                         if str(respond[0]) == titouille[a]:
                                             user.gender = testouille[a]
 
-                                    await msg.clear_reactions()
+                                    await oldMsg.clear_reactions()
 
-                                    user = await chooseColor(bot,msg,ctx,user,args)
+                                    user = await chooseColor(bot,oldMsg,ctx,user,args)
 
                                     if user != False:
                                         user.otherInventory.remove(changeAppa)
                                         saveCharFile(pathUserProfile,user)
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
+                                        await oldMsg.clear_reactions()
+                                        await oldMsg.edit(embed = discord.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
                                 elif obj==changeName: 
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
+                                    await oldMsg.clear_reactions()
+                                    await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
                                     timeout = False
                                     def checkIsAuthor(message):
                                         return int(ctx.author.id) == int(message.author.id)
@@ -575,31 +581,31 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             pass
 
                                         saveCharFile(pathUserProfile,user)
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !",components=[]))
+                                        await oldMsg.clear_reactions()
+                                        await oldMsg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !",components=[]))
                                     else:
-                                        await msg.add_reaction('🕛')
+                                        await oldMsg.add_reaction('🕛')
                                 elif obj==restat:
-                                    await msg.clear_reactions()
+                                    await oldMsg.clear_reactions()
                                     restats(user)
                                     user.otherInventory.remove(restat)
 
                                     saveCharFile(pathUserProfile,user)
-                                    await msg.clear_reactions()
-                                    await msg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
+                                    await oldMsg.clear_reactions()
+                                    await oldMsg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
                                 elif obj==customColor:
-                                    user = await changeCustomColor(bot,msg,ctx,user,args)
+                                    user = await changeCustomColor(bot,oldMsg,ctx,user,args)
                                     if user != None:
                                         user.otherInventory.remove(customColor)
                                         saveCharFile(pathUserProfile,user)
-                                        await msg.clear_reactions()
-                                        await msg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
+                                        await oldMsg.clear_reactions()
+                                        await oldMsg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
                                 elif obj==blablator:
-                                    await msg.clear_reactions()
-                                    await blablaEdit(bot,ctx,msg,user)
+                                    await oldMsg.clear_reactions()
+                                    await blablaEdit(bot,ctx,oldMsg,user)
 
                             except asyncio.TimeoutError:
-                                await msg.clear_reactions()
+                                await oldMsg.clear_reactions()
 
                 else:
                     if slashed==None:
@@ -613,303 +619,338 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                 await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"),delete_after=5)
 
 async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,destination : int ,user : classes.char):
-    def check(m):
-        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+    """New function for the user's inventory. Heavely copied from encyclopedia"""
+    if destination == 4:
+        msg = await ctx.send(embed = discord.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg))]))
+        await elements(bot,ctx,msg,user)
+    else:
+        def check(m):
+            return m.author_id == ctx.author.id and m.origin_message.id == msg.id
 
-    msg = None
-    opValues,value=["equipement","armes","competences","autre"],destination
-    tri = 0
-    needRemake = True
-    while 1:
-        user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
-        userIconThub = getEmojiObject(await getUserIcon(bot,user))["id"]
-        options = [
-            create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3 and value != 9)),
-            create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
-        ]
+        msg = None
+        opValues,value=["equipement","armes","competences","autre"],destination
+        tri, skillElem = 0, None
+        needRemake = True
+        while 1:
+            user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
+            userIconThub = getEmojiObject(await getUserIcon(bot,user))["id"]
+            options = [
+                create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3 and value != 9)),
+                create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
+            ]
 
-        if value in [0,1]:
-            options+=[
-                create_select_option("Force","4",'💪',default=4==tri),
-                create_select_option("Endurance","5",'🏃',default=5==tri),
-                create_select_option("Charisme",'6','💃',default=6==tri),
-                create_select_option("Agilité","7",'🤸',default=7==tri),
-                create_select_option("Précision","8",'🏹',default=8==tri),
-                create_select_option("Intelligence","9",'🎓',default=9==tri),
-                create_select_option("Magie","10",'🧙',default=10==tri),
-                create_select_option("Résistance","11",'🛡️',default=11==tri),
-                create_select_option("Pénétration","12",'🗡️',default=12==tri),
-                create_select_option("Critique","13",'🎲',default=13==tri)]
+            if value in [0,1]:
+                options+=[
+                    create_select_option("Force","4",'💪',default=4==tri),
+                    create_select_option("Endurance","5",'🏃',default=5==tri),
+                    create_select_option("Charisme",'6','💃',default=6==tri),
+                    create_select_option("Agilité","7",'🤸',default=7==tri),
+                    create_select_option("Précision","8",'🏹',default=8==tri),
+                    create_select_option("Intelligence","9",'🎓',default=9==tri),
+                    create_select_option("Magie","10",'🧙',default=10==tri),
+                    create_select_option("Résistance","11",'🛡️',default=11==tri),
+                    create_select_option("Pénétration","12",'🗡️',default=12==tri),
+                    create_select_option("Critique","13",'🎲',default=13==tri)]
 
-        sortOptions = create_select(options)
-    
-        if needRemake:
-            tablToSee = []
-            if value == 0:
-                tablToSee = user.stuffInventory
-            elif value == 1:
-                tablToSee = user.weaponInventory
             elif value == 2:
-                tablToSee = user.skillInventory
-            elif value == 3:
-                tablToSee = user.otherInventory
-            
-            if value in [0,1,2]:
-                if tri in [0,1]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
-                elif tri in [2,3]:
-                    tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
-                elif tri == 4:
-                    tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
-                elif tri == 5:
-                    tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
-                elif tri == 6:
-                    tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
-                elif tri == 7:
-                    tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
-                elif tri == 8:
-                    tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
-                elif tri == 9:
-                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
-                elif tri == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
-                elif tri == 11:
-                    tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
-                elif tri == 12:
-                    tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
-                elif tri == 13:
-                    tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
-                elif tri in [14,15]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(tri-13))
+                options+=[
+                    create_select_option("Dégâts","14",getEmojiObject('<:defDamage:885899060488339456>'),default=14==tri),
+                    create_select_option("Dégâts indirects","15",getEmojiObject('<:defDamage:885899060488339456>'),default=15==tri),
+                    create_select_option("Soins","16",getEmojiObject('<:defHeal:885899034563313684>'),default=16==tri),
+                    create_select_option("Armure","17",getEmojiObject('<:defarmor:895446300848427049>'),default=17==tri),
+                    create_select_option("Boost",'18',getEmojiObject('<:defSupp:885899082453880934>'),default=18==tri),
+                    create_select_option("Malus","19",getEmojiObject('<:defMalus:895448159675904001>'),default=19==tri)
+                ]
+
+            sortOptions = create_select(options)
+        
+            if needRemake:
+                tablToSee = []
+                if value == 0:
+                    tablToSee = user.stuffInventory
+                elif value == 1:
+                    tablToSee = user.weaponInventory
+                elif value == 2:
+                    tablToSee = user.skillInventory
+                    if tri >= 14:
+                        typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS]
+                        see = typeTabl[tri-14]
+                        if type(see) != list:
+                            for ski in tablToSee[:]:
+                                if ski.type != see:
+                                    tablToSee.remove(ski)
+                        else:
+                            for ski in tablToSee[:]:
+                                if skil.type not in see:
+                                    tablToSee.remove(ski)
+                elif value == 3:
+                    tablToSee = user.otherInventory
+                
+                if value in [0,1,2]:
+                    if tri in [0,1]:
+                        tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
+                    elif tri in [2,3]:
+                        tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
+                    elif tri == 4:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                    elif tri == 5:
+                        tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
+                    elif tri == 6:
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                    elif tri == 7:
+                        tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
+                    elif tri == 8:
+                        tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
+                    elif tri == 9:
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                    elif tri == 10:
+                        tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                    elif tri == 11:
+                        tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
+                    elif tri == 12:
+                        tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                    elif tri == 13:
+                        tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+                else:
+                    tablToSee.sort(key=lambda ballerine:ballerine.name)
+
+                lenTabl = len(tablToSee)
+                maxPage=lenTabl//10
+                page=0
+                needRemake = False
+
+            if value == 0:      # Equipement
+                desc = "**__Équipement équipé :__\n{0} {1}\n{2} {3}\n{4} {5}**".format(user.stuff[0].emoji,user.stuff[0].name,user.stuff[1].emoji,user.stuff[1].name,user.stuff[2].emoji,user.stuff[2].name)
+            elif value == 1:    # Arme
+                desc = "**__Arme équipée :__\n{0} {1}**".format(user.weapon.emoji,user.weapon.name)
+            elif value == 2:    # Compétences
+                desc = "**__Compétences équipées :__"
+                for tip in user.skills:
+                    if type(tip) == skill:
+                        desc += "\n{0} {1}".format(tip.emoji,tip.name)
+                    else:
+                        desc += "\nSlot de compétence vide"
+                desc += "**"
             else:
-                tablToSee.sort(key=lambda ballerine:ballerine.name)
+                desc = "Les objets spéciaux permettent de modifier votre personnage"
 
-            lenTabl = len(tablToSee)
-            maxPage=lenTabl//10
-            page=0
-            needRemake = False
+            firstOptions = []
 
-        if value == 0:      # Equipement
-            desc = "**__Équipement équipé :__\n{0} {1}\n{2} {3}\n{4} {5}**".format(user.stuff[0].emoji,user.stuff[0].name,user.stuff[1].emoji,user.stuff[1].name,user.stuff[2].emoji,user.stuff[2].name)
-        elif value == 1:    # Arme
-            desc = "**__Arme équipée :__\n{0} {1}**".format(user.weapon.emoji,user.weapon.name)
-        elif value == 2:    # Compétences
-            desc = "**__Compétences équipées :__"
-            for tip in user.skills:
-                if type(tip) == skill:
-                    desc += "\n{0} {1}".format(tip.emoji,tip.name)
-                else:
-                    desc += "\nSlot de compétence vide"
-            desc += "**"
-        else:
-            desc = "Les objets spéciaux permettent de modifier votre personnage"
+            if lenTabl != 0: # Génération des pages
+                if value != 3:
+                    mess=""
+                    if page != maxPage:
+                        maxi = (page+1)*10
+                    else:
+                        maxi = lenTabl
+                    for a in tablToSee[(page)*10:maxi]:
+                        # Nom, posession
+                        canEquip = ""
+                        if type(a) in [skill,stuff] and not(a.havConds(user)):
+                            canEquip = "`"
+                        elif a in [user.weapon]+user.skills+user.stuff:
+                            canEquip = "**"
 
-        firstOptions = []
+                        mess += f"\n{a.emoji} __{canEquip}{a.name}{canEquip}__\n"
+                        if type(a) == skill:
+                            eff = findEffect(a.effect[0])
 
-        if lenTabl != 0: # Génération des pages
-            if value != 3:
-                mess=""
-                if page != maxPage:
-                    maxi = (page+1)*10
-                else:
-                    maxi = lenTabl
-                for a in tablToSee[(page)*10:maxi]:
-                    # Nom, posession
-                    canEquip = ""
-                    if type(a) in [skill,stuff] and not(a.havConds(user)):
-                        canEquip = "`"
-                    elif a in [user.weapon]+user.skills+user.stuff:
-                        canEquip = "**"
-
-                    mess += f"\n{a.emoji} __{canEquip}{a.name}{canEquip}__\n"
-                    if type(a) == skill:
-                        eff = findEffect(a.effect[0])
-
-                    # Première info utile
-                    if value == 0 and type(a) == stuff:
-                        mess +="*"+a.orientation+"*\n"
-                    elif value in [1,2] and type(a) != stuff:
-                        ballerine = tablTypeStr[a.type]
-                        if a.power > 0:
-                            ballerine += " - {0}".format(a.power)
-                        elif eff != None and eff.power > 0:
-                            ballerine += " - {0}".format(eff.power)
-                        elif a.effectOnSelf != None and findEffect(a.effectOnSelf).replica != None:
-                            finalSkill = a
-                            while (finalSkill.effectOnSelf != None and findEffect(finalSkill.effectOnSelf).replica != None):
-                                finalSkill = findSkill(findEffect(finalSkill.effectOnSelf).replica)
-                            ballerine += " - {0}".format(finalSkill.power)
-
-                        if type(a) in [skill,weapon] and a.repetition > 1:
-                            ballerine += " x{0}".format(a.repetition)
-
-                        if a.use != None and a.use != HARMONIE:
-                            sandale = nameStats[a.use]
-                        elif a.use == None:
-                            sandale = "Fixe"
-                        elif a.use == HARMONIE:
-                            sandale = "Harmonie"
-
-                        if value == 1:
-                            babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
-                        else:
-                            babie=''
-
-                        mess += f"*{babie}{ballerine} - {sandale}*\n"
-
-                    # Statistiques
-                    temp = ""
-                    if value in [0,1,2]:
-                        if type(a) != skill:
-                            stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
-                            for b in range(0,len(stats)):
-                                if stats[b] != 0:
-                                    form = ""
-                                    if b == tri-4:
-                                        form = "**"
-                                    temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
-                            if a.affinity != None:
-                                nim = elemNames[a.affinity]
-                                if len(nim) > 3:
-                                    nim = nim[0:3]+"."
-                                temp += " Elem. : "+nim
-
-                        else:
-                            if a.ultimate:
-                                temp += "Ultime"
-
-                            if a.effectOnSelf != None and findEffect(a.effectOnSelf).replica != None:
-                                castTime, finalSkill = 0, a
+                        # Première info utile
+                        if value == 0 and type(a) == stuff:
+                            mess +="*"+a.orientation+"*\n"
+                        elif value in [1,2] and type(a) != stuff:
+                            ballerine = tablTypeStr[a.type]
+                            if a.power > 0:
+                                ballerine += " - {0}".format(a.power)
+                            elif eff != None and eff.power > 0:
+                                ballerine += " - {0}".format(eff.power)
+                            elif a.effectOnSelf != None and findEffect(a.effectOnSelf).replica != None:
+                                finalSkill = a
                                 while (finalSkill.effectOnSelf != None and findEffect(finalSkill.effectOnSelf).replica != None):
                                     finalSkill = findSkill(findEffect(finalSkill.effectOnSelf).replica)
-                                    castTime += 1
+                                ballerine += " - {0}".format(finalSkill.power)
 
-                                if temp != "":
-                                    temp += ", "
-                                temp += "T. Cast : {0}".format(castTime)
+                            if type(a) in [skill,weapon] and a.repetition > 1:
+                                ballerine += " x{0}".format(a.repetition)
 
-                            if a.cooldown > 1:
-                                if temp != "":
-                                    temp += ", "
-                                temp += "Cd. : {0}".format(a.cooldown)
-                            if a.initCooldown > 1 and a.type != TYPE_PASSIVE:
-                                if temp != "":
-                                    temp += ", "
-                                temp += "Cd. init. : {0}".format(a.initCooldown)
-                    # Création de l'option
-                    mess += temp+"\n"
-                    firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
-            else:
-                mess = ""
-                if page != maxPage:
-                    maxi = (page+1)*10
+                            if a.use != None and a.use != HARMONIE:
+                                sandale = nameStats[a.use]
+                            elif a.use == None:
+                                sandale = "Fixe"
+                            elif a.use == HARMONIE:
+                                sandale = "Harmonie"
+
+                            if value == 1:
+                                babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
+                            else:
+                                babie=''
+
+                            affinity = ""
+                            if type(a) == stuff and a.affinity != None:
+                                affinity = elemEmojis[a.affinity]
+                            elif type(a) == skill and a.condition != [] and a.condition[:2] == [0, 2]:
+                                affinity = elemEmojis[a.condition[2]]
+                            if affinity != "":
+                                affinity = " - "+affinity
+
+                            mess += f"*{babie}{ballerine} - {sandale}{affinity}*\n"
+
+                        # Statistiques
+                        temp = ""
+                        if value in [0,1,2]:
+                            if type(a) != skill:
+                                stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
+                                for b in range(0,len(stats)):
+                                    if stats[b] != 0:
+                                        form = ""
+                                        if b == tri-4:
+                                            form = "**"
+                                        temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
+                                if a.affinity != None:
+                                    nim = elemNames[a.affinity]
+                                    if len(nim) > 3:
+                                        nim = nim[0:3]+"."
+                                    temp += " Elem. : "+nim
+
+                            else:
+                                if a.ultimate:
+                                    temp += "Ultime"
+
+                                if a.effectOnSelf != None and findEffect(a.effectOnSelf).replica != None:
+                                    castTime, finalSkill = 0, a
+                                    while (finalSkill.effectOnSelf != None and findEffect(finalSkill.effectOnSelf).replica != None):
+                                        finalSkill = findSkill(findEffect(finalSkill.effectOnSelf).replica)
+                                        castTime += 1
+
+                                    if temp != "":
+                                        temp += ", "
+                                    temp += "T. Cast : {0}".format(castTime)
+
+                                if a.cooldown > 1:
+                                    if temp != "":
+                                        temp += ", "
+                                    temp += "Cd. : {0}".format(a.cooldown)
+                                if a.initCooldown > 1 and a.type != TYPE_PASSIVE:
+                                    if temp != "":
+                                        temp += ", "
+                                    temp += "Cd. init. : {0}".format(a.initCooldown)
+                        # Création de l'option
+                        mess += temp+"\n"
+                        firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
                 else:
-                    maxi = lenTabl
-                for a in tablToSee[(page)*10:maxi]:
-                    mess += f"{a.emoji} __{a.name}__"
-                    firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.emoji))]
-                    mess+="\n"
-            
-            if len(mess) > 4056: # Mess abrégé
-                mess = unemoji(mess)
-
-        else:
-            mess = "Il n'y a rien à afficher dans cette catégorie"
-
-        pageOption = []
-        pageTemp = 0
-        while pageTemp <= maxPage:
-            maxi = min((pageTemp+1)*10,len(tablToSee)-1)
-            if tri < 2:
-                desc = "{0} → {1}".format(tablToSee[pageTemp*10].name[0:2],tablToSee[maxi].name[0:2])
-            else:
-                allStats1 = tablToSee[pageTemp*10].allStats() + [tablToSee[pageTemp*10].resistance,tablToSee[pageTemp*10].percing,tablToSee[pageTemp*10].critical]
-                allStats2 = tablToSee[maxi].allStats() + [tablToSee[maxi].resistance,tablToSee[maxi].percing,tablToSee[maxi].critical]
-                desc = "{0} → {1}".format(allStats1[tri-4],allStats2[tri-4])
-
-            pageOption += [create_select_option("Page {0}".format(pageTemp+1),"goto{0}".format(pageTemp),description=desc,default=pageTemp==page)]
-            pageTemp += 1
-        if len(pageOption) == 0:
-            pageSelect = create_select([create_select_option("None","None")],placeholder="Il n'y a qu'une page à afficher",disabled=True)
-        else:
-            pageSelect = create_select(pageOption,placeholder="Changer de page")
-
-        if len(firstOptions) > 0:
-            firstSelect = create_select(options=firstOptions,placeholder="Voir la page de l'équipement")
-        else:
-            firstSelect = create_select(options=[create_select_option("None","None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
-
-        embed = discord.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
-        embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(userIconThub))
-
-        if msg == None:
-            try:
-                msg = await ctx.send(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)])
-            except:
-                msg = await ctx.channel.send(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)])
-        else:
-            await msg.edit(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)])
-
-        try:
-            respond = await wait_for_component(bot,msg,check=check,timeout=180)
-        except:
-            await msg.edit(embed=embed,components=[])
-            break
-    
-        if respond.values[0].isdigit():
-            respond = int(respond.values[0])
-            sortOptions = changeDefault(sortOptions,respond)
-
-            if respond in [0,1]:
-                needRemake=True
-            else:
-                tablToSee.sort(key=lambda ballerine: ballerine.name)
-                if respond == 4:
-                    tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
-                elif respond == 5:
-                    tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
-                elif respond == 6:
-                    tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
-                elif respond == 7:
-                    tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
-                elif respond == 8:
-                    tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
-                elif respond == 9:
-                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
-                elif respond == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
-                elif respond == 11:
-                    tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
-                elif respond == 12:
-                    tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
-                elif respond == 13:
-                    tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
-            tri=respond
-
-        elif respond.values[0].startswith("goto"):
-            temp = respond.values[0]
-            while not(temp.isdigit()):
-                temp = temp[1:]
-
-            page = int(temp)
-
-        else:
-            inter = respond
-            respond = respond.values[0]
-
-            if respond in opValues:
-                for a in range(0,len(opValues)):
-                    if opValues[a] == respond:
-                        value = a
-                        needRemake = True
-                        break
-            
-            else:
-                await msg.edit(embed=embed,components=[create_actionrow(create_select([create_select_option("None","None")],placeholder="Une autre action est en cours",disabled=True))])
+                    mess = ""
+                    if page != maxPage:
+                        maxi = (page+1)*10
+                    else:
+                        maxi = lenTabl
+                    for a in tablToSee[(page)*10:maxi]:
+                        mess += f"{a.emoji} __{a.name}__"
+                        firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.emoji))]
+                        mess+="\n"
                 
-                if ctx.author_id != int(user.owner):
-                    procur = await ctx.guild.fetch_member(user.owner)
-                    await inventory(bot,inter,["/inventory"]+[procur.mention]+[respond],[destination,procur],delete=True)
+                if len(mess) > 4056: # Mess abrégé
+                    mess = unemoji(mess)
 
+            else:
+                mess = "Il n'y a rien à afficher dans cette catégorie"
+
+            pageOption = []
+            pageTemp = 0
+            while pageTemp <= maxPage:
+                maxi = min((pageTemp+1)*10,len(tablToSee)-1)
+                if tri < 2:
+                    desc2 = "{0} → {1}".format(tablToSee[pageTemp*10].name[0:2],tablToSee[maxi].name[0:2])
+                elif tri < 14:
+                    allStats1 = tablToSee[pageTemp*10].allStats() + [tablToSee[pageTemp*10].resistance,tablToSee[pageTemp*10].percing,tablToSee[pageTemp*10].critical]
+                    allStats2 = tablToSee[maxi].allStats() + [tablToSee[maxi].resistance,tablToSee[maxi].percing,tablToSee[maxi].critical]
+                    desc2 = "{0} → {1}".format(allStats1[tri-4],allStats2[tri-4])
                 else:
-                    await inventory(bot,inter,["/inventory"]+[None]+[respond],delete=True)
+                    desc2 = ""
+
+                pageOption += [create_select_option("Page {0}".format(pageTemp+1),"goto{0}".format(pageTemp),description=desc2,default=pageTemp==page)]
+                pageTemp += 1
+            if len(pageOption) == 0:
+                pageSelect = create_select([create_select_option("None","None")],placeholder="Il n'y a qu'une page à afficher",disabled=True)
+            else:
+                pageSelect = create_select(pageOption,placeholder="Changer de page")
+
+            if len(firstOptions) > 0:
+                firstSelect = create_select(options=firstOptions,placeholder="Voir la page de l'équipement")
+            else:
+                firstSelect = create_select(options=[create_select_option("None","None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
+
+            embed = discord.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
+            embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(userIconThub))
+
+            if msg == None:
+                try:
+                    msg = await ctx.send(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)])
+                except:
+                    msg = await ctx.channel.send(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)])
+            else:
+                await msg.edit(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)])
+
+            try:
+                respond = await wait_for_component(bot,msg,check=check,timeout=180)
+            except:
+                await msg.edit(embed=embed,components=[])
+                break
+        
+            if respond.values[0].isdigit():
+                respond = int(respond.values[0])
+                sortOptions = changeDefault(sortOptions,respond)
+
+                if respond in [0,1] or respond >= 14:
+                    needRemake=True
+                else:
+                    tablToSee.sort(key=lambda ballerine: ballerine.name)
+                    if respond == 4:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                    elif respond == 5:
+                        tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
+                    elif respond == 6:
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                    elif respond == 7:
+                        tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
+                    elif respond == 8:
+                        tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
+                    elif respond == 9:
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                    elif respond == 10:
+                        tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                    elif respond == 11:
+                        tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
+                    elif respond == 12:
+                        tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                    elif respond == 13:
+                        tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+
+                tri=respond
+
+            elif respond.values[0].startswith("goto"):
+                temp = respond.values[0]
+                while not(temp.isdigit()):
+                    temp = temp[1:]
+
+                page = int(temp)
+
+            else:
+                inter = respond
+                respond = respond.values[0]
+
+                if respond in opValues:
+                    for a in range(0,len(opValues)):
+                        if opValues[a] == respond:
+                            value = a
+                            needRemake = True
+                            break
+                
+                else:
+                    await msg.edit(embed=embed,components=[create_actionrow(create_select([create_select_option("None","None")],placeholder="Une autre action est en cours",disabled=True))])
+                    
+                    if ctx.author_id != int(user.owner):
+                        procur = await ctx.guild.fetch_member(user.owner)
+                        await inventory(bot,inter,["/inventory"]+[procur.mention]+[respond],[destination,procur],delete=True)
+
+                    else:
+                        await inventory(bot,inter,["/inventory"]+[None]+[respond],delete=True)

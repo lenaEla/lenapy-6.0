@@ -859,9 +859,9 @@ class success:
 
 class successTabl:
     def __init__(self):
-        self.alice = success("Oubliez pas qu'une rose a des épines",10,"alice",recompense="jz",description="Affrontez ou faites équipe avec Alice {0} fois",emoji='<:alice:899117566683934770>')
-        self.clemence = success("La quête de la nuit",10,"clemence",recompense="bg",description="Affontez ou faites équipe avec Clémence {0} fois",emoji='<:clemence:899117538519154758>')
-        self.akira = success("Seconde impression",10,"akira",recompense="bh",description="Affontez ou faites équipe avec Akira {0} fois",emoji='<:akiki:899693936199753779>')
+        self.alice = success("Oubliez pas qu'une rose a des épines",10,"alice",recompense="jz",description="Affrontez ou faites équipe avec Alice {0} fois",emoji='<:alice:908902054959939664>')
+        self.clemence = success("La quête de la nuit",10,"clemence",recompense="bg",description="Affontez ou faites équipe avec Clémence {0} fois",emoji='<:clemence:908902579554111549>')
+        self.akira = success("Seconde impression",10,"akira",recompense="bh",description="Affontez ou faites équipe avec Akira {0} fois",emoji='<:akira:909048455828238347>')
         self.fight = success("L'ivresse du combat",1,"fight",recompense="ys",description="Faire {0} combat manuel",emoji='<:splattershotJR:866367630465433611>')
         self.gwen = success("Une histoire de vangeance",10,"gwen",["ka","kb"],"Affontez ou faites équipe avec Gwen {0} fois",emoji='<:takoYellow:866459052132532275>')
         self.quickFight = success("Le temps c'est de l'argent",10,"quickFight",None,"Lancez {0} combats rapides",'<:hourglass1:872181651801772052>')
@@ -876,7 +876,7 @@ class successTabl:
         self.shehisa = success("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",'<:ikaPurple:866459331254550558>')
         self.heriteEstialba = success("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:estialba:884223390804766740> Poison d'Estialba__\"","<a:lohicaGif:900378281877057658>")
         self.heriteLesath = success("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:bleeding:887743186095730708> Hémorragie__\"","<:dissimulation:900083085708771349>")
-        self.powehi = success("La fin de tout, et renouvellement",10,"powehi","uj","Affontez ou faites équipe avec Powehi {0} fois","<:powehi:906202079213797448>")
+        self.powehi = success("La fin de tout, et renouvellement",10,"powehi","uj","Affontez ou faites équipe avec Powehi {0} fois","<:powehi:909048473666596905>")
         self.dimentio = success("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
 
     def tablAllSuccess(self):

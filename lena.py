@@ -1350,7 +1350,7 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
         else:
             nom = [None]
     if not(to):
-        if nom != [None] or destination == 4:
+        if nom != [None]:
             await inventory(bot,ctx,["/inventory"]+[procurTemp]+nom,[destination,procuration])
         else:
             await inventoryV2(bot,ctx,destination,user)

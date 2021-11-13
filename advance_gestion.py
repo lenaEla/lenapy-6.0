@@ -658,7 +658,7 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
     user[0].exp = user[0].exp + exp
     user[0].currencies = user[0].currencies + coins
 
-    upLvl = (user[0].level -1)*50+30
+    upLvl = (user[0].level-1)*50+30
 
     if user[0].exp >= upLvl:
         perso = loadCharFile(path,ctx)
@@ -679,11 +679,11 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
         ballerine = await bot.fetch_user(perso.owner)
         lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = perso.color,description = f"Le personnage de {ballerine.mention} ({perso.name}) a gagné un niveau !\n\nForce : {perso.strength} (+{up[0]})\nEndurance : {perso.endurance} (+{up[1]})\nCharisme : {perso.charisma} (+{up[2]})\nAgilité : {perso.agility} (+{up[3]})\nPrécision : {perso.precision} (+{up[4]})\nIntelligence : {perso.intelligence} (+{up[5]})\nMagie : {perso.magie} (+{up[6]})\n\nVous avez {perso.points} bonus à répartir en utilisant la commande \"points\".")
         
-        if perso.level % 5 == 0:
+        if (perso.level+1) % 5 == 0:
             unlock = ""
             listUnlock = []
             for stuffy in perso.stuffInventory:
-                if stuffy.minLvl == perso.level:
+                if stuffy.minLvl == perso.level+1:
                     listUnlock.append(stuffy)
 
             if len(listUnlock) <= 10:
