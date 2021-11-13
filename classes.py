@@ -177,21 +177,21 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name,id,types,price,power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1):
+    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1):
         """rtfm"""
-        self.name = name
-        self.repetition = repetition
-        self.say = say
-        self.id = id
-        self.type = types
-        self.power = power
-        self.price = price
+        self.name = name                                # Name of the skill
+        self.repetition = repetition                    # The number of hits it does
+        self.say = say                                  # Does the attacker say something when the skill is used ?
+        self.id = id                                    # The id of the skill.  Idealy, unique
+        self.type = types                               # The type of the skill. See constante.types
+        self.power = power                              # Power of the skill. Use for damage and healing skills
+        self.price = price                              # Price. 0 if the skill can't be drop or bought
         self.conditionType = 0
         self.condition = conditionType
         self.ultimate = ultimate
         self.effect = effect
         self.range = range
-        self.secondary = secondary
+        self.secondary = secondary                      # Not used.
         self.cooldown = cooldown
         self.area = area
         self.sussess = sussess
@@ -209,7 +209,7 @@ class skill:
         self.onArmor = damageOnArmor
         self.invocation = invocation
         self.message = message
-        
+
         if types==TYPE_PASSIVE:
             self.area=AREA_MONO
             self.range=AREA_MONO

@@ -530,3 +530,34 @@ randomWaitingMsg = [
 johnSays = says(
     start = "(Courage John. Montre lui que tu as appris à devenir un combattant.)"
 )
+
+liaSays = says(
+    start="Ça vous dirait de danser avec moi ?",
+    onKill = "Oh déjà... ?",
+    onDeath = "Hii ! Compris compris !",
+    redWinAlive = "C'était marrant !",
+    redLoose = "Vous savez pas rire..."
+)
+
+liuSays = says(
+    start = "Hé ! Une course d'endurance vous en pensez quoi ?",
+    onKill = "Va falloir mieux gérer ta fatigue la prochaine fois",
+    onResurect = "Une seconde course ?",
+    redLoose = "Hé bah... Finalement c'est moi qui ai mordu la poussière"
+)
+
+lioSays = says(
+    start = "Oh... Heu... Bonjour...",
+    onKill = "J- J'y suis allé trop fort ?",
+    onResurect = "Merci...",
+    onDeath= "Humf ! J'aurais du rester dans la forêt...",
+    redWinAlive= "Le monde des humains est... perturbant..."
+)
+
+lizSays = says(
+    start = "Tiens donc, des nouvelles braises",
+    ultimate = "Allez quoi, déclarez moi votre flamme !",
+    onKill = "Woops, j'y suis allé trop fort manifestement",
+    onDeath = "Pff, vous êtes pas drôle",
+    redLoose = "Waw, je me suis jamais faite autant refroidir rapidement..."
+)
