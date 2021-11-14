@@ -1241,12 +1241,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 return "e"
             else:
                 return ""
-    
+
         async def getIcon(self,bot):
             if type(self.char) == char:
                 self.icon = await getUserIcon(bot,self.char)
             else:
                 self.icon = self.char.icon
+            return self.icon
 
         def getMedals(self,array):
             respond = ""
@@ -1358,7 +1359,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             return int(aggro)
 
         def heal(self,target, icon : str, statUse : int, power : int, effName = None,uniqueID=copy.copy(uniqueID)):
-            if target.hp < target.maxHp and power > 0:
+            overheath = 0
+            aff = target.hp < target.maxHp
+            if power > 0:
                 if statUse != None:
                     if statUse == HARMONIE:
                         temp = 0
@@ -1379,6 +1382,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             break
                     
                     healPowa = int(healPowa * ((100-target.healResist)/100) * (100-incurableValue)/100)
+                    overheath = max(0,healPowa - (target.maxHp-target.hp))
                     healPowa = min(target.maxHp-target.hp,healPowa)
                     target.healResist += int(healPowa/target.maxHp/2*100)
                 else:
@@ -1413,14 +1417,30 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         uniqueID += 1
                         self.refreshEffects()
 
-                return ballerine
-            else:
-                return ""
+                if self.char.aspiration in [IDOLE,PROTECTEUR,ALTRUISTE] and overheath > 0:
+                    for eff in self.effect:
+                        tempIdTabl = [idoOHEff.id,proOHEff.id,altOHEff]
+                        if eff.effect.id in tempIdTabl:
+                            tempTabl = [idoOHArmor,proOHArmor,altOHArmor]
+                            for temp in range(3):
+                                if tempIdTabl[temp] == eff.effect.id:
+                                    effect = copy.deepcopy(tempTabl[temp])
+                                    break
+
+                            effect.overhealth = int(overheath * (eff.effect.power/100))
+                            ballerine += add_effect(self,target,effect,eff.effect.name,True)
+                            target.refreshEffects()
+                            return ballerine
+
+                if aff:
+                    return ballerine
+                else:
+                    return ""
 
         def isPnj(self, name : str) -> bool:
             """Return if the entity is a temp's with the name given"""
             return self.char.isPnj(name)
-    
+
     class fightEffect:
         """Classe plus pousée que Effect pour le combat"""
 
@@ -1817,12 +1837,22 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
                     else:                                                           # A less powerful Healn't
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
-                
-                elif not(effect.silent):                                        # It's not Healn't
-                    popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
-                valid = False
-                break
-                
+
+                elif a.effect.id in [idoOHArmor.id,proOHArmor.id,altOHArmor.id]:  # Overhealth Shield
+                    if a.value < effect.overhealth:                               # A better Overhealth shield
+                        diff = effect.overhealth - a.value
+                        a.value = effect.overhealth
+                        a.caster = caster
+                        a.leftTurn = effect.turnInit
+                        popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
+                    else:                                                           # A less powerful shield
+                        popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
+
+            elif not(effect.silent):                                        # It's not Healn't
+                popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
+            valid = False
+            break
+
         if valid:
             valid = False
             while not(valid):                                               # Why Lena. Why ?
@@ -2636,7 +2666,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         break
             if b.ressurectable:
                 break
-
 
     if not(auto):                               # Send the turn 0 msg
         await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = light_blue))
@@ -3974,7 +4003,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             skillToUse = skilly
                             ennemi = atRange[0]
 
-
                     if optionChoice == OPTION_WEAPON: #Option : Attaque
                         if actTurn.char.weapon.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]: # Agressive Weapon
                             logs += "\n{0} is attacking {1} with their weapon\n".format(actTurn.char.name,ennemi.char.name)
@@ -4141,7 +4169,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             tempTurnMsg += ballerine
                                         elif tablEntTeam[actTurn.team][a].status == STATUS_DEAD:    # Resurect
                                             healPowa = min(tablEntTeam[actTurn.team][a].maxHp-tablEntTeam[actTurn.team][a].hp,round(skillToUse.power * (1+(statUse-actTurn.negativeHeal)/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(a,area=AREA_MONO,type =TYPE_HEAL)))
-                                            healPowa = round(healPowa * ((100-tablEntTeam[actTurn.team][a].healResist)/100) * (0.5+actTurn.char.level*0.1))
+                                            healPowa = round(healPowa * ((100-tablEntTeam[actTurn.team][a].healResist)/100) * (0.5+actTurn.char.level*0.01))
                                             ballerine = await actTurn.resurect(tablEntTeam[actTurn.team][a],healPowa,skillToUse.emoji)
                                             tempTurnMsg += ballerine
                                             logs += "\n{0} have been resurected.\n"+ballerine
@@ -4544,12 +4572,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             await turnMsg.delete()
             if not(allAuto):
                 await choiceMsg.delete()
-            await msg.edit(embed = temp1,components=[])
+            
+            await msg.edit(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
         elif not(haveError):
             try:
-                msg = await ctx.send(embed = temp1,components=[])
+                msg = await ctx.send(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
             except:
-                msg = await ctx.channel.send(embed = temp1,components=[])
+                msg = await ctx.channel.send(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
 
         # ------------ Succès -------------- #
         if not(octogone):
@@ -4612,8 +4641,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                         saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
 
-        await msg.add_reaction(emoji.plus)
-        await msg.add_reaction('📄')
         timeout = False
         def checkIsPlusReact(reaction,user):
             return user.id != bot.user.id and reaction.message.id == msg.id and (str(reaction) in [emoji.plus,'📄'])
@@ -4636,104 +4663,73 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             await chan.send("Hé <@!213027252953284609> ! Elle l'a dit !",file=discord.File(fp=opened))
             opened.close()
 
-        while 1:
+        actuTeam = 0
+        actuEntity = 0
+        started = False
+        prec = None
+        logsAff = False
+
+        def check(m):
+            return m.origin_message.id == msg.id
+
+        logsButton = create_button(ButtonStyle.grey,"Voir les logs","📄","📄")
+
+        while 1: # Tableau des statistiques
+            options = []
+            for team in [0,1]:
+                for num in range(len(tablEntTeam[team])):
+                    ent = tablEntTeam[team][num]
+                    options.append(create_select_option(ent.name,"{0}:{1}".format(team,num),getEmojiObject(await ent.getIcon(bot)),default=started and team == actuTeam and num == actuEntity))
+
+            select = create_select(options,placeholder="Voir les statistiques d'un combattant")
+            await msg.edit(embed = temp1, components=[create_actionrow(select),create_actionrow(logsButton)])
+
             try:
-                react = await bot.wait_for("reaction_add",timeout=60,check=checkIsPlusReact)
+                interact = await wait_for_component(bot,msg,check=check,timeout=60)
             except:
-                await msg.clear_reactions()
-                break
-
-            if str(react[0]) == '📄':
-                opened = open("./data/fightLogs/{0}_{1}.txt".format(ctx.author.name,date),"rb")
-
-                await msg.channel.send("Voici les logs du combat :",file=discord.File(fp=opened))
-
-                opened.close()
-                await msg.clear_reaction('📄')
-
-            elif str(react[0]) == emoji.plus:
-                await msg.clear_reaction('📄')
-                if not(slash):
-                    msgStats = await loadingEmbed(ctx)
+                if logsAff:
+                    await msg.edit(embed = temp1, components=[create_actionrow(logsButton)])
                 else:
-                    msgStats = await ctx.channel.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
-
-                tablReaction = ['⏪',emoji.backward_arrow,emoji.forward_arrow,'⏩']
-                actuTeam = 0
-                actuEntity = 0
-                def checkIsReact(reaction,user):
-                    temp = False
-                    for a in tablReaction:
-                        if str(reaction)==a:
-                            temp=True
-                            break
-                    return user != bot.user and reaction.message == msgStats and temp
-    
-                while 1: # Tableau des statistiques
-                    actu = tablEntTeam[actuTeam][actuEntity]
-                    stats = actu.stats
-
-                    if type(actu.char) == char:
-                        userIcon = await getUserIcon(bot,actu.char)
-                    else:
-                        userIcon = actu.char.icon
-
-                    statsEm = discord.Embed(title = "__Statistiques de "+ userIcon +" "+actu.char.name+"__",color=actu.char.color)
-                    ballerine =[[stats.ennemiKill,stats.damageDeal,stats.indirectDamageDeal,stats.damageOnShield,stats.damageBoosted],[stats.allieResurected,stats.heals,stats.damageDogded,stats.shieldGived],[stats.survival,stats.damageRecived,round(stats.shootHited/stats.totalNumberShot*100),round(stats.dodge/stats.numberAttacked*100),round(stats.crits/stats.totalNumberShot*100)]]
-                    babie = [["Ennemis tués :","Dégâts infligés :","Dont indirects :","Dégâts sur armure :","Dégâts Boostés :"],["Alliés ressucités :","Soins effectués :","Dégâts réduits :","Armure fournie :"],["Tours survécus :","Dégâts reçus :","Taux de précision : ","Taux d'esquive :","Taux de coup critique :"]]
-                    sneaker = ["__Stats offensives__","__Stats altruistes__","__Stats personnels__"]
-                    for a in [0,1,2]:
-                        statMsg = ""
-                        for b in range(0,len(ballerine[a])):
-                            temp = "**"
-                            purcent = ""
-                            if babie[a][b].startswith("Taux"):
-                                purcent = " %"
-                            if ballerine[a][b] == 0:
-                                temp =""
-                            statMsg += f"\n{babie[a][b]} {temp}{str(ballerine[a][b])}{temp}{purcent}"
-                        statsEm.add_field(name=sneaker[a],value=statMsg+"\n<:empty:866459463568850954>",inline = False)
-                    await msgStats.edit(embed = statsEm)
-
-                    for a in tablReaction:
-                        await msgStats.add_reaction(a)
-
-                    try:
-                        react = await bot.wait_for("reaction_add",timeout = 60,check = checkIsReact)
-                        reaction = react
-                    except:
-
-                        break
-
-                    for a in [0,1,2,3]:
-                        if str(react[0]) == tablReaction[a]:
-                            react = a
-                            break
-
-                    if react == 0:
-                        actuTeam,actuEntity = 0,0
-                    elif react == 1:
-                        if actuEntity == 0:
-                            actuTeam = int(not(actuTeam))
-                            actuEntity = len(tablEntTeam[actuTeam])-1
-                        else:
-                            actuEntity -= 1
-                    elif react == 2:
-                        if actuEntity == len(tablEntTeam[actuTeam])-1:
-                            actuTeam = int(not(actuTeam))
-                            actuEntity = 0
-                        else:
-                            actuEntity += 1
-                    elif react == 3:
-                        actuTeam,actuEntity = 1,0
-                
-                    await msgStats.remove_reaction(str(reaction[0]),reaction[1])
-
-                await msgStats.clear_reactions()
+                    await msg.edit(embed = temp1, components=[])
+                if prec != None:
+                    await prec.delete()
                 break
-        
-        await msg.clear_reactions()
-        try:
-            await msgStats.clear_reations()
-        except:
-            pass
+
+            try:
+                inter = interact.values[0]
+                actuTeam,actuEntity = int(inter[0]),int(inter[-1])
+                actu = tablEntTeam[actuTeam][actuEntity]
+                stats = actu.stats
+
+                if type(actu.char) == char:
+                    userIcon = await getUserIcon(bot,actu.char)
+                else:
+                    userIcon = actu.char.icon
+
+                statsEm = discord.Embed(title = "__Statistiques de "+ userIcon +" "+actu.char.name+"__",color=actu.char.color)
+                ballerine =[[stats.ennemiKill,stats.damageDeal,stats.indirectDamageDeal,stats.damageOnShield,stats.damageBoosted],[stats.allieResurected,stats.heals,stats.damageDogded,stats.shieldGived],[stats.survival,stats.damageRecived,round(stats.shootHited/stats.totalNumberShot*100),round(stats.dodge/stats.numberAttacked*100),round(stats.crits/stats.totalNumberShot*100)]]
+                babie = [["Ennemis tués :","Dégâts infligés :","Dont indirects :","Dégâts sur armure :","Dégâts Boostés :"],["Alliés ressucités :","Soins effectués :","Dégâts réduits :","Armure fournie :"],["Tours survécus :","Dégâts reçus :","Taux de précision : ","Taux d'esquive :","Taux de coup critique :"]]
+                sneaker = ["__Stats offensives__","__Stats altruistes__","__Stats personnels__"]
+                for a in [0,1,2]:
+                    statMsg = ""
+                    for b in range(0,len(ballerine[a])):
+                        temp = "**"
+                        purcent = ""
+                        if babie[a][b].startswith("Taux"):
+                            purcent = " %"
+                        if ballerine[a][b] == 0:
+                            temp =""
+                        statMsg += f"\n{babie[a][b]} {temp}{str(ballerine[a][b])}{temp}{purcent}"
+                    statsEm.add_field(name=sneaker[a],value=statMsg+"\n<:empty:866459463568850954>",inline = False)
+                
+                if prec != None:
+                    await prec.edit(embed = statsEm)
+                else:
+                    prec = await interact.send(embed = statsEm)
+                started = True
+            except:
+                opened = open("./data/fightLogs/{0}_{1}.txt".format(ctx.author.name,date),"rb")
+                logsMsg = await interact.send("`Logs, {0} à {1}:{2}`".format(ctx.author.name,date[0:2],date[-2:]),file=discord.File(fp=opened))
+                opened.close()
+                logsButton = create_button(ButtonStyle.URL,"Voir les logs","📄",url=logsMsg.jump_url)
+                logsAff = True
