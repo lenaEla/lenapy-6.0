@@ -30,6 +30,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     tablIsPnjVar = [isAlice,isClemence,isAkira,isGwen,isHelene,isIcealia,isShehisa,isPowehi,isLena,isShushi,isFeli,isSixtine,isLohica,isJohn]               # Those ones are use for the Temp's special interractions and the success related to them
     tablIsPnjName = ["Alice","Clémence","Akira",["Gwendoline","Altikia","Klironovia"],"Hélène","Icealia","Shehisa","Powehi","Lena","Shushi","Félicité","Sixtine","Lohica","John"]
 
+    aliceMemCastTabl = [False,False]
     alicePing = False         # Will Alice say it ?
     now = datetime.datetime.now()
     logs,haveError = "[{0}]\n".format(now.strftime("%H:%M:%S, %d/%m/%Y")),False
@@ -1361,6 +1362,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         def heal(self,target, icon : str, statUse : int, power : int, effName = None,uniqueID=copy.copy(uniqueID)):
             overheath = 0
             aff = target.hp < target.maxHp
+            ballerine = ""
             if power > 0:
                 if statUse != None:
                     if statUse == HARMONIE:
@@ -1688,19 +1690,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     message = f'{self.caster.icon} {self.icon}→ {self.on.icon} +{heal}\n'
 
                 elif self.effect == lostSoul:                                   # Remove the body effect
-                    doesMemAliceCast = False
-                    for ent in tablEntTeam[self.on.team]:                           # Check if there is no Alice Memento casting
-                        for eff in ent.effect:
-                            if eff.id == memAliceCast.id:
-                                doesMemAliceCast = True
-                                break
-                        if doesMemAliceCast:
-                            break
-
-                    if self.on.status == STATUS_DEAD and not(doesMemAliceCast):
+                    if self.on.status == STATUS_DEAD and not(aliceMemCastTabl[self.team]):
                         self.on.status = STATUS_TRUE_DEATH
                         message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
-                    elif doesMemAliceCast:                                          # If there is a Alice Memento cast, do not remove the body
+                    elif aliceMemCastTabl[self.team]:                                          # If there is a Alice Memento cast, do not remove the body
                         self.leftTurn += 1
 
             if self.effect.callOnTrigger != None:                               # If the effect give another effect when removed, give that another effect
@@ -1837,6 +1830,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
                     else:                                                           # A less powerful Healn't
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
+                    valid = False
 
                 elif a.effect.id in [idoOHArmor.id,proOHArmor.id,altOHArmor.id]:  # Overhealth Shield
                     if a.value < effect.overhealth:                               # A better Overhealth shield
@@ -1847,7 +1841,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
                     else:                                                           # A less powerful shield
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
-
+                    valid = False
                 elif not(effect.silent):                                        # It's not Healn't
                     popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
                     valid = False
@@ -3403,7 +3397,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             elif actSkill.type == TYPE_DAMAGE and ennemiAtRange:            # Damage skills
                                                 atkSkill.append(actSkill)
                                             elif actSkill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,dead=True)) > 0:                         # Resu skills (none lol)
-                                                reaSkill.append(actSkill)
+                                                if not(aliceMemCastTabl[actTurn.team]):
+                                                    reaSkill.append(actSkill)
                                             elif actSkill.type == TYPE_INDIRECT_REZ and allieAtRange:       # Indirect Resu skills (Zelian R)
                                                 indirectReaSkill.append(actSkill)
                                             elif actSkill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange:   # Indirect damage skills
@@ -3459,9 +3454,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                                 if sumHp / sumMaxHp <= 0.6:
                                                     healSkill.append(actSkill)
                                                     healSkill.append(actSkill)
+                                                    for num in probaHealSkill:
+                                                        probaHealSkill[num] = probaHealSkill[num] *1.2
                                                 if sumHp / sumMaxHp <= 0.4:
                                                     healSkill.append(actSkill)
                                                     healSkill.append(actSkill)
+                                                    for num in probaHealSkill:
+                                                        probaHealSkill[num] = probaHealSkill[num] *1.5
 
                                         else: # The skill is cast on others
                                             ennemiTabl = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True,effect=actSkill.effect,ignoreInvoc = (actSkill.effectOnSelf == None or (actSkill.effectOnSelf != None and findEffect(actSkill.effectOnSelf).replica != None)))
@@ -3479,7 +3478,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                                 atkSkill.append(actSkill)
                                             
                                             elif actSkill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,dead=True)) > 0:
-                                                reaSkill.append(actSkill)
+                                                if not(aliceMemCastTabl[actTurn.team]):
+                                                    reaSkill.append(actSkill)
 
                                             elif actSkill.type == TYPE_INDIRECT_REZ and allieAtRange:
                                                 indirectReaSkill.append(actSkill)
@@ -4294,6 +4294,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             uniqueID += 1
                             actTurn.refreshEffects()
 
+                        if skillToUse.id == memAlice2.id:
+                            aliceMemCastTabl[actTurn.team] = True
+                        elif skillToUse.id == memAlice.id:
+                            aliceMemCastTabl[actTurn.team] = True
                 else:
                     tempTurnMsg += f"\n{actTurn.char.name} est étourdi{actTurn.accord()} !\n"
 
@@ -4642,9 +4646,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
 
         timeout = False
-        def checkIsPlusReact(reaction,user):
-            return user.id != bot.user.id and reaction.message.id == msg.id and (str(reaction) in [emoji.plus,'📄'])
-
         date = datetime.datetime.now()+horaire
         date = date.strftime("%H%M")
         fich = open("./data/fightLogs/{0}_{1}.txt".format(ctx.author.name,date),"w")

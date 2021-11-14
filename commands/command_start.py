@@ -114,7 +114,7 @@ async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.
     babie = []
     if user.customColor:
         ballerine += [None,"<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]+" - Couleur personnalisé ("+hex(user.color)+")\n"
-        babie = [create_select_option("Couleur personnalisée","Custom",description=hex(user.color),emoji=getEmojiObject(["<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]))]
+        babie = [create_select_option("Couleur personnalisée","Custom",description=hex(user.color),emoji=getEmojiObject([None,"<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]))]
 
     options = [optionIka,optionTako][user.species-1] + babie
     colorMenuIka = create_select(
