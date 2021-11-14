@@ -20,6 +20,7 @@ from commands.sussess_endler import *
 from commands.command_patchnote import *
 from commands.command_help import *
 from commands.command_patchnote import *
+from commands.alice_stats_endler import *
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
@@ -114,6 +115,7 @@ class shopClass:
 async def inventoryVerif(bot):
     for z in os.listdir(absPath + "/userProfile/"):
         user = loadCharFile(absPath + "/userProfile/" + z)
+        aliceStatsDb.addUser(user)
         allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
         ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
         babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
@@ -1098,17 +1100,7 @@ async def comQuickFight(ctx):
 
         fightAnyway = True
         if fun < -1:           # Testing purposes
-            test = copy.deepcopy(findAllie("Hélène"))
-            test.changeLevel(50)
-            test.stuff = [getAutoStuff(test.stuff[0],test),getAutoStuff(test.stuff[1],test),getAutoStuff(test.stuff[2],test)]
-
-            team1,team2 = [],[]
-            for a in range(8):
-                team1.append(copy.deepcopy(test))
-                team2.append(copy.deepcopy(test))
-
-            fightAnyway = False
-            await fight(bot,team1,team2,ctx,guild,slash=True,octogone=True)
+            await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1))
 
         if fightAnyway:
             await fight(bot,team1,[],ctx,guild,slash=True)
@@ -1437,7 +1429,6 @@ async def teamView(ctx,joueur=None):
 
                 await msg.edit(embed = embed)
 
-
 # team add
 @slash.subcommand(base="team",name="add",description="Permet de rajouter un joueur dans son équipe",options=[
     create_option("joueur","Le joueur à rajouter",6,required=True)
@@ -1527,6 +1518,38 @@ async def teamQuit(ctx):
         quickSaveCharFile(pathUserProfile,[user,Qsave])
     else:
         await ctx.send(embed = errorEmbed("/team quit","Vous n'avez aucune équipe à quitter"))
+
+# team fact
+@slash.subcommand(base="team",name="fact",description="Permet d'avoir des facts sur les membres de votre équipe")
+async def teamFact(ctx):
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    if os.path.exists(pathUserProfile):
+        user = quickLoadCharFile(pathUserProfile)
+        Qsave = user[1]
+        user = user[0]
+        pathTeam = absPath + "/userTeams/" + user.team +".team"
+
+    if user.team != "0":
+        team = readSaveFiles(pathTeam)
+        teamUser = []
+        for a in team:
+            teamUser.append(loadCharFile(absPath + "/userProfile/" + str(a) + ".prof"))
+
+        button = create_actionrow(create_button(ButtonStyle.grey,"Autre fact","🔄","🔄"))
+        msg = None
+
+        while 1:
+            embed = await getRandomStatsEmbed(bot,teamUser,"/team fact")
+            if msg == None:
+                msg = await ctx.send(embed= embed,components=[button])
+            else:
+                await msg.edit(embed= embed,components=[button])
+
+            try:
+                await wait_for_component(bot,msg,timeout=60)
+            except:
+                await msg.edit(embed= embed,components=[])
+                break
 
 # HELP ----------------------------------------------------------------
 @slash.slash(name="help",description="Ouvre la page d'aide du bot")

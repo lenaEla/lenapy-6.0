@@ -133,7 +133,7 @@ allHeals = [HEAL,HEAL_FIXE]
 allRez = [REZ,REZ_POURCENTAGE,REZ_FIXE]
 
 # Color constants
-red,light_blue,yellow,green,blue,purple,pink,orange,white,black = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB,0xEF7C00,0xffffff,0x000000
+red,light_blue,yellow,green,blue,purple,pink,orange,white,black,aliceColor = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB,0xEF7C00,0xffffff,0x000000,0xFF83FF
 colorId = [red,orange,yellow,green,light_blue,blue,purple,pink,white,black]
 colorChoice = ["Rouge","Orange","Jaune","Vert","Bleu Clair","Bleu","Violet","Rose","Blanc","Noir"]
 
@@ -561,3 +561,75 @@ lizSays = says(
     onDeath = "Pff, vous êtes pas drôle",
     redLoose = "Waw, je me suis jamais faite autant refroidir rapidement..."
 )
+
+randomMaxDmg = [
+    "Apparament, {icon} {name} aurait réussi à infligé {value} dégâts en un seul combat",
+    "Hé tu sais quoi {icon} {name} ? Ton record de dégâts en un seul combat est de {value}",
+    "Hum... le record de dégâts de {icon} {name} est que de {value} ?"
+]
+
+randomTotalDmg = [
+    "Hé {icon} {name} ! Tu veux savoir combien de dégâts tu as fait au total ? {value}",
+    "Aufaite Lena, tu voulais savoir combien de dégâts a fait {icon} {name} au total ? {value}",
+    "Tu veux savoir combien de dégâts tu as fait {icon} {name} ? Hum... {value}"
+]
+
+randomMaxHeal = [
+    "Alors voyons voir si {icon} {name} est un bon healer... Son record de soins est de {value}",
+    "Au maximum, tu as soigné {value} PV en un combat {icon} {name}"
+]
+
+randomTotalHeal = [
+    "Au total, tu as soigné {value} PV {icon} {name}",
+    "Tu as réussi à annuler {value} dégâts subis par tes alliés {icon} {name}, c'est pas trop mal !"
+]
+
+randomMaxRes = [
+    "placeholder.max.res1 {icon} {name} {value}",
+    "placeholder.max.res2 {icon} {name} {value}"
+]
+
+randomTotalRes = [
+    "placeholder.total.res1 {icon} {name} {value}",
+    "placeholder.total.res2 {icon} {name} {value}"
+]
+
+randomMaxTank = [
+    "placeholder.max.recivedDamage1 {icon} {name} {value}",
+    "placeholder.max.recivedDamage2 {icon} {name} {value}"
+]
+
+randomTotalTank = [
+    "placeholder.total.recivedDamage1 {icon} {name} {value}",
+    "placeholder.total.recivedDamage2 {icon} {name} {value}"
+]
+
+randomMaxHeal = [
+    "placeholder.max.heal1 {icon} {name} {value}",
+    "placeholder.max.heal2 {icon} {name} {value}"
+]
+
+randomTotalHeal = [
+    "placeholder.total.heal1 {icon} {name} {value}",
+    "placeholder.total.heal2 {icon} {name} {value}"
+]
+
+randomMaxArmor = [
+    "placeholder.max.armor1 {icon} {name} {value}",
+    "placeholder.max.armor2 {icon} {name} {value}"
+]
+
+randomTotalArmor = [
+    "placeholder.total.armor1 {icon} {name} {value}",
+    "placeholder.total.armor2 {icon} {name} {value}"
+]
+
+randomMaxKill = [
+    "placeholder.max.kill1 {icon} {name} {value}",
+    "placeholder.max.kill2 {icon} {name} {value}"
+]
+
+randomTotalKill = [
+    "placeholder.total.kill1 {icon} {name} {value}",
+    "placeholder.total.kill2 {icon} {name} {value}"
+]
