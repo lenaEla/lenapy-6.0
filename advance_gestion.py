@@ -1,8 +1,10 @@
 import os,discord,emoji,copy,requests,io
+from typing import List
 from classes import *
 from gestion import *
 from adv import *
 from discord_slash.utils.manage_components import *
+from commands.alice_stats_endler import *
 from PIL import Image
 from data.database import *
 
@@ -1137,3 +1139,35 @@ async def downloadElementIcon(bot : discord.Client):
                 print(emojiObject[0] + " téléchargé")
             else:
                 print(emojiObject[0] + " non trouvé")
+
+async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], text = "Chargement..."):
+    desc = ""
+    whatRandomStat = random.randint(0,len(tablAdd)-1)
+    randomStat = tablAdd[whatRandomStat]
+    rdm2 = ["max","total"][random.randint(0,1)]
+
+    listDict = []
+    for perso in team:
+        if type(perso) == char:
+            value = aliceStatsDb.getUserStats(perso,rdm2+randomStat)
+            if value > 0:
+                listDict.append({"name" : perso.name,"value" : value,"char" : perso})
+
+    if len(listDict) > 0:
+        if len(listDict) == 1:
+            choisen = listDict[0]
+        else:
+            choisen = listDict[random.randint(0,len(listDict)-1)]
+
+        if rdm2 == "max":
+            msgMax = [randomMaxDmg,randomMaxKill,randomMaxRes,randomMaxTank,randomMaxHeal,randomMaxArmor]
+        else:
+            msgMax = [randomTotalDmg,randomTotalKill,randomTotalRes,randomTotalTank,randomTotalHeal,randomTotalArmor]
+        
+        try:
+            desc = msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=choisen["value"],name=choisen["name"])
+        except:
+            desc = "placeholder.error.unknow"
+    else:
+        desc = "placeholder.error.nothingtoshow.{0}".format(randomStat)
+    return discord.Embed(title="__{0}__".format(text),color=aliceColor,description="<:alice:908902054959939664> : \""+desc+"\"")
