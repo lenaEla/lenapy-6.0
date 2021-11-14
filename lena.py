@@ -24,6 +24,7 @@ from discord.ext import commands, tasks
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
 from data.bot_tokens import lenapy, shushipy
+from traceback import format_exc
 
 ###########################################################
 # Initialisations des variables de bases :
@@ -328,23 +329,23 @@ async def on_error(error1,error2):
 """@bot.event
 async def on_slash_command_error(error1,error2):
     if error1.author.id != 769999212422234122 and error1.author.id != 623211750832996354:
-        if "TimeoutError" not in traceback.format_exc():
-            if error1.author.guild.name != "dual T Squad":
-                babie = datetime.datetime.now()
-                ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue\nUn rapport d'erreur a été envoyé")
-                errorChannel = await bot.fetch_channel(error1.channel.id)
-                await errorChannel.send(embed = ballerine,delete_after=10)
+        if "TimeoutError" not in format_exc():
+            babie = datetime.datetime.now()
+            ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue\nUn rapport d'erreur a été envoyé")
+            errorChannel = await bot.fetch_channel(error1.channel.id)
+            await errorChannel.send(embed = ballerine,delete_after=10)
 
-                ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue")
-                ballerine.add_field(name="__Serveur :__",value=f"**{error1.author.guild.name}**\n{error1.channel.name}")
-                ballerine.add_field(name="__Heure :__",value=babie.strftime("%m/%d/%Y, %H:%M:%S"))
-                if len(traceback.format_exc()) > 1024:
-                    ballerine.add_field(name="__Erreur :__",value="(...)\n"+traceback.format_exc()[-1010:],inline=False)
-                else:
-                    ballerine.add_field(name="__Erreur :__",value=traceback.format_exc(),inline=False)
+            ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue")
+            ballerine.add_field(name="__Serveur :__",value=f"**{error1.guild.name}**\n{error1.channel.name}")
+            ballerine.add_field(name="__Heure :__",value=babie.strftime("%m/%d/%Y, %H:%M:%S"))
+            if len(format_exc()) > 1024:
+                ballerine.add_field(name="__Erreur :__",value="(...)\n"+format_exc()[-1010:],inline=False)
+            else:
+                ballerine.add_field(name="__Erreur :__",value=format_exc(),inline=False)
 
-                errorChannel = await bot.fetch_channel(808394788126064680)
-                await errorChannel.send(embed = ballerine)"""
+            errorChannel = await bot.fetch_channel(808394788126064680)
+            await errorChannel.send(embed = ballerine)
+"""
 
 ###########################################################
 # Commandes
