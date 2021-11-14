@@ -1432,10 +1432,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             target.refreshEffects()
                             return ballerine
 
-                if aff:
-                    return ballerine
-                else:
-                    return ""
+            if aff:
+                return ballerine
+            else:
+                return ""
 
         def isPnj(self, name : str) -> bool:
             """Return if the entity is a temp's with the name given"""
@@ -1848,10 +1848,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     else:                                                           # A less powerful shield
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
 
-            elif not(effect.silent):                                        # It's not Healn't
-                popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
-            valid = False
-            break
+                elif not(effect.silent):                                        # It's not Healn't
+                    popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
+                    valid = False
+                break
 
         if valid:
             valid = False
