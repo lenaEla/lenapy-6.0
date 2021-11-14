@@ -130,24 +130,22 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 tablToSee = tablToSee.tablAllSuccess()
 
             if value in [0,1,2,3]:
-                if tri in [0,1]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
-                elif tri in [2,3]:
+                if tri in [2,3]:
                     tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
                 elif tri == 4:
-                    tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                 elif tri == 5:
                     tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
                 elif tri == 6:
-                    tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
                 elif tri == 7:
                     tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
                 elif tri == 8:
                     tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
                 elif tri == 9:
-                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
                 elif tri == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                 elif tri == 11:
                     tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                 elif tri == 12:
@@ -155,7 +153,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 elif tri == 13:
                     tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
                 elif tri in [14,15]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(tri-13))
+                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(tri-14))
             else:
                 tablToSee.sort(key=lambda ballerine:ballerine.name)
             lenTabl = len(tablToSee)
@@ -202,7 +200,17 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
                     # Première info utile
                     if value in [0,1,2,8] and type(a) == stuff:
-                        mess +="*"+a.orientation+"*\n"
+                        affinity = ""
+                        if type(a) == stuff and a.affinity != None:
+                            affinity = elemEmojis[a.affinity]
+                        elif type(a) == skill and a.condition != []:
+                            if a.condition[:2] == [0, 2]:
+                                affinity = elemEmojis[a.condition[2]]
+                            elif a.condition[:2] == [0, 1]:
+                                affinity = aspiEmoji[a.condition[2]]
+                        if affinity != "":
+                            affinity = " - "+affinity
+                        mess +="*"+a.orientation+affinity+"*\n"
                     elif value in [3,4,8] and type(a) != stuff:
                         ballerine = tablTypeStr[a.type]+" "
                         if a.use != None and a.use != HARMONIE:
@@ -216,7 +224,18 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                             babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
                         else:
                             babie=''
-                        mess += f"*{babie}{ballerine} - {sandale}*\n"
+
+                        affinity = ""
+                        if type(a) == stuff and a.affinity != None:
+                            affinity = elemEmojis[a.affinity]
+                        elif type(a) == skill and a.condition != []:
+                            if a.condition[:2] == [0, 2]:
+                                affinity = elemEmojis[a.condition[2]]
+                            elif a.condition[:2] == [0, 1]:
+                                affinity = aspiEmoji[a.condition[2]]
+                        if affinity != "":
+                            affinity = " - "+affinity
+                        mess += f"*{babie}{ballerine} - {sandale}{affinity}*\n"
 
                     # Statistiques
                     temp = ""
@@ -228,6 +247,16 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                                     form = ""
                                     if b == tri-4:
                                         form = "**"
+                                    if tri in [4,10] and b in [13,14]:
+                                        if (b == 13 and (stats[13] > stats[14] or stats[13] == stats[14])) or (b == 14 and (stats[14] > stats[13] or stats[13] == stats[14])):
+                                            form = "**"
+                                    elif tri == 6 and b in [10,11]:
+                                        if (b == 10 and (stats[10] > stats[11] or stats[10] == stats[11])) or (b == 11 and (stats[11] > stats[10] or stats[11] == stats[10])):
+                                            form = "**"
+                                    elif tri == 9 and b in [12,11]:
+                                        if (b == 12 and (stats[12] > stats[11] or stats[12] == stats[11])) or (b == 11 and (stats[11] > stats[12] or stats[11] == stats[12])):
+                                            form = "**"
+
                                     temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
                             if a.affinity != None:
                                 nim = elemNames[a.affinity]
@@ -337,19 +366,19 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 if respond in [2,3]:
                     tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(respond-2))
                 elif respond == 4:
-                    tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                 elif respond == 5:
                     tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
                 elif respond == 6:
-                    tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
                 elif respond == 7:
                     tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
                 elif respond == 8:
                     tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
                 elif respond == 9:
-                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
                 elif respond == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                 elif respond == 11:
                     tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                 elif respond == 12:

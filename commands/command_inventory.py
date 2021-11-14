@@ -83,9 +83,9 @@ async def compare(bot : discord.client, ctx : ComponentContext, user : char, see
 
     # Send
     try:
-        await ctx.send(embed=embed,delete_after=30)
+        await ctx.send(embed=embed)
     except:
-        await ctx.channel.send(embed=embed,delete_after=30)
+        await ctx.channel.send(embed=embed)
 
 async def elements(bot : discord.client, ctx : discord.message, msg : discord.message, user : classes.char):
     """Function to call for inventory elements.\n
@@ -306,7 +306,6 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 if rep.custom_id == "confirm":
                                     user.weapon = weap
                                     if saveCharFile(pathUserProfile,user):
-                                        await oldMsg.clear_reactions()
                                         await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                                     else:
                                         await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
@@ -468,7 +467,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 if rep.custom_id == "confirm":
                                     user.stuff[weap.type] = weap
                                     if saveCharFile(pathUserProfile,user):
-                                        await oldMsg.clear_reactions()
+                                        
                                         await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                                     else:
                                         await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
@@ -513,16 +512,16 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                                             user.otherInventory.remove(changeAspi)
                                             if saveCharFile(pathUserProfile,user):
-                                                await oldMsg.clear_reactions()
+                                                
                                                 await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
                                             else:
-                                                await oldMsg.clear_reactions()
+                                                
                                                 await oldMsg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
                                     except:
-                                        await oldMsg.clear_reactions()
+                                        
                                         await oldMsg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
                                 elif obj==changeAppa:
-                                    await oldMsg.clear_reactions()
+                                    
                                     await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
                                     await oldMsg.add_reaction('<:ikaLBlue:866459302319226910>')
                                     await oldMsg.add_reaction('<:takoLBlue:866459095875190804>')
@@ -537,7 +536,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     else:
                                         user.species = 2
                                     
-                                    await oldMsg.clear_reactions()
+                                    
                                     await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
                                     await oldMsg.add_reaction('♂️')
                                     await oldMsg.add_reaction('♀️')
@@ -551,17 +550,17 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                         if str(respond[0]) == titouille[a]:
                                             user.gender = testouille[a]
 
-                                    await oldMsg.clear_reactions()
+                                    
 
                                     user = await chooseColor(bot,oldMsg,ctx,user,args)
 
                                     if user != False:
                                         user.otherInventory.remove(changeAppa)
                                         saveCharFile(pathUserProfile,user)
-                                        await oldMsg.clear_reactions()
+                                        
                                         await oldMsg.edit(embed = discord.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
                                 elif obj==changeName: 
-                                    await oldMsg.clear_reactions()
+                                    
                                     await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
                                     timeout = False
                                     def checkIsAuthor(message):
@@ -581,37 +580,31 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             pass
 
                                         saveCharFile(pathUserProfile,user)
-                                        await oldMsg.clear_reactions()
+                                        
                                         await oldMsg.edit(embed = discord.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !",components=[]))
                                     else:
                                         await oldMsg.add_reaction('🕛')
                                 elif obj==restat:
-                                    await oldMsg.clear_reactions()
+                                    
                                     restats(user)
                                     user.otherInventory.remove(restat)
 
                                     saveCharFile(pathUserProfile,user)
-                                    await oldMsg.clear_reactions()
+                                    
                                     await oldMsg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
                                 elif obj==customColor:
                                     user = await changeCustomColor(bot,oldMsg,ctx,user,args)
                                     if user != None:
                                         user.otherInventory.remove(customColor)
                                         saveCharFile(pathUserProfile,user)
-                                        await oldMsg.clear_reactions()
+                                        
                                         await oldMsg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
                                 elif obj==blablator:
-                                    await oldMsg.clear_reactions()
+                                    
                                     await blablaEdit(bot,ctx,oldMsg,user)
 
                             except asyncio.TimeoutError:
                                 await oldMsg.clear_reactions()
-
-                else:
-                    if slashed==None:
-                        await ctx.channel.send(embed = errorEmbed(args[0],"Rien de trouvé, désolé"))
-                    else:
-                        temp = await ctx.channel.send(embed = errorEmbed(args[0],"Rien de trouvé, désolé"),delete_after=5)
         else:
             if slashed == None:
                 await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"))
@@ -688,26 +681,29 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 
                 if value in [0,1]:
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
-                    if tri == 4:
-                        tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                    if tri in [2,3]:
+                        tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
+                    elif tri == 4:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                     elif tri == 5:
                         tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
                     elif tri == 6:
-                        tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
                     elif tri == 7:
                         tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
                     elif tri == 8:
                         tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
                     elif tri == 9:
-                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
                     elif tri == 10:
-                        tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                     elif tri == 11:
                         tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                     elif tri == 12:
                         tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
                     elif tri == 13:
                         tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+
                 elif value == 2 and tri in [14,16]:
                     tablToSee.sort(key=lambda ballerine:ballerine.power,reverse=True)
                 elif value == 2 and tri in [15]:
@@ -718,7 +714,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     tablToSee.sort(key=lambda ballerine:ballerine.name)
 
                 lenTabl = len(tablToSee)
-                maxPage=lenTabl//10
+                maxPage=lenTabl//15 - int(lenTabl%15 == 0)
                 page=0
                 needRemake = False
 
@@ -743,10 +739,10 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 if value != 3:
                     mess=""
                     if page != maxPage:
-                        maxi = (page+1)*10
+                        maxi = (page+1)*15
                     else:
                         maxi = lenTabl
-                    for a in tablToSee[(page)*10:maxi]:
+                    for a in tablToSee[(page)*15:maxi]:
                         # Nom, posession
                         canEquip = ""
                         if type(a) in [skill,stuff] and not(a.havConds(user)):
@@ -811,6 +807,15 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                         form = ""
                                         if b == tri-4:
                                             form = "**"
+                                        if tri in [4,10] and b in [13,14]:
+                                            if (b == 13 and (stats[13] > stats[14] or stats[13] == stats[14])) or (b == 14 and (stats[14] > stats[13] or stats[13] == stats[14])):
+                                                form = "**"
+                                        elif tri == 6 and b in [10,11]:
+                                            if (b == 10 and (stats[10] > stats[11] or stats[10] == stats[11])) or (b == 11 and (stats[11] > stats[10] or stats[11] == stats[10])):
+                                                form = "**"
+                                        elif tri == 9 and b in [12,11]:
+                                            if (b == 12 and (stats[12] > stats[11] or stats[12] == stats[11])) or (b == 11 and (stats[11] > stats[12] or stats[11] == stats[12])):
+                                                form = "**"
                                         temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
                                 if a.affinity != None:
                                     nim = elemNames[a.affinity]
@@ -911,19 +916,19 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 else:
                     tablToSee.sort(key=lambda ballerine: ballerine.name)
                     if respond == 4:
-                        tablToSee.sort(key=lambda ballerine:ballerine.strength, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                     elif respond == 5:
                         tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
                     elif respond == 6:
-                        tablToSee.sort(key=lambda ballerine:ballerine.charisma, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
                     elif respond == 7:
                         tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
                     elif respond == 8:
                         tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
                     elif respond == 9:
-                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
                     elif respond == 10:
-                        tablToSee.sort(key=lambda ballerine:ballerine.magie, reverse=True)
+                        tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
                     elif respond == 11:
                         tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                     elif respond == 12:
