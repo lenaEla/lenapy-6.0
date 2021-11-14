@@ -559,7 +559,7 @@ for num in range(0,10):
     incurTemp = copy.deepcopy(incurable)
     incurTemp.power = 10*num
     incurTemp.name = "Incurable ({0})".format(10*num)
-    incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant ou égal est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent".format(10*num)
+    incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
 
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement")

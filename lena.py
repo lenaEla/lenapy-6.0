@@ -1,6 +1,7 @@
 ###########################################################
 # Importations :
 import discord, random, os, emoji ,asyncio ,datetime , traceback
+from discord.utils import get
 
 from data.database import *
 from classes import *
@@ -210,7 +211,6 @@ async def inventoryVerif(bot):
                 await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description="Votre élément de ne respecte pas les restrictions de niveau\n\n"+temp))
             except:
                 pass
-
 
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
@@ -1093,16 +1093,29 @@ async def comQuickFight(ctx):
         else:
             team1 = [user]
 
-        await fight(bot,team1,[],ctx,guild,slash=True)
+        fun = random.randint(0,99)
+
+        fightAnyway = True
+        if fun < -1:           # Testing purposes
+            test = copy.deepcopy(findAllie("Hélène"))
+            test.changeLevel(50)
+            test.stuff = [getAutoStuff(test.stuff[0],test),getAutoStuff(test.stuff[1],test),getAutoStuff(test.stuff[2],test)]
+
+            team1,team2 = [],[]
+            for a in range(8):
+                team1.append(copy.deepcopy(test))
+                team2.append(copy.deepcopy(test))
+
+            fightAnyway = False
+            await fight(bot,team1,team2,ctx,guild,slash=True,octogone=True)
+
+        if fightAnyway:
+            await fight(bot,team1,[],ctx,guild,slash=True)
 
     elif teamWinDB.isFightingBool(ballerine):
-        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"))
-        await asyncio.sleep(10)
-        await msg.delete()
+        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
     else:
-        msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"))
-        await asyncio.sleep(10)
-        await msg.delete()
+        msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
 
 # octogone fight
 @slash.subcommand(base="fight",name="octogone",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
