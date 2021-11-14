@@ -6,6 +6,7 @@ from donnes import *
 from gestion import *
 from advance_gestion import *
 from commands.sussess_endler import *
+from commands.alice_stats_endler import *
 from traceback import format_exc
 
 teamWinDB = dbHandler("teamVic.db")
@@ -1690,11 +1691,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     message = f'{self.caster.icon} {self.icon}→ {self.on.icon} +{heal}\n'
 
                 elif self.effect == lostSoul:                                   # Remove the body effect
-                    if self.on.status == STATUS_DEAD and not(aliceMemCastTabl[self.team]):
+                    if self.on.status == STATUS_DEAD and not(aliceMemCastTabl[self.on.team]):
                         self.on.status = STATUS_TRUE_DEATH
                         message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
-                    elif aliceMemCastTabl[self.team]:                                          # If there is a Alice Memento cast, do not remove the body
-                        self.leftTurn += 1
+                    elif aliceMemCastTabl[self.on.team]:                                          # If there is a Alice Memento cast, do not remove the body
+                        self.turnLeft += 1
 
             if self.effect.callOnTrigger != None:                               # If the effect give another effect when removed, give that another effect
                 for a in [0,1]:
@@ -2224,7 +2225,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     tablTeam,tablEntTeam,cmpt = [team1,team2],[[],[]],0
     readyMsg,msg,cmpt = None,None,0
 
-    
     for a in [0,1]:                 # Entities generations
         for b in tablTeam[a]:
             if auto == False and b.species != 3:
@@ -2248,9 +2248,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             msg = await loadingEmbed(ctx)
         else:
             try:
-                msg = await ctx.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
+                msg = await ctx.send(embed = await getRandomStatsEmbed(bot,team1))
             except:
-                msg = await ctx.channel.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
+                msg = await ctx.channel.send(embed = await getRandomStatsEmbed(bot,team1))
 
         repEmb = discord.Embed(tilte = "Combat <:turf:810513139740573696>",color = light_blue)
         
@@ -2358,7 +2358,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         allReady = False
         already, awaited,awaitedChar = [],[],[]
 
-        readyMsg = await ctx.channel.send(embed=discord.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg)-1)]))
+        readyMsg = await ctx.channel.send(embed= getRandomStatsEmbed(bot,team1))
 
         for a in tablEntTeam: # Génération du tableau des utilisateurs devant confirmer leur présence
             for b in a:
@@ -2410,7 +2410,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             allAuto = False
 
             if choiceMsg == 0:
-                choiceMsg = await ctx.channel.send(embed=discord.Embed(title="Fênetre de sélection de l'option",color=light_blue,description=randomWaitingMsg[random.randint(0,len(randomWaitingMsg)-1)]))
+                choiceMsg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1,"Fenêtre de sélection de l'action"))
 
             if awaited == []:
                 allReady = True
@@ -3454,12 +3454,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                                 if sumHp / sumMaxHp <= 0.6:
                                                     healSkill.append(actSkill)
                                                     healSkill.append(actSkill)
-                                                    for num in probaHealSkill:
+                                                    for num in range(len(probaHealSkill)):
                                                         probaHealSkill[num] = probaHealSkill[num] *1.2
                                                 if sumHp / sumMaxHp <= 0.4:
                                                     healSkill.append(actSkill)
                                                     healSkill.append(actSkill)
-                                                    for num in probaHealSkill:
+                                                    for num in range(len(probaHealSkill)):
                                                         probaHealSkill[num] = probaHealSkill[num] *1.5
 
                                         else: # The skill is cast on others
@@ -4643,7 +4643,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         # Il faut que ça sorte
                         b.char = await achivements.addCount(ctx,b.char,"lesath",int(b.stats.bleeding))
 
+                        aliceStatsDb.addStats(b.char,b.stats)
+
                         saveCharFile(absPath + "/userProfile/"+str(b.char.owner)+".prof",b.char)
+
 
         timeout = False
         date = datetime.datetime.now()+horaire
