@@ -107,5 +107,14 @@ class aliceStatsdbEndler:
             return result
         else:
             return result[wanted]
-        
+
+    def getRecord(self,wanted : str):
+        cursor = self.con.cursor()
+        cursor.execute("SELECT * FROM records")
+        result = cursor.fetchall()
+
+        for a in result:
+            if a["recordName"] == wanted:
+                return a
+
 aliceStatsDb = aliceStatsdbEndler()

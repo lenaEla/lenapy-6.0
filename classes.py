@@ -55,6 +55,7 @@ class statTabl:
         self.shieldGived = 0
         self.estialba = 0
         self.bleeding = 0
+        self.underBoost = 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""

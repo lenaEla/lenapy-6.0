@@ -300,12 +300,14 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
 
 def infoSkill(skill : skill, user : char,ctx):
     skil = skill
+    cast = 0
     while skil.effectOnSelf != None:
         eff = findEffect(skil.effectOnSelf)
         if eff.replica != None:
             skil = findSkill(eff.replica)
         else:
             break
+        cast += 1
 
     if skill.id == trans.id:
         if user.aspiration in [BERSERK,POIDS_PLUME]:
@@ -324,7 +326,12 @@ def infoSkill(skill : skill, user : char,ctx):
 
     desc = f"Icone : {skil.emoji}"
     if skil.type != TYPE_PASSIVE:
-        desc += f"\nTemps de rechargements : {skil.cooldown} tour(s)"""
+        s = ""
+        if skil.cooldown > 1:
+            s = "s"
+        desc += f"\nTemps de rechargements : {skil.cooldown} tour{s}"""
+    if cast > 0:
+        desc += "\nTours de chargements : {0} tour{1}".format(cast,["","s"][int(cast > 1)])
     repEmb = discord.Embed(title = skil.name,color = user.color, description = desc)
     if skil.emoji[1] == "a":
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
@@ -1032,6 +1039,29 @@ def infoAllie(allie : tmpAllie):
     embed.add_field(name="__**Statistiques au niveau 50 :**__",value=stats)
     embed.add_field(name="__**Statistiques secondaires :**__",value=stats2)
     embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(allie.icon)["id"]))
+
+    if allie.changeDict != None:
+        temp = ""
+        changeSkill = ""
+        toSkill = ""
+        for changeDictCell in allie.changeDict:
+            if changeDictCell["changeWhat"] == 0:               # Change Skills
+                for num in range(len(changeDictCell["to"])):
+                    for skillNum in range(len(allie.skills)):
+                        if allie.skills[skillNum].id == changeDictCell["change"][num].id:
+                            print(allie.skills[skillNum].name,changeDictCell["to"][num].name)
+                            toSkill += changeDictCell["to"][num].emoji+" __"+changeDictCell["to"][num].name+"__"
+                            changeSkill += allie.skills[skillNum].emoji+" __"+allie.skills[skillNum].name+"__"
+                            if num != len(changeDictCell["to"])-1:
+                                changeSkill+= ", "
+                                toSkill += ", "
+                            break
+            
+            ses,s = "sa",""
+            if len(changeDictCell["change"]) > 1:
+                ses,s = "ses","s"
+            temp += "À partir du niveau {3}, cet allié temporaire a {0}% de chance de voir {4} compétence{5} suivante{5} :\n{1}\nremplacé{5} par :\n{2}\n".format(changeDictCell["proba"],changeSkill,toSkill,changeDictCell["level"],ses,s)
+        embed.add_field(name="<:empty:866459463568850954>\n__Variations aléatoires :__",value=temp,inline=False)
     return embed
 
 def infoEnnemi(ennemi : octarien):
@@ -1104,7 +1134,7 @@ def getAutoStuff(object: stuff, user: char):
         for stuffy in tablToSee[:]:
             if (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 >= stuffy.minLvl//5):
                 tablToSee.remove(stuffy)
-            elif (stuffy.minLvl < user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 <= stuffy.minLvl//5):
+            elif (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 <= stuffy.minLvl//5):
                 tablToSee.remove(stuffy)
 
         if len(tablToSee) > 0:
@@ -1165,9 +1195,26 @@ async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], te
             msgMax = [randomTotalDmg,randomTotalKill,randomTotalRes,randomTotalTank,randomTotalHeal,randomTotalArmor]
         
         try:
-            desc = msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=choisen["value"],name=choisen["name"])
+            desc = msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=separeUnit(choisen["value"]),name=choisen["name"])
         except:
             desc = "placeholder.error.unknow"
+
+        biggest = random.randint(0,4)
+        if biggest < 2:
+            if rdm2 == "max":
+                records = aliceStatsDb.getRecord("max{0}".format(randomStat))
+                if int(records["owner"]) == int(choisen["char"].owner):
+                    desc += "\n\nC'est d'ailleurs le record tiens"
+                else:
+                    recorder = loadCharFile(absPath + "/userProfile/" + str(records["owner"]) + ".prof")
+                    desc += "\n\n"+randomRecordMsg[random.randint(0,len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot,recorder),value=separeUnit(records["value"]),name=recorder.name)
+            else:
+                summation = 0
+                for di in listDict:
+                    summation += int(di["value"])
+
+                desc += "\n\n"+randomPurcenMsg[random.randint(0,len(randomPurcenMsg)-1)].format(purcent=int(choisen["value"]/summation*100))
+
     else:
         desc = "placeholder.error.nothingtoshow.{0}".format(randomStat)
-    return discord.Embed(title="__{0}__".format(text),color=aliceColor,description="<:alice:908902054959939664> : \""+desc+"\"")
+    return discord.Embed(title="__{0}__\n<:alice:908902054959939664> :".format(text),color=aliceColor,description="\""+desc+"\"")
