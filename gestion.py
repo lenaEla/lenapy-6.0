@@ -1,5 +1,6 @@
 import os,discord,random
-from typing import Union
+import typing
+from typing import Union, List
 
 import discord_slash
 from classes import *
@@ -572,3 +573,17 @@ def unemoji(text : str):
         elif not(onEmoji) and (char not in ["<",">"]):
             rep += char
     return rep
+
+def separeUnit(number : Union[str,int]):
+    """Return a string with a space for seperate the units"""
+    number = str(number)
+    temp = ""
+    cmpt = -1
+    numCmpt = -1
+    while cmpt >= len(number)*-1:
+        numCmpt += 1
+        if numCmpt%3 == 0:
+            temp = " "+temp
+        temp = number[cmpt]+temp
+        cmpt -= 1
+    return temp[:-1]

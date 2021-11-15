@@ -116,7 +116,7 @@ STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED,STATUS_TRUE_DEATH = 0,1,2,3
 # Aspirations
 BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0,1,2,3,4,5,6,7,8,9,10
 inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prevoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
-aspiEmoji = ['<:ber:903135970625462312>','<:obs:903136012975357952>','<:poi:903135992066752543>','<:ido:903136216659152896>','<:pre:903136196044136488>','<:tet:903136049834889317>','<:mag:903136070017884190>','<:alt:903136159037804545>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:903136237945253899>']
+aspiEmoji = ['<:ber:903135970625462312>','<:obs:903136012975357952>','<:poi:909548928045842462>','<:ido:909549029027880992>','<:pre:903136196044136488>','<:tet:903136049834889317>','<:mag:909549699160219659>','<:alt:909549006680653824>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:909549059059122176>']
 
 # "Target" values
 ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0,1,2,3,4
@@ -346,8 +346,12 @@ shopRandomMsg = [
     '`En entrant dans une pièce présumée vide, vous êtes surpris de voir des reflets lumineux dans un coin. En allant l\'examiner, vous découvrez Shushi et Sixtine qui dorment l\'une contre l\'autre. Au sol se trouve un lecteur de musique`\n\n📱 [Liste de musique en file d\'attente](https://bit.ly/3D6Ltdh)',
     "<:lena:909047343876288552> : \"Qu'est-ce que l'EEv3 ? J'aurais peut-être dû te dire ça avant de t'envoyer taper les octariens à tout bout de champ...\"\n\n`Elle s'adossa à un mur, en réfléchissant à comment elle pourrait expliquer ça sans dépasser la limite de caractère`\n\n<:lena:909047343876288552> : \"Pour commencer, l'Escadron Espadon (premier du nom) était le nom de l'armée de mon peuple, les Inklings, lors de la Grande Guerre de Territoire. Déjà si tu en est arrivé à là j'en déduis que tu es pas Flora. Je te passe les détails, mais on l'a gagné.\nUn siècle plus tard, les Octariens ont relancé une offensive contre Chromapolis, mais qui fût repoussé par l'Escadron Espadon Nouvelle Version, nouvellement reformé à l'occasion. Oh ça n'a pas empêché les Octariens de lancer d'autres offensives, et c'est au cours de l'une d'elle que j'ai rejoins les rangs.\n\nLe temps à passé, et au final je me suis retrouvé à la tête de l'Escadron. C'est à ce moment là que j'ai décidé d'en faire une société un peu moins secrète et fait batir ce QG tout en changeant le nom de l'Escadron une nouvelle fois pour Escadron Espadon 3e Version.\nNotre role premier consiste évidamment à protéger Chromapolis contre les agressions, mais ces derniers temps, plusieurs failles dimentionnels sont apparues menacent la notre.\n\nC'est là que tu rentre en jeu {0}. Ouais bon, je vais continuer de t'appeller {1} enfaite. Plus court. Donc bref, comme tu peux t'en douter, tu, et ton équipe, viens de l'une de ses failles des dimensions de l'imaginaire et avec votre aide j'aimerais bien tirer au clair toute cette histoire. Comme tu aura pu le remarquer, les Octariens aussi ont saisi cette occasion pour renforcer leurs rangs, et poussent leurs assauts à un autre niveau que précédamment, mais tant que les équipes d'interventions comme vous seront là, j'ai pas vraiment de soucis à me faire.\"",
     "<:lena:909047343876288552> : \"La plupart des armes que tu trouveras dans cet arsenal viennent de d'autres dimensions tu t'en doute. Mais elles ont toutes été vérifiées par notre expert qui les as toutes certifiées avec un \"Dans les conditions normales d'utilisation, sans danger pour l'utilisateur\". Va savoir ce qui se passe dans des conditions anormales, par contre.\"",
-    "<:lena:909047343876288552> : \"À quoi sert mon équie des \"Temp's\" ? Basiquement on remplie la tienne si elle contient pas assez de membre pour partir en mission, mais de temps en temps on organise des combats d'entrainement contre des équipes d'intervention, histoire de tester des armes et compétences. Et puis ça vous change de vos adversaires habituels.\"",
-    "<:john:908887592756449311> : \"A-Alice, toi qui la connais bien tu... saurais ce que je pourrais faire pour... qu'elle me voit comme autre chose qu'un... ami ?\"\n<:alice:908902054959939664> : \"Commence par être un peu plus sûr de toi. Là, elle continue de voir le louvetau naïf qui essayait de se coucher à ses pieds au lieu de fuir\"\n<:john:908887592756449311> : \"Mais je-\"\n<:alice:908902054959939664> : \"Passe ton temps avec elle sous ta forme de loup à être couché à ses pieds. Si tu veux qu'elle te vois comme autre chose qu'un chien de compagnie, va falloir que tu arrête de te comporter tel quel.\""
+    "<:lena:909047343876288552> : \"À quoi sert mon équipe des \"Temp's\" ? Basiquement on remplie la tienne si elle contient pas assez de membre pour partir en mission, mais de temps en temps on organise des combats d'entrainement contre des équipes d'intervention, histoire de tester des armes et compétences. Et puis ça vous change de vos adversaires habituels.\"",
+    "<:john:908887592756449311> : \"A-Alice, toi qui la connais bien tu... saurais ce que je pourrais faire pour... qu'elle me voit comme autre chose qu'un... ami ?\"\n<:alice:908902054959939664> : \"Commence par être un peu plus sûr de toi. Là, elle continue de voir le louvetau naïf qui essayait de se coucher à ses pieds au lieu de fuir\"\n<:john:908887592756449311> : \"Mais je-\"\n<:alice:908902054959939664> : \"Passe ton temps avec elle sous ta forme de loup à être couché à ses pieds. Si tu veux qu'elle te vois comme autre chose qu'un chien de compagnie, va falloir que tu arrête de te comporter tel quel.\"",
+    "<:lio:908754690769043546> : \"H-hm !? Oh c'est toi...\"\n<:felicite:909048027644317706> : \"Tiens tu es là toi aussi ?\"\n<:lio:908754690769043546> : \"J'ai pas trouvé d'autres points d'eau dans le coin donc oui... je suppose...\"",
+    "<:gweny:906303014665617478> : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
+    "<:lia:908754741226520656> : \"Hé Alice ! Tu penses quoi de ces fleurs là ?\"\n<:alice:908902054959939664> : \"Hum... un peu trop jaune à mon goût...\"",
+    "<:shushi:909047653524963328> : \"Hé hé Midame des neizes ! Z'est touvé za part terre, y a maqué quoi dezu ?\"\n<:icealia:909065559516250112> : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)"
 ]
 
 # Same, but for the roll command
@@ -563,73 +567,87 @@ lizSays = says(
 )
 
 randomMaxDmg = [
-    "Apparament, {icon} {name} aurait réussi à infligé {value} dégâts en un seul combat",
-    "Hé tu sais quoi {icon} {name} ? Ton record de dégâts en un seul combat est de {value}",
-    "Hum... le record de dégâts de {icon} {name} est que de {value} ?"
+    "Apparament, {icon} __{name}__ aurait réussi à infligé **{value}** dégâts en un seul combat ╮(︶▽︶)╭",
+    "Hé tu sais quoi {icon} __{name}__ ? Ton record de dégâts en un seul combat est de **{value}**",
+    "Hum... le record de dégâts de {icon} __{name}__ est que de **{value}** ?"
 ]
 
 randomTotalDmg = [
-    "Hé {icon} {name} ! Tu veux savoir combien de dégâts tu as fait au total ? {value}",
-    "Aufaite Lena, tu voulais savoir combien de dégâts a fait {icon} {name} au total ? {value}",
-    "Tu veux savoir combien de dégâts tu as fait {icon} {name} ? Hum... {value}"
+    "Hé {icon} __{name}__ ! Tu veux savoir combien de dégâts tu as fait au total ? **{value}**",
+    "Aufaite Lena, tu voulais savoir combien de dégâts a fait {icon} __{name}__ au total ? **{value}**",
+    "Tu veux savoir combien de dégâts tu as fait {icon} __{name}__ ? Hum... **{value}** ╮(︶▽︶)╭"
 ]
 
 randomMaxHeal = [
-    "Alors voyons voir si {icon} {name} est un bon healer... Son record de soins est de {value}",
-    "Au maximum, tu as soigné {value} PV en un combat {icon} {name}"
+    "Alors voyons voir si {icon} __{name}__ est un bon healer... Son record de soins est de **{value}**",
+    "Au maximum, tu as soigné **{value}** PV en un combat {icon} __{name}__",
+    "Apparament, le record personnel de soins de {icon} __{name}__ est de **{value}**, ni plus ni moins ╮(︶▽︶)╭"
 ]
 
 randomTotalHeal = [
-    "Au total, tu as soigné {value} PV {icon} {name}",
-    "Tu as réussi à annuler {value} dégâts subis par tes alliés {icon} {name}, c'est pas trop mal !"
+    "Au total, tu as soigné **{value}** PV {icon} __{name}__",
+    "Tu as réussi à annuler **{value}** dégâts subis par tes alliés {icon} __{name}__, c'est pas trop mal (〃▽〃)! ",
+    "Si j'en crois mes observations, {icon} __{name}__ aurait soigné un total de **{value}** PV... J'ai du mal regarder (ᓀ ᓀ)"
 ]
 
 randomMaxRes = [
-    "placeholder.max.res1 {icon} {name} {value}",
-    "placeholder.max.res2 {icon} {name} {value}"
+    "En un seul combat, {icon} __{name}__ a réussi à ressuciter jusqu'à **{value}** alliés, quel ange gardien (ᓀ ᓀ)",
+    "La mort c'est surcôté tu trouves pas {icon} __{name}__ ^^ ? Tu as ressucité jusqu'à **{value}** alliés en un seul combat"
 ]
 
 randomTotalRes = [
-    "placeholder.total.res1 {icon} {name} {value}",
-    "placeholder.total.res2 {icon} {name} {value}"
+    "La mort c'est juste une mauvaise grippe ☆⌒(ゝ。∂). Que {icon} __{name}__ a soigné **{value}** fois",
+    "(－.－)…zzz {icon} __{name}__... résu... **{value}** fois..."
 ]
 
 randomMaxTank = [
-    "placeholder.max.recivedDamage1 {icon} {name} {value}",
-    "placeholder.max.recivedDamage2 {icon} {name} {value}"
+    "Hé bah ! {icon} __{name}__ a subis un maximum de **{value}** dégâts en un combat ? J'espère que ses supports ont suivi (〃▽〃)",
+    "Hé bah ! {icon} __{name}__ a subis un maximum de **{value}** dégâts en un combat ? Ça doit être son kiff je présume (¯.¯;) ..."
 ]
 
 randomTotalTank = [
-    "placeholder.total.recivedDamage1 {icon} {name} {value}",
-    "placeholder.total.recivedDamage2 {icon} {name} {value}"
-]
-
-randomMaxHeal = [
-    "placeholder.max.heal1 {icon} {name} {value}",
-    "placeholder.max.heal2 {icon} {name} {value}"
-]
-
-randomTotalHeal = [
-    "placeholder.total.heal1 {icon} {name} {value}",
-    "placeholder.total.heal2 {icon} {name} {value}"
+    "Tiens donc ? {icon} __{name}__ aurait subi un total de **{value}** ? Ça fait pas mal quand même, je plaind ses soutiens (￣ ￣|||)",
+    "{icon} __{name}__, tu serais pas un peu mazo par hasard (￣ ￣|||) ? Tu es quand même à **{value}** dégâts totaux subis là..."
 ]
 
 randomMaxArmor = [
-    "placeholder.max.armor1 {icon} {name} {value}",
-    "placeholder.max.armor2 {icon} {name} {value}"
+    "L'important c'est de savoir quand utiliser ses capacités ☆⌒(ゝ。∂).\nRegardez {icon} __{name}__ : Son record d'armure donnée est à **{value}**",
+    "Je suis plus partisante du \"Ils peuvent pas nous taper si ils sont morts\", mais bon au cas où je pourrais compter sur {icon} __{name}__.\nSon record d'armure donnée est à **{value}** ╮(︶▽︶)╭"
 ]
 
 randomTotalArmor = [
-    "placeholder.total.armor1 {icon} {name} {value}",
-    "placeholder.total.armor2 {icon} {name} {value}"
+    "Il semblerais que {icon} __{name}__ préfère prévenir que guérir... Son total d'armure donné s'élève à **{value}**",
+    "Le total d'armure donnée par {icon} __{name}__ s'élève à **{value}**, sans plus ni moins ╮(︶▽︶)╭"
 ]
 
 randomMaxKill = [
-    "placeholder.max.kill1 {icon} {name} {value}",
-    "placeholder.max.kill2 {icon} {name} {value}"
+    "{icon} __{name}__ est une veritable terreur avec son record personnel de **{value}** éliminations en un combat (･_├┬┴┬┴",
+    "Va falloir que je me souvienne d'être particulirement prudente avec {icon} __{name}__ ( . .)φ...\nSon record d'élimination est de **{value}**..."
 ]
 
 randomTotalKill = [
-    "placeholder.total.kill1 {icon} {name} {value}",
-    "placeholder.total.kill2 {icon} {name} {value}"
+    "Le nombre de victimes de {icon} __{name}__ est de **{value}**.\n\nNon j'ai pas de commentaire à faire (＃￣0￣)",
+    "Le nombre de victimes de {icon} __{name}__ est de **{value}**."
 ]
+
+randomRecordMsg = [
+    "C'est cependant loin du record qui est de **{value}**, détenu par {icon} __{name}__",
+    "Va falloir mieux faire si tu veux dépasser {icon} __{name}__, le sien est à **{value}** ☆⌒(ゝ。∂)",
+    "Allez courage ! {icon} __{name}__ n'est qu'à **{value}** (^.~)☆"
+]
+
+randomPurcenMsg = [
+    "Ça fait quoi... **{purcent}** % du total de son équipe ?",
+    "Hum... Je crois que ça doit faire... **{purcent}** % du total de son équipe ?"
+]
+
+def createTpmChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):
+    """ChangeWhat : 0 == skills"""
+    if len(change) != len(to):
+        raise AttributeError("Change list and To list don't have the same length")
+    if proba > 100:
+        raise AttributeError("Proba > 100")
+    elif proba < 1:
+        raise AttributeError("Proba < 1")
+
+    return {"level":level,"changeWhat":changeWhat,"change":change,"to":to,"proba":proba}

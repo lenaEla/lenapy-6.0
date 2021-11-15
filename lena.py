@@ -970,7 +970,6 @@ async def normal(ctx):
         cooldownOk = False
 
     if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
-        teamWinDB.changeFighting(ballerine,True)
         team1 = []
         if user.team != 0:
             file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
@@ -1532,7 +1531,7 @@ async def teamFact(ctx):
     if user.team != "0":
         team = readSaveFiles(pathTeam)
         teamUser = []
-        for a in team:
+        for a in team[0]:
             teamUser.append(loadCharFile(absPath + "/userProfile/" + str(a) + ".prof"))
 
         button = create_actionrow(create_button(ButtonStyle.grey,"Autre fact","🔄","🔄"))
