@@ -83,9 +83,9 @@ async def compare(bot : discord.client, ctx : ComponentContext, user : char, see
 
     # Send
     try:
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed,delete_after=30)
     except:
-        await ctx.channel.send(embed=embed)
+        await ctx.channel.send(embed=embed,delete_after=30)
 
 async def elements(bot : discord.client, ctx : discord.message, msg : discord.message, user : classes.char):
     """Function to call for inventory elements.\n
@@ -280,10 +280,10 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             repEmb.set_footer(text = "Vous ne possédez pas cette arme")
-                            await oldMsg.edit(embed = repEmb,components=[])
+                            await oldMsg.edit(embed = repEmb,components=[],delete_after=60)
                         elif weap == user.weapon:
                             repEmb.set_footer(text = "Vous utilisez déjà cette arme")
-                            await oldMsg.edit(embed = repEmb,components=[])
+                            await oldMsg.edit(embed = repEmb,components=[],delete_after=60)
 
                         else:
                             repEmb.set_footer(text = "Cliquez sur l'icone de l'arme pour l'équiper")
@@ -309,8 +309,15 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                         await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                                     else:
                                         await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
+                                    break
                                 elif rep.custom_id == "compare":
                                     await compare(bot,rep,user,weap)
+                                elif rep.custom_id == "return":
+                                    if delete :
+                                        await oldMsg.delete()
+                                    else:
+                                        await oldMsg.edit(embed = repEmb,components=[])
+                                    break
                                 else:
                                     break
 
@@ -334,7 +341,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cette compétence")
-                            await oldMsg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
 
                         elif ballerine:
                             emb.set_footer(text = "Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?")
@@ -358,7 +365,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         elif not(weap.havConds(user=user)):
                             emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
-                            await oldMsg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
 
                         else:
                             hasUltimate=False
@@ -428,16 +435,15 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cet équipement")
-                            await oldMsg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
 
                         elif weap == user.stuff[weap.type]:
                             emb.set_footer(text = "Vous portez déjà cet équipement")
-                            await oldMsg.edit(embed = emb,components=[])
+                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
 
                         elif weap.minLvl > user.level:
                             emb.set_footer(text = "Cet équipement donne trop de statistiques pour votre niveau")
-                            await oldMsg.edit(embed = emb,components=[])
-
+                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
 
                         else:
                             emb.set_footer(text = "Cliquez sur l'icone de l'équipement pour l'équiper")
@@ -457,6 +463,7 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                             await oldMsg.delete()
                                         except:
                                             pass
+
                                     else:
                                         try:
                                             await oldMsg.edit(embed = emb,components=[])
@@ -467,12 +474,18 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                 if rep.custom_id == "confirm":
                                     user.stuff[weap.type] = weap
                                     if saveCharFile(pathUserProfile,user):
-                                        
                                         await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                                     else:
                                         await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
+                                    break
                                 elif rep.custom_id == "compare":
                                     await compare(bot,rep,user,weap)
+                                elif rep.custom_id == "return":
+                                    if delete :
+                                        await oldMsg.delete()
+                                    else:
+                                        await oldMsg.edit(embed = repEmb,components=[])
+                                    break
                                 else:
                                     break
                             

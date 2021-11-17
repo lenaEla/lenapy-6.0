@@ -3,8 +3,8 @@ from gestion import *
 from classes import char, statTabl
 from typing import Union
 
-if not(os.path.exists("./data/aliceStats.db")):
-    temp = open("./data/aliceStats.db","bw")
+if not(os.path.exists("./data/database/aliceStats.db")):
+    temp = open("./data/database/aliceStats.db","bw")
     print("Création du fichier \"aliceStats.db\"")
     temp.close()
 
@@ -36,7 +36,7 @@ tablCreate = """
 
 class aliceStatsdbEndler:
     def __init__(self):
-            self.con = sqlite3.connect(f"./data/aliceStats.db")
+            self.con = sqlite3.connect(f"./data/database/aliceStats.db")
             self.con.row_factory = sqlite3.Row
             self.database = "aliceStats.db"
 
