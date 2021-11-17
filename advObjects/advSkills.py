@@ -183,3 +183,11 @@ tripleMissiles.effectOnSelf,tripleMissiles.message,tripleMissiles.say,tripleMiss
 lightHeal2 = skill("Illumination","tn",TYPE_HEAL,350,55,cooldown=3,use=CHARISMA,conditionType=["exclusive","element",ELEMENT_LIGHT],emoji='<:illu:909134286203006997>')
 extraEtingSkill = copy.deepcopy(eting)
 extraEtingSkill.name, extraEtingSkill.id, extraEtingSkill.effect, extraEtingSkill.condition, extraEtingSkill.emoji = "Marque Eting +","tm",["eting+"],[0,2,ELEMENT_TIME],'<:emeB:909132040392302703>'
+
+willShield = effect("Force de volonté","willShield",STRENGTH,overhealth=40,description="Votre force de volonté vous permet de vous protéger de quelques dégâts")
+strengthOfWill = skill("Détermination inflexible","tl",TYPE_DAMAGE,0,power=60,cooldown=5,effectOnSelf=willShield)
+
+sixtineUlt = skill("Douce nuit","tk",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENNEMIES,use=INTELLIGENCE,effect='sixtineUltEff',ultimate=True,cooldown=5)
+hinaUlt = skill("Déluge de plume","tj",TYPE_DAMAGE,0,35,area=AREA_CONE_2,repetition=5,cooldown=7,emoji='<:featherStorm:909932475457884191>')
+
+julieUlt = skill("Prolongation","ti",TYPE_UNIQUE,0,area=AREA_DONUT_2,range=AREA_MONO,cooldown=7,description="Augmente la durée de tous les effets des alliés alentours (bonus comme malus) de 1")
