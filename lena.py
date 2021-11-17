@@ -40,6 +40,7 @@ existDir(absPath+"/guildSettings/")
 existDir(absPath + "/userProfile/")
 existDir(absPath + "/userTeams/")
 existDir(absPath + "/data/images/")
+existDir(absPath + "/data/database/")
 existDir(absPath + "/data/images/headgears/")
 existDir(absPath + "/data/images/weapons/")
 existDir(absPath + "/data/images/char_icons/")
@@ -1752,6 +1753,33 @@ async def seeLogs(ctx):
         elif resp == "forward":
             page += 1
 
+# SEE STUFF
+@slash.slash(name="SeeStuffRepartition",description="Permet de consulter la réportation des logs",guild_ids=[615257372218097691])
+async def seeStuffRepartition(ctx):
+    rep = "=============================================="
+    temp = copy.deepcopy(stuffs)
+    temp.sort(key=lambda ballerine: ballerine.minLvl)
+    allreadySeenLvl = []
+    for a in temp:
+        if a.minLvl not in allreadySeenLvl:
+            allreadySeenLvl.append(a.minLvl)
+            rep += "\n__Stuff de niveau {0} :__\n\n".format(a.minLvl)
+        rep += "{0} {1}\n".format(a.emoji,a.name)
+
+    temp = ""
+    temp2 = ""
+    for a in rep:
+        if a == "\n":
+            if len(temp2+temp) > 2000:
+                await ctx.channel.send(temp2)
+                temp2 = ""
+                temp = ""
+            else:
+                temp2 += temp+a
+                temp = ""
+        else:
+            temp += a
+    await ctx.channel.send(temp2)
 
 ###########################################################
 # Démarrage du bot

@@ -9,12 +9,12 @@ import random,copy
 
 print("")
 # Weapon
-weapons = [
+weapons = [julieWeap,blueButterfly,
     musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]
 
 # Skill
-skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,
+skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,
     fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion2,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]
 
@@ -24,7 +24,8 @@ invocTabl = [
 ]
 
 # Stuff
-stuffs = [pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,
+stuffs = [lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,
+    pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,
     celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
 ]
 
@@ -33,7 +34,7 @@ octoEmpty2 = stuff("placeolder","hu",0,0)
 octoEmpty3 = stuff("placeolder","hv",0,0)
 
 #Effect
-effects = [idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,
+effects = [idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,
     fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff2,blackHoleEff3,convertEff,vampirismeEff,heriteEstialbaEff,estal2,hemoragie2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,hemoragie,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,onstageeff,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAuraEffect,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE
 ]
 
@@ -92,7 +93,7 @@ temWeap = weapon("Tem life saves","aaa",RANGE_DIST,AREA_CIRCLE_5,42,75,0,use=MAG
 temSkill1 = skill("Alergies","aaa",TYPE_DAMAGE,0,75,use=MAGIE,initCooldown=3)
 octoMageWeap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0) 
 chargeShot = skill('Tir chargé',"aaa",TYPE_DAMAGE,0,120,emoji=shot.emoji,cooldown=3,initCooldown=2)
-octobomberWeap = weapon("Lance Bombe Splash",0,RANGE_LONG,AREA_CIRCLE_5,int(splatbomb.power*0.66),int(splatbomb.sussess*0.9),area=splatbomb.area,emoji=splatbomb.emoji)
+octobomberWeap = weapon("Lance Bombe Splash",0,RANGE_LONG,AREA_CIRCLE_5,38,int(splatbomb.sussess*0.9),area=splatbomb.area,emoji=splatbomb.emoji)
 tentaWeap = weapon("Double canon",0,RANGE_MELEE,AREA_CIRCLE_3,42,35,repetition=4,emoji=octoEm)
 octoTour = weapon("noneWeap","aaa",RANGE_LONG,AREA_CIRCLE_1,0,0,0,resistance=500)
 octoTourEff1 = effect("Grand protecteur","octTourEff1",turnInit=-1,emoji=uniqueEmoji('<:tower:905169617163538442>'),unclearable=True,description="L'octo tour protège ses alliés\nTant qu'il est en vie, celui-ci subis les dégâts directs de ses alliés à leur place")
@@ -254,79 +255,80 @@ class tmpAllie:
         return self.name == name
 
 for a in [0,1]: # Octo shield
-    tablAllOcta += [octarien("OctoShield",50,150,20,45,45,20,10,35,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier")]
+    tablAllOcta += [octarien("OctoShield",50,200,20,45,45,20,10,35,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier")]
 
 for a in [0,1,2]: # Octo shoot
-    tablAllOcta += [octarien("OctoShooter",100,35,30,95,55,35,0,20,0,0,octoBallWeap,3,'<:octoshooter:880151608791539742>',[chargeShot],description="Un tireur sans plus ni moins")]
+    tablAllOcta += [octarien("OctoShooter",100,35,30,95,75,35,0,20,0,10,octoBallWeap,3,'<:octoshooter:880151608791539742>',[chargeShot],description="Un tireur sans plus ni moins")]
 
 for a in [0,1]: # Octo heal
-    tablAllOcta += [octarien("OctoHealer",10,40,200,35,15,20,10,15,0,30,octoHeal,4,"<:octohealer:880151652710092901>",[lightAura,cure,firstheal],aspiration=ALTRUISTE,description="Un octarien qui se spcésialise dans ~~passer son tour~~ soigner ses alliés")]
+    tablAllOcta += [octarien("OctoHealer",10,60,200,35,15,25,25,20,0,0,octoHeal,4,"<:octohealer:880151652710092901>",[lightAura,cure,firstheal],aspiration=ALTRUISTE,description="Un octarien qui se spcésialise dans ~~passer son tour~~ soigner ses alliés")]
 
 for a in [0,1,2]: # Rudinn
-    tablAllOcta += [octarien("Rudinn",120,50,20,35,50,35,35,0,0,15,ruddinweap,6,"<a:rudinn:893246033226760232>",aspiration=TETE_BRULE,deadIcon='<:defeatrudeen:893246353415757824>',baseLvl=10)]
+    tablAllOcta += [octarien("Rudinn",150,50,20,55,50,35,35,0,0,15,ruddinweap,6,"<a:rudinn:893246033226760232>",aspiration=TETE_BRULE,deadIcon='<:defeatrudeen:893246353415757824>',baseLvl=10)]
 
 for a in [0,1]: # Rudinn Ranger
-    tablAllOcta += [octarien("Rudinn Ranger",135,100,20,30,30,25,25,0,0,15,ruddinweap2,8,"<a:rudinnRanger:893248570742956072>",aspiration=POIDS_PLUME,deadIcon='<:defeatrudeen:893246353415757824>',skill=[octaStrans],baseLvl=10)]
+    tablAllOcta += [octarien("Rudinn Ranger",150,125,20,30,30,25,25,0,0,15,ruddinweap2,8,"<a:rudinnRanger:893248570742956072>",aspiration=POIDS_PLUME,deadIcon='<:defeatrudeen:893246353415757824>',skill=[octaStrans],baseLvl=10)]
 
 for a in [0,1,2]: # Flyfish
-    tablAllOcta += [octarien("Aéro-benne",150,30,35,60,45,35,20,10,0,0,flyfishweap,5,'<:flyfish:884757237522907236>',description="Un Salmioche qui s'est passionné pour l'aviation",deadIcon='<:salmonnt:894551663950573639>',aspiration=OBSERVATEUR,baseLvl=10)]
+    tablAllOcta += [octarien("Aéro-benne",175,30,35,60,45,35,20,10,0,0,flyfishweap,5,'<:flyfish:884757237522907236>',description="Un Salmioche qui s'est passionné pour l'aviation",deadIcon='<:salmonnt:894551663950573639>',aspiration=OBSERVATEUR,baseLvl=10)]
 
 for a in [0,1]: # Mallus
-    tablAllOcta += [octarien("Mallus",25,30,20,20,25,120,120,10,0,15,malusWeapon,6,'<:mallus:895824636716130308>',skill=[malusSkill1,malusSkill2],aspiration=PREVOYANT,baseLvl=15)]
+    tablAllOcta += [octarien("Mallus",25,30,20,20,25,135,135,10,0,15,malusWeapon,6,'<:mallus:895824636716130308>',skill=[malusSkill1,malusSkill2],aspiration=PREVOYANT,baseLvl=15)]
 
 for a in [0,1]: # Kralamour
-    tablAllOcta += [octarien("Kralamour",10,50,130,50,0,80,30,20,0,0,kralamWeap,5,'<:kralamour:895443866189176842>',[kralamSkill],PREVOYANT,baseLvl=15)]
+    tablAllOcta += [octarien("Kralamour",10,50,145,50,0,100,30,20,0,0,kralamWeap,5,'<:kralamour:895443866189176842>',[kralamSkill],PREVOYANT,baseLvl=15)]
 
 for a in [0,1,2]: # Temmie
-    tablAllOcta += [octarien("Temmie",50,55,35,35,35,30,60,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15)]
+    tablAllOcta += [octarien("Temmie",55,55,55,35,35,30,75,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15)]
 
 for a in [0,1,2]: # Octo Mage
-    tablAllOcta += [octarien("Octo Mage",75,20,30,30,30,20,135,20,10,15,octoMageWeap,5,'<:octomage:897910662758543422>',[flame,courant,rock,storm2],MAGE,baseLvl=20)]
+    tablAllOcta += [octarien("Octo Mage",75,20,30,30,30,20,150,20,10,15,octoMageWeap,5,'<:octomage:897910662758543422>',[flame,courant,rock,storm2],MAGE,baseLvl=20)]
 
 for a in [0,1,2]: # Armored Zombie
-    tablAllOcta += [octarien("Zombie",100,120,0,50,40,0,0,35,0,10,ironSword,6,'<:armoredZombie:899993449443491860>',[defi,gpotion],BERSERK,baseLvl=20)]
+    tablAllOcta += [octarien("Zombie",120,120,0,50,70,0,0,35,0,10,ironSword,6,'<:armoredZombie:899993449443491860>',[defi,gpotion],BERSERK,baseLvl=20)]
 
 for a in [0,1,2]: # OctoBomber
-    tablAllOcta.append(octarien("Octo Bomber",150,80,20,10,50,35,0,15,10,0,octobomberWeap,6,'<:octobomber:902013837123919924>',aspiration=OBSERVATEUR,baseLvl=20))
+    tablAllOcta.append(octarien("Octo Bomber",150,80,20,10,75,35,0,15,10,0,octobomberWeap,6,'<:octobomber:902013837123919924>',aspiration=OBSERVATEUR,baseLvl=20))
 
 for a in [0,1,2]: # Tentassin
-    tablAllOcta.append(octarien("Tentassin",135,70,20,35,30,20,20,35,0,10,tentaWeap,6,'<:octoshoter2:902013858602967052>',aspiration=BERSERK,skill=[octaStrans],baseLvl=15))
+    tablAllOcta.append(octarien("Tentassin",135,90,20,35,30,20,20,35,0,10,tentaWeap,6,'<:octoshoter2:902013858602967052>',aspiration=BERSERK,skill=[octaStrans],baseLvl=15))
 
 # Octo Protecteur
-tablAllOcta += [octarien("OctoProtecteur",0,65,50,50,30,120,20,20,0,0,octoDef,5,"<:octoProtect:883303222255706142>",[inkarmor],aspiration=PREVOYANT,description="Un octarien qui pense que les boucliers sont la meilleure défense",baseLvl=5)]
+tablAllOcta += [octarien("OctoProtecteur",0,65,50,50,30,150,20,20,0,0,octoDef,5,"<:octoProtect:883303222255706142>",[inkarmor],aspiration=PREVOYANT,description="Un octarien qui pense que les boucliers sont la meilleure défense",baseLvl=5)]
 
 # OctoBOUM
-tablAllOcta += [octarien("OctoBOUM",100,-30,10,35,20,0,250,-10,0,0,octoBoumWeap,5,'<:octoboom:884810545457418271>',[explosion2],MAGE,description="Un octarien qui a placé tous ses points dans ses envies pirotechniques",baseLvl=25)]
+tablAllOcta += [octarien("OctoBOUM",120,-30,10,35,20,0,250,-10,0,0,octoBoumWeap,5,'<:octoboom:884810545457418271>',[explosion2],MAGE,description="Un octarien qui a placé tous ses points dans ses envies pirotechniques",baseLvl=25)]
 
 for a in [0,1,2]: # Octaling
-    tablAllOcta += [octarien("Octaling",60,40,40,40,40,40,60,20,0,20,weapons[random.randint(0,len(weapons)-1)],5,'<:Octaling:866461984018137138>',[skills[random.randint(0,len(skills)-1)],skills[random.randint(0,len(skills)-1)],skills[random.randint(0,len(skills)-1)]],baseLvl=10)]
+    tablAllOcta += [octarien("Octaling",60,50,50,50,50,50,60,20,0,20,weapons[random.randint(0,len(weapons)-1)],5,'<:Octaling:866461984018137138>',[skills[random.randint(0,len(skills)-1)],skills[random.randint(0,len(skills)-1)],skills[random.randint(0,len(skills)-1)]],baseLvl=10)]
 
 for a in [0,1]: # OctoFly
-    tablAllOcta += [octarien("Octarien Volant",135,45,35,70,50,20,0,10,0,35,octoFly,4,'<:octovolant:880151493171363861>')]
+    tablAllOcta += [octarien("Octarien Volant",150,45,35,70,50,20,0,10,0,35,octoFly,4,'<:octovolant:880151493171363861>')]
 
 for a in [0,1,2]: # OctoHeal 2
-    tablAllOcta.append(octarien("OctoHealer Vétéran",0,25,200,35,40,35,0,20,0,0,veterHealWeap,7,'<:octoHealVet:906302110403010581>',[veterHealSkill1,veterHealSkill2,veterHealSkill3,veterHealSkill4],ALTRUISTE,baseLvl=30))
+    tablAllOcta.append(octarien("OctoHealer Vétéran",0,25,250,35,40,35,0,20,0,0,veterHealWeap,7,'<:octoHealVet:906302110403010581>',[veterHealSkill1,veterHealSkill2,veterHealSkill3,veterHealSkill4],ALTRUISTE,baseLvl=30))
 
 for a in [0,1,2]: # OctoMoine
-    tablAllOcta.append(octarien("OctoMoine",100,75,30,35,40,25,50,30,0,0,mainLibre,5,'<:octoMonk:907723929882337311>',[airStrike,earthStrike],BERSERK,baseLvl=15))
+    tablAllOcta.append(octarien("OctoMoine",125,75,30,35,40,25,50,30,0,0,mainLibre,5,'<:octoMonk:907723929882337311>',[airStrike,earthStrike],BERSERK,baseLvl=15))
 
 for a in [0,1,2]: # OctoMage2
-    tablAllOcta.append(octarien("Octo Mage II",50,20,30,30,30,20,150,20,10,15,octoMageWeap,5,'<:octoMage2:907712297013751838>',[fireCircle,waterCircle,earthCircle,airCircle],MAGE,baseLvl=20))
+    tablAllOcta.append(octarien("Octo Mage II",50,20,30,30,30,20,170,20,10,20,octoMageWeap,5,'<:octoMage2:907712297013751838>',[fireCircle,waterCircle,earthCircle,airCircle],MAGE,baseLvl=20))
 
 # OctoSnipe
-tablAllOcta += [octarien("OctoSniper",150,30,20,0,120,20,15,15,10,0,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15)]
+tablAllOcta += [octarien("OctoSniper",175,30,20,0,120,20,15,15,10,0,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15)]
 
 # Kitsune Sisters
 charming = effect("Sous le charme II","kitsuneSisterEff",CHARISMA,strength=-3,magie=-3,charisma=-3,intelligence=-3,resistance=-1,stackable=True,type=TYPE_MALUS,description="Vous devriez plutôt vous concentrer sur le combat plutôt que sur celles qui sont en train de vous tuer doucement...",emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"))
+charming2 = effect("Sous le charme III","kitsuneSisterEffBuff",CHARISMA,strength=10,magie=10,charisma=10,intelligence=10,resistance=5,stackable=True,type=TYPE_BOOST,description="Vous avez fortement envie d'impressioner l'une de vos alliés...",emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"))
 
-liuWeapEff = effect("Kitsune de la terre","liuWeapEff",CHARISMA,endurance=10,agility=10,turnInit=-1,unclearable=True,silent=True)
+liuWeapEff = effect("Kitsune de la terre","liuWeapEff",CHARISMA,endurance=10,agility=10,turnInit=-1,unclearable=True,description="La résistance de Liu en a épaté plus d'un.\nÀ chaque attaque subis, donne l'effet Sous le Charme II à l'attaquant",callOnTrigger=charming)
 liuWeap = weapon("Sable","liuWeap",RANGE_MELEE,AREA_CIRCLE_2,27,50,repetition=3,strength=10,magie=10,charisma=10,effect=liuWeapEff,effectOnUse=charming,use=MAGIE,emoji='<:liuWeap:908859892272611348>')
-liaWeapEff = effect("Kitsune des vents","liaWeapEff",CHARISMA,agility=10,precision=10,turnInit=-1,unclearable=True,silent=True)
+liaWeapEff = effect("Kitsune des vents","liaWeapEff",CHARISMA,agility=10,precision=10,turnInit=-1,unclearable=True,description="L'agilité de Lia en a épaté plus d'un\nÀ chaque attaque esquivé, donne 2 fois l'effet Sous le Charme II à l'attaquant",callOnTrigger=charming)
 liaWeap = weapon("Vent","liaWeap",RANGE_MELEE,AREA_CIRCLE_2,16,50,repetition=5,charisma=10,magie=10,agility=10,effect=liuWeapEff,effectOnUse=charming,use=MAGIE,emoji='<:liaWeap:908859908034793552>')
-lioWeapEff = effect("Kitsune de l'eau","lioWeapEff",CHARISMA,intelligence=10,magie=10,turnInit=-1,unclearable=True,silent=True)
+lioWeapEff = effect("Kitsune de l'eau","lioWeapEff",CHARISMA,intelligence=10,magie=10,turnInit=-1,unclearable=True,description="La douceur de Lio en a épaté plus d'un.\nÀ chaque soins réalisés par cette dernière, donne l'effet Sous le Charme III à l'allié soigné",callOnTrigger=charming2)
 lioWeap = weapon("Ecume","lioWeap",RANGE_LONG,AREA_CIRCLE_5,64,50,charisma=20,effect=lioWeapEff,effectOnUse=charming,use=MAGIE,emoji='<:lioWeap:908859876812415036>')
 lioRez = skill("Eau purifiante","lioRez",TYPE_RESURECTION,0,100,AREA_MONO,ultimate=True,area=AREA_DONUT_7,use=CHARISMA,cooldown=3,say="Allez vous autre... C'est pas le moment de stagner...")
-lieWeapEff = effect("Kitsune du feu","lieWeapEff",CHARISMA,intelligence=10,magie=10,turnInit=-1,unclearable=True,silent=True)
+lieWeapEff = effect("Kitsune du feu","lieWeapEff",CHARISMA,intelligence=10,magie=10,turnInit=-1,unclearable=True,description="L'ardeur de Liz en a comblé plus d'un\nÀ chaque attaque réalisée, donne l'effet Sous le Charme II à la cible",callOnTrigger=charming)
 lieWeap = weapon("Braise","lieWeap",RANGE_LONG,AREA_CIRCLE_4,48,50,charisma=10,magie=10,area=AREA_CIRCLE_1,effect=lieWeapEff,effectOnUse=charming,use=MAGIE,emoji='<:lizWeap:908859856608460820>')
 lieSkillEff = effect("Combustion","lieSKillEff",MAGIE,resistance=2,power=35,turnInit=3,lvl=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN)
 lieSkill = skill("Flamme intérieur","lizSkill",TYPE_DAMAGE,0,effect=lieSkillEff,cooldown=3,power=80,say="Voyons voir si tu va pouvoir résister longtemps...")
@@ -334,10 +336,10 @@ liaSkill = skill("Douce caresse","liaSkill",TYPE_DAMAGE,0,power=50,effect=[charm
 liuSkillEff = effect("Endurance Terrestre","liuSkillEff",MAGIE,overhealth=25,type=TYPE_ARMOR)
 liuSkill = skill("Reconstitution","liuSkill",TYPE_DAMAGE,0,40,use=MAGIE,cooldown=2,effectOnSelf=liuSkillEff,say="Oh je suis pas encore finie tu va voir !")
 
-tablAllOcta.append(octarien("Liu",30,100,35,80,10,20,80,35,0,0,liuWeap,7,'<:liu:908754674449018890>',[earthStrike,earthCircle,rocklance,liuSkill],POIDS_PLUME,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays))
-tablAllOcta.append(octarien("Lia",20,60,100,100,30,30,20,20,0,0,liaWeap,7,'<:lia:908754741226520656>',[airStrike,airCircle,storm2,liaSkill],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays))
-tablAllOcta.append(octarien("Lio",20,50,100,35,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,eting,lioRez,veterHealSkill2],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays))
-tablAllOcta.append(octarien("Liz",10,30,80,35,20,35,120,35,0,0,lieWeap,7,'<:lie:908754710121574470>',[fireCircle,pyro,infinitFire,lieSkill],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays))
+tablAllOcta.append(octarien("Liu",30,120,35,80,10,20,90,45,0,0,liuWeap,7,'<:liu:908754674449018890>',[earthStrike,earthCircle,rocklance,liuSkill],POIDS_PLUME,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays))
+tablAllOcta.append(octarien("Lia",20,60,120,150,30,30,20,20,0,0,liaWeap,7,'<:lia:908754741226520656>',[airStrike,airCircle,storm2,liaSkill],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays))
+tablAllOcta.append(octarien("Lio",20,50,150,35,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,eting,lioRez,veterHealSkill2],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays))
+tablAllOcta.append(octarien("Liz",10,30,80,35,20,35,150,35,0,0,lieWeap,7,'<:lie:908754710121574470>',[fireCircle,pyro,infinitFire,lieSkill],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays))
 
 # Boss special skills ----------------------------------------------------------------
 spamSkill1 = skill("A Call For You","aaa",TYPE_DAMAGE,0,70,area=AREA_CONE_3,sussess=50,emoji='<:call:892757436203671572>',cooldown=3,message="HOT {0} IN YOUR AREA HAVE A [[Message](https://fr.wikipedia.org/wiki/Message)] FOR [{2}] :")
@@ -397,15 +399,16 @@ tablAllAllies = [
     tmpAllie("Shushi",1,blue,ENCHANTEUR,airspell,[tankmage3,tankmage2,tankmage1],GENDER_FEMALE,[ferocite,invocCarbT,storm2,storm,suppr],"Jeune inkling pas très douée pour le combat, à la place elle essaye de gagner du temps pour permettre à ses alliés d'éliminer l'équipe adverse","https://cdn.discordapp.com/emojis/899117520211042334.png",ELEMENT_AIR,icon='<:shushi:909047653524963328>',bonusPoints=[MAGIE,ENDURANCE],say=shushiSays),
     tmpAllie("Lohica",1,purple,MAGE,butterflyP,[old,robeLoliBlue,blueFlat],GENDER_FEMALE,[lohicaFocal,poisonus,heriteEstialba,dark2],"Une fée à l'histoire bien mouvementée. Spécialisée dans les poisons","https://cdn.discordapp.com/emojis/899694452334022706.png",ELEMENT_DARKNESS,bonusPoints=[MAGIE,STRENGTH],icon='<a:lohicaGif:900378281877057658>',deadIcon='<:flowernt:894550324705120266>'),
     tmpAllie("Hélène",2,white,ALTRUISTE,serringue,[barrette,heleneDress,heleneShoe],GENDER_FEMALE,[cure,lapSkill,renisurection,eting,altOH],"Une fée qui estime qu'essayer de sauver la vie de ses alliés est plus efficace que si elle esseyait de terminer le combat elle-même","https://cdn.discordapp.com/emojis/906303162854543390.png",ELEMENT_LIGHT,bonusPoints=[CHARISMA,INTELLIGENCE],icon='<:helene:906303162854543390>'),
-    tmpAllie("Félicité",1,red,TETE_BRULE,dtsword,[celestBronzeHat,celestBronzeArmor,celestBronzeBoots],GENDER_FEMALE,[defi,uppercut,feliSplash,splatbomb,highkick],"Une grande pré-ado qui veut toujours tout faire, mais qui n'y arrive pas tout à fait non plus","https://cdn.discordapp.com/emojis/899695897900879902.png",bonusPoints=[ENDURANCE,STRENGTH],icon='<:felicite:899695897900879902>'),
+    tmpAllie("Félicité",1,red,TETE_BRULE,dtsword,[celestBronzeHat,celestBronzeArmor,celestBronzeBoots],GENDER_FEMALE,[defi,uppercut,feliSplash,strengthOfWill,highkick],"Une grande pré-ado qui veut toujours tout faire, mais qui n'y arrive pas tout à fait non plus","https://cdn.discordapp.com/emojis/899695897900879902.png",bonusPoints=[ENDURANCE,STRENGTH],icon='<:felicite:899695897900879902>'),
     tmpAllie("Akira",2,black,TETE_BRULE,fauc,[anakiMask,heartSphapeObject,hyperlink],GENDER_MALE,[defi,balayette,highkick,bleedingDague,demolish],"Flora si tu as une description je veux bien","https://cdn.discordapp.com/emojis/899693936199753779.png",ELEMENT_DARKNESS,bonusPoints=[ENDURANCE,STRENGTH],icon='<:akira:909048455828238347>'),
     tmpAllie("Icealia",2,light_blue,PREVOYANT,waterspell,[blueCharpe,blueVC,vigilant3],GENDER_FEMALE,[protect,inkarmor,kralamSkill,convert,onde],"Une érudite qui préfère protéger ses compagnons",element=ELEMENT_LIGHT,bonusPoints=[INTELLIGENCE,ENDURANCE],icon='<:icealia:909065559516250112>'),
     tmpAllie("Powehi",2,black,PROTECTEUR,inkbrella2,[starBar,bhPull,bhBoots],GENDER_FEMALE,[blackHole,trans,blindage,secondWind,blackHole2],"Une manifestation cosmique d'un trou noir. Si vous vous sentez attiré par elle, c'est probablement à raison\nNe lui demandez pas de vous marchez dessus par contre, si vous voulez un conseil. Elle a beau paraître avoir un petit gabarie, ce n'est pas pour rien qu'elle évite de marcher sur le sol",element=ELEMENT_SPACE,bonusPoints=[ENDURANCE,INTELLIGENCE],icon='<:powehi:909048473666596905>',deadIcon = '<:powehiDisiped:907326521641955399>',say=powehiSays),
     tmpAllie("Shehisa",1,purple,TETE_BRULE,shehisa,[shehisaMask,shehisaBody,shehisaBoots],GENDER_FEMALE,[dissimulation,bleedingDague,bleedingArrow,bleedingTrap,heriteLesath],"Soeur d'Hélène, elle a cependant préférer suivre un chemin beaucoup moins altruiste",element=ELEMENT_NEUTRAL,bonusPoints=[STRENGTH,ENDURANCE],icon='<:shehisa:901555930066473000>'),
     tmpAllie("Rasalhague",1,light_blue,MAGE,spellBook,[lentille,chemB,mocas],GENDER_MALE,[space1,space2,space3,spaceSp],element=ELEMENT_SPACE,icon='<:rasalhague:907689992745271376>',bonusPoints=[MAGIE]),
-    tmpAllie("Sixtine",1,blue,PREVOYANT,lightSpellBook,[blueNoeud,pullHeart,heartBask],icon='<:sixtine:908819887059763261>',skill=[bpotion,affaiblissement,nostalgia,provo],gender=GENDER_FEMALE,element=ELEMENT_NEUTRAL,bonusPoints=[INTELLIGENCE,ENDURANCE],description="Grande rêveuse, Sixtine préfère rester seule dans son coin à dessiner pendant que ses soeurs partent en vadrouille"),
-    tmpAllie("Hina",1,purple,OBSERVATEUR,plume,[hinaAcc,hinaBody,hinaShoes],GENDER_FEMALE,[multishot,multiMissiles],icon='<:hina:908820821185810454>',element=ELEMENT_AIR,bonusPoints=[AGILITY,STRENGTH]),
-    tmpAllie("John",2,orange,POIDS_PLUME,airsword,[bandNoir,pullCamo,kanisand],GENDER_MALE,description="Un Loup Garou qui a réussi à tomber amoureux de la vampire responsable des pluparts des vas et viens à l'infirmerie du village de sa meute\n\nAprès de multiple tentatives de l'approcher sans grand succès, il a réussi à changer la clémence qu'éprouvait cette dernière à son égars en affection, mais a peur d'essayer de monter dans son estime",icon='<:john:908887592756449311>',bonusPoints=[STRENGTH,AGILITY],say=johnSays)
+    tmpAllie("Sixtine",1,blue,PREVOYANT,lightSpellBook,[blueNoeud,pullHeart,heartBask],icon='<:sixtine:908819887059763261>',skill=[bpotion,affaiblissement,nostalgia,provo,sixtineUlt],gender=GENDER_FEMALE,element=ELEMENT_NEUTRAL,bonusPoints=[INTELLIGENCE,ENDURANCE],description="Grande rêveuse, Sixtine préfère rester seule dans son coin à dessiner pendant que ses soeurs partent en vadrouille"),
+    tmpAllie("Hina",1,purple,OBSERVATEUR,plume,[hinaAcc,hinaBody,hinaShoes],GENDER_FEMALE,[multishot,multiMissiles,hinaUlt],icon='<:hina:908820821185810454>',element=ELEMENT_AIR,bonusPoints=[AGILITY,STRENGTH]),
+    tmpAllie("John",2,orange,POIDS_PLUME,airsword,[bandNoir,pullCamo,kanisand],GENDER_MALE,description="Un Loup Garou qui a réussi à tomber amoureux de la vampire responsable des pluparts des vas et viens à l'infirmerie du village de sa meute\n\nAprès de multiple tentatives de l'approcher sans grand succès, il a réussi à changer la clémence qu'éprouvait cette dernière à son égars en affection, mais a peur d'essayer de monter dans son estime",icon='<:john:908887592756449311>',bonusPoints=[STRENGTH,AGILITY],say=johnSays),
+    tmpAllie("Julie",1,red,ALTRUISTE,julieWeap,[julieHat,julieDress,julieShoes],GENDER_FEMALE,[altOH,julieUlt,extraEtingSkill,timeSp,trans],"La principale (et unique) servante d'une des vampires les plus puissante du pays.\nElle a appris la magie curative à l'aide des nombreux grimoires dans la bibliothèque du manoire, mais il lui arrive souvent de demander de l'aide à Clémence lorsque sa maîtresse (qui ai d'ailleurs la tutrice magique de cette dernière) lui demande de récupérer des organes de monstres.\nElle se sent souvent petite, en compagnie de ces puissantes vampires\n\nDire qu'elle est légèrement inspirée serait un euphémisme. Au moins elle utilise pas de dagues",element=ELEMENT_TIME,bonusPoints=[CHARISMA,INTELLIGENCE],icon="<:julie:910185448951906325>")
 ]
 
 # Shushi alt spells
@@ -436,7 +439,7 @@ shihuDarkBoom1.id = "ShihuDarkBoomLaunch"
 shihuDarkBoom1.say = "Za va fire Boum Boum !"
 
 tablVarAllies = [
-    tmpAllie("Luna",1,black,POIDS_PLUME,kcharger,[darkMaidPendants,darkMaidDress,darkMaidFlats],GENDER_FEMALE,[defi,splatbomb,balayette,soupledown,highkick],"Là où se trouve la Lumière se trouvent les Ténèbres","https://cdn.discordapp.com/emojis/899120831152680971.png?size=96",ELEMENT_DARKNESS,variant=True,icon='<:luna:909047362868105227>',bonusPoints=[STRENGTH,ENDURANCE],say=lunaSays),
+    tmpAllie("Luna",1,black,POIDS_PLUME,kcharger,[lunaPandan,lunaDress,lunaBoots],GENDER_FEMALE,[defi,splatbomb,balayette,soupledown,highkick],"Là où se trouve la Lumière se trouvent les Ténèbres","https://cdn.discordapp.com/emojis/899120831152680971.png?size=96",ELEMENT_DARKNESS,variant=True,icon='<:luna:909047362868105227>',bonusPoints=[STRENGTH,ENDURANCE],say=lunaSays),
     tmpAllie("Altikia",2,yellow,PROTECTEUR,inkbrella,[maidHat,yellowpull,maidHeels],GENDER_FEMALE,[ironWillSkill,lightAura2,inkarmor,renisurection,concen],"Une personnalité de Gwen qui préfère se concentrer sur ses alliés","https://cdn.discordapp.com/emojis/906303048542990347.png",ELEMENT_LIGHT,variant=True,bonusPoints=[ENDURANCE,CHARISMA],icon='<:alty:906303048542990347>'),
     tmpAllie("Klironovia",2,yellow,BERSERK,klikliSword,[darkMaidPendants,FIACNf,blackFlat],GENDER_FEMALE,[defi,demolish,earthStrike,trans,highkick],"Une personnalité de Gwen bien plus violente que les deux autres","https://cdn.discordapp.com/emojis/906303031837073429.png",ELEMENT_EARTH,variant=True,bonusPoints=[STRENGTH,AGILITY],icon='<:klikli:906303031837073429>'),
     tmpAllie("Shihu",1,black,MAGE,darkSpellBook,[shihuHat,shihuDress,shihuShoe],GENDER_FEMALE,[dark2,dark3,shihuDarkBoom1,suppr],"\"Eye veut zuste un pi d'attenchions...\" - Shushi","https://cdn.discordapp.com/emojis/899117502800461824.png?size=96",ELEMENT_DARKNESS,variant=True,icon='<:shihu:909047672541945927>',bonusPoints=[MAGIE,STRENGTH],say=shihuSays),
@@ -517,7 +520,7 @@ if not(isLenapy):
             for a in stat:
                 summ += a
 
-            awaited = int((230+90*3)*0.75)
+            awaited = int((230+110*3)*0.75)
             if summ < awaited*0.9 or summ > awaited*1.1:
                 print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
 

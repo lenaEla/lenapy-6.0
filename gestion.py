@@ -215,7 +215,7 @@ def saveCharFile(path : str, char : char):
 def loadCharFile(path,ctx="useless") -> char:
     """The Ctx option is there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used"""
     file = readSaveFiles(path)
-    rep = char(owner = file[0][0])
+    rep = char(owner = int(file[0][0]))
     rep.name = file[0][1]
     rep.level = int(file[0][2])
     rep.exp = int(file[0][3])
