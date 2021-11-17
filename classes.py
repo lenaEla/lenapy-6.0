@@ -370,18 +370,15 @@ class stuff:
                     self.orientation = orientation[0] + " - "+orientation[1]
 
         summation = 0
-        for stat in [self.strength,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.percing,self.percing,self.critical]:
+        for stat in [self.strength,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.percing,self.percing,self.critical]+[self.endurance,self.resistance]:
             if stat > 0:
                 summation += stat
         for stat in [self.negativeHeal,self.negativeBoost,self.negativeShield,self.negativeDirect,self.negativeIndirect]:
             if stat < 0:
                 summation += abs(stat)
-        for stat in [self.endurance,self.resistance]:
-            if stat > 0:
-                summation += round(stat/2)
 
         cmpt = 0
-        while 20 + cmpt * 10 <= summation:
+        while 20 + cmpt * 10 < summation:
             cmpt += 1
         self.minLvl = cmpt * 5
 
