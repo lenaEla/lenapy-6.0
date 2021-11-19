@@ -15,7 +15,7 @@ zelianR = effect("Chronoshift","lj",PURCENTAGE,trigger=TRIGGER_DEATH,description
 courageE = effect("Motivé","lk",2,15,emoji=sameSpeciesEmoji('<:charge1:866832660739653632>','<:charge2:866832677512282154>'))
 nostalgiaE = effect("Nostalgie","lm",5,-10,resistance=-10,emoji=emojiMalus)
 afterShockDmg = effect("Contre coup","ln",MAGIE,turnInit=1,power=25,aggro=10,lvl=3,trigger=TRIGGER_DAMAGE,type=TYPE_INDIRECT_DAMAGE,emoji=sameSpeciesEmoji('<:aftershock1:882889524122898452>','<:aftershock2:882889538886852650>'))
-octoshield = effect("Bouclier Octarien","lo",agility=-100,overhealth=200,turnInit=-1,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR)
+octoshield = effect("Bouclier Octarien","lo",agility=-100,overhealth=200,turnInit=-1,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,absolutShield=True)
 inkBrellaEff = effect("Toile du para-encre","lp",None,-10,agility=-10,overhealth=100,turnInit=-1,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:splatbrellareverse:876079630749147196>'),description="Commencez le combat avec un peu d'armure !\nCependant, vous subirez un malus d'agilité et de force tant que celle-ci est active")
 stopAttacking = effect("Stop attacking or draw 25","lq",None,trigger=TRIGGER_DEALS_DAMAGE,type=TYPE_INDIRECT_DAMAGE,power=25,emoji=emojiMalus,description="Vous jouez votre jocker !\nSi le porteur de l'état attaque, il subit 25 dégâts fixe")
 poidPlumeEff = effect("Poids Plume","lr",None,trigger=TRIGGER_END_OF_TURN,silent=True,lvl=0,type=TYPE_UNIQUE,unclearable=True,turnInit=-1,emoji=uniqueEmoji(aspiEmoji[POIDS_PLUME]))
