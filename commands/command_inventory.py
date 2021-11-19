@@ -33,6 +33,17 @@ confirmButton = create_button(ButtonStyle.green,"Équiper",check,"confirm")
 
 returnAndConfirmActionRow = create_actionrow(returnButton,confirmButton)
 
+def getSortSkillValue(object : skill, wanted : int):
+    eff = findEffect(object.effect)
+    if eff != None:
+        if wanted == 15:
+            return eff.power
+        elif wanted == 17:
+            return eff.overhealth
+    else:
+        print("{0} n'a rien a faire dans la catégorie {1} !".format(object.name,["Dégâts indirects","Armure"][int(wanted==17)]))
+        return 0
+
 elemOptions = []
 for a in range(0,len(elemDesc)):
     elemOptions.append(create_select_option(elemNames[a],str(a),getEmojiObject(elemEmojis[a])))
@@ -691,7 +702,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                     tablToSee.remove(ski)
                 elif value == 3:
                     tablToSee = user.otherInventory
-                
+
                 if value in [0,1]:
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
                     if tri in [2,3]:
@@ -720,9 +731,9 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 elif value == 2 and tri in [14,16]:
                     tablToSee.sort(key=lambda ballerine:ballerine.power,reverse=True)
                 elif value == 2 and tri in [15]:
-                    tablToSee.sort(key=lambda ballerine:findEffect(ballerine.effect).power,reverse=True)
+                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
                 elif value == 2 and tri in [17]:
-                    tablToSee.sort(key=lambda ballerine:findEffect(ballerine.effect).overhealth,reverse=True)
+                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
                 else:
                     tablToSee.sort(key=lambda ballerine:ballerine.name)
 

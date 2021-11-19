@@ -532,6 +532,58 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == invocSkill:
                     self.IA = AI_AVENTURE
 
+            baseStats = {STRENGTH:0,ENDURANCE:0,CHARISMA:0,AGILITY:0,PRECISION:0,INTELLIGENCE:0,MAGIE:0,RESISTANCE:0,PERCING:0,CRITICAL:0,10:0,11:0,12:0,13:0,14:0}
+            if type(self.char) != invoc:
+                for obj in [self.char.weapon,self.char.stuff[0],self.char.stuff[1],self.char.stuff[2]]:
+                    valueElem = 1
+                    if obj.affinity == self.char.element :
+                        valueElem = 1.1
+                    
+                    baseStats[0] += int(obj.strength*valueElem)
+                    baseStats[1] += int(obj.endurance*valueElem)
+                    baseStats[2] += int(obj.charisma*valueElem)
+                    baseStats[3] += int(obj.agility*valueElem)
+                    baseStats[4] += int(obj.precision*valueElem)
+                    baseStats[5] += int(obj.intelligence*valueElem)
+                    baseStats[6] += int(obj.magie*valueElem)
+                    baseStats[7] += int(obj.resistance*valueElem)
+                    baseStats[8] += int(obj.percing*valueElem)
+                    baseStats[9] += int(obj.critical*valueElem)
+                    baseStats[10] += int(obj.negativeHeal)
+                    baseStats[11] += int(obj.negativeBoost)
+                    baseStats[12] += int(obj.negativeShield)
+                    baseStats[13] += int(obj.negativeDirect)
+                    baseStats[14] += int(obj.negativeIndirect)
+
+            else:
+                temp = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
+                temp2 = self.summoner.allStats()+[self.summoner.resistance,self.summoner.percing,self.summoner.critical]
+                adv = 1
+                if self.summoner.char.aspiration == INVOCATEUR:
+                    adv = 1.2
+                for a in range(0,len(temp)):
+                    if type(temp[a]) == list:
+                        if temp[a][0] == PURCENTAGE:
+                            baseStats[a] += int(temp2[a]*temp[a][1]*adv)
+                        elif temp[a][0] == HARMONIE:
+                            harmonie = 0
+                            for b in temp2:
+                                harmonie = max(harmonie,b)
+                            baseStats[a] += harmonie*adv
+                    else:
+                        baseStats[a] = temp[a]
+
+            if self.char.element == ELEMENT_FIRE:
+                baseStats[7] += 5
+            elif self.char.element == ELEMENT_WATER:
+                baseStats[PRECISION] += 10
+            elif self.char.element == ELEMENT_AIR:
+                baseStats[AGILITY] += 10
+            elif self.char.element == ELEMENT_EARTH:
+                baseStats[6] += 5
+
+            self.baseStats = baseStats
+            
         def allStats(self):
             """Return the mains 6 stats"""
             return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
@@ -613,105 +665,48 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
         def recalculate(self,ignore=None):
             """Méthode qui recalcule les statistiques de l'entité en prenant en compte les effets"""
-            sumStatsBonus = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+            baseStats = self.baseStats
+            sumStatsBonus = [baseStats[0],baseStats[1],baseStats[2],baseStats[3],baseStats[4],baseStats[5],baseStats[6],baseStats[7],baseStats[8],baseStats[9],baseStats[10],baseStats[11],baseStats[12],baseStats[13],baseStats[14]]
             stuned = False
             self.translucide = False
             self.untargetable = False
             self.invisible = False
 
-            if type(self.char) != invoc:
-                for a in [self.char.weapon,self.char.stuff[0],self.char.stuff[1],self.char.stuff[2]]:
-                    valueElem = 1
-                    if a.affinity == self.char.element :
-                        valueElem = 1.1
-                    
-                    sumStatsBonus[0] += int(a.strength*valueElem)
-                    sumStatsBonus[1] += int(a.endurance*valueElem)
-                    sumStatsBonus[2] += int(a.charisma*valueElem)
-                    sumStatsBonus[3] += int(a.agility*valueElem)
-                    sumStatsBonus[4] += int(a.precision*valueElem)
-                    sumStatsBonus[5] += int(a.intelligence*valueElem)
-                    sumStatsBonus[6] += int(a.magie*valueElem)
-                    sumStatsBonus[7] += int(a.resistance*valueElem)
-                    sumStatsBonus[8] += int(a.percing*valueElem)
-                    sumStatsBonus[9] += int(a.critical*valueElem)
-                    sumStatsBonus[10] += int(a.negativeHeal)
-                    sumStatsBonus[11] += int(a.negativeBoost)
-                    sumStatsBonus[12] += int(a.negativeShield)
-                    sumStatsBonus[13] += int(a.negativeDirect)
-                    sumStatsBonus[14] += int(a.negativeIndirect)
-
-            else:
-                temp = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
-                temp2 = self.summoner.allStats()+[self.summoner.resistance,self.summoner.percing,self.summoner.critical]
-                adv = 1
-                if self.summoner.char.aspiration == INVOCATEUR:
-                    adv = 1.2
-                for a in range(0,len(temp)):
-                    if type(temp[a]) == list:
-                        if temp[a][0] == PURCENTAGE:
-                            sumStatsBonus[a] += int(temp2[a]*temp[a][1]*adv)
-                        elif temp[a][0] == HARMONIE:
-                            harmonie = 0
-                            for b in temp2:
-                                harmonie = max(harmonie,b)
-                            sumStatsBonus[a] += harmonie*adv
-                    else:
-                        sumStatsBonus[a] = temp[a]
-
-            for a in self.effect:
-                if a != ignore:
-                    if a.effect.stat != None and a.effect.overhealth == 0:
-                        temp = a.caster.allStats()[a.effect.stat] - a.caster.negativeBoost
-                        sumStatsBonus[0] += a.effect.strength * a.value * (temp+100)/100
-                        sumStatsBonus[1] += a.effect.endurance * a.value * (temp+100)/100
-                        sumStatsBonus[2] += a.effect.charisma * a.value * (temp+100)/100
-                        sumStatsBonus[3] += a.effect.agility* a.value * (temp+100)/100
-                        sumStatsBonus[4] += a.effect.precision* a.value * (temp+100)/100
-                        sumStatsBonus[5] += a.effect.intelligence* a.value * (temp+100)/100
-                        sumStatsBonus[6] += a.effect.magie* a.value * (temp+100)/100
-                        sumStatsBonus[7] += a.effect.resistance* a.value * (temp+100)/100
-                        sumStatsBonus[8] += a.effect.percing* a.value * (temp+100)/100
-                        sumStatsBonus[9] += a.effect.critical* a.value * (temp+100)/100
+            for eff in self.effect:
+                if eff != ignore:
+                    if eff.effect.stat != None and eff.effect.overhealth == 0:
+                        tablEffStats = eff.allStats()
+                        for cmpt in range(9):
+                            sumStatsBonus[cmpt] += tablEffStats[cmpt]
 
                     else:
-                        sumStatsBonus[0] += a.effect.strength 
-                        sumStatsBonus[1] += a.effect.endurance 
-                        sumStatsBonus[2] += a.effect.charisma
-                        sumStatsBonus[3] += a.effect.agility
-                        sumStatsBonus[4] += a.effect.precision
-                        sumStatsBonus[5] += a.effect.intelligence
-                        if a.effect.id == "tem":
+                        sumStatsBonus[0] += eff.effect.strength 
+                        sumStatsBonus[1] += eff.effect.endurance 
+                        sumStatsBonus[2] += eff.effect.charisma
+                        sumStatsBonus[3] += eff.effect.agility
+                        sumStatsBonus[4] += eff.effect.precision
+                        sumStatsBonus[5] += eff.effect.intelligence
+                        if eff.effect.id == "tem":
                             sumStatsBonus[6] += int(self.char.level * 2.5)
                         else:
-                            sumStatsBonus[6] += a.effect.magie
-                        sumStatsBonus[7] += a.effect.resistance
-                        sumStatsBonus[8] += a.effect.percing
-                        sumStatsBonus[9] += a.effect.critical
+                            sumStatsBonus[6] += eff.effect.magie
+                        sumStatsBonus[7] += eff.effect.resistance
+                        sumStatsBonus[8] += eff.effect.percing
+                        sumStatsBonus[9] += eff.effect.critical
                 
-                if a.stun == True:
+                if eff.stun == True:
                     stuned = True
 
-                if a.effect.invisible:
+                if eff.effect.invisible:
                     self.translucide = True
                     self.untargetable = True
                     self.invisible = True
 
-                else:
-                    if a.effect.translucide:
-                        self.translucide = True
+                elif eff.effect.translucide:
+                    self.translucide = True
 
-                    if a.effect.untargetable:
-                        self.untargetable = True
-
-            if self.char.element == ELEMENT_FIRE:
-                sumStatsBonus[7] += 5
-            elif self.char.element == ELEMENT_WATER:
-                sumStatsBonus[PRECISION] += 10
-            elif self.char.element == ELEMENT_AIR:
-                sumStatsBonus[AGILITY] += 10
-            elif self.char.element == ELEMENT_EARTH:
-                sumStatsBonus[6] += 5
+                elif eff.effect.untargetable:
+                    self.untargetable = True
 
             if type(self.char) != invoc:
                 tRes = sumStatsBonus[7]+self.char.resistance
@@ -947,7 +942,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 targetAgi = 1
 
                             if attPre < targetAgi:                                      # If the target's agility is (better ?) than the attacker's precision
-                                successRate = 1 - max((targetAgi-attPre)/100,1)*0.5             # The success rate is reduced to 50% of the normal
+                                successRate = 1 - min((targetAgi-attPre)/100,1)*0.5             # The success rate is reduced to 50% of the normal
                             else:
                                 successRate = 1 + min((attPre-targetAgi)/100,1)                 # The success rate is increased up to 200% of the normal
 
@@ -1282,9 +1277,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
         def getMedals(self,array):
             respond = ""
-            tabl = [["<:topDpt:884337213670838282>","<:secondDPT:884337233241448478>","<:thirdDPT:884337256905732107>"],["<:topHealer:884337335410491394>","<:secondHealer:884337355262160937>","<:thirdHealer:884337368407093278>"],["<:topArmor:884337281547272263>","<:secondArmor:884337300975276073>","<:thirdArmor:884337319707037736>"]]
+            tabl = [["<:topDpt:884337213670838282>","<:secondDPT:884337233241448478>","<:thirdDPT:884337256905732107>"],["<:topHealer:884337335410491394>","<:secondHealer:884337355262160937>","<:thirdHealer:884337368407093278>"],["<:topArmor:884337281547272263>","<:secondArmor:884337300975276073>","<:trdArmor:911071978163675156>"],["<:topSupp:911071783787065375>","<:sndSupp:911071803424788580>","<:trdSupp:911071819388313630>"]]
             for z in range(0,len(array)):
-                for a in (0,1,2):
+                for a in (0,1,2,3):
                     try:
                         if self == array[z][a]:
                             respond+=tabl[z][a]
@@ -1404,16 +1399,15 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     else:
                         statUse = self.allStats()[statUse]
 
-                    healPowa = round(power * (1+(statUse-self.negativeHeal)/100)* self.valueBoost(target = target,heal=True)*self.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL)*(750+target.endurance)/750)
+                    healPowa = round(power * (1+(statUse-self.negativeHeal)/100)* self.valueBoost(target = target,heal=True)*self.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL))
                     healPowaInit = copy.deepcopy(healPowa)
-                    
+
                     incurableValue = 0
                     for eff in target.effect:
                         if eff.effect.id == incurable.id:
-                            incurableValue = eff.effect.power
-                            break
-                    
-                    healPowa = int(healPowa * ((100-target.healResist)/100) * (100-incurableValue)/100)
+                            incurableValue = max(incurableValue,eff.effect.power)
+
+                    healPowa = int(healPowa * (100-target.healResist)/100 * (100-incurableValue)/100)
                     overheath = max(0,healPowa - (target.maxHp-target.hp))
                     healPowa = min(target.maxHp-target.hp,healPowa)
                     target.healResist += int(healPowa/target.maxHp/2*100)
@@ -1522,8 +1516,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             value = round(value)
             temp2 = [value,""]
             if self.type == TYPE_ARMOR and value >0:
-                valueT = value
-                valueT2 = round(value * onArmor)
+                valueT,valueT2 = round(value),round(value)
+                if not(self.effect.absolutShield):
+                    valueT2 = round(value * onArmor)
                 value = min(valueT2,self.value)
                 temp2 = [0,f"{declancher.icon} {icon} → {self.icon}{self.on.icon} -{value} PV\n"]
                 temp2[1] += self.decate(value=value)
@@ -4383,15 +4378,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             fich.write(logs)
         fich.close()
         opened = open("./data/fightLogs/ERROR_{0}_{1}.txt".format(ctx.author.name,date),"rb")
-
         await asyncio.sleep(1)
+
         chan = await bot.fetch_channel(808394788126064680)
         try:
             await ctx.send("Une erreur est survenue durant le combat",file=discord.File(fp=opened))
         except:
             await ctx.channel.send("Une erreur est survenue durant le combat",file=discord.File(fp=opened))
-        await chan.send("Une erreur est survenue durant le combat",file=discord.File(fp=opened))
 
+        opened.close()
+
+        opened = open("./data/fightLogs/ERROR_{0}_{1}.txt".format(ctx.author.name,date),"rb")
+        await asyncio.sleep(1)
+        await chan.send("Une erreur est survenue durant le combat",file=discord.File(fp=opened))
         opened.close()
         haveError = True
 
@@ -4422,19 +4421,23 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             temp = temp[0]+temp[1]
 
             dptClass = sorted(temp,key=lambda student: student.stats.damageDeal,reverse=True)
-            for a in dptClass:
+            for a in dptClass[:]:
                 if a.stats.damageDeal < 1:
                     dptClass.remove(a)
             healClass = sorted(temp,key=lambda student: student.stats.heals,reverse=True)
-            for a in healClass:
+            for a in healClass[:]:
                 if a.stats.heals < 1:
                     healClass.remove(a)
             shieldClass = sorted(temp,key=lambda student: student.stats.shieldGived,reverse=True)
-            for a in shieldClass:
+            for a in shieldClass[:]:
                 if a.stats.shieldGived < 1:
                     shieldClass.remove(a)
+            suppClass = sorted(temp,key=lambda student: student.stats.damageBoosted + student.stats.damageDogded,reverse=True)
+            for a in suppClass[:]:
+                if a.stats.damageBoosted + a.stats.damageDogded < 1:
+                    suppClass.remove(a)
 
-            listClassement = [dptClass,healClass,shieldClass]
+            listClassement = [dptClass,healClass,shieldClass,suppClass]
 
             if not(octogone):
                 teamWinDB.addResultToStreak(team1[0],everyoneDead[1])
