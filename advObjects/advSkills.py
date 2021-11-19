@@ -21,7 +21,7 @@ firstheal = skill("Premiers secours","zj",TYPE_HEAL,100,35,emoji="<:bandage:8735
 cure = skill("Guérison","zi",TYPE_HEAL,250,80,cooldown=5,emoji='<:cure:873542385731244122>')
 lightAura = skill("Aura de Lumière I","zh",TYPE_PASSIVE,250,effectOnSelf="ly",emoji="<:AdL:873548073769533470>")
 splatbomb = skill("Bombe splash","zg",TYPE_DAMAGE,100,cooldown=2,area=AREA_CIRCLE_1,power=55,emoji='<:splatbomb:873527088286687272>',message="{0} lance une {1} sur {2} :")
-explosion = skill("Explosion","zf",TYPE_DAMAGE,1000,power=300,ultimate=True,cooldown=7,area=AREA_CIRCLE_2,sussess=80,effectOnSelf="mb",use=MAGIE,emoji='<a:explosion:882627170944573471>')
+explosion = skill("Explosion","zf",TYPE_DAMAGE,1000,power=300,ultimate=True,cooldown=7,area=AREA_CIRCLE_2,sussess=70,effectOnSelf="mb",use=MAGIE,emoji='<a:explosion:882627170944573471>')
 explosion2 = skill("Explosion","zf",TYPE_DAMAGE,1000,0,ultimate=True,cooldown=7,area=AREA_CIRCLE_2,sussess=500,effectOnSelf="na",use=MAGIE,emoji='<a:explosion:882627170944573471>',message="{0} rassemble son mana...")
 protect = skill("Orbe défensif","ze",TYPE_ARMOR,200,emoji='<:orbeDef:873725544427053076>',effect="md",cooldown=3)
 poisonus = skill("Vent empoisonné","zd",TYPE_INDIRECT_DAMAGE,500,emoji='<:estabistia:883123793730609172>',effect="me",cooldown=5,area=AREA_CIRCLE_1,use=MAGIE,message="{0} propage un {1} autour de {2} :")
@@ -189,5 +189,5 @@ strengthOfWill = skill("Détermination inflexible","tl",TYPE_DAMAGE,0,power=60,c
 
 sixtineUlt = skill("Douce nuit","tk",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENNEMIES,use=INTELLIGENCE,effect='sixtineUltEff',ultimate=True,cooldown=5)
 hinaUlt = skill("Déluge de plume","tj",TYPE_DAMAGE,0,35,area=AREA_CONE_2,repetition=5,cooldown=7,emoji='<:featherStorm:909932475457884191>')
-
 julieUlt = skill("Prolongation","ti",TYPE_UNIQUE,0,area=AREA_DONUT_2,range=AREA_MONO,cooldown=7,description="Augmente la durée de tous les effets des alliés alentours (bonus comme malus) de 1")
+invocSeraf = skill("Invocation - Fée protectrice","th",TYPE_INVOC,500,invocation="Fée protectrice",emoji="<:seraphin:911078421361205289>",shareCooldown=True,use=INTELLIGENCE,cooldown=5)

@@ -195,16 +195,16 @@ mysticHat = stuff("Coiffe mystique","oh",0,1,magie=60,endurance=10,negativeDirec
 mysticBody = stuff("Tunique mystique","oi",1,1,magie=50,endurance=15,negativeDirect=-20,negativeIndirect=-20,strength=-10,resistance=15,negativeBoost=30,negativeHeal=30,negativeShield=30)
 mysticBoots = stuff("Bottes mystiques","oj",2,1,magie=60,endurance=10,negativeDirect=-25,negativeIndirect=-25,strength=-10,negativeBoost=30,negativeHeal=30,negativeShield=30)
 
-whiteButterFlyBoots = stuff("Bottes du papillon blanc","ok",2,1,charisma=30,negativeHeal=-30,endurance=10,intelligence=20,negativeShield=20,negativeBoost=30,negativeDirect=20)
-pinkButterFlyBoots = stuff("Bottes du papillon rose","ol",2,1,charisma=30,negativeBoost=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20)
-purpleButterFlyBoots = stuff("Bottes du papillon violet","om",2,1,magie=30,negativeIndirect=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20)
+whiteButterFlyBoots = stuff("Bottes du papillon blanc","ok",2,1,charisma=30,negativeHeal=-30,endurance=10,intelligence=20,negativeShield=20,negativeBoost=30,negativeDirect=20,emoji='<:whiteButterflyBoots:911245758081138758>')
+pinkButterFlyBoots = stuff("Bottes du papillon rose","ol",2,1,charisma=30,negativeBoost=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20,emoji='<:pinkButterflyBoots:911245683124752445>')
+purpleButterFlyBoots = stuff("Bottes du papillon violet","om",2,1,magie=30,negativeIndirect=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20,emoji='<:purpleButterflyBoots:911245717715161098>')
 purpleChemVeste = stuff("Veste et robe papillon violet","on",1,1,emoji='<:purpleButterflyDress:910582874263146496>',negativeIndirect=-40,endurance=10,magie=40,negativeDirect=70)
-blueButterFlyBoots = stuff("Bottes du papillon bleu","oo",2,1,intelligence=30,negativeShield=-30,endurance=10,charisma=20,negativeHeal=20,negativeBoost=30,negativeDirect=20)
+blueButterFlyBoots = stuff("Bottes du papillon bleu","oo",2,1,intelligence=30,negativeShield=-30,endurance=10,charisma=20,negativeHeal=20,negativeBoost=30,negativeDirect=20,emoji='<:blueButterflyBoots:911245699377676308>')
 blueChemVeste = stuff("Veste et robe papillon bleu","op",1,1,emoji='<:blueButterflyDress:910582894253182976>',negativeShield=-40,endurance=10,charisma=20,intelligence=20,negativeHeal=35,negativeBoost=35)
 
-lunaPandan = stuff("Obsidienne en pendantif","oq",0,0,strength=40,agility=40,endurance=20,resistance=15,charisma=-30,negativeIndirect=30,negativeHeal=10)
-lunaDress = stuff("Robe et veste noire","or",1,0,strength=35,agility=35,endurance=25,resistance=20,intelligence=-30,negativeBoost=30,negativeIndirect=10)
-lunaBoots = stuff("Cuissardes noires","os",2,0,strength=40,agility=40,endurance=20,resistance=15,magie=-30,negativeHeal=30,negativeBoost=10)
+lunaPandan = stuff("Obsidienne en pendantif","oq",0,0,strength=40,agility=40,endurance=20,resistance=15,charisma=-30,negativeIndirect=30,negativeHeal=10,emoji='<:obsiPendan:911086215409848341>',position=batPendant.position)
+lunaDress = stuff("Robe et veste noire","or",1,0,strength=35,agility=35,endurance=25,resistance=20,intelligence=-30,negativeBoost=30,negativeIndirect=10,emoji='<:blackDress:911086257831039016>')
+lunaBoots = stuff("Cuissardes noires","os",2,0,strength=40,agility=40,endurance=20,resistance=15,magie=-30,negativeHeal=30,negativeBoost=10,emoji='<:blackBoots:911086872900546560>')
 
 coalHat = stuff("Barrête de la cohabitation rep.","ot",0,0,magie=50,negativeDirect=-50,endurance=10,resistance=10,negativeIndirect=100)
 coalDress = stuff("Robe de la cohabitation rep.","ou",1,0,magie=45,negativeDirect=-45,endurance=15,resistance=15,negativeIndirect=100)

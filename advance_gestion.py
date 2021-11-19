@@ -357,6 +357,8 @@ def infoSkill(skill : skill, user : char,ctx):
         else:
             temp += "Dégâts de zone\n"
         
+        temp += "Précision : {0}%\n".format(skil.sussess)
+        
         if skil.range == AREA_MONO:
             if skil.type != TYPE_PASSIVE:
                 temp += f"\nCette compétence se lance sur **soi-même**"
