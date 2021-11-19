@@ -14,12 +14,12 @@ weapons = [julieWeap,blueButterfly,
 ]
 
 # Skill
-skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,
+skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,invocSeraf,
     fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion2,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]
 
 # Invocations
-invocTabl = [
+invocTabl = [seraf,
     darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
 ]
 
@@ -222,15 +222,9 @@ class tmpAllie:
                         for num in range(len(changeDictCell["change"])):
                             for skillNum in range(len(self.skills)):
                                 if self.skills[skillNum].id == changeDictCell["change"][num].id:
-                                    temp = self.skills[skillNum].name
                                     self.skills[skillNum] = changeDictCell["to"][num]
-                                    print("{0} : {1} a été remplacé par {2}".format(self.name,temp,self.skills[skillNum].name))
                                     break
                         haveChanged = True
-                elif level < changeDictCell["level"]:
-                    print("Niveau trop bas")
-                else:
-                    print("Jet échoué : {0}".format(roll))
 
         if self.level < 25:
             self.skills[4] = "0"

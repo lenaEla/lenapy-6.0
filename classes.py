@@ -195,7 +195,14 @@ class skill:
         self.secondary = secondary                      # Not used.
         self.cooldown = cooldown
         self.area = area
-        self.sussess = sussess
+        if sussess != 100 or types != TYPE_DAMAGE:
+            self.sussess = sussess
+        else:
+            if area==AREA_MONO:
+                self.sussess = 120
+            else:
+                self.sussess = 80
+
         self.effectOnSelf = effectOnSelf
         self.use = use
         self.description = description
