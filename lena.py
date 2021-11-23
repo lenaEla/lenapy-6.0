@@ -1,7 +1,7 @@
 ###########################################################
 # Importations :
-import discord, random, os, emoji ,asyncio ,datetime , traceback
-from discord.utils import get
+import discord, random, os, emoji, datetime
+from discord_slash.model import SlashCommandOptionType
 
 from data.database import *
 from classes import *
@@ -23,9 +23,8 @@ from commands.command_patchnote import *
 from commands.alice_stats_endler import *
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
-from discord_slash.utils.manage_commands import create_option, create_choice, create_permission
+from discord_slash.utils.manage_commands import create_option, create_choice
 from data.bot_tokens import lenapy, shushipy
-from traceback import format_exc
 
 ###########################################################
 # Initialisations des variables de bases :
@@ -78,7 +77,8 @@ class shopClass:
         shopping = list(range(0,len(self.shopping)))
         ballerine = datetime.datetime.now() + (datetime.timedelta(hours=3)+horaire)
 
-        await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
+        if globalVar.fightEnabled():
+            await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
 
         shopWeap,shopSkill,shopStuff,ShopOther = [],[],[],others[:]
         for a in weapons:
@@ -237,7 +237,6 @@ async def minuteClock():
 async def hourClock():
     if minuteClock.is_running():
         minuteClock.stop()
-    teamWinDB.resetAllFightingStatus()
     tick = datetime.datetime.now()+horaire
     if tick.hour%3==0:
         await shopping.newShop()
@@ -257,7 +256,6 @@ async def hourClock():
 async def on_ready():
     print("\n-----------------------------\nLe bot est en ligne. Début de la phase d'initialisation post-online !\n----------------------\n")
     cmpt = 0
-    teamWinDB.resetAllFightingStatus()
     lastTime = datetime.datetime.now().second
     lenGuild = len(listGuildSet)
     print("Chargement des fichiers de guilds... 0%")
@@ -284,14 +282,16 @@ async def on_ready():
     if bidule != False:
         ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
 
-        await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
+        if not(globalVar.fightEnabled()):
+            await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
+        else:
+            await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
 
     if not(oneClock.is_running()):
         oneClock.start()
 
     teamWinDB.resetAllFightingStatus()
 
-    await asyncio.sleep(1)
     print("\nMise à jour des fichiers data...")
     await downloadAllHeadGearPng(bot)
     await downloadAllWeapPng(bot)
@@ -303,59 +303,12 @@ async def on_ready():
 
     print("\n-----------------------------\nFin de l'initialisation\n-----------------------------\n")
 
-@bot.event
-async def on_error(error1,error2):
-    if error2.author.id != 769999212422234122 and error2.author.id != 623211750832996354:
-        if "TimeoutError" not in traceback.format_exc():
-            if error2.author.guild.name != "dual T Squad":
-                babie = datetime.datetime.now()
-                ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue\nUn rapport d'erreur a été envoyé")
-                errorChannel = await bot.fetch_channel(error2.channel.id)
-                await errorChannel.send(embed = ballerine)
-
-                ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue")
-                ballerine.add_field(name="__Serveur :__",value=f"**{error2.author.guild.name}**\n{error2.channel.name}")
-                ballerine.add_field(name="__Heure :__",value=babie.strftime("%m/%d/%Y, %H:%M:%S"))
-                ballerine.add_field(name="__Message :__",value=error2.content + "\n(" + error2.author.name+")",inline=False)
-                if len(traceback.format_exc()) > 1024:
-                    ballerine.add_field(name="__Erreur :__",value="(...)\n"+traceback.format_exc()[-1000:],inline=False)
-                else:
-                    ballerine.add_field(name="__Erreur :__",value=traceback.format_exc(),inline=False)
-
-                errorChannel = await bot.fetch_channel(808394788126064680)
-                await errorChannel.send(embed = ballerine)
-            else:
-                await error2.add_reaction('<:LenaWhat:760884455727955978>')
-        else:
-            await error2.add_reaction('🕛')
-
-"""@bot.event
-async def on_slash_command_error(error1,error2):
-    if error1.author.id != 769999212422234122 and error1.author.id != 623211750832996354:
-        if "TimeoutError" not in format_exc():
-            babie = datetime.datetime.now()
-            ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue\nUn rapport d'erreur a été envoyé")
-            errorChannel = await bot.fetch_channel(error1.channel.id)
-            await errorChannel.send(embed = ballerine,delete_after=10)
-
-            ballerine = discord.Embed(title = error1,color=red,description="Une erreur est survenue")
-            ballerine.add_field(name="__Serveur :__",value=f"**{error1.guild.name}**\n{error1.channel.name}")
-            ballerine.add_field(name="__Heure :__",value=babie.strftime("%m/%d/%Y, %H:%M:%S"))
-            if len(format_exc()) > 1024:
-                ballerine.add_field(name="__Erreur :__",value="(...)\n"+format_exc()[-1010:],inline=False)
-            else:
-                ballerine.add_field(name="__Erreur :__",value=format_exc(),inline=False)
-
-            errorChannel = await bot.fetch_channel(808394788126064680)
-            await errorChannel.send(embed = ballerine)
-"""
-
 ###########################################################
 # Commandes
 begoneTabl = []
 
 @bot.event
-async def on_message(ctx):
+async def on_message(ctx : discord.message.Message):
     valid = False
     try:
         pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
@@ -795,22 +748,6 @@ async def on_message(ctx):
                 #except:
                     #await ctx.add_reaction('<:LenaWhat:760884455727955978>')
 
-            elif args[0] == guild.prefixe + "choose" and checkIsBotChannel(ctx,guild,bot):
-                choBet = []
-                temp = ""
-                for a in range(1,len(args)-1):
-                    for b in args[a]:
-                        if b != "|":
-                            temp += b
-                        else:
-                            choBet += [temp]
-                            temp = ""
-                    temp += " "
-                choBet += [temp]
-
-                rep = discord.Embed(title = "**l!choose**",color = light_blue,description = (randRep(["À quoi bon, de toutes façons tu vas choisir ce qui t'interresse vraiment\nMais bon voilà : ","Je doute que tu tiennes compte de mon avis mais j'ai choisi ","Selon l'allignement des étoiles, tu va devoir prendre "])+"__"+random.choice(choBet)+"__\n"))
-                await ctx.channel.send(embed = rep)
-
             elif args[0] == guild.prefixe + "solde" and checkIsBotChannel(ctx,guild,bot):
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
                 if os.path.exists(pathUserProfile):
@@ -826,9 +763,12 @@ async def on_message(ctx):
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
 
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                await fight(bot,[tablBoss[4]],[tablBoss[2]],ctx,guild,octogone=True)
-                await fight(bot,[tablBoss[4]],[tablBoss[1]],ctx,guild,octogone=True)
-                await fight(bot,[tablBoss[1]],[tablBoss[2]],ctx,guild,octogone=True)
+                chan = ctx.channel
+
+                temp = await chan.create_thread(name="l!test",auto_archive_duration=60,message=ctx)
+                await temp.send("Bidule de test")
+                await asyncio.sleep(5)
+                await temp.delete()
 
             elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
                 await procuration(ctx)
@@ -878,6 +818,7 @@ async def on_message(ctx):
                                     await chan.send(embed=discord.Embed(title="/patchnote",color=light_blue,description="Un nouveau patchnote est disponible, vous pouvez le voir à l'aide de /patchnote\n\n*Note : Les nouvelles commandes slash peuvent mettre jusqu'à 1 heure pour apparaitre sur vos serveur*"))
                     except:
                         pass
+        
         else:
             pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
             if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
@@ -907,208 +848,191 @@ async def comEncyclopedia(ctx,destination):
         
     await encylopedia(bot,ctx,destination,user)
 
-# encyclopedia-test -----------------------------------
-@slash.slash(name="encyclopedia_test",guild_ids = [615257372218097691],description="Vous permet de consulter l'encyclopédie", options=[
-    create_option(
-        name="destination", description="Que voulez vous consulter ?", required=True,option_type=3,
-        choices=[
-            create_choice(name="Accessoires",value="accessoires"),
-            create_choice(name="Vêtements",value="vetements"),
-            create_choice(name="Chaussures",value="chaussures"),
-            create_choice(name="Armes",value="armes"),
-            create_choice(name="Compétences",value="competences"),
-            create_choice(name="Alliés Temporaires",value='tempAlies'),
-            create_choice(name="Ennemis",value="ennemies"),
-            create_choice(name="Boss",value="boss"),
-            create_choice(name="Objets non-possédés",value="locked"),
-            create_choice(name="Succès",value="achivements")
-        ]
-    )
-])
-async def comEncyclopedia(ctx,destination):
-    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    user = loadCharFile(pathUserProfile)
-        
-    await encylopedia(bot,ctx,destination,user)
-
 # FIGHT -----------------------------------------------
 @slash.slash(name="fight",description="test",options=[])
 
 # normal fight
 @slash.subcommand(base="fight",name="normal",description="Permet de lancer un combat normal")
 async def normal(ctx):
-    try:
-        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-        valid = True
-    except:
-        pass
-    
-    if valid:
-        if not existFile(pathGuildSettings):
-            tempGuild = server(ctx.guild.id)
-            saveGuildSettings(pathGuildSettings, tempGuild)
-            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-            guilds.append(tempGuild) 
+    if not(globalVar.fightEnabled()):
+        await ctx.send(embed=discord.Embed(title="__Combats désactivés__",description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),delete_after=10)
+    else:
+        try:
+            pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+            valid = True
+        except:
+            pass
         
-        guild = None
+        if valid:
+            if not existFile(pathGuildSettings):
+                tempGuild = server(ctx.guild.id)
+                saveGuildSettings(pathGuildSettings, tempGuild)
+                print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
+                guilds.append(tempGuild) 
+            
+            guild = None
 
-        for a in guilds:
-            if type(a) != int:
-                if ctx.guild.id == a.id:
-                    guild = a
+            for a in guilds:
+                if type(a) != int:
+                    if ctx.guild.id == a.id:
+                        guild = a
 
-    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    user = loadCharFile(pathUserProfile,ctx)
-    ballerine,trouv,temp = 0,False,0
-    if user.team == 0:
-        ballerine = user.owner
-    else:
-        ballerine = user.team
-
-    cooldownOk = True
-    timing = teamWinDB.getFightCooldown(ballerine)
-    if timing > 0:
-        cooldownOk = False
-
-    if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
-        team1 = []
-        if user.team != 0:
-            file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-            for a in file[0]:
-                team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+        user = loadCharFile(pathUserProfile,ctx)
+        ballerine,trouv,temp = 0,False,0
+        if user.team == 0:
+            ballerine = user.owner
         else:
-            team1 = [user]
+            ballerine = user.team
 
-        # Random event
-        fun = random.randint(0,99)
+        cooldownOk = True
+        timing = teamWinDB.getFightCooldown(ballerine)
+        if timing > 0:
+            cooldownOk = False
 
-        fightAnyway = True
-        if fun < 1:                # But nobody came
-            teamIcon = ""
-            for wonderfullIdea in team1:
-                teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
-
-            temp1 = discord.Embed(title = "__Résultats du combat :__",color = black,description="__Danger :__ <a:bnc:908762423111081994>\n__Nombre de tours :__ <a:bnc:908762423111081994>\n__Durée :__ <a:bnc:908762423111081994>")
-            temp1.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=teamIcon,inline=True)
-            temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",value="[[But nobody came](https://bit.ly/3wDwyF3)]",inline=True)
-
-            await ctx.send(embed = temp1,components=[])
-            fightAnyway = False
-
-        elif fun < 3:              # All OctoHeals ! Yes, it's for you H
-            temp = team1
-            temp.sort(key=lambda overheal: overheal.level,reverse=True)
-            maxLvl = temp[0].level
-
-            team2 = []
-            lenBoucle = max(4,len(team1))
-            cmpt = 0
-
-            if maxLvl < tablAllOcta[42].baseLvl:
-                alea = copy.deepcopy(tablAllOcta[6])
+        if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
+            team1 = []
+            if user.team != 0:
+                file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
+                for a in file[0]:
+                    team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
             else:
-                alea = copy.deepcopy(tablAllOcta[42])
+                team1 = [user]
 
-            alea.changeLevel(maxLvl)
+            # Random event
+            fun = random.randint(0,99)
 
-            while cmpt < lenBoucle:
-                team2.append(alea)
-                cmpt += 1
+            fightAnyway = True
+            if fun < 1:                # But nobody came
+                teamIcon = ""
+                for wonderfullIdea in team1:
+                    teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
 
-            permaIncur30 = copy.deepcopy(incur[3])
-            permaIncur30.turnInit, permaIncur30.unclearable = -1, True
+                temp1 = discord.Embed(title = "__Résultats du combat :__",color = black,description="__Danger :__ <a:bnc:908762423111081994>\n__Nombre de tours :__ <a:bnc:908762423111081994>\n__Durée :__ <a:bnc:908762423111081994>")
+                temp1.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=teamIcon,inline=True)
+                temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",value="[[But nobody came](https://bit.ly/3wDwyF3)]",inline=True)
 
-            await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaIncur30]])
-            fightAnyway = False
+                await ctx.send(embed = temp1,components=[])
+                fightAnyway = False
 
-        elif fun < 5:              # All Temmies
-            temp = team1
-            temp.sort(key=lambda overheal: overheal.level,reverse=True)
-            maxLvl = temp[0].level
+            elif fun < 3:              # All OctoHeals ! Yes, it's for you H
+                temp = team1
+                temp.sort(key=lambda overheal: overheal.level,reverse=True)
+                maxLvl = temp[0].level
 
-            team2 = []
-            lenBoucle = max(4,len(team1))
-            cmpt = 0
+                team2 = []
+                lenBoucle = max(4,len(team1))
+                cmpt = 0
 
-            alea = copy.deepcopy(findEnnemi("Temmie"))
-            alea.changeLevel(maxLvl)
+                if maxLvl < tablAllOcta[42].baseLvl:
+                    alea = copy.deepcopy(tablAllOcta[6])
+                else:
+                    alea = copy.deepcopy(tablAllOcta[42])
 
-            while cmpt < lenBoucle:
-                team2.append(alea)
-                cmpt += 1
+                alea.changeLevel(maxLvl)
 
-            permaDamageDown = classes.effect("Malus de dégâts (20%)","damageDown",percing=-20,turnInit=-1,type=TYPE_MALUS,unclearable=True)
-            permaDamageDown.turnInit, permaDamageDown.unclearable = -1, True
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
 
-            await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaDamageDown]])
-            fightAnyway = False
+                permaIncur30 = copy.deepcopy(incur[3])
+                permaIncur30.turnInit, permaIncur30.unclearable = -1, True
 
-        if fightAnyway:
-            await fight(bot,team1,[],ctx,guild,False,slash=True)
+                await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaIncur30]])
+                fightAnyway = False
 
-    elif teamWinDB.isFightingBool(ballerine):
-        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
-    else:
-        msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
+            elif fun < 5:              # All Temmies
+                temp = team1
+                temp.sort(key=lambda overheal: overheal.level,reverse=True)
+                maxLvl = temp[0].level
+
+                team2 = []
+                lenBoucle = max(4,len(team1))
+                cmpt = 0
+
+                alea = copy.deepcopy(findEnnemi("Temmie"))
+                alea.changeLevel(maxLvl)
+
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
+
+                permaDamageDown = classes.effect("Malus de dégâts (20%)","damageDown",percing=-20,turnInit=-1,type=TYPE_MALUS,unclearable=True)
+                permaDamageDown.turnInit, permaDamageDown.unclearable = -1, True
+
+                await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaDamageDown]])
+                fightAnyway = False
+
+            if fightAnyway:
+                await fight(bot,team1,[],ctx,guild,False,slash=True)
+
+        elif teamWinDB.isFightingBool(ballerine):
+            msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
+        else:
+            msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
 
 # quick fight
 @slash.subcommand(base="fight",name="quick",description="Vous permet de faire un combat en sautant directement à la fin")
 async def comQuickFight(ctx):
-    try:
-        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-        valid = True
-    except:
-        pass
-    
-    if valid:
-        if not existFile(pathGuildSettings):
-            tempGuild = server(ctx.guild.id)
-            saveGuildSettings(pathGuildSettings, tempGuild)
-            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-            guilds.append(tempGuild) 
+    if not(globalVar.fightEnabled()):
+        await ctx.send(embed=discord.Embed(title="__Combats désactivés__",description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),delete_after=10)
+    else:
         
-        guild = None
+        try:
+            pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+            valid = True
+        except:
+            pass
+        
+        if valid:
+            if not existFile(pathGuildSettings):
+                tempGuild = server(ctx.guild.id)
+                saveGuildSettings(pathGuildSettings, tempGuild)
+                print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
+                guilds.append(tempGuild) 
+            
+            guild = None
 
-        for a in guilds:
-            if type(a) != int:
-                if ctx.guild.id == a.id:
-                    guild = a
+            for a in guilds:
+                if type(a) != int:
+                    if ctx.guild.id == a.id:
+                        guild = a
 
-    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    user = loadCharFile(pathUserProfile,ctx)
-    ballerine,trouv,temp = 0,False,0
-    if user.team == 0:
-        ballerine = user.owner
-    else:
-        ballerine = user.team
-
-    cooldownOk = True
-    timing = teamWinDB.getFightCooldown(ballerine,True)
-    if timing > 0 :
-        cooldownOk = False
-
-    if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
-        team1 = []
-        if user.team != 0:
-            file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-            for a in file[0]:
-                team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+        user = loadCharFile(pathUserProfile,ctx)
+        ballerine,trouv,temp = 0,False,0
+        if user.team == 0:
+            ballerine = user.owner
         else:
-            team1 = [user]
+            ballerine = user.team
 
-        fun = random.randint(0,99)
+        cooldownOk = True
+        timing = teamWinDB.getFightCooldown(ballerine,True)
+        if timing > 0 :
+            cooldownOk = False
 
-        fightAnyway = True
-        if fun < -1:           # Testing purposes
-            await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1))
+        if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
+            team1 = []
+            if user.team != 0:
+                file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
+                for a in file[0]:
+                    team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+            else:
+                team1 = [user]
 
-        if fightAnyway:
-            await fight(bot,team1,[],ctx,guild,slash=True)
+            fun = random.randint(0,99)
 
-    elif teamWinDB.isFightingBool(ballerine):
-        msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
-    else:
-        msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
+            fightAnyway = True
+            if fun < -1:           # Testing purposes
+                await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1))
+
+            if fightAnyway:
+                await fight(bot,team1,[],ctx,guild,slash=True)
+
+        elif teamWinDB.isFightingBool(ballerine):
+            msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
+        else:
+            msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
 
 # octogone fight
 @slash.subcommand(base="fight",name="octogone",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
@@ -1262,10 +1186,6 @@ async def roll(ctx,min=1,max=100):
 async def shopSlash(ctx):
     await shop2(bot,ctx,shopping.shopping)
 
-@slash.slash(name="shop_2",description="Vous permet d'entrer dans le magasin",guild_ids = [615257372218097691])
-async def shopSlash2(ctx):
-    await shop2(bot,ctx,shopping.shopping)
-
 # Inventory
 @slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",options=[
     create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=False,choices=[
@@ -1308,8 +1228,8 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
                 nameTempCmpt,lenName = 0, len(nom)
                 while 1:
                     lastResarch = research[:]
-                    if nameTempCmpt+3 <= lenName:
-                        nameTempCmpt += 3
+                    if nameTempCmpt+2 <= lenName:
+                        nameTempCmpt += 2
                     else:
                         nameTempCmpt = lenName
 
@@ -1326,7 +1246,10 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
                         desc = ""
                         options = []
                         for a in lastResarch:
-                            desc += "{0} {1}\n".format(a.emoji,a.name)
+                            have = ""
+                            if not(user.have(a)):
+                                have = "`"
+                            desc += "{0} {2}{1}{2}\n".format(a.emoji,a.name,have)
                             options += [create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.emoji))]
 
                         if len(options) <= 25:
@@ -1780,6 +1703,51 @@ async def seeStuffRepartition(ctx):
         else:
             temp += a
     await ctx.channel.send(temp2)
+
+# CHOOSE
+@slash.slash(name="Choose",description="Renvoie une élément aléatoire de la liste donnée",options=[
+    create_option("choix1",description="Le premier élément de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=True),
+    create_option("choix2",description="Le second élément de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=True),
+    create_option("choix3",description="Un potentiel troisième de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=False),
+    create_option("choix4",description="Un potentiel quatrième de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=False),
+    create_option("choix5",description="Un potentiel cinquième de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=False)
+])
+async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
+    tempTabl = [choix1,choix2]
+    for a in [choix3,choix4,choix5]:
+        if a != None:
+            tempTabl.append(a)
+
+    selected = tempTabl[random.randint(0,len(tempTabl)-1)]
+    while selected.endswith(" "):
+        selected = selected[:-1]
+    while selected.startswith(" "):
+        selected = selected[1:]
+    await ctx.channel.send(embed=discord.Embed(title="/choose",color=light_blue,description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0,len(randChooseMsg)-1)],selected)))
+
+# ------------------------------- ADMIN ----------------------------------------------
+
+@slash.subcommand(base="admin",name="enableFight",guild_ids=[912137828614426704],description="Permet d'activer les combats ou non",options=[
+    create_option("valeur","Activer ou désaciver les combats", SlashCommandOptionType.BOOLEAN,False)
+])
+async def addEnableFight(ctx,valeur = None):
+    globalVar.changeFightEnabled(valeur)
+    if valeur == None:
+        valeur = globalVar.fightEnabled()
+
+    if not(valeur):
+        await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
+    else:
+        bidule = stuffDB.getShop()
+        ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
+        await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+
+    await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__",description="Les combats sont désormais __{0}__".format(["désactivés","activés"][int(valeur)]),color=[red,light_blue][int(valeur)]))
+
+"""@slash.slash(name="test_threads",description="Crée un thread dans le salon actuel, y envoie quelques messages, puis surpprime le thread",guild_ids=[615257372218097691])
+async def threadTest(ctx):
+    print("Print")
+    threadChannel = await ctx.channel.create_thread("Test_{0}_on_{1}".format(ctx.author.name,ctx.guild.name))"""
 
 ###########################################################
 # Démarrage du bot
