@@ -34,7 +34,7 @@ confirmButton = create_button(ButtonStyle.green,"Équiper",check,"confirm")
 returnAndConfirmActionRow = create_actionrow(returnButton,confirmButton)
 
 def getSortSkillValue(object : skill, wanted : int):
-    eff = findEffect(object.effect)
+    eff = findEffect(object.effect[0])
     if eff != None:
         if wanted == 15:
             return eff.power
@@ -291,10 +291,16 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             repEmb.set_footer(text = "Vous ne possédez pas cette arme")
-                            await oldMsg.edit(embed = repEmb,components=[],delete_after=60)
+                            if delete:
+                                await oldMsg.edit(embed = repEmb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = repEmb,components=[])
                         elif weap == user.weapon:
                             repEmb.set_footer(text = "Vous utilisez déjà cette arme")
-                            await oldMsg.edit(embed = repEmb,components=[],delete_after=60)
+                            if delete:
+                                await oldMsg.edit(embed = repEmb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = repEmb,components=[])
 
                         else:
                             repEmb.set_footer(text = "Cliquez sur l'icone de l'arme pour l'équiper")
@@ -352,7 +358,11 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cette compétence")
-                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            if delete:
+                                await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = emb,components=[])
+
 
                         elif ballerine:
                             emb.set_footer(text = "Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?")
@@ -372,11 +382,17 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
                                     saveCharFile(pathUserProfile,user)
                                     await oldMsg.edit(embed = discord.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),delete_after=5,components=[])
                             except:
-                                await oldMsg.delete()
+                                if delete:
+                                    await oldMsg.delete()
+                                else:
+                                    await oldMsg.edit(embed = emb,components=[])
 
                         elif not(weap.havConds(user=user)):
                             emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
-                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            if delete:
+                                await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = emb,components=[])
 
                         else:
                             hasUltimate=False
@@ -446,15 +462,24 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                         if not(trouv):
                             emb.set_footer(text = "Vous ne possédez pas cet équipement")
-                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            if delete:
+                                await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = emb,components=[])
 
                         elif weap == user.stuff[weap.type]:
                             emb.set_footer(text = "Vous portez déjà cet équipement")
-                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
-
+                            if delete:
+                                await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = emb,components=[])
+                            
                         elif weap.minLvl > user.level:
                             emb.set_footer(text = "Cet équipement donne trop de statistiques pour votre niveau")
-                            await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            if delete:
+                                await oldMsg.edit(embed = emb,components=[],delete_after=60)
+                            else:
+                                await oldMsg.edit(embed = emb,components=[])
 
                         else:
                             emb.set_footer(text = "Cliquez sur l'icone de l'équipement pour l'équiper")
@@ -463,7 +488,6 @@ async def inventory(bot : discord.client, ctx : discord.message, args : list,sla
 
                             def check(m):
                                 return m.author_id == ctx.author.id and m.origin_message.id == oldMsg.id
-
 
                             while 1:
                                 try:
@@ -680,7 +704,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 ]
 
             sortOptions = create_select(options)
-        
+
             if needRemake:
                 tablToSee = []
                 if value == 0:
