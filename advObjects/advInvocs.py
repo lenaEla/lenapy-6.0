@@ -29,7 +29,7 @@ carbunRSkill1 = skill("Pyrotechnie du Carbuncle","rubySkill",TYPE_DAMAGE,0,70,AR
 curbunRSkill2Eff = effect("Flamme éternelle","fire",MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,power=25,lvl=2,turnInit=2)
 carbunRSkill2 = skill("Flammes éternelles","rubySkill2",TYPE_DAMAGE,0,50,AREA_CIRCLE_3,effect=curbunRSkill2Eff,cooldown=3)
 serafWeaponEff = effect("Bénidiction séraphique","serafWeapShield",INTELLIGENCE,overhealth=20,lightShield=True,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,emoji=sameSpeciesEmoji('<:dictameB:911078870936084551>','<:dictameR:911078775217848342>'))
-serafWeapon = weapon("Bénéiction séraphique","serafWeap",RANGE_DIST,AREA_CIRCLE_5,power=10,sussess=100,effectOnUse=serafWeaponEff,type=TYPE_HEAL,use=INTELLIGENCE,emoji='<:dictameB:911078870936084551>')
+serafWeapon = weapon("Bénéiction séraphique","serafWeap",RANGE_DIST,AREA_CIRCLE_5,power=10,sussess=100,effectOnUse=serafWeaponEff,type=TYPE_HEAL,use=INTELLIGENCE,emoji='<:dictameB:911078870936084551>',target=ALLIES)
 dictameEff = effect("Dictame","dictameEff",INTELLIGENCE,overhealth=35,type=TYPE_ARMOR,emoji=serafWeaponEff.emoji,trigger=TRIGGER_DAMAGE)
 serafSkill = skill("Dictame","dictame",TYPE_ARMOR,0,0,range=AREA_MONO,area=AREA_CIRCLE_2,effect=dictameEff,cooldown=2,use=INTELLIGENCE,emoji=serafWeapon.emoji)
 
