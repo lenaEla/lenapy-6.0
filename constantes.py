@@ -115,7 +115,7 @@ STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED,STATUS_TRUE_DEATH = 0,1,2,3
 
 # Aspirations
 BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0,1,2,3,4,5,6,7,8,9,10
-inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prevoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
+inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prévoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
 aspiEmoji = ['<:ber:903135970625462312>','<:obs:903136012975357952>','<:poi:909548928045842462>','<:ido:909549029027880992>','<:pre:910185501535903775>','<:tet:903136049834889317>','<:mag:909549699160219659>','<:alt:909549006680653824>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:909549059059122176>']
 
 # "Target" values
@@ -305,7 +305,6 @@ else:
 isLenapy = not(os.path.exists("../Kawi"))
 
 # Tabl of random messages for the shop
-rollMessage = []
 shopRandomMsg = [
     '<:lena:909047343876288552> : "Si j\'en crois la loi, je suis sensée vous rappeller que vous acceptez d\'utiliser vos armes à vos risques et périls.\nJe suis en aucun cas responsable si elle vous explose dans les mains et que vous la passez à gauche"',
     '<:lena:909047343876288552> : "Si quelqu\'un vois l\'autre fanatique des fleurs roses, vous pourrez lui dire qu\'il y en a une qui a poussée dans mon shop ?"',
@@ -355,7 +354,7 @@ shopRandomMsg = [
 ]
 
 # Same, but for the roll command
-rollMessage += ["Selon toute vraisemblance ce sera un **{0}**","Puisse la chance être avec toi... **{0}** !","Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**","Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
+rollMessage = ["Selon toute vraisemblance ce sera un **{0}**","Puisse la chance être avec toi... **{0}** !","Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**","Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
 
 randomEmojiFight = [
     '<:ffsad:896113677550366740>',
@@ -366,6 +365,13 @@ randomEmojiFight = [
 
 lenRdmEmojiFight = len(randomEmojiFight)
 mauvaisePerdante = "\n\nUnexpected situation: The enemy has won"
+
+randChooseMsg = [
+    "À quoi bon, de toutes façons tu vas choisir ce qui t'interresse vraiment\nMais bon voilà",
+    "Je doute que tu tiennes compte de mon avis mais j'ai choisi",
+    "Selon l'allignement des étoiles, tu va devoir prendre",
+    "D'après les résidus de thé dans ma tasse...",
+    ]
 
 class says:
     """A class for storing the says message from a entity"""
@@ -617,7 +623,8 @@ randomMaxArmor = [
 
 randomTotalArmor = [
     "Il semblerais que {icon} __{name}__ préfère prévenir que guérir... Son total d'armure donné s'élève à **{value}**",
-    "Le total d'armure donnée par {icon} __{name}__ s'élève à **{value}**, sans plus ni moins ╮(︶▽︶)╭"
+    "Le total d'armure donnée par {icon} __{name}__ s'élève à **{value}**, sans plus ni moins ╮(︶▽︶)╭",
+    "Hé bah ! On peut dire que {icon} __{name}__ s'y connais en armure. Il en a donné **{value}** points jusqu'à présent"
 ]
 
 randomMaxKill = [
@@ -628,17 +635,20 @@ randomMaxKill = [
 randomTotalKill = [
     "Le nombre de victimes de {icon} __{name}__ est de **{value}**.\n\nNon j'ai pas de commentaire à faire (＃￣0￣)",
     "Le nombre de victimes de {icon} __{name}__ est de **{value}**."
+    "Si j'ai bien compté, le nombre total d'élimiation par {icon} __{name}__ est à **{value}** (ᓀ ᓀ)\nFaites ce que vous voulez de cette information"
 ]
 
 randomRecordMsg = [
     "C'est cependant loin du record qui est de **{value}**, détenu par {icon} __{name}__",
     "Va falloir mieux faire si tu veux dépasser {icon} __{name}__, le sien est à **{value}** ☆⌒(ゝ。∂)",
-    "Allez courage ! {icon} __{name}__ n'est qu'à **{value}** (^.~)☆"
+    "Allez courage ! {icon} __{name}__ n'est qu'à **{value}** (^.~)☆",
+    "Si tu veux viser les étoiles, sache que {icon} __{name}__ est à **{value}** ┐( ˘ ､ ˘ )┌"
 ]
 
 randomPurcenMsg = [
     "Ça fait quoi... **{purcent}** % du total de son équipe ?",
-    "Hum... Je crois que ça doit faire... **{purcent}** % du total de son équipe ?"
+    "Hum... Je crois que ça doit faire... **{purcent}** % du total de son équipe ?",
+    "D'après ma calculatrice, ça fait **{purcent}** du total de son équipe"
 ]
 
 def createTpmChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):

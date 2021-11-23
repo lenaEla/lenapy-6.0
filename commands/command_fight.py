@@ -21,16 +21,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     for a in tablIsPnjName:
         temp.append((a,False))
 
-    dictIsPnjVar = dict(temp)
-    
-    aliceMemCastTabl = [False,False]
-    alicePing = False         # Will Alice say it ?
+    dictIsPnjVar = dict(temp)               # A dict who keep the bool for the presence of a Temp
+
+    aliceMemCastTabl = [False,False]        # Does a team is casting Memento Angel's path 
+    alicePing = False                       # Will Alice say it ?
     now = datetime.datetime.now()
     logs,haveError = "[{0}]\n".format(now.strftime("%H:%M:%S, %d/%m/%Y")),False
-    uniqueID = 0
 
     print(ctx.author.name + " a lancé un combat")
-    cmpt,tablAllCells,tour,sleepTime,danger,dangerThub,tablAliveInvoc = 0,[],0,0.7,None,None,[0,0]
+    cmpt,tablAllCells,tour,sleepTime,danger,dangerThub,tablAliveInvoc = 0,[],0,0.7,100,None,[0,0]
+    dangerLevel = [65,70,75,80,85,90,95,100,110,120,135]
 
     class cell:
         """The base class for the board"""
@@ -460,6 +460,17 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             temp = transShield
 
                         self.char.skills[a] = temp
+                    
+                    elif self.char.skills[a].id == mageUlt.id:
+                        if self.char.element in [ELEMENT_FIRE,ELEMENT_AIR,ELEMENT_SPACE]:
+                            temp = mageUltZone
+                        elif self.char.element in [ELEMENT_WATER,ELEMENT_EARTH,ELEMENT_TIME]:
+                            temp = mageUltMono
+                        else:
+                            temp = mageUlt
+
+                        self.char.skills[a] = temp
+
                     cooldowns[a] = int(self.char.skills[a].ultimate)*2+self.char.skills[a].initCooldown
 
             self.cooldowns = cooldowns
@@ -582,6 +593,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             elif self.char.element == ELEMENT_EARTH:
                 baseStats[6] += 5
 
+            if danger > 100:
+                add = int(danger/135 * 20)
+                for cmpt in [AGILITY,PRECISION,RESISTANCE]:
+                    baseStats[cmpt] += add
             self.baseStats = baseStats
             
         def allStats(self):
@@ -753,10 +768,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     except:
                         print("L'effet {0} (caster : {1}) n'a pas pu être retiré de la liste des effets donnés par ce dernier".format(eff.effect.name,eff.caster.char.name))
 
-            for a in addEffect:
+            for a in addEffect[:]:
                 self.effect.append(a)
                 a.caster.ownEffect.append(a)
                 addEffect.remove(a)
+                if type(a) != fightEffect:
+                    raise AttributeError("Except fightEffect, but get {0} insted".format(type(a)))
             self.recalculate()
 
         def indirectAttack(self,target=0,value=0,icon="",ignoreImmunity=False,name='') -> str:
@@ -798,17 +815,17 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if name != '':
                         addName = ' ({0})'.format(name)
                     popopo = f"{self.icon} {icon} → {target.icon} -{value} PV{addName}\n"
-                    if self.isPnj("Lio"):
-                        popopo += add_effect(self,target,charming2,uniqueID=uniqueID)
+                    if self.isPnj("Liz"):
+                        popopo += add_effect(self,target,charming2)
                         target.refreshEffects()
-                        uniqueID += 1
+                        
 
                     if target.hp <= 0:
                         popopo += target.death(killer=self)
 
             return popopo
 
-        def death(self,killer = 0,uniqueID=copy.copy(uniqueID)) -> str:
+        def death(self,killer = 0) -> str:
             """Méthode à appeler lorsque l'entité meurt.
             Renvoie un str contenant les messages correspondant aux actions effectuées"""
             pipistrelle = f"{self.char.name} ({self.icon}) est mort{self.accord()} !\n"
@@ -853,7 +870,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             if self.status == STATUS_ALIVE:
                 if self.ressurectable:
-                    self.status = STATUS_DEAD
+                    if type(self.char) != octarien or (type(self.char) == octarien and self.char.rez):
+                        self.status = STATUS_DEAD
+                    else:
+                        self.status = TRUE_DEATH
                 else:
                     self.status = STATUS_TRUE_DEATH
                     
@@ -864,18 +884,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     self.icon = self.char.deadIcon
             
             elif self.status == STATUS_RESURECTED:
-                pipistrelle += add_effect(self,self,onceButNotTwice,uniqueID=uniqueID)
-                uniqueID += 1
+                pipistrelle += add_effect(self,self,onceButNotTwice)
+                
 
             if self.status == STATUS_DEAD:
-                add_effect(killer,self,lostSoul,uniqueID=uniqueID)
-                uniqueID += 1
+                add_effect(killer,self,lostSoul)
+                
                 self.refreshEffects()
 
             killer.stats.ennemiKill += 1
             return pipistrelle
 
-        def attack(self,target=0,value = 0,icon = "",area=AREA_MONO,sussess=None,maxRange=None,use=STRENGTH,onArmor = 1,uniqueID=copy.copy(uniqueID),effectOnHit = None) -> str:
+        def attack(self,target=0,value = 0,icon = "",area=AREA_MONO,sussess=None,maxRange=None,use=STRENGTH,onArmor = 1,effectOnHit = None) -> str:
             """Méthode à appeler lorsque l'entité attaque.
             Renvoie un str contenant les messages correspondant aux actions effectuées"""
             if sussess==None: # If no success is gave, use the weapon success rate
@@ -887,7 +907,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             
             popipo,critMsg,ppEffect = "","",0
 
-            if type(target) != int: # If the target is valid
+            if type(target) != int and value > 0: # If the target is valid
                 dangerMul = 1
                 if danger != None and self.team: # get danger value
                     dangerMul = danger/100
@@ -924,7 +944,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             else:
                                 used = self.allStats()[use]
                             
-                            damage = round(value * (used+100-self.negativeDirect)/100 * (1-(min(95,z.resistance-self.percing)/100))*dangerMul*self.getElementalBonus(target=z,area=area,type=TYPE_DAMAGE))
+                            damage = round(value * (used+100-self.negativeDirect)/100 * (1-(min(95,z.resistance*(1-self.percing/100))/100))*dangerMul*self.getElementalBonus(target=z,area=area,type=TYPE_DAMAGE))
                             
                             # AoE reduction factor
                             if z == target: 
@@ -955,15 +975,15 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         break
 
                                 if z.char.aspiration == PROTECTEUR:
-                                    popipo += add_effect(z,actTurn,proMalus,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    popipo += add_effect(z,actTurn,proMalus)
+                                    
                                 if z.isPnj("Liu"):
-                                    popipo += add_effect(z,actTurn,charming,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    popipo += add_effect(z,actTurn,charming)
+                                    
                                     z.refreshEffects()
                                 if actTurn.isPnj("Liz"):
-                                    popipo += add_effect(actTurn,z,charming,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    popipo += add_effect(actTurn,z,charming)
+                                    
                                     z.refreshEffects()
                                 # "dimension déphasée" special damage reduction
                                 ailill = 100
@@ -1021,8 +1041,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     if not(alreadyHaveArmorEff):
                                         effect = copy.deepcopy(astralShield)
                                         effect.overhealth = valueToAdd
-                                        add_effect(z,z,effect,ignoreEndurance=True,uniqueID=uniqueID)
-                                        uniqueID += 1
+                                        add_effect(z,z,effect,ignoreEndurance=True)
+                                        
                                         z.refreshEffects()
 
                                 # Damage bosted
@@ -1063,15 +1083,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                 if effectOnHit != None and z == target and z.hp > 0:
                                     effectOnHit = findEffect(effectOnHit)
-                                    popipo += add_effect(self,target,effectOnHit,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    popipo += add_effect(self,target,effectOnHit)
+                                    
 
                                     z.refreshEffects()
 
-                                for a in z.effect:
-                                    if a.effect == hourglass1:
-                                        a.value += effectiveDmg
-                                        break
+                                for eff in z.effect:
+                                    if eff.effect == hourglass1:
+                                        eff.value += effectiveDmg
+                                    elif eff.effect.id == lightAura2ActiveEff.id:
+                                        for ent in z.cell.getEntityOnArea(area=lightAura2ActiveEff.area,team=z.team,wanted=ALLIES,directTarget=False):
+                                            popipo += eff.caster.heal(ent,eff.icon,lightAura2ActiveEff.stat,lightAura2ActiveEff.power,eff.effect.name,danger)
+                                        popipo += eff.decate(value=1)
+                                        z.refreshEffects()
+
                             else:
                                 popipo += f"{z.char.name} esquive l'attaque\n"
                                 z.stats.dodge += 1
@@ -1082,12 +1107,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             a.value += 5
                                             break
                                 if z.isPnj("Lia"):
-                                    popipo += add_effect(z,actTurn,charming,uniqueID=uniqueID)
-                                    popipo += add_effect(z,actTurn,charming,uniqueID=uniqueID)
+                                    popipo += add_effect(z,actTurn,charming)
+                                    popipo += add_effect(z,actTurn,charming)
                                     z.refreshEffects()
-                                    uniqueID += 1
-            else:
-                popipo =f"{self.char.name} ne sait pas quoi faire"
 
             for eff in self.effect:
                 if eff.effect.trigger == TRIGGER_AFTER_DAMAGE:
@@ -1105,8 +1127,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if not(alreadyHaveArmorEff):
                             effect = copy.deepcopy(convertArmor)
                             effect.overhealth = valueToAdd
-                            popipo += add_effect(eff.caster,self,effect,ignoreEndurance=True,uniqueID=uniqueID)
-                            uniqueID += 1
+                            popipo += add_effect(eff.caster,self,effect,ignoreEndurance=True)
+                            
                             self.refreshEffects()
 
                     elif eff.effect.id == vampirismeEff.id:
@@ -1114,15 +1136,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                         popipo += eff.caster.heal(self,eff.icon,None,healPowa,eff.effect.name)
 
-                    elif eff.effect.id == lightAura2ActiveEff.id:
-                        for ent in target.cell.getEntityOnArea(area=lightAura2ActiveEff.area,team=target.team,wanted=ALLIES,directTarget=False):
-                            popipo += eff.caster.heal(ent,eff.icon,lightAura2ActiveEff.stat,lightAura2ActiveEff.power,eff.effect.name)
-                        popipo += eff.decate(value=1)
-                        target.refreshEffects()
-
             return popipo
 
-        def startOfTurn(self,tablEntTeam="tabl",uniqueID=copy.copy(uniqueID)) -> str:
+        def startOfTurn(self,tablEntTeam="tabl") -> str:
             """Méthode à appeler lorsque l'entité acommence son tour.
 
             Diminue le leftTurn des effets dont elle est l'auteur sur toutes les autre entités.
@@ -1131,7 +1147,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             temp = ""
             for a in self.effect:
                 if a.trigger == TRIGGER_START_OF_TURN:
-                    temp += a.triggerStartOfTurn()
+                    temp += a.triggerStartOfTurn(danger)
 
             for eff in self.ownEffect[:]:
                 if type(eff) == list:
@@ -1144,7 +1160,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             string += "\n".format(a.name)
 
                 for effOn in eff.on.effect:
-                    if effOn.effect.id == eff.effect.id and effOn.caster.id == self.id and effOn.unique_id == eff.unique_id:
+                    if effOn.effect.id == eff.effect.id and effOn.id == eff.id:
                         temp += effOn.decate(turn=1)
                         eff.on.refreshEffects()
 
@@ -1156,8 +1172,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if a.effect.id == gwenCoupeEff.id:
                     if random.randint(0,99) < 15:
                         effect = intargetable
-                        temp += add_effect(self,self,effect,uniqueID=uniqueID)
-                        uniqueID += 1
+                        temp += add_effect(self,self,effect)
+                        
 
             self.refreshEffects()
 
@@ -1178,20 +1194,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                     ent = tablEntTeam[0][random.randint(0,len(tablEntTeam[0])-1)]
                     if ent.hp > 0:
-                        temp += add_effect(self,ent,effect,uniqueID=uniqueID)
+                        temp += add_effect(self,ent,effect)
                         ent.refreshEffects()
-                        uniqueID += 1
+                        
                     cmpt += 1
 
             return temp
 
-        def endOfTurn(self) -> str:
+        def endOfTurn(self,danger) -> str:
             """Méthode à appeler lorsque l'entité termine son tour.
             Renvoie un str contenant les messages correspondant aux actions effectuées"""
             temp = ""
             for a in self.effect:
                 if a.trigger == TRIGGER_END_OF_TURN:
-                    temp += a.triggerEndOfTurn()
+                    temp += a.triggerEndOfTurn(danger)
 
                 if a.effect.id == enchant.id:
                     a.effect.magie = 0
@@ -1328,7 +1344,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             return 1
 
-        async def resurect(self,target,value : int, icon : str, uniqueID=copy.copy(uniqueID)):
+        async def resurect(self,target,value : int, icon : str,danger=danger):
+            if self.team == 1:
+                value = int(value * (danger/100))
             self.stats.allieResurected += 1
             self.stats.heals += value
             target.healResist += int(value/target.maxHp/2*100/2)
@@ -1339,8 +1357,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:
                 target.icon = await getUserIcon(bot,target.char)
 
-            add_effect(self,target,onceButNotTwice,uniqueID=uniqueID)
-            uniqueID+=1
+            add_effect(self,target,onceButNotTwice)
+            
             for eff in target.effect:
                 if eff.id == lostSoul.id:
                     eff.decate(turn=99)
@@ -1384,7 +1402,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             return int(aggro)
 
-        def heal(self,target, icon : str, statUse : int, power : int, effName = None,uniqueID=copy.copy(uniqueID)):
+        def heal(self,target, icon : str, statUse : int, power : int, effName = None,danger=danger):
             overheath = 0
             aff = target.hp < target.maxHp
             ballerine = ""
@@ -1399,7 +1417,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     else:
                         statUse = self.allStats()[statUse]
 
-                    healPowa = round(power * (1+(statUse-self.negativeHeal)/100)* self.valueBoost(target = target,heal=True)*self.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL))
+                    dangerBoost = 1
+                    if self.team == 1:
+                        dangerBoost = danger/100
+
+                    healPowa = round(power * (1+(statUse-self.negativeHeal)/100)* self.valueBoost(target = target,heal=True)*self.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL)*dangerBoost)
                     healPowaInit = copy.deepcopy(healPowa)
 
                     incurableValue = 0
@@ -1440,8 +1462,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if not(alreadyHaveArmorEff):
                         effect = copy.deepcopy(timeShield)
                         effect.overhealth = valueToAdd
-                        add_effect(self,self,effect,ignoreEndurance=True,uniqueID=uniqueID)
-                        uniqueID += 1
+                        add_effect(self,self,effect,ignoreEndurance=True)
+                        
                         self.refreshEffects()
 
                 if self.char.aspiration in [IDOLE,PROTECTEUR,ALTRUISTE] and overheath > 0:
@@ -1460,9 +1482,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             return ballerine
 
                 if self.isPnj("Lio"):
-                    ballerine += add_effect(self,target,charming2,uniqueID=uniqueID)
+                    ballerine += add_effect(self,target,charming2)
                     target.refreshEffects()
-                    uniqueID += 1
+                    
             if aff:
                 return ballerine
             else:
@@ -1475,7 +1497,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     class fightEffect:
         """Classe plus pousée que Effect pour le combat"""
 
-        def __init__(self,id,effect : classes.effect, caster : entity, on : entity, turnLeft : int, trigger : int, type : int, icon : str,value=1,unique_id = 0):
+        def __init__(self,id,effect : classes.effect, caster : entity, on : entity, turnLeft : int, trigger : int, type : int, icon : str,value=1):
             """self.id : int -> Id de l'effet
             self.effect : effect -> L'effet de base
             self.caster : entity -> L'entité qui donne l'effet
@@ -1483,7 +1505,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.turnLeft : int -> Nombre de tour restant à l'effet
             self.trigger : const -> L'événement qui déclanche l'effet
             self.icon : str -> L'id de l'emoji correspondant à l'effet"""
-            self.effect = effect
+            self.effect = copy.deepcopy(effect)
             self.caster = caster
             self.on = on
             self.turnLeft = turnLeft
@@ -1495,7 +1517,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.remove = False
             self.stun = effect.stun
             self.name = effect.name
-            self.unique_id = unique_id
 
         def decate(self,turn=0,value=0) -> str:
             """Réduit le leftTurn ou value de l'effet"""
@@ -1511,7 +1532,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     temp += f"{self.on.char.name} n'est plus sous l'effet __{self.effect.name}__\n"
             return temp
 
-        def triggerDamage(self,value=0,icon="",declancher = 0,onArmor = 1,uniqueID = copy.copy(uniqueID)) -> str:
+        def triggerDamage(self,value=0,icon="",declancher = 0,onArmor = 1) -> str:
             """Déclanche l'effet"""
             value = round(value)
             temp2 = [value,""]
@@ -1556,7 +1577,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         reduc = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
 
                     if stat != None:
-                        damage = damageBase * (1+(stat/100)) * (1-min(95,self.on.resistance-self.caster.percing)/100) * reduc * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
+                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * reduc * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
                     else:
                         damage = damageBase
 
@@ -1573,19 +1594,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     for a in [0,1]:
                         for b in tablEntTeam[a]:
                             if type(b.char) != invoc and b.id == self.on.id:
-                                temp2[1] += add_effect(self.caster,b,findEffect(self.effect.callOnTrigger),uniqueID=uniqueID)
-                                uniqueID += 1
+                                temp2[1] += add_effect(self.caster,b,findEffect(self.effect.callOnTrigger))
+                                
                                 b.refreshEffects()
                                 break
                     temp2[1] += f"{self.decate(value=1)}"
                 else:
-                    temp2[1] += add_effect(self.caster,declancher,findEffect(self.effect.callOnTrigger),uniqueID=uniqueID)
-                    uniqueID += 1
+                    temp2[1] += add_effect(self.caster,declancher,findEffect(self.effect.callOnTrigger))
+                    
                     declancher.refreshEffects()
 
             return temp2
 
-        def triggerDeath(self,killer=None,uniqueID=copy.copy(uniqueID)) -> str:
+        def triggerDeath(self,killer=None) -> str:
             """Déclanche l'effet"""
             temp = ""
             if self.type==TYPE_INDIRECT_REZ:
@@ -1619,32 +1640,31 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         reduc = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
 
                     if stat != None:
-                        damage = damageBase * (1+(stat/100)) * (1-min(95,self.on.resistance-self.caster.percing)/100) * (reduc) * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
+                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * (reduc) * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
 
                     variable += self.caster.indirectAttack(a,value=damage,icon = self.icon)
                 temp += f"L'effet __{self.effect.name}__ se déclanche :\n{variable}{self.decate(value=1)}"
 
             elif self.type == TYPE_UNIQUE:
                 if self.effect == hunter:
-                    add_effect(self.on,self.on,hunterBuff,uniqueID=uniqueID)
-                    uniqueID +=1
+                    add_effect(self.on,self.on,hunterBuff)
                     self.on.refreshEffects()
                     temp+= self.on.attack(target=killer,value = self.on.char.weapon.power,icon = self.on.char.weapon.emoji,onArmor=self.on.char.weapon.onArmor)
 
             if self.effect.callOnTrigger != None:
-                temp += add_effect(self.on,self.on,findEffect(self.effect.callOnTrigger),uniqueID=uniqueID)
-                uniqueID += 1
+                temp += add_effect(self.on,self.on,findEffect(self.effect.callOnTrigger))
+                
 
             self.decate(value=1)
 
             return temp
 
-        def triggerStartOfTurn(self) -> str:
+        def triggerStartOfTurn(self,danger) -> str:
             """Déclanche l'effet"""
             ballerine=f"L'effet __{self.effect.name}__ se déclanche :\n"
             if self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:              # Heal Indirect
                 for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.caster.team,wanted=ALLIES,directTarget=False):
-                    ballerine = self.caster.heal(a,self.icon,self.effect.stat,self.effect.power,self.effect.name)
+                    ballerine = self.caster.heal(a,self.icon,self.effect.stat,self.effect.power,self.effect.name,danger)
 
             elif self.type == TYPE_INDIRECT_DAMAGE and self.value>0:            # Damage indirect
                 variable,damage = "",0
@@ -1659,7 +1679,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         areaMul = 1
                         if a != self.on:
                             areaMul = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
-                        damage = damageBase * (1+(stat/100)) * (1-min(95,self.on.resistance-self.caster.percing)/100) * areaMul * selfElem
+                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * areaMul * selfElem
                         variable += self.caster.indirectAttack(a,value=damage,icon = self.icon,name=self.effect.name)
 
                         if self.effect.id == estal.id and damage != 0:
@@ -1696,7 +1716,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 self.on.refreshEffects()
             return ballerine
 
-        def triggerEndOfTurn(self) -> str:
+        def triggerEndOfTurn(self,danger) -> str:
             """Trigger the effect"""
             temp = ""
             if self.type == TYPE_INDIRECT_DAMAGE:                               # The only indirect damage effect for now is a insta death
@@ -1708,11 +1728,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             elif self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:            # End of turn healing (aka Light Aura 1)
                 for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.caster.team,wanted=ALLIES,directTarget=False):
-                    temp += self.caster.heal(a,self.icon,self.effect.stat,self.effect.power,self.effect.name)
+                    temp += self.caster.heal(a,self.icon,self.effect.stat,self.effect.power,self.effect.name,danger)
 
             return temp
 
-        def triggerRemove(self,uniqueID=copy.copy(uniqueID)) -> str:
+        def triggerRemove(self) -> str:
             """Trigger the effect when it's removed\n
             For now, only unique effect activly use it, but some boost effect use it to"""
 
@@ -1736,9 +1756,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 for a in [0,1]:
                     for b in tablEntTeam[a]:
                         if type(b.char) != invoc and b.id == self.on.id:
-                            message += add_effect(self.caster,b,findEffect(self.effect.callOnTrigger),uniqueID=uniqueID)
-                            uniqueID += 1
+                            message += add_effect(self.caster,b,findEffect(self.effect.callOnTrigger))
+                            
                             b.refreshEffects()
+                            if findEffect(self.effect.callOnTrigger).id == temNativTriggered.id:
+                                self.on.icon, self.on.char.icon = '<:colegue:895440308257558529>','<:colegue:895440308257558529>'
                             break
 
             return message
@@ -1824,21 +1846,23 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             ent2.stats.heals += ent.stats.heals
                             ent2.stats.damageOnShield += ent.stats.damageOnShield
                             ent2.stats.shieldGived += ent.stats.shieldGived
-                            break
 
-                            for enf in ent.ownEffect:
+                            for eff in ent.ownEffect:
                                 eff.caster = ent2
-                                eff.power = eff.power * 0.6
+                                eff.effect.power = eff.effect.power * 0.6
                                 eff.value = eff.value * 0.6
 
                                 for effOn in eff.on.effect:
-                                    if effOn.effect.id == eff.effect.id and effOn.caster.id == ent.id and effOn.unique_id == eff.unique_id:
+                                    if effOn.id == eff.id:
                                         effOn.caster = ent2
-                                        effOn.power = effOn.power * 0.6
+                                        effOn.effect.power = effOn.effect.power * 0.6
                                         effOn.value = effOn.value * 0.6
                                         break
 
                                 ent2.ownEffect.append(eff)
+                                ent2.refreshEffects()
+                                break
+                            break
 
                     tablEntTeam[ent.team].remove(ent)
                     tablAliveInvoc[ent.team] -= 1
@@ -1846,7 +1870,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.timeline = temp
             return {"tablEntTeam":tablEntTeam,"tablAliveInvoc":tablAliveInvoc}
 
-    def add_effect(caster: entity,target: entity,effect: classes.effect,start="",ignoreEndurance=False,uniqueID=copy.copy(uniqueID),turn=tour):
+    def add_effect(caster: entity,target: entity,effect: classes.effect,start="",ignoreEndurance=False,turn=tour,danger=danger):
         """Méthode qui rajoute l'effet Effet à l'entity Target lancé par Caster dans la liste d'attente des effets"""
         valid,id,popipo = False,0,""
         valid = True
@@ -1908,14 +1932,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 value = effect.overhealth
                 friablility = max(1-(max(0,turn-5) / 20),0.1)                   # Reduct over time
+
+                dangerBoost = 1
+                if caster.team == 1:
+                    dangerBoost = danger/100
                 if effect.stat != None:                                         # Classical armor effect
                     if effect.stat == HARMONIE:
                         maxi = 0
                         for randomVar in temp:
                             maxi = max(maxi,randomVar)
-                        value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + maxi-caster.negativeShield+100)/100 * friablility)
+                        value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + maxi-caster.negativeShield+100)/100 * friablility * dangerBoost)
                     else:
-                        value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + temp[effect.stat]-caster.negativeShield+100)/100 * friablility)
+                        value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + temp[effect.stat]-caster.negativeShield+100)/100 * friablility * dangerBoost)
                 elif not(ignoreEndurance):                                      # Semi-fixe armor effect
                     value = round(effect.overhealth * caster.valueBoost(target=target) * (target.endurance + 100)/100 * friablility)
                 else:                                                           # Fixe armor effect
@@ -1932,7 +1960,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         break
 
                 caster.stats.shieldGived += value
-                addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,TYPE_ARMOR,icon,value,unique_id=uniqueID))
+                addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,TYPE_ARMOR,icon,value))
                 
                 if not(effect.silent):
                     pluriel = ""
@@ -1946,10 +1974,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     else:
                         popipo = f"{target.char.name} ({target.icon}) est sous l'effet de __{name}__ ({icon} {value}){start}\n"
 
-                uniqueID += 1
-
             else:                                                           # Any other effect
-                addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl,unique_id=uniqueID))
+                addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl))
                 name = effect.name
                 if name.endswith("é"):                                      # Add a "e" if the caracter is a girl
                     name += target.accord()
@@ -1962,21 +1988,21 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     else:
                         popipo = f"{target.char.name} ({target.icon}) est sous l'effet de __{name}__ ({icon}){start}\n"
                 target.refreshEffects()
-                uniqueID += 1
+                
 
                 if effect.id == estal.id:                               # If is the Estialba effect
                     for eff in caster.effect:
                         if eff.effect.id == heriteEstialbaEff.id:           # If the caster has Herite Estialba, give also the Estal 2 effect
                             effect=estal2
                             icon = effect.emoji[caster.char.species-1][caster.team]
-                            addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl,unique_id=uniqueID))
+                            addEffect.append(fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl))
                             name = effect.name
                             if name.endswith("é"):
                                 name += target.accord()
  
                             popipo += f"{target.char.name} ({target.icon}) est sous l'effet de __{name}__ ({icon}) pendant {effect.turnInit} tour ({eff.name})\n"
                             target.refreshEffects()
-                            uniqueID += 1
+                            
                             break
                 elif effect.id == hemoragie.id:                         # If is the hemorragic effect
                     for eff in caster.effect:
@@ -1990,7 +2016,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
  
                             popipo += f"{target.char.name} ({target.icon}) est sous l'effet de __{name}__ ({icon}) pendant {effect.turnInit} tour ({eff.name})\n"
                             target.refreshEffects()
-                            uniqueID += 1
+                            
                             break
 
         return popipo
@@ -2023,6 +2049,37 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             temp += f"{a[b+1]}\n"
 
         return temp
+
+    def getHealAggro(on : entity, skillToUse : skill):
+        prio = (1-on.hp/on.maxHp)*100
+
+        prio = prio * (1.2 - (0.1*on.char.weapon.range))                # If the entity is a melee, he is more important
+        if not(on.auto):
+            prio = prio * 1.1                                           # If the entity is a active player, he is a little more important, for reduce the use of the spoon
+
+        if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and on.maxHp - on.hp < on.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and on.hp/on.maxHp <= 0.35):
+            prio = prio * 0.7                                           # If the skill is a big direct heal and the entity is not low Hp or if the skill is a HoT and the entity is low Hp
+                                                                            # The entity is less important
+        
+        prio = prio * (on.healResist/2/100)                             # If the entity have a big healing resist, he is less important
+
+        incurValue = 0
+        for eff in on.effect:
+            if eff.effect.id == incurable.id:
+                incurValue = max(eff.effect.power,incurValue)
+
+        prio = prio * (incurValue/2/100)                                # Same with the healing reduce effects
+        return prio
+
+    def getHealTarget(tablTeam : List[entity], skillToUse : skill):
+        if len(tablTeam) == 1:
+            return tablTeam[0]
+        elif len(tablTeam) < 1:
+            raise AttributeError("tablTeam is empty")
+        
+        temp = tablTeam
+        temp.sort(key=lambda ballerine:getHealAggro(ballerine,skillToUse))
+        return temp[0]
 
     # Début du combat ------------------------------------------------------
     logs += "Fight triggered by {0}\n".format(ctx.author.name)
@@ -2108,8 +2165,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         lvlMax = 0
         for a in team1:
             lvlMax = max(lvlMax,a.level)
-        
-        dangerLevel = [65,70,75,80,85,90,95,100,110,120,135]
+
         altDanger = [65,65,70,70,75,75,80,80,85,90,90,100]
         dangerThugLevel = ['https://media.discordapp.net/attachments/810212020049543221/882219019644575796/danger65.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077419339776/danger70.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077650030632/danger75.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077859762177/danger80.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078119796776/danger85.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078346297384/danger90.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078606340136/danger95.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078870593536/danger100.png','https://cdn.discordapp.com/attachments/810212020049543221/882218079407443998/danger110.png','https://cdn.discordapp.com/attachments/867393297520263208/884453208477532210/effect_20210902093005.png','https://media.discordapp.net/attachments/810212020049543221/882218079625568316/danger120.png']
         altDangerThug = ['https://media.discordapp.net/attachments/810212020049543221/882219019644575796/danger65.png','https://media.discordapp.net/attachments/810212020049543221/882219019644575796/danger65.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077419339776/danger70.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077419339776/danger70.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077650030632/danger75.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077650030632/danger75.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077859762177/danger80.png','https://cdn.discordapp.com/attachments/810212020049543221/882218077859762177/danger80.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078119796776/danger85.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078346297384/danger90.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078606340136/danger95.png','https://cdn.discordapp.com/attachments/810212020049543221/882218078870593536/danger100.png']
@@ -2264,7 +2320,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:  
                 tablEntTeam[a] += [entity(cmpt,b,a,danger=danger)]
             cmpt+=1
-    
+
     for a in [0,1]:                 # Recalculate all entites and get their icons (Do I realy need a second loop for that ?)
         for b in tablEntTeam[a]:
             b.recalculate()
@@ -2566,15 +2622,15 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if type(skil) == skill:
                     if skil.type == TYPE_PASSIVE:               # If the entity have a passive
                         effect=findEffect(skil.effectOnSelf)
-                        tempTurnMsg += add_effect(b,b,effect," ({0})".format(skil.name),uniqueID=uniqueID)
-                        uniqueID += 1
+                        tempTurnMsg += add_effect(b,b,effect," ({0})".format(skil.name),danger=danger)
+                        
                         logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effect.name,b.char.name,effect.turnInit)
 
                         if effect.id == "octTourEff1":              # If the entity is the Octotower, give the damage redirect at his team
                             for ent in tablEntTeam[1]:
                                 if ent != b:
-                                    add_effect(b,ent,octoTourEff2,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    add_effect(b,ent,octoTourEff2)
+                                    
                                     logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effect.name,ent.char.name,effect.turnInit)
                     
                     if skil.id == trans.id:
@@ -2597,25 +2653,25 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             z.hp = round((baseHP+z.char.level*HPparLevel)*((temp)/100+1)*dangerFact)
                             z.maxHp = round((baseHP+z.char.level*HPparLevel)*((temp)/100+1)*dangerFact)
 
-                            add_effect(b,z,effect," ({0} - {1})".format(c.name,b.char.name),uniqueID=uniqueID)
-                            uniqueID += 1
+                            add_effect(b,z,effect," ({0} - {1})".format(c.name,b.char.name))
+                            
                             logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effect.name,z.char.name,effect.turnInit)
                             z.refreshEffects()
 
                         tempTurnMsg += "{0} ({1}) a donné l'effet de __{2}__ (<:constitution:888746214999339068>) à son équipe ({3})\n".format(b.char.name,b.icon,effect.name,c.name)
                     else:                           # Any other effects
                         effect=findEffect(c.effect)
-                        tempTurnMsg += add_effect(b,b,effect," ({0})".format(c.name),uniqueID=uniqueID)
-                        uniqueID += 1
+                        tempTurnMsg += add_effect(b,b,effect," ({0})".format(c.name),danger=danger)
+                        
                         logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effect.name,b.char.name,effect.turnInit)
 
             if b.char.aspiration == POIDS_PLUME:
-                add_effect(b,b,poidPlumeEff,uniqueID=uniqueID)
-                uniqueID += 1
+                add_effect(b,b,poidPlumeEff)
+                
                 logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,poidPlumeEff.name,b.char.name,poidPlumeEff.turnInit)
             elif b.char.aspiration == ENCHANTEUR:
-                add_effect(b,b,enchant,uniqueID=uniqueID)
-                uniqueID += 1
+                add_effect(b,b,enchant)
+                
                 logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,enchant.name,b.char.name,enchant.turnInit)
             elif b.char.aspiration == TETE_BRULE:
                 effTB = effTB2[:][0]
@@ -2631,7 +2687,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if b.char.weapon.use == STRENGTH:
                     temp2[0] = summation//2
                 else:
-                    temp2[6] = summation//2     
+                    temp2[6] = summation//2
 
                 effTB.strength = temp2[0]
                 effTB.endurance = temp2[1]
@@ -2641,20 +2697,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 effTB.intelligence = temp2[5]
                 effTB.magie = temp2[6]
 
-                add_effect(b,b,effTB,uniqueID=uniqueID)
-                uniqueID += 1
+                add_effect(b,b,effTB)
+                
                 logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effTB.name,b.char.name,effTB.turnInit)
             elif b.char.aspiration == MAGE:
                 effMage = effMag2[:][0]
                 temp = b.strength//2
                 effMage.strength = - temp
                 effMage.magie = temp
-                add_effect(b,b,effMage,uniqueID=uniqueID)
-                uniqueID += 1
+                add_effect(b,b,effMage)
+                
                 logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effMage.name,b.char.name,effMage.turnInit)
             if b.isPnj("Aillil") and len(tablEntTeam[0])>4:
-                tempTurnMsg += add_effect(b,b,dephased,uniqueID=uniqueID)
-                uniqueID += 1
+                tempTurnMsg += add_effect(b,b,dephased)
+                
                 logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,dephased.name,b.char.name,dephased.turnInit)
 
             b.refreshEffects()
@@ -2664,20 +2720,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             if a[0] == ALL:
                 for b in [0,1]:
                     for c in tablEntTeam[b]:
-                        tempTurnMsg += add_effect(c,c,findEffect(a[1]),uniqueID=uniqueID)
-                        uniqueID += 1
+                        tempTurnMsg += add_effect(c,c,findEffect(a[1]))
+                        
                         c.refreshEffects()
 
             elif a[0] == TEAM1:
                 for b in tablEntTeam[0]:
-                    tempTurnMsg += add_effect(b,b,findEffect(a[1]),uniqueID=uniqueID)
-                    uniqueID += 1
+                    tempTurnMsg += add_effect(b,b,findEffect(a[1]))
+                    
                     b.refreshEffects()
 
             elif a[0] == TEAM2:
                 for b in tablEntTeam[1]:
-                    tempTurnMsg += add_effect(b,b,findEffect(a[1]),uniqueID=uniqueID)
-                    uniqueID += 1
+                    tempTurnMsg += add_effect(b,b,findEffect(a[1]))
+                    
                     b.refreshEffects()
 
     for a in [0,1]:                             # Vérification de présence de sort de résurection
@@ -3382,6 +3438,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     elif actTurn.char.weapon.type == TYPE_HEAL:
                                         probaAtkWeap = [0,0,0,0,0,0,0,0]
                                         probaIndirectWeap = [0,0,0,0,0,0,0,0]
+                                        if nbTargetAtRange:
+                                            probaHealWeap = [0,0,0,0,0,0,0,0]
                                     else:
                                         probaHealWeap = [0,0,0,0,0,0,0,0]
                                         probaAtkWeap = [0,0,0,0,0,0,0,0]
@@ -3650,13 +3708,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     logs += "\nSelected option : Heal with weapon"
                                     
                                     if nbTargetAtRange > 0:
-                                        for a in atRange: # Allié le blessé
-                                            if a.team == actTurn.team and a.hp > 0 and type(a.char) != invoc:
-                                                if a.hp/a.maxHp < mDAHp:
-                                                    mostDamageAllie, mDAHp = a,a.hp/a.maxHp
+                                        optionChoice,ennemi = OPTION_WEAPON,getHealTarget(tablEntTeam[actTurn.team],actTurn.char.weapon)
 
-                                        optionChoice,ennemi = OPTION_WEAPON,mostDamageAllie
-                                                    
                                     else:
                                         logs += "\nNo target at range. Trying to move"
                                         tempAlly = []
@@ -3687,9 +3740,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     optionChoisen = True
                                 elif not(optionChoisen):
                                     probaRoll -= probaHealWeap[choisenIA]
-
-                                if probTabl[0][choisenIA] > 0:
-                                    logs += "\nLes conditions pour que l'utilisation d'une compétence de résurrection sont remplies\nprobaRésu : {0}\n".format(probTabl[0][choisenIA] > 0)
 
                                 if probaRoll <= probTabl[0][choisenIA] and probTabl[0][choisenIA] > 0 and not(optionChoisen): # Résurection
                                     logs += "\nSelected option : Resurection Skill"
@@ -3789,20 +3839,14 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         randomSkill = healSkill[0]
 
                                     if randomSkill.range != AREA_MONO:
-                                        nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
-                                        tablAtRange = []
                                         if randomSkill.id != vampirisme.id:
                                             tablAtRange = actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=randomSkill.effect)
                                         else:
                                             tablAtRange = actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=randomSkill.effect,ignoreAspiration=[ALTRUISTE,PROTECTEUR,PREVOYANT,IDOLE])
-                                        for a in tablAtRange: # Allié le blessé
-                                            if a.team == actTurn.team and a.hp > 0:
-                                                if a.hp/a.maxHp < nearestDistance:
-                                                    nearestEnnemi, nearestDistance, nearestCell = a,a.hp/a.maxHp,a.cell
-
+                                
                                         optionChoice = OPTION_SKILL
                                         skillToUse = randomSkill
-                                        ennemi = nearestEnnemi
+                                        ennemi = getHealTarget(tablEntTeam[actTurn.team],skillToUse)
 
                                     else:
                                         if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effect,directTarget=False)) > 0 or (randomSkill == trans and actTurn.char.aspiration in [ALTRUISTE,IDOLE]):
@@ -3963,7 +4007,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     probaRoll -= probaInvoc[choisenIA]
 
                                 # Boss unique skills
-                                if actTurn.char.name == "Serena" and type(actTurn.char) == octarien and (serenaSpe in indirectAtkSkill):
+                                if actTurn.char.name == "Séréna" and type(actTurn.char) == octarien and (serenaSpe in indirectAtkSkill):
                                     poisonCount = 0
                                     for ent in tablEntTeam[int(not(actTurn.team))]:
                                         for eff in ent.effect:
@@ -4067,8 +4111,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     tempTabl.sort(key=lambda ent: ent.stats.damageDeal,reverse=True)
                                     if len(tempTabl) > 0:
                                         ennemi2 = tempTabl[0]
-                                        ballerine = add_effect(actTurn,ennemi2,findEffect(actTurn.char.weapon.effectOnUse),uniqueID=uniqueID)
-                                        uniqueID += 1
+                                        ballerine = add_effect(actTurn,ennemi2,findEffect(actTurn.char.weapon.effectOnUse))
+                                        
                                         logs+= ballerine
                                         tempTurnMsg += ballerine
                                         ennemi2.refreshEffects()
@@ -4081,35 +4125,35 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 tempTurnMsg += "\n__"+actTurn.char.weapon.message.format(actTurn.char.name,ennemi.char.name)+"__\n"
 
                             for a in ennemi.cell.getEntityOnArea(area=actTurn.char.weapon.area,team=actTurn.team,wanted=ALLIES,directTarget=False):
-                                ballerine = actTurn.heal(a, actTurn.char.weapon.emoji, actTurn.char.weapon.use, actTurn.char.weapon.power)
+                                ballerine = actTurn.heal(a, actTurn.char.weapon.emoji, actTurn.char.weapon.use, actTurn.char.weapon.power,danger=danger)
                                 tempTurnMsg += ballerine
                                 logs += ballerine
 
                             if actTurn.char.weapon.effectOnUse != None:
-                                ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse),uniqueID=uniqueID)
-                                uniqueID += 1
+                                ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse),danger=danger)
+                                
                                 logs+= ballerine
                                 tempTurnMsg += ballerine
 
                                 for a in hourglassEffects:
                                     if a == findEffect(actTurn.char.weapon.effectOnUse):
-                                        add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2),uniqueID=uniqueID)
-                                        uniqueID += 1
+                                        add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
+                                        
                                         break
                                 ennemi.refreshEffects()
 
                         elif actTurn.char.weapon.effectOnUse != None: # Other weapons
                             logs += "\n\n{0} is using their weapon on {1}".format(actTurn.char.name,ennemi.char.name)
                             tempTurnMsg += f"\n__{actTurn.char.name} utilise son arme sur {ennemi.char.name} :__\n"
-                            ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse),uniqueID=uniqueID)
-                            uniqueID+=1
+                            ballerine = add_effect(actTurn,ennemi,findEffect(actTurn.char.weapon.effectOnUse),danger=danger)
+                            
                             logs+= ballerine
                             tempTurnMsg += ballerine
 
                             for a in hourglassEffects:
                                 if a == findEffect(actTurn.char.weapon.effectOnUse):
-                                    add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2),uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
+                                    
                                     break
                             ennemi.refreshEffects()
 
@@ -4156,8 +4200,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             for b in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES,directTarget=False):
                                 for c in skillToUse.effect:
                                     effect = findEffect(c)
-                                    tempTurnMsg += add_effect(actTurn,b,effect,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    tempTurnMsg += add_effect(actTurn,b,effect,danger=danger)
+                                    
                                     logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
                                 b.refreshEffects()
 
@@ -4170,8 +4214,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     areaTabl = areaTabl[:5]
 
                                 for b in areaTabl:
-                                    tempTurnMsg += add_effect(actTurn,b,effect,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    tempTurnMsg += add_effect(actTurn,b,effect)
+                                    
                                     logs += "\n{0} gave the {1} effect at {2} for {3} turns".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
                                 b.refreshEffects()
 
@@ -4189,18 +4233,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                 if skillToUse.id not in ["yt","memAlice"]:                  # Any normal healing skill
                                     for a in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES,directTarget=False):
-                                        ballerine = actTurn.heal(a, skillToUse.emoji, skillToUse.use, skillToUse.power)
+                                        ballerine = actTurn.heal(a, skillToUse.emoji, skillToUse.use, skillToUse.power,danger=danger)
                                         tempTurnMsg += ballerine
                                         logs += ballerine
                                 else:                                                       # Limitebreak Heal and Alice Memento
                                     for a in range(0,len(tablEntTeam[actTurn.team])):
                                         if tablEntTeam[actTurn.team][a].hp > 0:                     # On Living allies
-                                            ballerine = actTurn.heal(tablEntTeam[actTurn.team][a], skillToUse.emoji, skillToUse.use, skillToUse.power)
+                                            ballerine = actTurn.heal(tablEntTeam[actTurn.team][a], skillToUse.emoji, skillToUse.use, skillToUse.power,danger=danger)
                                             tempTurnMsg += ballerine
                                         elif tablEntTeam[actTurn.team][a].status == STATUS_DEAD:    # Resurect
                                             healPowa = min(tablEntTeam[actTurn.team][a].maxHp-tablEntTeam[actTurn.team][a].hp,round(skillToUse.power * (1+(statUse-actTurn.negativeHeal)/100)* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(a,area=AREA_MONO,type =TYPE_HEAL)))
                                             healPowa = round(healPowa * ((100-tablEntTeam[actTurn.team][a].healResist)/100) * (0.5+actTurn.char.level*0.01))
-                                            ballerine = await actTurn.resurect(tablEntTeam[actTurn.team][a],healPowa,skillToUse.emoji)
+                                            ballerine = await actTurn.resurect(tablEntTeam[actTurn.team][a],healPowa,skillToUse.emoji,danger=danger)
                                             tempTurnMsg += ballerine
                                             logs += "\n{0} have been resurected.\n"+ballerine
 
@@ -4224,8 +4268,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     for b in tablEntTeam[a]:
                                         if b.hp > 0:
                                             effect = chaosTabl[random.randint(0,lenChaos)]
-                                            tempTurnMsg += add_effect(actTurn,b,effect,uniqueID=uniqueID)
-                                            uniqueID += 1
+                                            tempTurnMsg += add_effect(actTurn,b,effect)
+                                            
                                             logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
                                             b.refreshEffects()
 
@@ -4273,7 +4317,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 elif stat == None:
                                     healPowa = skillToUse.power
 
-                                ballerine = await actTurn.resurect(a,healPowa,skillToUse.emoji)
+                                ballerine = await actTurn.resurect(a,healPowa,skillToUse.emoji,danger=danger)
                                 tempTurnMsg += ballerine
                                 logs += ballerine
 
@@ -4299,8 +4343,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             if skillToUse.effect!=[None]:
                                 for a in skillToUse.effect:
                                     effect = findEffect(a)
-                                    tempTurnMsg += add_effect(actTurn,ennemi,effect,uniqueID=uniqueID)
-                                    uniqueID += 1
+                                    tempTurnMsg += add_effect(actTurn,ennemi,effect)
+                                    
                                     logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,ennemi.char.name,effect.turnInit)
 
                             if skillToUse.id == lunaSpe4.id:
@@ -4326,8 +4370,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             if eff.replica != None:
                                 eff.replicaTarget = ennemi
 
-                            tempTurnMsg += add_effect(actTurn,actTurn,findEffect(skillToUse.effectOnSelf),uniqueID=uniqueID)
-                            uniqueID += 1
+                            tempTurnMsg += add_effect(actTurn,actTurn,findEffect(skillToUse.effectOnSelf))
+                            
                             actTurn.refreshEffects()
 
                         if skillToUse.id == memAlice2.id:
@@ -4338,7 +4382,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     tempTurnMsg += f"\n{actTurn.char.name} est étourdi{actTurn.accord()} !\n"
 
                 tempTurnMsg += "\n__Fin du tour__\n"
-                tempTurnMsg += actTurn.endOfTurn()
+                tempTurnMsg += actTurn.endOfTurn(danger)
                 if not(auto) and not(actTurn.char.name == "Conviction des Ténèbres" and type(actTurn.char) == invoc):
                     if len(tempTurnMsg) > 4096:
                         tempTurnMsg = unemoji(tempTurnMsg)
@@ -4663,7 +4707,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             b.char = await achivements.addCount(ctx,b.char,"hina")
                         if dictIsPnjVar["Julie"]:
                             b.char = await achivements.addCount(ctx,b.char,"julie")
-                        if tablEntTeam[1][0].name == "Luna":
+                        if tablEntTeam[1][0].char.name == "Luna" and type(tablEntTeam[1][0].char) == octarien:
                             b.char = await achivements.addCount(ctx,b.char,"luna")
 
                         if auto and int(ctx.author.id) == int(b.char.owner): # Le temps c'est de l'argent

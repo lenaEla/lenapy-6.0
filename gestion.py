@@ -1,5 +1,4 @@
-import os,discord,random
-import typing
+import os,discord,random,sqlite3,requests
 from typing import Union, List
 
 import discord_slash
@@ -587,3 +586,67 @@ def separeUnit(number : Union[str,int]):
         temp = number[cmpt]+temp
         cmpt -= 1
     return temp[:-1]
+
+gbvdb0 = """
+    CREATE TABLE globalVar (
+        name  STRING PRIMARY KEY
+                    UNIQUE,
+        value
+);"""
+
+class globalVarDb:
+    def __init__(self):
+        if not(os.path.exists("./data/database/globalCooldown.db")):
+            temp = open("./data/database/globalCooldown.db","bw")
+            print("Création du fichier \"globalCooldown.db\"")
+            temp.close()
+
+        self.con = sqlite3.connect(f"./data/database/globalCooldown.db")
+        self.con.row_factory = sqlite3.Row
+        self.database = "globalCooldown.db"
+
+        cursor = self.con.cursor()
+        try:
+            cursor.execute("SELECT * FROM globalVar;")
+        except:
+            temp = ""
+            for a in gbvdb0:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            cursor.execute("INSERT INTO globalVar VALUES (?,?)",("fightEnabled",True))
+
+            self.con.commit()
+            print("Table globalVar crée")
+        cursor.close()
+
+    def fightEnabled(self) -> bool:
+        cursor = self.con.cursor()
+        cursor.execute("SELECT value FROM globalVar WHERE name='fightEnabled'")
+        return bool(cursor.fetchone()["value"])
+
+    def changeFightEnabled(self, to = None):
+        act = self.fightEnabled()
+
+        if to == None:
+            changeTo = not(act)
+        else:
+            changeTo = to
+
+        cursor = self.con.cursor()
+        cursor.execute("UPDATE globalVar SET value = ? WHERE name='fightEnabled';",(changeTo,))
+        self.con.commit()
+        cursor.close()
+
+globalVar = globalVarDb()
+
+"""def _get_as_snowflake(data: Any, key: str) -> Optional[int]:
+    try:
+        value = data[key]
+    except KeyError:
+        return None
+    else:
+        return value and int(value)"""

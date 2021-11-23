@@ -2,7 +2,6 @@ import discord, os
 
 from discord_slash.utils.manage_components import *
 
-
 from adv import *
 from classes import *
 from donnes import *
@@ -42,7 +41,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 for a in team:
                     if a != int(ctx.author.id):
                         teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
-            shopEmb = discord.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*\n<:empty:866459463568850954>")
+            shopEmb = discord.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*")
 
             shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
             for a in shopping:
@@ -107,7 +106,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             else:
                 shopEmb.add_field(name=f"<:empty:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : En combat <:turf:810513139740573696>\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",inline=False)
 
-            if userShopPurcent(user) >= 100 and not(user.have(trans)):
+            if userShopPurcent(user) >= 75 and not(user.have(trans)):
                 fullEmb = discord.Embed(title="Vous avez obtenu l'intégralité du magasin",description="Vous recevez la compétence suivante en récompense :\n<:limiteBreak:886657642553032824> Transcendance (identifiant : yt)",color=user.color)
                 user.skillInventory.append(trans)
                 saveCharFile(pathUserProfile,user)

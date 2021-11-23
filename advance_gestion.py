@@ -8,7 +8,7 @@ from commands.alice_stats_endler import *
 from PIL import Image
 from data.database import *
 
-stuffDB =  dbHandler(database="stuff.db")
+stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
 
 timeoutSelect = create_select(
@@ -323,6 +323,13 @@ def infoSkill(skill : skill, user : char,ctx):
         elif user.aspiration in [PROTECTEUR, PREVOYANT]:
             skil = transShield
 
+    elif skil.id == mageUlt.id:
+        if user.element in [ELEMENT_FIRE,ELEMENT_AIR,ELEMENT_SPACE]:
+            skil = mageUltZone
+        elif user.element in [ELEMENT_WATER,ELEMENT_EARTH,ELEMENT_TIME]:
+            skil = mageUltMono
+        else:
+            skil = mageUlt
 
     desc = f"Icone : {skil.emoji}"
     if skil.type != TYPE_PASSIVE:

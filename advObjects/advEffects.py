@@ -104,9 +104,7 @@ lightAura2ActiveEff = effect("Charges lumineuses","lightaura2Ac",CHARISMA,trigge
 lightAura2PassiveEff = effect("Aura de Lumière II","lightaura2Pa",CHARISMA,turnInit=-1,trigger=TRIGGER_START_OF_TURN,type=TYPE_BOOST,unclearable=True,emoji=lightAuraEffect.emoji,callOnTrigger=lightAura2ActiveEff,description="Octroi \"Charge Lumineuse\" à chaques début de tours",reject=["idoOHEff","proOHEff","altOHEff","ly"])
 extraEting = copy.deepcopy(etingEff)
 extraEting.name, extraEting.id, extraEting.power, extraEting.emoji = "Marque Eting +","eting+", int(extraEting.power * 1.35), sameSpeciesEmoji('<:emeB:909132040392302703>','<:emeR:909132070251536486>')
-sixtineUltEff = effect("Douce nuit","sixtineUltEff",INTELLIGENCE,-10,-10,-10,-10,-10,-10,-10,-3,-3,-3,description="Le monde des rêves vous appelle...",type=TYPE_MALUS,reject=["mq"])
-
-
+sixtineUltEff = effect("Douce nuit","sixtineUltEff",INTELLIGENCE,-10,-10,-10,-10,-10,-10,-10,-3,-3,-3,description="Le monde des rêves vous appelle...",type=TYPE_MALUS,reject=["mq"],emoji=sameSpeciesEmoji('<:snB:911735287351246929>','<:snR:911735275284230145>'))
 
 enchant = effect("Enchanté","na",None,turnInit=-1,silent=True,type=TYPE_UNIQUE,unclearable=True,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji(aspiEmoji[ENCHANTEUR]))
 proMalus = effect("Protecteur - Malus","nb",None,strength=-20,magie=-20,type=TYPE_MALUS,silent=True,stackable=True,emoji=uniqueEmoji('<:proMalus:903137298001047573>'))
