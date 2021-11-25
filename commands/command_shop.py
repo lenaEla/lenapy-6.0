@@ -8,7 +8,7 @@ from donnes import *
 from gestion import *
 from advance_gestion import *
 
-from commands.command_fight import teamWinDB
+from commands_files.command_fight import teamWinDB
 
 buttonReturn = create_button(2,"Retour",emoji='◀️',custom_id="-1")
 buttonBuy = create_button(1,"Acheter",getEmojiObject('<:coins:862425847523704832>'),custom_id="0")
@@ -107,7 +107,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 shopEmb.add_field(name=f"<:empty:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : En combat <:turf:810513139740573696>\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",inline=False)
 
             if userShopPurcent(user) >= 75 and not(user.have(trans)):
-                fullEmb = discord.Embed(title="Vous avez obtenu l'intégralité du magasin",description="Vous recevez la compétence suivante en récompense :\n<:limiteBreak:886657642553032824> Transcendance (identifiant : yt)",color=user.color)
+                fullEmb = discord.Embed(title="Vous avez obtenu 75% du magasin",description="Vous recevez la compétence suivante en récompense :\n<:limiteBreak:886657642553032824> Transcendance (identifiant : yt)",color=user.color)
                 user.skillInventory.append(trans)
                 saveCharFile(pathUserProfile,user)
                 await ctx.channel.send(embed=fullEmb)

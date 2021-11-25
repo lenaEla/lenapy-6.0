@@ -10,8 +10,8 @@ from donnes import *
 from gestion import *
 from advance_gestion import *
 from emoji import backward_arrow,check
-from commands.command_encyclopedia import changeDefault
-from commands.command_start import chooseAspiration,chooseColor,changeCustomColor
+from commands_files.command_encyclopedia import changeDefault
+from commands_files.command_start import chooseAspiration,chooseColor,changeCustomColor
 
 inventoryMenu = create_select(
     options=[
