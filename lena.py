@@ -1,26 +1,30 @@
-###########################################################
+##########################################################
 # Importations :
-import discord, random, os, emoji, datetime
-from discord_slash.model import SlashCommandOptionType
+import asyncio
+import discord, random, os, emoji, datetime,sys
+from discord_slash.model import SlashCommandOptionType,ButtonStyle
+from importlib import import_module
 
 from data.database import *
 from classes import *
+
 from adv import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from commands.command_encyclopedia import *
-from commands.command_fight import *
-from commands.command_inventory import *
-from commands.command_start import *
-from commands.command_procuration import *
-from commands.command_points import *
-from commands.command_shop import *
-from commands.sussess_endler import *
-from commands.command_patchnote import *
-from commands.command_help import *
-from commands.command_patchnote import *
-from commands.alice_stats_endler import *
+
+from commands_files.command_encyclopedia import *
+from commands_files.command_fight import *
+from commands_files.command_inventory import *
+from commands_files.command_start import *
+from commands_files.command_procuration import *
+from commands_files.command_points import *
+from commands_files.command_shop import *
+from commands_files.sussess_endler import *
+from commands_files.command_patchnote import *
+from commands_files.command_help import *
+from commands_files.command_patchnote import *
+from commands_files.alice_stats_endler import *
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -255,6 +259,19 @@ async def hourClock():
 @bot.event
 async def on_ready():
     print("\n-----------------------------\nLe bot est en ligne. Début de la phase d'initialisation post-online !\n----------------------\n")
+    globalVar = globalVarDb()
+    aliceStatsDb = aliceStatsdbEndler()
+    teamWinDB = dbHandler("teamVic.db")
+    stuffDB = dbHandler(database="stuff.db")
+    customIconDB = dbHandler(database="custom_icon.db")
+    startMsg = globalVar.getRestartMsg()
+    if startMsg != 0:
+        msg = await bot.fetch_channel(912137828614426707)
+        msg = await msg.fetch_message(startMsg)
+
+        await msg.edit(embed=discord.Embed(title="Redémarrage en cours...",description="Phase d'initalisation..."))
+        globalVar.changeFightEnabled(True)
+
     cmpt = 0
     lastTime = datetime.datetime.now().second
     lenGuild = len(listGuildSet)
@@ -303,9 +320,26 @@ async def on_ready():
 
     print("\n-----------------------------\nFin de l'initialisation\n-----------------------------\n")
 
+    if startMsg != 0:
+        await msg.edit(embed=discord.Embed(title="Redémarrage en cours...",color=light_blue,description="Le bot a bien été redémarré"))
+        await msg.channel.send("Le redémarrage du bot est terminé Léna",delete_after=10)
+        globalVar.getRestartMsg(int(0))
+        print("Redémarrage terminé")
+
 ###########################################################
 # Commandes
 begoneTabl = []
+def restart_program():
+    """Restarts the current program, with file objects and descriptors
+       cleanup
+    """
+    print("Recive restart command")
+    args = sys.argv[:]
+
+    args.insert(0, sys.executable)
+    if sys.platform == 'win32':
+        args = ['"%s"' % arg for arg in args]
+    os.execv(sys.executable, args)
 
 @bot.event
 async def on_message(ctx : discord.message.Message):
@@ -763,12 +797,7 @@ async def on_message(ctx : discord.message.Message):
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
 
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                chan = ctx.channel
-
-                temp = await chan.create_thread(name="l!test",auto_archive_duration=60,message=ctx)
-                await temp.send("Bidule de test")
-                await asyncio.sleep(5)
-                await temp.delete()
+                await ctx.channel.send(cafe())
 
             elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
                 await procuration(ctx)
@@ -879,7 +908,7 @@ async def normal(ctx):
 
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
         user = loadCharFile(pathUserProfile,ctx)
-        ballerine,trouv,temp = 0,False,0
+        ballerine,temp = 0,0
         if user.team == 0:
             ballerine = user.owner
         else:
@@ -957,7 +986,7 @@ async def normal(ctx):
                     team2.append(alea)
                     cmpt += 1
 
-                permaDamageDown = classes.effect("Malus de dégâts (20%)","damageDown",percing=-20,turnInit=-1,type=TYPE_MALUS,unclearable=True)
+                permaDamageDown = effect("Malus de dégâts (20%)","damageDown",percing=-20,turnInit=-1,type=TYPE_MALUS,unclearable=True)
                 permaDamageDown.turnInit, permaDamageDown.unclearable = -1, True
 
                 await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaDamageDown]])
@@ -1723,7 +1752,7 @@ async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
         selected = selected[:-1]
     while selected.startswith(" "):
         selected = selected[1:]
-    await ctx.channel.send(embed=discord.Embed(title="/choose",color=light_blue,description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0,len(randChooseMsg)-1)],selected)))
+    await ctx.send(embed=discord.Embed(title="/choose",color=light_blue,description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0,len(randChooseMsg)-1)],selected)))
 
 # ------------------------------- ADMIN ----------------------------------------------
 
@@ -1744,10 +1773,29 @@ async def addEnableFight(ctx,valeur = None):
 
     await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__",description="Les combats sont désormais __{0}__".format(["désactivés","activés"][int(valeur)]),color=[red,light_blue][int(valeur)]))
 
-"""@slash.slash(name="test_threads",description="Crée un thread dans le salon actuel, y envoie quelques messages, puis surpprime le thread",guild_ids=[615257372218097691])
-async def threadTest(ctx):
-    print("Print")
-    threadChannel = await ctx.channel.create_thread("Test_{0}_on_{1}".format(ctx.author.name,ctx.guild.name))"""
+@slash.subcommand(base="admin",name="restartBot",guild_ids=[912137828614426704],description="Permet de redémarrer le bot lorsque tous les combats seront fini")
+async def restartCommand(ctx):
+    msg = await ctx.send(embed = discord.Embed(title="Redémarrage en attente...",description="Vérifications des équipes en combat..."))
+    globalVar.changeFightEnabled(False)
+    await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="attendre la fin des combats en cours pour redémarrer"))
+
+    globalVar.getRestartMsg(int(msg.id))
+    fighting = True
+    firstIt = True
+    while fighting:
+        fighting = False
+        for team in os.listdir("./userTeams/"):
+            if teamWinDB.isFightingBool(int(team[:-5])):
+                if firstIt:
+                    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Un combat est encore en cours <a:loading:862459118912667678>"))
+                    firstIt = False
+                fighting = True
+                break
+        if fighting:
+            await asyncio.sleep(3)
+    
+    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Redémarrage en cours..."))
+    restart_program()
 
 ###########################################################
 # Démarrage du bot

@@ -568,3 +568,6 @@ for num in range(0,10):
     incur.append(incurTemp)
 
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement")
+
+def cafe():
+    return "chocolat"

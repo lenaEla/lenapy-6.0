@@ -5,8 +5,8 @@ from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from commands.sussess_endler import *
-from commands.alice_stats_endler import *
+from commands_files.sussess_endler import *
+from commands_files.alice_stats_endler import *
 from traceback import format_exc
 
 teamWinDB = dbHandler("teamVic.db")
@@ -873,7 +873,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if type(self.char) != octarien or (type(self.char) == octarien and self.char.rez):
                         self.status = STATUS_DEAD
                     else:
-                        self.status = TRUE_DEATH
+                        self.status = STATUS_TRUE_DEATH
                 else:
                     self.status = STATUS_TRUE_DEATH
                     
@@ -950,7 +950,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             if z == target: 
                                 multiplicateur = 1
                             else:
-                                multiplicateur = 1-(min(0.8,target.cell.distance(z.cell)*0.35))
+                                multiplicateur = 1-(min(0.8,target.cell.distance(z.cell)*0.4))
                             
                             # Dodge / Miss
                             attPre,targetAgi = self.precision,z.agility
@@ -1088,14 +1088,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                     z.refreshEffects()
 
+                                # After damage
                                 for eff in z.effect:
                                     if eff.effect == hourglass1:
                                         eff.value += effectiveDmg
-                                    elif eff.effect.id == lightAura2ActiveEff.id:
+                                    elif eff.effect.id == lightAura2ActiveEff.id:               # Aura de lumière 2
                                         for ent in z.cell.getEntityOnArea(area=lightAura2ActiveEff.area,team=z.team,wanted=ALLIES,directTarget=False):
                                             popipo += eff.caster.heal(ent,eff.icon,lightAura2ActiveEff.stat,lightAura2ActiveEff.power,eff.effect.name,danger)
                                         popipo += eff.decate(value=1)
                                         z.refreshEffects()
+                                    elif eff.effect.id == flambe.id and use == STRENGTH:                            # Flambage
+                                        eff.effect.power += flambe.power
+                                    elif eff.effect.id == magAch.id and use == MAGIE:                            # Flambage
+                                        eff.effect.power += magAch.power
 
                             else:
                                 popipo += f"{z.char.name} esquive l'attaque\n"
@@ -1250,7 +1255,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     return f"{self.icon} : <:lostSoul:887853918665707621>\n"
 
                 for a in self.effect:
-                    if (a.icon not in ['<:constitution:888746214999339068>','<:lenapy:892372680777539594>','<:tower:905169617163538442>','<:lostSoul:887853918665707621>']+aspiEmoji) and not(a.effect.silent and a.effect.replica == None) and a.effect.id not in [lightAura2PassiveEff.id]:
+                    if (a.icon not in ['<:constitution:888746214999339068>','<:lenapy:892372680777539594>','<:tower:905169617163538442>','<:lostSoul:887853918665707621>','<:colegue:895440308257558529>']+aspiEmoji) and not(a.effect.silent and a.effect.replica == None) and a.effect.id not in [lightAura2PassiveEff.id]:
                         if a.effect.stackable and (a.effect.id not in stackableAlreaySeen):
                             number = 0
                             for ent in self.effect:
@@ -1268,6 +1273,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             stackableAlreaySeen.append(a.effect.id)
                         elif not(a.effect.stackable) and not(giveyouup):
                             temp += a.icon
+                            if a.effect.id in [flambe.id,magAch.id]:
+                                temp += "("+str(a.effect.power//flambe.power)+")"
                         elif not(a.effect.stackable):
                             temp += '<a:giveup:902383022354079814>'
                 if temp != f"{self.icon} : ":
@@ -1745,12 +1752,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     heal = min(self.on.maxHp - self.on.hp, round(self.value * 0.50))
                     message = self.caster.heal(self.on,self.icon,None,heal,self.effect.name)
 
-                elif self.effect == lostSoul:                                   # Remove the body effect
+                elif self.effect.id == lostSoul.id:                                   # Remove the body effect
                     if self.on.status == STATUS_DEAD and not(aliceMemCastTabl[self.on.team]):
                         self.on.status = STATUS_TRUE_DEATH
                         message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
                     elif aliceMemCastTabl[self.on.team]:                                          # If there is a Alice Memento cast, do not remove the body
                         self.turnLeft += 1
+
+                elif self.effect.id in [flambe.id,magAch.id]:
+                    stat,damageBase = self.caster.allStats()[self.effect.stat]-self.caster.negativeIndirect,self.effect.power
+
+                    selfElem = self.caster.getElementalBonus(self.on,self.effect.area,TYPE_INDIRECT_DAMAGE)
+                    damage = damageBase * (1+(stat/100)) *  (1-(min(95,self.on.resistance*(1-self.caster.percing/100))/100)) * selfElem
+
+                    message += self.caster.indirectAttack(self.on,value=damage,icon = self.icon,name=self.effect.name)
 
             if self.effect.callOnTrigger != None:                               # If the effect give another effect when removed, give that another effect
                 for a in [0,1]:
@@ -2051,25 +2066,28 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         return temp
 
     def getHealAggro(on : entity, skillToUse : skill):
-        prio = (1-on.hp/on.maxHp)*100
+        if on.hp < 0 or on.hp >= on.maxHp:
+            return 0
+        else:
+            prio = (1-on.hp/on.maxHp)*100
 
-        prio = prio * (1.2 - (0.1*on.char.weapon.range))                # If the entity is a melee, he is more important
-        if not(on.auto):
-            prio = prio * 1.1                                           # If the entity is a active player, he is a little more important, for reduce the use of the spoon
+            prio = prio * (1.2 - (0.1*on.char.weapon.range))                # If the entity is a melee, he is more important
+            if not(on.auto):
+                prio = prio * 1.1                                           # If the entity is a active player, he is a little more important, for reduce the use of the spoon
 
-        if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and on.maxHp - on.hp < on.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and on.hp/on.maxHp <= 0.35):
-            prio = prio * 0.7                                           # If the skill is a big direct heal and the entity is not low Hp or if the skill is a HoT and the entity is low Hp
-                                                                            # The entity is less important
-        
-        prio = prio * (on.healResist/2/100)                             # If the entity have a big healing resist, he is less important
+            if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and on.maxHp - on.hp < on.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and on.hp/on.maxHp <= 0.35):
+                prio = prio * 0.7                                           # If the skill is a big direct heal and the entity is not low Hp or if the skill is a HoT and the entity is low Hp
+                                                                                # The entity is less important
+            
+            prio = prio * (1-(on.healResist/2/100))                             # If the entity have a big healing resist, he is less important
 
-        incurValue = 0
-        for eff in on.effect:
-            if eff.effect.id == incurable.id:
-                incurValue = max(eff.effect.power,incurValue)
+            incurValue = 0
+            for eff in on.effect:
+                if eff.effect.id == incurable.id:
+                    incurValue = max(eff.effect.power,incurValue)
 
-        prio = prio * (incurValue/2/100)                                # Same with the healing reduce effects
-        return prio
+            prio = prio * (1-(incurValue/2/100))                                # Same with the healing reduce effects
+            return prio
 
     def getHealTarget(tablTeam : List[entity], skillToUse : skill):
         if len(tablTeam) == 1:
@@ -2078,7 +2096,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             raise AttributeError("tablTeam is empty")
         
         temp = tablTeam
-        temp.sort(key=lambda ballerine:getHealAggro(ballerine,skillToUse))
+        temp.sort(key=lambda ballerine:getHealAggro(ballerine,skillToUse),reverse=True)
         return temp[0]
 
     # Début du combat ------------------------------------------------------
@@ -2326,15 +2344,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             b.recalculate()
             await b.getIcon(bot=bot)
 
+    try:
+        msg = await ctx.send(embed = await getRandomStatsEmbed(bot,team1,text=["Chargement...","Combat rapide en cours de génération..."][int(auto)]))
+    except:
+        msg = await ctx.channel.send(embed = await getRandomStatsEmbed(bot,team1))
+
     if not(auto):                   # Send the first embed for the inital "Vs" message and start generating the message
-        if not(slash):
-            await ctx.clear_reaction(emoji.loading)
-            msg = await loadingEmbed(ctx)
-        else:
-            try:
-                msg = await ctx.send(embed = await getRandomStatsEmbed(bot,team1))
-            except:
-                msg = await ctx.channel.send(embed = await getRandomStatsEmbed(bot,team1))
         team = team1[0].team
         teamWinDB.changeFighting(team,True)
 
@@ -3438,7 +3453,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     elif actTurn.char.weapon.type == TYPE_HEAL:
                                         probaAtkWeap = [0,0,0,0,0,0,0,0]
                                         probaIndirectWeap = [0,0,0,0,0,0,0,0]
-                                        if nbTargetAtRange:
+                                        if nbTargetAtRange == 0 and len(actTurn.cell.getEntityOnArea(area=actTurn.char.weapon.effectiveRange,team=actTurn.team,wanted=actTurn.char.weapon.target)) > 0:
                                             probaHealWeap = [0,0,0,0,0,0,0,0]
                                     else:
                                         probaHealWeap = [0,0,0,0,0,0,0,0]
@@ -4662,18 +4677,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             os.remove("./data/{0}_{1}.txt".format(ctx.author.name,date))
             haveError = True
 
-        if not(auto) and not(haveError):
-            await turnMsg.delete()
-            if not(allAuto):
-                await choiceMsg.delete()
-            
+        if not(haveError):
+            if not(auto):
+                await turnMsg.delete()
+                if not(allAuto):
+                    await choiceMsg.delete()
             await msg.edit(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
-        elif not(haveError):
-            try:
-                msg = await ctx.send(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
-            except:
-                msg = await ctx.channel.send(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
-
         # ------------ Succès -------------- #
         if not(octogone):
             for a in [0,1]:

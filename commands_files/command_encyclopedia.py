@@ -4,7 +4,7 @@ from adv import *
 from constantes import *
 from gestion import getEmojiObject, whatIsThat
 from advance_gestion import infoStuff,infoWeapon,infoSkill,getUserIcon,infoAllie,infoEnnemi
-from commands.sussess_endler import *
+from commands_files.sussess_endler import *
 
 def changeDefault(select : dict, value : int):
     """Chance the default value from a Select Menu for the selected option"""
