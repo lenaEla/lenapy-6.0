@@ -4,7 +4,7 @@ from classes import *
 from gestion import *
 from adv import *
 from discord_slash.utils.manage_components import *
-from commands.alice_stats_endler import *
+from commands_files.alice_stats_endler import *
 from PIL import Image
 from data.database import *
 
@@ -860,20 +860,24 @@ async def downloadAllIconPng(bot : discord.Client):
 
 async def makeCustomIcon(bot : discord.Client, user : char):
     # Récupération de l'icone de base
-    if not(user.customColor):
-        background = Image.open("./data/images/char_icons/"+customIconDB.getColorFile(user))
-    else:
-        tabl = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/white_squid.png"],["./data/images/char_icons/empty_octo.png","./data/images/char_icons/white_octo.png"]]
-        background = Image.open(tabl[user.species-1][1])
-        pixel = background.load()
-        layer = Image.open(tabl[user.species-1][0])
+    tabl = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/baseIka.png"],["./data/images/char_icons/empty_octo.png","./data/images/char_icons/baseTako.png"]]
+    background = Image.open(tabl[user.species-1][1])
+    pixel = background.load()
+    layer = Image.open(tabl[user.species-1][0])
 
-        for x in range(0,background.size[0]):
-            for y in range(0,background.size[1]):
-                if pixel[x,y] != (0,0,0,0):
-                    background.putpixel([x,y],hex_to_rgb(hex(user.color)))
+    for x in range(0,background.size[0]):
+        for y in range(0,background.size[1]):
+            if pixel[x,y] != (0,0,0,0):
+                base = list(hex_to_rgb(hex(user.color)))
+                color = list(pixel[x,y])
+                for cmpt in (0,1,2):
+                    color[cmpt] = color[cmpt]-227
+                    base[cmpt] = base[cmpt] - color[cmpt]
+                
+                background.putpixel([x,y],tuple(base))
 
-        background.paste(layer,[0,0],layer)
+    background.paste(layer,[0,0],layer)
+    background.paste(layer,[0,0],layer)
 
     # Récupération de l'icone de l'arme
     if "./data/images/weapons/"+customIconDB.getWeaponFile(user) != "./data/images/weapons/akifauxgif.png":

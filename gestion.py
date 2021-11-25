@@ -253,7 +253,7 @@ def loadCharFile(path,ctx="useless") -> char:
         cmpt += 1
     rep.weaponInventory = sorted(temp,key=lambda weapon : weapon.name)
 
-    try:
+    try:                        # Equiped Skills
         cmpt,temp = 0,[]
         while cmpt < len(file[5]):
             if len(file[5][cmpt])>2:
@@ -278,7 +278,7 @@ def loadCharFile(path,ctx="useless") -> char:
     """except:
         rep.skillInventory = []"""
 
-    try:
+    try:                        # Equiped Stuff
         cmpt,temp = 0,[]
         while cmpt < len(file[7]):
             if len(file[7][cmpt]) > 2:
@@ -289,7 +289,7 @@ def loadCharFile(path,ctx="useless") -> char:
     except:
         rep.stuff = [bbandeau,bshirt,bshoes]
 
-    try:
+    try:                        # Stuff inventory
         cmpt,temp = 0,[]
         while cmpt < len(file[8]):
             if len(file[8][cmpt]) > 2:
@@ -318,7 +318,7 @@ def loadCharFile(path,ctx="useless") -> char:
     except:
         rep.procuration = [int(rep.owner)]
 
-        rep.procuration = set(rep.procuration)
+    rep.procuration = set(rep.procuration)
     try:
         rep.element = int(file[11][0])
     except:
@@ -641,12 +641,25 @@ class globalVarDb:
         self.con.commit()
         cursor.close()
 
-globalVar = globalVarDb()
+    def getRestartMsg(self,set=None):
+        cursor = self.con.cursor()
+        cursor.execute("SELECT value FROM globalVar WHERE name=?",("restartID",))
+        result = cursor.fetchall()
 
-"""def _get_as_snowflake(data: Any, key: str) -> Optional[int]:
-    try:
-        value = data[key]
-    except KeyError:
-        return None
-    else:
-        return value and int(value)"""
+        if len(result) == 0:
+            cursor.execute("INSERT INTO globalVar VALUES (?,?)",("restartID",0,))
+            self.con.commit()
+
+        if set == None:
+            cursor.close()
+            if len(result)==0:
+                return 0
+            else:
+                return int(result[0]["value"])
+        else:
+            cursor.execute("UPDATE globalVar SET value = ? WHERE name = ?",(int(set),"restartID",))
+            self.con.commit()
+            cursor.close()
+            return 0
+
+globalVar = globalVarDb()

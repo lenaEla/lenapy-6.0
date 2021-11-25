@@ -9,12 +9,12 @@ import random,copy
 
 print("")
 # Weapon
-weapons = [julieWeap,blueButterfly,butterflyRed,
+weapons = [julieWeap,blueButterfly,butterflyRed,luth,
     musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]
 
 # Skill
-skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,
+skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,
     fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion2,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]
 
@@ -23,8 +23,11 @@ invocTabl = [seraf,
     darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
 ]
 
+
+
 # Stuff
-stuffs = [lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,
+stuffs = [crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,
+    lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,
     pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,
     celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
 ]
@@ -74,8 +77,8 @@ malusSkill2 = skill("Eclair","aaa",TYPE_DAMAGE,0,80,cooldown=2,sussess=65,use=MA
 kralamWeap = weapon("Décharge motivante","aaa",RANGE_DIST,AREA_DONUT_4,50,100,0,type=TYPE_HEAL,target=ALLIES,use=CHARISMA)
 kralamSkill2 = skill("Electrochoc","kralamSkill2",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_1,use=CHARISMA,cooldown=3,initCooldown=2,emoji='<:electroShoc:912414625679695873>')
 kralamSkillEff2 = effect("This is, my No No Square","nono",INTELLIGENCE,resistance=20,overhealth=100,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,turnInit=3)
-kralamSkillEff1 = effect("No no, don't touch me there","squaez",trigger=TRIGGER_DAMAGE,callOnTrigger=kralamSkillEff2,lvl=1,emoji=uniqueEmoji('<a:FranziskaNo:800833215106383883>'))
-kralamSkill = skill("Prévention","vn",TYPE_BOOST,0,0,AREA_DONUT_6,cooldown=3,effect=kralamSkillEff1,emoji='<:egide:887743268337619005>')
+kralamSkillEff1 = effect("No no, don't touch me there","squaez",trigger=TRIGGER_DAMAGE,callOnTrigger=kralamSkillEff2,lvl=1,emoji=uniqueEmoji('<a:FranziskaNo:800833215106383883>'),type=TYPE_ARMOR)
+kralamSkill = skill("Prévention","vn",TYPE_ARMOR,0,0,AREA_DONUT_6,cooldown=3,effect=kralamSkillEff1,emoji='<:egide:887743268337619005>')
 temNativTriggered = effect("Promue",'tem',magie=0,turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:colegue:895440308257558529>'))
 temNativ = effect("College",'tem1',trigger=TRIGGER_ON_REMOVE,turnInit=3,unclearable=True,callOnTrigger=temNativTriggered)
 temWeap = weapon("Tem life saves","aaa",RANGE_DIST,AREA_CIRCLE_5,42,75,0,use=MAGIE,effect=temNativ)
@@ -96,7 +99,7 @@ veterHealSkill4 = skill("Théorie du complot","octaHealVet4",TYPE_DAMAGE,0,80,us
 veterHealWeap = copy.deepcopy(octoHeal)
 veterHealWeap.negativeHeal, veterHealWeap.power = -20, veterHealWeap.power + 10
 antiArmorShot = skill("Tir anti-matériel","antiArmorShot",TYPE_DAMAGE,0,100,ultimate=True,damageOnArmor=666,cooldown=7)
-zombieSkillEff = effect("Marcheur des limbes","zombaSkillArmor",ENDURANCE,overhealth=100,turnInit=-3,type=TYPE_ARMOR,trigger=TRIGGER_START_OF_TURN)
+zombieSkillEff = effect("Marcheur des limbes","zombaSkillArmor",ENDURANCE,overhealth=100,turnInit=-3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 zombieSkill = skill("Frappe d'outre-tombe","zombiSkill",TYPE_DAMAGE,0,35,use=ENDURANCE,effectOnSelf=zombieSkillEff,cooldown=5)
 
 skills.append(kralamSkill)
