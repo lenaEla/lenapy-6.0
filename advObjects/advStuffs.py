@@ -233,6 +233,15 @@ zenithHat = stuff("Coiffe du zénith","pk",0,1,endurance=30,charisma=40,resistan
 zenithArmor = stuff("Armure du zénith","pl",1,1,endurance=40,charisma=30,resistance=30,negativeHeal=-20,negativeShield=35,agility=-30,magie=-35,emoji='<:zenithArmor:913170492452646922>')
 zenithBoots = stuff("Bottes du zénith","pm",2,1,endurance=30,charisma=40,resistance=20,negativeHeal=-25,negativeShield=35,intelligence=-30,negativeBoost=30,emoji='<:zenithBoots:913170512564334623>')
 
-bardHat = stuff("Chapeau du bard","po",0,1,intelligence=40,negativeBoost=-40,negativeShield=-20,charisma=10,negativeHeal=30,negativeDirect=30,negativeIndirect=30)
-bardBody = stuff("Vêtements du bard","pp",1,1,intelligence=40,negativeBoost=-40,resistance=20,endurance=10,strength=-30,magie=-30,agility=-15,precision=-15)
-bardShoes = stuff("Chaussures du bard","pq",2,1,intelligence=40,negativeBoost=-40,charisma=20,negativeShield=-10,negativeHeal=30,agility=-30,precision=-30)
+bardHat = stuff("Chapeau du barde","po",0,1,intelligence=40,negativeBoost=-40,negativeShield=-20,charisma=10,negativeHeal=30,negativeDirect=30,negativeIndirect=30)
+bardBody = stuff("Vêtements du barde","pp",1,1,intelligence=40,negativeBoost=-40,resistance=20,endurance=10,strength=-30,magie=-30,agility=-15,precision=-15)
+bardShoes = stuff("Chaussures du barde","pq",2,1,intelligence=40,negativeBoost=-40,charisma=20,negativeShield=-10,negativeHeal=30,agility=-30,precision=-30)
+
+floorTanking = effect("Maître tankeur de sol","dragoonIsDead",unclearable=True,turnInit=-1,description='Augmente de 1 tour la durée de l\'effet "Âme en peine" sur soi (Non cumulable !)')
+
+dragoonHelmet = stuff("Heaume du tankeur de sol","pr",0,1,strength=35,agility=25,endurance=10,resistance=10,percing=10,magie=-30,charisma=-20,negativeHeal=15,negativeShield=15,effect=floorTanking,emoji='<:floorTankHelmet:914608772247347200>')
+dragoonArmor = stuff("Armure du tankeur de sol","ps",1,1,strength=25,agility=25,endurance=20,resistance=15,percing=5,magie=-30,intelligence=-20,negativeHeal=15,negativeShield=15,effect=floorTanking,emoji='<:floorTankArmor:914608787187441665>')
+dragoonBoots = stuff("Solerets du tankeur de sol","pt",2,1,strength=25,agility=35,endurance=10,resistance=10,percing=10,magie=-30,charisma=-20,negativeHeal=15,negativeShield=15,effect=floorTanking,emoji='<:floorTankBoots:914608812663652353>')
+
+whiteLily = stuff("Broche du lys blanc","pu",0,1,charisma=25,negativeHeal=-40,effect=flum.effect,emoji='<:whiteLily:914608227545673758>',strength=-30,magie=-25)
+bloodLily = stuff("Broche du lys de sang","pv",0,1,magie=25,negativeDirect=-40,effect=darkFlum.effect,emoji='<:bloodLily:914608243354001429>',charisma=-30,intelligence=-25)
