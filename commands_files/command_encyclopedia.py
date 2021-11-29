@@ -432,12 +432,12 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         resp3 = int(resp2.values[0])
                         tablStuff = [ally.weapon]+ally.skills+ally.stuff
                         try:
-                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=30)
+                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
                         except:
                             try:
-                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=30)
+                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
                             except:
-                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=30)
+                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
                     except:
                         await tempMachin.delete()
                         break
@@ -466,12 +466,12 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         resp3 = int(resp2.values[0])
                         tablStuff = [ennemi.weapon]+ennemi.skills
                         try:
-                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=30)
+                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
                         except:
                             try:
-                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=30)
+                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
                             except:
-                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=30)
+                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
                     except:
                         await tempMachin.delete()
                         break
