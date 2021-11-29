@@ -3,7 +3,6 @@
 import asyncio
 import discord, random, os, emoji, datetime,sys
 from discord_slash.model import SlashCommandOptionType,ButtonStyle
-from importlib import import_module
 
 from data.database import *
 from classes import *
@@ -223,6 +222,40 @@ async def inventoryVerif(bot):
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
 
+async def restart_program(bot : discord.Client, ctx=None):
+    if ctx != None:
+        msg = await ctx.send(embed = discord.Embed(title="Redémarrage en attente...",description="Vérifications des équipes en combat..."))
+    else:
+        chan = await bot.fetch_channel(912137828614426707)
+        msg = await chan.send(embed = discord.Embed(title="Redémarrage automatique en attente...",description="Vérifications des équipes en combat..."))
+    globalVar.changeFightEnabled(False)
+    await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="attendre la fin des combats en cours pour redémarrer"))
+
+    globalVar.getRestartMsg(int(msg.id))
+    fighting = True
+    firstIt = True
+    while fighting:
+        fighting = False
+        for team in os.listdir("./userTeams/"):
+            if teamWinDB.isFightingBool(int(team[:-5])):
+                if firstIt:
+                    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Un combat est encore en cours <a:loading:862459118912667678>"))
+                    firstIt = False
+                fighting = True
+                break
+        if fighting:
+            await asyncio.sleep(3)
+    
+    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Redémarrage en cours..."))
+    await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="redémarrer"))
+
+    args = sys.argv[:]
+
+    args.insert(0, sys.executable)
+    if sys.platform == 'win32':
+        args = ['"%s"' % arg for arg in args]
+    os.execv(sys.executable, args)
+
 @tasks.loop(seconds=1)
 async def oneClock():
     tick = datetime.datetime.now()
@@ -253,17 +286,15 @@ async def hourClock():
             except:
                 print("{0} n'a pas pu être supprimé".format("./data/fightLogs/"+log))
 
+    if tick.hour == 4:
+        await restart_program(bot)
+
     # Skill Verif
     await inventoryVerif(bot)
 
 @bot.event
 async def on_ready():
     print("\n-----------------------------\nLe bot est en ligne. Début de la phase d'initialisation post-online !\n----------------------\n")
-    globalVar = globalVarDb()
-    aliceStatsDb = aliceStatsdbEndler()
-    teamWinDB = dbHandler("teamVic.db")
-    stuffDB = dbHandler(database="stuff.db")
-    customIconDB = dbHandler(database="custom_icon.db")
     startMsg = globalVar.getRestartMsg()
     if startMsg != 0:
         msg = await bot.fetch_channel(912137828614426707)
@@ -329,17 +360,6 @@ async def on_ready():
 ###########################################################
 # Commandes
 begoneTabl = []
-def restart_program():
-    """Restarts the current program, with file objects and descriptors
-       cleanup
-    """
-    print("Recive restart command")
-    args = sys.argv[:]
-
-    args.insert(0, sys.executable)
-    if sys.platform == 'win32':
-        args = ['"%s"' % arg for arg in args]
-    os.execv(sys.executable, args)
 
 @bot.event
 async def on_message(ctx : discord.message.Message):
@@ -697,84 +717,6 @@ async def on_message(ctx : discord.message.Message):
                     for a in os.listdir("./userProfile/"):
                         user = loadCharFile("./userProfile/"+a)
                         await makeCustomIcon(bot,user)
-                elif args[1] == "resetCustomEmoji":
-                    msg = await loadingEmbed(ctx)
-
-                    async def refresh(text : str):
-                        await msg.edit(embed = discord.Embed(title=args[0]+ " - "+args[1],description=text))
-
-                    await refresh("Suppression des dossiers images...")
-                    path = "./data/images"
-                    for a in os.listdir(path):
-                        for b in os.listdir(path+"/"+a):
-                            os.remove(path+"/"+a+"/"+b)
-                            print(f"{path}/{a}/{b} supprimé")
-                        os.rmdir(path+"/"+a)
-                        print(f"{path}/{a} supprimé")
-
-                    os.rmdir("./data/images")
-                    print(f"{path} supprimé")
-                    await refresh("Suppression de la base de données")
-                    try:
-                        customIconDB.dropCustomDB()
-                    except:
-                        pass
-                    await refresh("Supression des emojis")
-                    iconGuildList = []
-                    if os.path.exists("../Kawi/"):
-                        iconGuildList = ShushyCustomIcons
-                    else:
-                        iconGuildList = LenaCustomIcons
-
-                    allEmojisNum = 0
-                    for a in iconGuildList:
-                        emojiGuild = await bot.fetch_guild(a)
-                        allEmojisNum += len(emojiGuild.emojis)
-
-                    cmpt = 0
-                    now = datetime.datetime.now().second
-                    lastTime = copy.deepcopy(now)
-                    for a in iconGuildList:
-                        emojiGuild = await bot.fetch_guild(a)
-
-                        for b in emojiGuild.emojis:
-                            await b.delete()
-                            cmpt += 1
-
-                            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
-                                await refresh("Supression des emojis ({0} %)".format(int(cmpt/allEmojisNum*100)))
-                                lastTime = now
-
-                    await refresh("Création des dossiers...")
-                    existDir(absPath + "/data/images/")
-                    existDir(absPath + "/data/images/headgears/")
-                    existDir(absPath + "/data/images/weapons/")
-                    existDir(absPath + "/data/images/char_icons/")
-                    existDir(absPath + "/data/images/elemIcon/")
-                    await refresh("Création de la base de donnée")
-                    base = open("./data/custom_icon.db","w")
-                    base.close()
-                    customIconDB.remarkeCustomDB()
-                    await downloadAllHeadGearPng(bot,msg,lastTime)
-                    await downloadAllWeapPng(bot,msg,lastTime)
-                    await refresh("Téléchargements des icones de bases...")
-                    await downloadAllIconPng(bot)
-                    await downloadElementIcon(bot)
-
-                    allChar = os.listdir("./userProfile/")
-                    lenAllChar = len(allChar)
-                    cmpt = 0
-
-                    for num in allChar:
-                        user = loadCharFile("./userProfile/"+num)
-                        await getUserIcon(bot,user)
-                        cmpt += 1
-
-                        if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
-                            await refresh("Création des émojis ({0} %)".format(int(cmpt/lenAllChar*100)))
-                            lastTime = now
-
-                    await refresh("Fini !")
                 elif args[1] == "forceShop":
                     await shopping.newShop()
                     await ctx.add_reaction('❄')
@@ -1756,7 +1698,7 @@ async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
 
 # ------------------------------- ADMIN ----------------------------------------------
 
-@slash.subcommand(base="admin",name="enableFight",guild_ids=[912137828614426704],description="Permet d'activer les combats ou non",options=[
+@slash.subcommand(base="admin",name="enable_Fight",guild_ids=[912137828614426704],description="Permet d'activer les combats ou non",options=[
     create_option("valeur","Activer ou désaciver les combats", SlashCommandOptionType.BOOLEAN,False)
 ])
 async def addEnableFight(ctx,valeur = None):
@@ -1773,30 +1715,99 @@ async def addEnableFight(ctx,valeur = None):
 
     await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__",description="Les combats sont désormais __{0}__".format(["désactivés","activés"][int(valeur)]),color=[red,light_blue][int(valeur)]))
 
-@slash.subcommand(base="admin",name="restartBot",guild_ids=[912137828614426704],description="Permet de redémarrer le bot lorsque tous les combats seront fini")
+@slash.subcommand(base="admin",name="restart_Bot",guild_ids=[912137828614426704],description="Permet de redémarrer le bot lorsque tous les combats seront fini")
 async def restartCommand(ctx):
-    msg = await ctx.send(embed = discord.Embed(title="Redémarrage en attente...",description="Vérifications des équipes en combat..."))
-    globalVar.changeFightEnabled(False)
-    await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="attendre la fin des combats en cours pour redémarrer"))
+    await restart_program(bot,ctx)
 
-    globalVar.getRestartMsg(int(msg.id))
-    fighting = True
-    firstIt = True
-    while fighting:
-        fighting = False
-        for team in os.listdir("./userTeams/"):
-            if teamWinDB.isFightingBool(int(team[:-5])):
-                if firstIt:
-                    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Un combat est encore en cours <a:loading:862459118912667678>"))
-                    firstIt = False
-                fighting = True
-                break
-        if fighting:
-            await asyncio.sleep(3)
+@slash.subcommand(base="admin",name="reset_Emojis",guild_ids=[912137828614426704],description="Lance une rénitialisation des emojis")
+async def resetCustomEmoji(ctx):
+    msg = await ctx.send(embed = discord.Embed(title="Rénitialisation des emojis..."))
+    await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="rénitialiser les emojis..."))
     
-    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Redémarrage en cours..."))
-    restart_program()
+    async def refresh(text : str):
+        await msg.edit(embed = discord.Embed(title="Rénitialisation des emojis...",description=text))
 
+    await refresh("Suppression des dossiers images...")
+    path = "./data/images"
+    for a in os.listdir(path):
+        for b in os.listdir(path+"/"+a):
+            os.remove(path+"/"+a+"/"+b)
+            print(f"{path}/{a}/{b} supprimé")
+        os.rmdir(path+"/"+a)
+        print(f"{path}/{a} supprimé")
+
+    os.rmdir("./data/images")
+    print(f"{path} supprimé")
+    await refresh("Suppression de la base de données")
+    try:
+        customIconDB.dropCustomDB()
+    except:
+        pass
+    await refresh("Supression des emojis")
+    iconGuildList = []
+    if os.path.exists("../Kawi/"):
+        iconGuildList = ShushyCustomIcons
+    else:
+        iconGuildList = LenaCustomIcons
+
+    allEmojisNum = 0
+    for a in iconGuildList:
+        emojiGuild = await bot.fetch_guild(a)
+        allEmojisNum += len(emojiGuild.emojis)
+
+    cmpt = 0
+    now = datetime.datetime.now().second
+    lastTime = copy.deepcopy(now)
+    for a in iconGuildList:
+        emojiGuild = await bot.fetch_guild(a)
+
+        for b in emojiGuild.emojis:
+            try:
+                print("Emoji {0} supprimé".format(b.name))
+            except:
+                pass
+            await b.delete()
+            cmpt += 1
+
+            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+                await refresh("Supression des emojis ({0} %)".format(int(cmpt/allEmojisNum*100)))
+                lastTime = now
+
+    await refresh("Création des dossiers...")
+    existDir(absPath + "/data/images/")
+    existDir(absPath + "/data/images/headgears/")
+    existDir(absPath + "/data/images/weapons/")
+    existDir(absPath + "/data/images/char_icons/")
+    existDir(absPath + "/data/images/elemIcon/")
+    await refresh("Création de la base de donnée")
+    base = open("./data/custom_icon.db","w")
+    base.close()
+    customIconDB.remarkeCustomDB()
+    await downloadAllHeadGearPng(bot,msg,lastTime)
+    await downloadAllWeapPng(bot,msg,lastTime)
+    await refresh("Téléchargements des icones de bases...")
+    await downloadAllIconPng(bot)
+    await downloadElementIcon(bot)
+
+    allChar = os.listdir("./userProfile/")
+    lenAllChar = len(allChar)
+    cmpt = 0
+
+    for num in allChar:
+        user = loadCharFile("./userProfile/"+num)
+        await getUserIcon(bot,user)
+        cmpt += 1
+
+        if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+            await refresh("Création des émojis ({0} %)".format(int(cmpt/lenAllChar*100)))
+            lastTime = now
+
+    await refresh("Fini !")
+    await ctx.channel.send("La rénitialisation des emojis est terminées !",delete_after=10)
+
+    bidule = stuffDB.getShop()
+    ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
 ###########################################################
 # Démarrage du bot
 if os.path.exists("../Kawi/"):

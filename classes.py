@@ -407,7 +407,7 @@ class effect:
         self.overhealth = overhealth        # Base shield power
         self.redirection = redirection      # Damage redirection ratio. Unuse yet
         self.reject = reject                # A list of the rejected effects
-        self.description = description.format(power)      # A (quick) description of the effect
+        self.description = description.format(power,power//2)      # A (quick) description of the effect
         self.turnInit = turnInit            # How many turn does the effect stay ?
         self.stat = stat                    # Wich stat is use by the effect ?
         self.onTrigger = onTrigger          # Unused

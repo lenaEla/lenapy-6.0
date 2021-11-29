@@ -14,7 +14,8 @@ weapons = [julieWeap,blueButterfly,butterflyRed,luth,
 ]
 
 # Skill
-skills = [idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,
+skills = [idoOS,proOS,preOS,geoConCast,kikuRes,
+    idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWill,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,
     fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion2,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]
 
@@ -23,10 +24,8 @@ invocTabl = [seraf,
     darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
 ]
 
-
-
 # Stuff
-stuffs = [crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,
+stuffs = [crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,dragoonHelmet,dragoonArmor,dragoonBoots,whiteLily,bloodLily,
     lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,
     pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,
     celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
@@ -37,7 +36,7 @@ octoEmpty2 = stuff("placeolder","hu",0,0)
 octoEmpty3 = stuff("placeolder","hv",0,0)
 
 #Effect
-effects = [idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,
+effects = [idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,
     fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff2,blackHoleEff3,convertEff,vampirismeEff,heriteEstialbaEff,estal2,hemoragie2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,hemoragie,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,onstageeff,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAuraEffect,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,poidPlumeEff,hunter,hunterBuff,menthe,badaboum,courageE
 ]
 
@@ -65,7 +64,7 @@ octoSnipeWeap = weapon("Snipeur Octarien","aaa",2,AREA_CIRCLE_6,52,85,0,strength
 octoFly = weapon("Machinerie volante","aaa",RANGE_DIST,AREA_CIRCLE_3,80,75,-20,10,emoji=octoEm)
 octoHeal = weapon("Octo heal","aaa",1,AREA_CIRCLE_3,35,50,0,use=CHARISMA,type=TYPE_HEAL,target=ALLIES,emoji='<:medic:882890887120699444>')
 octoDef = weapon('OctoDef',"aaa",1,AREA_CIRCLE_3,10,100,0,effectOnUse="md",use=INTELLIGENCE,target=ALLIES,type=TYPE_HEAL,intelligence=20)
-flyfishweap = weapon("Flyfish","ffweap",2,AREA_CIRCLE_7,0,100,0,effectOnUse="mf",type=TYPE_INDIRECT_DAMAGE,strength=30)
+flyfishweap = weapon("Flyfish","ffweap",2,AREA_CIRCLE_7,1,200,0,effectOnUse="mf",type=TYPE_INDIRECT_DAMAGE,strength=30)
 octoBoumWeap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0,effect="mg") 
 ruddinweap = weapon("Carreaux","aaa",RANGE_DIST,AREA_CIRCLE_3,28,70,0,0,0,0,0,0,0,0,repetition=3,emoji='<:chaos:892857755143127090>')
 ruddinweap2 = weapon("Carreaux","aaa",RANGE_MELEE,AREA_CIRCLE_3,28,70,0,0,0,0,0,0,0,0,repetition=3,emoji='<:chaos:892857755143127090>')
@@ -135,6 +134,7 @@ class octarien:
         self.says = say
         self.baseLvl = baseLvl
         self.rez = rez
+        self.bonusPoints = [0,0,0,0,0,0,0]
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
@@ -342,7 +342,7 @@ jevilWeap = weapon("Trèfle","aaa",RANGE_DIST,AREA_CIRCLE_4,76,50,0,area=AREA_CO
 jevilSkill1 = skill("Pics","aaa",TYPE_DAMAGE,0,70,area=AREA_CONE_3,range=AREA_DIST_5,sussess=60,emoji='<a:card:892855854712385637>',say="NU-HA!! I NEVER HAD SUCH FUN, FUN!!",cooldown=2,damageOnArmor=1.5)
 jevilSkill2 = skill("Final Chaos","aaa",TYPE_DAMAGE,0,120,AREA_MONO,area=AREA_ALL_ENNEMIES,say="KIDDING ! HERE'S MY FINAL CHAOS !",initCooldown=5,cooldown=10,emoji="<:devilknife:892855875600023592>",damageOnArmor=2)
 ailillSkill = skill("Décapitage","aaa",TYPE_DAMAGE,0,1000,AREA_CIRCLE_1,initCooldown=5,cooldown=5,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
-lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,100,AREA_MONO,area=AREA_CIRCLE_7,emoji='<a:darkExplosion:899451335269822475>',say="Voyons voir comment vous allez résister à ça !",description="\n\nInvoque X **Convictions des Ténèbres**, X étant la taille de l'équipe bleue au début du combat.\nAprès 3 tours de chargement, Luna enveloppe le terrain de Ténèbres, infligeant des dégâts massifs à toute l'équipe en fonction du nombre de **Convictions des Ténèbres** présent sur le terrain\n\nDurant la période de chargement, Luna est **Invisible**, **Inciblable** et **Imunisée**",cooldown=99,initCooldown=10,damageOnArmor=1.66)
+lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,70,AREA_MONO,area=AREA_CIRCLE_7,emoji='<a:darkExplosion:899451335269822475>',say="Voyons voir comment vous allez résister à ça !",description="\n\nInvoque X **Convictions des Ténèbres**, X étant la taille de l'équipe bleue au début du combat.\nAprès 3 tours de chargement, Luna enveloppe le terrain de Ténèbres, infligeant des dégâts massifs à toute l'équipe en fonction du nombre de **Convictions des Ténèbres** présent sur le terrain\n\nDurant la période de chargement, Luna est **Invisible**, **Inciblable** et **Imunisée**",cooldown=99,initCooldown=10,damageOnArmor=1.33)
 lunaRepEffect = effect("Cast - Ténèbres Éternels","darkerYetDarker3",replique=lunaSpe,turnInit=2,silent=True,emoji=dangerEm,immunity=True,translucide=True,untargetable=True)
 lunaSpe2 = skill("Ténèbres Éternels","aab",TYPE_DAMAGE,0,0,AREA_MONO,area=AREA_DONUT_7,effectOnSelf=lunaRepEffect,say="On s'accroche toujours hein ?",message="Luna concentre les Ténèbres environants...",emoji='<:infiniteDarkness:898497770531455008>')
 lunaWeap = weapon("Concentraceur K","aaa",RANGE_MELEE,AREA_CIRCLE_1,35,40,0,0,0,0,0,0,0,0,0,0,0,5,kcharger.emoji,message="{0} frappe {1} avec son arme :",damageOnArmor=1.2)
@@ -361,13 +361,28 @@ lunaSkill5 = skill("Assombrissement","lunaSkill5",TYPE_DAMAGE,0,100,AREA_MONO,co
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=3,description="Confuse confusing confusion")
 jevilSkill3 = skill("Confusion","aaa",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENTITES,effect=jevilEff,cooldown=5,emoji='<a:giveup:902383022354079814>',say='I CAN DO ANYTHING !')
 
-tablBoss = [
+clemBloodJauge = effect("Jauge de sang","clemBloodJauge",turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:clemBJ:914710384299106345>'),lvl=100,description="Clémence possédée tourne autour de sa Jauge de Sang\n\nElle débute le combat avec une jauge à **100** Poids de sang, son maximum.\nChacunes de ses compétences ont un coût en Points de Sang, qui sont retiré à la jauge à la fin de leur utilisation\n\nSi la jauge de sang tombe à **0 point**, Clémence est étourdie pendant 2 tours durant lesquels sa résistance est diminuée\nLa jauge de sang récupère **1 point** de sang à chaque fois que Clémence inflige 50 points de dégâts, et **100 points** une fois que Clémence n'est plus étourdie\n\nLa quantité de points de sang dans la jauge de sang est constamant visible\nClémence possède 10% de vol de vie")
+clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_1,56,100,use=MAGIE,effect=clemBloodJauge,magie=50,endurance=150)
+clemStunEffect = effect("Thrombophilie","clemStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS,resistance=-35)
+clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=200,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE)
+clemSkill2 = skill("Sort - Chiroptera perniciosius","clemSkill2",TYPE_DAMAGE,0,300,AREA_CIRCLE_2,cooldown=3,emoji='<a:clemSkill4:901150027706142780>',use=MAGIE,say="Tu es trop collant.")
+clemUltLauch = skill("Memento - L'Ange noir","clemUlt",TYPE_DAMAGE,0,180,AREA_MONO,area=AREA_CIRCLE_7,emoji='<:clemMemento:902222089472327760>',say="Vous avez suffisamant résisté comme ça !",sussess=666,cooldown=99,ultimate=True,description="Au premier tour, consomme tous les **Points de sang** de la Jauge de Sang, sauf 1, pour obtenir un bouclier absolu, dont la puissance dépend du nombre de points consommés\nAu second tour, si ce bouclier est toujours présent, cette attaque fait des dégâts colosaux. Consomme la jauge de sang",use=MAGIE)
+clemultCastEffect = effect("Cast - Memento - L'Ange noir","clemUltEff",replique=clemUltLauch,turnInit=2,silent=True,emoji=dangerEm,immunity=True,translucide=True,untargetable=True)
+clemUltShield = effect("Bouclier sanguin","clemShield",INTELLIGENCE,overhealth=1,emoji=uniqueEmoji("<:clemMemento2:902222663806775428>"),turnInit=2,absolutShield=True)
+clemUltCast = skill("Memento - L'Ange Noir","clemUltCast",TYPE_ARMOR,0,range=AREA_MONO,emoji="<:clemMemento2:902222663806775428>",effect=clemUltShield,say="Très bien.",effectOnSelf=clemultCastEffect,ultimate=True,cooldown=99)
+clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,130,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>')
+clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,280,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>')
+
+clemBJcost = {"clemSkill1":25,"clemSkill2":32,"clemUlt":100,"clemSkill3":30,"clemSkill4":35}
+
+tablBoss = [ # Table des boss
     octarien("Ailill",250,50,0,50,75,50,30,10,33,0,depha,10,'<a:Ailill:882040705814503434>',[balayette,uppercut,ailillSkill],BERSERK,GENDER_FEMALE,description="Une humaine à qui la vie n'a pas vraiment souris. Du coup elle passe ses nerfs sur les autres.\nEnfin les autres plus faibles qu'elle évidamment\n\nSi il y a 5 combattants ou plus dans une équipe, les dégâts infligés à Ailill sont réduits si l'attaquant est trop éloigné",say=ailillSays,rez=False),
     octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",450,1350,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays),
     octarien("Jevil",450,1650,100,60,75,120,120,10,25,15,jevilWeap,50,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2,jevilSkill3],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays),
     octarien("Séréna",50,65,-50,70,50,50,250,25,0,15,armilame,10,'<:serena:897912402354511894>',[poisonus,serenaSkill,serenaSpe],ENCHANTEUR,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
     octarien("Luna",375,1250,100,75,50,100,0,25,35,25,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpe4,lunaSkill,lunaSkill5,lunaSkill2,lunaSkill4],POIDS_PLUME,GENDER_FEMALE,"Il viendra toujours un moment où vous allez devoir affronter votre côté sombre",'<:spIka:866465882540605470>',True,say=lunaBossSays),
-    octarien("Octo Tour",0,550,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés")
+    octarien("Octo Tour",0,550,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés"),
+    octarien("Clémence pos.",100,1620,50,50,80,150,300,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4],MAGE,GENDER_FEMALE,"Work in progress",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays)
 ]
 
 clemInnerDark = copy.deepcopy(innerdarkness)

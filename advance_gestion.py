@@ -7,6 +7,7 @@ from discord_slash.utils.manage_components import *
 from commands_files.alice_stats_endler import *
 from PIL import Image
 from data.database import *
+from traceback import format_exc
 
 stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
@@ -331,21 +332,21 @@ def infoSkill(skill : skill, user : char,ctx):
         else:
             skil = mageUlt
 
-    desc = f"Icone : {skil.emoji}"
+    desc = f"__Icone :__ {skil.emoji}"
     if skil.type != TYPE_PASSIVE:
         s = ""
         if skil.cooldown > 1:
             s = "s"
-        desc += f"\nTemps de rechargements : {skil.cooldown} tour{s}"""
+        desc += f"\n__Temps de rechargements :__ {skil.cooldown} tour{s}"""
     if cast > 0:
-        desc += "\nTours de chargements : {0} tour{1}".format(cast,["","s"][int(cast > 1)])
+        desc += "\n**__Tours de chargements__ : {0} tour{1}**".format(cast,["","s"][int(cast > 1)])
     repEmb = discord.Embed(title = skil.name,color = user.color, description = desc)
     if skil.emoji[1] == "a":
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
     else:
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
     
-    temp = "Type : "
+    temp = "__Type :__ "
 
     if skil.type == TYPE_DAMAGE:
         temp+="Dégats"
@@ -357,14 +358,14 @@ def infoSkill(skill : skill, user : char,ctx):
             nbShot = " x{0}".format(skil.repetition)
         else:
             nbShot = ""
-        temp+=f"\nPuissance : {skil.power}{nbShot}\nType : "
+        temp+=f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Type de dégâts :__ "
 
         if skil.area == AREA_MONO:
             temp +=  "Monocible\n"
         else:
             temp += "Dégâts de zone\n"
         
-        temp += "Précision : {0}%\n".format(skil.sussess)
+        temp += "__Précision :__ {0}%\n".format(skil.sussess)
         
         if skil.range == AREA_MONO:
             if skil.type != TYPE_PASSIVE:
@@ -375,8 +376,8 @@ def infoSkill(skill : skill, user : char,ctx):
         temp += "\nCette compétence cible les **ennemis**"
 
         if skil.onArmor != 1:
-            temp += "\nDégâts sur armure : **{0}%**".format(skil.onArmor*100)
-        
+            temp += "\n__Dégâts sur armure :__ **{0}%**".format(skil.onArmor*100)
+
         
         if skil.use != STRENGTH:
             if skil.use not in [None,HARMONIE]:
@@ -385,6 +386,14 @@ def infoSkill(skill : skill, user : char,ctx):
                 temp += f"\nCette compétence inflige un montant **fixe** de dégâts"
             elif skil.use == HARMONIE:
                 temp += f"\nCette compétence utilise la statistique d'**Harmonie**"
+
+        try:
+            if skil.id.startswith("clem"):
+                for skillID, cost in clemBJcost.items():
+                    if skil.id == skillID:
+                        temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
+        except:
+            print(format_exc())
 
     else:
         temp+=tablTypeStr[skil.type]
@@ -871,8 +880,8 @@ async def makeCustomIcon(bot : discord.Client, user : char):
                 base = list(hex_to_rgb(hex(user.color)))
                 color = list(pixel[x,y])
                 for cmpt in (0,1,2):
-                    color[cmpt] = color[cmpt]-227
-                    base[cmpt] = base[cmpt] - color[cmpt]
+                    color[cmpt] = color[cmpt]-121
+                    base[cmpt] = base[cmpt] + color[cmpt]
                 
                 background.putpixel([x,y],tuple(base))
 
@@ -1090,7 +1099,10 @@ def infoEnnemi(ennemi : octarien):
             rep += f"\n{a.emoji} {a.name}"
 
     embed = discord.Embed(title="__Ennemis : "+ennemi.name+"__",color=ennemi.color,description=rep)
-    embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(ennemi.icon)["id"]))
+    if ennemi.icon[1] == "a":
+        embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(ennemi.icon)["id"]))
+    else:
+        embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(ennemi.icon)["id"]))
     return embed
 
 def getAutoStuff(object: stuff, user: char):

@@ -292,7 +292,7 @@ hourglassEmoji = [['<:hourglass1:872181651801772052>','<:hourglass2:872181632801
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]
 
-stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667]
+stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667,914608569284964392]
 weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261]
 
 # For some time related stuff. Time from server != time from France
@@ -650,6 +650,13 @@ randomPurcenMsg = [
     "Hum... Je crois que ça doit faire... **{purcent}** % du total de son équipe ?",
     "D'après ma calculatrice, ça fait **{purcent}** du total de son équipe"
 ]
+
+clemPosSays = says(
+    start = "Encore des chasseurs de vamires ? J'en ai ma claque des gens de votre genre.",
+    onKill = "Un de plus, un de moins. Quelle importance",
+    redWinAlive = "Restez à votre place.",
+    redLoose = "Que..."
+)
 
 def createTpmChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):
     """ChangeWhat : 0 == skills"""
