@@ -23,7 +23,7 @@ class autoColor:
         self.pink = pinkId
         self.white = whiteId
         self.black = blackId
-        
+
 class server:
     """A class that is use to store the guild's settings"""
     def __init__(self,id,prefixe="l!",patchnote = 0,bot = 0):
@@ -399,7 +399,7 @@ emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:8668282968334664
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False):
         """rtfm"""
         self.name = name                    # Name of the effect
         self.id = id                        # The id. 2 characters
@@ -434,6 +434,7 @@ class effect:
         self.aggro = aggro
         self.lightShield = lightShield
         self.absolutShield = absolutShield
+        self.onDeclancher = onDeclancher
 
         if emoji == None:
             if self.type in [TYPE_BOOST]:
@@ -453,6 +454,9 @@ class effect:
 
         if self.emoji[0] == "<":
             self.emoji = [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
+
+    def __str__(self) -> str:
+        return self.name
 
     def setTurnInit(self,newTurn = 1):
         """Change the "turnInit" value. Why I need a function for that ?"""
@@ -531,6 +535,8 @@ class invoc:
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
+        if self.aspiration in [POIDS_PLUME,OBSERVATEUR]:
+            raise Exception("Error : {0}\nA summon can't be a Light Weight or a Observator !!".format(self.name))
         self.weapon = weapon
 
         self.description = description

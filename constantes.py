@@ -116,7 +116,7 @@ STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED,STATUS_TRUE_DEATH = 0,1,2,3
 # Aspirations
 BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0,1,2,3,4,5,6,7,8,9,10
 inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prévoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
-aspiEmoji = ['<:ber:903135970625462312>','<:obs:903136012975357952>','<:poi:909548928045842462>','<:ido:909549029027880992>','<:pre:910185501535903775>','<:tet:903136049834889317>','<:mag:909549699160219659>','<:alt:909549006680653824>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:909549059059122176>']
+aspiEmoji = ['<:berk:915376153580167209>','<:obs:903136012975357952>','<:poi:909548928045842462>','<:ido:909549029027880992>','<:pre:910185501535903775>','<:tet:903136049834889317>','<:mag:909549699160219659>','<:alt:909549006680653824>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:909549059059122176>']
 
 # "Target" values
 ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0,1,2,3,4
@@ -250,7 +250,7 @@ for a in range(0,len(inspi)):
 
 # Constants for "orientation" field for skills
 TANK,DISTANCE,LONG_DIST = "Tank","Distance","Longue Distance"
-DPT,HEALER,BOOSTER,MAGIC = "Bers, Obs, P.Plu, T.Bru","Ido, Alt","Ido, Pre","Enc, Mag"
+DPT,HEALER,BOOSTER,MAGIC,SHIELDER = "Bers, Obs, P.Plu, T.Bru","Ido, Pro, Alt","Ido, Pro","Enc, Mag","Ido, Pro, Pre"
 
 # Elementals
 ELEMENT_NEUTRAL = 0
@@ -293,7 +293,7 @@ ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]
 
 stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667,914608569284964392]
-weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261]
+weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261,916120008948600872]
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):
@@ -350,8 +350,11 @@ shopRandomMsg = [
     "<:lio:908754690769043546> : \"H-hm !? Oh c'est toi...\"\n<:felicite:909048027644317706> : \"Tiens tu es là toi aussi ?\"\n<:lio:908754690769043546> : \"J'ai pas trouvé d'autres points d'eau dans le coin donc oui... je suppose...\"",
     "<:gweny:906303014665617478> : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
     "<:lia:908754741226520656> : \"Hé Alice ! Tu penses quoi de ces fleurs là ?\"\n<:alice:908902054959939664> : \"Hum... un peu trop jaune à mon goût...\"",
-    "<:shushi:909047653524963328> : \"Hé hé Midame des neizes ! Z'est touvé za part terre, y a maqué quoi dezu ?\"\n<:icealia:909065559516250112> : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)"
+    "<:shushi:909047653524963328> : \"Hé hé Midame des neizes ! Z'est touvé za part terre, y a maqué quoi dezu ?\"\n<:icealia:909065559516250112> : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)",
+    "<:lena:909047343876288552> : \"...\"\n<:luna:909047362868105227> : \"Tu commencerais pas à nous faire une crise de jalousie toi ?\"<:lena:909047343876288552> : \"Je vois pas de quoi tu parles.\"\n<:luna:909047362868105227> : \"J'en pris, je suis mieux placée que qui-conque pour voir comment tu regardes Clémence depuis qu'elle a sa version boss\"\n<:lena:909047343876288552> : \"...\"\n<:luna:909047362868105227> : \"En même temps tu passes ton temps à lui montrer que tu peux te débrouiller toute seule, tu vas pas lui reprocher de s'occuper de ses autres OCs de temps en temps, si ?\"<:lena:909047343876288552> : \"Non évidament...\""
 ]
+
+shopRepatition = [4,7,10,2]                 # Répartition des objets du shop
 
 # Same, but for the roll command
 rollMessage = ["Selon toute vraisemblance ce sera un **{0}**","Puisse la chance être avec toi... **{0}** !","Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**","Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
@@ -648,7 +651,17 @@ randomRecordMsg = [
 randomPurcenMsg = [
     "Ça fait quoi... **{purcent}** % du total de son équipe ?",
     "Hum... Je crois que ça doit faire... **{purcent}** % du total de son équipe ?",
-    "D'après ma calculatrice, ça fait **{purcent}** du total de son équipe"
+    "D'après ma calculatrice, ça fait **{purcent}**% du total de son équipe"
+]
+
+randomTotalSupp = [
+    "Qu'est-ce que ferais ton équipe sans toi {icon} __{name}__ ? Ton score de Soutien est à **{value}**",
+    "Tiens donc, il semblerait que le score de Soutien de {icon} __{name}__ soit à **{value}**"
+]
+
+randomMaxSupp = [
+    "On ne ménage pas ses efforts à ce que je vois {icon} __{name}__ ! En un combat, tu as réussi à obtenir un maximum de **{value}** points de Soutien",
+    "Taper c'est bien beau, mais sans {icon} __{name}__, vous n'auriez pas tapé énormément. Son record de Soutien est de **{value}**"
 ]
 
 clemPosSays = says(
@@ -656,6 +669,13 @@ clemPosSays = says(
     onKill = "Un de plus, un de moins. Quelle importance",
     redWinAlive = "Restez à votre place.",
     redLoose = "Que..."
+)
+
+aliceExSays = says(
+    start = "Clémence...",
+    onKill = "...",
+    onResurect= "Merci...",
+    blueWinAlive= "ça... ça va mieux ?"
 )
 
 def createTpmChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):
