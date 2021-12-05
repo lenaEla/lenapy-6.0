@@ -154,6 +154,8 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
                 elif tri in [14,15]:
                     tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(tri-14))
+                else:
+                    tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
             else:
                 tablToSee.sort(key=lambda ballerine:ballerine.name)
             lenTabl = len(tablToSee)
@@ -343,11 +345,13 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
         embed = discord.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n\n".format(page+1,maxPage+1)+mess,color=user.color)
 
         if msg == None:     # Send the message for the first loop
-            msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+            try:
+                msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+            except:
+                msg = await ctx.channel.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
 
         else:
             await msg.edit(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
-
 
         try:
             respond = await wait_for_component(bot,msg,check=check,timeout=180)
@@ -421,12 +425,14 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 returnButton = create_button(1,"Retour",custom_id="return")
                 select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
 
-                tempMachin = await inter.send(embed=infoAllie(ally),components=[create_actionrow(returnButton),create_actionrow(select)])
+                embed = infoAllie(ally)
+
+                tempMachin = await inter.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select)])
                 while 1:
                     try:
                         resp2 = await wait_for_component(bot,messages=tempMachin,timeout=60)
                     except:
-                        await tempMachin.edit(embed=infoAllie(ally),components=[])
+                        await tempMachin.edit(embed=embed,components=[])
                         break
                     try:
                         resp3 = int(resp2.values[0])
