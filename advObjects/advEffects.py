@@ -2,7 +2,7 @@ from classes import *
 from constantes import *
 from advObjects.advSkills import *
 
-armor = effect("Armure d'Encre","la",INTELLIGENCE,overhealth=70,emoji=sameSpeciesEmoji('<:armor1:866828463751036929>','<:armor2:866828487038205962>'),description="Donne de l'armure à tous les alliés",trigger=TRIGGER_DAMAGE)
+armor = effect("Armure d'Encre","la",INTELLIGENCE,overhealth=100,emoji=sameSpeciesEmoji('<:armor1:866828463751036929>','<:armor2:866828487038205962>'),description="Donne de l'armure à tous les alliés",trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR)
 coffee = effect("Caféiné","lb",2,strength=10,endurance=10,reject=["mc"],description="Boost la force et l'endurance de tous les alliés",emoji=uniqueEmoji("<:coffee:867538582846963753>"))
 the = effect("Théiné","lc",2,intelligence=10,magie=10,reject=["mc"],description="Boost l'agilité et la précision de tous les alliés",emoji=uniqueEmoji('<:the:867538602644602931>'))
 encrifugeEff = effect("Tenue encrifugée - Armure","ld",overhealth=1,turnInit=2,trigger=TRIGGER_DAMAGE)
@@ -18,11 +18,10 @@ afterShockDmg = effect("Contre coup","ln",MAGIE,turnInit=1,power=25,aggro=10,lvl
 octoshield = effect("Bouclier Octarien","lo",agility=-100,overhealth=200,turnInit=-1,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,absolutShield=True)
 inkBrellaEff = effect("Toile du para-encre","lp",None,-10,agility=-10,overhealth=100,turnInit=-1,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:splatbrellareverse:876079630749147196>'),description="Commencez le combat avec un peu d'armure !\nCependant, vous subirez un malus d'agilité et de force tant que celle-ci est active")
 stopAttacking = effect("Stop attacking or draw 25","lq",None,trigger=TRIGGER_DEALS_DAMAGE,type=TYPE_INDIRECT_DAMAGE,power=25,emoji=emojiMalus,description="Vous jouez votre jocker !\nSi le porteur de l'état attaque, il subit 25 dégâts fixe")
-poidPlumeEff = effect("Poids Plume","lr",None,trigger=TRIGGER_END_OF_TURN,silent=True,lvl=0,type=TYPE_UNIQUE,unclearable=True,turnInit=-1,emoji=uniqueEmoji(aspiEmoji[POIDS_PLUME]))
 hunter = effect("Chasseur","ls",None,emoji=uniqueEmoji('<:chasseur:871097673334276096>'),trigger=TRIGGER_DEATH,type=TYPE_UNIQUE,description="Un chasseur sachant chasser sans son chien a toujours une dernière carte à jouer",turnInit=-1)
 hunterBuff = effect("Hunterbuff","lt",None,critical=100,precision=500,silent=True)
 menthe = effect("Mentiné","lu",INTELLIGENCE,percing=5,resistance=5,critical=10,reject=["mc"],description="Boost la résistance, la pénétration et le critique de vos alliés",emoji=uniqueEmoji('<:menthe:867538622797054042>'))
-badaboum = effect("Ça fait bim bam boum","lv",MAGIE,emoji=emojiMalus,aggro=10,turnInit=2,trigger=TRIGGER_DEATH,power=100,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_2)
+badaboum = effect("Ça fait bim bam boum","lv",MAGIE,aggro=10,turnInit=2,trigger=TRIGGER_DEATH,power=100,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_2,emoji=sameSpeciesEmoji("<:deathBoomB:915050502369214474>","<:deathBoomR:915050526436102155>"))
 charme = effect("Sous le charme","lw",CHARISMA,-10,resistance=-10,magie=-10,description="Heu peut-être plus tard la description",type=TYPE_MALUS,emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"))
 jetlag = effect("Jetlag",'jetLag',None,emoji=uniqueEmoji('<:jetlag:872181671372402759>'),silent=True,description="Le porteur de cet effet est insenssible aux sorts/armes de type \"Sablier\"")
 hourglass1 = effect("Rollback","lx",None,trigger=TRIGGER_ON_REMOVE,type=TYPE_UNIQUE,emoji=hourglassEmoji,description="Lorsque l'initiateur de cet effet commence son prochain tour, le porteur récupèrera 50% des PV perdues depuis que cet effet est actif",reject=[jetlag])
@@ -46,15 +45,15 @@ oneforallbuff = effect("Un pour tous - Bonus","mo",resistance=10,stat=CHARISMA,d
 oneforalldebuff = effect("Un pour tous - Malus","mp",resistance=-33,type=TYPE_MALUS,emoji=emojiMalus,description="Vos capacités défenses sont dimunuées pour augmenter celles de vos alliés")
 secondSuneff = effect("Insomnie","mq",CHARISMA,agility=-10,precision=-10,type=TYPE_MALUS,emoji=uniqueEmoji('<:MyEyes:784226383018328115>'),reject=["sixtineUltEff"],description="Vous êtes en train d'expérimenter la joie d'avoir un lampadaire devant une fênetre sans rideau")
 onstageeff = effect("Euphorie","mr",CHARISMA,10,10,10,10,10,10,10,5,3,3,description="C'est le moment de tout donner !",emoji=uniqueEmoji('<:alice:893463608716062760>'))
-innerdarknessEff = effect("Ténèbres intérieurs","ms",MAGIE,power=55,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:innerdarkness:902008902776938628>'))
+innerdarknessEff = effect("Ténèbres intérieurs","ms",MAGIE,power=30,stackable=True,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:innerdarkness:902008902776938628>'),turnInit=2,lvl=2,area=AREA_CIRCLE_1)
 lightspellshield = effect("Bouclier de lumière","mt",INTELLIGENCE,overhealth=10,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:lightspellbook:892963432222036018>'))
-lighteff = effect("Illuminé","mu",INTELLIGENCE,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:illumi1:902008944887746611>'))
+lighteff = effect("Illuminé","mu",INTELLIGENCE,overhealth=70,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:illumi1:902008944887746611>'))
 lightHealeff = effect("Illuminé","mv",CHARISMA,power=50,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:illumi2:902008962134712380>'))
-darkspellbookeff = effect("Eclair sombre","mw",MAGIE,power=35,area=AREA_CIRCLE_1,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji=uniqueEmoji('<:darkspellbook:892963455773048914>'))
+darkspellbookeff = effect("Eclair sombre","mw",MAGIE,power=20,area=AREA_CIRCLE_1,stackable=True,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji=uniqueEmoji('<:darkspellbook:892963455773048914>'),turnInit=2,lvl=2)
 hemoragie = effect("Hémoragie","mx",STRENGTH,power=25,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,turnInit=3,stackable=True,lvl=3,emoji=uniqueEmoji('<:bleeding:887743186095730708>'))
 affaiEffect = effect("Affaiblissement","my",INTELLIGENCE,-10,endurance=-10,resistance=-5,type=TYPE_MALUS,emoji=emojiMalus)
 stupid = effect("Provoqué","mz",INTELLIGENCE,charisma=-20,intelligence=-20,type=TYPE_MALUS,emoji=emojiMalus)
-castExplo = effect("Cast - Explosion","na",turnInit=2,silent=True,emoji=dangerEm,replique=explosion)
+castExplo = effect("Cast - Explosion","na",turnInit=2,silent=True,emoji=sameSpeciesEmoji('<a:boomCastB:916382499704275005>','<a:boomCastR:916382515135144008>'),replique=explosion)
 pigmaCast = effect("Cast - Pigmalance","nb",turnInit=2,silent=True,emoji=uniqueEmoji('<:castStingray:899243733835456553>'),replique=stingray2)
 derobadeBonus = effect("Dérobade - Bonus","nc",ENDURANCE,resistance=5,aggro=20,description="Un de vos alliés vous a gentiment inviter à prendre les coups à sa place",turnInit=2)
 derobadeMalus = effect("Dérobade - Malus","nd",ENDURANCE,aggro=-20,description="Vous avez fuis vos responsabilitées",type=TYPE_MALUS,turnInit=2)
@@ -72,8 +71,8 @@ estal2 = effect("Poison d'Estialba II","nq",MAGIE,type=TYPE_INDIRECT_DAMAGE,trig
 hemoragie2 = effect("Hémoragie II","nr",STRENGTH,power=int(hemoragie.power/3),type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji=uniqueEmoji('<:bleeding2:900329311955984456>'))
 heriteLesathEff = effect("Héritage - Lesath","ns",turnInit=-1,unclearable=True,description="Grâce aux enseignements de Shehisa, vous en connaissez un peu plus sur les points faibles de vos adversaires\n\nLorsque vous donnez l'effet __<:bleeding:887743186095730708> Hémorragie__ à un ennemi, lui confère également l'effet __<:bleeding2:900329311955984456> Hémorragie II__\n\n____<:bleeding2:900329311955984456> Hémorragie II :__ Dégâts indirects, 33% de la puissance de __<:bleeding:887743186095730708> Hémorragie__, ne dure qu'un tour",emoji=sameSpeciesEmoji('<:hetiteLesathB:900322804124229642>','<:heriteLesathR:900322774202089512>'),reject=["np"])
 darkFlumEff = effect("Fleur ténèbreuse","nt",turnInit=-1,description="En subissant des dégâts, applique l'effet \"Ténèbres floraux\" sur l'attaquant",emoji=uniqueEmoji('<:darkFlum:901849622685814814>'),callOnTrigger="nu",trigger=TRIGGER_DAMAGE)
-darkFlumPoi = effect("Ténèbres floraux","nu",MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji='<:darkFlum:901849622685814814>',power=5,stackable=True,turnInit=2,lvl=1)
-ondeEff = effect("Onde","nv",INTELLIGENCE,type=TYPE_ARMOR,overhealth=35,turnInit=5,emoji=uniqueEmoji('<:onde:902526595842072616>'),trigger=TRIGGER_DAMAGE)
+darkFlumPoi = effect("Ténèbres floraux","nu",MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji='<:darkFlum:901849622685814814>',power=1,stackable=True,turnInit=3,lvl=3,description="Inflige des dégâts avec une puissance équivalante à **20%** du niveau du lanceur au début du tour du porteur")
+ondeEff = effect("Onde","nv",INTELLIGENCE,type=TYPE_ARMOR,overhealth=35,turnInit=5,emoji=uniqueEmoji('<:onde:902526595842072616>'),trigger=TRIGGER_DAMAGE,stackable=True)
 etingEff = effect("Marque Eting","nw",CHARISMA,power=20,turnInit=3,stackable=True,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:eting:902525771074109462>'),type=TYPE_INDIRECT_HEAL)
 renforceEff = effect("Renforcé","nx",INTELLIGENCE,resistance=15,endurance=15,trigger=TRIGGER_ON_REMOVE,callOnTrigger="ny")
 renforceEff2 = effect("Renforcé II","ny",INTELLIGENCE,resistance=10,endurance=10,trigger=TRIGGER_ON_REMOVE,callOnTrigger="nz")
@@ -106,20 +105,18 @@ extraEting = copy.deepcopy(etingEff)
 extraEting.name, extraEting.id, extraEting.power, extraEting.emoji = "Marque Eting +","eting+", int(extraEting.power * 1.35), sameSpeciesEmoji('<:emeB:909132040392302703>','<:emeR:909132070251536486>')
 sixtineUltEff = effect("Douce nuit","sixtineUltEff",INTELLIGENCE,-10,-10,-10,-10,-10,-10,-10,-3,-3,-3,description="Le monde des rêves vous appelle...",type=TYPE_MALUS,reject=["mq"],emoji=sameSpeciesEmoji('<:snB:911735287351246929>','<:snR:911735275284230145>'))
 
-enchant = effect("Enchanté","na",None,turnInit=-1,silent=True,type=TYPE_UNIQUE,unclearable=True,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji(aspiEmoji[ENCHANTEUR]))
-proMalus = effect("Protecteur - Malus","nb",None,strength=-20,magie=-20,type=TYPE_MALUS,silent=True,stackable=True,emoji=uniqueEmoji('<:proMalus:903137298001047573>'))
+enchant = effect("Enchanté","enchantBuffEff",None,turnInit=-1,silent=True,type=TYPE_UNIQUE,unclearable=True,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji(aspiEmoji[ENCHANTEUR]))
+proMalus = effect("Protecteur - Malus","nb",None,strength=-10,magie=-10,type=TYPE_MALUS,silent=True,stackable=True,emoji=uniqueEmoji('<:proMalus:903137298001047573>'))
 astralShield = effect("Armure Astrale","astShield",type=TYPE_ARMOR,turnInit=99,emoji=uniqueEmoji('<:astralShield:907467906483367936>'),trigger=TRIGGER_DAMAGE,lightShield=True)
 timeShield = effect("Armure Temporelle","timeShield",type=TYPE_ARMOR,turnInit=99,emoji=uniqueEmoji('<:tempoShield:907467936975945758>'),trigger=TRIGGER_DAMAGE,lightShield=True)
 idoOHArmor = effect("Overhealth - Idole","idoOHArmor",overhealth=1,type=TYPE_ARMOR,turnInit=3,trigger=TRIGGER_DAMAGE,lightShield=True,emoji='<:idoOHArmor:909278702783836170>')
 proOHArmor = effect("Overhealth - Protecteur","proOHArmor",overhealth=1,type=TYPE_ARMOR,turnInit=3,trigger=TRIGGER_DAMAGE,lightShield=True,emoji='<:proOHArmor:909278718575394837>')
 altOHArmor = effect("Overhealth - Altruiste","altOHArmor",overhealth=1,type=TYPE_ARMOR,turnInit=3,trigger=TRIGGER_DAMAGE,lightShield=True,emoji='<:altOHArmor:909278749143490601>')
 
-effTB2 = [effect("Tête Brûlée","effTB",None,turnInit=-1,silent=True,type=TYPE_UNIQUE,unclearable=True,emoji=uniqueEmoji(aspiEmoji[TETE_BRULE]))]
-effMag2 = [effect("Mage","effMage",None,turnInit=-1,silent=True,type=TYPE_UNIQUE,unclearable=True,emoji=uniqueEmoji(aspiEmoji[MAGE]))]
 chaosEff = effect("Boîte à malice","chaosed",STRENGTH,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:surprise:904916065778274304>'))
 
 idoOSEff = effect("Clou du spectacle","idoOSEff",emoji=uniqueEmoji('<:osIdo:913885207751446544>'),turnInit=-1,power=30,description="Lorsque vous donnez une armure, réduit de **{1}**% les pertes dû au malus d'armure cumulée\nLorsque l'une de vos armures est détruite, celle-ci absorbe des dégâts supplémentaires équivalants à **{0}**% de votre niveau",unclearable=True,reject=["ly","lightaura2Pa","idoOHEff"])
 proOSEff = effect("Seconde Couche","proOSEff",emoji=uniqueEmoji('<:osPro:913885191800512562>'),turnInit=-1,power=30,description="Lorsque vous donnez une armure, réduit de **{1}**% les pertes dû au malus d'armure cumulée\nLorsque l'une de vos armures est détruite, celle-ci absorbe des dégâts supplémentaires équivalants à **{0}**% de votre niveau",unclearable=True,reject=["ly","lightaura2Pa","proOHEff"])
 preOSEff = effect("Armures avancées","preOSEff",emoji=uniqueEmoji('<:osPre:913885175161712710>'),turnInit=-1,power=50,description="Lorsque vous donnez une armure, réduit de **{1}**% les pertes dû au malus d'armure cumulée\nLorsque l'une de vos armures est détruite, celle-ci absorbe des dégâts supplémentaires équivalants à **{0}**% de votre niveau",unclearable=True,reject=["ly","lightaura2Pa"])
 
-chaosProhib = [undying,deterEff1,poidPlumeEff,dephased,cafeine,octoboum,const,lostSoul,onceButNotTwice,zelianR,octoshield]
+chaosProhib = [undying,deterEff1,dephased,cafeine,octoboum,const,lostSoul,onceButNotTwice,zelianR,octoshield]

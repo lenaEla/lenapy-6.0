@@ -50,10 +50,12 @@ gwenCoupe = weapon("Ciseaux de la poupée","bw",RANGE_MELEE,AREA_CIRCLE_1,10,60,
 inkbrella2 = weapon("Para-Encre alt.","bx",RANGE_MELEE,AREA_CIRCLE_1,32,45,price=472,endurance=20,resistance=15,strength=-25,precision=-20,intelligence=20,repetition=3,use=INTELLIGENCE,effect='ok',emoji='<:heroInkBrella:905282148917993513>',needRotate=False)
 concentraceurZoom = weapon("Concentraceur Zoom","bz",RANGE_LONG,AREA_CIRCLE_6,51,60,1,strength=20,endurance=-20,precision=30,agility=-10,area=AREA_LINE_2,emoji='<:splatterscope:905283725036757002>')
 klikliSword = weapon("Épée vengeresse","ca",RANGE_MELEE,AREA_CIRCLE_1,53,65,1,repetition=2,emoji='<:KlikliSword:907300288531169340>',strength=30,endurance=20,resistance=20,magie=-30,charisma=-10,intelligence=-10)
-julieWeap = weapon("Réceptacle vampirique","cb",RANGE_LONG,AREA_CIRCLE_6,50,100,500,charisma=20,type=TYPE_HEAL,target=ALLIES,use=CHARISMA)
+julieWeap = weapon("Réceptacle vampirique","cb",RANGE_LONG,AREA_CIRCLE_6,50,100,500,charisma=20,type=TYPE_HEAL,target=ALLIES,use=CHARISMA,emoji='<:vampBall:916199488891273276>')
 
 blueButterFlyEff = effect("Bouclier du papillon bleu","blueButterflyShield",INTELLIGENCE,overhealth=40,trigger=TRIGGER_START_OF_TURN,type=TYPE_ARMOR,lightShield=True,description="Armure Légère\nLes armures légères absorbent pas de dégâts supplémentaire en disparaissant")
 blueButterfly = weapon("Papillon bleu","cf",RANGE_DIST,price=500,effectiveRange=AREA_CIRCLE_4,needRotate=False,effectOnUse=blueButterFlyEff,use=INTELLIGENCE,target=ALLIES,type=TYPE_HEAL,power=0,emoji='<:bluebutterfly:910586341614567425>',sussess=100,intelligence=30,charisma=-10)
 butterflyRed = weapon("Papillon Rouge","cg",RANGE_LONG,AREA_CIRCLE_5,50,80,150,magie=20,emoji='<:redbuterfly:912441401508233226>',use=MAGIE,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
 
 luth = weapon("Luth",'ch',RANGE_DIST,AREA_CIRCLE_4,62,70,1,intelligence=30,charisma=30,strength=-20,magie=-20,use=INTELLIGENCE,emoji='<:luth:911647678037905458>')
+krystalFist = weapon("Poings cristalins","ci",RANGE_MELEE,AREA_CIRCLE_1,38,60,price=1,repetition=3,strength=20,resistance=15,endurance=10,intelligence=-25,emoji='<:krystalopoings:916120173130448948>')
+

@@ -52,7 +52,7 @@ transInvoc = copy.deepcopy(trans)
 transInvoc.type, transInvoc.invocation, transInvoc.name  = TYPE_INVOC,"Titania", transInvoc.name + " - La lumière brille brille brille"
 
 transShield = copy.deepcopy(trans)
-effTransShield = effect("Transcendance - Armure","transArm",HARMONIE,overhealth=100,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),turnInit=3)
+effTransShield = effect("Transcendance - Armure","transArm",HARMONIE,overhealth=150,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),turnInit=3)
 
 transShield.type,transShield.area,transShield.range,transShield.effect,transShield.name, transShield.cooldown = TYPE_ARMOR,AREA_ALL_ALLIES,AREA_MONO,[effTransShield],transShield.name + " - Extra Armure d'Encre",7
 
@@ -74,7 +74,7 @@ icelance = skill("Lame glacée","ye",TYPE_DAMAGE,500,120,AREA_DIST_6,["exclusive
 rocklance = skill("Lame rocheuse","yd",TYPE_DAMAGE,500,120,AREA_CIRCLE_3,["exclusive","element",ELEMENT_EARTH],True,emoji='<:emoji_46:893471231641276496>',cooldown=5,message="{0} fait appaître une lame de roche géante sous {2} :",use=MAGIE)
 infinitFire = skill("Brasier","yc",TYPE_DAMAGE,500,90,AREA_DIST_5,["exclusive","element",ELEMENT_FIRE],True,emoji='<:emoji_44:893471208065101924>',cooldown=5,message="{0} déclanche un brasier autour de {2} :",area=AREA_LINE_3,use=MAGIE)
 storm = skill("Ouragan","yb",TYPE_DAMAGE,500,90,AREA_CIRCLE_2,["exclusive","element",ELEMENT_AIR],True,emoji='<:emoji_44:893471179023732809>',cooldown=5,message="{0} déclanche un ouragan autour de {2} :",area=AREA_CIRCLE_2,use=MAGIE)
-innerdarkness = skill("Ténèbres intérieurs","ya",TYPE_INDIRECT_DAMAGE,500,0,conditionType=["exclusive","element",ELEMENT_DARKNESS],ultimate=True,emoji='<:emoji_48:893471268957990982>',cooldown=5,effect="ms",use=MAGIE,area=AREA_CIRCLE_1)
+innerdarkness = skill("Ténèbres intérieurs","ya",TYPE_INDIRECT_DAMAGE,500,0,conditionType=["exclusive","element",ELEMENT_DARKNESS],ultimate=True,emoji='<:emoji_48:893471268957990982>',cooldown=5,effect="ms",use=MAGIE)
 divineLight = skill("Lumière divine",'xz',TYPE_INDIRECT_HEAL,500,conditionType=["exclusive","element",ELEMENT_LIGHT],ultimate=True,emoji='<:emoji_49:893471282815963156>',cooldown=5,effect=["mu","mv"],use=CHARISMA,area=AREA_CIRCLE_1)
 swordDance = skill("Dance des sabres","xy",TYPE_DAMAGE,350,power=70,use=STRENGTH,emoji='<:sworddance:894544710952173609>',cooldown=3,area=AREA_CIRCLE_1)
 shot = skill("Tir net","xx",TYPE_DAMAGE,350,75,AREA_CIRCLE_6,emoji='<:shot:894544804321558608>',cooldown=3,use=STRENGTH,damageOnArmor=1.5)
@@ -125,7 +125,7 @@ onde = skill("Onde","vf",TYPE_ARMOR,500,effect="nv",cooldown=4,area=AREA_CIRCLE_
 eting = skill("Marque Eting","ve",TYPE_INDIRECT_HEAL,350,effect="nw",emoji='<:eting:902525771074109462>')
 renforce = skill("Renforcement","vd",TYPE_BOOST,500,range=AREA_DONUT_5,effect="nx",cooldown=5,description="Une compétence qui augmente la résistance d'un allié. L'effet diminue avec les tours qui passent",use=INTELLIGENCE)
 steroide = skill("Stéroïdes","vc",TYPE_BOOST,500,range=AREA_DONUT_5,effect="oa",cooldown=3,area=AREA_CIRCLE_1,use=INTELLIGENCE)
-renisurection = skill("Résurrection","vb",TYPE_RESURECTION,500,100,emoji='<:respls:906314646007468062>',cooldown=4,shareCooldown=True,description="Permet de ressuciter un allié (en théorie, vous vous doutez bien que c'est compliqué à tester)",use=CHARISMA)
+renisurection = skill("Résurrection","vb",TYPE_RESURECTION,500,100,emoji='<:respls:906314646007468062>',cooldown=4,shareCooldown=True,description="Permet de ressuciter un allié",use=CHARISMA)
 demolish = skill("Démolition","va",TYPE_DAMAGE,650,150,AREA_CIRCLE_2,ultimate=True,cooldown=4,effect=incur[5],damageOnArmor=3,emoji='<:destruc:905051623108280330>')
 contrainte = skill("Contrainte","uz",TYPE_MALUS,500,range=AREA_CIRCLE_6,effect=[incur[3],"oc"],cooldown=4,use=INTELLIGENCE)
 trouble = skill("Trouble","uy",TYPE_MALUS,500,range=AREA_CIRCLE_6,effect=[incur[3],"od"],use=CHARISMA,emoji='<:trouble:904164471109468200>')
@@ -144,8 +144,7 @@ bigMonoLaser2 = skill(bigMonoLaser.name,"up",bigMonoLaser.type,750,0,area=bigMon
 invocBat2 = skill("Invocation - Chauve-souris II","uo",TYPE_INVOC,500,invocation="Chauve-Souris II",emoji="<:cuttybat2:904369379762925608>",shareCooldown=True,use=CHARISMA,cooldown=3)
 invocCarbunR = skill("Invocation - Carbuncle Rubis","un",TYPE_INVOC,500,invocation="Carbuncle Rubis",emoji="<:carbunR:904367955507314731>",shareCooldown=True,use=MAGIE,cooldown=5)
 concen = skill("Concentration","um",TYPE_BOOST,price=350,effect="oj",range=AREA_MONO,area=AREA_DONUT_2,cooldown=4,use=None)
-memAliceStun = effect("Etourdi","aliceStuned",emoji=uniqueEmoji('<:stun:882597448898474024>'),turnInit=2,stun=True,description="L'utilisation d'un gros sort magique vous a vidé de votre énergie")
-memAlice = skill("Memento - Voie de l'Ange","memAlice",TYPE_HEAL,1000,int(transHeal.power*1.1),AREA_MONO,shareCooldown=True,area=AREA_DONUT_4,cooldown=8,ultimate=True,use=CHARISMA,emoji='<a:memAlice2:908424319900745768>',effectOnSelf=memAliceStun)
+memAlice = skill("Memento - Voie de l'Ange","memAlice",TYPE_HEAL,1000,int(transHeal.power*1.2),AREA_MONO,shareCooldown=True,area=AREA_DONUT_4,cooldown=8,ultimate=True,use=CHARISMA,emoji='<a:memAlice2:908424319900745768>',description="Cette compétence soigne les alliés vivants et recussite les alliés morts pour une certaine valeur des soins initiaux, affectée par le niveau de votre personnage\nL'utilisation de cette compétence diminue vos PV maximums de **25%** et ajuste vos PV courants en conséquence")
 memAliceCast = effect("Cast - {0}".format(memAlice.name),"aliceMementoCast",replique=memAlice,turnInit=2,silent=True,emoji=uniqueEmoji('<a:memAliceCast:908413832194588723>'))
 memAlice2 = copy.deepcopy(memAlice)
 memAlice2.id, memAlice2.power, memAlice2.effectOnSelf, memAlice2.message, memAlice2.emoji = "ul",0,memAliceCast,"{0} rassemble ses souvenirs...",'<a:memAliceCast:908413832194588723>'
@@ -184,25 +183,28 @@ lightHeal2 = skill("Illumination","tn",TYPE_HEAL,350,55,cooldown=3,use=CHARISMA,
 extraEtingSkill = copy.deepcopy(eting)
 extraEtingSkill.name, extraEtingSkill.id, extraEtingSkill.effect, extraEtingSkill.condition, extraEtingSkill.emoji = "Marque Eting +","tm",["eting+"],[0,2,ELEMENT_TIME],'<:emeB:909132040392302703>'
 
-willShield = effect("Force de volonté","willShield",STRENGTH,overhealth=40,description="Votre force de volonté vous permet de vous protéger de quelques dégâts")
-strengthOfWill = skill("Détermination inflexible","tl",TYPE_DAMAGE,0,power=60,cooldown=5,effectOnSelf=willShield)
+willShield = effect("Force de volonté","willShield",STRENGTH,overhealth=120,description="Votre force de volonté vous permet de vous protéger de quelques dégâts",turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+strengthOfWill = skill("Détermination inflexible","feliUltLaunch",TYPE_DAMAGE,0,power=int(demolish.power*1.35),cooldown=7,effectOnSelf=willShield,ultimate=True,emoji='<:feliSlash:916208942974132245>',damageOnArmor=3)
+strengthOfWillCastEff = effect("Cast - Force de volonté","castFeliEff",turnInit=2,silent=True,emoji=dangerEm,replique=strengthOfWill)
+strengthOfWillCast = copy.deepcopy(strengthOfWill)
+strengthOfWillCast.id, strengthOfWillCast.power, strengthOfWillCast.effectOnSelf,strengthOfWillCast.message = "tl",0,strengthOfWillCastEff,"{0} rassemble toute sa Détermination dans son arme"
 
 sixtineUlt = skill("Douce nuit","tk",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENNEMIES,use=INTELLIGENCE,effect='sixtineUltEff',ultimate=True,cooldown=5,emoji='<:night:911735172901273620>')
 hinaUlt = skill("Déluge de plume","tj",TYPE_DAMAGE,0,35,area=AREA_CONE_2,repetition=5,cooldown=7,emoji='<:featherStorm:909932475457884191>')
 julieUlt = skill("Prolongation","ti",TYPE_UNIQUE,0,area=AREA_DONUT_2,range=AREA_MONO,emoji='<:prolong:911734437597835316>',cooldown=7,description="Augmente la durée de tous les effets des alliés alentours (bonus comme malus) de 1")
 invocSeraf = skill("Invocation - Fée protectrice","th",TYPE_INVOC,500,invocation="Fée protectrice",emoji="<:seraphin:911078421361205289>",shareCooldown=True,use=INTELLIGENCE,cooldown=5)
 
-mageUlt = skill("Éminence","tg",TYPE_DAMAGE,1000,emoji='<:emanence:911397114850975795>',power=120,conditionType=["exclusive","aspiration",MAGE],ultimate=True,cooldown=7,area=AREA_DONUT_1,use=MAGIE,description="Une compétence dont la puissance et la zone d'effet dépend de l'élément")
+mageUlt = skill("Éminence","tg",TYPE_DAMAGE,1000,emoji='<:emanence:911397114850975795>',power=120,conditionType=["exclusive","aspiration",MAGE],ultimate=True,cooldown=7,area=AREA_DONUT_2,use=MAGIE,description="Une compétence dont la puissance et la zone d'effet dépend de l'élément")
 mageUltMono = copy.deepcopy(mageUlt)
 mageUltMono.power,mageUltMono.area,mageUltMono.sussess = 150,AREA_MONO,160
 mageUltZone = copy.deepcopy(mageUlt)
 mageUltZone.power,mageUltZone.area,mageUltZone.sussess = 80,AREA_CONE_3,80
 
-soulaEff = effect("Traité de soulagement","soulaArmor",INTELLIGENCE,overhealth=30,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji('<:tsB:911732326818545664>','<:tsR:911732347601317908>'))
+soulaEff = effect("Traité de soulagement","soulaArmor",INTELLIGENCE,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji('<:tsB:911732326818545664>','<:tsR:911732347601317908>'))
 soulagement = skill("Traité de soulagement","tf",TYPE_ARMOR,500,0,AREA_MONO,["exclusive","aspiration",PREVOYANT],area=AREA_CIRCLE_2,use=INTELLIGENCE,cooldown=3,effect=soulaEff,emoji='<:soul:911732783993483284>')
 
 bloodArmor = effect("Bouclier sanguin","bloodyArmor",STRENGTH,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
-bloodyStrike = skill("Frappe sanguine",'te',TYPE_DAMAGE,500,70,AREA_CIRCLE_2,["exclusive","aspiration",BERSERK],cooldown=5,effectOnSelf=bloodArmor)
+bloodyStrike = skill("Frappe sanguine",'te',TYPE_DAMAGE,500,70,AREA_CIRCLE_2,["exclusive","aspiration",BERSERK],cooldown=5,effectOnSelf=bloodArmor,emoji='<:berkSlash:916210295867850782>')
 
 infraMedicaEff = effect("Infra Medica","infraMedicaHeal",CHARISMA,power=15,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji=sameSpeciesEmoji('<:imB:911732644193124393>','<:imR:911732657728151572>'))
 infraMedica = skill("Infra Medica","td",TYPE_INDIRECT_HEAL,500,0,AREA_MONO,["exclusive","aspiration",ALTRUISTE],area=AREA_CIRCLE_2,cooldown=5,effect=infraMedicaEff,emoji='<:medica:911732802947530843>')
@@ -219,8 +221,47 @@ preOS = skill("Armures Avancées","sy",TYPE_PASSIVE,500,effectOnSelf="preOSEff",
 
 geoConBoost = effect("Géo-Controlé","geocontroled",INTELLIGENCE,20,20,20,10,10,20,20,5,5,0,description="Une grande force vous envahis")
 geoConLaunch = skill("Géo-Controle","geoControleFinal",TYPE_BOOST,1000,range=AREA_MONO,area=AREA_CIRCLE_3,effect=geoConBoost,cooldown=7,use=INTELLIGENCE,ultimate=True)
-geoConCastEff = effect("Cast - {0}".format(geoConLaunch),"geoControleCastEff",turnInit=2,silent=True,emoji=dangerEm,replique=geoConLaunch)
+geoConCastEff = effect("Cast - {0}".format(geoConLaunch.name),"geoControleCastEff",turnInit=2,silent=True,emoji=dangerEm,replique=geoConLaunch)
 geoConCast = copy.deepcopy(geoConLaunch)
-geoConCast.id, geoConCast.effect, geoConCast.effectOnSelf = "sx",[],geoConCastEff
+geoConCast.id, geoConCast.effect, geoConCast.effectOnSelf, geoConCast.message = "sx",[],geoConCastEff,"{0} rassemble l'énergie cosmique autour de lui..."
 
-kikuRes = skill("Mors vita est","sw",TYPE_RESURECTION,750,80,AREA_MONO,area=AREA_DONUT_3,initCooldown=3,shareCooldown=True,description="Utiliser cette compétence empêche l'équipe d'utiliser Memento - Voie de l'Ange, Résurrection ainsi que n'importe quelle Transcendance jusqu'au prochain tour",use=CHARISMA)
+kikuRes = skill("Mors vita est","sw",TYPE_RESURECTION,750,80,AREA_MONO,area=AREA_DONUT_3,emoji='<:mortVitaEst:916279706351968296>',initCooldown=3,shareCooldown=True,description="Utiliser cette compétence empêche l'équipe d'utiliser Memento - Voie de l'Ange, Résurrection ainsi que n'importe quelle Transcendance jusqu'au prochain tour",use=CHARISMA)
+memClemLauchSkill = skill("Memento - L'Ange noir","memClemSkillLauch",TYPE_DAMAGE,0,666,AREA_MONO,sussess=666,area=AREA_CIRCLE_7,ultimate=True,use=MAGIE,cooldown=99,emoji="<:clemMemento:902222089472327760>",description="\n__Effets lors du premier tour de chargement :__\nDéfini vos PVs courants à **1**\nObtenez un bouclier absolu d'une valeur de **50%** des PVs perdus\nDivise votre Résistance Soins de **50%**\nDiminue vos PV maximums de **50%** pour le reste du combat\nDonne l'effet __Incurable (50)__ sur le lanceur pour le reste du combat")
+memClemCastSkillEff = effect("Cast - Memento - L'Ange noir","memClemSkillCast",turnInit=2,silent=True,emoji=dangerEm,replique=memClemLauchSkill)
+memClemCastSkill = copy.deepcopy(memClemLauchSkill)
+memClemCastSkill.id, memClemCastSkill.effectOnSelf, memClemCastSkill.power = "sv",memClemCastSkillEff,0
+
+rosesEff = effect("Épines","rosesEff",CHARISMA,endurance=5,resistance=3,power=35,trigger=TRIGGER_AFTER_DAMAGE,lvl=5,description="En plus de légèrement augmenter les statistiques défensives, cet effet inflige des dégâts indirects à chaques fois que le porteur reçois des dégâts physiques")
+roses = skill("Épines","su",TYPE_BOOST,500,effect=rosesEff,use=CHARISMA,cooldown=5,range=AREA_DONUT_4)
+
+krysUlt = skill("Réassemblage","st",TYPE_DAMAGE,0,80,cooldown=5,description="En plus d'infliger des dégâts, cette compétence vole **50%** de l'armure normale et légère de la cible (avant d'infliger les dégâts)",emoji='<:reconvert:916121466423091240>')
+chaosArmorEff = effect("Armure du Chaos","chaosArmor",INTELLIGENCE,overhealth=1,description="Une armure chaotique dont la puissance de base est aléatoire",type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,turnInit=3)
+chaosArmor = skill("Armure du Chaos","ss",TYPE_ARMOR,500,effect=chaosArmorEff,cooldown=5,use=INTELLIGENCE)
+
+firelame = skill("Ignis ferrum","sr",TYPE_DAMAGE,500,30,range=AREA_DIST_5,conditionType=["exclusive","element",ELEMENT_FIRE],cooldown=6,area=AREA_ARC_1,repetition=3,emoji='<:fireLame:916130324197543986>',damageOnArmor=1.1)
+airlame = skill("Aer ferrum","sq",TYPE_DAMAGE,500,30,range=AREA_CIRCLE_3,conditionType=["exclusive","element",ELEMENT_AIR],cooldown=6,area=AREA_ARC_1,repetition=3,emoji='<:airLame:916130609095655454>',damageOnArmor=1.1)
+waterlame = skill("Aqua ferrum","sp",TYPE_DAMAGE,500,40,range=AREA_DIST_5,conditionType=["exclusive","element",ELEMENT_WATER],cooldown=6,repetition=3,emoji='<:aquaLame:916130446125977602>',damageOnArmor=1.1)
+mudlame = skill("Lapis ferrum","so",TYPE_DAMAGE,500,40,range=AREA_CIRCLE_3,conditionType=["exclusive","element",ELEMENT_EARTH],cooldown=6,repetition=3,emoji='<:earthLame:916130398914875452>',damageOnArmor=1.1)
+
+shadowLameEff = effect("Umbra ferrum","lameD'ombre",STRENGTH,power=30,stackable=True,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:darkLame:916130473162453033>'))
+shadowLame = skill("Umbra ferrum","sn",TYPE_INDIRECT_DAMAGE,500,conditionType=["exclusive","element",ELEMENT_DARKNESS],effect=[shadowLameEff,shadowLameEff,shadowLameEff],cooldown=6,emoji='<:darkLame:916130473162453033>')
+
+lightLameEff = effect("Lux ferrum","lameDeLumière",CHARISMA,resistance=5,power=30,lvl=3,description="En plus de booster légèrement la résistance de la cible, inflige des dégâts indirects lorsque cette dernière est attaquée",trigger=TRIGGER_AFTER_DAMAGE,onDeclancher=True,emoji=uniqueEmoji('<:lightLame:916131830149816340>'))
+lightLame = skill("Lux ferrum","sm",TYPE_BOOST,500,effect=lightLameEff,emoji='<:lightLame:916131830149816340>',cooldown=6,conditionType=["exclusive","element",ELEMENT_LIGHT],use=CHARISMA)
+astralLameEff = effect("Stella ferrum","lameétoilée",ENDURANCE,resistance=5,power=30,lvl=3,description="En plus de booster légèrement la résistance de la cible, inflige des dégâts indirects lorsque cette dernière est attaquée",trigger=TRIGGER_AFTER_DAMAGE,onDeclancher=True,emoji=uniqueEmoji('<:astralLame:916131872352911400>'),turnInit=2)
+astralLame = skill("Stella ferrum","sl",TYPE_BOOST,500,range=AREA_MONO,effect=astralLameEff,emoji='<:astralLame:916131872352911400>',cooldown=6,conditionType=["exclusive","element",ELEMENT_SPACE],use=ENDURANCE)
+timeLameEff = effect("Tempus ferrum","lameDuTemps",CHARISMA,resistance=5,power=30,lvl=3,description="En plus de booster légèrement la résistance de la cible, inflige des dégâts indirects lorsque cette dernière est attaquée",trigger=TRIGGER_AFTER_DAMAGE,onDeclancher=True,emoji=uniqueEmoji('<:timeLame:916131853499527208> '))
+timeLame = skill("Tempus ferrum","sk",TYPE_BOOST,500,effect=timeLameEff,emoji='<:timeLame:916131853499527208> ',cooldown=6,conditionType=["exclusive","element",ELEMENT_TIME],use=CHARISMA)
+
+magicRuneArmor = effect("Bouclier magicorunique","runeArmor",MAGIE,overhealth=bloodArmor.overhealth,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+magicRuneStrike = skill("Rune - Frappe magicorunique",'sj',TYPE_DAMAGE,500,bloodyStrike.power,bloodyStrike.range,["exclusive","aspiration",ENCHANTEUR],cooldown=bloodyStrike.cooldown,effectOnSelf=magicRuneArmor,emoji='<:magicoRune:916401319990947920>',use=MAGIE)
+
+infinitDarkEff = effect("Noirceur infinie","bigDarkDark",MAGIE,stackable=True,power=35,turnInit=3,lvl=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji("<:bigDark:916561798948347935>"))
+infinitDark = skill("Noirceur infinie","si",TYPE_INDIRECT_DAMAGE,500,emoji='<:bigDark:916561798948347935>',effect=infinitDarkEff,cooldown=5,ultimate=True,use=MAGIE)
+
+preciseShot = skill("Tir précis","sh",TYPE_DAMAGE,500,75,cooldown=5,use=PRECISION,emoji='<:preciseShot:916561817969500191>')
+troublon = skill("Troublon","sg",TYPE_DAMAGE,500,75,cooldown=3,area=AREA_CONE_2,range=AREA_MONO,emoji='<:mousqueton:916561833920462889>')
+
+haimaShield = effect("Haima - Bouclier","haimaShield",INTELLIGENCE,overhealth=20,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,emoji=sameSpeciesEmoji("<:haimaB:916922889679286282>","<:haimaR:916922905672171570>"))
+haimaEffect = effect("Haima","haimaEff",lvl=5,description="En subissant des dégâts sans posséder d'effet \"__Haima - Bouclier__\", le porteur de cet effet gagne le dit effet au prix d'une charge de __Haima__",callOnTrigger=haimaShield,emoji=uniqueEmoji('<:haima:916922498094858251>'),trigger=TRIGGER_AFTER_DAMAGE)
+haimaSkill = skill("Haima","sf",TYPE_ARMOR,500,emoji='<:haima:916922498094858251>',effect=haimaEffect,cooldown=7,use=INTELLIGENCE)
