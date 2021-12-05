@@ -62,7 +62,15 @@ allShop = weapons + skills + stuffs + others
 
 class shopClass:
     def __init__(self,shopList : list):
-        self.shopping = [None,None,None,None,None,None,None,None,None,None,None,None,None,None,None,None]
+        self.shopping = []
+        summation = 0
+        for a in shopRepatition:
+            summation += a
+        cmpt = 0
+        while cmpt < summation:
+            self.shopping.append(None)
+            cmpt += 1
+
         if shopList != False:
             for a in range(0,len(shopList)):
                 if a != None:
@@ -87,16 +95,22 @@ class shopClass:
         for a in weapons:
             if a.price > 0:
                 shopWeap.append(a)
+                if a in weapons[:3]:
+                    shopWeap.append(a)
                 
         for a in skills:
             if a.price > 0:
                 shopSkill.append(a)
+                if a in skills[:5]:
+                    shopWeap.append(a)
                 
         for a in stuffs:
             if a.price > 0:
                 shopStuff.append(a)
+                if a in skills[:5]:
+                    shopWeap.append(a)
         
-        temp = [4,4,6,2]
+        temp = shopRepatition
         tablShop = [shopWeap,shopSkill,shopStuff,ShopOther]
         cmp = 0
         for a in [0,1,2,3]:
@@ -901,15 +915,13 @@ async def normal(ctx):
                     alea = copy.deepcopy(tablAllOcta[42])
 
                 alea.changeLevel(maxLvl)
+                alea.charisma = alea.charisma//2
 
                 while cmpt < lenBoucle:
                     team2.append(alea)
                     cmpt += 1
 
-                permaIncur30 = copy.deepcopy(incur[3])
-                permaIncur30.turnInit, permaIncur30.unclearable = -1, True
-
-                await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaIncur30]])
+                await fight(bot,team1,team2,ctx,guild,False,slash=True)
                 fightAnyway = False
 
             elif fun < 5:              # All Temmies
@@ -923,15 +935,13 @@ async def normal(ctx):
 
                 alea = copy.deepcopy(findEnnemi("Temmie"))
                 alea.changeLevel(maxLvl)
+                alea.magie = alea.magie // 3
 
                 while cmpt < lenBoucle:
                     team2.append(alea)
                     cmpt += 1
 
-                permaDamageDown = effect("Malus de dégâts (20%)","damageDown",percing=-20,turnInit=-1,type=TYPE_MALUS,unclearable=True)
-                permaDamageDown.turnInit, permaDamageDown.unclearable = -1, True
-
-                await fight(bot,team1,team2,ctx,guild,False,slash=True,contexte=[[TEAM2,permaDamageDown]])
+                await fight(bot,team1,team2,ctx,guild,False,slash=True)
                 fightAnyway = False
 
             if fightAnyway:
@@ -1719,7 +1729,7 @@ async def addEnableFight(ctx,valeur = None):
 async def restartCommand(ctx):
     await restart_program(bot,ctx)
 
-@slash.subcommand(base="admin",name="reset_Emojis",guild_ids=[912137828614426704],description="Lance une rénitialisation des emojis")
+@slash.subcommand(base="admin",subcommand_group="emoji",name="reset_all",guild_ids=[912137828614426704],description="Lance une rénitialisation des emojis")
 async def resetCustomEmoji(ctx):
     msg = await ctx.send(embed = discord.Embed(title="Rénitialisation des emojis..."))
     await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="rénitialiser les emojis..."))
@@ -1808,6 +1818,97 @@ async def resetCustomEmoji(ctx):
     bidule = stuffDB.getShop()
     ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
     await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+
+@slash.subcommand(base="admin",subcommand_group="emoji",name="remake_all",guild_ids=[912137828614426704],description="Supprime puis refait tous les emojis de personnage")
+async def remakeCustomEmoji(ctx):
+    msg = await ctx.send(embed = discord.Embed(title="Remake des emojis..."))
+    await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="refaire les emojis..."))
+    
+    async def refresh(text : str):
+        await msg.edit(embed = discord.Embed(title="Remake des emojis...",description=text))
+
+    await refresh("Suppression de la base de données")
+    try:
+        customIconDB.dropCustom_iconTablDB
+    except:
+        pass
+    await refresh("Supression des emojis")
+    iconGuildList = []
+    if os.path.exists("../Kawi/"):
+        iconGuildList = ShushyCustomIcons
+    else:
+        iconGuildList = LenaCustomIcons
+
+    allEmojisNum = 0
+    for a in iconGuildList:
+        emojiGuild = await bot.fetch_guild(a)
+        allEmojisNum += len(emojiGuild.emojis)
+
+    cmpt = 0
+    now = datetime.datetime.now().second
+    lastTime = copy.deepcopy(now)
+    for a in iconGuildList:
+        emojiGuild = await bot.fetch_guild(a)
+
+        for b in emojiGuild.emojis:
+            try:
+                print("Emoji {0} supprimé".format(b.name))
+            except:
+                pass
+            await b.delete()
+            cmpt += 1
+
+            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+                await refresh("Supression des emojis ({0} %)".format(int(cmpt/allEmojisNum*100)))
+                lastTime = now
+
+    allChar = os.listdir("./userProfile/")
+    lenAllChar = len(allChar)
+    cmpt = 0
+
+    for num in allChar:
+        user = loadCharFile("./userProfile/"+num)
+        await getUserIcon(bot,user)
+        cmpt += 1
+
+        if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+            await refresh("Création des émojis ({0} %)".format(int(cmpt/lenAllChar*100)))
+            lastTime = now
+
+    await refresh("Fini !")
+    await ctx.channel.send("Le remake des emojis est terminées !",delete_after=10)
+
+    bidule = stuffDB.getShop()
+    ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+
+@slash.slash(name="Kikimeter",description="Permet de voir le top 5 de chaques catégories",guild_ids=[912137828614426704],options=[create_option(name="what",description="Que regarder",option_type=str,required=True,choices=[create_choice("total","total"),create_choice("max","max")])])
+async def kikimeterCmd(ctx,what):
+    listAllChars = []
+    for text in os.listdir("./userProfile/"):
+        listAllChars.append(loadCharFile("./userProfile/" + text))
+
+    for cmpt in range(len(listAllChars)):
+        temp = aliceStatsDb.getUserStats(listAllChars[cmpt],"all")
+        listAllChars[cmpt] = {"char":listAllChars[cmpt],"{what}Damage".format(what=what):temp["{what}Damage".format(what=what)],"{what}Kill".format(what=what):temp["{what}Kill".format(what=what)],"{what}Resu".format(what=what):temp["{what}Resu".format(what=what)],"{what}RecivedDamage".format(what=what):temp["{what}RecivedDamage".format(what=what)],"{what}Heal".format(what=what):temp["{what}Heal".format(what=what)],"{what}Armor".format(what=what):temp["{what}Armor".format(what=what)],"{what}Supp".format(what=what):temp["{what}Supp".format(what=what)]}
+    
+    embed = discord.Embed(title="__Kikimeter__",description="=========================================================")
+    for cat in ["{what}Damage".format(what=what),"{what}Kill".format(what=what),"{what}Resu".format(what=what),"{what}RecivedDamage".format(what=what),"{what}Heal".format(what=what),"{what}Armor".format(what=what),"{what}Supp".format(what=what)]:
+        listAllChars.sort(key=lambda character: character["{0}".format(cat)],reverse=True)
+        desc = ""
+
+        for cmpt in range(min(5,len(listAllChars)-1)):
+            if listAllChars[cmpt]["{0}".format(cat)] > 0:
+                desc += "{0} - {1} {2} ({3})\n".format(cmpt+1,await getUserIcon(bot,listAllChars[cmpt]["char"]),listAllChars[cmpt]["char"].name,separeUnit(int(listAllChars[cmpt]["{0}".format(cat)])))
+
+        if desc != "":
+            embed.add_field(name="<:empty:866459463568850954>\n__{0}__".format(cat),value=desc)
+    try:
+        await ctx.send(embed = embed)
+    except:
+        await ctx.channel.send(embed = embed)
+
+
 ###########################################################
 # Démarrage du bot
 if os.path.exists("../Kawi/"):

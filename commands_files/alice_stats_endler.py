@@ -1,4 +1,4 @@
-import discord, sqlite3, os
+import sqlite3, os
 from gestion import *
 from classes import char, statTabl
 from typing import Union
@@ -8,7 +8,7 @@ if not(os.path.exists("./data/database/aliceStats.db")):
     print("Création du fichier \"aliceStats.db\"")
     temp.close()
 
-tablAdd = ["Damage","Kill","Resu","RecivedDamage","Heal","Armor"]
+tablAdd = ["Damage","Kill","Resu","RecivedDamage","Heal","Armor","Supp"]
 
 tablCreate = """
     CREATE TABLE userStats (
@@ -32,6 +32,67 @@ tablCreate = """
         owner      INTEGER,
         value      INTEGER
     );
+"""
+maj1 = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM userStats;
+
+    DROP TABLE userStats;
+
+    CREATE TABLE userStats (
+        id                 INTEGER PRIMARY KEY
+                                UNIQUE,
+        totalDamage        INTEGER,
+        maxDamage          INTEGER,
+        totalHeal          INTEGER,
+        maxHeal            INTEGER,
+        totalArmor         INTEGER,
+        maxArmor           INTEGER,
+        totalRecivedDamage INTEGER,
+        maxRecivedDamage   INTEGER,
+        totalKill          INTEGER,
+        maxKill            INTEGER,
+        totalResu          INTEGER,
+        maxResu            INTEGER,
+        totalSupp          INTEGER,
+        maxSupp            INTEGER
+    );
+
+    INSERT INTO userStats (
+                            id,
+                            totalDamage,
+                            maxDamage,
+                            totalHeal,
+                            maxHeal,
+                            totalArmor,
+                            maxArmor,
+                            totalRecivedDamage,
+                            maxRecivedDamage,
+                            totalKill,
+                            maxKill,
+                            totalResu,
+                            maxResu
+                        )
+                        SELECT id,
+                                totalDamage,
+                                maxDamage,
+                                totalHeal,
+                                maxHeal,
+                                totalArmor,
+                                maxArmor,
+                                totalRecivedDamage,
+                                maxRecivedDamage,
+                                totalKill,
+                                maxKill,
+                                totalResu,
+                                maxResu
+                            FROM sqlitestudio_temp_table;
+
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;
 """
 
 class aliceStatsdbEndler:
@@ -59,6 +120,23 @@ class aliceStatsdbEndler:
 
                 self.con.commit()
                 print("Table userStats et records créé")
+
+            try:
+                cursor.execute("SELECT totalSupp FROM userStats;")
+            except:
+                temp = ""
+                for a in maj1:
+                    if a != ";":
+                        temp+=a
+                    else:
+                        cursor.execute(temp)
+                        temp = ""
+
+                cursor.execute("UPDATE userStats SET totalSupp = ?, maxSupp = ?;",(0,0))
+                cursor.execute("INSERT INTO records VALUES (?,?,?)",("maxSupp",0,0,))
+                self.con.commit()
+                print("maj1 réalisée")
+
             cursor.close()
 
     def addUser(self,user : char):
@@ -82,7 +160,7 @@ class aliceStatsdbEndler:
         records = cursor.fetchall()
         listUpdated = []
 
-        tablStats = [stats.damageDeal,stats.ennemiKill,stats.allieResurected,stats.damageRecived,stats.heals,stats.shieldGived]
+        tablStats = [stats.damageDeal,stats.ennemiKill,stats.allieResurected,stats.damageRecived,stats.heals,stats.shieldGived,stats.damageDogded+stats.damageBoosted]
 
         for num in range(len(tablAdd)):
             listUpdated.append(result["total{0}".format(tablAdd[num])]+tablStats[num])
@@ -94,7 +172,7 @@ class aliceStatsdbEndler:
                 cursor.execute("SELECT * FROM records")
                 records = cursor.fetchall()
 
-        cursor.execute("UPDATE userStats SET totalDamage = ?, maxDamage = ?, totalKill = ?, maxKill = ?, totalResu = ?, maxResu = ?, totalRecivedDamage = ?, maxRecivedDamage = ?, totalHeal = ?, maxHeal = ?, totalArmor = ?, maxArmor = ? WHERE id = ?;",(listUpdated[0],listUpdated[1],listUpdated[2],listUpdated[3],listUpdated[4],listUpdated[5],listUpdated[6],listUpdated[7],listUpdated[8],listUpdated[9],listUpdated[10],listUpdated[11],int(user.owner)))
+        cursor.execute("UPDATE userStats SET totalDamage = ?, maxDamage = ?, totalKill = ?, maxKill = ?, totalResu = ?, maxResu = ?, totalRecivedDamage = ?, maxRecivedDamage = ?, totalHeal = ?, maxHeal = ?, totalArmor = ?, maxArmor = ?, totalSupp = ?, maxSupp = ? WHERE id = ?;",(listUpdated[0],listUpdated[1],listUpdated[2],listUpdated[3],listUpdated[4],listUpdated[5],listUpdated[6],listUpdated[7],listUpdated[8],listUpdated[9],listUpdated[10],listUpdated[11],listUpdated[12],listUpdated[13],int(user.owner)))
         self.con.commit()
         cursor.close()
 

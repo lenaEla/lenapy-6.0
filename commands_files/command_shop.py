@@ -84,8 +84,30 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
                         shopField[a] += icon
                         options += [create_select_option(unhyperlink(b.name),b.id,getEmojiObject(b.emoji),desc+desc2)]
+                if len(shopField[a]) <= 1024:
+                    shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
+                else:
+                    shopField[a] = ""
+                    for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
+                        if b != None:
+                            shopField[a] += f"\n - {b.name} : {b.price} pièces"
+                            icon = ""
+                            if user.have(b):
+                                icon = " (☑️)"
 
-                shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
+                            if user.team != 0:
+                                allTeamHave = True
+                                for c in teamMember:
+                                    if not(c.have(b)):
+                                        allTeamHave = False
+                                        break
+
+                                if allTeamHave:
+                                    icon = " (✅)"
+
+                            shopField[a] += icon
+
+                    shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
 
             fcooldown,fseconds,fqcooldown,fqseconds,faccord,fqaccord,fsaccord,fqsaccord = teamWinDB.getFightCooldown(user.team)//60,teamWinDB.getFightCooldown(user.team)%60,teamWinDB.getFightCooldown(user.team,True)//60,teamWinDB.getFightCooldown(user.team,True)%60,"","","",""
             if fcooldown > 1:
