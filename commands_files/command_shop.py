@@ -18,7 +18,6 @@ allButtons = create_actionrow(buttonReturn,buttonBuy,buttonGift,buttonAllGift)
 buttonsWithoutBuy = create_actionrow(buttonReturn,buttonGift,buttonAllGift)
 onlyReturn = create_actionrow(buttonReturn)
 
-
 haveIcon = "<:bought:906623435256504451>" 
 allTeamHaveIcon = "<:teamBought:906621631143743538>"
 
@@ -41,6 +40,14 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 for a in team:
                     if a != int(ctx.author.id):
                         teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
+
+                buttonGift = create_button(3,"Offrir",emoji='🎁',custom_id="1")
+                buttonAllGift = create_button(3,"Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2")
+
+            else:
+                buttonGift = create_button(3,"Offrir",emoji='🎁',custom_id="1",disabled=True)
+                buttonAllGift = create_button(3,"Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2",disabled=True)
+                
             shopEmb = discord.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*")
 
             shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]

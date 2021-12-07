@@ -1,4 +1,4 @@
-import os,discord,random,sqlite3,requests
+import os,discord,random,sqlite3
 from typing import Union, List
 
 import discord_slash
@@ -212,7 +212,7 @@ def saveCharFile(path : str, char : char):
         #return False
 
 def loadCharFile(path,ctx="useless") -> char:
-    """The Ctx option is there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used"""
+    """The Ctx option == there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used"""
     file = readSaveFiles(path)
     rep = char(owner = int(file[0][0]))
     rep.name = file[0][1]
@@ -664,7 +664,55 @@ class globalVarDb:
 
 globalVar = globalVarDb()
 
-def merge_two_dicts(x : dict, y : dict):
-    z = x.copy()   # start with keys and values of x
-    z.update(y)    # modifies z with keys and values of y
-    return z
+def loadAdvDutyFile(actName : str, dutyName : str) -> duty:
+    """Load the texts for Duty of the main adventure\n
+    Parameters :\n
+    .actName : The name of the main act of the duty\n
+    .dutyName : The name of the duty"""
+
+    if dutyName.endswith(".txt"):
+        dutyName = dutyName[:-3]
+    dutyTextList = []
+    file = open("./data/advScriptTxt/{0}/{1}.txt".format(actName,dutyName))
+    text, ref = "",""
+    fileContent = file.readlines()
+    for line in fileContent:
+        baliseOpend, tempBalise, endOfText, endOfTextFlag = False,"","",False
+        for car in line:
+            if car == "[":
+                baliseOpend = True
+                tempBalise = "["
+            elif car == "]":
+                baliseOpend = False
+                tempBalise += "]"
+
+                if tempBalise.startswith("[ref:"):
+                    ref = tempBalise[5:-1]
+                else:
+                    text += tempBalise
+
+                tempBalise = ""
+
+            elif car == "=" and not(endOfTextFlag):
+                endOfTextFlag = True
+                endOfText += car
+
+            elif car == "=" and endOfTextFlag:
+                endOfText += car
+                if len(endOfText) >= 5:
+                    dutyTextList.append(dutyText(ref,text))
+                    ref,text,baliseOpend, tempBalise, endOfText, endOfTextFlag = "","",False,"","",False
+
+            elif car != "=" and endOfTextFlag:
+                endOfTextFlag = False
+                text += endOfText + car
+                endOfText = ""
+
+            elif baliseOpend:
+                tempBalise += car
+
+            else:
+                text += car
+
+    dut = duty(actName,dutyName,dutyTextList)
+    return dut

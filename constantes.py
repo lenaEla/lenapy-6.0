@@ -4,6 +4,7 @@ Here stand the first brick of the bot
 """
 from datetime import timedelta
 import os
+from index import *
 
 #Constantes :
 # Area of effects
@@ -16,7 +17,7 @@ AREA_CIRCLE_5 = 5
 AREA_CIRCLE_6 = 6
 AREA_CIRCLE_7 = 7
 AREA_ALL_ALLIES = 8 # All allies
-AREA_ALL_ENNEMIES = 9 # All ennemies
+AREA_ALL_ENEMIES = 9 # All ennemies
 AREA_ALL_ENTITES = 10 # All
 AREA_CONE_2 = 11 # Cones
 AREA_CONE_3 = 12
@@ -62,19 +63,6 @@ TRIGGER_ON_REMOVE = 7
 TRIGGER_AFTER_DAMAGE = 8
 
 allTriggers = [TRIGGER_PASSIVE,TRIGGER_DAMAGE,TRIGGER_END_OF_TURN,TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE,TRIGGER_INSTANT,TRIGGER_START_OF_TURN,TRIGGER_ON_REMOVE,TRIGGER_AFTER_DAMAGE]
-
-# Useless stuff
-DAMAGE = 0
-DAMAGE_IRRECTIBLE = 1
-DAMAGE_TRUE = 2
-DAMAGE_FIXE = 3
-
-HEAL = 0
-HEAL_FIXE = 0
-
-REZ = 0
-REZ_POURCENTAGE = 1
-REZ_FIXE = 2
 
 # Skills and effects types
 TYPE_ARMOR = 0
@@ -126,11 +114,6 @@ OPTION_WEAPON,OPTION_SKILL,OPTION_MOVE,OPTION_SKIP = 0,1,2,3
 
 # Genders. 2 for default
 GENDER_MALE, GENDER_FEMALE, GENDER_OTHER = 0,1,2
-
-# Do I use those ? I dunno
-allDamages = [DAMAGE,DAMAGE_IRRECTIBLE,DAMAGE_TRUE,DAMAGE_FIXE]
-allHeals = [HEAL,HEAL_FIXE]
-allRez = [REZ,REZ_POURCENTAGE,REZ_FIXE]
 
 # Color constants
 red,light_blue,yellow,green,blue,purple,pink,orange,white,black,aliceColor = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB,0xEF7C00,0xffffff,0x000000,0xFF83FF
@@ -637,7 +620,7 @@ randomMaxKill = [
 
 randomTotalKill = [
     "Le nombre de victimes de {icon} __{name}__ est de **{value}**.\n\nNon j'ai pas de commentaire à faire (＃￣0￣)",
-    "Le nombre de victimes de {icon} __{name}__ est de **{value}**."
+    "Le nombre de victimes de {icon} __{name}__ est de **{value}**.",
     "Si j'ai bien compté, le nombre total d'élimiation par {icon} __{name}__ est à **{value}** (ᓀ ᓀ)\nFaites ce que vous voulez de cette information"
 ]
 

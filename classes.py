@@ -5,6 +5,7 @@ Here are grouped up the bases classes of the bot, and some very basic functions
 
 import emoji,pathlib,copy
 from constantes import *
+from typing import List
 
 absPath = str(pathlib.Path(__file__).parent.resolve())
 
@@ -125,18 +126,21 @@ class weapon:
             self.orientation = orientation[0] + " - "+orientation[1]
 
         if emoji == None:
-            if self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
-                self.emoji='<:defDamage:885899060488339456>'
-            elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
-                self.emoji='<:defHeal:885899034563313684>'
-            elif self.type in [TYPE_BOOST,TYPE_INVOC]:
-                self.emoji='<:defSupp:885899082453880934>'
-            elif self.type in [TYPE_ARMOR]:
-                self.emoji='<:defarmor:895446300848427049>'
-            elif self.type in [TYPE_MALUS]:
-                self.emoji='<:defMalus:895448159675904001>'
+            if self.name != "noneWeap":
+                if self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                    self.emoji='<:defDamage:885899060488339456>'
+                elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
+                    self.emoji='<:defHeal:885899034563313684>'
+                elif self.type in [TYPE_BOOST,TYPE_INVOC]:
+                    self.emoji='<:defSupp:885899082453880934>'
+                elif self.type in [TYPE_ARMOR]:
+                    self.emoji='<:defarmor:895446300848427049>'
+                elif self.type in [TYPE_MALUS]:
+                    self.emoji='<:defMalus:895448159675904001>'
+                else:
+                    self.emoji='<:LenaWhat:760884455727955978>'
             else:
-                self.emoji='<:LenaWhat:760884455727955978>'
+                self.emoji='<:noneWeap:917311409585537075>'
         else:
             self.emoji=emoji
 
@@ -267,7 +271,7 @@ class skill:
                 
                 self.condition[2] = conditionType[2]
 
-        if area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
+        if area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
             self.range = AREA_MONO
 
         if emoji == None:
@@ -399,7 +403,7 @@ emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:8668282968334664
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,onTrigger = None,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False):
         """rtfm"""
         self.name = name                    # Name of the effect
         self.id = id                        # The id. 2 characters
@@ -410,7 +414,6 @@ class effect:
         self.description = description.format(power,power//2)      # A (quick) description of the effect
         self.turnInit = turnInit            # How many turn does the effect stay ?
         self.stat = stat                    # Wich stat is use by the effect ?
-        self.onTrigger = onTrigger          # Unused
         if (overhealth > 0 or redirection > 0) and trigger==TRIGGER_PASSIVE:
             self.trigger = TRIGGER_DAMAGE   # If the effect give armor, he triggers automatiquely on damage
         else:
@@ -516,7 +519,7 @@ class char:
         """Verify if the character have the object Obj"""
         return obj in self.weaponInventory or obj in self.skillInventory or obj in self.stuffInventory or obj in self.otherInventory
 
-    def isPnj(self,name : str):
+    def isNpc(self,name : str):
         return False
 
     def allStats(self):
@@ -554,7 +557,7 @@ class invoc:
         """Return a list """
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
     
-    def isPnj(self,name : str):
+    def isNpc(self,name : str):
         return False
 
 def getColorId(user: char):
@@ -575,5 +578,53 @@ for num in range(0,10):
 
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement")
 
-def cafe():
-    return "chocolat"
+textBaliseAtReplace = ["[Lena]","Ã©","Ã","à§"]
+textBaliseToReplace = ["<:lena:909047343876288552>","é","à","ç"]
+
+if len(textBaliseAtReplace) != len(textBaliseToReplace):
+    raise Exception("len(textBaliseAtReplace) != len(textBaliseToReplace)")
+
+class dutyText:
+    """The class of a duty text, for generating the embed\n"""
+    def __init__(self,ref : str, text : str):
+        self.ref = ref
+        
+        for cmpt in range(len(textBaliseAtReplace)):
+            text = text.replace(textBaliseAtReplace[cmpt],textBaliseToReplace[cmpt])
+        
+        self.text = text
+
+        if len(self.text) > 4026:
+            raise Exception("Text ref {0} is to big ({1} / 4026)".format(self.ref,len(self.text)))
+
+class duty:
+    """The class of a loaded duty"""
+    def __init__(self,act: str,name : str, dutyTextList : List[dutyText]):
+        """
+            .name : The name of the duty\n
+            .dutyTextList : A ``list`` of ``dutyText`` objects
+        """
+        self.act = act
+        self.name = name
+        self.dutyTextList = dutyTextList
+        self.cmpt = -1
+
+    def __str__(self):
+        return self.name
+
+    def nextText(self):
+        """Increment the inter cumpter and return the corresponding ``dutyText``"""
+        self.cmpt += 1
+        print(self.cmpt)
+        if self.cmpt > len(self.dutyTextList)-1:
+            raise Exception("Duty {0} error : dutyTextList index above the len of the list".format(self))
+        return self.dutyTextList[self.cmpt]
+
+    def prevText(self):
+        """Decrement the inter cumpter and return the corresponding ``dutyText``"""
+        self.cmpt -= 1
+        if self.cmpt < 0:
+            raise Exception("Duty {0} error : dutyTextList index under 0".format(self))
+        return self.dutyTextList[self.cmpt]
+
+

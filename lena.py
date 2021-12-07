@@ -24,6 +24,7 @@ from commands_files.command_patchnote import *
 from commands_files.command_help import *
 from commands_files.command_patchnote import *
 from commands_files.alice_stats_endler import *
+from commands_files.command_duty import adventureDutySelect
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -50,6 +51,16 @@ existDir(absPath + "/data/patch/")
 existDir(absPath + "/data/fightLogs/")
 existDir(absPath + "/data/images/elemIcon/")
 
+if not(os.path.exists("./data/advScriptTxt/")):
+    raise Exception("Missing folder error : advScriptTxt do not exist")
+for verif in allActs:
+    if not(os.path.exists("./data/advScriptTxt/"+verif[0])):
+        raise Exception("Missing folder error : {0} do not exist".format(verif[0]))
+    else:
+        for fileVerif in verif[1:]:
+            if not(os.path.exists("./data/advScriptTxt/"+verif[0]+"/"+fileVerif)):
+                raise Exception("Missing file error : {0} do not exist".format(verif[0]+"/"+fileVerif))
+
 actualyFight,actualyQuickFight = [],[]
 pathUserProfile = absPath + "/userProfile/"
 ctxChannel = 0
@@ -59,6 +70,8 @@ guilds = list(range(0,len(listGuildSet)))
 ###########################################################
 # Initialisation
 allShop = weapons + skills + stuffs + others
+
+
 
 class shopClass:
     def __init__(self,shopList : list):
@@ -383,7 +396,7 @@ async def on_message(ctx : discord.message.Message):
         valid = True
     except:
         pass
-    
+
     if valid:
         if not existFile(pathGuildSettings):
             tempGuild = server(ctx.guild.id)
@@ -502,7 +515,7 @@ async def on_message(ctx : discord.message.Message):
                     user = quickLoadCharFile(pathUserProfile)
                     user[0].currencies = user[0].currencies + 50000
 
-                    quickSaveCharFile(pathUserProfile,user)                
+                    quickSaveCharFile(pathUserProfile,user)
                 elif args[1] == "forceRestat":
                     if args[2] == "all":
                         for a in os.listdir(absPath + "/userProfile/"):
@@ -512,7 +525,7 @@ async def on_message(ctx : discord.message.Message):
 
                             saveCharFile(pathUserProfile,user)
                             print(f"{user.name} a bien été restat")
-                        
+
                     else:
                         try:
                             stated = ctx.mentions[0]
@@ -753,7 +766,17 @@ async def on_message(ctx : discord.message.Message):
                     await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
 
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                await ctx.channel.send(cafe())
+                test = loadAdvDutyFile("act0","prologue")
+                user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+
+                toEmb = test.nextText()
+                desc = toEmb.text.format(name=user.name)
+                toBotton = "Réf. : {0}".format(toEmb.ref)
+
+                embed = discord.Embed(title="__{0} - {1}__".format(test.act[0].upper()+test.act[1:],test.name[0].upper()+test.name[1:]),color=user.color,description=desc)
+                embed.set_footer(text=toBotton)
+
+                await ctx.channel.send(embed=embed)
 
             elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
                 await procuration(ctx)
@@ -1706,7 +1729,7 @@ async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
         selected = selected[1:]
     await ctx.send(embed=discord.Embed(title="/choose",color=light_blue,description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0,len(randChooseMsg)-1)],selected)))
 
-# ------------------------------- ADMIN ----------------------------------------------
+# ------------------------------- ADMIN --------------------------------------------------------------------
 
 @slash.subcommand(base="admin",name="enable_Fight",guild_ids=[912137828614426704],description="Permet d'activer les combats ou non",options=[
     create_option("valeur","Activer ou désaciver les combats", SlashCommandOptionType.BOOLEAN,False)
@@ -1908,6 +1931,19 @@ async def kikimeterCmd(ctx,what):
     except:
         await ctx.channel.send(embed = embed)
 
+# ---------------------------------------------------- Aventure ---------------------------------------------
+@slash.subcommand(base="adventure",subcommand_group="duty",name="select",description="Permet de commencer une nouvelle mission",base_description="Commandes de l'Aventure",guild_ids=[615257372218097691])
+async def dutyStart(ctx):
+    still = True
+    try:
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+    except:
+        still = False
+        await ctx.send(embed=discord.Embed(title="__Erreur :__",description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"),delete_after=15)
+    
+    if still:
+        actName, dutyName, msg = await adventureDutySelect(bot,ctx,user)
+        await msg.edit(embed = discord.Embed(title="__Mission sélectionnée__",color=light_blue,description="Vous avez sélectioné la mission \"{0} - {1}\"".format(actName,dutyName[0].upper()+dutyName[1:].lower())),components=[])
 
 ###########################################################
 # Démarrage du bot

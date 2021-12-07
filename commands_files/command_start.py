@@ -22,7 +22,7 @@ aspirationMenu = create_select(
         create_select_option("Altruiste",value="7",emoji=getEmojiObject(aspiEmoji[7]),description="Distance - Soins"),
         create_select_option("Invocateur",value="8",emoji=getEmojiObject(aspiEmoji[8]),description="Neutre - Versatilité"),
         create_select_option("Enchanteur",value="9",emoji=getEmojiObject(aspiEmoji[9]),description="Mêlée - Dégâts - Boost sur dégâts reçus"),
-        create_select_option("Protecteur",value="10",emoji=getEmojiObject(aspiEmoji[0]),description="Mêlée - Support - Entrave sur dégâts reçus"),
+        create_select_option("Protecteur",value="10",emoji=getEmojiObject(aspiEmoji[10]),description="Mêlée - Support - Entrave sur dégâts reçus"),
         ],
     placeholder="Sélectionnez une aspiration pour avoir plus d'informations dessus"
     )
