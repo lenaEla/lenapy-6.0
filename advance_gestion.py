@@ -76,12 +76,12 @@ def visuArea(area : int,wanted,ranged=True) -> list:
                         if self.distance(cell=a) <= 2:
                             rep.remove(a)
 
-            elif area in [AREA_ALL_ALLIES,AREA_ALL_ENNEMIES,AREA_ALL_ENTITES]:
+            elif area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
                 for b in tablAllCells:
                     if b.on != None:
                         if area == AREA_ALL_ALLIES and b.on.team == team:
                             rep+=[b]
-                        elif area == AREA_ALL_ENNEMIES and b.on.team != team:
+                        elif area == AREA_ALL_ENEMIES and b.on.team != team:
                             rep+=[b]
                         elif area == AREA_ALL_ENTITES:
                             rep+=[b]
@@ -477,7 +477,7 @@ def infoSkill(skill : skill, user : char,ctx):
                 repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ENNEMIS))
                 break
 
-    if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENNEMIES and skil.area != AREA_ALL_ENTITES:
+    if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENEMIES and skil.area != AREA_ALL_ENTITES:
         ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
         for a in ballerine:
             if a == skil.type:
@@ -566,7 +566,7 @@ def infoWeapon(weapon : weapon, user : char ,ctx):
             repEmb.add_field(name = "__Portée :__",value=visuArea(weap.effectiveRange,wanted=ENNEMIS))
             break
 
-    if weap.area != AREA_MONO and weap.area != AREA_ALL_ALLIES and weap.area != AREA_ALL_ENNEMIES and weap.area != AREA_ALL_ENTITES:
+    if weap.area != AREA_MONO and weap.area != AREA_ALL_ALLIES and weap.area != AREA_ALL_ENEMIES and weap.area != AREA_ALL_ENTITES:
         ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
         for a in ballerine:
             if a == weap.type:
