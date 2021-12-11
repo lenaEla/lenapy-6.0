@@ -280,7 +280,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]}. | {a.weapon.emoji} |"
                         firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
                     else:
-                        mess += f"{a.icon} __{a.name}__\n{inspi[a.aspiration]} | {a.weapon.emoji} |"
+                        mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]} | {a.weapon.emoji} |"
                         firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
 
                     for b in a.skills:
@@ -364,7 +364,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             sortOptions = changeDefault(sortOptions,respond)
 
             if respond in [0,1]:
-                needRemake,reverse=True,respond
+                needRemake,respond
             else:
                 tablToSee.sort(key=lambda ballerine: ballerine.name)
                 if respond in [2,3]:
@@ -485,7 +485,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             elif value == 8:
                 what = whatIsThat(respond)
                 if what == 0:
-                    await inter.send(embed=infoWeapon(findStuff(respond),user,ctx))
+                    await inter.send(embed=infoWeapon(findWeapon(respond),user,ctx))
                 elif what == 1:
                     await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
                 elif what == 2:

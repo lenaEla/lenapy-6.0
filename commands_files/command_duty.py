@@ -6,7 +6,14 @@ from advance_gestion import *
 from commands_files.sussess_endler import *
 from commands_files.alice_stats_endler import *
 
-async def adventureDutySelect(bot : discord.client,ctx : SlashContext, user : char): 
+nextButton = create_button(ButtonStyle.blue,"Suivant","▶️","next")
+pauseButton = create_button(ButtonStyle.grey,"Faire une pause","⏸️","pause")
+enableFavTeam = create_button(ButtonStyle.secondary,"Utiliser l'équipe favorite","⭐","fav")
+disabledFavTeam = create_button(ButtonStyle.secondary,"Vous n'avez pas d'équipe favorite","⭐","fav",disabled=True)
+errorFavTeam = create_button(ButtonStyle.red,"Erreur lord du chargement de l'équipe favorite","⭐","fav",disabled=True)
+classicButtons = [create_actionrow(pauseButton,nextButton)]
+
+async def adventureDutySelect(bot : discord.client, ctx : SlashContext, user : char): 
     """
         Function for the menu for selecting the duty\n
         Parameters :\n
@@ -118,3 +125,88 @@ async def adventureDutySelect(bot : discord.client,ctx : SlashContext, user : ch
     react = react.values[0]
 
     return actSelected, react, mainMenu
+
+async def dutyTextAff(message : discord.Message, text : dutyText, user : char, duty : duty):
+    """Generate the embed for a ``dutyText`` and edit the ``message`` given in parameters\n
+    Return the ``len`` of the embed's description"""
+    desc = text.text.format(
+        charName=user.name,
+        Lena="<:lena:909047343876288552>")
+
+    embed = discord.Embed(title="__{0} : {1}__".format(duty.act,duty.name),color=user.color,description=desc)
+
+    await message.edit(embed=embed,components=classicButtons)
+    return len(desc)
+
+async def pauseDuty(message : discord.Message, duty : duty, dutyText : dutyText, user : char):
+    """Generate the pause data and update it into the database"""
+    pauseData = duty.act + "|" + duty.name + "|" + dutyText.ref + "|"
+
+    teamTemp, cmpt = ["-","-","-","-","-"],0
+    for temp in duty.team:
+        teamTemp[cmpt] = temp.name
+        cmpt += 1
+
+    for temp in teamTemp:
+        pauseData+=temp+"|"
+
+    aliceStatsDb.updatePauseData(user,pauseData)
+
+    message.edit(embed = discord.Embed(title="__{0} : {1}__".format(duty.act,duty.name),color=user.color,description="Votre mission a été mise en pause\n\nVous pouvez la reprendre quand vous voulez avec /adventure duty resume"),components=[])
+    return 0
+
+def partySelect(duty : duty):
+    listMeleeDPT,listDistDPT,listHealer,listShielder,listBoost,listOther = [],[],[],[],[],[]
+
+    for tempAllie in tablAllAllies:
+        if tempAllie.isUnlock(duty):
+            if tempAllie.aspiration in [BERSERK,POIDS_PLUME,ENCHANTEUR,TETE_BRULE]:
+                listMeleeDPT.append(tempAllie)
+            elif tempAllie.aspiration in [OBSERVATEUR,MAGE,TETE_BRULE]:
+                listDistDPT.append(tempAllie)
+            elif tempAllie.aspiration == ALTRUISTE:
+                listHealer.append(tempAllie)
+            elif tempAllie.aspiration == PREVOYANT:
+                listShielder.append(tempAllie)
+            elif tempAllie.aspiration in [IDOLE,PROTECTEUR]:
+                listBoost.append(tempAllie)
+            else:
+                listOther.append(tempAllie)
+
+    for a in [listMeleeDPT,listDistDPT,listHealer,listShielder,listBoost,listOther]:
+        temp = []
+        for b in a:
+            temp.append(b.name)
+
+        print(temp)
+
+
+async def mainDuty(bot: discord.Client, message : discord.Message, ctx : SlashContext, user: char, duty: duty, resumed : Union[None,dict] = None):
+    if resumed != None:
+        while duty.actText().ref != resumed["ref"]:
+            duty.cmpt += 1
+            if duty.cmpt >= len(duty.dutyTextList):
+                print("DutyError : The duty's resume point havn't been found")
+                await message.edit(embed=discord.Embed(title="__{0} : {1}__",color=red,description="Une erreur est survenue :\nLe point de reprise n'a pas pu être retrouvé"))
+                return 0
+
+        tempDutyTeam = []
+        for temp in resumed["team"]:
+            temporaly = findAllie(temp)
+            if temporaly == None:
+                print("DutyError : A duty's team member hav'nt been found")
+                await message.edit(embed=discord.Embed(title="__{0} : {1}__",color=red,description="Une erreur est survenue :\nUn allié n'a pas pu être retrouvé"))
+                return 0
+            else:
+                tempDutyTeam.append(temporaly)
+
+        duty.team = tempDutyTeam
+
+    else:
+        favTeam = aliceStatsDb.getTeamFavData(user)
+        if favTeam == False:
+            favTeamButton = errorFavTeam
+        elif favTeam == None:
+            favTeamButton = disabledFavTeam
+        else:
+            favTeamButton = enableFavTeam

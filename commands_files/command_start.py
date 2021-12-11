@@ -1,11 +1,9 @@
-from discord import embeds
 from discord_slash.utils.manage_components import create_actionrow
 from adv import *
 from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from discord_slash import ButtonStyle, SlashCommand
 from discord_slash.utils.manage_components import *
 
 import asyncio
@@ -61,7 +59,7 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
         if haveReaction:
             action = create_actionrow(aspirationMenuD)
             await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
-            inspiDesc = [manPage8[1],manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],manPage14[1],manPage15[1],manPage16[1],manPage17[1],manPage18[1]]
+            inspiDesc = [manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],manPage14[1],manPage15[1],manPage16[1],manPage17[1],manPage18[1],manPage19[1]]
 
             msg2 = await respond.send(embed = discord.Embed(title = args[0] + " : "+inspi[int(respond.values[0])],color = user.color,description = f"{inspiDesc[int(respond.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"))
 
@@ -79,7 +77,6 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
                     await msg2.delete()
             except:
                 await msg2.delete()
-                
         else:
             await msg.clear_reactions()
             return None
@@ -154,7 +151,7 @@ async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.
     else:
         return False
 
-async def changeCustomColor(bot,msg,ctx,user,args):
+async def changeCustomColor(bot,msg,ctx,user : char,args):
     def check(param):
         return param.author.id == ctx.author.id and param.channel.id == ctx.channel.id
     def checkReact(param,second):
@@ -164,7 +161,8 @@ async def changeCustomColor(bot,msg,ctx,user,args):
         await msg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Veillez entrer le code hexadecimal de votre nouvelle couleur :\n\nExemples :\n94d4e4\n#94d4e4",color = user.color))
         
         respond = await bot.wait_for("message",check=check,timeout=60)
-        color = convertStrtoHex(respond.content)
+        tempColor = respond.content
+        color = int(respond.content,16)
 
         try:
             await respond.delete()
@@ -186,9 +184,10 @@ async def changeCustomColor(bot,msg,ctx,user,args):
         if str(react[0]) == emoji.check:
             user.color = color
             user.customColor = True
+            user.colorHex = "0x"+tempColor.replace("0x","").replace("#","")
             return user
 
-    return None   
+    return None
 
 async def start(bot : discord.client, ctx : discord.message, args : list):
     """Commande de création de personnage"""

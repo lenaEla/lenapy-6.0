@@ -1,7 +1,9 @@
+from re import findall
 import sqlite3, os
+from adv import findAllie, tmpAllie
 from gestion import *
 from classes import char, statTabl
-from typing import Union
+from typing import Union, List
 
 if not(os.path.exists("./data/database/aliceStats.db")):
     temp = open("./data/database/aliceStats.db","bw")
@@ -9,6 +11,11 @@ if not(os.path.exists("./data/database/aliceStats.db")):
     temp.close()
 
 tablAdd = ["Damage","Kill","Resu","RecivedDamage","Heal","Armor","Supp"]
+aliceStatsToLook = ""
+for a in tablAdd:
+    aliceStatsToLook += "total"+a+", max"+a
+    if a != tablAdd[-1]:
+        aliceStatsToLook += ","
 
 tablCreate = """
     CREATE TABLE userStats (
@@ -161,6 +168,80 @@ maj2 = """
 
     PRAGMA foreign_keys = 1;
 """
+maj3 = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
+                                            FROM userStats;
+
+    DROP TABLE userStats;
+
+    CREATE TABLE userStats (
+        id                  INTEGER PRIMARY KEY
+                                    UNIQUE,
+        totalDamage         INTEGER,
+        maxDamage           INTEGER,
+        totalHeal           INTEGER,
+        maxHeal             INTEGER,
+        totalArmor          INTEGER,
+        maxArmor            INTEGER,
+        totalRecivedDamage  INTEGER,
+        maxRecivedDamage    INTEGER,
+        totalKill           INTEGER,
+        maxKill             INTEGER,
+        totalResu           INTEGER,
+        maxResu             INTEGER,
+        totalSupp           INTEGER,
+        maxSupp             INTEGER,
+        dutyProgressAct,
+        dutyProgressMission,
+        dutyResumeRef,
+        dutyGroupData,
+        jetonOws
+    );
+
+    INSERT INTO userStats (
+                            id,
+                            totalDamage,
+                            maxDamage,
+                            totalHeal,
+                            maxHeal,
+                            totalArmor,
+                            maxArmor,
+                            totalRecivedDamage,
+                            maxRecivedDamage,
+                            totalKill,
+                            maxKill,
+                            totalResu,
+                            maxResu,
+                            totalSupp,
+                            maxSupp,
+                            dutyProgressAct,
+                            dutyProgressMission
+                        )
+                        SELECT id,
+                                totalDamage,
+                                maxDamage,
+                                totalHeal,
+                                maxHeal,
+                                totalArmor,
+                                maxArmor,
+                                totalRecivedDamage,
+                                maxRecivedDamage,
+                                totalKill,
+                                maxKill,
+                                totalResu,
+                                maxResu,
+                                totalSupp,
+                                maxSupp,
+                                dutyProgressAct,
+                                dutyProgressMission
+                            FROM sqlitestudio_temp_table0;
+
+    DROP TABLE sqlitestudio_temp_table0;
+
+    PRAGMA foreign_keys = 1;
+"""
 class aliceStatsdbEndler:
     def __init__(self):
             self.con = sqlite3.connect(f"./data/database/aliceStats.db")
@@ -219,6 +300,21 @@ class aliceStatsdbEndler:
                 self.con.commit()
                 print("maj2 réalisée")
 
+            try:
+                cursor.execute("SELECT dutyResumeRef FROM userStats;")
+            except:
+                temp = ""
+                for a in maj3:
+                    if a != ";":
+                        temp+=a
+                    else:
+                        cursor.execute(temp)
+                        temp = ""
+
+                cursor.execute("UPDATE userStats SET dutyResumeRef = ?, dutyGroupData = ?, jetonOws = ?;",(None,None,0))
+                self.con.commit()
+                print("maj3 réalisée")
+
             cursor.close()
 
     def addUser(self,user : char):
@@ -227,7 +323,7 @@ class aliceStatsdbEndler:
         result = cursory.fetchall()
 
         if len(result) == 0:
-            cursory.execute("INSERT INTO userStats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(int(user.owner),0,0,0,0,0,0,0,0,0,0,0,0,0,0,None,None))
+            cursory.execute("INSERT INTO userStats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(int(user.owner),0,0,0,0,0,0,0,0,0,0,0,0,0,0,None,None,None,None,0))
             self.con.commit()
             print("Le personnage {0} a été rajouté à la base de donnée".format(user.name))
         cursory.close()
@@ -260,12 +356,17 @@ class aliceStatsdbEndler:
 
     def getUserStats(self, user : char, wanted : str) -> Union[dict,int]:
         cursor = self.con.cursor()
-        cursor.execute("SELECT * FROM userStats WHERE id = ?",(int(user.owner),))
+        temp = ""
+        for a in tablAdd:
+            temp += "total"+a+", max"+a
+            if a != tablAdd[-1]:
+                temp += ","
+        cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format(aliceStatsToLook),(int(user.owner),))
         result = cursor.fetchall()
 
         if len(result) == 0:
             self.addUser(char)
-            cursor.execute("SELECT * FROM userStats WHERE id = ?",(int(user.owner),))
+            cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format,(int(user.owner),))
             result = cursor.fetchall()
 
         result = result[0]
@@ -295,5 +396,76 @@ class aliceStatsdbEndler:
             result = cursor.fetchall()
 
         return result[0]["dutyProgressAct"], result[0]["dutyProgressMission"]
+
+    def getUserJetons(self, user : char):
+        cursor = self.con.cursor()
+        cursor.execute("SELECT jetonOws FROM userStats WHERE id = ?",(user.owner,))
+        result = cursor.fetchall()
+
+        if len(result) == 0:
+            self.addUser(char)
+            cursor.execute("SELECT jetonOws FROM userStats WHERE id = ?",(user.owner,))
+            result = cursor.fetchall()
+
+        return result[0]["jetonOws"]
+
+    def updateJetonsCount(self,user:char,count:int):
+        actJeton = self.getUserJetons(user)
+
+        actJeton += count
+        cursor = self.con.cursor()
+        cursor.execute("UPDATE userStats SET jetonOws = ? WHERE id = ?",(actJeton,int(user.owner),))
+        self.con.commit()
+        cursor.close()
+
+    def updatePauseData(self, user: char, text: Union[str,None]):
+        cursor = self.con.cursor()
+        if text != None:
+            cursor.execute("UPDATE userStats SET dutyResumeRef = '{0}' WHERE id = {1};".format(text,user.owner))
+        else:
+            cursor.execute("UPDATE userStats SET dutyResumeRef = ? WHERE id = {0};".format(text,user.owner),(None,))
+        self.con.commit()
+
+    def getPauseData(self, user: char):
+        cursor = self.con.cursor()
+        cursor.execute("SELECT dutyResumeRef FROM userStats WHERE id = {0};".format(user.owner))
+        return cursor.fetchall[0]["dutyResumeRef"]
+
+    def updateTeamFavData(self, user: char, tabl:List[tmpAllie]):
+        text = ""
+        for cmpt in range(len(tabl)):
+            text += tabl[cmpt].name+"|"
+    
+        cursor = self.con.cursor()
+        if text != None:
+            cursor.execute("UPDATE userStats SET dutyGroupData = '{0}' WHERE id = {1};".format(text,user.owner))
+        else:
+            cursor.execute("UPDATE userStats SET dutyGroupData = ? WHERE id = {0};".format(text,user.owner),(None,))
+        self.con.commit()
+
+    def getTeamFavData(self, user: char) -> Union[List[tmpAllie],None,bool]:
+        cursor = self.con.cursor()
+        cursor.execute("SELECT dutyGroupData FROM userStats WHERE id = {0};".format(user.owner))
+        tabl = cursor.fetchall[0]["dutyGroupData"]
+        if tabl == None:
+            temp, tempTabl = "", []
+            for letter in tabl[:]:
+                if letter == "|":
+                    tempTabl.append(temp)
+                    temp = ""
+                else:
+                    temp += letter
+                
+            tabl = tempTabl
+            for cmpt in range(len(tabl)):
+                temp = findAllie(tabl[cmpt])
+                if temp != None:
+                    tabl[cmpt] = temp
+                else:
+                    return False
+            
+            return tabl
+        else:
+            return None
 
 aliceStatsDb = aliceStatsdbEndler()

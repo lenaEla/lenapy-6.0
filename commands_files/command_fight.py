@@ -1,4 +1,4 @@
-import discord, random, os, emoji, asyncio,datetime,copy
+import discord, random, os, emoji, asyncio, datetime, copy
 from discord_slash.context import SlashContext
 from adv import *
 from classes import *
@@ -8,7 +8,7 @@ from advance_gestion import *
 from commands_files.sussess_endler import *
 from commands_files.alice_stats_endler import *
 from traceback import format_exc
-from typing import List
+from typing import Union, List
 
 teamWinDB = dbHandler("teamVic.db")
 AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHANT = 0,1,2,3,4,5,6,7
@@ -74,7 +74,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.x = x
             self.y = y
             self.id = id
-            self.on = None
+            self.on: Union[None,entity] = None
 
         def distance(self,cell):
             """Return the distance with the other cell"""
@@ -109,15 +109,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if self.distance(cell=a) <= 2:
                             rep.remove(a)
             elif area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
-
-                for b in tablAllCells:
-                    if b.on != None:
-                        if area == AREA_ALL_ALLIES and b.on.team == team:
-                            rep+=[b]
-                        elif area == AREA_ALL_ENEMIES and b.on.team != team:
-                            rep+=[b]
-                        elif area == AREA_ALL_ENTITES:
-                            rep+=[b]
+                return tablAllCells
             elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
                 start,yDiff,xMax = self.x,0,area-10
                 areaTabl = []
@@ -439,6 +431,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 temp = sorted(tabl, key= lambda babie: abs(3-babie.x+portee)+abs(babie.y-summoner.cell.y))
                 return temp[0]
 
+        def surrondings(self):
+            return [findCell(self.x-1,self.y),findCell(self.x+1,self.y),findCell(self.x,self.y-1),findCell(self.x,self.y+1)]
+
     for a in [0,1,2,3,4,5]:             # Creating the board
         for b in [0,1,2,3,4]:
             tablAllCells += [cell(a,b,cmpt)]
@@ -480,21 +475,21 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:
                 self.icon = perso.icon[team]
             self.stun = False
-            self.summoner = copy.copy(summoner)
+            self.summoner = summoner
             self.raiser = None
             self.specialVars = {"osPro":False,"osPre":False,"osIdo":False,"ohAlt":False,"ohPro":False,"ohIdo":False,"heritEstial":False,"heritLesath":False,"haveTrans":False,"tankTheFloor":False,"clemBloodJauge":None,"clemMemCast":False,"aspiSlot":None,"damageSlot":None}
-            
+
             if type(perso) not in [invoc,octarien]:
-                baseHP,HPparLevel = 100,8
+                baseHP,HPparLevel = 100,13
 
             elif type(perso) == invoc:
-                baseHP,HPparLevel = 50,5
+                baseHP,HPparLevel = 50,8
                 perso.level = summoner.char.level
         
             else:
-                baseHP,HPparLevel = 90,6.5
+                baseHP,HPparLevel = 95,11
 
-            self.effect = []
+            self.effect: List[fightEffect] = []
             self.ownEffect =  []
             self.cell = None
 
@@ -549,6 +544,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.invisible = False
             self.name = self.char.name
             self.aspiration = self.char.aspiration
+            self.level = self.char.level
 
             finded = False
             self.IA = AI_AVENTURE
@@ -661,10 +657,33 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             elif self.char.element == ELEMENT_EARTH:
                 baseStats[6] += 5
 
-            if danger > 100:
+            valueToBoost = self.char.level / 50
+            baseStats[ENDURANCE] += int(25*valueToBoost)
+            baseStats[RESISTANCE] += int(15*valueToBoost)
+            baseStats[PERCING] += int(10*valueToBoost)
+
+            if danger > 100 and type(self.char) == octarien:
                 add = int(danger/135 * 20)
                 for cmpt in [AGILITY,PRECISION,RESISTANCE]:
                     baseStats[cmpt] += add
+
+            if self.char.weapon.id in eternalInkWeaponIds:
+                summation = 0
+                for stat in range(10,15):
+                    if baseStats[stat] > 0:
+                        summation = int(baseStats[stat]*0.7)
+                        baseStats[stat] = 0
+
+                baseStats[self.char.weapon.use] += summation
+
+            if self.char.weapon.id in eternalInkWeaponIds:
+                summation = 0
+                for stat in range(10,15):
+                    if baseStats[stat] > 0:
+                        summation = int(baseStats[stat]*0.7)
+                        baseStats[stat] = 0
+
+                baseStats[self.char.weapon.use] += summation
 
             if self.char.aspiration == INVOCATEUR:          # Invoc passif
                 statsAtStart = []
@@ -690,7 +709,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     baseStats[cmpt] = baseStats[cmpt] * 1.35
 
             self.baseStats = baseStats
-            self.maxHp = round((baseHP+perso.level*HPparLevel)*((baseStats[ENDURANCE])/120+1))
+            self.maxHp = round((baseHP+perso.level*HPparLevel)*((baseStats[ENDURANCE])/100+1))
 
             if type(self.char) == octarien:
                 self.maxHp = round(self.maxHp * danger / 100)
@@ -700,7 +719,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             """Return the mains 7 stats"""
             return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
-        def move(self,cellToMove=None,x=None,y=None):
+        def move(self,cellToMove:Union[cell,None]=None ,x:Union[int,None]=None ,y:Union[int,None]=None):
             """Move the entity on the given coordonates"""
             if cellToMove == None and x == None and y == None:
                 raise Exception("Argument error : No parameters given")
@@ -712,7 +731,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.cell = destination
             destination.on = self
             if actCell != None:
-                temp.on = None
+                actCell.on = None
 
         def valueBoost(self,target = 0,heal=False):
             """
@@ -816,7 +835,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         sumStatsBonus[8] += eff.effect.percing
                         sumStatsBonus[9] += eff.effect.critical
 
-                if eff.stun == True:
+                if eff.stun:
                     stuned = True
 
                 if eff.effect.invisible:
@@ -931,7 +950,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if self.isNpc("Liz"):
                         popopo += add_effect(self,target,charming)
                         target.refreshEffects()
-                        
 
                     if target.hp <= 0:
                         popopo += target.death(killer=self)
@@ -1007,10 +1025,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             
             elif self.status == STATUS_RESURECTED:
                 pipistrelle += add_effect(self,self,onceButNotTwice)
-                
 
             if self.status == STATUS_DEAD:
-                effect = copy.deepcopy(lostSoul)
+                effect = lostSoul
                 if self.specialVars["tankTheFloor"]:
                     effect.turnInit += 1
                 add_effect(killer,self,effect)
@@ -1089,13 +1106,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             else:
                                 used = self.allStats()[use]
                             
-                            damage = round(value * (used+100-self.negativeDirect)/100 * (1-(min(95,z.resistance*(1-self.percing/100))/100))*dangerMul*self.getElementalBonus(target=z,area=area,type=TYPE_DAMAGE))
+                            damage = round(value * (used+100-self.negativeDirect)/100 * (1-(min(95,z.resistance*(1-self.percing/100))/100))*dangerMul*self.getElementalBonus(target=z,area=area,type=TYPE_DAMAGE)*(1+(0.01*self.level)))
                             
                             # AoE reduction factor
                             if z == target: 
                                 multiplicateur = 1
                             else:
-                                multiplicateur = 1-(min(0.8,target.cell.distance(z.cell)*0.3))
+                                multiplicateur = 1-(min(1-AOEMINDAMAGE,target.cell.distance(z.cell)*AOEDAMAGEREDUCTION))
                             
                             # Dodge / Miss
                             attPre,targetAgi = self.precision,z.agility
@@ -1149,8 +1166,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     critMsg = " (Critique !!!)"
                                     actTurn.specialVars["aspiSlot"].value = 0
                                     self.stats.crits += 1
-                                    break
-                                    
                                     pp = 0
 
                                 effectiveDmg = round(damage*multiplicateur*ailill/100)
@@ -1179,7 +1194,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             break
 
                                     if not(alreadyHaveArmorEff):
-                                        effect = copy.deepcopy(astralShield)
+                                        effect = astralShield
                                         effect.overhealth = valueToAdd
                                         add_effect(z,z,effect,ignoreEndurance=True)
                                         
@@ -1266,6 +1281,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         if not(finded):
                                             popipo += add_effect(eff.caster,z,eff.effect.callOnTrigger)
                                             popipo += eff.decate(value = 1)
+                                            z.refreshEffects()
 
                             else:
                                 popipo += f"{z.char.name} esquive l'attaque\n"
@@ -1295,7 +1311,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     break
 
                             if not(alreadyHaveArmorEff):
-                                effect = copy.deepcopy(convertArmor)
+                                effect = convertArmor
                                 effect.overhealth = valueToAdd
                                 popipo += add_effect(eff.caster,self,effect,ignoreEndurance=True)
                                 
@@ -1327,7 +1343,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             toReturn = ""
             allReadySeen = []
             for a in self.effect:
-
                 # Any normals effects --------------------------------
                 if a.trigger == TRIGGER_START_OF_TURN and (not(a.effect.stackable) or a.effect.type != TYPE_INDIRECT_DAMAGE):
                     toReturn += a.triggerStartOfTurn(danger)
@@ -1339,15 +1354,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     for eff in self.effect:                 # Adding the power of all sames effects by the same caster to one to have one to rule them all
                         if eff.effect.id == a.effect.id and eff.caster.id == a.caster.id:
                             a.effect.power += eff.effect.power
-                            temporaty = eff.decate(value=1)
-                            if temporaty != "":
-                                nbOfDecate += 1
 
                     a.effect.power -= primalPower           # Deducing the base power, 'cause we are at [NbEffect]+1 * power
                     toReturn += a.triggerStartOfTurn(danger,decate=False)
                     a.effect.power = primalPower
-                    if temporaty != "":
-                        nbOfDecate += 1
+                    
+                    for eff in self.effect:
+                        if eff.effect.id == a.effect.id and eff.caster.id == a.caster.id:
+                            temporaty = eff.decate(value=1)
+                            if temporaty != "":
+                                nbOfDecate += 1
 
                     if nbOfDecate > 1:                      # Regrouping all the decate messages as well
                         toReturn += "__{0}__ ne subit plus sous {1} effets de __{2}__\n".format(self.char.name,nbOfDecate,a.effect.name)
@@ -1355,6 +1371,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         toReturn += temporaty
 
                     allReadySeen.append({a.caster.id:a.effect.id})
+
+                elif a.effect.id == gwenCoupeEff.id:
+                    if random.randint(0,99) < 15:
+                        effect = intargetable
+                        toReturn += add_effect(self,self,effect)
 
             for dictElem in self.ownEffect[:]:
                 for on, eff in dictElem.items():
@@ -1366,13 +1387,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             for a in range(0,5):
                 if self.cooldowns[a] > 0:
                     self.cooldowns[a] -= 1
-            
-            for a in self.effect:
-                if a.effect.id == gwenCoupeEff.id:
-                    if random.randint(0,99) < 15:
-                        effect = intargetable
-                        toReturn += add_effect(self,self,effect)
-                        
 
             self.refreshEffects()
 
@@ -1384,7 +1398,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     nb += 1
                 cmpt = 0
                 while cmpt < nb:
-                    effect = copy.deepcopy(chaosEff)
+                    effect = chaosEff
 
                     effect.power = [1,10,15,20,25,30][random.randint(0,5)]
                     randoma = random.randint(0,5)
@@ -1414,7 +1428,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     a.effect.magie = 0
 
             self.refreshEffects()
-            if type(self.char) == invoc and self.char.name not in ["Conviction des Ténèbres"] or not(self.char.name.startswith("Patte de The Giant Enemy Spider")):
+            if type(self.char) == invoc and (self.char.name not in ["Conviction des Ténèbres"] and not(self.char.name.startswith("Patte de The Giant Enemy Spider"))):
                 self.leftTurnAlive -= 1
                 if self.leftTurnAlive <= 0:
                     self.hp = 0
@@ -1452,6 +1466,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 for a in self.effect:
                     if (a.icon not in ['<:constitution:888746214999339068>','<:lenapy:892372680777539594>','<:tower:905169617163538442>','<:lostSoul:887853918665707621>','<:colegue:895440308257558529>']+aspiEmoji) and not(a.effect.silent and a.effect.replica == None) and a.effect.id not in [lightAura2PassiveEff.id]:
+                        if a.effect.replica != None or a.effect.stun:
+                            return f"{self.icon} : {a.icon} {a.effect.name}\n"
+
                         if a.effect.stackable and (a.effect.id not in stackableAlreaySeen):
                             number = 0
                             for ent in self.effect:
@@ -1539,7 +1556,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 else:
                     whereToInsert = 1
 
-
                 timeline.timeline.insert(whereToInsert,sumEnt)
 
                 accord = ""
@@ -1547,7 +1563,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     accord="e"
                 ballerine = f"{self.char.name} invoque un{accord} {summon.name}"
                 tablAliveInvoc[team] += 1
-                return {"tablEntTeam":tablEntTeam,"tablAliveInvoc":tablAliveInvoc,"timeline":timeline,"text":ballerine}
+                return tablEntTeam,tablAliveInvoc,timeline,ballerine
 
         def getElementalBonus(self,target,area : int,type : int):
             """Return the elemental damage bonus"""
@@ -1630,7 +1646,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         def heal(self,target, icon : str, statUse : int, power : int, effName = None,danger=danger):
             overheath = 0
             aff = target.hp < target.maxHp
-            ballerine = ""
+            toReturn = ""
             if power > 0 and self.hp > 0:
                 if statUse != None:
                     if statUse == HARMONIE:
@@ -1646,7 +1662,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     if self.team == 1:
                         dangerBoost = danger/100
 
-                    healPowa = round(power * (1+(statUse-self.negativeHeal)/120+(target.endurance/1500))* self.valueBoost(target = target,heal=True)*self.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL)*dangerBoost)
+                    healPowa = round(power * (1+(statUse-self.negativeHeal)/120+(target.endurance/1000))* self.valueBoost(target = target,heal=True)*self.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL)*dangerBoost)
                     healPowaInit = copy.deepcopy(healPowa)
 
                     incurableValue = 0
@@ -1675,41 +1691,24 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 lost = ""
                 if healPowa < healPowaInit:
                     lost = " `{0}`".format(healPowaInit-healPowa)
-                ballerine = f"{self.icon} {icon} → {target.icon} +{healPowa}{lost} PV{add}\n"
-
-                if self.char.element == ELEMENT_TIME and target != self:
-                    valueToAdd = int(healPowa * 0.05)
-
-                    alreadyHaveArmorEff = False
-                    for eff2 in self.effect:
-                        if eff2.effect.id == timeShield.id:
-                            alreadyHaveArmorEff = True
-                            eff2.value += valueToAdd
-                            break
-
-                    if not(alreadyHaveArmorEff):
-                        effect = copy.deepcopy(timeShield)
-                        effect.overhealth = valueToAdd
-                        add_effect(self,self,effect,ignoreEndurance=True)
-                        
-                        self.refreshEffects()
+                toReturn = f"{self.icon} {icon} → {target.icon} +{healPowa}{lost} PV{add}\n"
 
                 if self.char.aspiration in [IDOLE,PROTECTEUR,ALTRUISTE] and overheath > 0:
                     tabli,tabla = [idoOHArmor,proOHArmor,altOHArmor],[self.specialVars["ohIdo"],self.specialVars["ohPro"],self.specialVars["ohAlt"]]
                     for carillon in (0,1,2):
                         if tabla[carillon]:
-                            effect = copy.deepcopy(tabli[carillon])
+                            effect = tabli[carillon]
                             effect.overhealth = int(overheath * ([idoOHEff.power,proOHEff.power,altOHEff.power][carillon]/100))
-                            ballerine += add_effect(self,target,effect,[idoOHEff.name,proOHEff.name,altOHEff.name][carillon],True)
+                            toReturn += add_effect(self,target,effect,[idoOHEff.name,proOHEff.name,altOHEff.name][carillon],True)
                             target.refreshEffects()
-                            return ballerine
+                            return toReturn
 
                 if self.isNpc("Lio"):
-                    ballerine += add_effect(self,target,charming2)
+                    toReturn += add_effect(self,target,charming2)
                     target.refreshEffects()
 
             if aff:
-                return ballerine
+                return toReturn
             else:
                 return ""
 
@@ -1717,9 +1716,193 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             """Return if the entity is a temp's with the name given"""
             return self.char.isNpc(name)
 
+        def getCellToMove(self):
+            tablOfEnt = self.cell.getEntityOnArea(area=AREA_ALL_ENEMIES-int(self.char.weapon.target==ALLIES),team=self.team,wanted=self.char.weapon.target,lineOfSight=self.char.weapon.target==ENNEMIS,ignoreInvoc = True,directTarget=True)
+            if len(tablOfEnt) == 0:
+                return None
+            surrondings = self.cell.surrondings()
+            canMove = [surrondings[0] != None and surrondings[0].on == None, surrondings[1] != None and surrondings[1].on == None, surrondings[2] != None and surrondings[2].on == None, surrondings[3] != None and surrondings[3].on == None]
+
+            tablOfEnt.sort(key=lambda ent:self.getAggroValue(ent))
+        
+            if self.cell.x - tablOfEnt[0].cell.x > 0 and canMove[0]:                # If the target is forward and we can move forward
+                return surrondings[0]
+            elif self.cell.x - tablOfEnt[0].cell.x < 0 and canMove[1]:              # Elif the target is behind and we can move behind
+                return surrondings[1]
+            elif self.cell.y - tablOfEnt[0].cell.y > 0 and canMove[2]:              # Elif the target is above and we can move up
+                return surrondings[2]
+            elif self.cell.y - tablOfEnt[0].cell.y < 0 and canMove[3]:              # Elif the target is under and we can move down
+                return surrondings[3]
+            else:
+                if canMove[2]:                                                      # Else, if we can move up, go up
+                    return surrondings[2]
+                elif canMove[3]:                                                    # Else, if we can move down, go down
+                    return surrondings[3]
+
+                else:
+                    return None                                                     # Else, give up
+
+        def knockback(self, target, power:int):
+            toReturn = ""
+            cellDif = (self.cell.x - target.cell.x, self.cell.y - target.cell.y)
+            if cellDif[0] == 0 or cellDif[1] == 0:
+                temp = [cellDif[0] < 0, cellDif[0] > 0, cellDif[1] > 0, cellDif[1] < 0]
+                for cmpt in (0,1,2,3):
+                    if temp[cmpt]:
+                        axis = ["-x","+x","+y","-y"][cmpt]
+                        break
+
+            posArea = []
+            for cellule in tablAllCells:
+                if cellule == target.cell:
+                    posArea.append(cellule)
+                else:
+                    temp = (target.cell.x - cellule.x, target.cell.y - cellule.y)
+                    if temp[0] == 0 or temp[1] == 0:
+                        temp2 = [temp[0] < 0, temp[0] > 0, temp[1] > 0, temp[1] < 0]
+                        temp3 = ["-x","+x","+y","-y"]
+                        for cmpt in (0,1,2,3):
+                            if temp2[cmpt] and axis == temp3[cmpt] and target.cell.distance(cellule) <= power:
+                                posArea.append(cellule)
+                                break
+
+            if len(posArea) > 0:
+                posArea.sort(key=lambda dist:target.cell.distance(dist))
+
+                cmpt = 0
+                cellToPush = posArea[cmpt]
+                while cellToPush.on == None and cmpt < len(posArea)-1:
+                    cmpt += 1
+                    cellToPush = posArea[cmpt]
+
+                initTagetCell = target.cell
+                target.move(cellToMove=cellToPush)
+                toReturn = "\n__{0} ({1})__ est repoussé{3} de {2} case{4} en arrière\n".format(target.char.name,target.icon,power,target.accord(),["","s"][int(power>1)])
+
+                if cmpt < power:
+                    lastingPower = power-initTagetCell.distance(cellToPush)
+
+                    stat,damageBase = -100,10*lastingPower
+
+                    for stats in self.allStats():
+                        if not(type(self.char) == octarien and self.char.oneVAll and stats == self.allStats()[ENDURANCE]):
+                            stat = max(stats,stat)
+
+                    badaboum = [target]
+                    if cmpt != len(posArea)-1 and posArea[cmpt].on != None:
+                        badaboum.append(posArea[cmpt].on)
+                    for a in badaboum:
+                        damage = damageBase * (1+(stat/100)) * (1-(min(95,a.resistance*(1-self.percing/100))/100)) * self.getElementalBonus(a,AREA_MONO,TYPE_INDIRECT_DAMAGE) * (1+(0.01*self.level))
+                        toReturn += self.indirectAttack(a,value=damage,name="Collision")
+
+            return toReturn
+
+    class timeline:
+        """Classe de la timeline"""
+        def __init__(self):
+            self.timeline = []
+            self.initTimeline = []
+            self.begin = None
+
+        def init(self,tablEntTeam : list):
+            timeline = []
+
+            for tabl in (0,1):
+                tablPrio, tablNorm, tablLast = [],[],[]
+
+                for ent in tablEntTeam[tabl]:
+                    suppSkillsCount,healSkillsCount = 0,0
+                    for skil in ent.char.skills:
+                        if type(skil) == skill:
+                            if skil.type in [TYPE_BOOST,TYPE_MALUS] or skil.id in [invocBat2.id]:
+                                suppSkillsCount += 1
+                            elif skil.type in [TYPE_ARMOR,TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION] or skil.id in [idoOSEff.id,proOSEff.id,preOSEff.id,invocSeraf.id,idoOHEff.id,proOHEff.id,altOHEff.id,lightAura.id,lightAura2.id,invocFee.id,lapSkill.id]:
+                                healSkillsCount += 1
+
+                    if (suppSkillsCount >= 3 and random.randint(0,99)<50) or (ent.char.weapon.range == RANGE_MELEE and random.randint(0,99)<33):
+                        tablPrio.append(ent)
+                    elif healSkillsCount >= 3 and random.randint(0,99)<50:
+                        tablLast.append(ent)
+                    else:
+                        tablNorm.append(ent)
+
+                tabltabl = [tablPrio,tablNorm,tablLast]
+                for cmpt in (0,1,2):
+                    random.shuffle(tabltabl[cmpt])
+
+                tablEntTeam[tabl] = tabltabl[0]+tabltabl[1]+tabltabl[2]
+            for a in range(max(len(tablEntTeam[0]),len(tablEntTeam[1]))):
+                try:
+                    timeline+=[tablEntTeam[0][a]]
+                except:
+                    pass
+                try:
+                    timeline+=[tablEntTeam[1][a]]
+                except:
+                    pass
+
+            self.timeline = timeline
+            self.initTimeline = copy.copy(timeline)
+            self.begin = self.initTimeline[0]
+
+            return self, tablEntTeam
+
+        def getActTurn(self) -> entity:
+            return self.timeline[0]
+
+        def icons(self):
+            temp = ""
+            for a in self.timeline:
+                if a == self.initTimeline[-1]:
+                    temp += f"{a.icon} <|- "
+                else:
+                    temp += f"{a.icon} <- "
+            return temp
+
+        def endOfTurn(self,tablEntTeam,tablAliveInvoc):
+            timelineTempo = self.timeline
+            actTurn = timelineTempo[0]
+
+            timelineTempo.remove(actTurn)
+            timelineTempo.append(actTurn)
+
+            for ent in self.timeline[:]:
+                if ent.hp <= 0 and type(ent.char) == invoc:
+                    inv = ent
+                    timelineTempo.remove(inv)
+                    inv.cell.on = None
+                    for ent2 in tablEntTeam[inv.team]:
+                        if ent2.id == inv.summoner.id:
+                            smn = ent2
+                            smn.stats.damageDeal += inv.stats.damageDeal
+                            smn.stats.indirectDamageDeal += inv.stats.indirectDamageDeal
+                            smn.stats.ennemiKill += inv.stats.ennemiKill
+                            smn.stats.damageRecived += inv.stats.damageRecived
+                            smn.stats.heals += inv.stats.heals
+                            smn.stats.damageOnShield += inv.stats.damageOnShield
+                            smn.stats.shieldGived += inv.stats.shieldGived
+
+                            for dictElem in inv.ownEffect:
+                                for on, effID in dictElem.items():
+                                    for effOn in on.effect:
+                                        if effOn.id == effID:
+                                            effOn.caster = smn
+                                            effOn.effect.power = int(effOn.effect.power * 0.7)
+                                            break
+
+                                    on.refreshEffects()
+
+                            smn.ownEffect += inv.ownEffect
+                            break
+
+                    tablEntTeam[inv.team].remove(inv)
+                    tablAliveInvoc[inv.team] -= 1
+
+            self.timeline = timelineTempo
+            return tablEntTeam, tablAliveInvoc
+
     class fightEffect:
         """Classe plus pousée que Effect pour le combat"""
-
         def __init__(self,id,effect : classes.effect, caster : entity, on : entity, turnLeft : int, trigger : int, type : int, icon : str, value=1):
             """self.id : int -> Id de l'effet
             self.effect : effect -> L'effet de base
@@ -1728,9 +1911,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.turnLeft : int -> Nombre de tour restant à l'effet
             self.trigger : const -> L'événement qui déclanche l'effet
             self.icon : str -> L'id de l'emoji correspondant à l'effet"""
-            self.effect = copy.deepcopy(effect)
-            self.caster = caster
-            self.on = on
+            self.effect: classes.effect = copy.deepcopy(effect)
+            self.caster:entity = caster
+            self.on:entiy = on
             self.turnLeft = turnLeft
             self.trigger = trigger
             self.type = type
@@ -1738,10 +1921,14 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.id = id
             self.icon = icon
             self.remove = False
-            self.stun = effect.stun
+            self.stun:bool = effect.stun
             self.name = effect.name
+            self.replicaTarget: Union[None,entity] = None
 
             tablTemp = [0,0,0,0,0,0,0,0,0]
+
+            if self.caster.char.element == ELEMENT_TIME and (self.effect.overhealth > 0 or self.effect.type == TYPE_INDIRECT_HEAL) and self.turnLeft != -1:
+                self.turnLeft += 1
 
             if self.effect.stat != None:
                 if self.effect.stat is not HARMONIE:
@@ -1751,19 +1938,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     for a in self.caster.allStats():
                         temp = max(temp,a)
     
-                value = (1 + self.caster.char.level//10/10 - 1 + caster.valueBoost(on)) * (temp+100)/100
+                valueBoost = (1 + self.caster.char.level//10/10 - 1 + caster.valueBoost(on)) * (temp+100)/100
             else:
-                value = 1
+                valueBoost = 1
 
-            tablTemp[0] += self.effect.strength * value
-            tablTemp[1] += self.effect.endurance * value
-            tablTemp[2] += self.effect.charisma * value
-            tablTemp[3] += self.effect.agility * value
-            tablTemp[4] += self.effect.precision * value
-            tablTemp[5] += self.effect.intelligence * value
-            tablTemp[6] += self.effect.resistance * value
-            tablTemp[7] += self.effect.percing * value
-            tablTemp[8] += self.effect.critical * value
+            tablTemp[0] += self.effect.strength * valueBoost
+            tablTemp[1] += self.effect.endurance * valueBoost
+            tablTemp[2] += self.effect.charisma * valueBoost
+            tablTemp[3] += self.effect.agility * valueBoost
+            tablTemp[4] += self.effect.precision * valueBoost
+            tablTemp[5] += self.effect.intelligence * valueBoost
+            tablTemp[6] += self.effect.resistance * valueBoost
+            tablTemp[7] += self.effect.percing * valueBoost
+            tablTemp[8] += self.effect.critical * valueBoost
 
             self.tablAllStats = tablTemp
 
@@ -1778,7 +1965,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     temp += self.triggerRemove()
                 self.remove = True
                 if not(self.effect.silent) and self.on.hp > 0 and self.effect.id not in (astralShield.id,timeShield.id):
-                    temp += f"{self.on.char.name} n'est plus sous l'effet __{self.effect.name}__\n"
+                    temp += f"__{self.on.char.name}__ n'est plus sous l'effet __{self.effect.name}__\n"
             return temp
 
         def triggerDamage(self,value=0,icon="",declancher = 0,onArmor = 1) -> list:
@@ -1833,10 +2020,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 for a in target.cell.getEntityOnArea(area=self.effect.area,team=target.team,wanted=whoTarget,directTarget=False):
                     reduc = 1
                     if a != target:
-                        reduc = max(0.33,1-target.cell.distance(a.cell)*0.33)
+                        reduc = max(AEOMINDAMAGE,1-target.cell.distance(a.cell)*AOEDAMAGEREDUCTION)
 
                     if stat != None:
-                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * reduc * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
+                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * reduc * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE) * (1+(0.01*self.on.level))
                     else:
                         damage = damageBase
 
@@ -1848,7 +2035,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     self.effect.magie += 5
 
             if self.effect.callOnTrigger != None:
-                temp2[1] = f"L'effet __{self.effect.name}__ se déclanche :\n"
+                temp2[1] = ""
                 if self.effect.id != "nt":
                     for a in [0,1]:
                         for b in tablEntTeam[a]:
@@ -1896,10 +2083,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.on.team,wanted=whoTarget,directTarget=False):
                     reduc = 1
                     if a != self.on:
-                        reduc = max(0.33,1-self.on.cell.distance(a.cell)*0.33)
+                        reduc = max(AOEMINDAMAGE,1-self.on.cell.distance(a.cell)*AOEDAMAGEREDUCTION)
 
                     if stat != None:
-                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * (reduc) * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
+                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * (reduc) * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE) * (1+(0.01*self.on.level))
 
                     variable += self.caster.indirectAttack(a,value=damage,icon = self.icon)
                 temp += f"L'effet __{self.effect.name}__ se déclanche :\n{variable}{self.decate(value=1)}"
@@ -1925,7 +2112,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 for a in self.on.cell.getEntityOnArea(area=self.effect.area,team=self.caster.team,wanted=ALLIES,directTarget=False):
                     ballerine = self.caster.heal(a,self.icon,self.effect.stat,self.effect.power,self.effect.name,danger)
 
-            elif self.type == TYPE_INDIRECT_DAMAGE and self.value >0 and ((self.effect.area==AREA_MONO and self.on.hp > 0) or self.effect.area != AREA_MONO):            # Damage indirect
+            elif self.type == TYPE_INDIRECT_DAMAGE and self.value > 0 and ((self.effect.area==AREA_MONO and self.on.hp > 0) or self.effect.area != AREA_MONO):            # Damage indirect
                 variable,damage = "",0
                 if self.effect.stat != None:
                     stat,damageBase = self.caster.allStats()[self.effect.stat]-self.caster.negativeIndirect,self.effect.power
@@ -1939,8 +2126,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         selfElem = self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE)
                         areaMul = 1
                         if a != self.on:
-                            areaMul = max(0.2,1-self.on.cell.distance(a.cell)*0.35)
-                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * areaMul * selfElem
+                            areaMul = max(AOEMINDAMAGE,1-self.on.cell.distance(a.cell)*AOEDAMAGEREDUCTION)
+                        damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * areaMul * selfElem * (1+(0.01*self.on.level))
                         variable += self.caster.indirectAttack(a,value=damage,icon = self.icon,name=self.effect.name)
 
                         if self.effect.id == estal.id and damage != 0:
@@ -1962,7 +2149,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         ballerine += self.decate(value=1)
 
                 if self.effect.id == lieSkillEff.id and self.value > 0:
-                    effTemp = copy.deepcopy(lieSkillEff)
+                    effTemp = lieSkillEff
                     effTemp.turnInit,effTemp.lvl = self.turnLeft, self.value
 
                     ballerine += add_effect(self.caster,self.on,effTemp)
@@ -2042,111 +2229,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         def allStats(self):
             return self.tablAllStats
 
-    class timeline:
-        """Classe de la timeline"""
-        def __init__(self):
-            self.timeline = []
-            self.initTimeline = []
-            self.begin = None
-
-        def init(self,tablEntTeam : list):
-            timeline = []
-
-            for tabl in (0,1):
-                tablPrio, tablNorm, tablLast = [],[],[]
-
-                for ent in tablEntTeam[tabl]:
-                    suppSkillsCount,healSkillsCount = 0,0
-                    for skil in ent.char.skills:
-                        if type(skil) == skill:
-                            if skil.type in [TYPE_BOOST,TYPE_MALUS] or skil.id in [invocBat2.id]:
-                                suppSkillsCount += 1
-                            elif skil.type in [TYPE_ARMOR,TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION] or skil.id in [idoOSEff.id,proOSEff.id,preOSEff.id,invocSeraf.id,idoOHEff.id,proOHEff.id,altOHEff.id,lightAura.id,lightAura2.id,invocFee.id,lapSkill.id]:
-                                healSkillsCount += 1
-
-                    if (suppSkillsCount >= 3 and random.randint(0,99)<50) or (ent.char.weapon.range == RANGE_MELEE and random.randint(0,99)<33):
-                        tablPrio.append(ent)
-                    elif healSkillsCount >= 3 and random.randint(0,99)<50:
-                        tablLast.append(ent)
-                    else:
-                        tablNorm.append(ent)
-
-                tabltabl = [tablPrio,tablNorm,tablLast]
-                for cmpt in (0,1,2):
-                    random.shuffle(tabltabl[cmpt])
-
-                tablEntTeam[tabl] = tabltabl[0]+tabltabl[1]+tabltabl[2]
-
-
-            for a in range(max(len(tablEntTeam[0]),len(tablEntTeam[1]))):
-                try:
-                    timeline+=[tablEntTeam[0][a]]
-                except:
-                    pass
-                try:
-                    timeline+=[tablEntTeam[1][a]]
-                except:
-                    pass
-
-            self.timeline = timeline
-            self.initTimeline = copy.copy(timeline)
-            self.begin = self.initTimeline[0]
-
-            return self, tablEntTeam
-
-        def getActTurn(self) -> entity:
-            return self.timeline[0]
-
-        def icons(self):
-            temp = ""
-            for a in self.timeline:
-                temp += f"{a.icon} <- "
-
-            return temp
-
-        def endOfTurn(self,tablEntTeam,tablAliveInvoc):
-            timelineTempo = self.timeline
-            actTurn = timelineTempo[0]
-
-            timelineTempo.remove(actTurn)
-            timelineTempo.append(actTurn)
-
-            for ent in self.timeline[:]:
-                if ent.hp <= 0 and type(ent.char) == invoc:
-                    inv = ent
-                    timelineTempo.remove(inv)
-                    inv.cell.on = None
-                    for ent2 in tablEntTeam[inv.team]:
-                        if ent2.id == inv.summoner.id:
-                            smn = ent2
-                            smn.stats.damageDeal += inv.stats.damageDeal
-                            smn.stats.indirectDamageDeal += inv.stats.indirectDamageDeal
-                            smn.stats.ennemiKill += inv.stats.ennemiKill
-                            smn.stats.damageRecived += inv.stats.damageRecived
-                            smn.stats.heals += inv.stats.heals
-                            smn.stats.damageOnShield += inv.stats.damageOnShield
-                            smn.stats.shieldGived += inv.stats.shieldGived
-
-                            for dictElem in inv.ownEffect:
-                                for on, effID in dictElem.items():
-                                    for effOn in on.effect:
-                                        if effOn.id == effID:
-                                            effOn.caster = smn
-                                            effOn.effect.power = int(effOn.effect.power * 0.7)
-                                            break
-
-                                    on.refreshEffects()
-
-                            smn.ownEffect += inv.ownEffect
-                            break
-
-                    tablEntTeam[inv.team].remove(inv)
-                    tablAliveInvoc[inv.team] -= 1
-
-            self.timeline = timelineTempo
-            return tablEntTeam, tablAliveInvoc
-
-    def add_effect(caster: entity,target: entity,effect: classes.effect,start="",ignoreEndurance=False,turn=tour,danger=danger):
+    def add_effect(caster: entity,target: entity,effect: classes.effect,start: str = "",ignoreEndurance=False,turn=tour,danger=danger,setReplica : Union[None,entity] = None):
         """Méthode qui rajoute l'effet Effet à l'entity Target lancé par Caster dans la liste d'attente des effets"""
         valid,id,popipo = False,0,""
         valid = True
@@ -2170,8 +2253,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         a.effect.power = effect.power
                         a.caster = caster
                         popipo = f"{caster.icon} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
-                    else:                                                           # A less powerful Healn't
-                        popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
                     valid = False
 
                 elif a.effect.id in [idoOHArmor.id,proOHArmor.id,altOHArmor.id]:  # Overhealth Shield
@@ -2181,8 +2262,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         a.caster = caster
                         a.leftTurn = effect.turnInit
                         popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → {a.effect.emoji[caster.char.species-1][caster.team]}+{diff} {target.icon}\n"
-                    else:                                                           # A less powerful shield
-                        popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
                     valid = False
                 elif not(effect.silent):                                        # It's not Healn't
                     popipo = f"{caster.icon} {effect.emoji[caster.char.species-1][caster.team]} → 🚫{a.effect.emoji[caster.char.species-1][caster.team]} {target.icon}\n"
@@ -2203,7 +2282,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             icon = effect.emoji[caster.char.species-1][caster.team]
             if effect.id == darkFlumPoi.id:
-                effect = copy.deepcopy(darkFlumPoi)
+                effect = darkFlumPoi
                 effect.power = int(caster.char.level * 0.2)
 
             if effect.overhealth > 0:                                       # Armor Effect
@@ -2230,8 +2309,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 if caster.char.aspiration == PREVOYANT:
                     value = int(value*1.2)                      # Shield +20%
-                if caster.char.element == ELEMENT_TIME:
-                    value = int(value*1.05)                      # Shield +5%
 
                 if not(effect.absolutShield):
                     for a in target.effect:
@@ -2252,22 +2329,21 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     pluriel = ""
                     name = effect.name
                     if start != "":
-                        if start.startswith('('):
-                            start = start[1:]
-                        if start.endswith(')'):
-                            start = start[:-1]
-                        start = ' ({0})'.format(start)
+                        start = ' ({0})'.format(start.replace("(","").replace(")",""))
                     if name.endswith("é"):
                         name += target.accord()
                     if value > 1:
                         pluriel = "s"
                     if effect.turnInit > 0:
-                        popipo = f"{target.char.name} ({target.icon}) est protégé par __{name}__ ({icon} {value}) pendant {effect.turnInit} tour{pluriel}{start}\n"
+                        tempTurn = effect.turnInit+int(caster.char==ELEMENT_TIME)
+                        popipo = f"__{target.char.name}__ ({target.icon}) est protégé{target.accord()} par __{name}__ ({icon} {value}) pendant {tempTurn} tour{pluriel}{start}\n"
                     else:
-                        popipo = f"{target.char.name} ({target.icon}) est protégé par __{name}__ ({icon} {value}){start}\n"
+                        popipo = f"__{target.char.name}__ ({target.icon}) est protégé{target.accord()} par __{name}__ ({icon} {value}){start}\n"
 
             else:                                                           # Any other effect
                 toAppend = fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl)
+                if setReplica != None:
+                    toAppend.replicaTarget = setReplica
                 addEffect.append(toAppend)
 
                 if effect.id == "clemBloodJauge":
@@ -2277,17 +2353,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if name.endswith("é"):                                      # Add a "e" if the caracter is a girl
                     name += target.accord()
                 if not(effect.silent):
-                    if caster.team == target.team :
+                    if caster.team == target.team and not(effect.type in [TYPE_MALUS,TYPE_INDIRECT_DAMAGE]):
                         under = "bénificie de"
                     else:
                         under = "subis"
                     if effect.turnInit > 0:
-                        conjug = ""
-                        if effect.turnInit > 1:
-                            conjug ="s"
-                        popipo = f"{target.char.name} ({target.icon}) {under} l'effet de __{name}__ ({icon}) pendant {effect.turnInit} tour{conjug}{start}\n"
+                        tempTurn = effect.turnInit+int(caster.char==ELEMENT_TIME and effect.type == TYPE_INDIRECT_HEAL)
+                        if tempTurn > 0:
+                            conjug = ""
+                            if tempTurn > 1:
+                                conjug ="s"
+
+                        popipo = f"__{target.char.name}__ ({target.icon}) {under} l'effet de __{name}__ ({icon}) pendant {tempTurn} tour{conjug}{start}\n"
                     else:
-                        popipo = f"{target.char.name} ({target.icon}) {under} l'effet de __{name}__ ({icon}){start}\n"
+                        popipo = f"__{target.char.name}__ ({target.icon}) {under} l'effet de __{name}__ ({icon}){start}\n"
                 target.refreshEffects()
 
                 tablTemp = [altOHEff.id,proOHEff.id,idoOHEff.id,idoOSEff.id,proOSEff.id,preOSEff.id,heriteEstialbaEff.id,heriteLesathEff.id,floorTanking.id]
@@ -2338,8 +2417,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         lines = [line1,line2,line3,line4,line5]
 
         for a in tablAllCells:
-            temp = '<:empty:866459463568850954>'
-            #temp = f'{str(a.x)}-{str(a.y)}'                        Show cells ID
+            if isLenapy:
+                temp = '<:empty:866459463568850954>'
+            else:
+                temp = f'{str(a.x)}:{str(a.y)}'                         # Show cells ID
             if a.on != None:
                 if a.on.status == STATUS_DEAD:
                     temp = ['<:ls1:868838101752098837>','<:ls2:868838465180151838>'][a.on.team]
@@ -2397,12 +2478,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         temp.sort(key=lambda ballerine:getHealAggro(ballerine,skillToUse),reverse=True)
         return temp[0]
 
-    # Début du combat ------------------------------------------------------
+    # =============================================== Pre fight things ================================================
+
     logs += "Fight triggered by {0}\n".format(ctx.author.name)
     logs += "\n=========\nTeams filling phase\n=========\n\n"
     leni = len(team1)
 
-    # Teams generations ------------------------
+    # Teams generations -----------------------------------------------
     if len(team1) < 4 and not(octogone): # Remplisage de la team1
         aleaMax = len(tablAllAllies)-1
         alreadyFall = []
@@ -2495,7 +2577,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             aleaMax = len(tablAllOcta)-1
             alreadyFall = []
 
-            tablOctaTemp = copy.deepcopy(tablAllOcta)
+            tablOctaTemp:List[octarien] = copy.deepcopy(tablAllOcta)
             oneVAll = False
             if len(team2) < len(team1) and lvlMax >= 15:
                 if random.randint(0,99) < 25:               # Boss ?
@@ -2579,8 +2661,23 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 aleaMax = len(tablOctaTemp)-1
                 temp = random.randint(0,aleaMax)
 
-                alea = tablOctaTemp[temp]
-                tablOctaTemp.remove(alea)
+                if len(team2) == 2:
+                    alea = copy.deepcopy(findEnnemi("Octaling"))
+                else:
+                    alea = tablOctaTemp[temp]
+                    tablOctaTemp.remove(tablOctaTemp[temp])
+
+                if alea.isNpc("Octaling"):
+                    alea = copy.deepcopy(alea)
+                    alea.weapon = weapons[random.randint(0,len(weapons)-1)]
+                    alea.aspiration = random.randint(0,len(inspi)-1)
+                    temp = skills[:]
+                    for cmpt in (0,1,2,3,4):
+                        rand = random.randint(0,len(temp)-1)
+                        alea.skills[cmpt] = temp[rand]
+                        temp.remove(temp[rand])
+                    alea.element = random.randint(0,len(elemNames)-1)
+
                 alea.changeLevel(lvlMax)
                 
                 team2.append(alea)
@@ -2590,7 +2687,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             winStreak = teamWinDB.getVictoryStreak(team1[0])
 
             lvlMax = 0
-            temp = copy.deepcopy(team1)
+            temp = team1
             temp.sort(key=lambda ballerine: ballerine.level)
             lvlMax = temp[0].level
 
@@ -2653,6 +2750,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 team2 += [alea]
                 logs += "{0} have been added into team1 ({1}, {2}, {3})\n".format(alea.name,alea.stuff[0].name,alea.stuff[1].name,alea.stuff[2].name)
+    
+    # Updating the Danger and Team Fighting status
     elif octogone:
         danger=100
     else:
@@ -2906,7 +3005,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     tempTurnMsg = "__Début du combat :__\n"
     if not(auto):
         turnMsg = readyMsg
-        await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = light_blue))
         await turnMsg.clear_reactions()
     time = timeline()
     time, tablEntTeam = time.init(tablEntTeam)
@@ -2914,7 +3012,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     logs += "\n=========\nStuffs passives effects phase\n=========\n\n"
     for team in [0,1]:                                  # Says Start
         for ent in tablEntTeam[team]:
-            if (ent.isNpc("Alice") or ent.isNpc("Félicité") or ent.isNpc("Lohica")) and tablEntTeam[1][0].isNpc("The Giant Enemy Spider"):
+            if tablEntTeam[1][0].isNpc("The Giant Enemy Spider") and (ent.isNpc("Alice") or ent.isNpc("Félicité") or ent.isNpc("Lohica")):
                 tempTurnMsg += "{0} : *\"{1}\"*\n".format(ent.icon,"!?")
                 arch = classes.effect("Arachnophobie","archacnophobia",type=TYPE_MALUS,strength=-int(ent.baseStats[STRENGTH]*0.2),charisma=-int(ent.baseStats[CHARISMA]*0.2),magie=-int(ent.baseStats[MAGIE]*0.2),agility=-int(ent.baseStats[AGILITY]*0.2),intelligence=-int(ent.baseStats[INTELLIGENCE]*0.2),turnInit=-1,unclearable=True)
                 tempTurnMsg += add_effect(tablEntTeam[1][0],ent,arch)
@@ -3072,11 +3170,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         for cmpt in range(8):
             toSummon = copy.deepcopy(tablTemp[cmpt//4])
             toSummon.name += " {0}".format(cmpt)
-            summoned = tablEntTeam[1][0].summon(toSummon,time,surrondingsCells[cmpt],tablEntTeam,tablAliveInvoc,ignoreLimite=True)
-            logs += "\n"+summoned["text"]
-            time = summoned["timeline"]
-            tablEntTeam = summoned["tablEntTeam"]
-            tablAliveInvoc = summoned["tablAliveInvoc"]
+            tablEntTeam, tablAliveInvoc, time, ballerine = tablEntTeam[1][0].summon(toSummon,time,surrondingsCells[cmpt],tablEntTeam,tablAliveInvoc,ignoreLimite=True)
+            logs += "\n"+ballerine
 
     if contexte != []:                                              # If a contexte list is given
         for a in contexte:                      # Contexte need to be a list of lists
@@ -3116,7 +3211,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
     fight = True
 
-    # Début effectif du combat --------------------------------------------------------------------------------
+    # Effective Fight Start --------------------------------------------------------------------------
     try:
         while fight:
             everyoneDead = [True,True]
@@ -3172,6 +3267,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 b.hp -= lose
                                 if b.hp <= 0:
                                     ballerine += b.death(killer=b)
+                            for skil in range(len(b.char.skills)):
+                                if type(b.char.skills[skil]) == skill and b.char.skills[skil].type in [TYPE_RESURECTION,TYPE_INDIRECT_REZ]:
+                                    b.cooldowns[skil] == 99
 
                     if not(auto):
                         if len(ballerine) > 4096:
@@ -3401,10 +3499,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     await asyncio.sleep(2+(len(tempTurnMsg)/2500*5))
 
             elif actTurn.hp > 0:                    # Still alive
-                cmpt,iteration,ennemi = 0,actTurn.char.weapon.repetition,0
-                optionChoice,unsuccess = OPTION_SKIP,True
+                cmpt,iteration,ennemi = 0,actTurn.char.weapon.repetition,actTurn
+                unsuccess = True
                 canMove,cellx,celly = [True,True,True,True],actTurn.cell.x,actTurn.cell.y
-                surrondings = [findCell(cellx-1,celly),findCell(cellx+1,celly),findCell(cellx,celly-1),findCell(cellx,celly+1)]
+                surrondings = actTurn.cell.surrondings()
                 for a in range(0,len(surrondings)):
                     if surrondings[a] != None:
                         if surrondings[a].on != None and surrondings[a].on.status != STATUS_TRUE_DEATH:
@@ -3416,7 +3514,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     onReplica = False
                     for eff in actTurn.effect:
                         if eff.effect.replica != None:
-                            onReplica = eff.effect
+                            onReplica = eff
                             eff.decate(turn=99)
                             break
 
@@ -3431,7 +3529,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                             def checkIsPlayerReact(reaction,user):
                                 return user == awaitedUsr and reaction.message == choiceMsg
-                                
                             def check(m):
                                 return int(m.author_id) == int(actTurn.char.owner) and m.origin_message.id == choiceMsg.id
 
@@ -3533,7 +3630,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
                                 await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[create_actionrow(mainSelect)])
                                 haveIterate = True
-                                awaitedUsr = await bot.fetch_user(actTurn.char.owner)
 
                                 validoption = False
                                 while not(validoption):
@@ -3715,7 +3811,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                 elif type(react) == option:
                                     if react.emoji == '🚫':
-                                        choiceOption = OPTION_SKIP
+                                        optionChoice = OPTION_SKIP
+                                        unsuccess=False
+                                        ennemi = actTurn
+                                        haveOption=True
 
                                     elif react.emoji == '👟':
                                         movingOption = [None,None,None,None]
@@ -3773,7 +3872,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                                 ennemi = actTurn
                                                 haveOption=True
 
-                            logs += "\nManual fighter. Option selected : {0}".format(["Use Weapon","Use Skill","Move","Skip"][optionChoice])
+                            try:
+                                logs += "\nManual fighter. Option selected : {0}".format(["Use Weapon","Use Skill","Move","Skip"][optionChoice])
+                            except:
+                                logs += "\nManual fighter, but no option selected"
                             await choiceMsg.clear_reactions()
                             try:
                                 if selectedOptionSelect != None:
@@ -3795,20 +3897,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             actTurn.missedLastTurn = False
 
                         if unsuccess or type(ennemi)==int: # AI's stuffs
-
                             if actTurn.char.name == "Conviction des Ténèbres" and type(actTurn.char) == invoc:
                                 optionChoice = OPTION_SKIP
 
                             else: # Normal IA
-                                nearestEnnemi,nearestDistance,Cell,nearestCell = 0,9999,actTurn.cell,0
-
-                                for a in tablAllCells: # Ennemi le plus proche
-                                    if a.on != None:
-                                        if a.on.team != actTurn.team and a.on.hp > 0:
-                                            if Cell.distance(cell=a) < nearestDistance:
-                                                nearestEnnemi, nearestDistance, nearestCell = a.on,Cell.distance(cell=a),a
-
-                                ennemi = nearestEnnemi
+                                nearestEnnemi,nearestDistance,Cell,nearestCell,ennemi = 0,9999,actTurn.cell,0,actTurn
                                 
                                 # Définition du type d'IA :
                                 choisenIA = actTurn.IA
@@ -3829,19 +3922,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 if  len(team2compare) / len(team2see) <= 0.33:
                                     ennemiesdying = True
 
-                                if (len(actTurn.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=actTurn.team,wanted=ENNEMIS,directTarget=False)) > 0 and (actTurn.char.aspiration not in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE,MAGE,ENCHANTEUR]) and actTurn.char.weapon.range != RANGE_MELEE) or lastDPT or ennemiesdying:
+                                if (actTurn.char.aspiration not in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE,MAGE,ENCHANTEUR] and actTurn.char.weapon.range != RANGE_MELEE) and (len(actTurn.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=actTurn.team,wanted=ENNEMIS,directTarget=False)) > 0 or lastDPT or ennemiesdying or tour > 15):
                                     choisenIA = AI_OFFERUDIT
 
                                 logs += "\nAuto Fighter. Selected AI : {0}".format(["AI Damage","AI Idole","AI Shield","AI Aventurer","AI Healer","AI agressive supp","AI Mage","AI Enchant"][choisenIA])
                                 # Définition des probabilités :
                                 # [DPT,BOOST,SHIELD,AVENTURE,ALTRUISTE,OFFERUt,MAGE,ECHANT]
 
-                                probaAtkWeap = [70,30,40,30,30,40,50,50] 
-                                probaHealWeap = [0,70,30,30,80,10,30,30]
-                                probaIndirectWeap = [20,30,40,30,20,50,70,70]
+                                probaAtkWeap = [80,40,50,40,40,50,60,60] 
+                                probaHealWeap = [0,60,30,30,70,30,0,0]
                                 probaReaSkill = [50,150,150,30,150,100,50,50]
                                 probIndirectReacSkill = [30,150,100,30,150,80,30,30]
-                                probaAtkSkill = [80,40,70,30,40,70,100,100]
+                                probaAtkSkill = [70,40,70,30,40,70,100,100]
                                 probaIndirectAtkSkill = [50,40,40,30,40,120,100,100]
                                 probaHealSkill = [30,100,70,30,130,50,30,30]
                                 probaBoost = [30,130,50,30,70,70,30,50]
@@ -3867,15 +3959,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 # Weapons proba's ----------------------------------
                                 if actTurn.char.weapon.name == "noneWeap":
                                     probaHealWeap = [0,0,0,0,0,0,0,0]
-                                    probaIndirectWeap = [0,0,0,0,0,0,0,0]
                                     probaAtkWeap = [0,0,0,0,0,0,0,0]
                                 else:
                                     if actTurn.char.weapon.type == TYPE_DAMAGE:
                                         probaHealWeap = [0,0,0,0,0,0,0,0]
-                                        probaIndirectWeap = [0,0,0,0,0,0,0,0]
                                     elif actTurn.char.weapon.type == TYPE_HEAL:
                                         probaAtkWeap = [0,0,0,0,0,0,0,0]
-                                        probaIndirectWeap = [0,0,0,0,0,0,0,0]
                                         if nbTargetAtRange == 0 and len(actTurn.cell.getEntityOnArea(area=actTurn.char.weapon.effectiveRange,team=actTurn.team,wanted=actTurn.char.weapon.target)) > 0:
                                             probaHealWeap = [0,0,0,0,0,0,0,0]
                                     else:
@@ -3902,7 +3991,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                     if haveOffSkills:
                                         probaHealWeap = [0,0,0,0,0,0,0,0]
-                                        probaIndirectWeap = [0,0,0,0,0,0,0,0]
                                         probaAtkWeap = [0,0,0,0,0,0,0,0]
                                         logs += "\nSomes offensives skills with targets at range have been found. Weapon's proba neutralized"
                                     else:
@@ -4119,7 +4207,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 for a in probTabl:
                                     totalProba+= a[choisenIA]
 
-                                totalProba += probaIndirectWeap[choisenIA]+probaInvoc[choisenIA] + 1
+                                totalProba += probaInvoc[choisenIA] + 1
                                 probaRoll = random.randint(0,totalProba)-1
                                 logs += "\nTotal Proba : {0} - ProbaRoll : {1}".format(totalProba,probaRoll)
 
@@ -4128,35 +4216,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 if probaRoll <= probaAtkWeap[choisenIA] and probaAtkWeap[choisenIA] > 0: #Attaque à l'arme
                                     logs += "\nSelected option : Damage with weapon"
                                     nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
+                                    atRange = actTurn.atRange()
+                                    nbTargetAtRange = len(atRange)
                                     if nbTargetAtRange > 0:
                                         atRange.sort(key=lambda ent:actTurn.getAggroValue(ent),reverse=True)
                                         optionChoice,ennemi = OPTION_WEAPON,atRange[0]
 
                                     else:
                                         logs += "\nNo target at range. Trying to move"
+                                        optionChoice,choiceToMove = OPTION_MOVE, actTurn.getCellToMove()
                                         
-                                        tempEnemy = actTurn.cell.getEntityOnArea(area=AREA_ALL_ENEMIES,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,ignoreInvoc = True)
-
-                                        tempEnemy.sort(key=lambda ent:actTurn.getAggroValue(ent))
-                                        nearestCell = tempEnemy[0].cell
-
-                                        optionChoice,Cell = OPTION_MOVE,actTurn.cell
-                                        if Cell.x - nearestCell.x > 0 and canMove[0]:
-                                            choiceToMove = surrondings[0]
-                                        elif Cell.x - nearestCell.x < 0 and canMove[1]:
-                                            choiceToMove = surrondings[1]
-                                        elif Cell.y - nearestCell.y > 0 and canMove[2]:
-                                            choiceToMove = surrondings[2]
-                                        elif Cell.y - nearestCell.y < 0 and canMove[3]:
-                                            choiceToMove = surrondings[3]
-                                        else:
-                                            if canMove[2]:
-                                                choiceToMove = surrondings[2]
-                                            elif canMove[3]:
-                                                choiceToMove = surrondings[3]
-                                            else:
-                                                optionChoice=OPTION_SKIP
-                                                logs += "\nNo valid cells found. Skipping the turn"
+                                        if choiceToMove == None:
+                                            optionChoice = OPTION_SKIP
+                                            logs += "\nNo valid cells found. Skipping the turn"
 
                                     optionChoisen = True
                                 else:
@@ -4171,29 +4243,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                     else:
                                         logs += "\nNo target at range. Trying to move"
+                                        optionChoice,choiceToMove = OPTION_MOVE, actTurn.getCellToMove()
                                         
-                                        tempEnemy = actTurn.cell.getEntityOnArea(area=AREA_ALL_ALLIES,team=actTurn.team,wanted=ALLIES,ignoreInvoc = True)
-
-                                        tempEnemy.sort(key=lambda ent:getHealTarget(tempEnemy, actTurn.char.weapon))
-                                        nearestCell = tempEnemy[0].cell
-
-                                        optionChoice,Cell = OPTION_MOVE,actTurn.cell
-                                        if Cell.x - nearestCell.x > 0 and canMove[0]:
-                                            choiceToMove = surrondings[0]
-                                        elif Cell.x - nearestCell.x < 0 and canMove[1]:
-                                            choiceToMove = surrondings[1]
-                                        elif Cell.y - nearestCell.y > 0 and canMove[2]:
-                                            choiceToMove = surrondings[2]
-                                        elif Cell.y - nearestCell.y < 0 and canMove[3]:
-                                            choiceToMove = surrondings[3]
-                                        else:
-                                            if canMove[2]:
-                                                choiceToMove = surrondings[2]
-                                            elif canMove[3]:
-                                                choiceToMove = surrondings[3]
-                                            else:
-                                                optionChoice=OPTION_SKIP
-                                                logs += "\nNo valid cells found. Skipping the turn"
+                                        if choiceToMove == None:
+                                            optionChoice=OPTION_SKIP
+                                            logs += "\nNo valid cells found. Skipping the turn"
 
                                     optionChoisen = True
                                 elif not(optionChoisen):
@@ -4255,10 +4309,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         ennemi = atRange[0]
 
                                     else:
-                                        if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,wanted=ENNEMIS,directTarget=False)) > 0:
-                                            optionChoice = OPTION_SKILL
-                                            skillToUse = randomSkill
-                                            ennemi = actTurn
+                                        optionChoice = OPTION_SKILL
+                                        skillToUse = randomSkill
+                                        ennemi = actTurn
 
                                     optionChoisen=True
                                 elif not(optionChoisen):
@@ -4349,7 +4402,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     optionChoisen = True
                                 elif not(optionChoisen):
                                     probaRoll -= probTabl[5][choisenIA]
-                                
+
                                 if probaRoll <= probTabl[6][choisenIA] and probTabl[6][choisenIA] > 0 and not(optionChoisen): # Malus
                                     logs += "\nSelected option : Debuff skill"
                                     if len(malusSkill) > 1:
@@ -4417,40 +4470,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 elif not(optionChoisen):
                                     probaRoll -= probTabl[7][choisenIA]
 
-                                if probaRoll <= probaIndirectWeap[choisenIA] and probaIndirectWeap[choisenIA] > 0 and not(optionChoisen): #Attaque à l'arme indirecte
-                                    logs += "\nSelected option : Indirect damages with weapon"
-                                    nearestEnnemi,nearestDistance,myCell,nearestCell = 0,100,actTurn.cell,0
-                                    if nbTargetAtRange > 0:
-                                        atRange.sort(key=lambda ent:actTurn.getAggroValue(ent),reverse=True)
-                                        optionChoice,ennemi = OPTION_WEAPON,atRange[0]
-
-                                    else:
-                                        tempEnemy = copy.deepcopy(tablEntTeam[int(not(actTurn.team))])
-
-                                        tempEnemy.sort(key=lambda ent:actTurn.cell.distance(ent.cell))
-                                        nearestCell = tempEnemy[0].cell
-                                        
-                                        optionChoice,Cell = OPTION_MOVE,actTurn.cell
-                                        if Cell.x - nearestCell.x > 0 and canMove[0]:
-                                            choiceToMove = [Cell.x-1,Cell.y]
-                                        elif Cell.x - nearestCell.x < 0 and canMove[1]:
-                                            choiceToMove = [Cell.x +1,Cell.y]
-                                        elif Cell.y - nearestCell.y > 0 and canMove[2]:
-                                            choiceToMove = [Cell.x,Cell.y -1]
-                                        elif Cell.y - nearestCell.y < 0 and canMove[3]:
-                                            choiceToMove = [Cell.x,Cell.y +1]
-                                        else:
-                                            if canMove[2]:
-                                                choiceToMove = [Cell.x,Cell.y -1]
-                                            elif canMove[3]:
-                                                choiceToMove = [Cell.x,Cell.y +1]
-                                            else:
-                                                optionChoice=OPTION_SKIP
-
-                                    optionChoisen = True
-                                elif not(optionChoisen):
-                                    probaRoll -= probaIndirectWeap[choisenIA]
-                    
                                 if probaRoll <= probaInvoc[choisenIA] and probaInvoc[choisenIA] > 0 and not(optionChoisen): #Invocation
                                     logs += "\nSelected option : Summon skill"
                                     if len(invocSkill) > 1:
@@ -4495,13 +4514,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     skillToUse = clemUltCast
                                     ennemi = actTurn
 
-                        if type(ennemi) == int:
-                            logs += "\nNo target have been found. Skipping the turn"
-                            optionChoice = OPTION_SKIP
-
                     else:
                         logs += "\nReplica found"
-                        skilly = findSkill(onReplica.replica)
+                        skilly = findSkill(onReplica.effect.replica)
                         if not(skilly.area == AREA_MONO and onReplica.replicaTarget.hp <= 0):
                             optionChoice = OPTION_SKILL
                             skillToUse = skilly
@@ -4623,10 +4638,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                     elif optionChoice == OPTION_SKIP: #Passage de tour
                         logs += "\n\n{0} is skipping their turn".format(actTurn.char.name)
-                        tempTurnMsg += f"\n{actTurn.char.name}  passe son tour\n"
+                        tempTurnMsg += f"\n{actTurn.char.name} passe son tour\n"
 
-                    elif optionChoice == OPTION_SKILL: #Skill :(
-                        logs += "\n\n{0} is using {1} on {2}".format(actTurn.char.name,skillToUse.name,ennemi.char.name)
+                    elif optionChoice == OPTION_SKILL: #Skill
+                        try:
+                            logs += "\n\n{0} is using {1} on {2}".format(actTurn.char.name,skillToUse.name,ennemi.char.name)
+                        except:
+                            logs += "\n\nError on writing into the logs"
                         if skillToUse.say != "":
                             tempTurnMsg += f"\n{actTurn.icon} : *\"{skillToUse.say}\"*"
 
@@ -4639,6 +4657,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             tempTurnMsg += f"\n__{actTurn.char.name} utilise la compétence {skillToUse.name} :__\n"
                         else: 
                             tempTurnMsg += "\n__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
+
                         for a in range(0,5):
                             if type(actTurn.char.skills[a]) == skill:
                                 if skillToUse.id == actTurn.char.skills[a].id:
@@ -4665,20 +4684,21 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if skillToUse.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
                             if skillToUse.id != clemUltCast.id:
                                 for b in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES,directTarget=False):
-                                    if skillToUse.id == chaosArmor.id:
-                                        eff = copy.deepcopy(skillToUse.effect[0])
-                                        eff.overhealth = random.randint(1,100)
-                                        skillToUse.effect = [eff]
-                                    for c in skillToUse.effect:
-                                        effect = findEffect(c)
-                                        tempTurnMsg += add_effect(actTurn,b,effect,danger=danger)
-                                        logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
-                                    b.refreshEffects()
+                                    if b != None:
+                                        if skillToUse.id == chaosArmor.id:
+                                            eff = skillToUse.effect[0]
+                                            eff.overhealth = random.randint(1,100)
+                                            skillToUse.effect = [eff]
+                                        for c in skillToUse.effect:
+                                            effect = findEffect(c)
+                                            tempTurnMsg += add_effect(actTurn,b,effect,danger=danger)
+                                            logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
+                                        b.refreshEffects()
 
                             else:
                                 effect = skillToUse.effect[0]
                                 tempVal = max(actTurn.specialVars["clemBloodJauge"].value-1,30)
-                                effect.overhealth = tempVal * len(team1)/9 * 3
+                                effect.overhealth = tempVal * len(team1)/9 * 2
                                 tempTurnMsg += add_effect(actTurn,actTurn,effect,danger=danger)
                                 logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
                                 b.refreshEffects()
@@ -4687,6 +4707,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 actTurn.specialVars["clemMemCast"] = True
 
                         elif skillToUse.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS]:
+                            if skillToUse.ultimate and skillToUse.type == TYPE_INDIRECT_DAMAGE and actTurn.char.aspiration == MAGE:
+                                tempTurnMsg += add_effect(actTurn,actTurn,classes.effect("Mage","effMage",None,turnInit=2,magie=actTurn.baseStats[MAGIE]*0.15,unclearable=True,emoji=uniqueEmoji(aspiEmoji[MAGE])))
+                                actTurn.refreshEffects()
+
+                            if skillToUse.id == lunaSkill4.id and random.randint(0,99) < 50:        # Déchirment special area
+                                temp = copy.deepcopy(skillToUse)
+                                temp.area = AREA_CIRCLE_2
+                                temp.effect = [lunaSkill4EffAlt]
+                                skillToUse = temp
+
                             for y in skillToUse.effect:
                                 effect = findEffect(y)
                                 areaTabl = ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENNEMIS,directTarget=False)
@@ -4724,7 +4754,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             ballerine = actTurn.heal(tablEntTeam[actTurn.team][a], skillToUse.emoji, skillToUse.use, skillToUse.power,danger=danger)
                                             tempTurnMsg += ballerine
                                             logs += ballerine
-                                        elif tablEntTeam[actTurn.team][a].status == STATUS_DEAD:    # Resurect
+                                        elif tour < 16 and tablEntTeam[actTurn.team][a].status == STATUS_DEAD:    # Resurect
                                             healPowa = round(skillToUse.power * (1+(statUse-actTurn.negativeHeal)/120+(tablEntTeam[actTurn.team][a].endurance/1500))* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(tablEntTeam[actTurn.team][a],area = AREA_MONO,type = TYPE_HEAL))
                                             healPowa = round(healPowa * (0.5+actTurn.char.level*0.01))
                                             ballerine = await actTurn.resurect(tablEntTeam[actTurn.team][a],healPowa,skillToUse.emoji,danger=danger)
@@ -4732,12 +4762,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             logs += "\n{0} have been resurected.\n"+ballerine
 
                         elif skillToUse.type == TYPE_INVOC:
-                            summoned = actTurn.summon(findInvoc(skillToUse.invocation),time,actTurn.cell.getCellForSummon(skillToUse.range,actTurn.team,findInvoc(skillToUse.invocation),actTurn),tablEntTeam,tablAliveInvoc)
-                            tempTurnMsg += summoned["text"]+"\n"
-                            logs += "\n"+summoned["text"]
-                            time = summoned["timeline"]
-                            tablEntTeam = summoned["tablEntTeam"]
-                            tablAliveInvoc = summoned["tablAliveInvoc"]
+                            tablEntTeam, tablAliveInvoc, time, ballerine = actTurn.summon(findInvoc(skillToUse.invocation),time,actTurn.cell.getCellForSummon(skillToUse.range,actTurn.team,findInvoc(skillToUse.invocation),actTurn),tablEntTeam,tablAliveInvoc)
+                            tempTurnMsg += ballerine+"\n"
+                            logs += "\n"+ballerine
 
                         elif skillToUse.type == TYPE_UNIQUE:
                             if skillToUse.id == chaos.id:
@@ -4774,6 +4801,15 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         logs += ballerine
 
                         elif skillToUse.type == TYPE_RESURECTION:
+                            if skillToUse.id == aliceRez.id:
+                                nbDown = 0
+                                for ent in tablEntTeam[actTurn.team]:
+                                    if ent.status == STATUS_DEAD:
+                                        nbDown += 1
+
+                                if nbDown >= len(team1)//2:
+                                    skillToUse = aliceRez2
+
                             stat = skillToUse.use
 
                             for a in ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES,dead=True,directTarget=False):
@@ -4798,6 +4834,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 logs += ballerine
 
                         else: # Damage
+                            if skillToUse.ultimate and actTurn.char.aspiration == MAGE:
+                                tempTurnMsg += add_effect(actTurn,actTurn,classes.effect("Mage","effMage",None,turnInit=2,magie=actTurn.baseStats[MAGIE]*0.15,unclearable=True,emoji=uniqueEmoji(aspiEmoji[MAGE]),stackable=True))
+                                actTurn.refreshEffects()
                             power = skillToUse.power
 
                             if skillToUse.id == lunaSpe.id:
@@ -4813,7 +4852,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 actTurn.hp = 1
                                 actTurn.maxHp, actTurn.healResist = actTurn.maxHp//2,actTurn.healResist//2
                                 tempTurnMsg += add_effect(actTurn,actTurn,effect,ignoreEndurance=True)
-                                defIncur50 = copy.deepcopy(incur[5])
+                                defIncur50 = incur[5]
                                 defIncur50.turnInit, defIncur50.unclearable = -1,True
                                 tempTurnMsg += add_effect(actTurn,actTurn,defIncur50)
 
@@ -4837,8 +4876,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     effect = classes.effect("Réassemblé","krysShieldy",overhealth=totalArmor,type=TYPE_ARMOR,turnInit=99,trigger=TRIGGER_DAMAGE)
                                     tempTurnMsg += add_effect(actTurn,actTurn,effect,ignoreEndurance=True)
 
+                            elif skillToUse.id == lunaSkill5Base.id:
+                                skillToUse = [lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4][random.randint(0,3)]
+
                             cmpt = 0
-                            while cmpt < skillToUse.repetition:
+                            while cmpt < skillToUse.repetition and ennemi.hp > 0 and skillToUse.power > 0:
+                                if cmpt > 0:
+                                    if skillToUse.message == None:
+                                        tempTurnMsg += f"__{actTurn.char.name} utilise la compétence {skillToUse.name} :__\n"
+                                    else: 
+                                        tempTurnMsg += "__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
                                 ballerine = actTurn.attack(target=ennemi,value=power,icon=skillToUse.emoji,area=skillToUse.area,sussess=skillToUse.sussess,use=skillToUse.use,onArmor=skillToUse.onArmor)
                                 tempTurnMsg += ballerine
                                 logs += "\n"+ballerine
@@ -4863,12 +4910,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 while lenSummon < len(team1)-1:
                                     celli = tablCellsEmpty[random.randint(0,len(tablCellsEmpty)-1)]
                                     tablCellsEmpty.remove(celli)
-                                    summoned = actTurn.summon(findInvoc("Conviction des Ténèbres"),time,celli,tablEntTeam,tablAliveInvoc,ignoreLimite=True)
-                                    tempTurnMsg += summoned["text"]+"\n"
-                                    logs += "\n"+summoned["text"]
-                                    time = summoned["timeline"]
-                                    tablEntTeam = summoned["tablEntTeam"]
-                                    tablAliveInvoc = summoned["tablAliveInvoc"]
+                                    tablEntTeam, tablAliveInvoc, time, ballerine = actTurn.summon(findInvoc("Conviction des Ténèbres"),time,celli,tablEntTeam,tablAliveInvoc,ignoreLimite=True)
+                                    tempTurnMsg += ballerine+"\n"
+                                    logs += "\n"+ballerine
                                     lenSummon += 1
 
                             if skillToUse.power > 0 and actTurn.specialVars["damageSlot"] != None:
@@ -4881,16 +4925,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                 actTurn.refreshEffects()
 
+                        if skillToUse.knockback > 0:
+                            tempTurnMsg += actTurn.knockback(ennemi,skillToUse.knockback)
+
                         if skillToUse.effectOnSelf != None:
+                            tempTurnMsg += "\n"
                             eff = findEffect(skillToUse.effectOnSelf)
                             if eff.replica != None:
-                                eff.replicaTarget = ennemi
-                                if actTurn.char.aspiration == MAGE:
-                                    tempTurnMsg += add_effect(actTurn,actTurn,classes.effect("Mage","effMage",None,turnInit=2,magie=actTurn.baseStats[MAGIE]*0.15,unclearable=True,emoji=uniqueEmoji(aspiEmoji[MAGE])))
-
-
-                            tempTurnMsg += add_effect(actTurn,actTurn,findEffect(skillToUse.effectOnSelf))
-                            
+                                tempTurnMsg += add_effect(actTurn,actTurn,eff,setReplica=ennemi)
+                            else:
+                                tempTurnMsg += add_effect(actTurn,actTurn,eff)
                             actTurn.refreshEffects()
 
                         if skillToUse.id == memAlice2.id:
@@ -4954,7 +4998,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 fight = False
 
         # End of the fight ============================
-        logs += "\n\n=================\nEnd of the fight"
+        logs += "\n\n================= End of the fight ================="
     except:
         team = team1[0].team
         teamWinDB.changeFighting(team,False)
@@ -5041,7 +5085,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if team == 0:
                     team = team1[0].owner
                 if isLenapy:
-                    teamWinDB.refreshFightCooldown(team,auto)
+                    teamWinDB.refreshFightCooldown(team,auto,fromTime=now)
 
             tablSays = []
             temp= ["",""]
@@ -5097,14 +5141,21 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 say = "\n\n{0}".format(tablSays[0])
     
             duree = datetime.datetime.now()
-            now = duree - now
-            now = str(now.seconds//60) + ":" + str(now.seconds%60)
-            temp1 = discord.Embed(title = "__Résultats du combat :__",color = [0x2996E5,red][winners],description="__Danger :__ {0}\n__Nombre de tours :__ {1}\n__Durée :__ {2}{3}".format(danger,tour,now,say))
-            temp1.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=temp[winners],inline=True)
-            temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",value=temp[not(winners)],inline=True)
+            nowTemp = duree - now
+            nowTemp = str(nowTemp.seconds//60) + ":" + str(nowTemp.seconds%60)
+
+            if not(octogone):
+                nextFigth = now + datetime.timedelta(hours=1+(2*auto)) + horaire
+                nextFightMsg = "\n__Prochain combat {0}__ : {1}".format(["normal","rapide"][auto],nextFigth.strftime("%Hh%M"))
+            else:
+                nextFightMsg = ""
+
+            resultEmbed = discord.Embed(title = "__Résultats du combat :__",color = [0x2996E5,red][winners],description="__Danger :__ {0}\n__Nombre de tours :__ {1}\n__Durée :__ {2}{4}{3}".format(danger,tour,nowTemp,say,nextFightMsg))
+            resultEmbed.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=temp[winners],inline=True)
+            resultEmbed.add_field(name="<:empty:866459463568850954>\nPerdants :",value=temp[not(winners)],inline=True)
 
             if longTurn:
-                temp1.set_footer(text="{0} tour{1} anormalement long{1} {2} été détecté{1} durant le combat. Un rapport va être envoyé".format(len(longTurnNumber),["",'s'][int(len(longTurnNumber) > 1)],["a","ont"][int(len(longTurnNumber) > 1)]))
+                resultEmbed.set_footer(text="{0} tour{1} anormalement long{1} {2} été détecté{1} durant le combat. Un rapport va être envoyé".format(len(longTurnNumber),["",'s'][int(len(longTurnNumber) > 1)],["a","ont"][int(len(longTurnNumber) > 1)]))
             
             if not(octogone):
                 gainExp, gainCoins, allOcta,gainMsg = 0,tour*20,True,""
@@ -5148,7 +5199,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             temp.currencies += gainCoins
                             a.char = temp
 
-                        if random.randint(0,99) < [20,33][int(userShopPurcent(a.char)<90)] and allOcta and not(winners):
+                        sussesfullRoll = random.randint(0,99) < [25,35][int(userShopPurcent(a.char)<90)]
+                        #sussesfullRoll = False
+                        if sussesfullRoll and allOcta and not(winners):
                             logs += "\n{0} a réusi son jet :".format(a.char.name)
                             drop = listAllBuyableShop[:]
                             temp = drop[:]
@@ -5189,7 +5242,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 saveCharFile(path,a.char)
                                 gainMsg += f"{await getUserIcon(bot,a.char)} → {gain} <:coins:862425847523704832>\n"
 
-                temp1.add_field(name="<:empty:866459463568850954>\n__Gains de l'équipe joueur :__",value = gainMsg,inline=False)
+                        elif not(sussesfullRoll) and mainUser.owner == a.char.owner and allOcta and not(winners):
+                            if random.randint(0,999) < 334:
+                                aliceStatsDb.updateJetonsCount(mainUser,1)
+                                logs += "\n{0} a obtenu un jeton de roulette".format(mainUser.name)
+                                gainMsg += f"{await getUserIcon(bot,a.char)} → <:jeton:917793426949435402> Jeton de roulette\n"
+
+                resultEmbed.add_field(name="<:empty:866459463568850954>\n__Gains de l'équipe joueur :__",value = gainMsg,inline=False)
         else:
             logs += mauvaisePerdante
             team = team1[0].team
@@ -5224,9 +5283,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     await choiceMsg.delete()
             startMsg = globalVar.getRestartMsg()
             if startMsg == 0:
-                await msg.edit(embed = temp1,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
+                await msg.edit(embed = resultEmbed,components=[create_actionrow(create_button(ButtonStyle.grey,"Chargement...",getEmojiObject('<a:loading:862459118912667678>'),"📄",disabled=True))])
             else:
-                await msg.edit(embed = temp1,components=[])
+                await msg.edit(embed = resultEmbed,components=[])
             if not(octogone):
                 teamWinDB.changeFighting(team,False)
         # ------------ Succès -------------- #
@@ -5374,15 +5433,15 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     options.append(create_select_option(ent.name,"{0}:{1}".format(team,num),getEmojiObject(await ent.getIcon(bot)),default=started and team == actuTeam and num == actuEntity))
 
             select = create_select(options,placeholder="Voir les statistiques d'un combattant")
-            await msg.edit(embed = temp1, components=[create_actionrow(select),create_actionrow(logsButton)])
+            await msg.edit(embed = resultEmbed, components=[create_actionrow(select),create_actionrow(logsButton)])
 
             try:
                 interact = await wait_for_component(bot,msg,check=check,timeout=60)
             except:
                 if logsAff:
-                    await msg.edit(embed = temp1, components=[create_actionrow(logsButton)])
+                    await msg.edit(embed = resultEmbed, components=[create_actionrow(logsButton)])
                 else:
-                    await msg.edit(embed = temp1, components=[])
+                    await msg.edit(embed = resultEmbed, components=[])
                 if prec != None:
                     await prec.delete()
                 break
