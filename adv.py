@@ -4,16 +4,17 @@ from advObjects.advSkills import *
 from advObjects.advStuffs import *
 from advObjects.advInvocs import *
 from advObjects.advEffects import *
+from typing import Union
 import random,copy
 
 print("")
 # Weapon
-weapons = [
+weapons = [eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
     julieWeap,blueButterfly,butterflyRed,luth,krystalFist,musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]
 
 # Skill
-skills = [magicRuneStrike,infinitDark,preciseShot,troublon,haimaSkill,physicRune,magicRune,rosesMagic,
+skills = [magicRuneStrike,infinitDark,preciseShot,troublon,haimaSkill,physicRune,magicRune,rosesMagic,lightBigHealArea,focus,poisonusPuit,bleedingPuit,
     idoOS,proOS,preOS,geoConCast,kikuRes,memClemCastSkill,roses,krysUlt,chaosArmor,firelame,airlame,waterlame,mudlame,shadowLame,timeLame,lightLame,astralLame,idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWillCast,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion2,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]
 
@@ -26,10 +27,6 @@ invocTabl = [seraf,
 stuffs = [corruptRedBoots,corruptRedVeste,corruptPurpleBoots,corruptPurpleVeste,flumOr,darFlumOr,fullTempCharp,fullTempVest,fullTempShoes,firstBar,firstShoes,firstUniform,
     scienceHat,scienceBody,scienceShoes,battleHealHat,battleHealUnif,battleHealShoes,kryscharpe,krysshirt,kryschains,battleShieldHat,battleShieldUnif,battleShieldShoes,crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,dragoonHelmet,dragoonArmor,dragoonBoots,whiteLily,bloodLily,pompomHat,pompomBody,pompomShoes,lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
 ]
-
-octoEmpty1 = stuff("placeolder","ht",0,0)
-octoEmpty2 = stuff("placeolder","hu",0,0)
-octoEmpty3 = stuff("placeolder","hv",0,0)
 
 #Effect
 effects = [idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff,magicRuneEff,
@@ -48,10 +45,13 @@ changeName = other("Changement de nom","qc",description="Vous permet de changer 
 restat = other("Rénitialisation des points bonus","qd",description="Vous permet de redistribuer vos points bonus",emoji='<:restats:872174136913461348>',price=500)
 elementalCristal = other("Cristal élémentaire","qe",500,description="Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory element (lvl 10)\n\nCe cristal permet de sélectionner les éléments suivants :\n<:fire:887847475203932261> Feu\n<:water:887847459211079760> Eau\n<:air:887847440932290560> Air\n<:earth:887847425459503114> Terre",emoji="<:krysTal:888070310472073257>")
 customColor = other("Couleur personnalisée","qf",500,description="Vous permet de rentrer une couleur personnalisée pour votre personnage",emoji='<:changeColor:892350738322300958>')
-seeshell = other("Super Coquillage","qd",500,description="Ce coquillage permet de changer son bonus iné dans /inventory bonus (lvl 25)")
-blablator = other("Blablator","qg",500,description="Permet de définir des messages que votre personnages dira lors de certains événements")
+seeshell = other("Super Coquillage","None",500,description="Ce coquillage permet de changer son bonus iné dans /inventory bonus (lvl 25)")
+blablator = other("Blablator","qg",500,description="Permet de définir des messages que votre personnages dira lors de certains événements",emoji='<:blablator:918073481562816532>')
 dimentioCristal = other("Cristal dimentionel",'qh',500,'<:krysTal2:907638077307097088>',"Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory element (lvl 20)\n\nCe cristal permet de choisir les éléments suivants :\n<:light:887847410141921362> Lumière\n<:darkness:887847395067568128> Ténèbre\n<:astral:907467653147410475> Astral\n<:temporel:907467620930973707> Temporel")
-others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal]
+token = other("Jeton de roulette","None",0,'<:jeton:917793426949435402>',"Ce jeton est à utiliser dans la Roulette\nAllez donc faire un tour à /roulette !")
+mimique = other("Mimikator","qi",500,"<:mimikator:918073466077446164>","Cet emoji vous permet de changer l'apparance de votre arme ou accessoire sur votre icone de personnage.\n\nPour ce faire, appuyez juste sur le bouton correspondant lorsque vous ouvrez une page d'information d'une arme ou accessoire avec /inventory")
+
+others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique]
 
 tablAllOcta,tablAllAllies = [],[]
 
@@ -63,23 +63,23 @@ octoSnipeWeap = weapon("Snipeur Octarien","aaa",2,AREA_CIRCLE_6,52,85,0,strength
 octoFly = weapon("Machinerie volante","aaa",RANGE_DIST,AREA_CIRCLE_3,80,75,-20,10,emoji=octoEm)
 octoHeal = weapon("Octo heal","aaa",1,AREA_CIRCLE_3,35,50,0,use=CHARISMA,type=TYPE_HEAL,target=ALLIES,emoji='<:medic:882890887120699444>')
 octoDef = weapon('OctoDef',"aaa",1,AREA_CIRCLE_3,10,100,0,effectOnUse="md",use=INTELLIGENCE,target=ALLIES,type=TYPE_HEAL,intelligence=20)
-flyfishweap = weapon("Flyfish","ffweap",2,AREA_CIRCLE_7,1,200,0,effectOnUse="mf",type=TYPE_INDIRECT_DAMAGE,strength=30)
+flyfishweap = weapon("Lance-Multi-Missiles","ffweap",2,AREA_CIRCLE_7,1,200,0,effectOnUse="mf",type=TYPE_DAMAGE,strength=30)
 octoBoumWeap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0,effect="mg") 
 ruddinweap = weapon("Carreaux","aaa",RANGE_DIST,AREA_CIRCLE_3,28,70,0,0,0,0,0,0,0,0,repetition=3,emoji='<:chaos:892857755143127090>')
 ruddinweap2 = weapon("Carreaux","aaa",RANGE_MELEE,AREA_CIRCLE_3,28,70,0,0,0,0,0,0,0,0,repetition=3,emoji='<:chaos:892857755143127090>')
 malusWeaponEff = effect("Embrouillement","aaa",INTELLIGENCE,strength=-5,magie=-5,critical=-2,type=TYPE_MALUS)
 malusWeapon = weapon("Magie sombre","aaa",RANGE_DIST,AREA_CIRCLE_5,45,70,0,effectOnUse=malusWeaponEff,use=MAGIE)
-malusSkill1Eff = effect("Malussé","mal",INTELLIGENCE,-15,magie=-15,resistance=-5,type=TYPE_MALUS)
+malusSkill1Eff = effect("Malussé","malusé",INTELLIGENCE,-15,magie=-15,resistance=-5,type=TYPE_MALUS)
 malusSkill1 = skill("Abrutissement","aaa",TYPE_MALUS,0,area=AREA_CIRCLE_2,effect=malusSkill1Eff,cooldown=5,initCooldown=2)
 malusSkill2 = skill("Éclair","aaa",TYPE_DAMAGE,0,80,cooldown=2,sussess=65,use=MAGIE,emoji='<:darkThunder:912414778356564019>')
 kralamWeap = weapon("Décharge motivante","aaa",RANGE_DIST,AREA_DONUT_4,50,100,0,type=TYPE_HEAL,target=ALLIES,use=CHARISMA)
 kralamSkill2 = skill("Électrochoc","kralamSkill2",TYPE_DAMAGE,0,60,area=AREA_CIRCLE_1,use=CHARISMA,cooldown=3,initCooldown=2,emoji='<:electroShoc:912414625679695873>')
-kralamSkillEff2 = effect("This is, my No No Square","nono",INTELLIGENCE,resistance=20,overhealth=100,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,turnInit=3)
+kralamSkillEff2 = effect("This is, my No No Square","nono",INTELLIGENCE,resistance=10,overhealth=100,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,turnInit=3)
 kralamSkillEff1 = effect("No no, don't touch me there","squaez",trigger=TRIGGER_DAMAGE,callOnTrigger=kralamSkillEff2,lvl=1,emoji=uniqueEmoji('<a:FranziskaNo:800833215106383883>'),type=TYPE_BOOST,resistance=5)
 kralamSkill = skill("Prévention","vn",TYPE_BOOST,0,0,AREA_DONUT_6,cooldown=3,effect=kralamSkillEff1,emoji='<:egide:887743268337619005>')
 temNativTriggered = effect("Promue",'tem',magie=0,turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:colegue:895440308257558529>'))
 temNativ = effect("College",'tem1',trigger=TRIGGER_ON_REMOVE,turnInit=3,unclearable=True,callOnTrigger=temNativTriggered)
-temWeap = weapon("Tem life saves","aaa",RANGE_DIST,AREA_CIRCLE_5,42,75,0,use=MAGIE,effect=temNativ)
+temWeap = weapon("Tem life saves","aaa",RANGE_DIST,AREA_CIRCLE_5,42,75,0,use=MAGIE,effect=temNativ,emoji='<:temFlakes:919168887222829057>')
 temSkill1 = skill("Alergies","aaa",TYPE_DAMAGE,0,75,use=MAGIE,initCooldown=3)
 octoMageWeap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0)
 chargeShot = skill('Tir chargé',"aaa",TYPE_DAMAGE,0,120,emoji=shot.emoji,cooldown=3,initCooldown=2)
@@ -112,7 +112,7 @@ octoBoostSkill3 = skill(octoBoost3Eff.name,"octoBoostSkill3",TYPE_BOOST,0,range=
 octoBoostSkill4 = skill(octoBoost4Eff.name,"octoBoostSkill4",TYPE_BOOST,0,range=AREA_MONO,area=AREA_DONUT_2,effect=octoBoost4Eff,emoji=octoBoost4Eff.emoji[0][0],use=INTELLIGENCE,cooldown=5)
 octoBoostSkill5 = skill(octoBoost5Eff.name,"octoBoostSkill5",TYPE_BOOST,0,range=AREA_MONO,area=AREA_DONUT_2,effect=octoBoost5Eff,emoji=octoBoost5Eff.emoji[0][0],use=INTELLIGENCE,cooldown=5)
 
-octoBoostWeap = weapon("Fioles d'expérimentations","octoBoostWeap",RANGE_DIST,AREA_CIRCLE_4,35,60,intelligence=25,use=INTELLIGENCE,emoji=octoBallWeap.emoji)
+octoBoostWeap = weapon("Fioles d'expérimentations","octoBoostWeap",RANGE_DIST,AREA_CIRCLE_4,67,65,intelligence=25,use=INTELLIGENCE,emoji=octoBallWeap.emoji)
 
 skills.append(kralamSkill)
 effects.append(kralamSkillEff1)
@@ -120,148 +120,6 @@ effects.append(kralamSkillEff2)
 
 octaStransEff = effect('Multi-Bras',"ocSt",aggro=15,resistance=10,turnInit = -1,unclearable=True,emoji=uniqueEmoji('<:octoStrans:900084603140853760>'))
 octaStrans = skill("Multi-Bras","octaStrans",TYPE_PASSIVE,0,effectOnSelf=octaStransEff,emoji='<:multibras:900084714675785759>')
-
-class octarien:
-    def __init__(self,name,maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,maxMagie,resistance,percing,critical,weapon,exp,icon,skill=["0","0","0","0","0"],aspiration=INVOCATEUR,gender=GENDER_OTHER,description="",deadIcon=None,oneVAll = False,say=says(),baseLvl = 1,rez=True):
-        self.name = name
-        self.species = 3
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,maxMagie
-        self.resistance,self.percing,self.critical = resistance,percing,critical
-        self.aspiration = aspiration
-        self.weapon = weapon
-        self.skills = skill
-        while len(self.skills) < 5:
-            self.skills+=["0"]
-
-        self.skillsInventory = []
-        self.color = red
-        self.level = 1
-        self.stuff = [octoEmpty1,octoEmpty2,octoEmpty3]
-        self.exp = exp
-        self.icon = icon
-        self.gender = gender
-        self.description = description
-        self.element = ELEMENT_NEUTRAL
-        self.deadIcon = deadIcon
-        self.oneVAll = oneVAll
-        self.says = say
-        self.baseLvl = baseLvl
-        self.rez = rez
-        self.bonusPoints = [0,0,0,0,0,0,0]
-
-    def allStats(self):
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
-    
-    def changeLevel(self,level=1):
-        self.level = level
-        stats = copy.deepcopy(self.allStats())
-        for a in range(0,len(stats)):
-            stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50)
-
-        if level > 50:
-            tempStats = copy.deepcopy(self.allStats())
-            for a in range(0,len(tempStats)):
-                stats[a] = tempStats[a] + (stats[a]-tempStats[a])//3
-
-        if self.level < 25:
-            self.skills[4] = "0"
-        if self.level < 20:
-            self.skills[3] = "0"
-        if self.level < 15:
-            self.skills[2] = "0"
-        if self.level < 10:
-            self.skills[1] = "0"
-
-        if self.level < 10:
-            self.element = ELEMENT_NEUTRAL
-        elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
-            self.element = random.randint(0,3)
-
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
-
-    def isNpc(self,name : str):
-        return self.name == name
-
-class tmpAllie:
-    def __init__(self,name,species,color,aspiration,weapon,stuff,gender,skill=[],description="Pas de description",url="",element=ELEMENT_NEUTRAL,variant = False,deadIcon=None,icon = None,bonusPoints = [None,None],say=says(),changeDict = None):
-        self.name = name
-        self.species = species
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
-        self.resistance,self.percing,self.critical = 0,0,0
-        self.aspiration = aspiration
-        self.weapon = weapon
-        self.skills = ["0","0","0","0","0"]
-        for a in range(0,len(skill)):
-            self.skills[a] = skill[a]
-        self.skillsInventory = []
-        self.color = color
-        self.level = 1
-        self.stuff = stuff
-        self.gender = gender
-        if icon == None:
-            self.icon = emoji.icon[species][getColorId(self)]
-        else:
-            self.icon = icon
-        self.description=description
-        self.url = url
-        self.element = element
-        self.variant = variant
-        self.deadIcon = deadIcon
-        self.bonusPoints = bonusPoints
-        self.says = say
-        if changeDict == None or type(changeDict) == list:
-            self.changeDict = changeDict
-        else:
-            self.changeDict = [changeDict]
-
-    def changeLevel(self,level=1):
-        self.level = level
-        stats = self.allStats()
-        allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
-        for a in range(0,len(stats)):
-            stats[a] = round(allMax[a][self.aspiration]*0.1+allMax[a][self.aspiration]*0.9*self.level/50)
-
-        bPoints = level
-        for a in self.bonusPoints:
-            if a != None:
-                distribute = min(30,bPoints)
-                bPoints -= distribute
-                stats[a] += distribute
-
-        if self.changeDict != None:
-            haveChanged = False
-            for changeDictCell in self.changeDict:
-                roll = random.randint(0,99)
-                if changeDictCell["level"] <= level and roll < changeDictCell["proba"] and not(haveChanged):
-                    if changeDictCell["changeWhat"] == 0:               # Change Skills
-                        for num in range(len(changeDictCell["change"])):
-                            for skillNum in range(len(self.skills)):
-                                if self.skills[skillNum].id == changeDictCell["change"][num].id:
-                                    self.skills[skillNum] = changeDictCell["to"][num]
-                                    break
-                        haveChanged = True
-
-        if self.level < 25:
-            self.skills[4] = "0"
-        if self.level < 20:
-            self.skills[3] = "0"
-        if self.level < 15:
-            self.skills[2] = "0"
-        if self.level < 10:
-            self.skills[1] = "0"
-
-        if self.level < 10:
-            self.element = ELEMENT_NEUTRAL
-        elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
-            self.element = random.randint(0,3)
-
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
-
-    def allStats(self):
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
-
-    def isNpc(self,name : str):
-        return self.name == name
 
 for a in [0,1]: # Octo shield
     tablAllOcta += [octarien("OctoShield",50,225,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier")]
@@ -290,6 +148,8 @@ for a in [0,1]: # Kralamour
 for a in [0,1,2]: # Temmie
     tablAllOcta += [octarien("Temmie",55,100,55,35,35,30,130,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15)]
 
+tablAllOcta.append(octarien("Bob",55,100,55,35,35,30,130,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15))
+
 for a in [0,1,2]: # Octo Mage
     tablAllOcta += [octarien("Octo Mage",50,50,30,30,30,20,200,20,10,15,octoMageWeap,5,'<:octomage:897910662758543422>',[flame,courant,rock,storm2],MAGE,baseLvl=20)]
 
@@ -309,7 +169,7 @@ tablAllOcta += [octarien("OctoProtecteur",0,100,50,50,30,200,20,20,0,0,octoDef,5
 tablAllOcta += [octarien("OctoBOUM",120,-30,10,35,20,0,350,-10,0,0,octoBoumWeap,5,'<:octoboom:884810545457418271>',[explosion2],MAGE,description="Un octarien qui a placé tous ses points dans ses envies pirotechniques",baseLvl=25,rez=False)]
 
 for a in [0,1,2]: # Octaling
-    tablAllOcta += [octarien("Octaling",80,50,50,50,50,50,80,25,0,20,weapons[random.randint(0,len(weapons)-1)],5,'<:Octaling:866461984018137138>',[skills[random.randint(0,len(skills)-1)],skills[random.randint(0,len(skills)-1)],skills[random.randint(0,len(skills)-1)]],baseLvl=10)]
+    tablAllOcta += [octarien("Octaling",80,50,50,50,50,50,80,25,0,20,splattershotJR,5,'<:Octaling:866461984018137138>',baseLvl=10,description='Les Octalings ont une arme, aspiration, élément et compétences aléatoire définini au début du combat')]
 
 for a in [0,1]: # OctoFly
     tablAllOcta += [octarien("Octarien Volant",200,45,35,100,50,20,0,25,0,35,octoFly,4,'<:octovolant:880151493171363861>')]
@@ -342,16 +202,27 @@ lioWeap = weapon("Écume","lioWeap",RANGE_LONG,AREA_CIRCLE_5,64,50,charisma=20,e
 lioRez = skill("Eau purifiante","lioRez",TYPE_RESURECTION,0,100,AREA_MONO,ultimate=True,area=AREA_DONUT_7,use=CHARISMA,emoji='<:lioUlt:911738565703135293>',cooldown=3,say="Allez vous autre... C'est pas le moment de stagner...")
 lieWeapEff = effect("Kitsune du feu","lieWeapEff",CHARISMA,emoji=uniqueEmoji('<:fireKitsune:917670925904785408>'),intelligence=10,magie=10,turnInit=-1,unclearable=True,description="L'ardeur de Liz en a comblé plus d'un\nÀ chaque attaque réalisée, donne l'effet Sous le Charme II à la cible",callOnTrigger=charming)
 lieWeap = weapon("Braise","lieWeap",RANGE_LONG,AREA_CIRCLE_4,48,50,charisma=10,magie=10,area=AREA_CIRCLE_1,effect=lieWeapEff,effectOnUse=charming,use=MAGIE,emoji='<:lizWeap:908859856608460820>')
-lieSkillEff = effect("Combustion","lieSKillEff",MAGIE,resistance=-2,power=35,turnInit=3,lvl=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
-lieSkill = skill("Flamme intérieur","lizSkill",TYPE_DAMAGE,0,effect=lieSkillEff,cooldown=3,power=80,say="Voyons voir si tu va pouvoir résister longtemps...",use=MAGIE,emoji='<:lizDirectSkill:917202291042435142>')
+lieSkillEff = effect("Combustion","lieSKillEff",MAGIE,resistance=-2,power=35,turnInit=4,lvl=4,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
+lieSkill = skill("Flamme intérieur","lizSkill",TYPE_DAMAGE,0,effect=lieSkillEff,cooldown=2,power=80,say="Voyons voir si tu va pouvoir résister longtemps...",use=MAGIE,emoji='<:lizDirectSkill:917202291042435142>')
 liaSkill = skill("Douce caresse","liaSkill",TYPE_DAMAGE,0,power=50,effect=[charming,charming,charming,charming,charming,charming],cooldown=5,use=MAGIE,say="Roh allez, détent toi un peu !")
-liuSkillEff = effect("Endurance Terrestre","liuSkillEff",MAGIE,overhealth=75,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+liuSkillEff = effect("Endurance Terrestre","liuSkillEff",MAGIE,overhealth=100,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 liuSkill = skill("Reconstitution","liuSkill",TYPE_DAMAGE,0,power=70,use=MAGIE,cooldown=2,effectOnSelf=liuSkillEff,say="Oh je suis pas encore finie tu va voir !")
 
-tablAllOcta.append(octarien("Liu",30,130,35,80,10,20,120,45,0,0,liuWeap,7,'<:liu:908754674449018890>',[earthStrike,earthCircle,rocklance,liuSkill],POIDS_PLUME,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays))
-tablAllOcta.append(octarien("Lia",20,70,150,150,30,30,20,30,0,0,liaWeap,7,'<:lia:908754741226520656>',[airStrike,airCircle,storm2,liaSkill],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays))
-tablAllOcta.append(octarien("Lio",20,70,200,35,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,eting,lioRez,veterHealSkill2],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays))
-tablAllOcta.append(octarien("Liz",10,70,80,35,20,35,200,35,0,0,lieWeap,7,'<:lie:908754710121574470>',[fireCircle,pyro,infinitFire,lieSkill],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays))
+tablAllOcta.append(octarien("Liu",30,130,35,80,10,20,120,45,0,0,liuWeap,7,'<:liu:908754674449018890>',[earthStrike,earthCircle,rocklance,liuSkill],POIDS_PLUME,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH))
+tablAllOcta.append(octarien("Lia",20,70,150,150,30,30,20,30,0,0,liaWeap,7,'<:lia:908754741226520656>',[airStrike,airCircle,storm2,liaSkill],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays,element=ELEMENT_AIR))
+tablAllOcta.append(octarien("Lio",20,70,200,35,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,eting,lioRez,veterHealSkill2],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays,element=ELEMENT_WATER))
+tablAllOcta.append(octarien("Liz",10,70,80,35,20,35,200,35,0,0,lieWeap,7,'<:lie:908754710121574470>',[fireCircle,pyro,infinitFire,lieSkill],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays,element=ELEMENT_FIRE))
+
+# Hunter
+hunterWeap = weapon("Logique irréfutable","hunterWeap",RANGE_LONG,AREA_CIRCLE_5,40,sussess=100,emoji='<:Objection:800829922356232202>',use=INTELLIGENCE,damageOnArmor=1.5,message="{0} utilise sa Logique irréfutable")
+hunterSkill1Eff = effect("Cornered","hunterSkill1Eff",INTELLIGENCE,strength=-10,magie=-10,charisma=-10,intelligence=-10,type=TYPE_MALUS,emoji=uniqueEmoji('<a:HunterPoint:800834253889732689>'))
+hunterSkill1 = skill("Preuve à l'appui","hunterSkill1",TYPE_MALUS,0,area=AREA_CIRCLE_1,effect=hunterSkill1Eff,cooldown=3,use=INTELLIGENCE,emoji='<a:HunterSmug:800841378967715841>')
+hunterSkill2 = skill("Poings sur la table","hunterSkill2",TYPE_DAMAGE,0,70,use=INTELLIGENCE,cooldown=3,emoji='<a:HunterSlam:800834288487759923>')
+hunterSkill3Eff = effect("Vérité","hunterSkill3Eff",INTELLIGENCE,strength=10,magie=10,charisma=10,intelligence=10,emoji=uniqueEmoji('<:Eureka:800837165688815636>'))
+hunterSkill3 = skill("Vérité entrevue",'hunterSkill3',TYPE_BOOST,0,area=AREA_CIRCLE_1,effect=hunterSkill3Eff,cooldown=3,emoji='<:Eureka:800837165688815636>')
+hunterSkill4 = skill("Outdated autopsy report","hunterSkill4",TYPE_RESURECTION,0,150,use=INTELLIGENCE,emoji='<:AutopsyReport:800839396151656469>',cooldown=5,message='{0} a mis à jour le rapport d\'autopsy de {2}')
+
+tablAllOcta.append(octarien("Benjamin Hunter",30,100,140,30,50,200,0,35,20,0,hunterWeap,8,'<a:HunterNo:800841356502237225>',[hunterSkill1,hunterSkill2,hunterSkill3,hunterSkill4],IDOLE,GENDER_MALE,deadIcon='<:AutopsyReport:800839396151656469>',baseLvl=15))
 
 # Boss special skills ----------------------------------------------------------------
 spamSkill1 = skill("A Call For You","aaa",TYPE_DAMAGE,0,70,area=AREA_CONE_3,sussess=50,emoji='<:call:892757436203671572>',cooldown=3,message="HOT {0} IN YOUR AREA HAVE A [[Message](https://fr.wikipedia.org/wiki/Message)] FOR [{2}] :")
@@ -363,52 +234,63 @@ jevilWeap = weapon("Trèfle","aaa",RANGE_DIST,AREA_CIRCLE_4,76,50,0,area=AREA_CO
 jevilSkill1 = skill("Pics","aaa",TYPE_DAMAGE,0,70,area=AREA_CONE_3,range=AREA_DIST_5,sussess=60,emoji='<a:card:892855854712385637>',say="NU-HA!! I NEVER HAD SUCH FUN, FUN!!",cooldown=2,damageOnArmor=1.5)
 jevilSkill2 = skill("Final Chaos","aaa",TYPE_DAMAGE,0,120,AREA_MONO,area=AREA_ALL_ENEMIES,say="KIDDING ! HERE'S MY FINAL CHAOS !",initCooldown=5,cooldown=10,emoji="<:devilknife:892855875600023592>",damageOnArmor=2)
 ailillSkill = skill("Décapitage","aaa",TYPE_DAMAGE,0,1000,AREA_CIRCLE_1,initCooldown=5,cooldown=5,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
-lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,70,AREA_MONO,area=AREA_CIRCLE_7,emoji='<a:darkExplosion:899451335269822475>',say="Voyons voir comment vous allez résister à ça !",description="\n\nInvoque X **Convictions des Ténèbres**, X étant la taille de l'équipe bleue au début du combat.\nAprès 3 tours de chargement, Luna enveloppe le terrain de Ténèbres, infligeant des dégâts massifs à toute l'équipe en fonction du nombre de **Convictions des Ténèbres** présent sur le terrain\n\nDurant la période de chargement, Luna est **Invisible**, **Inciblable** et **Imunisée**",cooldown=99,initCooldown=10,damageOnArmor=1.33)
+
+lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,70,AREA_MONO,area=AREA_CIRCLE_7,emoji='<a:darkExplosion:899451335269822475>',say="Laissez moi vous montrer un avant goût des Ténèbres Éternels !",description="\n\nInvoque X **Convictions des Ténèbres**, X étant la taille de l'équipe bleue au début du combat.\nAprès 3 tours de chargement, Luna enveloppe le terrain de Ténèbres, infligeant des dégâts massifs à toute l'équipe en fonction du nombre de **Convictions des Ténèbres** présent sur le terrain\n\nDurant la période de chargement, Luna est **Invisible**, **Inciblable** et **Imunisée**",cooldown=99,initCooldown=10,damageOnArmor=1.33)
 lunaRepEffect = effect("Cast - Ténèbres Éternels","darkerYetDarker3",replique=lunaSpe,turnInit=2,silent=True,emoji=uniqueEmoji("<a:lunaInfDarkTurn3:916575004492169226>"),immunity=True,translucide=True,untargetable=True)
-lunaSpe2 = skill("Ténèbres Éternels","aab",TYPE_DAMAGE,0,0,AREA_MONO,area=AREA_DONUT_7,effectOnSelf=lunaRepEffect,say="On s'accroche toujours hein ?",message="Luna concentre les Ténèbres environants...",emoji='<:infiniteDarkness:898497770531455008>')
-lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_MELEE,AREA_CIRCLE_1,50,40,0,0,0,0,0,0,0,0,0,0,0,5,'<:lunaWeap:915358834543968348>',damageOnArmor=1.2)
+lunaSpe2 = skill("Ténèbres Éternels","aab",TYPE_DAMAGE,0,0,AREA_MONO,area=AREA_DONUT_7,effectOnSelf=lunaRepEffect,say="Si je dois en arriver à là pour vous montrer que vous faites fausses routes, alors soit !",message="Luna concentre les Ténèbres environants...",emoji='<:infiniteDarkness:898497770531455008>')
+lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_MELEE,AREA_CIRCLE_1,50,40,0,0,0,0,0,0,0,0,0,0,0,5,'<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True)
 lenaRepEffect2 = effect("Cast - Ténèbres Éternels","darkerYetDarker2",replique=lunaSpe2,turnInit=3,silent=True,emoji=uniqueEmoji('<a:lunaInfDarkTurn2:916574989933748235>'),immunity=True,translucide=True,untargetable=True)
-lunaSpe3 = skill("Ténèbres Éternels","aac",TYPE_DAMAGE,0,0,AREA_MONO,area=AREA_DONUT_7,effectOnSelf=lenaRepEffect2,message="Luna concentre les Ténèbres environants...",emoji='<:infiniteDarkness:898497770531455008>')
+lunaSpe3 = skill("Ténèbres Éternels","aac",TYPE_DAMAGE,0,0,AREA_MONO,area=AREA_DONUT_7,effectOnSelf=lenaRepEffect2,message="Luna concentre les Ténèbres environants...",emoji='<:infiniteDarkness:898497770531455008>',say="Vous comprenez rien.")
 lenaRepEffect3 = effect("Cast - Ténèbres Éternels","darkerYetDarker1",replique=lunaSpe3,turnInit=4,silent=True,emoji=uniqueEmoji('<a:lunaInfDarkTurn1:916574972321873951>'),immunity=True,translucide=True,untargetable=True)
-lunaSpe4 = skill("Ténèbres Éternels","InfiniteDarkness",TYPE_DAMAGE,0,0,AREA_MONO,cooldown=99,initCooldown=8,area=AREA_DONUT_7,effectOnSelf=lenaRepEffect3,emoji='<:infiniteDarkness:898497770531455008>',say='OK ! FINI DE JOUER !')
+lunaSpe4 = skill("Ténèbres Éternels","InfiniteDarkness",TYPE_DAMAGE,0,0,AREA_MONO,cooldown=99,initCooldown=8,area=AREA_DONUT_7,effectOnSelf=lenaRepEffect3,emoji='<:infiniteDarkness:898497770531455008>',say="C'est que vous commencez vraiment à être gênant vous !")
 lunaSkill = copy.deepcopy(soupledown)
-lunaSkill.power = 120
-lunaSkill2 = skill("Tank Burst","aaa",TYPE_DAMAGE,0,300,AREA_CIRCLE_2,cooldown=5,initCooldown=2,emoji='<a:lunaTB:899456356036251658>')
+lunaSkill.power = 150
+lunaSkill2 = skill("Frappes des Ténèbres","aaa",TYPE_DAMAGE,0,100,AREA_CIRCLE_2,repetition=3,cooldown=5,initCooldown=2,emoji='<a:lunaTB:899456356036251658>',say="Je pense pas que tu va pouvoir prendre celui-ci sans broncher.")
 lunaSkill4Eff = copy.deepcopy(innerdarknessEff)
 lunaSkill4Eff.stat = STRENGTH
-lunaSkill4Eff.power = 55
-lunaSkill4 = skill("Déchirment","aaa",TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effect=lunaSkill4Eff,cooldown=5,use=MAGIC,say="Ne sentez vous pas les ténèbres de votre âme s'agiter ?",emoji=innerdarkness.emoji)
-lunaSkill5 = skill("Assombrissement","lunaSkill5",TYPE_DAMAGE,0,100,AREA_MONO,cooldown=4,emoji='<:lunaSkill5:905401258658115615>',area=AREA_CIRCLE_2,say="Je comprend pas pourquoi vous tenez tant à vous mettre en travers de mon chemin")
+lunaSkill4Eff.power = 45
+lunaSkill4EffAlt = copy.deepcopy(lunaSkill4Eff)
+lunaSkill4EffAlt.power, lunaSkill4EffAlt.area = 80,AREA_MONO
+lunaSkill4 = skill("Déchirment","aaa",TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effect=lunaSkill4Eff,cooldown=3,use=MAGIC,say="Votre Lumière ne vous protègera pas éternellement !",emoji=innerdarkness.emoji,description="Cette compétence à 50% de change de voir sa zone d'effet modifiée ainsi que la puissance de son effet et sa zone d'effet modifiée")
+lunaSkill5Base = skill("Corps à corps","lunaSkill5",TYPE_DAMAGE,0,0,AREA_CIRCLE_1,description="Cette compétence peut avoir 4 effets différents, sélectionné de manière aléatoire",emoji='<:luna4inOne:919260128698589184>')
+lunaSkill5_1 = skill("Reverse roundhouse-kick",lunaSkill5Base.id,lunaSkill5Base.type,0,80,lunaSkill5Base.range,area=AREA_ARC_1,emoji='<:luna4inOne:919260128698589184>')
+lunaSkill5_2 = skill("Side-kick fouetté",lunaSkill5Base.id,lunaSkill5Base.type,0,120,lunaSkill5Base.range,emoji='<:luna4inOne:919260128698589184>',say="Hmf !")
+lunaSkill5_3_eff = effect("Destabilisé","lunaSkill5_3Eff",type=TYPE_MALUS,emoji=stuned.emoji,stun=True)
+lunaSkill5_3 = skill("Sweeping into Backflip",lunaSkill5Base.id,lunaSkill5Base.type,0,70,lunaSkill5Base.range,repetition=2,effect=lunaSkill5_3_eff,knockback=1,emoji='<:luna4inOne:919260128698589184>',say="C'est que tu es colant toi !")
+lunaSkill5_4 = skill("Double High roundhouse-kick into Side-kick",lunaSkill5Base.id,lunaSkill5Base.type,0,40,lunaSkill5Base.range,repetition=3,knockback=3,emoji='<:luna4inOne:919260128698589184>',say="Hé vous derrière ! Cadeau !")
+
+skills.append(lunaSkill5_4)
+
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=3,description="Confuse confusing confusion")
 jevilSkill3 = skill("Confusion","aaa",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENTITES,effect=jevilEff,cooldown=5,emoji='<a:giveup:902383022354079814>',say='I CAN DO ANYTHING !')
 
 clemBloodJauge = effect("Jauge de sang","clemBloodJauge",turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:clemBJ:914710384299106345>'),lvl=100,description="Clémence possédée tourne autour de sa Jauge de Sang\n\nElle débute le combat avec une jauge à **100** Points de sang, son maximum.\nChacunes de ses compétences ont un coût en Points de Sang, qui sont retiré à la jauge à la fin de leur utilisation\n\nSi la jauge de sang tombe à **0 point**, Clémence est étourdie pendant 2 tours durant lesquels sa résistance est diminuée\nLa jauge de sang récupère **1 point** de sang à chaque fois que Clémence inflige 50 points de dégâts, et **100 points** une fois que Clémence n'est plus étourdie\n\nLa quantité de points de sang dans la jauge de sang est constamant visible\nClémence possède 10% de vol de vie")
-clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_1,85,100,use=MAGIE,effect=clemBloodJauge,magie=50,endurance=150,emoji='<:clemWeap:915358467773063208>')
+clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_1,85,100,ignoreAutoVerif=True,use=MAGIE,effect=clemBloodJauge,magie=50,endurance=150,emoji='<:clemWeap:915358467773063208>')
 clemStunEffect = effect("Thrombophilie","clemStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS,resistance=-85)
 aliceStunEffect = effect("Hémophilie","aliceStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS,charisma=-50)
-clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=230,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE)
-clemSkill2 = skill("Sort - Chiroptera perniciosius","clemSkill2",TYPE_DAMAGE,0,350,AREA_CIRCLE_2,cooldown=3,emoji='<a:clemSkill4:901150027706142780>',use=MAGIE,say="Tu es trop collant.")
-clemUltLauch = skill("Memento - L'Ange noir","clemUlt",TYPE_DAMAGE,0,300,AREA_MONO,area=AREA_CIRCLE_7,emoji='<:clemMemento:902222089472327760>',say="Vous avez suffisamant résisté comme ça !",sussess=666,cooldown=99,ultimate=True,description="Au premier tour, consomme tous les **Points de sang** de la Jauge de Sang, sauf 1, pour obtenir un bouclier absolu, dont la puissance dépend du nombre de points consommés\nAu second tour, si ce bouclier est toujours présent, cette attaque fait des dégâts colosaux. Consomme la jauge de sang",use=MAGIE)
+clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=200,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE)
+clemSkill2 = skill("Sort - Chiroptera perniciosius","clemSkill2",TYPE_DAMAGE,0,300,AREA_CIRCLE_2,cooldown=3,emoji='<a:clemSkill4:901150027706142780>',use=MAGIE,say="Tu es trop collant.")
+clemUltLauch = skill("Memento - L'Ange noir","clemUlt",TYPE_DAMAGE,0,200,AREA_MONO,area=AREA_CIRCLE_7,emoji='<:clemMemento:902222089472327760>',say="Vous avez suffisamant résisté comme ça !",sussess=666,cooldown=99,ultimate=True,description="Au premier tour, consomme tous les **Points de sang** de la Jauge de Sang, sauf 1, pour obtenir un bouclier absolu, dont la puissance dépend du nombre de points consommés\nAu second tour, si ce bouclier est toujours présent, cette attaque fait des dégâts colosaux. Consomme la jauge de sang",use=MAGIE)
 clemultCastEffect = effect("Cast - Memento - L'Ange noir","clemUltEff",replique=clemUltLauch,turnInit=2,silent=True,emoji=dangerEm)
 clemUltShield = effect("Bouclier sanguin","clemShield",MAGIE,overhealth=1,emoji=uniqueEmoji("<:clemMemento2:902222663806775428>"),turnInit=2,absolutShield=True)
 clemUltCast = skill("Memento - L'Ange Noir","clemUltCast",TYPE_ARMOR,0,range=AREA_MONO,emoji="<:clemMemento2:902222663806775428>",effect=clemUltShield,say="Très bien.",effectOnSelf=clemultCastEffect,ultimate=True,cooldown=99)
 clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,150,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>')
-clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,320,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>')
+clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,200,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>')
 
-clemBJcost = {"clemSkill1":25,"clemSkill2":32,"clemUlt":100,"clemSkill3":30,"clemSkill4":35,"aliceSkill1":28,"aliceSkill2":25,"aliceSkill3":28,"aliceSkill4":35,"aliceRez":45}
+clemBJcost = {"clemSkill1":25,"clemSkill2":32,"clemUlt":80,"clemSkill3":30,"clemSkill4":35,"aliceSkill1":28,"aliceSkill2":25,"aliceSkill3":28,"aliceSkill4":35,"aliceRez":45,"aliceRez+":150}
 
 TGESWeap = weapon("noneWeap","aaa",RANGE_DIST,AREA_CIRCLE_1,0,0,0,resistance=50)
 TGESSkill1 = skill("Projectile","TheGiantEnemySpiderSkill1",TYPE_DAMAGE,0,int(GESLskill.power*1.5))
 
 tablBoss = [ # Table des boss
     octarien("Ailill",300,50,0,50,75,50,30,10,33,0,depha,10,'<a:Ailill:882040705814503434>',[balayette,uppercut,ailillSkill],BERSERK,GENDER_FEMALE,description="Une humaine à qui la vie n'a pas vraiment souris. Du coup elle passe ses nerfs sur les autres.\nEnfin les autres plus faibles qu'elle évidamment\n\nSi il y a 5 combattants ou plus dans une équipe, les dégâts infligés à Ailill sont réduits si l'attaquant est trop éloigné",say=ailillSays,rez=False),
-    octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",500,1450,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays),
-    octarien("Jevil",550,1500,100,60,75,120,120,10,25,15,jevilWeap,50,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2,jevilSkill3],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays),
+    octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",500,1450,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays,element=ELEMENT_DARKNESS),
+    octarien("Jevil",550,1500,100,60,75,120,120,10,25,15,jevilWeap,50,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2,jevilSkill3],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays,element=ELEMENT_DARKNESS),
     octarien("Séréna",50,65,-50,70,50,50,300,25,0,15,armilame,10,'<:serena:897912402354511894>',[poisonus,serenaSkill,serenaSpe],ENCHANTEUR,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
-    octarien("Luna",400,1250,100,75,50,100,0,25,35,25,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpe4,lunaSkill,lunaSkill5,lunaSkill2,lunaSkill4],POIDS_PLUME,GENDER_FEMALE,"Il viendra toujours un moment où vous allez devoir affronter votre côté sombre",'<:spIka:866465882540605470>',True,say=lunaBossSays),
+    octarien("Luna",400,1250,80,155,50,100,0,25,35,15,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpe4,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
     octarien("Octo Tour",0,350,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés"),
-    octarien("Clémence pos.",100,1200,50,50,80,150,325,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays),
-    octarien("The Giant Enemy Spider",300,1500,0,80,100,50,300,70,10,20,TGESWeap,50,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True)
+    octarien("Clémence pos.",100,1350,50,50,80,150,350,40,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
+    octarien("The Giant Enemy Spider",300,1650,0,80,100,50,300,70,10,20,TGESWeap,50,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True)
 ]
 
 clemInnerDark = copy.deepcopy(innerdarkness)
@@ -435,26 +317,27 @@ tablAllAllies = [
     tmpAllie("Powehi",2,black,PROTECTEUR,inkbrella2,[starBar,bhPull,bhBoots],GENDER_FEMALE,[blackHole,trans,blindage,secondWind,blackHole2],"Une manifestation cosmique d'un trou noir. Si vous vous sentez attiré par elle, c'est probablement à raison\nNe lui demandez pas de vous marchez dessus par contre, si vous voulez un conseil. Elle a beau paraître avoir un petit gabarie, ce n'est pas pour rien qu'elle évite de marcher sur le sol",element=ELEMENT_SPACE,bonusPoints=[ENDURANCE,INTELLIGENCE],icon='<:powehi:909048473666596905>',deadIcon = '<:powehiDisiped:907326521641955399>',say=powehiSays),
     tmpAllie("Shehisa",1,purple,TETE_BRULE,shehisa,[shehisaMask,shehisaBody,shehisaBoots],GENDER_FEMALE,[dissimulation,bleedingDague,bleedingArrow,bleedingTrap,heriteLesath],"Soeur d'Hélène, elle a cependant préférer suivre un chemin beaucoup moins altruiste",element=ELEMENT_NEUTRAL,bonusPoints=[STRENGTH,ENDURANCE],icon='<:shehisa:901555930066473000>'),
     tmpAllie("Rasalhague",1,light_blue,MAGE,spellBook,[lentille,chemB,mocas],GENDER_MALE,[space1,space2,space3,spaceSp],element=ELEMENT_SPACE,icon='<:rasalhague:907689992745271376>',bonusPoints=[MAGIE]),
-    tmpAllie("Sixtine",1,blue,PREVOYANT,lightSpellBook,[blueNoeud,pullHeart,heartBask],icon='<:sixtine:908819887059763261>',skill=[bpotion,affaiblissement,nostalgia,provo,sixtineUlt],gender=GENDER_FEMALE,element=ELEMENT_NEUTRAL,bonusPoints=[INTELLIGENCE,ENDURANCE],description="Soeur cadette, Sixtine est plutôt du genre à vouloir rester dans son coin sans être dérangée\n\nElle ne se démarque pas particulièrement de Félicité ou Alice, mais ça ne la dérange pas. Elle passe le plus clair de son temps libre à rêvasser, à du mal à faire le premier pas vers les autres et n'a pas vraiment l'air de s'interresser à grand chose\nMais quand elle s'interresse à un truc, elle veux souvent en connaître un maximum de chose dessus."),
+    tmpAllie("Sixtine",1,blue,IDOLE,lightSpellBook,[blueNoeud,pullHeart,heartBask],icon='<:sixtine:908819887059763261>',skill=[bpotion,affaiblissement,nostalgia,provo,sixtineUlt],gender=GENDER_FEMALE,element=ELEMENT_NEUTRAL,bonusPoints=[INTELLIGENCE,ENDURANCE],description="Soeur cadette, Sixtine est plutôt du genre à vouloir rester dans son coin sans être dérangée\n\nElle ne se démarque pas particulièrement de Félicité ou Alice, mais ça ne la dérange pas. Elle passe le plus clair de son temps libre à rêvasser, à du mal à faire le premier pas vers les autres et n'a pas vraiment l'air de s'interresser à grand chose\nMais quand elle s'interresse à un truc, elle veux souvent en connaître un maximum de chose dessus."),
     tmpAllie("Hina",1,purple,OBSERVATEUR,plume,[hinaAcc,hinaBody,hinaShoes],GENDER_FEMALE,[multishot,multiMissiles,hinaUlt],icon='<:hina:908820821185810454>',element=ELEMENT_AIR,bonusPoints=[AGILITY,STRENGTH]),
     tmpAllie("John",2,orange,POIDS_PLUME,airsword,[bandNoir,pullCamo,kanisand],GENDER_MALE,[airlame,airStrike],description="Un Loup Garou qui a réussi à tomber amoureux de la vampire responsable des pluparts des vas et viens à l'infirmerie du village de sa meute\n\nAprès de multiple tentatives de l'approcher sans grand succès, il a réussi à changer la clémence qu'éprouvait cette dernière à son égars en affection, mais a peur d'essayer de monter dans son estime",icon='<:john:908887592756449311>',bonusPoints=[STRENGTH,AGILITY],say=johnSays),
-    tmpAllie("Julie",1,red,ALTRUISTE,julieWeap,[julieHat,julieDress,julieShoes],GENDER_FEMALE,[altOH,infraMedica,extraEtingSkill,timeSp,trans],"La principale (et unique) servante d'une des vampires les plus puissante du pays.\nElle a appris la magie curative à l'aide des nombreux grimoires dans la bibliothèque du manoire, mais il lui arrive souvent de demander de l'aide à Clémence lorsque sa maîtresse (qui ai d'ailleurs la tutrice magique de cette dernière) lui demande de récupérer des organes de monstres.\nElle se sent souvent petite, en compagnie de ces puissantes vampires\n\nDire qu'elle est légèrement inspirée serait un euphémisme. Au moins elle utilise pas de dagues",element=ELEMENT_TIME,bonusPoints=[CHARISMA,INTELLIGENCE],icon="<:julie:910185448951906325>"),
-    tmpAllie("Krys",2,purple,TETE_BRULE,krystalFist,[kryscharpe,krysshirt,kryschains],GENDER_OTHER,[krysUlt,earthStrike,mudlame,rocklance],"placeholder.krys.desc",element=ELEMENT_EARTH,icon="<:krys:916118008991215726>",deadIcon='<:krysCan:916117137339322388>',bonusPoints=[ENDURANCE,STRENGTH])
+    tmpAllie("Julie",1,red,ALTRUISTE,julieWeap,[julieHat,julieDress,julieShoes],GENDER_FEMALE,[altOH,infraMedica,julieUlt,timeSp,trans],"La principale (et unique) servante d'une des vampires les plus puissante du pays.\nElle a appris la magie curative à l'aide des nombreux grimoires dans la bibliothèque du manoire, mais il lui arrive souvent de demander de l'aide à Clémence lorsque sa maîtresse (qui ai d'ailleurs la tutrice magique de cette dernière) lui demande de récupérer des organes de monstres.\nElle se sent souvent petite, en compagnie de ces puissantes vampires\n\nDire qu'elle est légèrement inspirée serait un euphémisme. Au moins elle utilise pas de dagues",element=ELEMENT_TIME,bonusPoints=[CHARISMA,INTELLIGENCE],icon="<:julie:910185448951906325>"),
+    tmpAllie("Krys",2,purple,TETE_BRULE,krystalFist,[kryscharpe,krysshirt,kryschains],GENDER_OTHER,[krysUlt,earthStrike,mudlame,rocklance],"placeholder.krys.desc",element=ELEMENT_EARTH,icon="<:krys:916118008991215726>",deadIcon='<:krysCan:916117137339322388>',bonusPoints=[ENDURANCE,STRENGTH]),
+    tmpAllie("Edelweiss",1,white,PREVOYANT,eternalInkScience,[battleShieldHat,battleShieldUnif,battleShieldShoes],GENDER_FEMALE,[preOS,soulagement,haimaSkill,protect,onde],element=ELEMENT_EARTH,icon='<:edelweiss:918451422939451412>',deadIcon="<:flowernt:894550324705120266>",bonusPoints=[INTELLIGENCE,ENDURANCE])
 ]
 
 # Shushi alt spells
 shushiSkill1 = skill("Frappe lumineuse","aaa",TYPE_DAMAGE,0,80,cooldown=3,use=MAGIE,emoji='<a:ShushiLF:900088862871781427>')
 shushiSkill3Eff = effect("Jeu de lumière","diff",redirection=35,trigger=TRIGGER_DAMAGE,description="Un habile jeu de lumière permet de vous cacher de vos ennemis")
 shushiSkill3 = skill("Diffraction","aaa",TYPE_ARMOR,0,0,AREA_CIRCLE_6,effect=shushiSkill3Eff,cooldown=5,initCooldown=2,use=None,emoji='<a:diffraction:916260345054658590>')
-shushiSkill4Eff = effect("Assimilation","assimil",MAGIE,resistance=5,overhealth=35,description="Grâce à Shihu, vous avez réussi à utiliser les Ténèbres environant à votre avantage",emoji=uniqueEmoji("<:tarmor:909134091604090880>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+shushiSkill4Eff = effect("Assimilation","assimil",MAGIE,resistance=5,overhealth=75,description="Grâce à Shihu, vous avez réussi à utiliser les Ténèbres environant à votre avantage",emoji=uniqueEmoji("<:tarmor:909134091604090880>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 shushiSkill4 = skill("Assimilation","aaa",TYPE_ARMOR,0,cooldown=3,effect=shushiSkill4Eff,say='On peut y awiver !',use=MAGIE,emoji='<:assimilation:916260679944634368>')
-shushiWeapEff = effect("Lueur Ténébreuse","darkLight",MAGIE,resistance=5,overhealth=15,type=TYPE_ARMOR,emoji=uniqueEmoji('<:dualMagie:899628510463803393>'))
+shushiWeapEff = effect("Lueur Ténébreuse","darkLight",MAGIE,resistance=5,overhealth=25,type=TYPE_ARMOR,emoji=uniqueEmoji('<:dualMagie:899628510463803393>'))
 shushiWeap = weapon("Magie trancendante","dualMagie",RANGE_LONG,AREA_DONUT_5,35,100,0,strength=-20,endurance=10,charisma=20,intelligence=20,magie=55,type=TYPE_HEAL,target=ALLIES,use=MAGIE,effectOnUse=shushiWeapEff,affinity=ELEMENT_LIGHT,emoji='<:dualMagie:899628510463803393>')
 shushiHat = stuff("Barrête de la cohabitation","dualHat",0,0,strength=-20,endurance=15,charisma=20,agility=10,precision=10,intelligence=20,magie=45,affinity=ELEMENT_LIGHT,emoji='<:coaDress:911659797076660294>')
 shushiDress = stuff("Robe de la cohabitation","dualDress",1,0,strength=-10,endurance=35,charisma=20,agility=0,precision=10,intelligence=10,magie=60,resistance=20,affinity=ELEMENT_LIGHT,emoji='<:coaBar:911659734812229662>')
 shushiBoots = stuff("Bottines de la cohabitation","dualBoost",2,0,strength=-10,endurance=15,charisma=0,agility=20,precision=10,magie=45,intelligence=10,affinity=ELEMENT_LIGHT,emoji='<:coaBoots:911659778995007528>')
 shushiSkill5 = skill("Lumière éternelle","LumEt",TYPE_RESURECTION,0,100,emoji='<:renisurection:873723658315644938>',cooldown=3,description="Permet de ressuciter un allié",use=MAGIE,range=AREA_DONUT_7)
-shushiArmorSkillEff = effect("Armure Harmonique","shushiArmor",MAGIE,overhealth=75,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji("<a:transArmorB:900037831257358378>"))
+shushiArmorSkillEff = effect("Armure Harmonique","shushiArmor",MAGIE,overhealth=85,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji("<a:transArmorB:900037831257358378>"))
 shushiArmorSkill = skill("Armure Harmonique","shushiArmorSkill",TYPE_ARMOR,0,effect=shushiArmorSkillEff,range=AREA_MONO,area=AREA_CIRCLE_5,cooldown=7,use=MAGIE,emoji='<a:transArmorB:900037831257358378>')
 
 shihuDarkBoom1 = copy.deepcopy(explosion)
@@ -479,20 +362,21 @@ aliceExDress = stuff("Robe vampirique","aliceExDress",1,0,endurance=10,resistanc
 aliceExShoes = stuff("Ballerines vampiriques","aliceExShoes",2,0,agility=25,charisma=45,negativeHeal=-35,endurance=5,emoji=aliceShoes.emoji)
 
 aliceExWeapEff = effect("Bénédiction vampirique","aliceExWeapEff",CHARISMA,emoji=uniqueEmoji("<:vampire:900312789686571018>"),power=7,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_AFTER_DAMAGE,description="Cet effect confère **{0}%** de Vol de Vie au porteur.\nLe pourcentage de convertion est augmenté par les statistiques du lanceur")
-aliceExWeap = weapon("Rosa receptaculum","aliceExWeap",RANGE_DIST,AREA_CIRCLE_5,25,100,0,charisma=35,resistance=10,type=TYPE_HEAL,target=ALLIES,effectOnUse=aliceExWeapEff,effect=aliceBloodJauge,emoji='<:vampBall:916199488891273276>')
+aliceExWeap = weapon("Rosa receptaculum","aliceExWeap",RANGE_DIST,AREA_CIRCLE_5,25,100,0,use=CHARISMA,charisma=35,resistance=10,type=TYPE_HEAL,target=ALLIES,effectOnUse=aliceExWeapEff,effect=aliceBloodJauge,emoji='<:vampBall:916199488891273276>')
 aliceSkill1Eff = effect("Régénération vampirique","aliceRegenEff",CHARISMA,power=15,emoji=uniqueEmoji("<a:aliceSkill1:914787461949960202>"),type=TYPE_INDIRECT_HEAL,turnInit=3,lvl=3,area=AREA_CIRCLE_2,description="Au début du tour du porteur, lui et ses alliés proches recoivent des soins",trigger=TRIGGER_START_OF_TURN)
 aliceSkill1 = skill("Sort - Rénégération","aliceSkill1",TYPE_INDIRECT_HEAL,0,0,emoji="<a:aliceSkill1:914787461949960202>",effect=aliceSkill1Eff,cooldown=3)
 aliceSkill2Eff = effect("Galvanision vampirique","aliceBoostEff",CHARISMA,strength=10,magie=10,critical=5,emoji=uniqueEmoji('<a:aliceSkill2:914791502931197962>'))
 aliceSkill2 = skill("Sort - Galvanisation","aliceSkill2",TYPE_BOOST,0,range=AREA_MONO,area=AREA_DONUT_3,effect=aliceSkill2Eff,cooldown=1,emoji='<a:aliceSkill2:914791502931197962>')
 aliceSkill3 = skill("Rune - Flos luminosus","aliceSkill3",TYPE_DAMAGE,0,100,emoji='<a:aliceSkill3:914794172215623690>',cooldown=2,use=CHARISMA)
 aliceSkill4 = skill("Rune - Pleine lune","aliceSkill4",TYPE_HEAL,0,100,AREA_MONO,area=AREA_CIRCLE_3,use=CHARISMA,cooldown=3,emoji='<a:aliceSkill4:914796355925458984>')
-aliceRez = skill("Memento - Voie de l'Ange II","aliceRez",TYPE_RESURECTION,0,250,range=AREA_CIRCLE_7,emoji="<a:memAlice2:908424319900745768>",use=CHARISMA)
+aliceRez = skill("Memento - Voie de l'Ange II","aliceRez",TYPE_RESURECTION,0,250,range=AREA_CIRCLE_7,emoji="<a:memAlice2:908424319900745768>",use=CHARISMA,description="Si plus de la moitié de l'équipe est morte, la zone d'effet de la compétence deviens un cercle de 7 cases autour de Alice, mais consomme l'intégralité de sa jauge de sang")
+aliceRez2 = skill("Memento - Voie de l'Ange III","aliceRez+",TYPE_RESURECTION,0,250,range=AREA_MONO,area=AREA_CIRCLE_7,emoji="<a:memAlice2:908424319900745768>",use=CHARISMA)
 
 tablVarAllies = [
-    tmpAllie("Luna",1,black,POIDS_PLUME,kcharger,[lunaPandan,lunaDress,lunaBoots],GENDER_FEMALE,[defi,splatbomb,balayette,soupledown,highkick],"Là où se trouve la Lumière se trouvent les Ténèbres","https://cdn.discordapp.com/emojis/899120831152680971.png?size=96",ELEMENT_DARKNESS,variant=True,icon='<:luna:909047362868105227>',bonusPoints=[STRENGTH,ENDURANCE],say=lunaSays),
-    tmpAllie("Altikia",2,yellow,PROTECTEUR,inkbrella,[maidHat,yellowpull,maidHeels],GENDER_FEMALE,[ironWillSkill,lightAura2,inkarmor,renisurection,concen],"Une personnalité de Gwen qui préfère se concentrer sur ses alliés","https://cdn.discordapp.com/emojis/906303048542990347.png",ELEMENT_LIGHT,variant=True,bonusPoints=[ENDURANCE,CHARISMA],icon='<:alty:906303048542990347>'),
-    tmpAllie("Klironovia",2,yellow,BERSERK,klikliSword,[darkMaidPendants,FIACNf,blackFlat],GENDER_FEMALE,[defi,demolish,bloodyStrike,trans,highkick],"Une personnalité de Gwen bien plus violente que les deux autres","https://cdn.discordapp.com/emojis/906303031837073429.png",ELEMENT_EARTH,variant=True,bonusPoints=[STRENGTH,AGILITY],icon='<:klikli:906303031837073429>'),
-    tmpAllie("Shihu",1,black,MAGE,darkSpellBook,[shihuHat,shihuDress,shihuShoe],GENDER_FEMALE,[dark2,dark3,shihuDarkBoom2,suppr],"\"Eye veut zuste un pi d'attenchions...\" - Shushi","https://cdn.discordapp.com/emojis/899117502800461824.png?size=96",ELEMENT_DARKNESS,variant=True,icon='<:shihu:909047672541945927>',bonusPoints=[MAGIE,STRENGTH],say=shihuSays),
+    tmpAllie("Luna",1,black,POIDS_PLUME,kcharger,[lunaPandan,lunaDress,lunaBoots],GENDER_FEMALE,[defi,splatbomb,balayette,soupledown,highkick],"Là où se trouve la Lumière se trouvent les Ténèbres",ELEMENT_DARKNESS,variant=True,icon='<:luna:909047362868105227>',bonusPoints=[STRENGTH,ENDURANCE],say=lunaSays),
+    tmpAllie("Altikia",2,yellow,PROTECTEUR,inkbrella,[maidHat,yellowpull,maidHeels],GENDER_FEMALE,[ironWillSkill,lightAura2,inkarmor,renisurection,concen],"Une personnalité de Gwen qui préfère se concentrer sur ses alliés",ELEMENT_LIGHT,variant=True,bonusPoints=[ENDURANCE,CHARISMA],icon='<:alty:906303048542990347>'),
+    tmpAllie("Klironovia",2,yellow,BERSERK,klikliSword,[darkMaidPendants,FIACNf,blackFlat],GENDER_FEMALE,[defi,demolish,bloodyStrike,trans,highkick],"Une personnalité de Gwen bien plus violente que les deux autres",ELEMENT_EARTH,variant=True,bonusPoints=[STRENGTH,AGILITY],icon='<:klikli:906303031837073429>'),
+    tmpAllie("Shihu",1,black,MAGE,darkSpellBook,[shihuHat,shihuDress,shihuShoe],GENDER_FEMALE,[dark2,dark3,shihuDarkBoom2,suppr],"\"Eye veut zuste un pi d'attenchions...\" - Shushi",ELEMENT_DARKNESS,variant=True,icon='<:shihu:909047672541945927>',bonusPoints=[MAGIE,STRENGTH],say=shihuSays),
     tmpAllie("Shushi Cohabitée",1,blue,PREVOYANT,shushiWeap,[shushiHat,shushiDress,shushiBoots],GENDER_FEMALE,[shushiSkill1,shushiArmorSkill,shushiSkill3,shushiSkill4,shushiSkill5],"S'étant comprise l'une et l'autre, Shushi et Shihu ont décidé de se liguer contre la mère de cette dernière.\nCette allié temporaire n'apparait que contre le boss \"Luna\"","https://cdn.discordapp.com/emojis/899608664770506783.png?size=96",ELEMENT_LIGHT,True,icon='<:shushiCoa:915488591654842368>',bonusPoints=[MAGIE,AGILITY]),
     tmpAllie("Alice Exaltée",1,aliceColor,IDOLE,aliceExWeap,[aliceExHeadruban,aliceExDress,aliceExShoes],GENDER_FEMALE,[aliceSkill1,aliceSkill2,aliceSkill3,aliceSkill4,aliceRez],"Voyant qu'elle n'arriverai pas à ramener sa sœur à la raison, Alice a décider d'aller contre ses principes et de révéler toute sa puissance vampirique pour tenter de redresser la balance.\nN'apparait que contre Clémence possédée",element=ELEMENT_LIGHT,variant=True,deadIcon="<:AliceOut:908756108045332570>",icon="<a:aliceExalte:914782398451953685>",bonusPoints=[CHARISMA,ENDURANCE],say=aliceExSays)
 ]
@@ -500,7 +384,7 @@ tablVarAllies = [
 if not(isLenapy):
     print("\nVérification de l'équilibrage des stuffs...")
     allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    for a in stuffs+weapons:
+    for a in stuffs:
         ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
         babie = [a.negativeHeal,a.negativeBoost,a.negativeShield,a.negativeDirect,a.negativeIndirect]
         sumation = 0
@@ -542,7 +426,7 @@ if not(isLenapy):
     lvlTabl.sort(key=lambda ballerine: ballerine["level"])
 
     for temp in lvlTabl:
-        print("Objets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),10 + (temp["level"] * 2)))
+        print("Objets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),20 + (temp["level"] * 2)))
 
     tabl = copy.deepcopy(tablAllAllies)
     tablTank = []
@@ -579,6 +463,20 @@ if not(isLenapy):
     for num in range(3):
         print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
 
+    for weap in weapons:
+        summation = 0
+        for stats in weap.allStats()+[weap.resistance,weap.percing,weap.critical]:
+            if stats < 0:
+                print("{0} : Stat négative détectée !".format(weap.name))
+            else:
+                summation += stats
+
+        toVerif = 30
+        if weap.effect != None or weap.effectOnUse != None:
+            toVerif = 15
+
+        if int(summation) != int(toVerif):
+            print("{0} : Cumule de stats non égal à {1} ({2} / {1})".format(weap.name,toVerif,summation))
     print("\nVérification de l'équilibrage des stuffs terminée")
 
 def findWeapon(WeaponId) -> weapon:
@@ -592,7 +490,7 @@ def findWeapon(WeaponId) -> weapon:
         rep,id = None,WeaponId
 
         if WeaponId.startswith("\n"):
-            id = WeaponId[-2:]
+            id = id.replace("\n","")
         for a in weapons:
             if a.id == id or a.name.lower() == id.lower():
                 rep = a
@@ -610,7 +508,7 @@ def findSkill(skillId) -> skill:
         return None
     else:
         if skillId.startswith("\n"):
-            skillId = skillId[-2:]
+            skillId = id.replace("\n","")
         for a in skills:
             if a.id == skillId or a.name.lower() == skillId.lower():
                 return a
@@ -629,7 +527,7 @@ def findStuff(stuffId) -> stuff:
     else:
         rep,id = None,stuffId
         if stuffId.startswith("\n"):
-            id = stuffId[-2:]
+            id = id.replace("\n","")
         for a in stuffs:
             if a.id == id or a.name.lower() == id.lower():
                 rep = a
@@ -652,18 +550,18 @@ def findEffect(effectId) -> effect:
     
         return rep
 
-def findOther(otherId) -> other:
+def findOther(otherId : Union[str,other]) -> Union[other,None]:
     if type(otherId) == other:
         return otherId
     else:
-        rep,id = None,otherId
-        if otherId.startswith("\n"):
-            id = otherId[-2:]
+        otherId = otherId.replace("\n","")
         for a in others:
-            if a.id == id or a.name.lower() == id.lower():
-                rep = a
-    
-    return rep
+            if a.id == otherId or a.name.lower() == otherId.lower():
+                if otherId == "qj":
+                    print("finded !")
+                return a
+    print("{0} not finded".format(otherId))
+    return None
 
 def findInvoc(name) -> invoc:
     for a in invocTabl:
@@ -698,7 +596,6 @@ def userShopPurcent(user : char):
 
     return 100-(len(tablToSee)/totalShop*100)
 
-print("\nVérification des identifiants...")
 allReadySeen = []
 for obj in stuffs+weapons+skills+others:
     if obj.id not in allReadySeen:
@@ -708,5 +605,4 @@ for obj in stuffs+weapons+skills+others:
         for whaty in stuffs+weapons+skills+others:
             if whaty.id == obj.id:
                 what += whaty.name + ", "
-        print("Identifiant doublon : {1}".format(obj.name,what))
-print("\nVérification des identifiants terminée")
+        raise Exception("Identifiant doublon : {1}".format(obj.name,what))

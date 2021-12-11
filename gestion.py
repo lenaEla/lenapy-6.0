@@ -1,6 +1,5 @@
 import os,discord,random,sqlite3
-from typing import Union, List
-
+from typing import Union
 import discord_slash
 from classes import *
 from adv import findWeapon,findOther,findSkill,findStuff
@@ -161,7 +160,7 @@ def saveGuildSettings(path : str, server : server):
 def saveCharFile(path : str, char : char):
     #try:
     saved = ""
-    for a in [char.owner,char.name,char.level,char.exp,char.currencies,char.species,char.color,char.team,int(char.customColor)]:
+    for a in [char.owner,char.name,char.level,char.exp,char.currencies,char.species,char.color,char.team,int(char.customColor),char.colorHex]:
         saved += str(a)+";"
     saved += "\n"
     for a in [char.strength,char.endurance,char.charisma,char.agility,char.precision,char.intelligence,char.magie,char.aspiration,char.gender]:
@@ -172,7 +171,7 @@ def saveCharFile(path : str, char : char):
     for a in char.bonusPoints:
         saved += str(a)+";"
     saved += "\n"
-    saved += (char.weapon.id) +";\n"
+    saved += char.weapon.id +";\n"
     for a in char.weaponInventory:
         saved += a.id+";"
     saved += "\n"
@@ -187,6 +186,11 @@ def saveCharFile(path : str, char : char):
     saved += "\n"
     for a in char.stuff:
         saved += a.id+";"
+    for a in [char.apparaWeap,char.apparaAcc]:
+        if a != None:
+            saved += a.id+";"
+        else:
+            saved += "0;"
     saved += "\n"
     for a in char.stuffInventory:
         saved += a.id+";"
@@ -212,31 +216,37 @@ def saveCharFile(path : str, char : char):
         #return False
 
 def loadCharFile(path,ctx="useless") -> char:
-    """The Ctx option == there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used"""
+    """
+        Return a ``char`` object loaded from the file at ``path``\n
+        .ctx : there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used
+    """
     file = readSaveFiles(path)
-    rep = char(owner = int(file[0][0]))
-    rep.name = file[0][1]
-    rep.level = int(file[0][2])
-    rep.exp = int(file[0][3])
-    rep.currencies = int(file[0][4])
-    rep.species = int(file[0][5])
-    rep.color = int(file[0][6])
-    rep.team = int(file[0][7])
-    try:
+    rep = char(owner = int(file[0][0]))                     # Owner
+    rep.name = file[0][1]                                   # Name
+    rep.level = int(file[0][2])                             # Level
+    rep.exp = int(file[0][3])                               # Exp
+    rep.currencies = int(file[0][4])                        # Currencies
+    rep.species = int(file[0][5])                           # Species
+    rep.color = int(file[0][6])                             # Color
+    rep.team = int(file[0][7])                              # Team id
+    try:                                                    # Custom color
         rep.customColor = bool(int(file[0][8]))
     except:
         rep.customColor = False
-    
-    try:
+    try:                                                    # Gender I guess ?
         rep.gender = int(file[1][8])
     except:
         rep.gender = int(file[1][7])
         file[1][7] = file[1][6]
         file[1][6] = 0
-
+    try:
+        rep.colorHex = file[0][9]
+    except:
+        rep.colorHex = "None"
+    # Stats
     rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
     rep.resistance,rep.percing,rep.critical,rep.points = int(file[2][0]),int(file[2][1]),int(file[2][2]),int(file[2][3])
-    try:
+    try:                                                    # Bonus points
         temp = []
         for a in file[2][4:11]:
             temp += [int(a)]
@@ -246,20 +256,17 @@ def loadCharFile(path,ctx="useless") -> char:
             rep.bonusPoints = temp[0:6]+[0]+temp[6:]
     except:
         rep.bonusPoints = [0,0,0,0,0,0,0]
-    rep.weapon = findWeapon(file[3][0])
+    rep.weapon = findWeapon(file[3][0])                     # Weapon
     cmpt,temp = 0,[]
-    while cmpt < len(file[4]):
+    while cmpt < len(file[4]):                              # Weapon Inventort
         temp += [findWeapon(file[4][cmpt])]
         cmpt += 1
     rep.weaponInventory = sorted(temp,key=lambda weapon : weapon.name)
-
-    try:                        # Equiped Skills
+    try:                                                    # Equiped Skills
         cmpt,temp = 0,[]
         while cmpt < len(file[5]):
-            if len(file[5][cmpt])>2:
-                file[5][cmpt] = file[5][cmpt][-2:]
             if file[5][cmpt] != "0":
-                temp += [findSkill(file[5][cmpt])]
+                temp += [findSkill(file[5][cmpt].replace("\n",""))]
             else:
                 temp += ["0"]
             cmpt += 1
@@ -270,8 +277,7 @@ def loadCharFile(path,ctx="useless") -> char:
     #try:
     cmpt,temp = 0,[]
     while cmpt < len(file[6]):
-        if len(file[6][cmpt]) > 2:
-            file[6][cmpt] = file[6][cmpt][-2:]
+        file[6][cmpt] = file[6][cmpt].replace("\n","")
         temp += [findSkill(file[6][cmpt])]
         cmpt += 1
     rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
@@ -280,7 +286,7 @@ def loadCharFile(path,ctx="useless") -> char:
 
     try:                        # Equiped Stuff
         cmpt,temp = 0,[]
-        while cmpt < len(file[7]):
+        while cmpt < 3:
             if len(file[7][cmpt]) > 2:
                 file[7][cmpt] = file[7][cmpt][-2:]
             temp += [findStuff(file[7][cmpt])]
@@ -288,6 +294,21 @@ def loadCharFile(path,ctx="useless") -> char:
         rep.stuff = temp
     except:
         rep.stuff = [bbandeau,bshirt,bshoes]
+
+    try:
+        if file[7][3] != "0":
+            rep.apparaWeap = findWeapon(file[7][3])
+        else:
+            rep.apparaWeap = None
+    except:
+        rep.apparaWeap = None
+    try:
+        if file[7][4] != "0":
+            rep.apparaAcc = findStuff(file[7][4])
+        else:
+            rep.apparaAcc = None
+    except:
+        rep.apparaAcc = None
 
     try:                        # Stuff inventory
         cmpt,temp = 0,[]
@@ -303,8 +324,8 @@ def loadCharFile(path,ctx="useless") -> char:
     try:
         cmpt,temp = 0,[]
         while cmpt < len(file[9]):
-            if len(file[9][cmpt]) > 2:
-                file[9][cmpt] = file[9][cmpt][-2:]
+
+            file[9][cmpt] = file[9][cmpt].replace("\n","")
             temp += [findOther(file[9][cmpt])]
             cmpt += 1
         rep.otherInventory = temp
@@ -435,46 +456,6 @@ def loadCharFile(path,ctx="useless") -> char:
 
     return rep
 
-def quickLoadCharFile(path : str):
-    """A quicker function for load partial char object. Very usefull for give the exp and coins where someone talk. If I had to load a entire profile everytime than Flora spam in her guild, the CPU would not like it at all"""
-    file = open(path)
-    fileFiles = file.readlines()
-
-    rep,temp = [],""
-    for a in fileFiles[0]:
-        if a == ";":
-            rep += [temp]
-            temp = ""
-        else:
-            temp = temp + a
-
-    if len(rep)<9:
-        rep += [False]
-
-    temp = "\n"
-    for a in fileFiles[1:]:
-        if a != []:
-            temp += a
-
-    rep += [temp]
-
-    rep2 = char(owner = int(rep[0]))
-    rep2.name = rep[1]
-    rep2.level = int(rep[2])
-    rep2.exp = int(rep[3])
-    rep2.currencies = int(rep[4])
-    rep2.species = int(rep[5])
-    rep2.color = int(rep[6])
-    rep2.team = rep[7]
-    rep2.customColor = bool(int(rep[8]))
-    return [rep2,rep[9]]
-
-def quickSaveCharFile(path : str, quickUser : list):
-    """For saving the partial char object loaded with quickLoadCharFile"""
-    user = quickUser[0]
-    rep = f"{str(user.owner)};{user.name};{str(user.level)};{str(user.exp)};{str(user.currencies)};{str(user.species)};{str(user.color)};{user.team};{int(user.customColor)};{quickUser[1]}"
-    rewriteFile(path,rep)
-
 def checkIsBotChannel(ctx : discord.Message, guild,bot : discord.Client):
     if guild.bot > 0:
         if ctx.channel == bot.get_channel(guild.bot):
@@ -516,24 +497,6 @@ def getEmojiInfo(emoji : str):
 def getEmojiObject(emoji : str):
     temp = getEmojiInfo(emoji)
     return {"name":temp[0],"id":temp[1]}
-
-def hex_to_rgb(value : str):
-    value = value[2:]
-    if len(value)<6:
-        value = "00"+value
-    lv = len(value)
-    try:
-        return tuple(int(value[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
-    except:
-        return None
-
-def convertStrtoHex(string : str):
-    hex_string = string.lstrip('#')
-    try:
-        an_integer = int(hex_string, 16)
-        return an_integer
-    except:
-        return None
 
 async def loadingSlashEmbed(ctx : discord_slash.SlashContext):
     """Send a loading embed from a slash command"""
@@ -670,10 +633,8 @@ def loadAdvDutyFile(actName : str, dutyName : str) -> duty:
     .actName : The name of the main act of the duty\n
     .dutyName : The name of the duty"""
 
-    if dutyName.endswith(".txt"):
-        dutyName = dutyName[:-3]
     dutyTextList = []
-    file = open("./data/advScriptTxt/{0}/{1}.txt".format(actName,dutyName))
+    file = open("./data/advScriptTxt/{0}/{1}.txt".format(actName,dutyName.replace(".txt","")))
     text, ref = "",""
     fileContent = file.readlines()
     for line in fileContent:
@@ -715,4 +676,5 @@ def loadAdvDutyFile(actName : str, dutyName : str) -> duty:
                 text += car
 
     dut = duty(actName,dutyName,dutyTextList)
+    file.close()
     return dut

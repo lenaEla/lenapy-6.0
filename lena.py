@@ -1,7 +1,7 @@
 ##########################################################
 # Importations :
 import asyncio
-import discord, random, os, emoji, datetime,sys
+import discord, random, os, emoji, datetime, sys, shutil
 from discord_slash.model import SlashCommandOptionType,ButtonStyle
 
 from data.database import *
@@ -50,6 +50,7 @@ existDir(absPath + "/data/images/char_icons/")
 existDir(absPath + "/data/patch/")
 existDir(absPath + "/data/fightLogs/")
 existDir(absPath + "/data/images/elemIcon/")
+existDir(absPath + "/data/backups/")
 
 if not(os.path.exists("./data/advScriptTxt/")):
     raise Exception("Missing folder error : advScriptTxt do not exist")
@@ -70,8 +71,6 @@ guilds = list(range(0,len(listGuildSet)))
 ###########################################################
 # Initialisation
 allShop = weapons + skills + stuffs + others
-
-
 
 class shopClass:
     def __init__(self,shopList : list):
@@ -96,7 +95,7 @@ class shopClass:
                         self.shopping[a] = findStuff(shopList[a])
                     elif nani == 3:
                         self.shopping[a] = findOther(shopList[a])
-    
+
     async def newShop(self):
         shopping = list(range(0,len(self.shopping)))
         ballerine = datetime.datetime.now() + (datetime.timedelta(hours=3)+horaire)
@@ -249,6 +248,7 @@ async def inventoryVerif(bot):
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
 
+
 async def restart_program(bot : discord.Client, ctx=None):
     if ctx != None:
         msg = await ctx.send(embed = discord.Embed(title="Redémarrage en attente...",description="Vérifications des équipes en combat..."))
@@ -266,7 +266,9 @@ async def restart_program(bot : discord.Client, ctx=None):
         for team in os.listdir("./userTeams/"):
             if teamWinDB.isFightingBool(int(team[:-5])):
                 if firstIt:
-                    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Un combat est encore en cours <a:loading:862459118912667678>"))
+                    teamTemp = readSaveFiles("./userTeams/"+team)[0]
+                    us = await bot.fetch_user(teamTemp[0])
+                    await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Un combat est encore en cours <a:loading:862459118912667678> ({0})".format(us.mention)))
                     firstIt = False
                 fighting = True
                 break
@@ -282,6 +284,35 @@ async def restart_program(bot : discord.Client, ctx=None):
     if sys.platform == 'win32':
         args = ['"%s"' % arg for arg in args]
     os.execv(sys.executable, args)
+
+def create_backup():
+    now = datetime.datetime.now()
+    nowStr = now.strftime("%Y%m%d_%H%M")
+    path = "./data/backups/"+nowStr
+    try:
+        os.mkdir(path)
+    except:
+        pass
+
+    for charFile in os.listdir("./userProfile/"):
+        shutil.copy('./userProfile/{0}'.format(charFile),path+"/"+charFile)
+    
+    return "Un backup a été sauvegardé à la destinaiton suivante :\n"+path
+
+def delete_old_backups():
+    now = datetime.datetime.now()
+    temp = ""
+    for name in os.listdir("./data/backups/"):
+        timeBUp = datetime.datetime.strptime(name,"%Y%m%d_%H%M")
+        if now > timeBUp+datetime.timedelta(days=3):
+            for files in os.listdir("./data/backups/{0}/".format(name)):
+                os.remove("./data/backups/{0}/{1}".format(name,files))
+            try:
+                os.remove("./data/backups/{0}".format(name))
+                temp+="./data/backups/{0} a été supprimé\n".format(name)
+            except:
+                temp+="./data/backups/{0} n'a pas pu être supprimé\n".format(name)
+    return temp
 
 @tasks.loop(seconds=1)
 async def oneClock():
@@ -314,6 +345,11 @@ async def hourClock():
                 print("{0} n'a pas pu être supprimé".format("./data/fightLogs/"+log))
 
     if tick.hour == 4:
+        chan = await bot.fetch_channel(912137828614426707)
+        await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=create_backup()))
+        temp = delete_old_backups()
+        if temp != "":
+            await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=delete_old_backups()))
         await restart_program(bot)
 
     # Skill Verif
@@ -510,12 +546,15 @@ async def on_message(ctx : discord.message.Message):
                             except:
                                 None
                 elif args[1] == "motherlode":
-                    mention = ctx.mentions[0]
-                    pathUserProfile = absPath + "/userProfile/" + str(mention.id) + ".prof"
-                    user = quickLoadCharFile(pathUserProfile)
-                    user[0].currencies = user[0].currencies + 50000
-
-                    quickSaveCharFile(pathUserProfile,user)
+                    try:
+                        mention = ctx.mentions[0]
+                        pathUserProfile = absPath + "/userProfile/" + str(mention.id) + ".prof"
+                        user = loadCharFile(pathUserProfile)
+                        user.currencies = user.currencies + 50000
+                        saveCharFile(pathUserProfile,user)
+                        await ctx.add_reaction('<:goodPileOfCoins:918042081224716309>')
+                    except:
+                        await ctx.add_reaction('❌')
                 elif args[1] == "forceRestat":
                     if args[2] == "all":
                         for a in os.listdir(absPath + "/userProfile/"):
@@ -830,7 +869,10 @@ async def on_message(ctx : discord.message.Message):
         else:
             pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
             if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
-                await addExpUser(bot,guild,pathUserProfile,ctx,3,3)
+                try:
+                    await addExpUser(bot,guild,pathUserProfile,ctx,3,3)
+                except:
+                    print("Erreur dans la gestion du message de {0}".format(ctx.author.name))
 
 # encyclopedia ----------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
@@ -1227,7 +1269,7 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
                 nom = nom[0:-1]
 
             if whatIsThat(nom) == None:
-                research = weapons[:]+skills[:]+stuffs[:]+others[:]
+                research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token]
                 lastResarch = []
                 nameTempCmpt,lenName = 0, len(nom)
                 while 1:
@@ -1276,8 +1318,17 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
 
                         nom = respond.values[0]
                         await msg.edit(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
-                        break           
-            
+                        break
+
+            if nom == token.name:
+                obj = token
+                repEmb = infoOther(obj,user)
+                try:
+                    await ctx.send(embed = repEmb,components=[])
+                except:
+                    await ctx.channel.send(embed = repEmb,components=[])
+                return 0
+
             nom = [nom,None]
 
         else:
@@ -1309,9 +1360,8 @@ async def teamView(ctx,joueur=None):
         pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
 
     if os.path.exists(pathUserProfile):
-        user = quickLoadCharFile(pathUserProfile)
-        user = user[0]
-        pathTeam = absPath + "/userTeams/" + user.team +".team"
+        user = loadCharFile(pathUserProfile)
+        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
         msg = await loadingSlashEmbed(ctx)
         if user.team == "0":
             if int(user.owner) == int(ctx.author.id):
@@ -1363,10 +1413,9 @@ async def teamView(ctx,joueur=None):
 async def teamAdd(ctx,joueur):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = quickLoadCharFile(pathUserProfile)
-        Qsave = user[1]
-        user = user[0]
-        pathTeam = absPath + "/userTeams/" + user.team +".team"
+        user = loadCharFile(pathUserProfile)
+
+        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
         msg = await loadingSlashEmbed(ctx)
 
         if not(os.path.exists(pathTeam) and user.team != "0"):
@@ -1374,9 +1423,9 @@ async def teamAdd(ctx,joueur):
             pathTeam = absPath + "/userTeams/" + rdm +".team"
             rewriteFile(pathTeam,f"{str(user.owner)};")
             user.team = rdm
-            quickSaveCharFile(pathUserProfile,[user,Qsave])
+            saveCharFile(pathUserProfile,user)
 
-        noneCap,selfAdd,temp = True,False,readSaveFiles(absPath + "/userTeams/" + user.team +".team")
+        noneCap,selfAdd,temp = True,False,readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")
 
         if len(temp[0]) >= 8:
             noneCap = False      
@@ -1387,11 +1436,10 @@ async def teamAdd(ctx,joueur):
         if noneCap and not(selfAdd):
             mention = joueur
             if os.path.exists(absPath + "/userProfile/" + str(mention.id) + ".prof"):
-                allReadyinTeam,allReadyInThatTeam,mate = False, False,quickLoadCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof")
-                
-                if mate[0].team != "0":
+                allReadyinTeam,allReadyInThatTeam,mate = False, False,loadCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof")
+                if mate.team != "0":
                     allReadyinTeam = True
-                    if mate[0].team == user.team:
+                    if mate.team == user.team:
                         allReadyInThatTeam = True
 
 
@@ -1407,7 +1455,7 @@ async def teamAdd(ctx,joueur):
                         reaction = await bot.wait_for("reaction_add",timeout=60,check=checkisIntendedUser)
                         if str(reaction[0]) == emoji.check:
                             mate[0].team = user.team
-                            quickSaveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
+                            saveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
 
                             file = readSaveFiles(pathTeam)
                             file[0] += [str(mention.id)]
@@ -1430,10 +1478,8 @@ async def teamAdd(ctx,joueur):
 async def teamQuit(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = quickLoadCharFile(pathUserProfile)
-        Qsave = user[1]
-        user = user[0]
-        pathTeam = absPath + "/userTeams/" + user.team +".team"
+        user = loadCharFile(pathUserProfile)
+        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
 
     if user.team != "0":
         team = readSaveFiles(pathTeam)
@@ -1442,7 +1488,7 @@ async def teamQuit(ctx):
 
         saveSaveFiles(pathTeam,team)
         await ctx.send(embed = discord.Embed(title = "/team quit",color = user.color, description = "Vous avez bien quitté votre équipe"))
-        quickSaveCharFile(pathUserProfile,[user,Qsave])
+        saveCharFile(pathUserProfile,user)
     else:
         await ctx.send(embed = errorEmbed("/team quit","Vous n'avez aucune équipe à quitter"))
 
@@ -1451,10 +1497,8 @@ async def teamQuit(ctx):
 async def teamFact(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = quickLoadCharFile(pathUserProfile)
-        Qsave = user[1]
-        user = user[0]
-        pathTeam = absPath + "/userTeams/" + user.team +".team"
+        user = loadCharFile(pathUserProfile)
+        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
 
     if user.team != "0":
         team = readSaveFiles(pathTeam)
@@ -1905,7 +1949,19 @@ async def remakeCustomEmoji(ctx):
     ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
     await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
 
-@slash.slash(name="Kikimeter",description="Permet de voir le top 5 de chaques catégories",guild_ids=[912137828614426704],options=[create_option(name="what",description="Que regarder",option_type=str,required=True,choices=[create_choice("total","total"),create_choice("max","max")])])
+@slash.subcommand(base="admin",subcommand_group="backup",name="new",description="Permet de réaliser un backup des profiles de personnages",guild_ids=[912137828614426704])
+async def adminBackup(ctx):
+    temp = create_backup()
+    try:
+        await ctx.send(embed=discord.Embed(title="__Admin : Backups__",color=light_blue,description=temp))
+    except:
+        await ctx.channel.send(embed=discord.Embed(title="__Admin : Backups__",color=light_blue,description=temp))
+
+if isLenapy:
+    tabl=[912137828614426704,405331357112205326]
+else:
+    tabl=[912137828614426704]
+@slash.slash(name="Kikimeter",description="Permet de voir le top 5 de chaques catégories",guild_ids=tabl,options=[create_option(name="what",description="Que regarder",option_type=str,required=True,choices=[create_choice("total","total"),create_choice("max","max")])])
 async def kikimeterCmd(ctx,what):
     listAllChars = []
     for text in os.listdir("./userProfile/"):
@@ -1939,15 +1995,25 @@ async def dutyStart(ctx):
         user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
     except:
         still = False
-        await ctx.send(embed=discord.Embed(title="__Erreur :__",description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"),delete_after=15)
+        await ctx.send(embed=discord.Embed(title="__Commande de l'Aventure :__",description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"),delete_after=15)
     
     if still:
         actName, dutyName, msg = await adventureDutySelect(bot,ctx,user)
         await msg.edit(embed = discord.Embed(title="__Mission sélectionnée__",color=light_blue,description="Vous avez sélectioné la mission \"{0} - {1}\"".format(actName,dutyName[0].upper()+dutyName[1:].lower())),components=[])
 
+@slash.slash(name="roulette",description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
+async def rouletteSlash(ctx):
+    try:
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+    except:
+        await ctx.send(embed=discord.Embed(title="__Commande de l'Aventure :__",description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"),delete_after=15)
+        return 0
+
+    await roulette(bot, ctx, user)
+
 ###########################################################
 # Démarrage du bot
-if os.path.exists("../Kawi/"):
+if not(isLenapy):
     print("\nKawiiiiii")
     bot.run(shushipy)
 else:

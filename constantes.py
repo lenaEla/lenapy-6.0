@@ -246,7 +246,7 @@ ELEMENT_DARKNESS = 6
 ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
 
-elemEmojis = ["<:neutral:887847377917050930>","<:fire:887847475203932261>","<:water:887847459211079760>","<:air:887847440932290560>","<:earth:887847425459503114>","<:light:887847410141921362>","<:darkness:887847395067568128>",'<:astral:907467653147410475>','<:temporel:907467620930973707>']
+elemEmojis = ["<:neutral:887847377917050930>","<:fire:918212781168275456>","<:water:918212797320536124>","<:air:918592529480446002>","<:earth:918212824805801984>","<:light:918212861757653053>","<:darkness:918212877419175946>",'<:space:918212897967075329>','<:time:918212912408051814>']
 elemDesc = [
     "L'élément Neutre (<:neutral:887847377917050930>) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête",
     "L'élément Feu (<:fire:887847475203932261>) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\nPénétration : + 5\nDégâts zones et distance simultanément : +10%",
@@ -259,6 +259,9 @@ elemDesc = [
     "L'élément Temporel (<:temporel:907467620930973707>) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue\n\n10% des soins et armures donnés à autruit vous sont restitués en temps qu'__<:tempoShield:907467936975945758> Armure Temporelle__ (La valeur des soins et armures n'est pas modifiée)\n\n__<:tempoShield:907467936975945758> Armure Temporelle :__\nDurée infinie. Cette armure n'absorbe pas de dégâts supplémentaires lors de sa destruction"
 ]
 elemNames = ["Neutre","Feu","Eau","Air","Terre","Lumière","Ténèbre","Astral","Temporel"]
+
+AOEDAMAGEREDUCTION = 0.35
+AOEMINDAMAGE = 0.2
 
 
 def uniqueEmoji(emoji):
@@ -276,7 +279,7 @@ ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]
 
 stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667,914608569284964392]
-weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261,916120008948600872]
+weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261,916120008948600872,911731670972002374]
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):
@@ -453,11 +456,22 @@ jevilSays = says(
 )
 
 lunaBossSays = says(
-    start="`Soupir` Je pensais pas te voir parmis eux, Shihu",
-    onKill="Laisse les Ténèbres de ton âme prendre le dessus",
-    redWinAlive="Je vous souhaite une bonne nuit. Une nuit éternelle !",
-    redLoose="Tsp. Vous ne faites que repousser l'inévitable"
+    start="Vous tenez tant que ça à vous mettre en travers de mon chemin ?\nSoit. Je vais vous montrer qu'un prêtresse des Ténèbres peut faire !",
+    onKill="Disparait dans les ombres.",
+    onDeath="Aha-",
+    redWinAlive="Vous n'êtes pas les premiers. Et certainement pas les derniers.",
+    redLoose="Mhf... Quand cesserez vous de suivre aveuglément cette Lumière corruptrice..."
 )
+
+lunaDesc ="""Luna est la conscience qu'ont aquis les Ténèbres injectés dans Lena par Gaster, dans leur dimension origielle (à Gaster et Luna, pas à Lena vu qu'elle vient d'ailleurs)
+
+Dans cette dimension, les rapports entre la Lumière et les Ténèbres étaient inversés. C'était ces derniers qui permettaient aux habitants de voir et vitre, tandis que la Lumière représentait ce que nous apellons \"Obscurité\"
+Luna a hérité du désir de destruction du monde corrompu qu'était le leur de Gaster lorsque celui-ci a utilisée Lena comme moyen de sortir de cette boucle génocidaire engagée par Chara, et le moins qu'on puisse dire c'est qu'elle y ai parvenu
+
+Avec une puissance dépassant toutes les simulations de Gaster (qui n'avait pas prit en compte le status de personnage principal de Lena mais ça il pouvait pas savoir), Luna a effectivement brisé l'emprise que portait Le Premier Humain sur la dimention, mais a énormément déséquilibré l'équilibre entre les Ténèbres et la Lumière de cette dernière, ce qui causa plusieurs perturbations dans l'Espace Temps lui-même qui déchirèrent la dimension.
+Cependant, puisqu'elle n'avait été crée que dans un seul but, la réalisation de celui-ci n'arrêta pas du tout Luna, qui commença à voir la Lumière et dimensions qui l'idolait comme une corruption de l'équilibre du multi-verse, qu'elle estime être son devoir en temps que Prêtresse des Ténèbres de supprimer.
+
+Bien que Lena soit parcevenu à reprendre le contrôle, Luna n'en a pas abandonné des dessins pour autant, et son manque de consistance ainsi que son caractère têtu et compulsif l'empêche de vraiment se concentrer très longtemps sur autre chose, au dame de sa propre fille"""
 
 shushiAltSays = says(
     start="Dézolé Miman... Mais on peut pa ti laizer fire.",

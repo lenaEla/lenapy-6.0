@@ -3,9 +3,9 @@ base classes module
 Here are grouped up the bases classes of the bot, and some very basic functions
 """
 
-import emoji,pathlib,copy
+import emoji,pathlib,copy,random
 from constantes import *
-from typing import List
+from typing import List, Union
 
 absPath = str(pathlib.Path(__file__).parent.resolve())
 
@@ -66,7 +66,7 @@ class option:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say=""):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False):
         """rtfm"""
         self.name = name
         self.say = say
@@ -153,7 +153,7 @@ class weapon:
         if expectPrice != price and price != 0:
             self.price = expectPrice
 
-        if self.type == TYPE_DAMAGE and self.power != 0 and sussess != 0:
+        if self.type == TYPE_DAMAGE and self.power != 0 and sussess != 0 and not(ignoreAutoVerif):
             expectation = 75 - 5*effectiveRange
 
             if self.area != AREA_MONO:
@@ -177,12 +177,12 @@ class weapon:
         """Return a list with the mains stats of the weapon"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
-mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,31,45,0,10,agility=10,repetition=5,emoji = emoji.fist)
-splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,agility=10,charisma=5,strength=5,repetition=5,emoji = emoji.splatJr)
+mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,31,45,0,strength=15,agility=15,repetition=5,emoji = emoji.fist)
+splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,agility=10,charisma=10,strength=10,repetition=5,emoji = emoji.splatJr)
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1):
+    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0):
         """rtfm"""
         self.name = name                                # Name of the skill
         self.repetition = repetition                    # The number of hits it does
@@ -190,6 +190,11 @@ class skill:
         self.id = id                                    # The id of the skill.  Idealy, unique
         self.type = types                               # The type of the skill. See constante.types
         self.power = power                              # Power of the skill. Use for damage and healing skills
+        self.knockback = knockback
+
+        if range == AREA_MONO and area != AREA_MONO and types == TYPE_DAMAGE:
+            self.power = int(power * (1+AOEDAMAGEREDUCTION))
+
         self.price = price                              # Price. 0 if the skill can't be drop or bought
         self.conditionType = 0
         self.condition = conditionType
@@ -380,15 +385,15 @@ class stuff:
                 else:
                     self.orientation = orientation[0] + " - "+orientation[1]
 
+        cmpt = 0
         summation = 0
-        for stat in [self.strength,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.percing,self.percing,self.critical]+[self.endurance,self.resistance]:
+        for stat in [strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,negativeHeal*-1,negativeBoost*-1,negativeShield*-1,negativeDirect*-1,negativeIndirect*-1]:
             if stat > 0:
                 summation += stat
-        for stat in [self.negativeHeal,self.negativeBoost,self.negativeShield,self.negativeDirect,self.negativeIndirect]:
-            if stat < 0:
-                summation += abs(stat)
 
-        cmpt = 0
+        if effect != None:
+            summation += 15
+
         while 20 + cmpt * 10 < summation:
             cmpt += 1
         self.minLvl = cmpt * 5
@@ -424,20 +429,19 @@ class effect:
         self.power = power                  # The base power for heals and indirect damages
         self.lvl = lvl                      # How many times can the effect trigger ?
         self.type = type                    # The type of the effect
-        self.ignoreImmunity = ignoreImmunity    # Does the damage of this effect ignore immunities ?
+        self.ignoreImmunity:bool = ignoreImmunity    # Does the damage of this effect ignore immunities ?
         self.area=area                      # The area of effect of the effect
-        self.unclearable = unclearable      # Does the effect is unclearable ?
-        self.stun = stun                    # Does the effect is a stun effect ?
-        self.stackable = stackable          # Does the effect is stackable ?
-        self.replica = replique             # Does the effect is a replica of a skill ?
-        self.replicaTarget = None           # The Target of the replica
-        self.translucide = translucide      # Does the effect make the entity translucide ?
-        self.untargetable = untargetable    # Does the effect make the entity untargetable ?
-        self.invisible = invisible
+        self.unclearable:bool = unclearable      # Does the effect is unclearable ?
+        self.stun:bool = stun                    # Does the effect is a stun effect ?
+        self.stackable:bool = stackable          # Does the effect is stackable ?
+        self.replica:Union[None,skill] = replique             # Does the effect is a replica of a skill ?
+        self.translucide:bool = translucide      # Does the effect make the entity translucide ?
+        self.untargetable:bool = untargetable    # Does the effect make the entity untargetable ?
+        self.invisible:bool = invisible
         self.aggro = aggro
-        self.lightShield = lightShield
-        self.absolutShield = absolutShield
-        self.onDeclancher = onDeclancher
+        self.lightShield:bool = lightShield
+        self.absolutShield:bool = absolutShield
+        self.onDeclancher:bool = onDeclancher
 
         if emoji == None:
             if self.type in [TYPE_BOOST]:
@@ -484,9 +488,27 @@ bshirt = stuff("Tee-shirt du débutant","hb",1,0,resistance=5,strength=5,agility
 bshoes = stuff("Chaussures du débutant","hc",2,0,agility=5,endurance=5,charisma=10,emoji="<:bshoes:867156725945073694>")
 
 class char:
-    """The most important class. Store the data of a character"""
+    """
+        The most important class. Store the data of a character\n
+        Attributs :\n
+        .owner : The owner id of the character
+        .name : The name of the character
+        .level : The level of the character
+        .exp : The exp of the character for the current level
+        .currencies : The amount of coins the character owns
+        .species : The species of the character. ``1`` for Inkling, ``2`` for Octaling
+        .color : The color of the character
+        .team : The character's team ID
+        .gender : The gender of the character. Only use for according messages
+        .strength -> .critical : The main stats of the characters
+            -> A character do not have Action Stats by them self, for now
+        .aspiration : A ``int`` who represent the character aspiration
+        .points : The number of bonus points the character can attribuate
+        .weapon : The ``weapon`` used by the character
+        .weaponInventory : The ``list`` of ``weapon`` objects own by the character
+        .skills : A ``list`` of the equiped ``skill`` objects by the character
+    """
     def __init__(self,owner,name = "",level = 1,species=0,color=red):
-        """rtfm. realy."""
         self.owner = owner
         self.name = str(name)
         self.level = int(level)
@@ -514,6 +536,9 @@ class char:
         self.element = ELEMENT_NEUTRAL
         self.deadIcon = None
         self.says = says()
+        self.apparaWeap = None
+        self.apparaAcc = None
+        self.colorHex = None
 
     def have(self,obj):
         """Verify if the character have the object Obj"""
@@ -578,8 +603,8 @@ for num in range(0,10):
 
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement")
 
-textBaliseAtReplace = ["[Lena]","Ã©","Ã","à§"]
-textBaliseToReplace = ["<:lena:909047343876288552>","é","à","ç"]
+textBaliseAtReplace = ["Ã©","Ã","à§"]
+textBaliseToReplace = ["é","à","ç"]
 
 if len(textBaliseAtReplace) != len(textBaliseToReplace):
     raise Exception("len(textBaliseAtReplace) != len(textBaliseToReplace)")
@@ -608,6 +633,7 @@ class duty:
         self.name = name
         self.dutyTextList = dutyTextList
         self.cmpt = -1
+        self.team = []
 
     def __str__(self):
         return self.name
@@ -627,4 +653,202 @@ class duty:
             raise Exception("Duty {0} error : dutyTextList index under 0".format(self))
         return self.dutyTextList[self.cmpt]
 
+    def actText(self):
+        """Return the actual ``dutyText``"""
+        return self.dutyTextList[self.cmpt]
 
+    def addTeam(self,team : list):
+        self.team = team
+
+octoEmpty1 = stuff("placeolder","ht",0,0)
+octoEmpty2 = stuff("placeolder","hu",0,0)
+octoEmpty3 = stuff("placeolder","hv",0,0)
+
+class octarien:
+    def __init__(
+            self,
+            name:str,
+            maxStrength:int,
+            maxEndurance:int,
+            maxCharisma:int,
+            maxAgility:int,
+            maxPrecision:int,
+            maxIntelligence:int,
+            maxMagie:int,
+            resistance:int,
+            percing:int,
+            critical:int,
+            weapon:weapon,
+            exp:int,
+            icon:str,
+            skill:List[Union[skill,str,None]] =["0","0","0","0","0"],
+            aspiration:int=INVOCATEUR,
+            gender:int=GENDER_OTHER,
+            description:str="",
+            deadIcon:Union[str,None]=None,
+            oneVAll:bool = False,
+            say:says=says(),
+            baseLvl:int = 1,
+            rez:bool=True,
+            element:int = ELEMENT_NEUTRAL
+        
+        ):
+        self.name = name
+        self.species = 3
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,maxMagie
+        self.resistance,self.percing,self.critical = resistance,percing,critical
+        self.aspiration = aspiration
+        self.weapon = weapon
+        self.skills = skill
+        while len(self.skills) < 5:
+            self.skills+=["0"]
+
+        self.skillsInventory = []
+        self.color = red
+        self.level = 1
+        self.stuff = [octoEmpty1,octoEmpty2,octoEmpty3]
+        self.exp = exp
+        self.icon = icon
+        self.gender = gender
+        self.description = description
+        self.element = element
+        self.deadIcon = deadIcon
+        self.oneVAll = oneVAll
+        self.says = say
+        self.baseLvl = baseLvl
+        self.rez = rez
+        self.bonusPoints = [0,0,0,0,0,0,0]
+
+    def allStats(self):
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+    
+    def changeLevel(self,level=1):
+        self.level = level
+        stats = copy.deepcopy(self.allStats())
+        for a in range(0,len(stats)):
+            stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50)
+
+        if level > 50:
+            tempStats = copy.deepcopy(self.allStats())
+            for a in range(0,len(tempStats)):
+                stats[a] = tempStats[a] + (stats[a]-tempStats[a])//3
+
+        if self.level < 25:
+            self.skills[4] = "0"
+        if self.level < 20:
+            self.skills[3] = "0"
+        if self.level < 15:
+            self.skills[2] = "0"
+        if self.level < 10:
+            self.skills[1] = "0"
+
+        if self.level < 10:
+            self.element = ELEMENT_NEUTRAL
+        elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
+            self.element = random.randint(0,3)
+
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
+
+    def isNpc(self,name : str):
+        return self.name == name
+
+class tmpAllie:
+    def __init__(self,name:str,species:int,color:int,aspiration:int,weapon:weapon,stuff:List[stuff],gender:int,skill:List[skill]=[],description:str="Pas de description",element:int=ELEMENT_NEUTRAL,variant:bool = False,deadIcon: Union[None,str]=None,icon: Union[None,str] = None,bonusPoints:List[int] = [None,None],say:says=says(),changeDict:Union[None,dict] = None,unlock:Union[bool,None,str]=False):
+        self.name = name
+        self.species = species
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
+        self.resistance,self.percing,self.critical = 0,0,0
+        self.aspiration = aspiration
+        self.weapon = weapon
+        self.skills = ["0","0","0","0","0"]
+        for a in range(0,len(skill)):
+            self.skills[a] = skill[a]
+        self.skillsInventory = []
+        self.color = color
+        self.level = 1
+        self.stuff = stuff
+        self.gender = gender
+        if icon == None:
+            self.icon = emoji.icon[species][getColorId(self)]
+        else:
+            self.icon = icon
+        self.description=description
+        self.element = element
+        self.variant = variant
+        self.deadIcon = deadIcon
+        self.bonusPoints = bonusPoints
+        self.says = say
+        if changeDict == None or type(changeDict) == list:
+            self.changeDict = changeDict
+        else:
+            self.changeDict = [changeDict]
+
+        self.unlock = unlock
+
+    def __str__(self):
+        return self.name
+    
+    def changeLevel(self,level=1):
+        self.level = level
+        stats = self.allStats()
+        allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
+        for a in range(0,len(stats)):
+            stats[a] = round(allMax[a][self.aspiration]*0.1+allMax[a][self.aspiration]*0.9*self.level/50)
+
+        bPoints = level
+        for a in self.bonusPoints:
+            if a != None:
+                distribute = min(30,bPoints)
+                bPoints -= distribute
+                stats[a] += distribute
+
+        if self.changeDict != None:
+            haveChanged = False
+            for changeDictCell in self.changeDict:
+                roll = random.randint(0,99)
+                if changeDictCell["level"] <= level and roll < changeDictCell["proba"] and not(haveChanged):
+                    if changeDictCell["changeWhat"] == 0:               # Change Skills
+                        for num in range(len(changeDictCell["change"])):
+                            for skillNum in range(len(self.skills)):
+                                if self.skills[skillNum].id == changeDictCell["change"][num].id:
+                                    self.skills[skillNum] = changeDictCell["to"][num]
+                                    break
+                        haveChanged = True
+
+        if self.level < 25:
+            self.skills[4] = "0"
+        if self.level < 20:
+            self.skills[3] = "0"
+        if self.level < 15:
+            self.skills[2] = "0"
+        if self.level < 10:
+            self.skills[1] = "0"
+
+        if self.level < 10:
+            self.element = ELEMENT_NEUTRAL
+        elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
+            self.element = random.randint(0,3)
+
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
+
+    def allStats(self):
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
+    def isNpc(self,name : str):
+        return self.name == name
+
+    def isUnlock(self, duty:duty):
+        """Return if the Tmp can be use in the ``duty``"""
+        if self.unlock == None:
+            return True
+        elif self.unlock == False:
+            return False
+        
+        for mainTemp in allActs:
+            for temp in mainTemp[1:]:
+                if mainTemp[0]+"|"+temp == self.unlock:
+                    return False
+                elif mainTemp[0]+"|"+temp == duty.act+"|"+duty.name:
+                    return True
+
+        return None

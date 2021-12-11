@@ -1,11 +1,12 @@
 import os,discord,emoji,copy,requests,io
+import traceback
 from typing import List
 from classes import *
 from gestion import *
 from adv import *
 from discord_slash.utils.manage_components import *
 from commands_files.alice_stats_endler import *
-from PIL import Image
+from PIL import Image, ImageColor
 from data.database import *
 from traceback import format_exc
 
@@ -158,13 +159,32 @@ def visuArea(area : int,wanted,ranged=True) -> list:
             tablAllCells += [cell(a,b,cmpt)]
             cmpt += 1
 
-    visibleCell = findCell(2,2)
     if not(ranged):
-        visibleCell = findCell(3,2)
-    elif area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
-        visibleCell = findCell(1,2)
-    elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
-        visibleCell = findCell(0,2)
+        if wanted == ALLIES:
+            isAlly = -1
+            isAlly2 = -2
+            isAlly3 = -3
+        else:
+            isAlly = 0
+            isAlly2 = 1
+            isAlly3 = 2
+
+        base = 3
+        
+        if area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
+            visibleCell = findCell(base+isAlly2,2)
+        elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
+            visibleCell = findCell(base+isAlly3,2)
+        else:
+            visibleCell = findCell(base+isAlly,2)
+
+    else:
+        if area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
+            visibleCell = findCell(1,2)
+        elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
+            visibleCell = findCell(0,2)
+        else:
+            visibleCell = findCell(2,2)
 
     visibleArea = visibleCell.getArea(area=area)
     line1,line2,line3,line4,line5 = [None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None]
@@ -183,17 +203,16 @@ def visuArea(area : int,wanted,ranged=True) -> list:
     if ranged:
         lines[visibleCell.y][visibleCell.x] = "<:ikaWhite:871149538554044466>"
     else:
-        if findCell(3,2) in visibleArea: 
+        if visibleCell in visibleArea: 
             if wanted==ENNEMIS:
-                lines[2][3] = "<:ikaRedTargeted2:873118129541238814>"                       # Memo : Lines[y][x]
-            else:    
-                lines[2][3] = '<:ikaLBTargeted1:873118128958214166>'
+                lines[visibleCell.y][visibleCell.x] = "<:ikaRedTargeted2:873118129541238814>"                       # Memo : Lines[y][x]
+            else:
+                lines[visibleCell.y][visibleCell.x] = '<:ikaLBTargeted1:873118128958214166>'
         else:
             if wanted==ENNEMIS:
-                lines[2][3] = '<:ikaRed:866459224664702977>'
+                lines[visibleCell.y][visibleCell.x] = '<:ikaRed:866459224664702977>'
             else:
-                lines[2][3] = '<:ikaLBlue:866459302319226910>'
-    
+                lines[visibleCell.y][visibleCell.x] = '<:ikaLBlue:866459302319226910>'
 
     temp = ""
     for a in lines:
@@ -207,6 +226,9 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
     effTmp,boucle,iteration,fieldname ="",True,False,"__Effet :__"
     eff = findEffect(effId)
 
+    if eff.id == lunaSkill5_3_eff.id:
+        fieldname = "**__Effet sur la cible :__** ({0})".format(lunaSkill5_3.name)
+
     while boucle:
         eff = findEffect(effId)
         bonus,malus = "",""
@@ -218,18 +240,20 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
         else:
             Stat = allStatsNames[eff.stat]
 
-        tamp = str(eff.turnInit) + " tour(s)"
+        tamp = str(eff.turnInit) + " tour{0}".format(["","s"][eff.turnInit>1])
         if eff.turnInit == -1:
             tamp = "Infinie"
 
         Powa = ""
         if eff.power > 0:
-            Powa = "\nPuissance : "+str(max(eff.power,eff.overhealth))
+            Powa = "\n__Puissance :__ "+str(max(eff.power,eff.overhealth))
+        if eff.id == lunaSkill4Eff.id:
+            Powa += "\n__Puissance alternative :__ "+str(lunaSkill4EffAlt.power)
 
         cumu = ""
         if eff.stackable:
-            cumu = "\nCet effet est __cumulable__"
-        effTmp+=f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\n__Durée : {tamp}__\n__Statistique prise en compte :__ **{Stat}**{Powa}{cumu}"
+            cumu = "\n\nCet effet est **cumulable**"
+        effTmp+=f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\n__Durée :__ {tamp}\n__Statistique prise en compte :__ **{Stat}**{Powa}{cumu}"
 
         if eff.lvl != 1:
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
@@ -260,7 +284,6 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
                 rejected = findEffect(a)
                 effTmp += f"{rejected.emoji[user.species-1][0]} {rejected.name}\n"
 
-
         if eff.callOnTrigger != None and not(iteration):
             effId = eff.callOnTrigger
             iteration = True
@@ -288,17 +311,17 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
                 embed.add_field(name = fieldname,value = effTmp,inline = False)
             else:
                 embed.add_field(name = "<:empty:866459463568850954>\n**__Effet sur soi :__**",value = effTmp,inline = False)
-            if eff.area != AREA_MONO:
-                ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
-                for a in ballerine:
-                    if a == eff.type:
-                        embed.add_field(name = "__Zone d'effet :__",value=visuArea(eff.area,wanted=ALLIES,ranged=False))
-                        break
 
-                for a in babie:
-                    if a == eff.type:
-                        embed.add_field(name = "__Zone d'effet :__",value=visuArea(eff.area,wanted=ENNEMIS,ranged=False))
-                        break
+            if eff.area != AREA_MONO:
+                if eff.type in [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL]:
+                    embed.add_field(name = "__Zone d'effet :__",value=visuArea(eff.area,wanted=ALLIES,ranged=False))
+                    break
+
+                elif eff.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]:
+                    embed.add_field(name = "__Zone d'effet :__",value=visuArea(eff.area,wanted=ENNEMIS,ranged=False))
+
+                if eff.id == lunaSkill4Eff.id:
+                    embed.add_field(name = "__Zone d'effet alternative :__",value=visuArea(AREA_MONO,wanted=ENNEMIS,ranged=False))
             break
 
     return embed
@@ -344,11 +367,6 @@ def infoSkill(skill : skill, user : char,ctx):
         desc += f"\n__Temps de rechargements :__ {skil.cooldown} tour{s}"""
     if cast > 0:
         desc += "\n__Tours de chargements__ : **{0} tour{1}**".format(cast,["","s"][int(cast > 1)])
-    repEmb = discord.Embed(title = skil.name,color = user.color, description = desc)
-    if skil.emoji[1] == "a":
-        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
-    else:
-        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
     
     temp = "__Type :__ "
 
@@ -362,15 +380,25 @@ def infoSkill(skill : skill, user : char,ctx):
             nbShot = " x{0}".format(skil.repetition)
         else:
             nbShot = ""
-        temp+=f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Type de dégâts :__ "
+        if skil.id != lunaSkill5Base.id:
+            temp+=f"\n**__Puissance :__** **{skil.power}**{nbShot}\n__Type de dégâts :__ "
+            if skil.area == AREA_MONO:
+                temp +=  "Monocible\n"
+            else:
+                temp += "Dégâts de zone\n"
 
-        if skil.area == AREA_MONO:
-            temp +=  "Monocible\n"
+            temp += "**__Précision :__** {0}%\n".format(skil.sussess)
+
         else:
-            temp += "Dégâts de zone\n"
-        
-        temp += "__Précision :__ {0}%\n".format(skil.sussess)
-        
+            temp+=f"\n__Puissances :__\n**{lunaSkill5_1.power}** ({lunaSkill5_1.name})\n**{lunaSkill5_2.power}** ({lunaSkill5_2.name})\n**{lunaSkill5_3.power}** x{lunaSkill5_3.repetition} ({lunaSkill5_3.name})\n**{lunaSkill5_4.power}** x{lunaSkill5_4.repetition} ({lunaSkill5_4.name})\n"
+            temp+="\n__Type de dégâts :__\n"
+            for a in [lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4]:
+                temp+= ["Monocible","Dégâts de zone"][a.area!=AREA_MONO]+ " ({0})\n".format(a.name)
+
+            temp+="\n__Précisions :__\n"
+            for a in [lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4]:
+                temp+="{1}% ({0})\n".format(a.name,a.sussess)
+
         if skil.range == AREA_MONO:
             if skil.type != TYPE_PASSIVE:
                 temp += f"\nCette compétence se lance sur **soi-même**"
@@ -389,7 +417,6 @@ def infoSkill(skill : skill, user : char,ctx):
             temp += f"\nCette compétence inflige un montant **fixe** de dégâts"
         elif skil.use == HARMONIE:
             temp += f"\nCette compétence utilise la statistique d'**Harmonie**"
-
 
     else:
         temp+=tablTypeStr[skil.type]
@@ -427,14 +454,12 @@ def infoSkill(skill : skill, user : char,ctx):
             for a in range(AREA_ALL_ALLIES,AREA_ALL_ENTITES+1):
                 if a == skil.area:
                     temp+=f"\nCette compétence affecte **{ballerine[a-8]}**"
-    
-    try:
-        if skil.id.startswith("clem") or skil.id.startswith("alice"):
-            for skillID, cost in clemBJcost.items():
-                if skil.id == skillID:
-                    temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
-    except:
-        print(format_exc())
+
+    if skil.id.startswith("clem") or skil.id.startswith("alice"):
+        for skillID, cost in clemBJcost.items():
+            if skil.id == skillID:
+                temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
+
     if skil.shareCooldown :
         temp+=f"\nCette compétence a un cooldown syncronisé avec toute l'équipe"
     if skil.initCooldown > 1 and skil.type != TYPE_PASSIVE:
@@ -463,7 +488,17 @@ def infoSkill(skill : skill, user : char,ctx):
     if skil.ultimate:
         temp += "\nCette compétence est une compétence **ultime**. Vous ne pouvez équiper qu'une compétence ultime à la fois"
 
-    repEmb.add_field(name="__Statistiques :__",value=temp,inline=False)
+    if skil.knockback > 0:
+        temp+="\n\n**__Repoussement :__**\nCette compétence repousse la cible de **{0}** cases\n\nSi la cible rencontre un obstacle (entité ou bord de la carte), les entités concernées recoivent des dégâts indiretes Harmonie d'une puissance équivalante à 10 multiplié par le nombre de cases restantes de la part du lanceur".format(skil.knockback)
+
+    if skil.id == lunaSkill5Base.id:
+        temp+="\n\n**__Repoussement :__**\n{1} repousse la cible de **{0}** cases\n{2} repousse la cible de **{3}** cases\n\nSi la cible rencontre un obstacle (entité ou bord de la carte), les entités concernées recoivent des dégâts indiretes Harmonie d'une puissance équivalante à 10 multiplié par le nombre de cases restantes de la part du lanceur\n*Note : Ces dégâts ne prennent pas en compte l'Endurance de Luna*".format(lunaSkill5_3.knockback,lunaSkill5_3.name,lunaSkill5_4.name,lunaSkill5_4.knockback)
+
+    repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n__Statistiques :__\n"+temp)
+    if skil.emoji[1] == "a":
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
+    else:
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
 
     if skil.range != AREA_MONO:
         ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
@@ -478,17 +513,19 @@ def infoSkill(skill : skill, user : char,ctx):
                 break
 
     if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENEMIES and skil.area != AREA_ALL_ENTITES:
-        ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
-        for a in ballerine:
-            if a == skil.type:
-                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ALLIES,ranged=False))
-                break
+        if skil.type in [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL]:
+            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ALLIES,ranged=False))
 
-        for a in babie:
-            if a == skil.type:
-                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ENNEMIS,ranged=False))
-                break
-        
+        elif skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]:
+            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ENNEMIS,ranged=False))
+
+        if skil.id == lunaSkill4.id:
+            repEmb.add_field(name = "__Zone d'effet alternative :__",value=visuArea(AREA_CIRCLE_2,wanted=ENNEMIS,ranged=False))
+
+    if skil.id == lunaSkill5Base.id:
+        repEmb.add_field(name = "__Zone d'effet :__ ({0})".format(lunaSkill5_1.name),value=visuArea(lunaSkill5_1.area,wanted=ENNEMIS,ranged=False))
+        repEmb = infoEffect(lunaSkill5_3_eff,user,repEmb,ctx)
+
     if skil.effect != [None]:
         for a in skil.effect:
             repEmb = infoEffect(a,user,repEmb,ctx)
@@ -500,8 +537,7 @@ def infoSkill(skill : skill, user : char,ctx):
         repEmb = infoInvoc(findInvoc(skil.invocation),repEmb)
     return repEmb
 
-def infoWeapon(weapon : weapon, user : char ,ctx):
-    weap = weapon
+def infoWeapon(weap : weapon, user : char ,ctx):
     repEmb = discord.Embed(title = unhyperlink(weap.name),color = user.color, description = f"Icone : {weap.emoji}")
     repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
     portee = weap.range
@@ -665,38 +701,20 @@ def silentRestats(user : char):
     return userMajStats(user,stats)
 
 async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins = 0):
-    user = quickLoadCharFile(path)
+    user = loadCharFile(path)
 
-    if guild.colorRole.enable:
-        tablId,cmpt,result = [guild.colorRole.red,guild.colorRole.orange,guild.colorRole.yellow,guild.colorRole.green,guild.colorRole.lightBlue,guild.colorRole.blue,guild.colorRole.purple,guild.colorRole.pink,guild.colorRole.white,guild.colorRole.black],0,0
-        while cmpt < len(colorId):
-            if user[0].color == colorId[cmpt]:
-                result = tablId[cmpt]
-            cmpt += 1
-        roles,find = ctx.author.roles,False
-        for a in roles:
-            if a == ctx.guild.get_role(result):
-                find = True
+    user.exp = user.exp + exp
+    user.currencies = user.currencies + coins
 
-        if not(find):
-            print(f"{ctx.author.name} a débuté l'aventure mais n'a pas son role de couleur")
-            try:
-                await ctx.author.add_roles(ctx.guild.get_role(result))       
-            except:
-                pass            
+    upLvl = (user.level-1)*50+30
 
-    user[0].exp = user[0].exp + exp
-    user[0].currencies = user[0].currencies + coins
-
-    upLvl = (user[0].level-1)*50+30
-
-    if user[0].exp >= upLvl:
+    if user.exp >= upLvl:
         perso = loadCharFile(path,ctx)
-        perso.currencies, perso.exp = user[0].currencies, user[0].exp
+        perso.currencies, perso.exp = user.currencies, user.exp
         perso.points = perso.points + 1
 
         temp = perso.allStats()
-        up,bonus = [0,0,0,0,0,0,0],[0,0,0,0,0,0,0]
+        up = [0,0,0,0,0,0,0]
         tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
         stats = perso.allStats()
         for a in range(0,len(stats)):
@@ -732,12 +750,12 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
         else:
             await ctx.channel.send(embed = lvlEmbed)
 
-        perso.exp = perso.exp - (user[0].level)*50+30
+        perso.exp = perso.exp - (user.level)*50+30
         perso.level = perso.level + 1
         saveCharFile(path,perso)
         return perso
     else:
-        quickSaveCharFile(path,user)
+        saveCharFile(path,user)
         return None
 
 def getChoisenSelect(select : dict, value : str):
@@ -790,7 +808,7 @@ async def downloadAllHeadGearPng(bot : discord.Client, msg = None, lastTime = No
 async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
     listEmojiHead = stuffDB.getAllWeap()
     listDir = os.listdir("./data/images/weapons/")
-    num,cmpt = len(listEmojiHead),0
+    num,cmpt = len(listEmojiHead+etInkBases+etInkLines),0
     for a in listEmojiHead:
         emojiObject = getEmojiInfo(a)
         if emojiObject[0] + ".png" not in listDir:
@@ -816,6 +834,41 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
 
                 background.save(f"./data/images/weapons/{emojiObject[0]}.png")
                 customIconDB.addWeapImageFiles(stuffDB.getIdFromEmoji(a,"weapon"),f"{emojiObject[0]}.png")
+                print(emojiObject[0] + " téléchargé")
+            else:
+                print(emojiObject[0] + " non trouvé")
+
+        if msg != None:
+            cmpt += 1
+            now = datetime.datetime.now().second
+            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+                lastTime = now
+                await msg.edit(embed = discord.Embed(title="l!admin resetCustomEmoji",description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100,1))))
+
+    for a in etInkBases+etInkLines:
+        emojiObject = getEmojiInfo(a)
+        if emojiObject[0] + ".png" not in listDir:
+            guildStuff = weaponIconGuilds
+
+            emoji_2 = None
+            for b in guildStuff:
+                try:
+                    guild = await bot.fetch_guild(b)
+                    emoji_2 = await guild.fetch_emoji(emojiObject[1])
+                except:
+                    pass
+
+            if emoji_2 != None:
+                image = requests.get(emoji_2.url,stream=True)
+                image.raw.decode_content=True
+                open(f"./data/images/weapons/{emojiObject[0]}.png","wb").write(image.content)
+                image = Image.open(f"./data/images/weapons/{emojiObject[0]}.png")
+                background = Image.new("RGBA",(120,120),(0,0,0,0))
+                image = image.resize((100,100))
+                background.paste(image,(10,10))
+                background = background.rotate(30)
+
+                background.save(f"./data/images/weapons/{emojiObject[0]}.png")
                 print(emojiObject[0] + " téléchargé")
             else:
                 print(emojiObject[0] + " non trouvé")
@@ -871,12 +924,15 @@ async def downloadAllIconPng(bot : discord.Client):
                     print(emojiObject[0] + " non trouvé")
 
 async def makeCustomIcon(bot : discord.Client, user : char):
-    accessoire = Image.open("./data/images/headgears/"+customIconDB.getAccFile(user))    
-    # Paramètres de l'accessoire
-    pos = user.stuff[0].position
+    accessoire = Image.open("./data/images/headgears/"+customIconDB.getAccFile(user))
+    # Paramètres de l'accessoire ----------------------------------
+    if user.apparaAcc == None:
+        pos = user.stuff[0].position
+    else:
+        pos = user.apparaAcc.position
     position = []
 
-    # Récupération de l'icone de base
+    # Récupération de l'icone de base -----------------------------
     tabl = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/baseIka.png"],["./data/images/char_icons/empty_octo.png","./data/images/char_icons/baseTako.png"]]
     background = Image.open(tabl[user.species-1][1])
 
@@ -891,16 +947,23 @@ async def makeCustomIcon(bot : discord.Client, user : char):
     pixel = background.load()
     layer = Image.open(tabl[user.species-1][0])
 
+    colorToUse = user.colorHex.replace("0x","#")
+    if colorToUse == "None":
+        if user.color != black:
+            colorToUse = hex(user.color).replace("0x","#")
+        else:
+            colorToUse = "#000000"
+    baseUserColor = ImageColor.getcolor(colorToUse, "RGB")
+    baseTemp = [baseUserColor[0],baseUserColor[1],baseUserColor[2]]
     for x in range(0,background.size[0]):
         for y in range(0,background.size[1]):
             if pixel[x,y] != (0,0,0,0):
-                base = list(hex_to_rgb(hex(user.color)))
                 color = list(pixel[x,y])
                 for cmpt in (0,1,2):
                     color[cmpt] = color[cmpt]-121
-                    base[cmpt] = base[cmpt] + color[cmpt]
-                
-                background.putpixel([x,y],tuple(base))
+                    baseTemp[cmpt] = min(baseUserColor[cmpt] + color[cmpt],255)
+
+                background.putpixel([x,y],tuple(baseTemp))
 
     background.paste(layer,[0,0],layer)
     background.paste(layer,[0,0],layer)
@@ -908,16 +971,6 @@ async def makeCustomIcon(bot : discord.Client, user : char):
     if pos == 6:
         background2.paste(background,[0,0],background)
         background = background2
-
-    # Récupération de l'icone de l'arme
-    if "./data/images/weapons/"+customIconDB.getWeaponFile(user) != "./data/images/weapons/akifauxgif.png":
-        weapon = Image.open("./data/images/weapons/"+customIconDB.getWeaponFile(user))
-    else:
-        weapon = Image.open("./data/images/weapons/akifaux.png")
-    weapon = weapon.resize((120,120))
-
-    if user.weapon.needRotate == False:
-        weapon = weapon.rotate(-30)
 
     # Récupération de l'icone de l'accessoire
     if pos == 0:                                            # Casques
@@ -950,6 +1003,38 @@ async def makeCustomIcon(bot : discord.Client, user : char):
     if pos != 6:
         background.paste(accessoire,position,accessoire)
         accessoire.close()
+
+
+    # Récupération de l'icone de l'arme
+    if (user.apparaWeap != None and user.apparaWeap.id in eternalInkWeaponIds) or (user.apparaWeap == None and user.weapon.id in eternalInkWeaponIds):
+        if user.apparaWeap != None:
+            toBase = getEmojiObject(user.apparaWeap.emoji)["name"]
+        else:
+            toBase = getEmojiObject(user.weapon.emoji)["name"]
+        line = Image.open("./data/images/weapons/Line{0}.png".format(toBase))
+        base = Image.open("./data/images/weapons/Base{0}.png".format(toBase))
+
+        pixel = base.load()
+        baseTemp = [baseUserColor[0],baseUserColor[1],baseUserColor[2]]
+        for x in range(0,base.size[0]):
+            for y in range(0,base.size[1]):
+                if pixel[x,y] != (0,0,0,0):
+                    color = list(pixel[x,y])
+                    for cmpt in (0,1,2):
+                        color[cmpt] = color[cmpt]-143
+                        baseTemp[cmpt] = min(baseUserColor[cmpt] + color[cmpt],255)
+                    base.putpixel([x,y],tuple(baseTemp))
+        base.paste(line,[0,0],line)
+        weapon = base
+
+    elif "./data/images/weapons/"+customIconDB.getWeaponFile(user) != "./data/images/weapons/akifauxgif.png":
+        weapon = Image.open("./data/images/weapons/"+customIconDB.getWeaponFile(user))
+    else:
+        weapon = Image.open("./data/images/weapons/akifaux.png")
+    weapon = weapon.resize((120,120))
+
+    if (user.apparaWeap == None and user.weapon.needRotate == False) or (user.apparaWeap != None and user.apparaWeap.needRotate == False):
+        weapon = weapon.rotate(-30)
 
     # Collage de l'arme
     background.paste(weapon,(55,40),weapon)
@@ -999,10 +1084,13 @@ async def makeCustomIcon(bot : discord.Client, user : char):
 
 async def getUserIcon(bot : discord.Client,user : char):
     """Function for get the user custom icon\nIf a (re)make is needed, remake the icon"""
+    fun = random.randint(0,999)
+    if fun == 666:
+        return "<a:lostSilver:917783593441456198>"
+
     try:
         if customIconDB.isDifferent(user):
             await makeCustomIcon(bot,user)
-
         
         if customIconDB.haveCustomIcon(user):
             return customIconDB.getCustomIcon(user)
@@ -1094,7 +1182,6 @@ def infoAllie(allie : tmpAllie):
                 for num in range(len(changeDictCell["to"])):
                     for skillNum in range(len(allie.skills)):
                         if allie.skills[skillNum].id == changeDictCell["change"][num].id:
-                            print(allie.skills[skillNum].name,changeDictCell["to"][num].name)
                             toSkill += changeDictCell["to"][num].emoji+" __"+changeDictCell["to"][num].name+"__"
                             changeSkill += allie.skills[skillNum].emoji+" __"+allie.skills[skillNum].name+"__"
                             if num != len(changeDictCell["to"])-1:
@@ -1107,10 +1194,25 @@ def infoAllie(allie : tmpAllie):
                 ses,s = "ses","s"
             temp += "À partir du niveau {3}, cet allié temporaire a {0}% de chance de voir {4} compétence{5} suivante{5} :\n{1}\nremplacé{5} par :\n{2}\n".format(changeDictCell["proba"],changeSkill,toSkill,changeDictCell["level"],ses,s)
         embed.add_field(name="<:empty:866459463568850954>\n__Variations aléatoires :__",value=temp,inline=False)
+
+    if allie.unlock == None:
+        embed.add_field(name = "<:empty:866459463568850954>\n__Aventure : Condition d'utilisation__",value="Vous pouvez rajouter cet allié temporaire à votre escouade dès le début")
+    elif allie.unlock != False:
+        tempTabl, temp = [], ""
+        for letter in allie.unlock+"|":
+            if letter == "|":
+                tempTabl.append(temp)
+                temp = ""
+            else:
+                temp.append(letter)
+        embed.add_field(name = "<:empty:866459463568850954>\n__Aventure : Condition d'utilisation__",value="Cet allié temporaire ne peut être ajouté à votre escouade qu'après la mission \"{0} - {1}\"".format(tempTabl[0],tempTabl[1]))
+    else:
+        embed.add_field(name = "<:empty:866459463568850954>\n__Aventure : Condition d'utilisation__",value="Cet allié temporaire ne peut être ajouté à votre escouade")
+
     return embed
 
 def infoEnnemi(ennemi : octarien):
-    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
+    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]}{elemNames[ennemi.element]}\n\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
     allMaxStats, accStats, dressStats, flatsStats,weapStats = ennemi.allStats(),ennemi.stuff[0].allStats(),ennemi.stuff[1].allStats(),ennemi.stuff[2].allStats(),ennemi.weapon.allStats()
     for a in range(0,len(allMaxStats)):
         temp,tempi = allMaxStats[a],accStats[a]+dressStats[a]+flatsStats[a]+weapStats[a]
@@ -1197,7 +1299,7 @@ async def downloadElementIcon(bot : discord.Client):
     for b in range(len(listEmojiHead)):
         emojiObject = getEmojiInfo(listEmojiHead[b])
         if emojiObject[0] + ".png" not in listDir:
-            guildStuff = [887846876114739261]
+            guildStuff = [615257372218097691]
 
             emoji_2 = None
             for c in guildStuff:
@@ -1212,7 +1314,7 @@ async def downloadElementIcon(bot : discord.Client):
                 image.raw.decode_content=True
                 open(f"./data/images/elemIcon/{emojiObject[0]}.png","wb").write(image.content)
                 image = Image.open(f"./data/images/elemIcon/{emojiObject[0]}.png")
-                image = image.resize((70,70))
+                image = image.resize((60,60))
                 image.save(f"./data/images/elemIcon/{emojiObject[0]}.png")
                 print(emojiObject[0] + " téléchargé")
             else:
