@@ -36,16 +36,39 @@ class server:
         self.colorRole = autoColor(0)
 
 class statTabl:
-    """A class that is use to store the entity's stats for the post fight medals and inflate their ego"""
+    """
+        A class that is use to store the entity's stats for the post fight medals and inflate their ego\n
+        - Attributs :
+            - damageDeal : The total amount of damage deal
+            - indirectDamageDeam : The amount of damage deal with indirect attacks. Include into ``damageDeal``
+            - ennemiKill : The number of entity killed by the entity. Them self include
+            - allieResurected : The number of allies raised by the entity
+            - shootHited : The number of shot that hit the target
+            - totalNumberShot : The number of shot shoot by the entity
+            - dodge : The number of attack dodges by the entity
+            - numberAttacked : The number of times the entity has been attacked
+            - damageRecived : The number of damage the entity has teken
+            - heals : The number of HP the entity has heal. Do not count overhealth
+            - crits : The number of time the entity has done a critical hit
+            - survival : The number of turn the entity has stayed alive
+            - damageOnShield : The number of damage the entity has done on opponent's armor
+            - damageBoosted : The number of damage another entity has done with a entity's boost effect
+            - damageDogded : The number of damage another entity has reduce with a entity's boost effect
+            - shieldGiven : The number of Armor HP gave by the entity
+            - estialba : The number of damage the entity have done with a "Estialba's poison" effect
+            - bleeding : The number of damage the entity have done with a "Bleeding" effect
+            - underBoost : The number of damage the entity have done with a another entity's boost effect
+            - selfBurn : The number of damage the entity have done on him-self
+    """
     def __init__(self):
         self.damageDeal = 0
         self.indirectDamageDeal = 0
         self.ennemiKill = 0
         self.allieResurected = 0
-        self.shootHited = 1
-        self.totalNumberShot = 1
-        self.dodge = 1
-        self.numberAttacked = 1
+        self.shootHited = 0
+        self.totalNumberShot = 0
+        self.dodge = 0
+        self.numberAttacked = 0
         self.damageRecived = 0
         self.heals = 0
         self.crits = 0
@@ -57,6 +80,7 @@ class statTabl:
         self.estialba = 0
         self.bleeding = 0
         self.underBoost = 0
+        self.selfBurn = 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -64,13 +88,81 @@ class option:
         self.name = name
         self.emoji = emoji
 
+class effect:
+    """The class for all skill's none instants effects and passive abilities from weapons and gears"""
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False):
+        """rtfm"""
+        self.name = name                    # Name of the effect
+        self.id = id                        # The id. 2 characters
+        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
+        self.overhealth = overhealth        # Base shield power
+        self.redirection = redirection      # Damage redirection ratio. Unuse yet
+        self.reject = reject                # A list of the rejected effects
+        self.description = description.format(power,power//2)      # A (quick) description of the effect
+        self.turnInit = turnInit            # How many turn does the effect stay ?
+        self.stat = stat                    # Wich stat is use by the effect ?
+        if (overhealth > 0 or redirection > 0) and trigger==TRIGGER_PASSIVE:
+            self.trigger:int = TRIGGER_DAMAGE   # If the effect give armor, he triggers automatiquely on damage
+        else:
+            self.trigger:int = trigger          # When does the effect triggers ?
+        self.immunity:bool = immunity            # Does the effect give a immunity ?
+        self.callOnTrigger = callOnTrigger  # A list of effect given when the first one trigger
+        self.silent:bool = silent                # Do the effect is showed in the fight ?
+        self.power:int = power                  # The base power for heals and indirect damages
+        self.lvl:int = lvl                      # How many times can the effect trigger ?
+        self.type:int = type                    # The type of the effect
+        self.ignoreImmunity:bool = ignoreImmunity    # Does the damage of this effect ignore immunities ?
+        self.area=area                      # The area of effect of the effect
+        self.unclearable:bool = unclearable      # Does the effect is unclearable ?
+        self.stun:bool = stun                    # Does the effect is a stun effect ?
+        self.stackable:bool = stackable          # Does the effect is stackable ?
+        self.replica:Union[None,skill] = replique             # Does the effect is a replica of a skill ?
+        self.translucide:bool = translucide      # Does the effect make the entity translucide ?
+        self.untargetable:bool = untargetable    # Does the effect make the entity untargetable ?
+        self.invisible:bool = invisible
+        self.aggro:int = aggro
+        self.lightShield:bool = lightShield
+        self.absolutShield:bool = absolutShield
+        self.onDeclancher:bool = onDeclancher
+
+        if emoji == None:
+            if self.type in [TYPE_BOOST]:
+                self.emoji=[['<:ink1buff:866828199156252682>','<:ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octarianbuff:866828373345959996>']]
+            elif self.type in [TYPE_MALUS]:
+                self.emoji=[['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
+            elif self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                self.emoji=[["<:ikadamage1:895723391212978207>","<:ikadamage2:895723465389264897>"],["<:takodamage1:895723442177982516>","<:takodamage1:895723496196415508>"],[None,"<:octariandamage:895723525954998272>"]]
+            elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
+                self.emoji=[["<:ikaheal1:895722730664632321>","<:ikaheal2:895722783034732594>"],["<:takoheal1:895722755025162281>","<:takoheal2:895722806430548001>"],[None,"<:octarianheal:895722827188166698>"]]
+            elif self.type in [TYPE_ARMOR]:
+                self.emoji=[["<:ikashield:895723993351458877>","<:ikashield2:895724022501892217>"],["<:takoshield1:895724008350318602>","<:takoshield2:895724040348659772>"],[None,"<:octarianshield:895724055909515265>"]]
+            else:
+                self.emoji=[['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>']]
+        else:
+            self.emoji=emoji
+
+        if self.emoji[0] == "<":
+            self.emoji = [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
+
+    def __str__(self) -> str:
+        return self.name
+
+    def setTurnInit(self,newTurn = 1):
+        """Change the "turnInit" value. Why I need a function for that ?"""
+        self.turnInit = newTurn
+        return self
+
+    def allStats(self):
+        """Return a list with the mains stats of the weapon"""
+        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect:Union[None,effect]=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False):
         """rtfm"""
-        self.name = name
-        self.say = say
-        self.id = id
+        self.name:str = name
+        self.say:str = say
+        self.id:str = id
         self.range = range
         self.strength = strength
         self.endurance = endurance
@@ -182,7 +274,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0):
+    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100):
         """rtfm"""
         self.name = name                                # Name of the skill
         self.repetition = repetition                    # The number of hits it does
@@ -191,6 +283,7 @@ class skill:
         self.type = types                               # The type of the skill. See constante.types
         self.power = power                              # Power of the skill. Use for damage and healing skills
         self.knockback = knockback
+        self.effPowerPurcent = effPowerPurcent
 
         if range == AREA_MONO and area != AREA_MONO and types == TYPE_DAMAGE:
             self.power = int(power * (1+AOEDAMAGEREDUCTION))
@@ -214,7 +307,11 @@ class skill:
 
         self.effectOnSelf = effectOnSelf
         self.use = use
-        self.description = description
+        if description != None:
+            self.description = description.format(power,power//2)
+        else:
+            self.description = None
+            
         self.initCooldown = initCooldown
         self.shareCooldown = shareCooldown
         if use==STRENGTH:
@@ -406,74 +503,6 @@ class stuff:
 
 emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
 
-class effect:
-    """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False):
-        """rtfm"""
-        self.name = name                    # Name of the effect
-        self.id = id                        # The id. 2 characters
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
-        self.overhealth = overhealth        # Base shield power
-        self.redirection = redirection      # Damage redirection ratio. Unuse yet
-        self.reject = reject                # A list of the rejected effects
-        self.description = description.format(power,power//2)      # A (quick) description of the effect
-        self.turnInit = turnInit            # How many turn does the effect stay ?
-        self.stat = stat                    # Wich stat is use by the effect ?
-        if (overhealth > 0 or redirection > 0) and trigger==TRIGGER_PASSIVE:
-            self.trigger = TRIGGER_DAMAGE   # If the effect give armor, he triggers automatiquely on damage
-        else:
-            self.trigger = trigger          # When does the effect triggers ?
-        self.immunity = immunity            # Does the effect give a immunity ?
-        self.callOnTrigger = callOnTrigger  # A list of effect given when the first one trigger
-        self.silent = silent                # Do the effect is showed in the fight ?
-        self.power = power                  # The base power for heals and indirect damages
-        self.lvl = lvl                      # How many times can the effect trigger ?
-        self.type = type                    # The type of the effect
-        self.ignoreImmunity:bool = ignoreImmunity    # Does the damage of this effect ignore immunities ?
-        self.area=area                      # The area of effect of the effect
-        self.unclearable:bool = unclearable      # Does the effect is unclearable ?
-        self.stun:bool = stun                    # Does the effect is a stun effect ?
-        self.stackable:bool = stackable          # Does the effect is stackable ?
-        self.replica:Union[None,skill] = replique             # Does the effect is a replica of a skill ?
-        self.translucide:bool = translucide      # Does the effect make the entity translucide ?
-        self.untargetable:bool = untargetable    # Does the effect make the entity untargetable ?
-        self.invisible:bool = invisible
-        self.aggro = aggro
-        self.lightShield:bool = lightShield
-        self.absolutShield:bool = absolutShield
-        self.onDeclancher:bool = onDeclancher
-
-        if emoji == None:
-            if self.type in [TYPE_BOOST]:
-                self.emoji=[['<:ink1buff:866828199156252682>','<:ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octarianbuff:866828373345959996>']]
-            elif self.type in [TYPE_MALUS]:
-                self.emoji=[['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
-            elif self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
-                self.emoji=[["<:ikadamage1:895723391212978207>","<:ikadamage2:895723465389264897>"],["<:takodamage1:895723442177982516>","<:takodamage1:895723496196415508>"],[None,"<:octariandamage:895723525954998272>"]]
-            elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
-                self.emoji=[["<:ikaheal1:895722730664632321>","<:ikaheal2:895722783034732594>"],["<:takoheal1:895722755025162281>","<:takoheal2:895722806430548001>"],[None,"<:octarianheal:895722827188166698>"]]
-            elif self.type in [TYPE_ARMOR]:
-                self.emoji=[["<:ikashield:895723993351458877>","<:ikashield2:895724022501892217>"],["<:takoshield1:895724008350318602>","<:takoshield2:895724040348659772>"],[None,"<:octarianshield:895724055909515265>"]]
-            else:
-                self.emoji=[['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>']]
-        else:
-            self.emoji=emoji
-
-        if self.emoji[0] == "<":
-            self.emoji = [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
-
-    def __str__(self) -> str:
-        return self.name
-
-    def setTurnInit(self,newTurn = 1):
-        """Change the "turnInit" value. Why I need a function for that ?"""
-        self.turnInit = newTurn
-        return self
-
-    def allStats(self):
-        """Return a list with the mains stats of the weapon"""
-        return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
-
 class other:
     """The class for all the "specials objets" categorie"""
     def __init__(self,name,id,price=1000,emoji=emoji.loading,description="Léna est féniant"):
@@ -563,8 +592,6 @@ class invoc:
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
-        if self.aspiration in [POIDS_PLUME,OBSERVATEUR]:
-            raise Exception("Error : {0}\nA summon can't be a Light Weight or a Observator !!".format(self.name))
         self.weapon = weapon
 
         self.description = description
@@ -665,6 +692,8 @@ octoEmpty2 = stuff("placeolder","hu",0,0)
 octoEmpty3 = stuff("placeolder","hv",0,0)
 
 class octarien:
+    """The class for the ennemis
+    \nBased on a ``char`` object"""
     def __init__(
             self,
             name:str,
@@ -690,15 +719,35 @@ class octarien:
             say:says=says(),
             baseLvl:int = 1,
             rez:bool=True,
-            element:int = ELEMENT_NEUTRAL
-        
+            element:int = ELEMENT_NEUTRAL,
+            number:int = 1
         ):
+        """
+            .name : The name of the ennemy
+            .maxStrength -> .maxMagie : The amount of stat in their respective category that the ennemy will have at level 50
+            .resistance -> .critical : The amount of stat in their respective category that the ennemy will have. Unlike the main stats, do not change depending of the level
+            .weapon : The ``weapon`` use by the ennemy
+            .exp : The amount of experience the ennemy will give if they are down
+            .icon : The emoji string of the ennemy, used has his icon
+            .skill : A list of ``skill`` objects, used by the ennemy
+            .aspiration : The aspiration of the ennemy
+            .gender : The gender of the ennmy. Only use for according messages
+            .description : The description of the ennemy
+            .deadIcon : the emoji string to use when the ennemy is down
+            .oneVAll : Does the ennemy is a "All v One" boss ?
+            .say : A ``says`` object, for some specials interractions
+            .baseLvl : The minimum amount of level required for battleling againts the ennemy
+            .rez : Does the ennemy can be raise ?
+            .element : The element of the ennemy
+            .number : The number of times the ennemy appairse in the ennemy list
+        """
         self.name = name
         self.species = 3
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,maxMagie
         self.resistance,self.percing,self.critical = resistance,percing,critical
         self.aspiration = aspiration
         self.weapon = weapon
+        self.number = number
         self.skills = skill
         while len(self.skills) < 5:
             self.skills+=["0"]
@@ -720,9 +769,13 @@ class octarien:
         self.bonusPoints = [0,0,0,0,0,0,0]
 
     def allStats(self):
+        """Return a ``list`` with the mains stats of the ennemi\n
+        Those stats are the Lvl 50 stats"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
     
     def changeLevel(self,level=1):
+        """Change the level of the ennmy and adjust his stats and skills in consequence\n
+        It's very recommanded to do than on a copy of the ennemy"""
         self.level = level
         stats = copy.deepcopy(self.allStats())
         for a in range(0,len(stats)):
@@ -750,10 +803,57 @@ class octarien:
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
 
     def isNpc(self,name : str):
+        """Return if the given name is egal to the ennemy name"""
         return self.name == name
 
 class tmpAllie:
-    def __init__(self,name:str,species:int,color:int,aspiration:int,weapon:weapon,stuff:List[stuff],gender:int,skill:List[skill]=[],description:str="Pas de description",element:int=ELEMENT_NEUTRAL,variant:bool = False,deadIcon: Union[None,str]=None,icon: Union[None,str] = None,bonusPoints:List[int] = [None,None],say:says=says(),changeDict:Union[None,dict] = None,unlock:Union[bool,None,str]=False):
+    """The class for the allies\n
+    Based on a ``char`` object"""
+    def __init__(self,
+        name:str,
+        species:int,
+        color:int,
+        aspiration:int,
+        weapon:weapon,
+        stuff:List[stuff],
+        gender:int,
+        skill:List[skill]=[],
+        description:str="Pas de description",
+        element:int=ELEMENT_NEUTRAL,
+        variant:bool = False,
+        deadIcon: Union[None,str]=None,
+        icon: Union[None,str] = None,
+        bonusPoints:List[int] = [None,None],
+        say:says=says(),
+        changeDict:Union[None,dict] = None,
+        unlock:Union[bool,None,str]=False
+        ):
+        """
+            The class for a ally, based on the ``char`` class\n
+
+            - Parameters :\n
+                .name : The name of the ally
+                .species : The species of the ally. ``1`` for Inkling, ``2`` for Octoling
+                .color : A ``int`` that represent the color of the ally
+                .aspiration : The aspiration of the ally
+                .weapon : The ``weapon`` use by the ally
+                .stuff : A ``list`` of three ``stuff`` use by the ally
+                .gender : The gender of the ally. Used for accordings messages only
+                .skill : A ``list`` of ``skill`` use by the ally
+                .description : The descrition of the ally. Try to be brief
+                .element : The element of the ally
+                .variant : Does the ally is a variant of another ally ?
+                .deadIcon : The emoji string to use when the ally is down
+                .icon : The emoji string to use for the ally icon. If ``None``, use one of the default icon insteed
+                .bonusPoints : The ``list`` of stats to prioritise for reparting the bonus points
+                .say : A ``says`` object for special interractions
+                .changeDict : A ``dict`` who define if the ally must take another build sometimes
+                .unlock : When the ally is unlock for the Adventure. 
+                    -> ``False`` : Not unlocable
+                    -> ``None`` : Base ally allready unlocked
+                    -> ``ActName - DutyName`` : The duty after the ally will be unlock
+        """
+
         self.name = name
         self.species = species
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
@@ -787,7 +887,7 @@ class tmpAllie:
 
     def __str__(self):
         return self.name
-    
+
     def changeLevel(self,level=1):
         self.level = level
         stats = self.allStats()

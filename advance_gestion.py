@@ -1,5 +1,4 @@
 import os,discord,emoji,copy,requests,io
-import traceback
 from typing import List
 from classes import *
 from gestion import *
@@ -237,8 +236,10 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
             Stat = "Aucune"
         elif eff.stat == PURCENTAGE:
             Stat = "Pourcentage"
-        else:
+        elif eff.stat != HARMONIE:
             Stat = allStatsNames[eff.stat]
+        else:
+            Stat = "Harmonie"
 
         tamp = str(eff.turnInit) + " tour{0}".format(["","s"][eff.turnInit>1])
         if eff.turnInit == -1:
@@ -359,35 +360,40 @@ def infoSkill(skill : skill, user : char,ctx):
         else:
             skil = mageUlt
 
-    desc = f"__Icone :__ {skil.emoji}"
+    desc = ""
     if skil.type != TYPE_PASSIVE:
         s = ""
         if skil.cooldown > 1:
             s = "s"
         desc += f"\n__Temps de rechargements :__ {skil.cooldown} tour{s}"""
+
     if cast > 0:
         desc += "\n__Tours de chargements__ : **{0} tour{1}**".format(cast,["","s"][int(cast > 1)])
-    
+
     temp = "__Type :__ "
 
     if skil.type == TYPE_DAMAGE:
         temp+="Dégats"
         
         if skil.description != None:
-            temp += "\n"+skil.description+"\n"
+            temp += "\n\n__Description :__\n"+skil.description+"\n"
         
         if skil.repetition > 1:
             nbShot = " x{0}".format(skil.repetition)
         else:
             nbShot = ""
         if skil.id != lunaSkill5Base.id:
-            temp+=f"\n**__Puissance :__** **{skil.power}**{nbShot}\n__Type de dégâts :__ "
+            temp+=f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Type de dégâts :__ "
             if skil.area == AREA_MONO:
                 temp +=  "Monocible\n"
             else:
                 temp += "Dégâts de zone\n"
 
-            temp += "**__Précision :__** {0}%\n".format(skil.sussess)
+            temp += "__Précision :__ {0}%\n".format(skil.sussess)
+        if skil.id.startswith("clem") or skil.id.startswith("alice"):
+            for skillID, cost in clemBJcost.items():
+                if skil.id == skillID:
+                    temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
 
         else:
             temp+=f"\n__Puissances :__\n**{lunaSkill5_1.power}** ({lunaSkill5_1.name})\n**{lunaSkill5_2.power}** ({lunaSkill5_2.name})\n**{lunaSkill5_3.power}** x{lunaSkill5_3.repetition} ({lunaSkill5_3.name})\n**{lunaSkill5_4.power}** x{lunaSkill5_4.repetition} ({lunaSkill5_4.name})\n"
@@ -422,7 +428,12 @@ def infoSkill(skill : skill, user : char,ctx):
         temp+=tablTypeStr[skil.type]
 
         if skil.description != None:
-            temp += "\n"+skil.description+"\n"
+            temp += "\n\n__Description :__\n"+skil.description+"\n"
+        
+        if skil.id.startswith("clem") or skil.id.startswith("alice"):
+            for skillID, cost in clemBJcost.items():
+                if skil.id == skillID:
+                    temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
 
         if skil.type in [TYPE_HEAL,TYPE_RESURECTION]:
             temp+="\n__Puissance :__ {0}".format(skil.power)
@@ -455,11 +466,6 @@ def infoSkill(skill : skill, user : char,ctx):
                 if a == skil.area:
                     temp+=f"\nCette compétence affecte **{ballerine[a-8]}**"
 
-    if skil.id.startswith("clem") or skil.id.startswith("alice"):
-        for skillID, cost in clemBJcost.items():
-            if skil.id == skillID:
-                temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
-
     if skil.shareCooldown :
         temp+=f"\nCette compétence a un cooldown syncronisé avec toute l'équipe"
     if skil.initCooldown > 1 and skil.type != TYPE_PASSIVE:
@@ -486,10 +492,12 @@ def infoSkill(skill : skill, user : char,ctx):
                 reject = findSkill(skil.condition[2])
                 temp += f"la compétence **{reject.name}** ({reject.emoji})"
     if skil.ultimate:
-        temp += "\nCette compétence est une compétence **ultime**. Vous ne pouvez équiper qu'une compétence ultime à la fois"
+        temp += "\nCette compétence est une compétence ultime"
+    if skil.effPowerPurcent != 100:
+        temp+="\nLes effets donnés par cette compétence ont une puissance équivalente à **{0}%** de leur puissance initiale".format(skil.effPowerPurcent)
 
     if skil.knockback > 0:
-        temp+="\n\n**__Repoussement :__**\nCette compétence repousse la cible de **{0}** cases\n\nSi la cible rencontre un obstacle (entité ou bord de la carte), les entités concernées recoivent des dégâts indiretes Harmonie d'une puissance équivalante à 10 multiplié par le nombre de cases restantes de la part du lanceur".format(skil.knockback)
+        temp+="\n\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}".format(skil.knockback,["","s"][int(skil.knockback > 1)])
 
     if skil.id == lunaSkill5Base.id:
         temp+="\n\n**__Repoussement :__**\n{1} repousse la cible de **{0}** cases\n{2} repousse la cible de **{3}** cases\n\nSi la cible rencontre un obstacle (entité ou bord de la carte), les entités concernées recoivent des dégâts indiretes Harmonie d'une puissance équivalante à 10 multiplié par le nombre de cases restantes de la part du lanceur\n*Note : Ces dégâts ne prennent pas en compte l'Endurance de Luna*".format(lunaSkill5_3.knockback,lunaSkill5_3.name,lunaSkill5_4.name,lunaSkill5_4.knockback)
@@ -709,7 +717,7 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
     upLvl = (user.level-1)*50+30
 
     if user.exp >= upLvl:
-        perso = loadCharFile(path,ctx)
+        perso = loadCharFile(path)
         perso.currencies, perso.exp = user.currencies, user.exp
         perso.points = perso.points + 1
 
@@ -930,6 +938,12 @@ async def makeCustomIcon(bot : discord.Client, user : char):
         pos = user.stuff[0].position
     else:
         pos = user.apparaAcc.position
+    position = []
+
+    if (user.apparaAcc == None and user.stuff[0].id == lentille.id) or (user.apparaAcc != None and user.apparaAcc.id == lentille.id):
+        accessoire.close()
+        accessoire = Image.new("RGBA",(1,1),(0,0,0,0))
+
     position = []
 
     # Récupération de l'icone de base -----------------------------
@@ -1236,6 +1250,9 @@ def getAutoStuff(object: stuff, user: char):
     else:
         tablAllStats = object.allStats()+[object.resistance,object.percing,object.critical]+[object.negativeHeal*-1,object.negativeBoost*-1,object.negativeShield*-1,object.negativeDirect*-1,object.negativeIndirect*-1]
         
+        for comp in user.skills:
+            if type(comp) == skill and comp.use not in [None,HARMONIE]:
+                tablAllStats[comp.use] += 1
         dictList = []
         for cmpt in range(len(tablAllStats)):
             dictList.append({"Stats":cmpt,"Value":tablAllStats[cmpt]})

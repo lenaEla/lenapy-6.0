@@ -311,16 +311,16 @@ shopRandomMsg = [
     '<:alice:908902054959939664> : "Mooow tu sais que tu es trop mignone toi ?"\n<:shushi:909047653524963328> : "Heu... gwa ?"',
     '<:clemence:908902579554111549> : "Je me doute déjà de la réponse mais... Alice, pourquoi tu es quasiment toujours là où se trouve Hélène en ce moment ?"\n<:alice:908902054959939664> : "... Pour rien ^^"\n<:clemence:908902579554111549> : "Je suis pas vraiment convaincue..."',
     '<:shihu:909047672541945927> : "Ti en penze gwa de zette coupe de tentacule ?"\n<:shushi:909047653524963328> : "Hum... Pas viment convaincue..."\n<:shihu:909047672541945927> : "Oh..."\n<:shushi:909047653524963328> : "Mi apès, ze peux touzour en fire un queue de zeval regawde !\n<:shihu:909047672541945927> : :0',
-    '<:felicite:899695897900879902> : "Hé Clémence ! Je peux t\'accompagner pour ta prochaine aventure ? Je te promet que je te gênerais pas !"\n<:clemence:908902579554111549> : "Alala... Soit"\n<:felicite:899695897900879902> : :D',
+    '<:felicite:909048027644317706> : "Hé Clémence ! Je peux t\'accompagner pour ta prochaine aventure ? Je te promet que je te gênerais pas !"\n<:clemence:908902579554111549> : "Alala... Soit"\n<:felicite:909048027644317706> : :D',
     '<:akira:909048455828238347> : ...\n<:shihu:909047672541945927> : ...\n<:akira:909048455828238347> <:shihu:909047672541945927> : ^^\n\n<:lena:909047343876288552> : <:LenaWhat:760884455727955978>',
     '<:lena:909047343876288552> : "\"Fini de jouer\" ? Tu as pas mieux comme phrase d\'accroche ?"\n<:luna:909047362868105227> : "Est-ce que je critique tes \"It\'s now or never\" moi ?"\n<:lena:909047343876288552> : "Roh, je suis sûre que tu l\'aime bien aussi cette chanson"\n<:luna:909047362868105227> : "Tss. Uniquement l\'originale."',
-    '<:helene:906303162854543390> : "Tu es au courant que mourir par hémorragie est tout sauf une mort agréable hein ?"\n<:shehisa:901555930066473000> : "Je vois pas où est la différence avec les infections que tu donnes à tes adversaires. Je suis peut-être pas une soigneuse, mais Papa m\'a suffisament initiée pour savoir que les maladies que tu leur refile sont tous sauf agréable"',
-    '<:shehisa:901555930066473000> : "Tu me reproche d\'avoir suivi la voie de Maman, mais tu devrais voir comment tu te comporte face à un ennemi quand tu veux lui faire avaler la pilule"\n<:helene:906303162854543390> : "Qu\'est-ce que tu insinue par là ?"\n<:shehisa:901555930066473000> : "Que je suis pas la seule à avoir héritée des talents de Maman"',
-    '<:shehisa:901555930066473000> : "Toujours rassurant de te savoir dans les parages, Icealia"\n<:icealia:909065559516250112> : "Oh, je n\'arrive pas au niveau de ta soeur en terme de soutiens quand même..."',
-    '<:shehisa:901555930066473000> : "Toujours rassurant de te savoir dans les parages, Icealia"\n<:icealia:909065559516250112> : "Et moi je suis toujours rasurée de te savoir dans mon camp..."',
+    '<:helene:906303162854543390> : "Tu es au courant que mourir par hémorragie est tout sauf une mort agréable hein ?"\n<:shehisa:919863933320454165> : "Je vois pas où est la différence avec les infections que tu donnes à tes adversaires. Je suis peut-être pas une soigneuse, mais Papa m\'a suffisament initiée pour savoir que les maladies que tu leur refile sont tous sauf agréable"',
+    '<:shehisa:919863933320454165> : "Tu me reproche d\'avoir suivi la voie de Maman, mais tu devrais voir comment tu te comporte face à un ennemi quand tu veux lui faire avaler la pilule"\n<:helene:906303162854543390> : "Qu\'est-ce que tu insinue par là ?"\n<:shehisa:919863933320454165> : "Que je suis pas la seule à avoir héritée des talents de Maman"',
+    '<:shehisa:919863933320454165> : "Toujours rassurant de te savoir dans les parages, Icealia"\n<:icealia:909065559516250112> : "Oh, je n\'arrive pas au niveau de ta soeur en terme de soutiens quand même..."',
+    '<:shehisa:919863933320454165> : "Toujours rassurant de te savoir dans les parages, Icealia"\n<:icealia:909065559516250112> : "Et moi je suis toujours rasurée de te savoir dans mon camp..."',
     '<:determination:867894180851482644> : "Laisse tomber Lena. De toutes façons il me considre même pas comme un de ses OCs"\n<:lena:909047343876288552> : "Tu vas pas rester dans le retrait et dans l\'oublie quand même ! Tu es presque aussi vielle que moi !"\n<:determination:867894180851482644> : "Undertale est plus vieux que toi"\n<:lena:909047343876288552> : "Si tu veux jouer à qui a la plus grosse je pense que je t\'explose"\n<:determination:867894180851482644> : "Oh ça dépend de la catégorie. En combat, tu m\'as jamais vaincue"\n<:luna:909047362868105227> : "Mais moi si"',
     'Les anges c\'est surc-\n<:lena:909047343876288552> : .',
-    '<:determination:867894180851482644> : "Alors Féli, tu as fais des progrès sur ta maitrise de la Détermination ?"\n<:felicite:899695897900879902> : "Ouais :D ! Regarde ça !"',
+    '<:determination:867894180851482644> : "Alors Féli, tu as fais des progrès sur ta maitrise de la Détermination ?"\n<:felicite:909048027644317706> : "Ouais :D ! Regarde ça !"',
     '<:takoRed:866459004439756810> : "Clémence, ça va mieux avec ta cicatrice en ce moment ?"\n<:clemence:908902579554111549> : "À part qu\'elle me brûle quand j\'utilise trop mes pouvoirs vampiriques ou quand il y a un Alpha dans le coin, rien à déclarer"\n<:takoRed:866459004439756810> : "Tss. Ces loups garoux..."\n<:clemence:908902579554111549> : "Pas la peine de prendre ce regard assassin Madame Ruby. J\'ai appris à faire avec maintenant"',
     '`Alice surgit au coins du couloir en courant et vous rentre dedans, ne vous ayant pas vu`\n\n<:alice:908902054959939664> : "Dé-désolée !"\n\n`Elle ramasse rapidement les cahiers qu\'elle portait dans ses bras et repart aussi vite qu\'elle est venue.\nVous constatez qu\'elle a oublié une feuille, qui a du se retrouver sous elle quand elle est tombée`\n\n📄 [Devoir d\'astronomie sur les trous noirs](https://bit.ly/3kh8xP3)',
     '<:alice:908902054959939664> : "Maraiiiiiiiiine ?"\n<:lena:909047343876288552> : "Il y a un peu trop de "i" pour moi..."\n<:alice:908902054959939664> : "C\'est quoi ça."\n\n`Elle sortie son téléphone et le mit directement devant le visage de Lena`\n\n📱 [Photographie d\'une feuille de papier](https://bit.ly/3o74aal)\n\n<:lena:909047343876288552> : "... Merde. Et comment ça, tu es allé fouiller dans ma chambre !?"',
@@ -337,7 +337,9 @@ shopRandomMsg = [
     "<:gweny:906303014665617478> : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
     "<:lia:908754741226520656> : \"Hé Alice ! Tu penses quoi de ces fleurs là ?\"\n<:alice:908902054959939664> : \"Hum... un peu trop jaune à mon goût...\"",
     "<:shushi:909047653524963328> : \"Hé hé Midame des neizes ! Z'est touvé za part terre, y a maqué quoi dezu ?\"\n<:icealia:909065559516250112> : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)",
-    "<:lena:909047343876288552> : \"...\"\n<:luna:909047362868105227> : \"Tu commencerais pas à nous faire une crise de jalousie toi ?\"<:lena:909047343876288552> : \"Je vois pas de quoi tu parles.\"\n<:luna:909047362868105227> : \"J'en pris, je suis mieux placée que qui-conque pour voir comment tu regardes Clémence depuis qu'elle a sa version boss\"\n<:lena:909047343876288552> : \"...\"\n<:luna:909047362868105227> : \"En même temps tu passes ton temps à lui montrer que tu peux te débrouiller toute seule, tu vas pas lui reprocher de s'occuper de ses autres OCs de temps en temps, si ?\"<:lena:909047343876288552> : \"Non évidament...\""
+    "<:lena:909047343876288552> : \"...\"\n<:luna:909047362868105227> : \"Tu commencerais pas à nous faire une crise de jalousie toi ?\"\n<:lena:909047343876288552> : \"Je vois pas de quoi tu parles.\"\n<:luna:909047362868105227> : \"J'en pris, je suis mieux placée que qui-conque pour voir comment tu regardes Clémence depuis qu'elle a sa version boss\"\n<:lena:909047343876288552> : \"...\"\n<:luna:909047362868105227> : \"En même temps tu passes ton temps à lui montrer que tu peux te débrouiller toute seule, tu vas pas lui reprocher de s'occuper de ses autres OCs de temps en temps, si ?\"\n<:lena:909047343876288552> : \"Non évidament...\"",
+    "<:lena:909047343876288552> : \"La vache c'est bien plus compliqué que je le pensais de lancer ces plumes enfaites...\"\n<:hina:908820821185810454> : \"C'est qu'une question d'habitude ^^ Hônnetement... J'arriverai même pas à tenir un de tes fusils donc bon ^^'\"",
+    "<:sixtine:908819887059763261> : \"...\"\n<:krys:916118008991215726> : ?\"\n<:sixtine:908819887059763261> : \"...\"\n<:krys:916118008991215726> : \"?.? Je peux t'aider ?\"\n<:sixtine:908819887059763261> : \"Oh heu... Je me demandais juste si tu avais un coeur de pierre...\"\n<:krys:916118008991215726> : \"??.??\""
 ]
 
 shopRepatition = [4,7,10,2]                 # Répartition des objets du shop
@@ -572,6 +574,20 @@ lizSays = says(
     redLoose = "Waw, je me suis jamais faite autant refroidir rapidement..."
 )
 
+julieSays = says(
+    start="J'ai pas le temps pour ça ! Je dois encore faire la cuisine, nettoyer le hall, faire tourner une machine à laver (...) et repasser les robes de Madame !",
+    ultimate="Pas le choix...",
+    limiteBreak="Courage vous autre !",
+    onDeath="M-Madame... désolée...",
+    onResurect="E-elle en saura rien, hein ?"
+)
+
+sixtineSays = says(
+    start = "`Baille en s'étirant`",
+    ultimate = "Laissez moi tranquille...",
+    redWinAlive = "Je retourne dessiner maintenant...",
+    redLoose="Zzz..."
+)
 randomMaxDmg = [
     "Apparament, {icon} __{name}__ aurait réussi à infligé **{value}** dégâts en un seul combat ╮(︶▽︶)╭",
     "Hé tu sais quoi {icon} __{name}__ ? Ton record de dégâts en un seul combat est de **{value}**",

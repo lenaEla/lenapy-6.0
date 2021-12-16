@@ -73,7 +73,11 @@ guilds = list(range(0,len(listGuildSet)))
 allShop = weapons + skills + stuffs + others
 
 class shopClass:
+    """The class who endle the shop\n
+    Maybe I should shearch how it's writed...
+    """
     def __init__(self,shopList : list):
+        """When inited, look for a existing shop data in the database and load it"""
         self.shopping = []
         summation = 0
         for a in shopRepatition:
@@ -97,54 +101,62 @@ class shopClass:
                         self.shopping[a] = findOther(shopList[a])
 
     async def newShop(self):
-        shopping = list(range(0,len(self.shopping)))
-        ballerine = datetime.datetime.now() + (datetime.timedelta(hours=3)+horaire)
+        """Genere a new shop and upload it in the database\n
+        - Returns\n
+            - ``True`` if it succed
+            - ``False`` else"""
+        try:
+            shopping = list(range(0,len(self.shopping)))
+            ballerine = datetime.datetime.now() + (datetime.timedelta(hours=3)+horaire)
 
-        if globalVar.fightEnabled():
-            await bot.change_presence(activity=discord.Game("Nouveau shop : "+ballerine.strftime('%H:%M')))
+            if globalVar.fightEnabled():
+                await bot.change_presence(activity=discord.Game("Prochain shop : "+ballerine.strftime('%H:%M')))
 
-        shopWeap,shopSkill,shopStuff,ShopOther = [],[],[],others[:]
-        for a in weapons:
-            if a.price > 0:
-                shopWeap.append(a)
-                if a in weapons[:3]:
+            shopWeap,shopSkill,shopStuff,ShopOther = [],[],[],others[:]
+            for a in weapons:
+                if a.price > 0:
                     shopWeap.append(a)
-                
-        for a in skills:
-            if a.price > 0:
-                shopSkill.append(a)
-                if a in skills[:5]:
-                    shopWeap.append(a)
-                
-        for a in stuffs:
-            if a.price > 0:
-                shopStuff.append(a)
-                if a in skills[:5]:
-                    shopWeap.append(a)
-        
-        temp = shopRepatition
-        tablShop = [shopWeap,shopSkill,shopStuff,ShopOther]
-        cmp = 0
-        for a in [0,1,2,3]:
-            cmpt = 0
-            while cmpt < temp[a]:
-                fee = random.randint(0,len(tablShop[a])-1)
-                shopping[cmp] = tablShop[a][fee]
-                tablShop[a].remove(tablShop[a][fee])
-                cmpt+=1
-                cmp+=1
+                    if a in weapons[:3]:
+                        shopWeap.append(a)
+                    
+            for a in skills:
+                if a.price > 0:
+                    shopSkill.append(a)
+                    if a in skills[:5]:
+                        shopWeap.append(a)
+                    
+            for a in stuffs:
+                if a.price > 0:
+                    shopStuff.append(a)
+                    if a in stuffs[:5]:
+                        shopWeap.append(a)
             
-        temp = ""
-        stuffDB.addShop(shopping)
-        for a in shopping:
-            temp += f"\n{a.name}"
+            temp = shopRepatition
+            tablShop:List[list[Union[weapon,skill,stuff,other]]] = [shopWeap,shopSkill,shopStuff,ShopOther]
+            cmp = 0
+            for a in [0,1,2,3]:
+                cmpt = 0
+                while cmpt < temp[a]:
+                    fee = random.randint(0,len(tablShop[a])-1)
+                    shopping[cmp] = tablShop[a][fee]
+                    tablShop[a].remove(tablShop[a][fee])
+                    cmpt+=1
+                    cmp+=1
+                
+            temp = ""
+            stuffDB.addShop(shopping)
+            for a in shopping:
+                temp += f"\n{a.name}"
 
-        print("\n--------------\nLe nouveau shop est :"+temp+"\n------------")
-        self.shopping = shopping
+            print("\n--------------\nLe nouveau shop est :"+temp+"\n------------")
+            self.shopping = shopping
+            return True
+        except:
+            return False
 
 async def inventoryVerif(bot):
-    for z in os.listdir(absPath + "/userProfile/"):
-        user = loadCharFile(absPath + "/userProfile/" + z)
+    for fileName in os.listdir(absPath + "/userProfile/"):
+        user = loadCharFile(absPath + "/userProfile/" + fileName)
         aliceStatsDb.addUser(user)
         allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
         ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
@@ -189,7 +201,7 @@ async def inventoryVerif(bot):
             babie += "\n\nCes objets vous ont été remboursés"
 
         if modifSkill+modifStuff > 0:
-            saveCharFile(absPath + "/userProfile/" + z,user)
+            saveCharFile(absPath + "/userProfile/" + fileName,user)
             try:
                 toUser = await bot.fetch_user(user.owner)
                 message = ""
@@ -197,7 +209,7 @@ async def inventoryVerif(bot):
                     message+=ballerine+"\n"
                 if modifStuff > 0:
                     message+=babie
-                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=message))
+                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description=message))
             except:
                 pass
 
@@ -213,10 +225,10 @@ async def inventoryVerif(bot):
 
         if temp != "":
             temp = "Vous ne respectez pas les conditions de niveaux d'un ou plusieurs de vos équipements\nLe(s) équipement(s) suivant a(ont) automatiquement été remplacé(s) :\n\n"+temp
-            saveCharFile(absPath + "/userProfile/" + z,user)
+            saveCharFile(absPath + "/userProfile/" + fileName,user)
             try:
                 toUser = await bot.fetch_user(user.owner)
-                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description=temp))
+                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description=temp))
             except:
                 pass
 
@@ -237,17 +249,43 @@ async def inventoryVerif(bot):
             else:
                 user.otherInventory.append(elementalCristal)
                 temp = "Vous avez obtenu un {0} {1}".format(elementalCristal.emoji,elementalCristal.name)
-            saveCharFile(absPath + "/userProfile/" + z,user)
+            saveCharFile(absPath + "/userProfile/" + fileName,user)
 
             try:
                 toUser = await bot.fetch_user(user.owner)
-                await toUser.send(embed=discord.Embed(title = "Problème lors de la vérification automatique de l'inventaire",color=user.color,description="Votre élément de ne respecte pas les restrictions de niveau\n\n"+temp))
+                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description="Votre élément de ne respecte pas les restrictions de niveau\n\n"+temp))
+            except:
+                pass
+
+        userAchivments = achivement.getSuccess(user)
+        tempMissingAchivRecompMsg = ""
+        for ach in userAchivments.tablAllSuccess():
+            if ach.haveSucced and ach.recompense != [None] and ach.recompense not in [["qe"],["qh"]]:
+                for rec in ach.recompense:
+                    whatty = whatIsThat(rec)
+                    obj = [findWeapon(rec),findSkill(rec),findStuff(rec)][whatty]
+
+                    if not(user.have(obj)):
+                        if whatty == 0:
+                            user.weaponInventory.append(obj)
+                        elif whatty == 1:
+                            user.skillInventory.append(obj)
+                        elif whatty == 2:
+                            user.stuffInventory.append(obj)
+
+                        tempMissingAchivRecompMsg += "\n{0} {1} ({2})".format(obj.emoji,obj.name,ach.name)
+                saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
+
+        if tempMissingAchivRecompMsg != "":
+            try:
+                toUser = await bot.fetch_user(user.owner)
+                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description="Une ou plusieurs récompenses de succès n'ont pas été trouvées dans votre inventaire et vous ont été restituée :\n"+tempMissingAchivRecompMsg))
+                print("{0} n'avait pas toutes ces récompenses de succès".format(user.name))
             except:
                 pass
 
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
-
 
 async def restart_program(bot : discord.Client, ctx=None):
     if ctx != None:
@@ -308,7 +346,7 @@ def delete_old_backups():
             for files in os.listdir("./data/backups/{0}/".format(name)):
                 os.remove("./data/backups/{0}/{1}".format(name,files))
             try:
-                os.remove("./data/backups/{0}".format(name))
+                os.remove("./data/backups/{0}/".format(name))
                 temp+="./data/backups/{0} a été supprimé\n".format(name)
             except:
                 temp+="./data/backups/{0} n'a pas pu être supprimé\n".format(name)
@@ -334,7 +372,9 @@ async def hourClock():
         minuteClock.stop()
     tick = datetime.datetime.now()+horaire
     if tick.hour%3==0:
-        await shopping.newShop()
+        temp = False
+        while not(temp):
+            temp = await shopping.newShop()
 
     if tick.hour==0:
         for log in os.listdir("./data/fightLogs/"):
@@ -355,21 +395,23 @@ async def hourClock():
     # Skill Verif
     await inventoryVerif(bot)
 
+# -------------------------------------------- ON READY --------------------------------------------
 @bot.event
 async def on_ready():
-    print("\n-----------------------------\nLe bot est en ligne. Début de la phase d'initialisation post-online !\n----------------------\n")
+    print("\n---------\nThe bot is fully online ! Starting the initialisations things...\n---------\n")
     startMsg = globalVar.getRestartMsg()
-    if startMsg != 0:
+    if startMsg != 0:                           # If the bot was rebooted with the admin command, change the status
         msg = await bot.fetch_channel(912137828614426707)
         msg = await msg.fetch_message(startMsg)
 
         await msg.edit(embed=discord.Embed(title="Redémarrage en cours...",description="Phase d'initalisation..."))
         globalVar.changeFightEnabled(True)
 
+    # Load the guild's settings files
     cmpt = 0
     lastTime = datetime.datetime.now().second
     lenGuild = len(listGuildSet)
-    print("Chargement des fichiers de guilds... 0%")
+    print("Starting guild's settings loading... 0%")
     while cmpt < lenGuild:
         try:
             guildSettings = readSaveFiles(absPath + "/guildSettings/"+listGuildSet[cmpt])
@@ -384,35 +426,39 @@ async def on_ready():
 
         now = datetime.datetime.now().second
         if now >= lastTime + 2 or (now <= 2 and now >= lastTime + 2 - 60):
-            print("Chargement des fichiers de guilds... {0}%".format(round((cmpt/lenGuild)*100)))
+            print("Loading guild's settings... {0}%".format(round((cmpt/lenGuild)*100)))
             lastTime = now
 
         cmpt += 1
 
-    print("Chargement des fichiers de guilds terminé !\n")
+    print("All guild's settings are loaded !\n")
     if bidule != False:
-        ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
+        ballerine = datetime.datetime.now() + horaire
+        while ballerine.hour%3 != 0:
+            ballerine = ballerine + datetime.timedelta(hours=1)
 
         if not(globalVar.fightEnabled()):
             await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
         else:
-            await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+            await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
 
     if not(oneClock.is_running()):
         oneClock.start()
 
     teamWinDB.resetAllFightingStatus()
 
-    print("\nMise à jour des fichiers data...")
+    print("\nDownloading the emojis for the custom icons...")
     await downloadAllHeadGearPng(bot)
     await downloadAllWeapPng(bot)
     await downloadAllIconPng(bot)
     await downloadElementIcon(bot)
-    print("Mise à jour des fichiers data terminée")
+    print("Download complete\nVerefying the characters inventorys...")
     
     await inventoryVerif(bot)
 
-    print("\n-----------------------------\nFin de l'initialisation\n-----------------------------\n")
+    print("\n------- End of the initialisation -------")
+    if not(isLenapy):
+        print(datetime.datetime.now().strftime('%H:%M'))
 
     if startMsg != 0:
         await msg.edit(embed=discord.Embed(title="Redémarrage en cours...",color=light_blue,description="Le bot a bien été redémarré"))
@@ -420,10 +466,11 @@ async def on_ready():
         globalVar.getRestartMsg(int(0))
         print("Redémarrage terminé")
 
-###########################################################
-# Commandes
-begoneTabl = []
+# ====================================================================================================
+#                                               COMMANDS
+# ====================================================================================================
 
+# -------------------------------------------- ON MESSAGE --------------------------------------------
 @bot.event
 async def on_message(ctx : discord.message.Message):
     valid = False
@@ -559,7 +606,7 @@ async def on_message(ctx : discord.message.Message):
                     if args[2] == "all":
                         for a in os.listdir(absPath + "/userProfile/"):
                             pathUserProfile = absPath + "/userProfile/" + a
-                            user = loadCharFile(pathUserProfile,ctx)
+                            user = loadCharFile(pathUserProfile)
                             user = silentRestats(user)
 
                             saveCharFile(pathUserProfile,user)
@@ -569,7 +616,7 @@ async def on_message(ctx : discord.message.Message):
                         try:
                             stated = ctx.mentions[0]
                             pathUserProfile = absPath + "/userProfile/" + str(stated.id) + ".prof"
-                            user = loadCharFile(pathUserProfile,ctx)
+                            user = loadCharFile(pathUserProfile)
                             user = restats(user)
 
                             if saveCharFile(pathUserProfile,user) :
@@ -582,7 +629,7 @@ async def on_message(ctx : discord.message.Message):
                         for a in os.listdir(absPath + "/userProfile/"):
                             try:
                                 pathUserProfile = absPath + "/userProfile/" + a
-                                user = loadCharFile(pathUserProfile,ctx)
+                                user = loadCharFile(pathUserProfile)
                                 whut = whatIsThat(args[3])
 
                                 if whut == 0:
@@ -682,7 +729,7 @@ async def on_message(ctx : discord.message.Message):
                     else:
                         try:
                             pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
-                            user = loadCharFile(pathUserProfile,ctx)
+                            user = loadCharFile(pathUserProfile)
                             whut = whatIsThat(args[3])
 
                             if whut == 0:
@@ -790,20 +837,6 @@ async def on_message(ctx : discord.message.Message):
                 #except:
                     #await ctx.add_reaction('<:LenaWhat:760884455727955978>')
 
-            elif args[0] == guild.prefixe + "solde" and checkIsBotChannel(ctx,guild,bot):
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                if os.path.exists(pathUserProfile):
-                    user = loadCharFile(pathUserProfile,ctx)
-                    await ctx.channel.send(embed = discord.Embed(title = "Porte monnaie", description = f"Ta solde actuelle est de {user.currencies} {emoji.coins}",color = user.color))
-                else:
-                    await ctx.channel.send("Tu n'a pas commencé l'aventure")
-
-            elif args[0] == guild.prefixe + "invite" and checkIsBotChannel(ctx,guild,bot):
-                if os.path.exists("../Kawi/"):
-                    await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=769999212422234122&permissions=1074097216&scope=bot%20applications.commands'))
-                else:
-                    await ctx.channel.send(embed = discord.Embed(title = args[0],color = light_blue,url = 'https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands'))
-
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
                 test = loadAdvDutyFile("act0","prologue")
                 user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
@@ -816,37 +849,6 @@ async def on_message(ctx : discord.message.Message):
                 embed.set_footer(text=toBotton)
 
                 await ctx.channel.send(embed=embed)
-
-            elif args[0] == guild.prefixe + "procuration" and checkIsBotChannel(ctx,guild,bot):
-                await procuration(ctx)
-
-            elif args[0] == guild.prefixe + "icon" and checkIsBotChannel(ctx,guild,bot):
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                await ctx.add_reaction(emoji.loading)
-                if os.path.exists(pathUserProfile):
-                    user = loadCharFile(pathUserProfile,ctx)
-                    await makeCustomIcon(bot,user)
-                    ballerine, babie = getEmojiObject(await getUserIcon(bot,user)),None
-                    iconGuildList = []
-                    if os.path.exists("../Kawi/"):
-                        iconGuildList = ShushyCustomIcons
-                    else:
-                        iconGuildList = LenaCustomIcons
-                    for a in iconGuildList:
-                        try:
-                            guild = await bot.fetch_guild(a)
-                            babie = await guild.fetch_emoji(ballerine["id"])
-                        except:
-                            pass
-
-                    await ctx.clear_reaction(emoji.loading)
-                    if babie != None:
-                        url = babie.url
-                        await ctx.channel.send(url)
-                    else:
-                        await ctx.channel.send(embed=errorEmbed(args[0],"L'icone de votre personnage n'a pas pu être récupéré"))
-                else:
-                    await ctx.channel.send(embed=errorEmbed(args[0],"Vous n'avez pas commencé l'aventure"))
 
             elif args[0] == "l!new_patch" and ctx.author.id == 213027252953284609:
                 await new_patch(bot,ctx)
@@ -865,7 +867,7 @@ async def on_message(ctx : discord.message.Message):
                                     await chan.send(embed=discord.Embed(title="/patchnote",color=light_blue,description="Un nouveau patchnote est disponible, vous pouvez le voir à l'aide de /patchnote\n\n*Note : Les nouvelles commandes slash peuvent mettre jusqu'à 1 heure pour apparaitre sur vos serveur*"))
                     except:
                         pass
-        
+
         else:
             pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
             if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
@@ -874,7 +876,7 @@ async def on_message(ctx : discord.message.Message):
                 except:
                     print("Erreur dans la gestion du message de {0}".format(ctx.author.name))
 
-# encyclopedia ----------------------------------------
+# -------------------------------------------- ENCYCLOPEDIA --------------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
     create_option(
         name="destination", description="Que voulez vous consulter ?", required=True,option_type=3,
@@ -898,9 +900,8 @@ async def comEncyclopedia(ctx,destination):
         
     await encylopedia(bot,ctx,destination,user)
 
-# FIGHT -----------------------------------------------
-@slash.slash(name="fight",description="test",options=[])
 
+# -------------------------------------------- FIGHT --------------------------------------------
 # normal fight
 @slash.subcommand(base="fight",name="normal",description="Permet de lancer un combat normal")
 async def normal(ctx):
@@ -928,7 +929,7 @@ async def normal(ctx):
                         guild = a
 
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-        user = loadCharFile(pathUserProfile,ctx)
+        user = loadCharFile(pathUserProfile)
         ballerine,temp = 0,0
         if user.team == 0:
             ballerine = user.owner
@@ -974,10 +975,10 @@ async def normal(ctx):
                 lenBoucle = max(4,len(team1))
                 cmpt = 0
 
-                if maxLvl < tablAllOcta[42].baseLvl:
-                    alea = copy.deepcopy(tablAllOcta[6])
+                if maxLvl < tablAllEnnemies[42].baseLvl:
+                    alea = copy.deepcopy(tablAllEnnemies[6])
                 else:
-                    alea = copy.deepcopy(tablAllOcta[42])
+                    alea = copy.deepcopy(tablAllEnnemies[42])
 
                 alea.changeLevel(maxLvl)
                 alea.charisma = alea.charisma//2
@@ -1023,7 +1024,6 @@ async def comQuickFight(ctx):
     if not(globalVar.fightEnabled()):
         await ctx.send(embed=discord.Embed(title="__Combats désactivés__",description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),delete_after=10)
     else:
-        
         try:
             pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
             valid = True
@@ -1045,7 +1045,7 @@ async def comQuickFight(ctx):
                         guild = a
 
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-        user = loadCharFile(pathUserProfile,ctx)
+        user = loadCharFile(pathUserProfile)
         ballerine,trouv,temp = 0,False,0
         if user.team == 0:
             ballerine = user.owner
@@ -1078,7 +1078,7 @@ async def comQuickFight(ctx):
         elif teamWinDB.isFightingBool(ballerine):
             msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
         else:
-            msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
+            msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats rapides que dans {timing//60} minute(s)"),delete_after=10)
 
 # octogone fight
 @slash.subcommand(base="fight",name="octogone",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
@@ -1158,7 +1158,7 @@ async def teamFight(ctx,versus):
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile,ctx)
+        user = loadCharFile(pathUserProfile)
         ballerine,trouv,temp = 0,False,0
         if user.team == 0:
             ballerine = user.owner
@@ -1191,12 +1191,12 @@ async def teamFight(ctx,versus):
     else:
         await ctx.send("Tu n'as pas commencé l'aventure",delete_after=5)
 
-# cooldown ---------------------------------------------
+# -------------------------------------------- COOLDOWN --------------------------------------------
 @slash.slash(name="cooldowns",description="Vous donne les cooldowns des commandes /fight et /quickFight pour votre équipe")
 async def cooldowns(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile,ctx)
+        user = loadCharFile(pathUserProfile)
         cd = teamWinDB.getFightCooldown(user.team)
         cd2 = teamWinDB.getFightCooldown(user.team,True)
         fcooldown,fseconds,fqcooldown,fqseconds,faccord,fqaccord,fsaccord,fqsaccord = cd//60,cd%60,cd2//60,cd2%60,"","","",""
@@ -1213,12 +1213,12 @@ async def cooldowns(ctx):
         else:
             await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : En combat <:turf:810513139740573696>\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
 
-# Patchnote
+# -------------------------------------------- PATCHNOTE --------------------------------------------
 @slash.slash(name="patchnote",description="Renvoie le dernier patchnote du bot")
 async def patchnote(ctx):
     await send_patchnote(ctx)
 
-# Roll
+# -------------------------------------------- ROLL --------------------------------------------
 @slash.slash(name="roll",description="Permet de lancer un dé",options=[
     create_option(name="min",description="Minimum du jet. Par défaut, 1",option_type=4,required=False),
     create_option(name="max",description="Minimum du jet. Par défaut, 100",option_type=4,required=False),
@@ -1227,12 +1227,12 @@ async def roll(ctx,min=1,max=100):
     rollmes = rollMessage[random.randint(0,len(rollMessage)-1)]
     await ctx.send(embed= discord.Embed(title=f"🎲 roll {min} - {max}",color=light_blue,description=rollmes.format(random.randint(min,max))))
 
-# Shop
+# -------------------------------------------- SHOP --------------------------------------------
 @slash.slash(name="shop",description="Vous permet d'entrer dans le magasin")
 async def shopSlash(ctx):
     await shop2(bot,ctx,shopping.shopping)
 
-# Inventory
+# -------------------------------------------- INVENTORY --------------------------------------------
 @slash.slash(name="inventory",description="Vous permet de naviger dans votre inventaire",options=[
     create_option("destination","Dans quel inventaire voulez-vous aller ?",3,required=False,choices=[
         create_choice("Equipement","Equipement"),
@@ -1339,16 +1339,14 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
         else:
             await inventoryV2(bot,ctx,destination,user)
 
-# Points
+# -------------------------------------------- POINTS --------------------------------------------
 @slash.slash(name="points",description="Vous permet de répartir vos points bonus",options=[
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False)
 ])
 async def pts(ctx,procuration=None):
     await points(bot,ctx, ["/points",None],procuration,slashed=True)
 
-# TEAM ------------------------------------------------------------------------
-@slash.slash(name="team",description="Permet de gérer son équipe",options=[])
-
+# -------------------------------------------- TEAM --------------------------------------------
 # team view
 @slash.subcommand(base="team",name="view",description="Permet de voir les équipements de votre équipe ou de celle de quelqu'un d'autre",options=[
     create_option("joueur","Voir l'équipe d'un autre joueur",6,required=False)
@@ -1522,17 +1520,17 @@ async def teamFact(ctx):
                 await msg.edit(embed= embed,components=[])
                 break
 
-# HELP ----------------------------------------------------------------
+# -------------------------------------------- HELP --------------------------------------------
 @slash.slash(name="help",description="Ouvre la page d'aide du bot")
 async def helpCom(ctx):
     await helpBot(bot,ctx)
 
-# START
+# -------------------------------------------- START --------------------------------------------
 @slash.slash(name="start",description="Permet de commence l'aventure")
 async def started(ctx):
     await start(bot,ctx,["/start"])
 
-# STATS
+# -------------------------------------------- STATS --------------------------------------------
 @slash.slash(name="stats",description="Permet de voir vos statistiques ou celles d'un autre joueur",options=[
     create_option("joueur","Voir les statistiques d'un autre joueur",6,False)
 ])
@@ -1544,7 +1542,7 @@ async def stats(ctx,joueur=None):
 
     if os.path.exists(pathUserProfile):
         msg = await loadingSlashEmbed(ctx)
-        user = loadCharFile(pathUserProfile,ctx)
+        user = loadCharFile(pathUserProfile)
 
         userIcon = await getUserIcon(bot,user)
 
@@ -1597,7 +1595,7 @@ async def stats(ctx,joueur=None):
         else:
             await ctx.send("{0} n'a pas commencé l'aventure".format(joueur.name))
 
-# MANUEL
+# -------------------------------------------- MANUEL --------------------------------------------
 @slash.slash(name="manuel",description="Permet de consulter le manuel de l'Aventure",options=[
     create_option("page","Spécifiez une page à laquelle ouvrir le manuel",4,False)
 ])
@@ -1660,7 +1658,7 @@ async def manuel(ctx,page=0):
 
             await msg.remove_reaction(str(reaction[0]),reaction[1])
 
-# SEE LOGS
+# -------------------------------------------- SEE LOGS --------------------------------------------
 @slash.slash(name="SeeFightLogs",description="Permet de consulter les logs des combats du jour",guild_ids=[615257372218097691])
 async def seeLogs(ctx):
     listLogs = os.listdir("./data/fightLogs/")
@@ -1724,7 +1722,7 @@ async def seeLogs(ctx):
         elif resp == "forward":
             page += 1
 
-# SEE STUFF
+# -------------------------------------------- SEE STUFF --------------------------------------------
 @slash.slash(name="SeeStuffRepartition",description="Permet de consulter la réportation des logs",guild_ids=[615257372218097691])
 async def seeStuffRepartition(ctx):
     rep = "=============================================="
@@ -1752,7 +1750,7 @@ async def seeStuffRepartition(ctx):
             temp += a
     await ctx.channel.send(temp2)
 
-# CHOOSE
+# -------------------------------------------- CHOOSE --------------------------------------------
 @slash.slash(name="Choose",description="Renvoie une élément aléatoire de la liste donnée",options=[
     create_option("choix1",description="Le premier élément de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=True),
     create_option("choix2",description="Le second élément de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=True),
@@ -1773,7 +1771,7 @@ async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
         selected = selected[1:]
     await ctx.send(embed=discord.Embed(title="/choose",color=light_blue,description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0,len(randChooseMsg)-1)],selected)))
 
-# ------------------------------- ADMIN --------------------------------------------------------------------
+# -------------------------------------------- ADMIN --------------------------------------------
 
 @slash.subcommand(base="admin",name="enable_Fight",guild_ids=[912137828614426704],description="Permet d'activer les combats ou non",options=[
     create_option("valeur","Activer ou désaciver les combats", SlashCommandOptionType.BOOLEAN,False)
@@ -1788,7 +1786,7 @@ async def addEnableFight(ctx,valeur = None):
     else:
         bidule = stuffDB.getShop()
         ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
-        await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+        await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
 
     await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__",description="Les combats sont désormais __{0}__".format(["désactivés","activés"][int(valeur)]),color=[red,light_blue][int(valeur)]))
 
@@ -1884,7 +1882,7 @@ async def resetCustomEmoji(ctx):
 
     bidule = stuffDB.getShop()
     ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
-    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
 
 @slash.subcommand(base="admin",subcommand_group="emoji",name="remake_all",guild_ids=[912137828614426704],description="Supprime puis refait tous les emojis de personnage")
 async def remakeCustomEmoji(ctx):
@@ -1947,7 +1945,7 @@ async def remakeCustomEmoji(ctx):
 
     bidule = stuffDB.getShop()
     ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
-    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Nouveau shop : "+ballerine.strftime('%H:%M')))
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
 
 @slash.subcommand(base="admin",subcommand_group="backup",name="new",description="Permet de réaliser un backup des profiles de personnages",guild_ids=[912137828614426704])
 async def adminBackup(ctx):
@@ -1961,6 +1959,8 @@ if isLenapy:
     tabl=[912137828614426704,405331357112205326]
 else:
     tabl=[912137828614426704]
+
+# -------------------------------------------- KIKIMETER --------------------------------------------
 @slash.slash(name="Kikimeter",description="Permet de voir le top 5 de chaques catégories",guild_ids=tabl,options=[create_option(name="what",description="Que regarder",option_type=str,required=True,choices=[create_choice("total","total"),create_choice("max","max")])])
 async def kikimeterCmd(ctx,what):
     listAllChars = []
@@ -1987,7 +1987,26 @@ async def kikimeterCmd(ctx,what):
     except:
         await ctx.channel.send(embed = embed)
 
-# ---------------------------------------------------- Aventure ---------------------------------------------
+# -------------------------------------------- PROCURATION --------------------------------------------
+@slash.slash(name="procuration",description="Permet de donner à un autre utilisateur procuration sur votre inventaire",options=[create_option("utilisateur","L'utilisateur qui pourra modifier vos objets équipés",6,True)])
+async def procurCmd(ctx,utilisateur):
+    await procuration(ctx,utilisateur)
+
+# -------------------------------------------- ICON --------------------------------------------
+@slash.slash(name="icon",description="Renvoie l'icone de votre personnage")
+async def iconCommand(ctx):
+    try:
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+    except:
+        await ctx.send("Vous devez avoir commencé l'Aventure pour utiliser cette commande\nFaites donc un tour du côté de /start !",delete_after=15)
+        return 0
+
+    embed = discord.Embed(title="__Icone de personnage__",color=user.color)
+    embed.set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"]))
+
+    await ctx.send(embed=embed)
+
+# -------------------------------------------- ADVENTURE ---------------------------------------------
 @slash.subcommand(base="adventure",subcommand_group="duty",name="select",description="Permet de commencer une nouvelle mission",base_description="Commandes de l'Aventure",guild_ids=[615257372218097691])
 async def dutyStart(ctx):
     still = True
@@ -2001,6 +2020,7 @@ async def dutyStart(ctx):
         actName, dutyName, msg = await adventureDutySelect(bot,ctx,user)
         await msg.edit(embed = discord.Embed(title="__Mission sélectionnée__",color=light_blue,description="Vous avez sélectioné la mission \"{0} - {1}\"".format(actName,dutyName[0].upper()+dutyName[1:].lower())),components=[])
 
+# -------------------------------------------- ROULETTE --------------------------------------------
 @slash.slash(name="roulette",description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
 async def rouletteSlash(ctx):
     try:
@@ -2015,7 +2035,10 @@ async def rouletteSlash(ctx):
 # Démarrage du bot
 if not(isLenapy):
     print("\nKawiiiiii")
-    bot.run(shushipy)
+    try:
+        bot.run(shushipy)
+    except:
+        print("La connexion a écouché")
 else:
     print("\nIl semblerait que je sois seule cette fois. Je m'occuperais de Shushi une autre fois")
     bot.run(lenapy)

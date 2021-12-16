@@ -157,54 +157,58 @@ def saveGuildSettings(path : str, server : server):
     except:
         return False
 
-def saveCharFile(path : str, char : char):
+def saveCharFile(path : str = None, user : char = None):
+    if user == None:
+        raise Exception("Attribut Error : No user gave")
+    if path == None:
+        path = './userProfile/{0}.prof'.format(user.owner)
     #try:
     saved = ""
-    for a in [char.owner,char.name,char.level,char.exp,char.currencies,char.species,char.color,char.team,int(char.customColor),char.colorHex]:
+    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex]:
         saved += str(a)+";"
     saved += "\n"
-    for a in [char.strength,char.endurance,char.charisma,char.agility,char.precision,char.intelligence,char.magie,char.aspiration,char.gender]:
+    for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
         saved += str(a)+";"
     saved += "\n"
-    for a in [char.resistance,char.percing,char.critical,char.points]:
+    for a in [user.resistance,user.percing,user.critical,user.points]:
         saved += str(a)+";"
-    for a in char.bonusPoints:
+    for a in user.bonusPoints:
         saved += str(a)+";"
     saved += "\n"
-    saved += char.weapon.id +";\n"
-    for a in char.weaponInventory:
+    saved += user.weapon.id +";\n"
+    for a in user.weaponInventory:
         saved += a.id+";"
     saved += "\n"
-    for a in char.skills:
+    for a in user.skills:
         try:
             saved += a.id+";"
         except:
             saved += "0;"
     saved += "\n"
-    for a in char.skillInventory:
+    for a in user.skillInventory:
         saved += a.id+";"
     saved += "\n"
-    for a in char.stuff:
+    for a in user.stuff:
         saved += a.id+";"
-    for a in [char.apparaWeap,char.apparaAcc]:
+    for a in [user.apparaWeap,user.apparaAcc]:
         if a != None:
             saved += a.id+";"
         else:
             saved += "0;"
     saved += "\n"
-    for a in char.stuffInventory:
+    for a in user.stuffInventory:
         saved += a.id+";"
     saved += "\n"
-    for a in char.otherInventory:
+    for a in user.otherInventory:
         saved += a.id+";"
     saved += "\n"
-    for a in char.procuration:
+    for a in user.procuration:
         saved += str(a)+";"
     saved += "\n"
 
-    saved += str(char.element) +";\n"
+    saved += str(user.element) +";\n"
 
-    for mes in char.says.tabl():
+    for mes in user.says.tabl():
         if mes == None:
             saved += ";\n"
         else:
@@ -215,10 +219,9 @@ def saveCharFile(path : str, char : char):
     #except:
         #return False
 
-def loadCharFile(path,ctx="useless") -> char:
+def loadCharFile(path : str) -> char:
     """
-        Return a ``char`` object loaded from the file at ``path``\n
-        .ctx : there because it was needed in the past. But now it's useless and I don't want the explore all the code for clean it everywhere it was used
+        Return a ``char`` object loaded from the file at ``path``
     """
     file = readSaveFiles(path)
     rep = char(owner = int(file[0][0]))                     # Owner
@@ -339,7 +342,6 @@ def loadCharFile(path,ctx="useless") -> char:
     except:
         rep.procuration = [int(rep.owner)]
 
-    rep.procuration = set(rep.procuration)
     try:
         rep.element = int(file[11][0])
     except:
@@ -466,6 +468,11 @@ def checkIsBotChannel(ctx : discord.Message, guild,bot : discord.Client):
         return True
 
 def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):
+    """``0`` : Weapon
+        ``1`` : Skill
+        ``2`` : Stuff
+        ``3`` : Other
+    """
     if findWeapon(advObject) != None:
         return 0
     elif findSkill(advObject) != None:
@@ -558,6 +565,9 @@ gbvdb0 = """
 );"""
 
 class globalVarDb:
+    """
+        The class for the database who keep the global variables
+    """
     def __init__(self):
         if not(os.path.exists("./data/database/globalCooldown.db")):
             temp = open("./data/database/globalCooldown.db","bw")
@@ -587,11 +597,15 @@ class globalVarDb:
         cursor.close()
 
     def fightEnabled(self) -> bool:
+        """Return if the fights are enabled"""
         cursor = self.con.cursor()
         cursor.execute("SELECT value FROM globalVar WHERE name='fightEnabled'")
         return bool(cursor.fetchone()["value"])
 
-    def changeFightEnabled(self, to = None):
+    def changeFightEnabled(self, to:bool = None):
+        """Change the status of the "fightEnabled" global variable\n
+            - Parameter :\n
+                .to : The status to set. If ``None``, just reverse it"""
         act = self.fightEnabled()
 
         if to == None:
@@ -605,6 +619,9 @@ class globalVarDb:
         cursor.close()
 
     def getRestartMsg(self,set=None):
+        """Return the id of a precedent message\n
+        - Parameters :\n
+            .set : Set the global variable with the id given. If ``None``, return the value of the global variable"""
         cursor = self.con.cursor()
         cursor.execute("SELECT value FROM globalVar WHERE name=?",("restartID",))
         result = cursor.fetchall()
