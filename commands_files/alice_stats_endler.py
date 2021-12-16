@@ -1,10 +1,12 @@
-from re import findall
+"""The module for the database that keeps the User's fighting stats, and their progress in the Adventure"""
+
 import sqlite3, os
 from adv import findAllie, tmpAllie
 from gestion import *
 from classes import char, statTabl
 from typing import Union, List
 
+# Creating the database file...
 if not(os.path.exists("./data/database/aliceStats.db")):
     temp = open("./data/database/aliceStats.db","bw")
     print("Création du fichier \"aliceStats.db\"")
@@ -243,81 +245,86 @@ maj3 = """
     PRAGMA foreign_keys = 1;
 """
 class aliceStatsdbEndler:
+    """This database keeps the user's fighting stats and their progress in the main adventure"""
     def __init__(self):
-            self.con = sqlite3.connect(f"./data/database/aliceStats.db")
-            self.con.row_factory = sqlite3.Row
-            self.database = "aliceStats.db"
+        """Update the database, if needed"""
+        self.con = sqlite3.connect(f"./data/database/aliceStats.db")
+        self.con.row_factory = sqlite3.Row
+        self.database = "aliceStats.db"
 
-            cursor = self.con.cursor()
+        cursor = self.con.cursor()
 
-            # Création de la table
-            try:
-                cursor.execute("SELECT * FROM userStats;")
-            except:
-                temp = ""
-                for a in tablCreate:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
+        # Création de la table
+        try:
+            cursor.execute("SELECT * FROM userStats;")
+        except:
+            temp = ""
+            for a in tablCreate:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
 
-                for name in tablAdd:
-                    cursor.execute("INSERT INTO records VALUES (?,?,?)",("max{0}".format(name),0,0,))
+            for name in tablAdd:
+                cursor.execute("INSERT INTO records VALUES (?,?,?)",("max{0}".format(name),0,0,))
 
-                self.con.commit()
-                print("Table userStats et records créé")
+            self.con.commit()
+            print("Table userStats et records créé")
 
-            try:
-                cursor.execute("SELECT totalSupp FROM userStats;")
-            except:
-                temp = ""
-                for a in maj1:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
+        try:
+            cursor.execute("SELECT totalSupp FROM userStats;")
+        except:
+            temp = ""
+            for a in maj1:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
 
-                cursor.execute(temp)
-                cursor.execute("UPDATE userStats SET totalSupp = ?, maxSupp = ?;",(0,0))
-                #cursor.execute("INSERT INTO records VALUES (?,?,?)",("maxSupp",0,0,))
-                self.con.commit()
-                print("maj1 réalisée")
+            cursor.execute(temp)
+            cursor.execute("UPDATE userStats SET totalSupp = ?, maxSupp = ?;",(0,0))
+            #cursor.execute("INSERT INTO records VALUES (?,?,?)",("maxSupp",0,0,))
+            self.con.commit()
+            print("maj1 done")
 
-            try:
-                cursor.execute("SELECT dutyProgressAct FROM userStats;")
-            except:
-                temp = ""
-                for a in maj2:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
+        try:
+            cursor.execute("SELECT dutyProgressAct FROM userStats;")
+        except:
+            temp = ""
+            for a in maj2:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
 
-                cursor.execute("UPDATE userStats SET dutyProgressAct = ?, dutyProgressMission = ?;",(None,None))
-                self.con.commit()
-                print("maj2 réalisée")
+            cursor.execute("UPDATE userStats SET dutyProgressAct = ?, dutyProgressMission = ?;",(None,None))
+            self.con.commit()
+            print("maj2 done")
 
-            try:
-                cursor.execute("SELECT dutyResumeRef FROM userStats;")
-            except:
-                temp = ""
-                for a in maj3:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
+        try:
+            cursor.execute("SELECT dutyResumeRef FROM userStats;")
+        except:
+            temp = ""
+            for a in maj3:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
 
-                cursor.execute("UPDATE userStats SET dutyResumeRef = ?, dutyGroupData = ?, jetonOws = ?;",(None,None,0))
-                self.con.commit()
-                print("maj3 réalisée")
+            cursor.execute("UPDATE userStats SET dutyResumeRef = ?, dutyGroupData = ?, jetonOws = ?;",(None,None,0))
+            self.con.commit()
+            print("maj3 done")
 
-            cursor.close()
+        cursor.close()
 
     def addUser(self,user : char):
+        """Add a user in the database\n
+        - Parameter\n
+            - .user : The ``char`` to add into the database"""
         cursory = self.con.cursor()
         cursory.execute("SELECT * FROM userStats WHERE id = ?",(int(user.owner),))
         result = cursory.fetchall()
@@ -329,6 +336,12 @@ class aliceStatsdbEndler:
         cursory.close()
 
     def addStats(self, user : char, stats : statTabl):
+        """
+            Update the ``user``'s stats into the database\n
+            - Parameters :
+                - user : The ``char`` to update the stats
+                - stats : The ``statTabl`` from witch the bot will increase the stats of the user
+        """
         cursor = self.con.cursor()
         self.addUser(user)
 

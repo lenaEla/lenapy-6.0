@@ -33,7 +33,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
     # Randomly select emojis for the "Destionation" select Menu
     opValues,value,fullValue=["accessoires","vetements","chaussures","armes","competences","tempAlies","ennemies","boss","locked","achivements"],0,["Accessoires","Vêtements","Chaussures","Armes","Compétences","Alliés","Ennemis","Boss","Objets non-possédés","Succès"]
-    valueIcon = [stuffed[0][random.randint(0,len(stuffed[0])-1)],stuffed[1][random.randint(0,len(stuffed[1])-1)],stuffed[2][random.randint(0,len(stuffed[2])-1)],weapons[random.randint(0,len(weapons)-1)].emoji,skills[random.randint(0,len(skills)-1)].emoji,tablAllAllies[random.randint(0,len(tablAllAllies)-1)].icon,tablAllOcta[random.randint(0,len(tablAllOcta)-1)].icon,tablBoss[random.randint(0,len(tablBoss)-1)].icon,'<:splatted2:727586393173524570>','<:ls1:868838101752098837>']
+    valueIcon = [stuffed[0][random.randint(0,len(stuffed[0])-1)],stuffed[1][random.randint(0,len(stuffed[1])-1)],stuffed[2][random.randint(0,len(stuffed[2])-1)],weapons[random.randint(0,len(weapons)-1)].emoji,skills[random.randint(0,len(skills)-1)].emoji,tablAllAllies[random.randint(0,len(tablAllAllies)-1)].icon,tablAllEnnemies[random.randint(0,len(tablAllEnnemies)-1)].icon,tablBoss[random.randint(0,len(tablBoss)-1)].icon,'<:splatted2:727586393173524570>','<:ls1:868838101752098837>']
     tri = 0
     for a in range(0,len(opValues)):
         if destination == opValues[a]:
@@ -99,14 +99,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     if a not in tablToSee:
                         tablToSee.append(a)
             elif value == 6:
-                for a in tablAllOcta:
-                    trouv=False
-                    for b in tablToSee:
-                        if a.name == b.name:
-                            trouv=True
-                            break
-                    if not(trouv):
-                        tablToSee.append(a)
+                tablToSee = tablUniqueEnnemies[:]
             elif value == 7:
                 for a in tablBoss:
                     trouv=False

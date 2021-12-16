@@ -101,7 +101,7 @@ async def compare(bot : discord.client, ctx : ComponentContext, user : char, see
     elif type(see) == weapon:
         toCompare = user.weapon
 
-    embed = discord.Embed(title="__Comparaison : {0}, {1}__".format(toCompare.name,see.name),color=user.color)
+    embed = discord.Embed(title="__Comparaison : {0} {2} -> {3} {1}__".format(toCompare.name,see.name,toCompare.emoji,see.emoji),color=user.color)
     compBonus = ""
     compMalus = ""
     allStaty = allStatsNames + ["Soins","Boost","Armure","Direct","Indirect"]
@@ -309,7 +309,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
         return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id)
 
     state = 0
-    user = loadCharFile(pathUserProfile,ctx)
+    user = loadCharFile(pathUserProfile)
     if ctx.mentions != [] and ctx.mentions != [None]:
         if ctx.author.id not in user.procuration:
             try:

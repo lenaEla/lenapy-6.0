@@ -14,7 +14,7 @@ async def points(bot : discord.client, ctx : discord.message, args : [str], proc
         pathUserProfile = absPath + "/userProfile/" + str(procuration.id) + ".prof"
     
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile,ctx)
+        user = loadCharFile(pathUserProfile)
 
         okForCommand = True
         if int(user.owner) != int(ctx.author.id):

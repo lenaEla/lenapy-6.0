@@ -1486,14 +1486,14 @@ if not(os.path.exists("./data/database/success.db")):
 class success:
     """Classe des succès"""
     def __init__(self,name : str,countToSucced : int,code: str,recompense = None,description = "Pas de description",emoji=None):
-        self.name = name
-        self.count = 0
-        self.code = code
-        self.countToSucced = countToSucced
-        self.haveSucced = False
-        self.recompense = recompense
-        self.description = description
-        self.emoji = emoji
+        self.name:str = name
+        self.count:int = 0
+        self.code:str = code
+        self.countToSucced:int = countToSucced
+        self.haveSucced:bool = False
+        self.recompense:Union[None,List[str]] = recompense
+        self.description:str = description
+        self.emoji:str = emoji
 
         if type(recompense) != list:
             self.recompense = [recompense]
@@ -1520,7 +1520,7 @@ class successTabl:
         self.poison = success("Notre pire ennemi, c'est nous même",5000,"poison",None,"Infligez un total de {0} dégâts indirects",'<:butterflyV:883627142615805962>')
         self.icealia = success("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",'<:takoLBlue:866459095875190804>')
         self.shehisa = success("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",'<:ikaPurple:866459331254550558>')
-        self.heriteEstialba = success("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:estialba:884223390804766740> Poison d'Estialba__\"","<a:lohicaGif:900378281877057658>")
+        self.heriteEstialba = success("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:estialba:884223390804766740> Poison d'Estialba__\"","<:lohica:919863918166417448>")
         self.heriteLesath = success("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:bleeding:887743186095730708> Hémorragie__\"","<:dissimulation:900083085708771349>")
         self.powehi = success("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois","<:powehi:909048473666596905>")
         self.dimentio = success("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
