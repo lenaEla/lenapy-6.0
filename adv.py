@@ -11,38 +11,6 @@ import copy
 poidPlumeEff = effect("Poids Plume","poidCritEff",None,trigger=TRIGGER_END_OF_TURN,silent=True,lvl=0,type=TYPE_UNIQUE,unclearable=True,turnInit=-1,emoji=uniqueEmoji(aspiEmoji[POIDS_PLUME]))
 obsEff = effect("Observateur","obsCritEff",None,silent=True,lvl=0,type=TYPE_UNIQUE,unclearable=True,turnInit=-1,emoji=uniqueEmoji(aspiEmoji[OBSERVATEUR]))
 
-estialPoisonProgag3TurnSelf = copy.deepcopy(estal)
-estialPoisonProgag3TurnSelf.TurnSelfInit, estialPoisonProgag3TurnSelf.lvl, estialPoisonProgag3TurnSelf.power = 3, 3, int(estal.power * propag.power /100)
-estialPoisonProgag2TurnSelf = copy.deepcopy(estal)
-estialPoisonProgag2TurnSelf.TurnSelfInit, estialPoisonProgag2TurnSelf.lvl, estialPoisonProgag2TurnSelf.power = 2, 2, int(estal.power * propag.power /100)
-estialPoisonProgag1TurnSelf = copy.deepcopy(estal)
-estialPoisonProgag1TurnSelf.TurnSelfInit, estialPoisonProgag1TurnSelf.lvl, estialPoisonProgag1TurnSelf.power = 1, 1, int(estal.power * propag.power /100)
-estialPoisonProgag3TurnOther = copy.deepcopy(estal)
-estialPoisonProgag3TurnOther.TurnOtherInit, estialPoisonProgag3TurnOther.lvl, estialPoisonProgag3TurnOther.power = 3, 3, int(estal.power * propag.power /100/ 2)
-estialPoisonProgag2TurnOther = copy.deepcopy(estal)
-estialPoisonProgag2TurnOther.TurnOtherInit, estialPoisonProgag2TurnOther.lvl, estialPoisonProgag2TurnOther.power = 2, 2, int(estal.power * propag.power /100/ 2)
-estialPoisonProgag1TurnOther = copy.deepcopy(estal)
-estialPoisonProgag1TurnOther.TurnOtherInit, estialPoisonProgag1TurnOther.lvl, estialPoisonProgag1TurnOther.power = 1, 1, int(estal.power * propag.power /100 /2)
-
-tablPropaEstia = [[estialPoisonProgag1TurnSelf,estialPoisonProgag2TurnSelf,estialPoisonProgag3TurnSelf],[estialPoisonProgag1TurnOther,estialPoisonProgag2TurnOther,estialPoisonProgag3TurnOther]]
-
-bleedingPoisonProgag3TurnSelf = copy.deepcopy(bleeding)
-bleedingPoisonProgag3TurnSelf.TurnSelfInit, bleedingPoisonProgag3TurnSelf.lvl, bleedingPoisonProgag3TurnSelf.power = 3, 3, int(bleeding.power * propag.power /100)
-bleedingPoisonProgag2TurnSelf = copy.deepcopy(bleeding)
-bleedingPoisonProgag2TurnSelf.TurnSelfInit, bleedingPoisonProgag2TurnSelf.lvl, bleedingPoisonProgag2TurnSelf.power = 2, 2, int(bleeding.power * propag.power /100)
-bleedingPoisonProgag1TurnSelf = copy.deepcopy(bleeding)
-bleedingPoisonProgag1TurnSelf.TurnSelfInit, bleedingPoisonProgag1TurnSelf.lvl, bleedingPoisonProgag1TurnSelf.power = 1, 1, int(bleeding.power * propag.power /100)
-bleedingPoisonProgag3TurnOther = copy.deepcopy(bleeding)
-bleedingPoisonProgag3TurnOther.TurnOtherInit, bleedingPoisonProgag3TurnOther.lvl, bleedingPoisonProgag3TurnOther.power = 3, 3, int(bleeding.power * propag.power /100/ 2)
-bleedingPoisonProgag2TurnOther = copy.deepcopy(bleeding)
-bleedingPoisonProgag2TurnOther.TurnOtherInit, bleedingPoisonProgag2TurnOther.lvl, bleedingPoisonProgag2TurnOther.power = 2, 2, int(bleeding.power * propag.power /100/ 2)
-bleedingPoisonProgag1TurnOther = copy.deepcopy(bleeding)
-bleedingPoisonProgag1TurnOther.TurnOtherInit, bleedingPoisonProgag1TurnOther.lvl, bleedingPoisonProgag1TurnOther.power = 1, 1, int(bleeding.power * propag.power /100 /2)
-
-tablPropaBleeding = [[bleedingPoisonProgag1TurnSelf,bleedingPoisonProgag2TurnSelf,bleedingPoisonProgag3TurnSelf],[bleedingPoisonProgag1TurnOther,bleedingPoisonProgag2TurnOther,bleedingPoisonProgag3TurnOther]]
-
-finalTablPropa = [tablPropaEstia,tablPropaBleeding]
-
 hourglassEffects = [hourglass1]
 
 #Other
@@ -81,7 +49,7 @@ tablAllAllies = [
     tmpAllie("Félicité",1,red,BERSERK,dtsword,[celestBronzeHat,celestBronzeArmor,celestBronzeBoots],GENDER_FEMALE,[defi,uppercut,strengthOfWillCast,highkick,bloodyStrike],"Soeur ainée de Sixtine et Alice, Félicité est née dans un monde désolé et post apocaliptique\n\n<:lena:909047343876288552> : Mais parle pour toi !\n\nN'ayant plus aucun humain dans ce monde pas si désolé et pas si post apocaliptique, elle hérita de l'âme de Détermination de ce monde (ainsi que quelques bénédictions de dieux grecs mais c'est une autre histoire\n\nEn grandissant, ces dites bénédictions lui ont permis de développer rapidement son esprit et ses capacités, mais aussi d'attirer sur elle tous les monstres mythologiques du coin. Fort heureusement elle pu compter sur ses parents ainsi que sur sa sœur adoptive ainnée Clémence pour la protéger jusqu'au jour où elle en a eu marre de devoir laisser les autres la défendre.\nElle alla donc trouver les seuls autres personnes avec des âmes de Détermination à sa connaissance : Frisk et Chara, qui lui apprirent les bases. Sa volontée ainsi que ses bénédictions lui permirent de rapidement faire des progrès dans l'escrime, quand pour la maîtrise de la magie, c'est grâce à Hécate qu'elle le doit\n\nEn grandissant, elle a choisi une voie plus ou moins similaire à celle de Clémence, c'est à dire de chercher à purifier des artéfacts maudits agitants les monstres alentours ainsi que l'étude d'ancienne magie. Cependant, là où Féli le fait pour protéger les populations d'hommes, Clémence le fait pour protéger les monstres de ces derniers. Mais ça ne les empêche pas de faire équipe de temps en temps. Après tout le but reste le même",bonusPoints=[ENDURANCE,STRENGTH],icon='<:felicite:909048027644317706>'),
     tmpAllie("Akira",2,black,TETE_BRULE,fauc,[anakiMask,heartSphapeObject,hyperlink],GENDER_MALE,[defi,bleedingPuit,highkick,bleedingDague,demolish],"Flora si tu as une description je veux bien",ELEMENT_DARKNESS,bonusPoints=[ENDURANCE,STRENGTH],icon='<:akira:909048455828238347>'),
     tmpAllie("Icealia",2,light_blue,PREVOYANT,blueButterfly,[icealiaHat,icealiaManteau,icealiaBoots],GENDER_FEMALE,[soulagement,inkarmor,kralamSkill,convert,onde],"Une érudite qui préfère protéger ses compagnons",element=ELEMENT_LIGHT,bonusPoints=[INTELLIGENCE,ENDURANCE],icon='<:icealia:909065559516250112>'),
-    tmpAllie("Powehi",2,black,PROTECTEUR,inkbrella2,[starBar,bhPull,bhBoots],GENDER_FEMALE,[blackHole,trans,blindage,cosmicPower,blackHole2],"Une manifestation cosmique d'un trou noir. Si vous vous sentez attiré par elle, c'est probablement à raison\nNe lui demandez pas de vous marchez dessus par contre, si vous voulez un conseil. Elle a beau paraître avoir un petit gabarie, ce n'est pas pour rien qu'elle évite de marcher sur le sol",element=ELEMENT_SPACE,bonusPoints=[ENDURANCE,INTELLIGENCE],icon='<:powehi:909048473666596905>',deadIcon = '<:powehiDisiped:907326521641955399>',say=powehiSays),
+    tmpAllie("Powehi",2,black,PROTECTEUR,inkbrella2,[starBar,bhPull,bhBoots],GENDER_FEMALE,[blackHole,trans,blindage,cosmicPower,inkRes2],"Une manifestation cosmique d'un trou noir. Si vous vous sentez attiré par elle, c'est probablement à raison\nNe lui demandez pas de vous marchez dessus par contre, si vous voulez un conseil. Elle a beau paraître avoir un petit gabarie, ce n'est pas pour rien qu'elle évite de marcher sur le sol",element=ELEMENT_SPACE,bonusPoints=[ENDURANCE,INTELLIGENCE],icon='<:powehi:909048473666596905>',deadIcon = '<:powehiDisiped:907326521641955399>',say=powehiSays),
     tmpAllie("Shehisa",1,purple,TETE_BRULE,shehisa,[shehisaMask,shehisaBody,shehisaBoots],GENDER_FEMALE,[propag,bleedingDague,bleedingPuit,bleedingTrap,heriteLesath],"Soeur d'Hélène, elle a cependant préférer suivre un chemin beaucoup moins altruiste",element=ELEMENT_NEUTRAL,bonusPoints=[STRENGTH,ENDURANCE],icon='<:shehisa:919863933320454165>'),
     tmpAllie("Rasalhague",1,light_blue,MAGE,spellBook,[lentille,chemB,mocas],GENDER_MALE,[space1,space2,space3,spaceSp],element=ELEMENT_SPACE,icon='<:rasalhague:907689992745271376>',bonusPoints=[MAGIE]),
     tmpAllie("Sixtine",1,blue,IDOLE,lightSpellBook,[blueNoeud,pullHeart,heartBask],icon='<:sixtine:908819887059763261>',skill=[bpotion,affaiblissement,nostalgia,provo,sixtineUlt],gender=GENDER_FEMALE,element=ELEMENT_NEUTRAL,bonusPoints=[INTELLIGENCE,ENDURANCE],description="Soeur cadette, Sixtine est plutôt du genre à vouloir rester dans son coin sans être dérangée\n\nElle ne se démarque pas particulièrement de Félicité ou Alice, mais ça ne la dérange pas. Elle passe le plus clair de son temps libre à rêvasser, à du mal à faire le premier pas vers les autres et n'a pas vraiment l'air de s'interresser à grand chose\nMais quand elle s'interresse à un truc, elle veux souvent en connaître un maximum de chose dessus.",say=sixtineSays),
@@ -89,7 +57,7 @@ tablAllAllies = [
     tmpAllie("John",2,orange,POIDS_PLUME,airsword,[bandNoir,pullCamo,kanisand],GENDER_MALE,[airlame,airStrike,airlame],description="Un Loup Garou qui a réussi à tomber amoureux de la vampire responsable des pluparts des vas et viens à l'infirmerie du village de sa meute\n\nAprès de multiple tentatives de l'approcher sans grand succès, il a réussi à changer la clémence qu'éprouvait cette dernière à son égars en affection, mais a peur d'essayer de monter dans son estime",icon='<:john:908887592756449311>',bonusPoints=[STRENGTH,AGILITY],say=johnSays),
     tmpAllie("Julie",1,red,ALTRUISTE,julieWeap,[julieHat,julieDress,julieShoes],GENDER_FEMALE,[altOH,infraMedica,julieUlt,timeSp,trans],"La principale (et unique) servante d'une des vampires les plus puissante du pays.\nElle a appris la magie curative à l'aide des nombreux grimoires dans la bibliothèque du manoire, mais il lui arrive souvent de demander de l'aide à Clémence lorsque sa maîtresse (qui ai d'ailleurs la tutrice magique de cette dernière) lui demande de récupérer des organes de monstres.\nElle se sent souvent petite, en compagnie de ces puissantes vampires\n\nDire qu'elle est légèrement inspirée serait un euphémisme. Au moins elle utilise pas de dagues",element=ELEMENT_TIME,bonusPoints=[CHARISMA,INTELLIGENCE],icon="<:julie:910185448951906325>",say=julieSays),
     tmpAllie("Krys",2,purple,TETE_BRULE,krystalFist,[kryscharpe,krysshirt,kryschains],GENDER_OTHER,[krysUlt,earthStrike,mudlame,uppercut,demolish],"placeholder.krys.desc",element=ELEMENT_EARTH,icon="<:krys:916118008991215726>",deadIcon='<:krysCan:916117137339322388>',bonusPoints=[ENDURANCE,STRENGTH]),
-    tmpAllie("Edelweiss",1,white,PREVOYANT,eternalInkScience,[battleShieldHat,battleShieldUnif,battleShieldShoes],GENDER_FEMALE,[preOS,soulagement,haimaSkill,protect,onde],element=ELEMENT_EARTH,icon='<:edelweiss:918451422939451412>',deadIcon="<:flowernt:894550324705120266>",bonusPoints=[INTELLIGENCE,ENDURANCE])
+    tmpAllie("Edelweiss",1,white,PREVOYANT,eternalInkScience,[battleShieldHat,battleShieldUnif,battleShieldShoes],GENDER_FEMALE,[preOS,soulagement,haimaSkill,protect,inkRes],element=ELEMENT_EARTH,icon='<:edelweiss:918451422939451412>',deadIcon="<:flowernt:894550324705120266>",bonusPoints=[INTELLIGENCE,ENDURANCE])
 ]
 
 # Shushi alt spells

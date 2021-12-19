@@ -7,7 +7,6 @@ from discord_slash.utils.manage_components import *
 from commands_files.alice_stats_endler import *
 from PIL import Image, ImageColor
 from data.database import *
-from traceback import format_exc
 
 stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
@@ -221,7 +220,7 @@ def visuArea(area : int,wanted,ranged=True) -> list:
 
     return temp
 
-def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) -> discord.Embed:
+def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False) -> discord.Embed:
     effTmp,boucle,iteration,fieldname ="",True,False,"__Effet :__"
     eff = findEffect(effId)
 
@@ -258,8 +257,8 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
 
         if eff.lvl != 1:
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
-        stats = eff.allStats()+[eff.resistance,eff.percing,eff.critical,eff.overhealth,eff.aggro]
-        names = nameStats+nameStats2+["Armure","Agression"]
+        stats = eff.allStats()+[eff.resistance,eff.percing,eff.critical,eff.overhealth,eff.aggro,eff.inkResistance]
+        names = nameStats+nameStats2+["Armure","Agression","Résistance aux dégâts indirects"]
 
         if eff.redirection > 0:
             effTmp +="\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(eff.redirection)
@@ -279,6 +278,8 @@ def infoEffect(effId : str,user : char,embed : discord.Embed ,ctx,self=False) ->
         if malus !="":
             effTmp+=f'\n**__Malus de statistiques :__**\n{malus}'
 
+        if eff.inkResistance > 0 and eff.stat != None:
+            effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base\nSi plusieurs effects de réduction de dégâts indirects sont cumulés, seul le plus puissant sera pris en compte"
         if eff.reject != None:
             effTmp += "\n__Cet effet n'est pas compatible avec les effets :__\n"
             for a in eff.reject:
@@ -360,12 +361,32 @@ def infoSkill(skill : skill, user : char,ctx):
         else:
             skil = mageUlt
 
-    desc = ""
+    if skil.become != None:
+        desc = "Cette compétence peut devenir les compétences :\n"
+        for cmpt in range(len(skil.become)):
+            desc += "__{0} {1}__".format(skil.become[cmpt].emoji, skil.become[cmpt].name)
+            if cmpt < len(skil.become)-2:
+                desc += ",\n"
+            elif cmpt == len(skil.become)-2:
+                desc += " et\n"
+        desc += " si les conditions sont réunies.\nLeurs temps de rechargement sont tous syncronisés"
+    else:
+        desc = ""
+    # Cooldown ---------------------------
     if skil.type != TYPE_PASSIVE:
-        s = ""
-        if skil.cooldown > 1:
-            s = "s"
-        desc += f"\n__Temps de rechargements :__ {skil.cooldown} tour{s}"""
+        if skil.become != None:
+            desc += "\n\n__Temps de rechargements :__\n"
+            for cmpt in range(len(skil.become)):
+                s = ""
+                if skil.become[cmpt].cooldown > 1:
+                    s = "s"
+                desc += "{0} tour{2} ({1})\n".format(skil.become[cmpt].cooldown, skil.become[cmpt].name, s)
+
+        else:
+            s = ""
+            if skil.cooldown > 1:
+                s = "s"
+            desc += f"\n__Temps de rechargements :__ {skil.cooldown} tour{s}"""
 
     if cast > 0:
         desc += "\n__Tours de chargements__ : **{0} tour{1}**".format(cast,["","s"][int(cast > 1)])
@@ -373,37 +394,46 @@ def infoSkill(skill : skill, user : char,ctx):
     temp = "__Type :__ "
 
     if skil.type == TYPE_DAMAGE:
-        temp+="Dégats"
+        temp+="Dégats\n"
         
         if skil.description != None:
-            temp += "\n\n__Description :__\n"+skil.description+"\n"
+            temp += "\n__Description :__\n"+skil.description+"\n\n"
         
-        if skil.repetition > 1:
-            nbShot = " x{0}".format(skil.repetition)
-        else:
-            nbShot = ""
-        if skil.id != lunaSkill5Base.id:
+        # Power, Success and Damage Type
+        if skil.become == None:
+            if skil.repetition > 1:
+                nbShot = " x{0}".format(skil.repetition)
+            else:
+                nbShot = ""
             temp+=f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Type de dégâts :__ "
             if skil.area == AREA_MONO:
-                temp +=  "Monocible\n"
+                temp +=  "Monocible"
             else:
-                temp += "Dégâts de zone\n"
+                temp += "Dégâts de zone"
+            temp += "\n__Précision :__ {0}%\n".format(skil.sussess)
 
-            temp += "__Précision :__ {0}%\n".format(skil.sussess)
+        else:
+            temp += "\n**__Puissances :__**\n"
+            for cmpt in range(len(skil.become)):
+                multi = ""
+                if skil.become[cmpt].repetition > 1:
+                    multi = " x{0}".format(skil.become[cmpt].repetition)
+                temp += "__{0}__{2} ({1})\n".format(skil.become[cmpt].power, skil.become[cmpt].name, multi)
+
+            
+            temp+="\n**__Type de dégâts :__**\n"
+            for cmpt in range(len(skil.become)):
+                temp += "{0} ({1})\n".format(["Monocible","Zone"][skil.become[cmpt].area != AREA_MONO], skil.become[cmpt].name)
+            
+            temp+="\n**__Précisions :__**\n"
+            for cmpt in range(len(skil.become)):
+                temp += "{0}% ({1})\n".format(skil.become[cmpt].sussess, skil.become[cmpt].name)
+
+        # Clem and Alice blood jauge skills
         if skil.id.startswith("clem") or skil.id.startswith("alice"):
             for skillID, cost in clemBJcost.items():
                 if skil.id == skillID:
                     temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
-
-        else:
-            temp+=f"\n__Puissances :__\n**{lunaSkill5_1.power}** ({lunaSkill5_1.name})\n**{lunaSkill5_2.power}** ({lunaSkill5_2.name})\n**{lunaSkill5_3.power}** x{lunaSkill5_3.repetition} ({lunaSkill5_3.name})\n**{lunaSkill5_4.power}** x{lunaSkill5_4.repetition} ({lunaSkill5_4.name})\n"
-            temp+="\n__Type de dégâts :__\n"
-            for a in [lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4]:
-                temp+= ["Monocible","Dégâts de zone"][a.area!=AREA_MONO]+ " ({0})\n".format(a.name)
-
-            temp+="\n__Précisions :__\n"
-            for a in [lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4]:
-                temp+="{1}% ({0})\n".format(a.name,a.sussess)
 
         if skil.range == AREA_MONO:
             if skil.type != TYPE_PASSIVE:
@@ -413,10 +443,14 @@ def infoSkill(skill : skill, user : char,ctx):
 
         temp += "\nCette compétence cible les **ennemis**"
 
-        if skil.onArmor != 1:
-            temp += "\n__Dégâts sur armure :__ **{0}%**".format(skil.onArmor*100)
+        if skil.onArmor != 1 and skil.become == None:
+            temp += "\n__Dégâts sur armure :__ **{0}%**".format(int(skil.onArmor*100))
+        elif skil.become != None:
+            for becomeName in skil.become:
+                if becomeName.onArmor != 1:
+                    temp += "\n__{1}__ inflige **{0}%** de ses dégâts aux armures".format(int(becomeName.onArmor*100), becomeName.name)
 
-        
+
         if skil.use not in [None,HARMONIE]:
             temp += f"\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
         elif skil.use == None:
@@ -496,11 +530,17 @@ def infoSkill(skill : skill, user : char,ctx):
     if skil.effPowerPurcent != 100:
         temp+="\nLes effets donnés par cette compétence ont une puissance équivalente à **{0}%** de leur puissance initiale".format(skil.effPowerPurcent)
 
-    if skil.knockback > 0:
+    if skil.knockback > 0 and skil.become == None:
         temp+="\n\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}".format(skil.knockback,["","s"][int(skil.knockback > 1)])
 
-    if skil.id == lunaSkill5Base.id:
-        temp+="\n\n**__Repoussement :__**\n{1} repousse la cible de **{0}** cases\n{2} repousse la cible de **{3}** cases\n\nSi la cible rencontre un obstacle (entité ou bord de la carte), les entités concernées recoivent des dégâts indiretes Harmonie d'une puissance équivalante à 10 multiplié par le nombre de cases restantes de la part du lanceur\n*Note : Ces dégâts ne prennent pas en compte l'Endurance de Luna*".format(lunaSkill5_3.knockback,lunaSkill5_3.name,lunaSkill5_4.name,lunaSkill5_4.knockback)
+    if skil.become != None:
+        allreadyAdd = False
+        for becomeName in skil.become:
+            if becomeName.knockback > 0:
+                if not(allreadyAdd):
+                    temp += "\n\n**__Repoussement :__**"
+                    allreadyAdd = True
+                temp+="\n__{1}__ repousse la cible de **{0}** case{2}".format(becomeName.knockback,becomeName.name,["","s"][becomeName.knockback > 1])
 
     repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n__Statistiques :__\n"+temp)
     if skil.emoji[1] == "a":
@@ -508,31 +548,80 @@ def infoSkill(skill : skill, user : char,ctx):
     else:
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
 
-    if skil.range != AREA_MONO:
-        ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
-        for a in ballerine:
-            if a == skil.type:
-                repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ALLIES))
-                break
+    if skil.become == None:
+        if skil.range != AREA_MONO:
+            ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
+            for a in ballerine:
+                if a == skil.type:
+                    repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ALLIES))
+                    break
 
-        for a in babie:
-            if a == skil.type:
-                repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ENNEMIS))
-                break
+            for a in babie:
+                if a == skil.type:
+                    repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ENNEMIS))
+                    break
 
-    if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENEMIES and skil.area != AREA_ALL_ENTITES:
-        if skil.type in [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL]:
-            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ALLIES,ranged=False))
+        if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENEMIES and skil.area != AREA_ALL_ENTITES:
+            if skil.type in [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL]:
+                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ALLIES,ranged=False))
 
-        elif skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]:
-            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ENNEMIS,ranged=False))
+            elif skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]:
+                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ENNEMIS,ranged=False))
 
-        if skil.id == lunaSkill4.id:
-            repEmb.add_field(name = "__Zone d'effet alternative :__",value=visuArea(AREA_CIRCLE_2,wanted=ENNEMIS,ranged=False))
+            if skil.id == lunaSkill4.id:
+                repEmb.add_field(name = "__Zone d'effet alternative :__",value=visuArea(AREA_CIRCLE_2,wanted=ENNEMIS,ranged=False))
 
-    if skil.id == lunaSkill5Base.id:
-        repEmb.add_field(name = "__Zone d'effet :__ ({0})".format(lunaSkill5_1.name),value=visuArea(lunaSkill5_1.area,wanted=ENNEMIS,ranged=False))
-        repEmb = infoEffect(lunaSkill5_3_eff,user,repEmb,ctx)
+    else:
+        listArea,listName = [],[]
+        for become in skil.become:
+            if become.range not in listArea:
+                listArea.append(become.range)
+                listName.append([become.name])
+            else:
+                for cmpt in range(len(listArea)):
+                    if listArea[cmpt] == become.range:
+                        listName[cmpt].append(become.name)
+                        break
+        
+        if len(listArea) == 1:
+            repEmb.add_field(name = "__Portée :__",value=visuArea(listArea[0],wanted=ENNEMIS))
+        else:
+            for cmpt in range(len(listArea)):
+                temporis = "__Portée :__\n("
+                for name in range(len(listName[cmpt])):
+                    temporis += listName[cmpt][name]
+                    if name != len(listName[cmpt]) - 1:
+                        temporis += ",\n"
+                    else:
+                        temporis += ")"
+
+                repEmb.add_field(name = temporis,value=visuArea(listArea[cmpt],wanted=ENNEMIS))
+
+        listArea,listName = [],[]
+        for become in skil.become:
+            if become.area not in listArea:
+                listArea.append(become.area)
+                listName.append([become.name])
+            else:
+                for cmpt in range(len(listArea)):
+                    if listArea[cmpt] == become.area:
+                        listName[cmpt].append(become.name)
+                        break
+        
+        if len(listArea) == 1:
+            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0],wanted=ENNEMIS,ranged=False))
+        elif len(listArea) != 0:
+            for cmpt in range(len(listArea)):
+                if listArea[cmpt] != AREA_MONO:
+                    temporis = "__Zone d'effet :__\n("
+                    for name in range(len(listName[cmpt])):
+                        temporis += listName[cmpt][name]
+                        if name != len(listName[cmpt]) - 1:
+                            temporis += ",\n"
+                        else:
+                            temporis += ")"
+
+                    repEmb.add_field(name = temporis,value=visuArea(listArea[cmpt],wanted=ENNEMIS,ranged=False))
 
     if skil.effect != [None]:
         for a in skil.effect:
@@ -661,9 +750,9 @@ def infoStuff(stuff : stuff, user : char ,ctx):
     negative = [weap.negativeHeal,weap.negativeBoost,weap.negativeShield,weap.negativeDirect,weap.negativeIndirect]
     for stat in range(len(negative)):
         if negative[stat] > 0:
-            malus += "{0} : {1}\n".format(["Soins","Boosts et Malus","Armures","Dégâts directs","Dégâts indirects"][stat],negative[stat]*-1)
+            malus += "{0} : {1}\n".format(["Soins","Boosts et Malus","Armures et Mitigation","Dégâts directs","Dégâts indirects"][stat],negative[stat]*-1)
         elif negative[stat] < 0:
-            bonus += "{0} : {1}\n".format(["Soins","Boosts et Malus","Armures","Dégâts directs","Dégâts indirects"][stat],negative[stat]*-1)
+            bonus += "{0} : {1}\n".format(["Soins","Boosts et Malus","Armures et Mitigation","Dégâts directs","Dégâts indirects"][stat],negative[stat]*-1)
 
     if bonus != "":
         repEmb.add_field(name ="__Bonus de statistiques :__",value = bonus,inline = True)
@@ -1021,6 +1110,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
 
     # Récupération de l'icone de l'arme
     if (user.apparaWeap != None and user.apparaWeap.id in eternalInkWeaponIds) or (user.apparaWeap == None and user.weapon.id in eternalInkWeaponIds):
+
         if user.apparaWeap != None:
             toBase = getEmojiObject(user.apparaWeap.emoji)["name"]
         else:
@@ -1040,6 +1130,8 @@ async def makeCustomIcon(bot : discord.Client, user : char):
                     base.putpixel([x,y],tuple(baseTemp))
         base.paste(line,[0,0],line)
         weapon = base
+    elif (user.apparaWeap == None and user.weapon.id == mainLibre.id) or (user.apparaWeap != None and user.apparaWeap.id == mainLibre.id):
+        weapon = Image.new("RGBA",(1,1),(0,0,0,0))
 
     elif "./data/images/weapons/"+customIconDB.getWeaponFile(user) != "./data/images/weapons/akifauxgif.png":
         weapon = Image.open("./data/images/weapons/"+customIconDB.getWeaponFile(user))
@@ -1098,7 +1190,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
 
 async def getUserIcon(bot : discord.Client,user : char):
     """Function for get the user custom icon\nIf a (re)make is needed, remake the icon"""
-    fun = random.randint(0,999)
+    fun = random.randint(0,9999)
     if fun == 666:
         return "<a:lostSilver:917783593441456198>"
 
@@ -1226,7 +1318,7 @@ def infoAllie(allie : tmpAllie):
     return embed
 
 def infoEnnemi(ennemi : octarien):
-    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]}{elemNames[ennemi.element]}\n\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
+    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]} {elemNames[ennemi.element]}\n\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
     allMaxStats, accStats, dressStats, flatsStats,weapStats = ennemi.allStats(),ennemi.stuff[0].allStats(),ennemi.stuff[1].allStats(),ennemi.stuff[2].allStats(),ennemi.weapon.allStats()
     for a in range(0,len(allMaxStats)):
         temp,tempi = allMaxStats[a],accStats[a]+dressStats[a]+flatsStats[a]+weapStats[a]

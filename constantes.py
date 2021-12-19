@@ -246,7 +246,7 @@ ELEMENT_DARKNESS = 6
 ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
 
-elemEmojis = ["<:neutral:887847377917050930>","<:fire:918212781168275456>","<:water:918212797320536124>","<:air:918592529480446002>","<:earth:918212824805801984>","<:light:918212861757653053>","<:darkness:918212877419175946>",'<:space:918212897967075329>','<:time:918212912408051814>']
+elemEmojis = ["<:neutral:921127224596385802>","<:fire:918212781168275456>","<:water:918212797320536124>","<:air:918592529480446002>","<:earth:918212824805801984>","<:light:918212861757653053>","<:darkness:918212877419175946>",'<:space:918212897967075329>','<:time:918212912408051814>']
 elemDesc = [
     "L'élément Neutre (<:neutral:887847377917050930>) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête",
     "L'élément Feu (<:fire:887847475203932261>) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\nPénétration : + 5\nDégâts zones et distance simultanément : +10%",

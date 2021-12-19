@@ -203,7 +203,8 @@ def saveCharFile(path : str = None, user : char = None):
         saved += a.id+";"
     saved += "\n"
     for a in user.procuration:
-        saved += str(a)+";"
+        if int(a) != user.owner:
+            saved += str(a)+";"
     saved += "\n"
 
     saved += str(user.element) +";\n"
@@ -246,6 +247,7 @@ def loadCharFile(path : str) -> char:
         rep.colorHex = file[0][9]
     except:
         rep.colorHex = "None"
+    
     # Stats
     rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
     rep.resistance,rep.percing,rep.critical,rep.points = int(file[2][0]),int(file[2][1]),int(file[2][2]),int(file[2][3])
@@ -277,26 +279,23 @@ def loadCharFile(path : str) -> char:
     except:
         rep.skills = ["0","0","0","0","0"]
 
-    #try:
-    cmpt,temp = 0,[]
-    while cmpt < len(file[6]):
-        file[6][cmpt] = file[6][cmpt].replace("\n","")
-        temp += [findSkill(file[6][cmpt])]
-        cmpt += 1
-    rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
-    """except:
-        rep.skillInventory = []"""
+    try:                                                   # Skill Inventory
+        cmpt,temp = 0,[]
+        while cmpt < len(file[6]):
+            temp += [findSkill(file[6][cmpt].replace("\n",""))]
+            cmpt += 1
+        rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
+    except:
+        rep.skillInventory = []
 
     try:                        # Equiped Stuff
         cmpt,temp = 0,[]
         while cmpt < 3:
-            if len(file[7][cmpt]) > 2:
-                file[7][cmpt] = file[7][cmpt][-2:]
-            temp += [findStuff(file[7][cmpt])]
+            temp += [findStuff(file[7][cmpt].replace("/n",""))]
             cmpt += 1
         rep.stuff = temp
     except:
-        rep.stuff = [bbandeau,bshirt,bshoes]
+        rep.stuff= [bbandeau,bshirt,bshoes]
 
     try:
         if file[7][3] != "0":
@@ -316,9 +315,7 @@ def loadCharFile(path : str) -> char:
     try:                        # Stuff inventory
         cmpt,temp = 0,[]
         while cmpt < len(file[8]):
-            if len(file[8][cmpt]) > 2:
-                file[8][cmpt] = file[8][cmpt][-2:]
-            temp += [findStuff(file[8][cmpt])]
+            temp += [findStuff(file[8][cmpt].replace("/n",""))]
             cmpt += 1
         rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
     except:
@@ -563,6 +560,20 @@ gbvdb0 = """
                     UNIQUE,
         value
 );"""
+
+def completlyRemoveEmoji(text:str):
+    toReturn,started,justExited = '',False,False
+    for letter in text:
+        if letter == '<' and not started:
+            started = True
+        elif letter == '>' and started:
+            started,justExited = False, True
+        elif not(started) and not(justExited and letter==" "):
+            toReturn += letter
+
+        if justExited and letter not in ['>',' ']:
+            justExited = False
+    return toReturn
 
 class globalVarDb:
     """

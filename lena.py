@@ -30,6 +30,8 @@ from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
 from data.bot_tokens import lenapy, shushipy
 
+print(completlyRemoveEmoji('<:battleHealBoots:916153741487530005> chocolatine'))
+
 ###########################################################
 # Initialisations des variables de bases :
 started = False
@@ -107,10 +109,13 @@ class shopClass:
             - ``False`` else"""
         try:
             shopping = list(range(0,len(self.shopping)))
-            ballerine = datetime.datetime.now() + (datetime.timedelta(hours=3)+horaire)
 
             if globalVar.fightEnabled():
-                await bot.change_presence(activity=discord.Game("Prochain shop : "+ballerine.strftime('%H:%M')))
+                babies = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+                while babies.hour%3 != 0:
+                    babies = babies + datetime.timedelta(hours=1)
+
+                await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+babies.strftime('%Hh')))
 
             shopWeap,shopSkill,shopStuff,ShopOther = [],[],[],others[:]
             for a in weapons:
@@ -346,11 +351,12 @@ def delete_old_backups():
             for files in os.listdir("./data/backups/{0}/".format(name)):
                 os.remove("./data/backups/{0}/{1}".format(name,files))
             try:
-                os.remove("./data/backups/{0}/".format(name))
+                os.removedirs("./data/backups/{0}".format(name))
                 temp+="./data/backups/{0} a été supprimé\n".format(name)
             except:
                 temp+="./data/backups/{0} n'a pas pu être supprimé\n".format(name)
     return temp
+
 
 @tasks.loop(seconds=1)
 async def oneClock():
@@ -432,15 +438,17 @@ async def on_ready():
         cmpt += 1
 
     print("All guild's settings are loaded !\n")
+
+    # Shop reload and status change
     if bidule != False:
-        ballerine = datetime.datetime.now() + horaire
+        ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
         while ballerine.hour%3 != 0:
             ballerine = ballerine + datetime.timedelta(hours=1)
 
         if not(globalVar.fightEnabled()):
             await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
         else:
-            await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
+            await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
     if not(oneClock.is_running()):
         oneClock.start()
@@ -1028,7 +1036,7 @@ async def comQuickFight(ctx):
             pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
             valid = True
         except:
-            pass
+            valid = False
         
         if valid:
             if not existFile(pathGuildSettings):
@@ -1575,7 +1583,7 @@ async def stats(ctx,joueur=None):
                 sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
 
         rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques principaux :__",value = f"Force : {user.strength} ({sumStatsBonus[0]})\nEndurance : {user.endurance} ({sumStatsBonus[1]})\nCharisme : {user.charisma} ({sumStatsBonus[2]})\nAgilité : {user.agility} ({sumStatsBonus[3]})\nPrécision : {user.precision} ({sumStatsBonus[4]})\nIntelligence : {user.intelligence} ({sumStatsBonus[5]})\nMagie : {user.magie} ({sumStatsBonus[6]})",inline= True)
-        rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[7]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[8]})\nCritique : {user.critical} ({sumStatsBonus[9]})\n\nSoins : {sumStatsBonus[10]}\nBoost et Malus : {sumStatsBonus[11]}\nArmures : {sumStatsBonus[12]}\nDégâts directs : {sumStatsBonus[13]}\nDégâts indirects : {sumStatsBonus[14]}\n\nLes statistiques d'actions s'ajoutent à vos statistiques quand vous réalisez l'action en question",inline = True)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[7]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[8]})\nCritique : {user.critical} ({sumStatsBonus[9]})\n\nSoins : {sumStatsBonus[10]}\nBoost et Malus : {sumStatsBonus[11]}\nArmures et Mitigation : {sumStatsBonus[12]}\nDégâts directs : {sumStatsBonus[13]}\nDégâts indirects : {sumStatsBonus[14]}\n\nLes statistiques d'actions s'ajoutent à vos statistiques quand vous réalisez l'action en question",inline = True)
         tempStuff,tempSkill = "",""
         for a in [0,1,2]:
             tempStuff += f"{ user.stuff[a].emoji} {user.stuff[a].name}\n"
@@ -1659,7 +1667,7 @@ async def manuel(ctx,page=0):
             await msg.remove_reaction(str(reaction[0]),reaction[1])
 
 # -------------------------------------------- SEE LOGS --------------------------------------------
-@slash.slash(name="SeeFightLogs",description="Permet de consulter les logs des combats du jour",guild_ids=[615257372218097691])
+@slash.subcommand(base="see",name="FightLogs",description="Permet de consulter les logs des combats du jour",guild_ids=[615257372218097691])
 async def seeLogs(ctx):
     listLogs = os.listdir("./data/fightLogs/")
     listLogs.sort(key=lambda name: name[-8:])
@@ -1723,7 +1731,7 @@ async def seeLogs(ctx):
             page += 1
 
 # -------------------------------------------- SEE STUFF --------------------------------------------
-@slash.slash(name="SeeStuffRepartition",description="Permet de consulter la réportation des logs",guild_ids=[615257372218097691])
+@slash.subcommand(base="see",name="StuffRepartition",description="Permet de consulter la réportation des logs",guild_ids=[615257372218097691])
 async def seeStuffRepartition(ctx):
     rep = "=============================================="
     temp = copy.deepcopy(stuffs)
@@ -1784,9 +1792,11 @@ async def addEnableFight(ctx,valeur = None):
     if not(valeur):
         await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
     else:
-        bidule = stuffDB.getShop()
-        ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
-        await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
+        ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+        while ballerine.hour%3 != 0:
+            ballerine = ballerine + datetime.timedelta(hours=1)
+
+        await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
     await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__",description="Les combats sont désormais __{0}__".format(["désactivés","activés"][int(valeur)]),color=[red,light_blue][int(valeur)]))
 
@@ -1880,9 +1890,11 @@ async def resetCustomEmoji(ctx):
     await refresh("Fini !")
     await ctx.channel.send("La rénitialisation des emojis est terminées !",delete_after=10)
 
-    bidule = stuffDB.getShop()
-    ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
-    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
+    ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+    while ballerine.hour%3 != 0:
+        ballerine = ballerine + datetime.timedelta(hours=1)
+
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
 @slash.subcommand(base="admin",subcommand_group="emoji",name="remake_all",guild_ids=[912137828614426704],description="Supprime puis refait tous les emojis de personnage")
 async def remakeCustomEmoji(ctx):
@@ -1943,9 +1955,11 @@ async def remakeCustomEmoji(ctx):
     await refresh("Fini !")
     await ctx.channel.send("Le remake des emojis est terminées !",delete_after=10)
 
-    bidule = stuffDB.getShop()
-    ballerine = bidule["Date"] + datetime.timedelta(hours=3)+horaire
-    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop : "+ballerine.strftime('%H:%M')))
+    ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+    while ballerine.hour%3 != 0:
+        ballerine = ballerine + datetime.timedelta(hours=1)
+
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
 @slash.subcommand(base="admin",subcommand_group="backup",name="new",description="Permet de réaliser un backup des profiles de personnages",guild_ids=[912137828614426704])
 async def adminBackup(ctx):
@@ -2030,6 +2044,51 @@ async def rouletteSlash(ctx):
         return 0
 
     await roulette(bot, ctx, user)
+
+# -------------------------------------------- SEE ENEMY REPARTITION -------------------------------
+@slash.subcommand(base="see",name="enemyRepartition",guild_ids=[615257372218097691],description="Permet de voir la répartition des ennemis")
+async def seeEnnemyRep(ctx):
+    octoRolesNPos = [[[],[],[]],[[],[],[]],[[],[],[]]] # 0 : Dmg; 1 : Heal/Armor; 2 : Buff/Debuff
+    dicidants = []
+
+    for octa in tablUniqueEnnemies:
+        if octa.aspiration in [BERSERK, POIDS_PLUME, MAGE, ENCHANTEUR, OBSERVATEUR, TETE_BRULE]:
+            roleId = 0
+        elif octa.aspiration in [ALTRUISTE, PREVOYANT]:
+            roleId = 1
+        elif octa.aspiration in [IDOLE, PROTECTEUR]:
+            roleId = 2
+        else:
+            dicidants.append(octa)
+            roleId = -1
+
+        if roleId != -1:
+            octoRolesNPos[roleId][octa.weapon.range].append(octa)
+
+    tablNames = [[[],[],[]],[[],[],[]],[[],[],[]]]
+    for cmpt in (0,1,2):
+        embed = discord.Embed(title="__Ennemi répartion : {0}__".format(["DPT","Healer/Shilder","Support"][cmpt]),color=light_blue)
+        for cmptBis in range(len(octoRolesNPos[cmpt])):
+            desc = ""
+            for name in octoRolesNPos[cmpt][cmptBis]:
+                desc += "{0} {1}\n".format(name.icon,name.name)
+            if len(desc) > 0:
+                embed.add_field(name=["__Mêlée :__","__Distance :__","__Backline :__"][cmptBis],value=desc,inline=True)
+            else:
+                embed.add_field(name=["__Mêlée :__","__Distance :__","__Backline :__"][cmptBis],value="`-`",inline=True)
+
+
+        if cmpt == 0:
+            await ctx.send(embed = embed)
+        else:
+            await ctx.channel.send(embed = embed)
+
+    desc = ''
+    for name in dicidants:
+        desc += "{0} {1}\n".format(name.icon,name.name)
+    embed = discord.Embed(title="__Hors catégorie :__".format(["DPT","Healer/Shilder","Support"][cmpt]),color=light_blue,description=desc)
+
+    await ctx.channel.send(embed = embed)
 
 ###########################################################
 # Démarrage du bot
