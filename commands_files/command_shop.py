@@ -11,11 +11,17 @@ buttonReturn = create_button(2,"Retour",emoji='◀️',custom_id="-1")
 buttonBuy = create_button(1,"Acheter",getEmojiObject('<:coins:862425847523704832>'),custom_id="0")
 onlyReturn = create_actionrow(buttonReturn)
 
-allBuyButton = create_button(ButtonStyle.blue,"Devenir pauvre",getEmojiObject('<:bought:906623435256504451>'),"buy all")
-allGiveButton = create_button(ButtonStyle.gray,"Devenir pauvre (Deluxe)",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all")
+allBuyButton = create_button(ButtonStyle.primary,"Devenir pauvre",getEmojiObject('<:bought:906623435256504451>'),"buy all")
+allGiveButton = create_button(ButtonStyle.secondary,"Devenir pauvre (Deluxe)",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all")
 
-allBuyButtonButPoor = create_button(ButtonStyle.blue,"Vous êtes pauvre",getEmojiObject('<:bought:906623435256504451>'),"buy all",disabled=True)
-allGiveButtonButPoor = create_button(ButtonStyle.gray,"Vous êtes pauvre",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all",disabled=True)
+allBuyButtonButPoor = create_button(ButtonStyle.gray,"Vous êtes pauvre",getEmojiObject('<:bought:906623435256504451>'),"buy all",disabled=True)
+allGiveButtonButPoor = create_button(ButtonStyle.gray,"Vous êtes pauvre, mais deluxe",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all",disabled=True)
+
+allBuyButtonButAllreadyHaveM = create_button(ButtonStyle.gray,"Vous êtes un acheteur compulsif",getEmojiObject('<:bought:906623435256504451>'),"buy all",disabled=True)
+allGiveButtonButAllreadyHaveM = create_button(ButtonStyle.gray,"Vous êtes un acheteur compulsif deluxe",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all",disabled=True)
+allBuyButtonButAllreadyHaveF = create_button(ButtonStyle.gray,"Vous êtes une acheteuse compulsive",getEmojiObject('<:bought:906623435256504451>'),"buy all",disabled=True)
+allGiveButtonButAllreadyHaveF = create_button(ButtonStyle.gray,"Vous êtes une acheteuse compulsive deluxe",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all",disabled=True)
+
 
 haveIcon = "<:bought:906623435256504451>" 
 allTeamHaveIcon = "<:teamBought:906621631143743538>"
@@ -166,13 +172,17 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 placeholder="Choisissez un article pour avoir plus d'informations dessus"
                 )
             
-            if totalCost > user.currencies or totalCost == 0:
+            if totalCost > user.currencies:
                 temp1 = allBuyButtonButPoor
+            elif totalCost == 0:
+                temp1 = [allBuyButtonButAllreadyHaveM,allBuyButtonButAllreadyHaveF][user.gender]
             elif user.currencies >= totalCost:
                 temp1 = allBuyButton
 
-            if user.team == 0 or totalTeamCost == 0 or totalTeamCost > user.currencies:
+            if user.team == 0 or totalTeamCost > user.currencies:
                 temp2 = allGiveButtonButPoor
+            elif totalTeamCost == 0:
+                temp2 = [allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF][user.gender]
             elif user.currencies >= totalTeamCost:
                 temp2 = allGiveButton
 
@@ -209,6 +219,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             user.currencies -= obj.price
                     saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
                     await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="Vos achats ont bien été enregistrés"))
+
                 elif respond.custom_id == "buy'n'send all":
                     tempMsg = await respond.send(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
                     user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
@@ -236,9 +247,21 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                 await giftedUser.send(embed=discord.Embed("__Livraison :__",color=user.color,description="__{0}__ vous a offert les objets suivants :\n".format(user.name)+tempDeleveryMsg))
                             except:
                                 pass
+                    
+                    for obj in listNotAllTeamHave:
+                        if not(user.have(obj)) and user.currencies >= obj.price:
+                            if type(obj) == weapon:
+                                user.weaponInventory.append(obj)
+                            elif type(obj) == skill:
+                                user.skillInventory.append(obj)
+                            elif type(obj) == stuff:
+                                user.stuffInventory.append(obj)
+                            elif type(obj) == other:
+                                user.otherInventory.append(obj)
+                            user.currencies -= obj.price
 
                     saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
-                    await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe",color=user.color,description="Vos achats ont bien été enregistrés et envoyés"))
+                    await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="Vos achats ont bien été enregistrés et envoyés"))
 
             else:
                 await initMsg.edit(embed = shopEmb,components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])

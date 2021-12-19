@@ -48,7 +48,7 @@ def getSortSkillValue(object : skill, wanted : int):
         eff = findEffect(object.effect[0])
         if eff != None:
             if wanted == 15:
-                return eff.power
+                return eff.power * object.effPowerPurcent/100
             elif wanted == 17:
                 return eff.overhealth
         else:
@@ -58,6 +58,14 @@ def getSortSkillValue(object : skill, wanted : int):
         while not(object.effectOnSelf == None or findEffect(object.effectOnSelf).replica == None):
             object = findSkill(findEffect(object.effectOnSelf).replica)
         return object.power * object.repetition
+
+    elif wanted == 16:
+        if object.effect[0] == None:
+            while not(object.effectOnSelf == None or findEffect(object.effectOnSelf).replica == None):
+                object = findSkill(findEffect(object.effectOnSelf).replica)
+            return object.power
+        else:
+            return findEffect(object.effect[0]).power
 
 elemOptions = []
 for a in range(0,len(elemDesc)):
@@ -645,11 +653,12 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                         else:
                             user.species = 2
                         
-                        
+                        await oldMsg.clear_reactions()
                         await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
                         await oldMsg.add_reaction('♂️')
                         await oldMsg.add_reaction('♀️')
                         await oldMsg.add_reaction(emoji.forward_arrow)
+ 
                         def checkIsAuthorReact(reaction,user):
                             return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) == emoji.forward_arrow)
 
@@ -658,8 +667,6 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                         for a in range(0,len(titouille)):
                             if str(respond[0]) == titouille[a]:
                                 user.gender = testouille[a]
-
-                        
 
                         user = await chooseColor(bot,oldMsg,ctx,user,args)
 
@@ -831,7 +838,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 elif value == 2 and tri in [17]:
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
                 else:
-                    tablToSee.sort(key=lambda ballerine:ballerine.name)
+                    tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
 
                 lenTabl = len(tablToSee)
                 maxPage=lenTabl//15 - int(lenTabl%15 == 0)

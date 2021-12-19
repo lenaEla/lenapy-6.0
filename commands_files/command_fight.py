@@ -799,6 +799,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:
                 temp = "Pas d'effet sur la cible"
 
+            if len(temp) > 1024:
+                temp = completlyRemoveEmoji(temp)
+            if len(temp) > 1024:
+                temp = "OVERLOAD"
             return temp
 
         def recalculate(self,ignore=None):
@@ -814,6 +818,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             self.untargetable = False
             self.invisible = False
             self.immune = False
+            self.stun = False
 
             for eff in self.effect:
                 if eff != ignore:
@@ -838,19 +843,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         sumStatsBonus[9] += eff.effect.critical
 
                 if eff.stun:
-                    self.stuned = True
+                    self.stun = True
 
                 if eff.effect.invisible:
                     self.translucide = True
                     self.untargetable = True
                     self.invisible = True
 
-                else:
-                    if eff.effect.translucide:
-                        self.translucide = True
+                if eff.effect.translucide:
+                    self.translucide = True
 
-                    if eff.effect.untargetable:
-                        self.untargetable = True
+                if eff.effect.untargetable:
+                    self.untargetable = True
                 
                 if eff.effect.immunity:
                     self.immune = True
@@ -920,6 +924,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             value = round(value)
             if target.hp > 0:
                 # Looking for a absolute shield
+                maxResist = 0
                 for eff in target.effect:
                     if eff.effect.immunity == True and not(ignoreImmunity):
                         value = 0
@@ -935,6 +940,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             value = max(0,dmg-reduc)
                         else:
                             value = 0
+                    maxResist = max(maxResist,eff.inkResistance)
 
                 # If the target is Ailill and she have his special effect, reduce the damage
                 if target.isNpc("Ailill"):
@@ -942,6 +948,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if eff.effect.id == "ma" and target.cell.distance(cell=self.cell) > 2:
                             value = int(value*0.25)
                             break
+
+                value = int(value * (100-maxResist) / 100)
 
                 # If the number of damage is still above 0
                 if value > 0:
@@ -1194,16 +1202,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                 if self.specialVars["clemMemCast"]:
                                     if isufDPTLol:
-                                        effectiveDmg = entityInArea.hp -1
+                                        if entityInArea.hp > 100+entityInArea.char.level*13:
+                                            effectiveDmg = entityInArea.hp -1
+                                        else:
+                                            effectiveDmg = entityInArea.hp
                                     else:
-                                        effectiveDmg = min(effectiveDmg,entityInArea.hp-1)
+                                        if entityInArea.hp > effectiveDmg*0.33:
+                                            effectiveDmg = min(effectiveDmg,entityInArea.hp-1)
 
                                 self.stats.shootHited += 1
                                 if entityInArea != self:
                                     self.stats.damageDeal += effectiveDmg
                                     entityInArea.stats.damageRecived += effectiveDmg
                                 else:
-                                    self.selfBurn += effectiveDmg
+                                    self.stats.selfBurn += effectiveDmg
 
                                 sumDamage += effectiveDmg
                                 entityInArea.stats.numberAttacked += 1
@@ -1357,7 +1369,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 healPowa = min(self.maxHp - self.hp, int(sumDamage * 0.1))
                 popipo += self.heal(self,"",None,healPowa)
 
-                self.specialVars["clemBloodJauge"].value = min(100,self.specialVars["clemBloodJauge"].value+int(sumDamage * 0.02))
+                self.specialVars["clemBloodJauge"].value = min(100,self.specialVars["clemBloodJauge"].value+int(sumDamage * (0.02*(1+self.level/100))))
                 if self.specialVars["clemMemCast"]:
                     self.specialVars["clemMemCast"] = False
 
@@ -1760,7 +1772,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 lost = ""
                 if healPowa < healPowaInit:
                     lost = " `{0}`".format(healPowaInit-healPowa)
-                toReturn = f"{self.icon} {icon} → {target.icon} +{healPowa}{lost} PV{add}\n"
+                if healPowa > 0:
+                    toReturn = f"{self.icon} {icon} → {target.icon} +{healPowa}{lost} PV{add}\n"
 
                 if self.char.aspiration in [IDOLE,PROTECTEUR,ALTRUISTE] and overheath > 0:
                     tabli,tabla = [idoOHArmor,proOHArmor,altOHArmor],[self.specialVars["ohIdo"],self.specialVars["ohPro"],self.specialVars["ohAlt"]]
@@ -2009,10 +2022,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     temp = -111
                     for a in self.caster.allStats():
                         temp = max(temp,a)
-    
-                valueBoost = (1 + self.caster.char.level//10/10 - 1 + caster.valueBoost(on)) * (temp+100)/100
+
+                valueBoost, valueResis = (1 + self.caster.char.level//10/10 - 1 + caster.valueBoost(on)) * (temp+100-self.caster.negativeBoost)/100, caster.valueBoost(on) * (temp+100-self.caster.negativeShield)/100
+
             else:
-                valueBoost = 1
+                valueBoost, valueResis = 1, 1
 
             tablTemp[0] += self.effect.strength * valueBoost
             tablTemp[1] += self.effect.endurance * valueBoost
@@ -2023,6 +2037,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             tablTemp[6] += self.effect.resistance * valueBoost
             tablTemp[7] += self.effect.percing * valueBoost
             tablTemp[8] += self.effect.critical * valueBoost
+            
+            self.inkResistance = min(effect.inkResistance * valueResis,effect.inkResistance*3)
 
             self.tablAllStats = tablTemp
 
@@ -2092,7 +2108,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 for a in target.cell.getEntityOnArea(area=self.effect.area,team=target.team,wanted=whoTarget,directTarget=False):
                     reduc = 1
                     if a != target:
-                        reduc = max(AEOMINDAMAGE,1-target.cell.distance(a.cell)*AOEDAMAGEREDUCTION)
+                        reduc = max(AOEMINDAMAGE,1-target.cell.distance(a.cell)*AOEDAMAGEREDUCTION)
 
                     if stat != None:
                         damage = damageBase * (1+(stat/100)) *  (1-(min(95,a.resistance*(1-self.caster.percing/100))/100)) * reduc * self.caster.getElementalBonus(a,self.effect.area,TYPE_INDIRECT_DAMAGE) * (1+(0.01*self.on.level))
@@ -2304,7 +2320,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         def allStats(self):
             return self.tablAllStats
 
-    def add_effect(caster: entity,target: entity,effect: classes.effect,start: str = "",ignoreEndurance=False,turn=tour,danger=danger,setReplica : Union[None,entity] = None,effPowerPurcent=100):
+    def add_effect(caster: entity,target: entity,effect: classes.effect,start: str = "", ignoreEndurance=False, danger=danger, setReplica : Union[None,entity] = None, effPowerPurcent=100):
         """Méthode qui rajoute l'effet Effet à l'entity Target lancé par Caster dans la liste d'attente des effets"""
         valid,id,popipo = False,0,""
         valid = True
@@ -2364,7 +2380,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 temp = caster.allStats()
 
                 value = effect.overhealth
-                friablility = max(1-(max(0,turn-5) / 20),0.1)                   # Reduct over time
+                friablility = max(1-(turn / 20),0.1)                   # Reduct over time
 
                 dangerBoost = 1
                 if caster.team == 1:
@@ -2655,9 +2671,27 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             alreadyFall = []
 
             tablOctaTemp:List[octarien] = copy.deepcopy(tablAllEnnemies)
-            oneVAll = False
+            oneVAll, leniOcta = False, len(team1)
+
+            if leniOcta == 4:
+                tablTeamOctaPos = [0,1,1,2]
+                tablTeamOctaComp = [2,1,1]
+            elif leniOcta == 5:
+                tablTeamOctaPos = [0,1,1,2]+[random.randint(0,2)]
+                tablTeamOctaComp = [3,1,1]
+            elif leniOcta == 6:
+                tablTeamOctaPos = [0,1,1,2]+[random.randint(0,2),random.randint(0,2)]
+                tablTeamOctaComp = [3,1,2]
+            elif leniOcta == 7:
+                tablTeamOctaPos = [0,0,1,1,2]+[random.randint(0,2)]
+                tablTeamOctaComp = [4,1,2]
+            else:
+                tablTeamOctaPos = [0,0,1,1,2,2]+[random.randint(0,2),random.randint(0,2)]
+                tablTeamOctaComp = [4,2,2]
+
+            random.shuffle(tablTeamOctaPos)
             if len(team2) < len(team1) and lvlMax >= 15:
-                if random.randint(0,99) < 25:               # Boss ?
+                if random.randint(0,99) < 30:               # Boss ?
                     temp = random.randint(0,len(tablBoss)-1)
                     alea = copy.deepcopy(tablBoss[temp])
                     #alea = copy.deepcopy(findEnnemi("The Giant Enemy Spider"))
@@ -2734,14 +2768,46 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if octa.baseLvl > lvlMax:
                     tablOctaTemp.remove(octa)
 
-            while len(team2) < len(team1) and not(oneVAll):
-                temp = random.randint(0,len(tablOctaTemp)-1)
+            octoRolesNPos = [[[],[],[]],[[],[],[]],[[],[],[]]] # 0 : Dmg; 1 : Heal/Armor; 2 : Buff/Debuff
 
-                if len(team2) == 2:
-                    alea = copy.deepcopy(findEnnemi("Octaling"))
+            for octa in tablOctaTemp:
+                if octa.aspiration in [BERSERK, POIDS_PLUME, MAGE, ENCHANTEUR, OBSERVATEUR, TETE_BRULE]:
+                    roleId = 0
+                elif octa.aspiration in [ALTRUISTE, PREVOYANT]:
+                    roleId = 1
+                elif octa.aspiration in [IDOLE, PROTECTEUR]:
+                    roleId = 2
                 else:
-                    alea = tablOctaTemp[temp]
-                    tablOctaTemp.remove(tablOctaTemp[temp])
+                    roleId = random.randint(0,2)
+
+                octoRolesNPos[roleId][octa.weapon.range].append(octa)
+
+            for octa in team2:
+                if octa.aspiration in [BERSERK, POIDS_PLUME, MAGE, ENCHANTEUR, OBSERVATEUR, TETE_BRULE]:
+                    roleId = 0
+                elif octa.aspiration in [ALTRUISTE, PREVOYANT]:
+                    roleId = 1
+                elif octa.aspiration in [IDOLE, PROTECTEUR]:
+                    roleId = 2
+                else:
+                    roleId = random.randint(0,2)
+
+                tablTeamOctaComp[roleId] -= 1
+                print(octa.weapon.range,tablTeamOctaPos)
+                try:
+                    tablTeamOctaPos.remove(octa.weapon.range)
+                except:
+                    pass
+
+            while len(team2) < len(team1) and not(oneVAll):
+                for tempCmpt in range(len(tablTeamOctaComp)):
+                    if tablTeamOctaComp[tempCmpt] > 0:
+                        break
+
+                alea = octoRolesNPos[tempCmpt][tablTeamOctaPos[0]][random.randint(0,len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]])-1)]
+                octoRolesNPos[tempCmpt][tablTeamOctaPos[0]].remove(alea)
+                tablTeamOctaPos.remove(tablTeamOctaPos[0])
+                tablTeamOctaComp[tempCmpt] -= 1
 
                 if alea.isNpc("Octaling"):
                     alea = copy.deepcopy(alea)
@@ -3249,6 +3315,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             tablEntTeam, tablAliveInvoc, time, ballerine = tablEntTeam[1][0].summon(toSummon,time,surrondingsCells[cmpt],tablEntTeam,tablAliveInvoc,ignoreLimite=True)
             logs += "\n"+ballerine
 
+    elif tablEntTeam[1][0].isNpc("Jevil"):                          # Jevil Confusiong effect
+        for teamCmpt in [0,1]:
+            for ent in tablEntTeam[teamCmpt]:
+                add_effect(tablEntTeam[1][0],ent,jevilEff)
+                ent.refreshEffects()
+
     if contexte != []:                                              # If a contexte list is given
         for a in contexte:                      # Contexte need to be a list of lists
             if a[0] == ALL:
@@ -3334,15 +3406,15 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 b.cell.on = b
                                 print("{0} n'était pas sur sa cellule, apparament".format(b.char.name))
 
-                if tour >= 16:
-                    ballerine = f"\n__Mort subite !__\nTous les combattants perdent **{5*(tour-15)}%** de leurs PV maximums\n"
+                if tour >= 21:
+                    ballerine = f"\n__Mort subite !__\nTous les combattants perdent **{10*(tour-20)}%** de leurs PV maximums\n"
                     for a in [0,1]:
                         for b in tablEntTeam[a]:
                             if b.hp > 0:
                                 if type(b.char) == octarien and b.char.oneVAll:
-                                    lose = int(b.maxHp*(0.005*(tour-15)))
+                                    lose = int(b.maxHp*(0.010*(tour-20)))
                                 else:
-                                    lose = int(b.maxHp*(0.05*(tour-15)))
+                                    lose = int(b.maxHp*(0.1*(tour-20)))
                                 ballerine += "{0} : -{1} PV\n".format(b.icon,lose)
                                 b.hp -= lose
                                 b.stats.selfBurn += lose
@@ -3406,7 +3478,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             infoOp += [create_select_option(b.char.name,str(cmpt),getEmojiObject(b.icon),f"PV : {max(0,b.hp)} ({max(0,round(b.hp/b.maxHp*100))}%), R.S. : {b.healResist}%")]
                         cmpt+=1
                 infoSelect = create_select(infoOp,placeholder="Voir les PVs des combattants")
-
 
                 temp2 = actTurn.allStats()+[actTurn.resistance,actTurn.percing]
                 critRate = round(actTurn.precision/3)+round(actTurn.agility/5)+actTurn.critical
@@ -3505,23 +3576,23 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 if tablEntTeam[1][0].isNpc("Clémence pos."):        # Generating Clemence's and Alice's blood jauges field
                     bjValue = tablEntTeam[1][0].specialVars["clemBloodJauge"].value
                     if not(tablEntTeam[1][0].specialVars["clemMemCast"]):
-                        if bjValue == 0:
+                        if bjValue <= 10:
                             adds += "<:BJLeftEmpty:900473865459875911>"
-                        elif bjValue <= 25:
+                        elif bjValue <= 35:
                             adds += "<:BJLeftPartial:900473933076262963>"
                         else:
                             adds += "<:BJLeftFull:900473987564441651>"
 
-                        if bjValue <= 25:
+                        if bjValue <= 35:
                             adds += "<:BJMidEmpty:900473889539366994>"
-                        elif bjValue <= 50:
+                        elif bjValue <= 60:
                             adds += "<:BJMidPartial:900473950243520522>"
                         else:
                             adds += "<:BJMidFull:900474021781569604>"
 
-                        if bjValue <= 50:
+                        if bjValue <= 60:
                             adds += "<:BJRightEmpty:900473909856587847>"
-                        elif bjValue <= 75:
+                        elif bjValue <= 85:
                             adds += "<:BJRightPartial:900473969524756530>"
                         else:
                             adds += "<:BJRightFull:900474036042215515>"
@@ -3535,23 +3606,23 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             adds += "\n"
                             bjValue = ent.specialVars["clemBloodJauge"].value
 
-                            if bjValue == 0:
+                            if bjValue <= 10:
                                 adds += "<:BJLeftEmpty:900473865459875911>"
-                            elif bjValue <= 25:
+                            elif bjValue <= 35:
                                 adds += "<:aliceBJLeftMid:914780940058898462>"
                             else:
                                 adds += "<:aliceBJLeftFull:914780954336305192>"
 
-                            if bjValue <= 25:
+                            if bjValue <= 35:
                                 adds += "<:BJMidEmpty:900473889539366994>"
-                            elif bjValue <= 50:
+                            elif bjValue <= 60:
                                 adds += "<:aliceBJMidMid:914780972183072768>"
                             else:
                                 adds += "<:aliceBJMidFull:914780988134019073>"
 
-                            if bjValue <= 50:
+                            if bjValue <= 60:
                                 adds += "<:BJRightEmpty:900473909856587847>"
-                            elif bjValue <= 75:
+                            elif bjValue <= 85:
                                 adds += "<:aliceBJRightMid:914781005708165120>"
                             else:
                                 adds += "<:aliceBJRightFull:914781018559492106>"
@@ -3608,8 +3679,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                             haveIterate = False
 
-                            def checkIsPlayerReact(reaction,user):
-                                return user == awaitedUsr and reaction.message == choiceMsg
                             def check(m):
                                 return int(m.author_id) == int(actTurn.char.owner) and m.origin_message.id == choiceMsg.id
 
@@ -4007,12 +4076,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     choisenIA = AI_OFFERUDIT
 
                                 logs += "\nAuto Fighter. Selected AI : {0}".format(["AI Damage","AI Idole","AI Shield","AI Aventurer","AI Healer","AI agressive supp","AI Mage","AI Enchant"][choisenIA])
+                                
                                 # Définition des probabilités :
                                 # [DPT,BOOST,SHIELD,AVENTURE,ALTRUISTE,OFFERUt,MAGE,ECHANT]
 
                                 probaAtkWeap = [80,40,50,40,40,50,60,60] 
                                 probaHealWeap = [0,60,30,30,70,30,0,0]
-                                probaReaSkill = [50,150,150,30,150,100,50,50]
+
+                                if actTurn.isNpc("Kiku"):
+                                    probaReaSkill = [5000,5000,5000,5000,5000,5000,5000,5000]
+                                else:
+                                    probaReaSkill = [50,150,150,30,150,100,50,50]
+
                                 probIndirectReacSkill = [30,150,100,30,150,80,30,30]
                                 probaAtkSkill = [70,40,70,30,40,70,100,100]
                                 probaIndirectAtkSkill = [50,40,40,30,40,120,100,100]
@@ -4077,181 +4152,189 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 healSkill,atkSkill,reaSkill,indirectReaSkill,indirectAtkSkill,boostSkill,malusSkill,armorSkill,invocSkill = [],[],[],[],[],[],[],[],[]
 
                                 for a in range(0,5): # Catégorisation des sorts
+                                    listSkillToLook = []
+
                                     actSkill = actTurn.char.skills[a]
-                                    if actTurn.cooldowns[a] == 0 and actSkill != None and actSkill != "0":
-                                        if actSkill.range == AREA_MONO:                                     # If the skill is launch on self
-                                            allieAtRange,ennemiAtRange = len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc=True,directTarget=False))> 1,len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENNEMIS,effect=actSkill.effect,directTarget=False))> 0
-                                            if actSkill.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL] and len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,lifeUnderPurcentage=90,ignoreInvoc = True,directTarget=False))> 0 and actSkill.id not in ["yt","ul"]:
-                                                if actSkill.id != secondWind.id:                                   # If the skill isn't Second Wind
-                                                    healSkill.append(actSkill)
-                                                elif actTurn.hp/actTurn.maxHp <= 0.25:                          # Else, if the fighter is dying
-                                                    healSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_DAMAGE and ennemiAtRange:            # Damage skills
-                                                atkSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,dead=True)) > 0:                         # Resu skills (none lol)
-                                                if not(aliceMemCastTabl[actTurn.team]):
-                                                    reaSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_INDIRECT_REZ and allieAtRange:       # Indirect Resu skills (Zelian R)
-                                                indirectReaSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange:   # Indirect damage skills
-                                                indirectAtkSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_BOOST and allieAtRange:              # Buff skills
-                                                boostSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_MALUS and ennemiAtRange:             # Debuff skills
-                                                malusSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_ARMOR and allieAtRange:              # Armor skills
-                                                if actSkill.id not in ["yt"] or (actSkill.id == "yt" and nbLB[actTurn.team] == 1):
-                                                    armorSkill.append(actSkill)
-                                                else:
-                                                    for ent in tablEntTeam[int(not(actTurn.team))]:
-                                                        for eff in ent.effect:
-                                                            if eff.effect.replica != None:
-                                                                armorSkill.append(actSkill)
+                                    if actTurn.cooldowns[a] == 0 and type(actTurn.char.skills[a]) == skill:
+                                        if actTurn.char.skills[a].become == None:
+                                            tablToLook = [actTurn.char.skills[a]]
+                                        else:
+                                            tablToLook = actTurn.char.skills[a].become
 
-                                                if ennemiCast and actSkill.area == AREA_ALL_ALLIES: # Si l'ennemi cast et que la compétence touche tous les alliés : Proba augmentée
-                                                    armorSkill.append(actSkill)
-                                                if ennemiCast and actSkill.area != AREA_MONO: # Si l'ennemi cast et que la compétence est pas mono : Proba augmentée
-                                                    armorSkill.append(actSkill)
-
-                                            elif actSkill.type == TYPE_UNIQUE:                              # Other
-                                                if actSkill in [chaos]:                                         # Boost
-                                                    boostSkill.append(actSkill)
-
-                                                elif actSkill in [serenaSpe]: # Indirect Damage
-                                                    poisonCount = 0
-                                                    for c in tablEntTeam[int(not(actTurn))]:
-                                                        for d in c.effect:
-                                                            if d.id == estal.id:
-                                                                poisonCount += 1
-
-                                                    if poisonCount > 2:
-                                                        indirectAtkSkill.append(actSkill)
-
-                                            elif actSkill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actSkill.range,team=actTurn.team))>0: # Invocation
-                                                temp = actTurn.cell.getEmptyCellsInArea(area=actSkill.range,team=actTurn.team)
-                                                for b in temp[:]:
-                                                    if actTurn.team == 0:
-                                                        if b.x > 2:
-                                                            temp.remove(b)
-                                                    elif b.x < 3:
-                                                        temp.remove(a)
-
-                                                invocSkill.append(actSkill)
-
-                                            elif actSkill.id in ["yt","ul"]: 
-                                                sumHp,sumMaxHp = 0,0
-                                                for b in tablEntTeam[actTurn.team]:
-                                                    sumHp += max(0,b.hp)
-                                                    sumMaxHp += b.maxHp
-                                                if sumHp / sumMaxHp <= 0.6:
-                                                    healSkill.append(actSkill)
-                                                    healSkill.append(actSkill)
-                                                    for num in range(len(probaHealSkill)):
-                                                        probaHealSkill[num] = probaHealSkill[num] *1.2
-                                                if sumHp / sumMaxHp <= 0.4:
-                                                    healSkill.append(actSkill)
-                                                    healSkill.append(actSkill)
-                                                    for num in range(len(probaHealSkill)):
-                                                        probaHealSkill[num] = probaHealSkill[num] *1.5
-
-                                        else: # The skill is cast on others
-                                            ennemiTabl = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True,effect=actSkill.effect,ignoreInvoc = (actSkill.effectOnSelf == None or (actSkill.effectOnSelf != None and findEffect(actSkill.effectOnSelf).replica != None)))
-                                            allieTabl = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc = True)
-                                            allieTablHeal = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=actSkill.effect,ignoreInvoc = True)
-                                            allieAtRange,ennemiAtRange = len(allieTabl)> 0,len(ennemiTabl)> 0
-
-                                            if (actSkill.type == TYPE_HEAL or actSkill.type == TYPE_INDIRECT_HEAL) and len(allieTablHeal)> 0:
-                                                if actSkill.id != vampirisme.id:
-                                                    healSkill.append(actSkill)
-                                                elif len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=actSkill.effect,ignoreInvoc=True,ignoreAspiration=[PROTECTEUR,ALTRUISTE,IDOLE,PREVOYANT]))> 0:
-                                                    healSkill.append(actSkill)
-                                            
-                                            elif actSkill.type == TYPE_DAMAGE and ennemiAtRange:
-                                                if actSkill.id != trans.id:
+                                        for actSkill in tablToLook:
+                                            if actSkill.range == AREA_MONO:                                     # If the skill is launch on self
+                                                allieAtRange,ennemiAtRange = len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc=True,directTarget=False))> 1,len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENNEMIS,effect=actSkill.effect,directTarget=False))> 0
+                                                if actSkill.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL] and len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,lifeUnderPurcentage=90,ignoreInvoc = True,directTarget=False))> 0 and actSkill.id not in ["yt","ul"]:
+                                                    if actSkill.id != secondWind.id:                                   # If the skill isn't Second Wind
+                                                        healSkill.append(actSkill)
+                                                    elif actTurn.hp/actTurn.maxHp <= 0.25:                          # Else, if the fighter is dying
+                                                        healSkill.append(actSkill)
+                                                elif actSkill.type == TYPE_DAMAGE and ennemiAtRange:            # Damage skills
                                                     atkSkill.append(actSkill)
-                                                else:                                           # The skill is Limite Break
-                                                    if nbLB[actTurn.team] == 1:                     # If there is only one LB, nothing special
-                                                        atkSkill.append(actSkill)
-                                                    else:                                           # Else, if the entity is boosted, think about using the LB
-                                                        maxBS,maxNow = -111,-111
-                                                        tempBS,tempNow = actTurn.baseStats, actTurn.allStats()
-
-                                                        for useless1 in tempBS:
-                                                            maxBS = max(maxBS,tempBS[useless1])
-                                                        for useless1 in tempNow:
-                                                            maxNow = max(maxNow,useless1)
-
-                                                        valueToUse = 1.15
-                                                        if actSkill.area != AREA_MONO:
-                                                            valueToUSe = 1.2
-
-                                                        if maxNow > maxBS * valueToUse:
-                                                            atkSkill.append(actSkill)
-                                                            atkSkill.append(actSkill)
-                                            
-                                            elif actSkill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,dead=True)) > 0:
-                                                if not(aliceMemCastTabl[actTurn.team]):
-                                                    reaSkill.append(actSkill)
-
-                                            elif actSkill.type == TYPE_INDIRECT_REZ and allieAtRange:
-                                                indirectReaSkill.append(actSkill)
-
-                                            elif actSkill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange: # Indirect damge
-                                                if actSkill.id not in [poisonus.id,bleedingTrap.id]:
+                                                elif actSkill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ALLIES,dead=True)) > 0:                         # Resu skills (none lol)
+                                                    if not(aliceMemCastTabl[actTurn.team]):
+                                                        reaSkill.append(actSkill)
+                                                elif actSkill.type == TYPE_INDIRECT_REZ and allieAtRange:       # Indirect Resu skills (Zelian R)
+                                                    indirectReaSkill.append(actSkill)
+                                                elif actSkill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange:   # Indirect damage skills
                                                     indirectAtkSkill.append(actSkill)
-                                                elif actSkill.id == poisonus.id:
-                                                    if actTurn.char.weapon.effectOnUse != None and findEffect(actTurn.char.weapon.effectOnUse).id == estal.id:
-                                                        target = sorted(ennemiTabl,key=lambda ent:actTurn.getAggroValue(ent))[0]
-                                                        if len(target.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True)) > 1:
-                                                            indirectAtkSkill.append(actSkill)
-                                                    else:
-                                                        indirectAtkSkill.append(actSkill)
-                                                elif actSkill.id == bleeding.id:
-                                                    if actTurn.char.weapon.effectOnUse != None and findEffect(actTurn.char.weapon.effectOnUse).id == bleeding.id:
-                                                        target = sorted(ennemiTabl,key=lambda ent:actTurn.getAggroValue(ent))[0]
-                                                        if len(target.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True)) > 1:
-                                                            indirectAtkSkill.append(actSkill)
-                                                    else:
-                                                        indirectAtkSkill.append(actSkill)
-
-                                            elif actSkill.type == TYPE_BOOST and allieAtRange:
-                                                effect = findEffect(actSkill.effect[0])
-                                                if effect.turnInit >= 2 and actSkill.id != derobade.id:
+                                                elif actSkill.type == TYPE_BOOST and allieAtRange:              # Buff skills
                                                     boostSkill.append(actSkill)
-                                                elif len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc = True)) > 1:
-                                                    if actSkill.id != derobade.id:                          # Any skills
-                                                        boostSkill.append(actSkill)
-                                                    elif actTurn.hp/actTurn.maxHp <= 0.25:                  # Dérobade
-                                                        boostSkill.append(actSkill)
-                                            elif actSkill.type == TYPE_MALUS and ennemiAtRange:
-                                                if actSkill not in [boom]: 
+                                                elif actSkill.type == TYPE_MALUS and ennemiAtRange:             # Debuff skills
                                                     malusSkill.append(actSkill)
-                                                elif actSkill == boom: # Si il ne reste qu'un ennemi, ne pas prendre en compte Réaction en chaîne
-                                                    team2see = tablEntTeam[int(not(actTurn.team))][:]
-                                                    for b in team2see[:]:
-                                                        if b.hp <= 0:
-                                                            team2see.remove(b)
+                                                elif actSkill.type == TYPE_ARMOR and allieAtRange:              # Armor skills
+                                                    if actSkill.id not in ["yt"] or (actSkill.id == "yt" and nbLB[actTurn.team] == 1):
+                                                        armorSkill.append(actSkill)
+                                                    else:
+                                                        for ent in tablEntTeam[int(not(actTurn.team))]:
+                                                            for eff in ent.effect:
+                                                                if eff.effect.replica != None:
+                                                                    armorSkill.append(actSkill)
 
-                                                    if len(team2see) > 1:
-                                                        malusSkill.append(boom)
-                                            elif actSkill.type == TYPE_ARMOR and len(allieTablHeal)>0:
-                                                if actSkill.id != convert.id:
                                                     if ennemiCast and actSkill.area == AREA_ALL_ALLIES: # Si l'ennemi cast et que la compétence touche tous les alliés : Proba augmentée
                                                         armorSkill.append(actSkill)
                                                     if ennemiCast and actSkill.area != AREA_MONO: # Si l'ennemi cast et que la compétence est pas mono : Proba augmentée
                                                         armorSkill.append(actSkill)
-                                                    armorSkill.append(actSkill)
 
-                                                elif len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc = True,ignoreAspiration=[PROTECTEUR,ALTRUISTE,IDOLE,PREVOYANT])) > 0:
-                                                    armorSkill.append(actSkill)
+                                                elif actSkill.type == TYPE_UNIQUE:                              # Other
+                                                    if actSkill in [chaos]:                                         # Boost
+                                                        boostSkill.append(actSkill)
 
-                                            elif actSkill.type == TYPE_UNIQUE:
-                                                for b in [chaos]: # Boost
-                                                    if b == actSkill:
-                                                        boostSkill.append(b)
-                                            
-                                            elif actSkill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actSkill.range,team=actTurn.team))>0:
-                                                invocSkill.append(actSkill)
+                                                    elif actSkill in [serenaSpe]: # Indirect Damage
+                                                        poisonCount = 0
+                                                        for c in tablEntTeam[int(not(actTurn))]:
+                                                            for d in c.effect:
+                                                                if d.id == estal.id:
+                                                                    poisonCount += 1
+
+                                                        if poisonCount > 2:
+                                                            indirectAtkSkill.append(actSkill)
+
+                                                elif actSkill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actSkill.range,team=actTurn.team))>0: # Invocation
+                                                    temp = actTurn.cell.getEmptyCellsInArea(area=actSkill.range,team=actTurn.team)
+                                                    for b in temp[:]:
+                                                        if actTurn.team == 0:
+                                                            if b.x > 2:
+                                                                temp.remove(b)
+                                                        elif b.x < 3:
+                                                            temp.remove(a)
+
+                                                    invocSkill.append(actSkill)
+
+                                                elif actSkill.id in ["yt","ul"]: 
+                                                    sumHp,sumMaxHp = 0,0
+                                                    for b in tablEntTeam[actTurn.team]:
+                                                        sumHp += max(0,b.hp)
+                                                        sumMaxHp += b.maxHp
+                                                    if sumHp / sumMaxHp <= 0.6:
+                                                        healSkill.append(actSkill)
+                                                        healSkill.append(actSkill)
+                                                        for num in range(len(probaHealSkill)):
+                                                            probaHealSkill[num] = probaHealSkill[num] *1.2
+                                                    if sumHp / sumMaxHp <= 0.4:
+                                                        healSkill.append(actSkill)
+                                                        healSkill.append(actSkill)
+                                                        for num in range(len(probaHealSkill)):
+                                                            probaHealSkill[num] = probaHealSkill[num] *1.5
+
+                                            else: # The skill is cast on others
+                                                ennemiTabl = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True,effect=actSkill.effect,ignoreInvoc = (actSkill.effectOnSelf == None or (actSkill.effectOnSelf != None and findEffect(actSkill.effectOnSelf).replica != None)))
+                                                allieTabl = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc = True)
+                                                allieTablHeal = actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=actSkill.effect,ignoreInvoc = True)
+                                                allieAtRange,ennemiAtRange = len(allieTabl)> 0,len(ennemiTabl)> 0
+
+                                                if (actSkill.type == TYPE_HEAL or actSkill.type == TYPE_INDIRECT_HEAL) and len(allieTablHeal)> 0:
+                                                    if actSkill.id != vampirisme.id:
+                                                        healSkill.append(actSkill)
+                                                    elif len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,lifeUnderPurcentage=90,effect=actSkill.effect,ignoreInvoc=True,ignoreAspiration=[PROTECTEUR,ALTRUISTE,IDOLE,PREVOYANT]))> 0:
+                                                        healSkill.append(actSkill)
+                                                
+                                                elif actSkill.type == TYPE_DAMAGE and ennemiAtRange:
+                                                    if actSkill.id != trans.id:
+                                                        atkSkill.append(actSkill)
+                                                    else:                                           # The skill is Limite Break
+                                                        if nbLB[actTurn.team] == 1:                     # If there is only one LB, nothing special
+                                                            atkSkill.append(actSkill)
+                                                        else:                                           # Else, if the entity is boosted, think about using the LB
+                                                            maxBS,maxNow = -111,-111
+                                                            tempBS,tempNow = actTurn.baseStats, actTurn.allStats()
+
+                                                            for useless1 in tempBS:
+                                                                maxBS = max(maxBS,tempBS[useless1])
+                                                            for useless1 in tempNow:
+                                                                maxNow = max(maxNow,useless1)
+
+                                                            valueToUse = 1.15
+                                                            if actSkill.area != AREA_MONO:
+                                                                valueToUSe = 1.2
+
+                                                            if maxNow > maxBS * valueToUse:
+                                                                atkSkill.append(actSkill)
+                                                                atkSkill.append(actSkill)
+                                                
+                                                elif actSkill.type == TYPE_RESURECTION and len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,dead=True)) > 0:
+                                                    if not(aliceMemCastTabl[actTurn.team]):
+                                                        reaSkill.append(actSkill)
+
+                                                elif actSkill.type == TYPE_INDIRECT_REZ and allieAtRange:
+                                                    indirectReaSkill.append(actSkill)
+
+                                                elif actSkill.type == TYPE_INDIRECT_DAMAGE and ennemiAtRange: # Indirect damge
+                                                    if actSkill.id not in [poisonus.id,bleedingTrap.id]:
+                                                        indirectAtkSkill.append(actSkill)
+                                                    elif actSkill.id == poisonus.id:
+                                                        if actTurn.char.weapon.effectOnUse != None and findEffect(actTurn.char.weapon.effectOnUse).id == estal.id:
+                                                            target = sorted(ennemiTabl,key=lambda ent:actTurn.getAggroValue(ent))[0]
+                                                            if len(target.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True)) > 1:
+                                                                indirectAtkSkill.append(actSkill)
+                                                        else:
+                                                            indirectAtkSkill.append(actSkill)
+                                                    elif actSkill.id == bleeding.id:
+                                                        if actTurn.char.weapon.effectOnUse != None and findEffect(actTurn.char.weapon.effectOnUse).id == bleeding.id:
+                                                            target = sorted(ennemiTabl,key=lambda ent:actTurn.getAggroValue(ent))[0]
+                                                            if len(target.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENNEMIS,lineOfSight = True)) > 1:
+                                                                indirectAtkSkill.append(actSkill)
+                                                        else:
+                                                            indirectAtkSkill.append(actSkill)
+
+                                                elif actSkill.type == TYPE_BOOST and allieAtRange:
+                                                    effect = findEffect(actSkill.effect[0])
+                                                    if effect.turnInit >= 2 and actSkill.id != derobade.id:
+                                                        boostSkill.append(actSkill)
+                                                    elif len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc = True)) > 1:
+                                                        if actSkill.id != derobade.id:                          # Any skills
+                                                            boostSkill.append(actSkill)
+                                                        elif actTurn.hp/actTurn.maxHp <= 0.25:                  # Dérobade
+                                                            boostSkill.append(actSkill)
+                                                elif actSkill.type == TYPE_MALUS and ennemiAtRange:
+                                                    if actSkill not in [boom]: 
+                                                        malusSkill.append(actSkill)
+                                                    elif actSkill == boom: # Si il ne reste qu'un ennemi, ne pas prendre en compte Réaction en chaîne
+                                                        team2see = tablEntTeam[int(not(actTurn.team))][:]
+                                                        for b in team2see[:]:
+                                                            if b.hp <= 0:
+                                                                team2see.remove(b)
+
+                                                        if len(team2see) > 1:
+                                                            malusSkill.append(boom)
+                                                elif actSkill.type == TYPE_ARMOR and len(allieTablHeal)>0:
+                                                    if actSkill.id != convert.id:
+                                                        if ennemiCast and actSkill.area == AREA_ALL_ALLIES: # Si l'ennemi cast et que la compétence touche tous les alliés : Proba augmentée
+                                                            armorSkill.append(actSkill)
+                                                        if ennemiCast and actSkill.area != AREA_MONO: # Si l'ennemi cast et que la compétence est pas mono : Proba augmentée
+                                                            armorSkill.append(actSkill)
+                                                        armorSkill.append(actSkill)
+
+                                                    elif len(actTurn.cell.getEntityOnArea(area=actSkill.range,team=actTurn.team,wanted=ALLIES,effect=actSkill.effect,ignoreInvoc = True,ignoreAspiration=[PROTECTEUR,ALTRUISTE,IDOLE,PREVOYANT])) > 0:
+                                                        armorSkill.append(actSkill)
+
+                                                elif actSkill.type == TYPE_UNIQUE:
+                                                    for b in [chaos]: # Boost
+                                                        if b == actSkill:
+                                                            boostSkill.append(b)
+                                                
+                                                elif actSkill.type == TYPE_INVOC and len(actTurn.cell.getEmptyCellsInArea(area=actSkill.range,team=actTurn.team))>0:
+                                                    invocSkill.append(actSkill)
 
                                 isTMinDanger = False
                                 for a in tablEntTeam[actTurn.team]:
@@ -4606,7 +4689,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             atRange = actTurn.cell.getEntityOnArea(area=skilly.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=skilly.effect,ignoreInvoc = True)
 
                             if len(atRange) <= 0:
-                                atRange = atRange = actTurn.cell.getEntityOnArea(area=AREA_CIRCLE_7,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=skilly.effect,ignoreInvoc = True)
+                                atRange = actTurn.cell.getEntityOnArea(area=AREA_ALL_ENEMIES,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,ignoreInvoc = True)
                                 logs += "\nNo fucking target at range. The ennemi in line of sight with the more aggro will be targeted, but the power will be cut again"
                                 skilly.power = int(skilly.power*0.5)
 
@@ -4815,7 +4898,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 for eff in ennemi.effect:
                                     if eff.effect.id in [estal.id,bleeding.id] and eff.value > 0:
                                         for ent in ennemi.cell.getEntityOnArea(area=AREA_DONUT_2,team=actTurn.team,wanted=ENNEMIS,directTarget=False):
-                                            add_effect(actTurn,ent,finalTablPropa[int(eff.effect.id == bleeding.id)][int(eff.caster!=actTurn)][eff.value-1])
+                                            add_effect(actTurn,ent,eff.effect,effPowerPurcent=[propag.power,propag.power//2][int(eff.caster==actTurn)])
                                             if [ent.name,ent.icon] not in listTarget:
                                                 listTarget.append([ent.name,ent.icon])
                                             logs += "\n{0} gave the {1} effect at {2} for {3} turns".format(actTurn.char.name,effect.name,b.char.name,effect.turnInit)
@@ -4998,10 +5081,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     tempTurnMsg += "\n"
 
                             if skillToUse.effect!=[None]:
+                                tempTurnMsg += "\n"
                                 for a in skillToUse.effect:
                                     effect = findEffect(a)
-                                    tempTurnMsg += "\n"+add_effect(actTurn,ennemi,effect)
-                                    
+                                    tempTurnMsg += add_effect(actTurn,ennemi,effect)
                                     logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,ennemi.char.name,effect.turnInit)
 
                             if skillToUse.id == lunaSpe4.id:
@@ -5022,7 +5105,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             if skillToUse.power > 0 and actTurn.specialVars["damageSlot"] != None:
                                 loose = int(actTurn.maxHp * (actTurn.specialVars["damageSlot"].effect.power/100))
                                 ballerine = "\n{0} : -{1} PV ({2})\n".format(actTurn.icon,loose,actTurn.specialVars["damageSlot"].effect.name)
-                                tempTurnMessage += ballerine
+                                tempTurnMsg += ballerine
                                 logs + ballerine
                                 actTurn.hp -= loose
                                 actTurn.stats.selfBurn += loose
@@ -5581,19 +5664,19 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 precisePurcent,dodgePurcent,critPurcent = "-","-","-"
                 if stats.totalNumberShot > 0:
-                    precisePurcent = round(stats.shootHited/stats.totalNumberShot*100) +"%"
-                    critPurcent = round(stats.crits/stats.totalNumberShot*100) +"%"
+                    precisePurcent = str(round(stats.shootHited/stats.totalNumberShot*100)) +"%"
+                    critPurcent = str(round(stats.crits/stats.totalNumberShot*100)) +"%"
                 if stats.numberAttacked > 0:
-                    dodgePurcent = round(stats.dodge/stats.numberAttacked*100) +"%"
+                    dodgePurcent = str(round(stats.dodge/stats.numberAttacked*100)) +"%"
 
                 ballerine =[[stats.ennemiKill,stats.damageDeal,stats.indirectDamageDeal,stats.underBoost,stats.damageOnShield],[stats.allieResurected,stats.heals,stats.damageBoosted,stats.damageDogded,stats.shieldGived],[stats.survival,stats.damageRecived,stats.selfBurn,precisePurcent,dodgePurcent,critPurcent]]
-                babie = [["Ennemis tués :","Dégâts infligés :","> - Dont indirects :","> - Dont Boostés :","Dégâts sur armure :"],["Alliés ressucités :","Soins effectués :","Dégâts Boostés :","Dégâts réduits :","Armure fournie :"],["Tours survécus :","Dégâts reçus :","Dégats sur soi-même :","Taux de précision : ","Taux d'esquive :","Taux de coup critique :"]]
+                babie = [["Ennemis tués :","Dégâts infligés :"," - Dont indirects :"," - Dont Boostés :","Dégâts sur armure :"],["Alliés ressucités :","Soins effectués :","Dégâts Boostés :","Dégâts réduits :","Armure fournie :"],["Tours survécus :","Dégâts reçus :","Dégats sur soi-même :","Taux de précision : ","Taux d'esquive :","Taux de coup critique :"]]
                 sneaker = ["__Stats offensives__","__Stats altruistes__","__Stats personnels__"]
                 for a in [0,1,2]:
                     statMsg = ""
                     for b in range(0,len(ballerine[a])):
                         temp = "**"
-                        if ballerine[a][b] == 0:
+                        if ballerine[a][b] in [0,"-"]:
                             temp =""
                         statMsg += f"\n{babie[a][b]} {temp}{str(ballerine[a][b])}{temp}"
                     statsEm.add_field(name="<:empty:866459463568850954>\n"+sneaker[a],value=statMsg,inline = False)

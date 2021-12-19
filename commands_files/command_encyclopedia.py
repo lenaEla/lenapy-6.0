@@ -150,7 +150,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 else:
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
             else:
-                tablToSee.sort(key=lambda ballerine:ballerine.name)
+                tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
             lenTabl = len(tablToSee)
             maxPage=lenTabl//10
             page=0
