@@ -21,7 +21,7 @@ firstheal = skill("Premiers secours","zj",TYPE_HEAL,100,40,emoji="<:bandage:8735
 cure = skill("Guérison","zi",TYPE_HEAL,250,80,cooldown=5,emoji='<:cure:873542385731244122>')
 lightAura = skill("Aura de Lumière I","zh",TYPE_PASSIVE,250,effectOnSelf="ly",emoji="<:AdL:873548073769533470>")
 splatbomb = skill("Bombe splash","zg",TYPE_DAMAGE,100,cooldown=4,area=AREA_CIRCLE_1,power=70,emoji='<:splatbomb:873527088286687272>',message="{0} lance une {1} sur {2} :")
-explosion = skill("Explosion","KBOOM",TYPE_DAMAGE,1000,power=300,ultimate=True,cooldown=8,area=AREA_CIRCLE_2,shareCooldown=True,sussess=70,effectOnSelf="mb",use=MAGIE,emoji='<a:explosion:882627170944573471>',damageOnArmor=0.8)
+explosion = skill("Explosion","KBOOM",TYPE_DAMAGE,1000,power=300,ultimate=True,cooldown=8,area=AREA_CIRCLE_2,shareCooldown=True,effectOnSelf="mb",use=MAGIE,emoji='<a:explosion:882627170944573471>',damageOnArmor=0.8)
 explosion2 = skill("Explosion","zf",TYPE_DAMAGE,1000,0,ultimate=True,cooldown=7,area=AREA_CIRCLE_2,sussess=0,shareCooldown=True,effectOnSelf="na",use=MAGIE,emoji='<a:explosion:882627170944573471>',message="{0} rassemble son mana...")
 protect = skill("Orbe défensif","ze",TYPE_ARMOR,200,emoji='<:orbeDef:873725544427053076>',effect="md",cooldown=3)
 poisonus = skill("Vent empoisonné","zd",TYPE_INDIRECT_DAMAGE,500,emoji='<:estabistia:883123793730609172>',effect="me",cooldown=3,area=AREA_CIRCLE_1,use=MAGIE,message="{0} propage un {1} autour de {2} :",effPowerPurcent=40)
@@ -59,7 +59,9 @@ transShield.type,transShield.area,transShield.range,transShield.effect,transShie
 burst = skill("Bombe ballon","ys",TYPE_DAMAGE,0,50,area=AREA_CIRCLE_1,sussess=70,emoji='<:burstBomb:887328853683474444>',use=HARMONIE,cooldown=2)
 lapSkill = skill("Invocation - Lapino","yr",TYPE_INVOC,0,invocation="Lapino",cooldown=4,shareCooldown=True,emoji='<:lapino:885899196836757527>',use=CHARISMA)
 adrenaline = skill("Adrénaline","yq",TYPE_HEAL,250,cure.power,cooldown=5,emoji='<:adrenaline:887403480933863475>',use=INTELLIGENCE)
-blindage = skill("Blindage","yp",TYPE_BOOST,350,0,AREA_MONO,area=AREA_CIRCLE_2,effect="mj",cooldown=3,use=None,emoji="<:blindage:897635682367971338>")
+
+blindOnSelf = effect("Blindé","blindOnSelf",resistance=20,description="Réduit les degâts subis jusqu'à votre prochain tour")
+blindage = skill("Blindage","yp",TYPE_BOOST,350,0,AREA_MONO,area=AREA_DONUT_2,effect="mj",cooldown=3,use=None,emoji="<:blindage:897635682367971338>",effectOnSelf=blindOnSelf)
 secondWind = skill("Second Souffle","yo",TYPE_HEAL,350,350,AREA_MONO,emoji='<:secondWind:897634132639756310>',cooldown=99,use=ENDURANCE)
 isolement = skill("Isolement","yn",TYPE_ARMOR,500,0,AREA_MONO,emoji='<:selfProtect:887743151027126302>',cooldown=5,effect="ml")
 bombRobot = skill("Invocation - Bombe Robot","ym",TYPE_INVOC,500,0,AREA_CIRCLE_3,invocation="Bombe Robot",cooldown=2,shareCooldown=True,emoji='<:autobomb:887747538994745394>',use=STRENGTH)
@@ -123,14 +125,14 @@ suppr = skill("Suppression","vh",TYPE_DAMAGE,650,100,emoji='<:suppression:889090
 revitalisation = skill("Mot revitalisant","vg",TYPE_HEAL,300,50,area=AREA_CIRCLE_1,emoji="<:revita:902525429183811655>",cooldown=2)
 onde = skill("Onde","vf",TYPE_ARMOR,500,effect="nv",cooldown=4,area=AREA_CIRCLE_1,emoji='<:onde:902526595842072616>')
 eting = skill("Marque Eting","ve",TYPE_INDIRECT_HEAL,350,effect="nw",emoji='<:eting:902525771074109462>')
-renforce = skill("Renforcement","vd",TYPE_BOOST,500,range=AREA_DONUT_5,effect="nx",cooldown=5,description="Une compétence qui augmente la résistance d'un allié. L'effet diminue avec les tours qui passent",use=INTELLIGENCE)
+renforce = skill("Renforcement","vd",TYPE_BOOST,500,range=AREA_DONUT_5,effect="nx",cooldown=5,description="Une compétence qui augmente la résistance d'un allié. L'effet diminue avec les tours qui passent",use=INTELLIGENCE,emoji='<:renfor:921760752065454142>')
 steroide = skill("Stéroïdes","vc",TYPE_BOOST,500,range=AREA_DONUT_5,effect="oa",cooldown=3,area=AREA_CIRCLE_1,use=INTELLIGENCE)
 renisurection = skill("Résurrection","vb",TYPE_RESURECTION,500,100,emoji='<:respls:906314646007468062>',cooldown=4,shareCooldown=True,description="Permet de ressuciter un allié",use=CHARISMA)
 demolish = skill("Démolition","va",TYPE_DAMAGE,650,150,AREA_CIRCLE_2,ultimate=True,cooldown=5,effect=incur[5],damageOnArmor=2,emoji='<:destruc:905051623108280330>')
 contrainte = skill("Contrainte","uz",TYPE_MALUS,500,range=AREA_CIRCLE_6,effect=[incur[3],"oc"],cooldown=3,use=INTELLIGENCE)
 trouble = skill("Trouble","uy",TYPE_MALUS,500,range=AREA_CIRCLE_6,effect=[incur[3],"od"],use=CHARISMA,emoji='<:trouble:904164471109468200>',cooldown=3)
 epidemic = skill("Infirmitée","ux",TYPE_MALUS,500,area=AREA_CIRCLE_5,effect=incur[2],cooldown=3,use=None,emoji='<:infirm:904164428545683457>')
-croissance = skill("Croissance","uw",TYPE_BOOST,500,effect="oe",cooldown=5,description="Une compétence dont les bonus se renforce avec les tours qui passent",use=CHARISMA,range=AREA_DONUT_5,emoji='<:croissance:904164385952505886>')
+croissance = skill("Croissance","uw",TYPE_BOOST,500,effect="oe",cooldown=5,description="Une compétence dont les bonus se renforce avec les tours qui passent",use=CHARISMA,range=AREA_DONUT_5,emoji='<:crois:921760610985865246>')
 destruction = skill("Météore","uu",TYPE_DAMAGE,1000,power=int(explosion.power * 1.33),ultimate=True,cooldown=7,shareCooldown=True,effectOnSelf="mb",use=MAGIE,emoji='<:meteor:904164411990749194>',damageOnArmor=explosion.onArmor)
 castDest = effect("Cast - Météore","nnnn",turnInit=2,silent=True,emoji=dangerEm,replique=destruction)
 destruction2 = skill("Météore","uv",TYPE_DAMAGE,1000,power=0,ultimate=True,cooldown=7,effectOnSelf=castDest,use=MAGIE,shareCooldown=True,emoji=destruction.emoji,message="Une ombre plane au dessus de {2}...")
@@ -143,7 +145,7 @@ bigMonoLaserRep = effect("Cast - Las. Chrom. - Conf. Mono","bigMonoLaserEff",tur
 bigMonoLaser2 = skill(bigMonoLaser.name,"up",bigMonoLaser.type,750,0,area=bigMonoLaser.area,emoji=bigMonoLaser.emoji,effectOnSelf=bigMonoLaserRep,ultimate=bigMonoLaser.ultimate,cooldown=bigMonoLaser.cooldown,message="Les drones de {0} s'envolent")
 invocBat2 = skill("Invocation - Chauve-souris II","uo",TYPE_INVOC,500,invocation="Chauve-Souris II",emoji="<:cuttybat2:904369379762925608>",shareCooldown=True,use=CHARISMA,cooldown=3)
 invocCarbunR = skill("Invocation - Carbuncle Rubis","un",TYPE_INVOC,500,invocation="Carbuncle Rubis",emoji="<:invocRuby:919857898195128362>",shareCooldown=True,use=MAGIE,cooldown=3)
-concen = skill("Concentration","um",TYPE_BOOST,price=350,effect="oj",range=AREA_MONO,area=AREA_DONUT_2,cooldown=4,use=None)
+concen = skill("Concentration","um",TYPE_BOOST,price=350,effect="oj",range=AREA_MONO,area=AREA_DONUT_2,cooldown=4,use=None,emoji='<:concen:921762263814262804>')
 memAlice = skill("Memento - Voie de l'Ange","memAlice",TYPE_HEAL,1000,int(transHeal.power*1.3),AREA_MONO,shareCooldown=True,area=AREA_DONUT_4,cooldown=8,ultimate=True,use=CHARISMA,emoji='<a:memAlice2:908424319900745768>',description="Cette compétence soigne les alliés vivants et recussite les alliés morts pour une certaine valeur des soins initiaux, affectée par le niveau de votre personnage\nL'utilisation de cette compétence diminue vos PV maximums de **25%** et ajuste vos PV courants en conséquence")
 memAliceCast = effect("Cast - {0}".format(memAlice.name),"aliceMementoCast",replique=memAlice,turnInit=2,silent=True,emoji=uniqueEmoji('<a:memAliceCast:908413832194588723>'))
 memAlice2 = copy.deepcopy(memAlice)
@@ -175,10 +177,10 @@ altOH = skill("Bénédiction","tq",TYPE_PASSIVE,500,effectOnSelf="altOHEff",emoj
 lightAura2 = skill("Aura de Lumière II","tp",TYPE_PASSIVE,500,effectOnSelf="lightaura2Pa",emoji=lightAura.emoji,use=CHARISMA)
 
 tripleMissilesLaunch = skill("Missiles téléguidés","tripleMissiles",TYPE_DAMAGE,750,120,ultimate=True,repetition=3,damageOnArmor=1.5,cooldown=7,emoji='<:missiles:909727253414445057>',conditionType=["exclusive","aspiration",OBSERVATEUR])
-tripleMissilesEff2 = effect("Cast - {0}".format(tripleMissilesLaunch),"tripleMissilesEff2",turnInit=2,silent=True,emoji=sameSpeciesEmoji("<a:missileSoonB:909727376273965097>","<a:missilesSoonR:909727492510740501>"),replique=tripleMissilesLaunch)
+tripleMissilesEff2 = effect("Cast - {0}".format(tripleMissilesLaunch.name),"tripleMissilesEff2",turnInit=2,silent=True,emoji=sameSpeciesEmoji("<a:missileSoonB:909727376273965097>","<a:missilesSoonR:909727492510740501>"),replique=tripleMissilesLaunch)
 tripleMissilesCast2 = copy.deepcopy(tripleMissilesLaunch)
 tripleMissilesCast2.power, tripleMissilesCast2.message, tripleMissilesCast2.effectOnSelf, tripleMissilesCast2.id = 0,"{0} lance ses missiles",tripleMissilesEff2,"tripleMissilesCast"
-tripleMissilesEff = effect("Cast - {0}".format(tripleMissilesLaunch),"tripleMissilesEff",turnInit=2,silent=True,emoji=uniqueEmoji('<:missilesCast:909727680264560690>'),replique=tripleMissilesCast2)
+tripleMissilesEff = effect("Cast - {0}".format(tripleMissilesLaunch.name),"tripleMissilesEff",turnInit=2,silent=True,emoji=uniqueEmoji('<:missilesCast:909727680264560690>'),replique=tripleMissilesCast2)
 tripleMissiles = copy.deepcopy(tripleMissilesCast2)
 tripleMissiles.effectOnSelf,tripleMissiles.message,tripleMissiles.say,tripleMissiles.id = tripleMissilesEff,"{0} calibre ses missiles","Ok, les missiles sont prêts pour le lancement !","to"
 
@@ -278,14 +280,26 @@ bleedingPuit = skill("Pièges à ressorts","zzy",TYPE_DAMAGE,500,35,area=AREA_CI
 supprZone = skill("Dispersion","zzx",TYPE_DAMAGE,650,75,emoji='<:principio:919529034663223376>',cooldown=5,use=MAGIE,damageOnArmor=3,sussess=60)
 invocCarbSaphir = skill("Invocation - Carbuncle Saphir","zzw",TYPE_INVOC,500,invocation="Carbuncle Saphir",emoji="<:innvocSafir:919857914490007574>",shareCooldown=True,use=STRENGTH,cooldown=3)
 invocCarbObsi = skill("Invocation - Carbuncle Obsidienne","zzv",TYPE_INVOC,500,invocation="Carbuncle Obsidienne",emoji="<:invocObs:919872508226830336>",shareCooldown=True,use=STRENGTH,cooldown=3)
-requiem = skill("Requiem","zzu",TYPE_DAMAGE,500,25,area=AREA_CIRCLE_1,use=CHARISMA,cooldown=3,repetition=3,emoji='<:requiem:919869677197484052>')
+requiem = skill("Requiem","zzu",TYPE_DAMAGE,500,50,range=AREA_MONO,area=AREA_CIRCLE_7,use=CHARISMA,cooldown=3,repetition=3,emoji='<:requiem:919869677197484052>')
 cosmicEff = effect("Pouvoir cosmique","cosmicPowerEff",HARMONIE,strength=5,magie=5,resistance=5,emoji=sameSpeciesEmoji('<:comicPowerB:919866210768801833>','<:cosmicPowerR:919866197850353685>'),redirection=15)
-cosmicEffSelf = effect("Pouvoir cosmique","cosmicPowerEffOnSelf",resistance=7,emoji=sameSpeciesEmoji('<:comicPowerB:919866210768801833>','<:cosmicPowerR:919866197850353685>'))
+cosmicEffSelf = effect("Pouvoir cosmique","cosmicPowerEffOnSelf",resistance=20,emoji=sameSpeciesEmoji('<:comicPowerB:919866210768801833>','<:cosmicPowerR:919866197850353685>'))
 cosmicPower = skill("Pouvoir cosmique","zzt",TYPE_BOOST,1000,range=AREA_MONO,area=AREA_DONUT_2,use=HARMONIE,cooldown=7,emoji='<:cosmic:919866054992334848>',conditionType=["exclusive","element",ELEMENT_SPACE],effect=cosmicEff,effectOnSelf=cosmicEffSelf)
-propag = skill("Propagation","zzs",TYPE_INDIRECT_DAMAGE,750,cooldown=5,ultimate=True,emoji='<:dispersion:919516925644648518>',use=MAGIE,effect=["me","mx"],description="Après la pose des effets de cette compétence, les alliés en mêlée de la cible reçoivent les effets __Poison d'Estialba__ et __Hémorragie__ de la cible pour une puissance équivalente à **{0}%** de la puissance de l'effet, pour la durée restante de l'effet de base\nSi vous n'êtes pas à l'origine de l'effet de base, la puissance de l'effet propagé équivaux à **{1}**% de la puissance de l'effet de base",power=30)
+propag = skill("Propagation","zzs",TYPE_INDIRECT_DAMAGE,750,cooldown=5,ultimate=True,emoji='<:dispersion:919516925644648518>',use=MAGIE,effect=["me","mx"],description="Après la pose des effets de cette compétence, les alliés en mêlée de la cible reçoivent les effets __Poison d'Estialba__ et __Hémorragie__ de la cible pour une puissance équivalente à **{0}%** de la puissance de l'effet, pour la durée restante de l'effet de base\nSi vous n'êtes pas à l'origine de l'effet de base, la puissance de l'effet propagé équivaux à **{1}**% de la puissance de l'effet de base",power=30,effPowerPurcent=55)
+
+inkResEff = effect("Pied au sec","inkRes",INTELLIGENCE,turnInit=2,inkResistance=10,description="Réduit de 10% les dégâts indirects reçu.\nLe pourcentage de réduction est affecté par l'Intelligence et le Bonus aux Armures et Mitigation")
+inkResEff2 = copy.deepcopy(inkResEff)
+inkResEff2.stat, inkResEff2.name, inkResEff2.emoji = ENDURANCE, "Collectivement inconscient", sameSpeciesEmoji('<:incColB:921546169203687464>','<:incColR:921546151314985020>')
+inkRes = skill("Pied au sec","zzr",TYPE_BOOST,500,effect=inkResEff,cooldown=4,area=AREA_CIRCLE_1,use=INTELLIGENCE)
+inkRes2 = skill("Inconscient collectif","zzq",TYPE_BOOST,500,range=AREA_MONO,area=AREA_CIRCLE_2,effect=inkResEff2,cooldown=4,use=ENDURANCE,emoji='<:incCol:921545816940875817>')
+
+booyahBombLauch = skill("Jolizator","zzp",TYPE_DAMAGE,750,200,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,emoji='<:bobomb:921710328771932192>')
+booyahBombEff = effect("Cast - Jolizator","supercalifragilisticexpialiodocieux",turnInit=2,silent=True,emoji=dangerEm,replique=booyahBombLauch)
+booyahBombCast = copy.deepcopy(booyahBombLauch)
+booyahBombCast.id, booyahBombCast.effectOnSelf, booyahBombCast.power = "zzp",booyahBombEff,0
 
 # Skill
-skills = [propag,invocCarbSaphir,invocCarbObsi,supprZone,cosmicPower,requiem,
+skills = [inkRes,inkRes2,booyahBombCast,
+    propag,invocCarbSaphir,invocCarbObsi,supprZone,cosmicPower,requiem,
     magicRuneStrike,infinitDark,preciseShot,troublon,haimaSkill,physicRune,magicRune,rosesMagic,lightBigHealArea,focus,poisonusPuit,bleedingPuit,
     idoOS,proOS,preOS,geoConCast,kikuRes,memClemCastSkill,roses,krysUlt,chaosArmor,firelame,airlame,waterlame,mudlame,shadowLame,timeLame,lightLame,astralLame,idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWillCast,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosion2,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]

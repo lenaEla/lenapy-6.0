@@ -94,7 +94,7 @@ tankmage1 = stuff("Armure du mage de combat",'kt',1,500,-30,20,resistance=10,mag
 tankmage2 = stuff("Bottes du mage de combat",'ku',2,500,charisma=-20,agility=20,resistance=15,magie=15,intelligence=-10,emoji='<:battlemageboot:898203467800277032>',orientation=[TANK,MAGIC])
 tankmage3 = stuff("Chapeau du mage de combat",'kv',0,500,-20,20,resistance=10,magie=10,emoji='<:battlemagehat:899698677059305482>',orientation=[TANK,MAGIC])
 shihuHat = stuff("Beret de matelot noir d'encre",'kw',0,750,magie=35,negativeIndirect=35,negativeDirect=-20,emoji='<:shihuhat:898231015384944640>',orientation=[DISTANCE,MAGIC])
-indeci1 = stuff("Fleur du mage indécis",'kx',0,750,strength=15,magie=15,intelligence=-5,charisma=-5,emoji='<:rmhat:898206952952332299>',position=barrette.position)
+indeci1 = stuff("Fleur du mage indécis",'kx',0,750,strength=15,magie=15,intelligence=-5,charisma=-5,emoji='<:rmhat:921348103364280341>',position=barrette.position)
 indeci2 = stuff("Veste du mage indécis",'ky',1,750,strength=15,magie=15,precision=-5,agility=-5,emoji='<:rmjakect:897631127760691240>')
 indeci3 = stuff("Bottes du mage indécis",'k7',2,750,strength=15,magie=15,charisma=-5,agility=-5,emoji='<:rmboots:897631140557516840>')
 hyperlink = stuff("[[Hyperlink blocked]]",'kz',2,1997,35,intelligence=30,endurance=15,charisma=-30,magie=-30,emoji='<:blocked:897631107602841600>')
@@ -261,10 +261,10 @@ firstShoes = stuff("Tennis montantes de la première heure","rw",2,1,strength=30
 clemBoots = stuff("Bottes de la diciple vampirique","rx",2,1,negativeIndirect=-70,endurance=10,percing=10,resistance=5,negativeDirect=75,emoji='<:clemBoots:920297554330157056>',orientation="Distance - Indirect")
 clemVeste = stuff("Veste en jean de la diciple vampirique","ry",1,1,negativeIndirect=-70,endurance=10,percing=5,resistance=10,negativeDirect=75,emoji='<:clemVeste:920300283068833874>',orientation="Distance - Indirect")
 clemEarRings = stuff("Boucle d'oreille chauve-souris en rubis","rz",0,1,negativeIndirect=-70,percing=10,magie=10,strength=5,negativeDirect=75,emoji='<:clemEarRings:920297359848636458>',position=batEarRings.position,orientation="Distance - Indirect")
-icealiaHat = stuff("Gants polaires","haa",0,1,intelligence=40,negativeShield=-40,endurance=20,negativeHeal=30,negativeDirect=30,strength=-20,orientation=[DISTANCE,SHIELDER])
-icealiaManteau = stuff("Manteau polaire","hab",1,1,intelligence=40,negativeShield=-40,resistance=20,negativeHeal=30,negativeDirect=30,magie=-20,orientation=[DISTANCE,SHIELDER])
-icealiaBoots = stuff("Bottes polaires","hac",1,1,intelligence=40,negativeShield=-40,endurance=20,negativeHeal=30,negativeDirect=30,strength=-10,magie=-10,orientation=[DISTANCE,SHIELDER])
-foulard = stuff("Foulard rouge","had",0,1,strength=10,agility=10,position=blueCharpe.position,emoji='<:foulard:920978522279915530')
+icealiaHat = stuff("Gants polaires","haa",0,1,intelligence=40,negativeShield=-40,endurance=20,negativeHeal=30,negativeDirect=30,strength=-20,orientation=[DISTANCE,SHIELDER],emoji='<:iceGlo:922061791595487243>',position=fecaShield.position)
+icealiaManteau = stuff("Manteau polaire","hab",1,1,intelligence=40,negativeShield=-40,resistance=20,negativeHeal=30,negativeDirect=30,magie=-20,orientation=[DISTANCE,SHIELDER],emoji='<:IcePull:922061774122024961>')
+icealiaBoots = stuff("Bottes polaires","hac",2,1,intelligence=40,negativeShield=-40,endurance=20,negativeHeal=30,negativeDirect=30,strength=-10,magie=-10,orientation=[DISTANCE,SHIELDER],emoji='<:iceBoots:922061812994822194>')
+foulard = stuff("Foulard rouge","had",0,1,strength=10,agility=10,position=blueCharpe.position,emoji='<:foulard:920978522279915530>')
 
 # Stuff
 stuffs = [clemBoots,clemVeste,clemEarRings,icealiaHat,icealiaManteau,icealiaBoots,foulard,
