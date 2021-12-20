@@ -7,6 +7,7 @@ from discord_slash.utils.manage_components import *
 from commands_files.alice_stats_endler import *
 from PIL import Image, ImageColor
 from data.database import *
+from sys import maxsize
 
 stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
@@ -364,12 +365,12 @@ def infoSkill(skill : skill, user : char,ctx):
     if skil.become != None:
         desc = "Cette compétence peut devenir les compétences :\n"
         for cmpt in range(len(skil.become)):
-            desc += "__{0} {1}__".format(skil.become[cmpt].emoji, skil.become[cmpt].name)
+            desc += "__{1} {0}__".format(skil.become[cmpt].name,skil.become[cmpt].emoji)
             if cmpt < len(skil.become)-2:
                 desc += ",\n"
             elif cmpt == len(skil.become)-2:
                 desc += " et\n"
-        desc += " si les conditions sont réunies.\nLeurs temps de rechargement sont tous syncronisés"
+        desc += " si les conditions sont réunies.\nLeurs temps de rechargement sont syncronisés"
     else:
         desc = ""
     # Cooldown ---------------------------
@@ -405,15 +406,12 @@ def infoSkill(skill : skill, user : char,ctx):
                 nbShot = " x{0}".format(skil.repetition)
             else:
                 nbShot = ""
-            temp+=f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Type de dégâts :__ "
-            if skil.area == AREA_MONO:
-                temp +=  "Monocible"
-            else:
-                temp += "Dégâts de zone"
+            temp+=f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Zone d'effet :__ "
+            temp+= areaNames[skil.area]
             temp += "\n__Précision :__ {0}%\n".format(skil.sussess)
 
         else:
-            temp += "\n**__Puissances :__**\n"
+            temp += "\n__Puissances :__\n"
             for cmpt in range(len(skil.become)):
                 multi = ""
                 if skil.become[cmpt].repetition > 1:
@@ -421,11 +419,11 @@ def infoSkill(skill : skill, user : char,ctx):
                 temp += "__{0}__{2} ({1})\n".format(skil.become[cmpt].power, skil.become[cmpt].name, multi)
 
             
-            temp+="\n**__Type de dégâts :__**\n"
+            temp+="\n__Zone d'effet :__\n"
             for cmpt in range(len(skil.become)):
-                temp += "{0} ({1})\n".format(["Monocible","Zone"][skil.become[cmpt].area != AREA_MONO], skil.become[cmpt].name)
+                temp += "{0} ({1})\n".format(areaNames[skil.become[cmpt].area], skil.become[cmpt].name)
             
-            temp+="\n**__Précisions :__**\n"
+            temp+="\n__Précisions :__\n"
             for cmpt in range(len(skil.become)):
                 temp += "{0}% ({1})\n".format(skil.become[cmpt].sussess, skil.become[cmpt].name)
 
@@ -441,14 +439,15 @@ def infoSkill(skill : skill, user : char,ctx):
             else:
                 temp += f"\nLes compétences passives se déclanchent au début du combat"
 
-        temp += "\nCette compétence cible les **ennemis**"
+        if skil.become == None:
+            temp += "\nCette compétence cible les **ennemis**"
 
         if skil.onArmor != 1 and skil.become == None:
             temp += "\n__Dégâts sur armure :__ **{0}%**".format(int(skil.onArmor*100))
         elif skil.become != None:
             for becomeName in skil.become:
                 if becomeName.onArmor != 1:
-                    temp += "\n__{1}__ inflige **{0}%** de ses dégâts aux armures".format(int(becomeName.onArmor*100), becomeName.name)
+                    temp += "\n__{2} {1}__ inflige **{0}%** de ses dégâts aux armures".format(int(becomeName.onArmor*100), becomeName.name, becomeName.emoji)
 
 
         if skil.use not in [None,HARMONIE]:
@@ -632,6 +631,14 @@ def infoSkill(skill : skill, user : char,ctx):
 
     if skil.invocation != None:
         repEmb = infoInvoc(findInvoc(skil.invocation),repEmb)
+    
+    if repEmb.__len__() > 6000:
+        repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n__Statistiques :__\n"+temp+"\n\nCertaines infromations n'ont pas pu être affichées.")
+        if skil.emoji[1] == "a":
+            repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
+        else:
+            repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
+
     return repEmb
 
 def infoWeapon(weap : weapon, user : char ,ctx):
@@ -806,29 +813,27 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
     upLvl = (user.level-1)*50+30
 
     if user.exp >= upLvl:
-        perso = loadCharFile(path)
-        perso.currencies, perso.exp = user.currencies, user.exp
-        perso.points = perso.points + 1
+        user.points = user.points + 1
 
-        temp = perso.allStats()
+        temp = user.allStats()
         up = [0,0,0,0,0,0,0]
         tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
-        stats = perso.allStats()
+        stats = user.allStats()
         for a in range(0,len(stats)):
-            stats[a] = round(tabl[a][perso.aspiration]*0.1+tabl[a][perso.aspiration]*0.9*perso.level/50+perso.bonusPoints[a])
-            temp[a] = round(tabl[a][perso.aspiration]*0.1+tabl[a][perso.aspiration]*0.9*(perso.level+1)/50+perso.bonusPoints[a])
+            stats[a] = round(tabl[a][user.aspiration]*0.1+tabl[a][user.aspiration]*0.9*user.level/50+user.bonusPoints[a])
+            temp[a] = round(tabl[a][user.aspiration]*0.1+tabl[a][user.aspiration]*0.9*(user.level+1)/50+user.bonusPoints[a])
             up[a] = temp[a]-stats[a]
 
-        perso.strength, perso.endurance, perso.charisma, perso.agility, perso.precision, perso.intelligence, perso.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
+        user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
 
-        ballerine = await bot.fetch_user(perso.owner)
-        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = perso.color,description = f"Le personnage de {ballerine.mention} ({perso.name}) a gagné un niveau !\n\nForce : {perso.strength} (+{up[0]})\nEndurance : {perso.endurance} (+{up[1]})\nCharisme : {perso.charisma} (+{up[2]})\nAgilité : {perso.agility} (+{up[3]})\nPrécision : {perso.precision} (+{up[4]})\nIntelligence : {perso.intelligence} (+{up[5]})\nMagie : {perso.magie} (+{up[6]})\n\nVous avez {perso.points} bonus à répartir en utilisant la commande \"points\".")
+        ballerine = await bot.fetch_user(user.owner)
+        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = user.color,description = f"Le personnage de {ballerine.mention} ({user.name}) a gagné un niveau !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande \"points\".")
         
-        if (perso.level+1) % 5 == 0:
+        if (user.level+1) % 5 == 0:
             unlock = ""
             listUnlock = []
-            for stuffy in perso.stuffInventory:
-                if stuffy.minLvl == perso.level+1:
+            for stuffy in user.stuffInventory:
+                if stuffy.minLvl == user.level+1:
                     listUnlock.append(stuffy)
 
             if len(listUnlock) <= 10:
@@ -847,13 +852,11 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
         else:
             await ctx.channel.send(embed = lvlEmbed)
 
-        perso.exp = perso.exp - (user.level)*50+30
-        perso.level = perso.level + 1
-        saveCharFile(path,perso)
-        return perso
-    else:
-        saveCharFile(path,user)
-        return None
+        user.exp = user.exp - (user.level)*50+30
+        user.level = user.level + 1
+
+    saveCharFile(user=user)
+    return user
 
 def getChoisenSelect(select : dict, value : str):
     trouv = False
@@ -1364,6 +1367,8 @@ def getAutoStuff(object: stuff, user: char):
 
 
         def getSortValue(obj:stuff,statsMaxPlace=statsMaxPlace,aff=False):
+            if obj.effect != None and findEffect(obj.effect).id == summonerMalus.id:
+                return -maxsize
             objStats = obj.allStats()+[obj.resistance,obj.percing,obj.critical]+[obj.negativeHeal*-1,obj.negativeBoost*-1,obj.negativeShield*-1,obj.negativeDirect*-1,obj.negativeIndirect*-1]
             value = []
             for a in statsMaxPlace:

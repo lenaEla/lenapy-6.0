@@ -357,7 +357,6 @@ def delete_old_backups():
                 temp+="./data/backups/{0} n'a pas pu être supprimé\n".format(name)
     return temp
 
-
 @tasks.loop(seconds=1)
 async def oneClock():
     tick = datetime.datetime.now()
@@ -473,6 +472,7 @@ async def on_ready():
         await msg.channel.send("Le redémarrage du bot est terminé Léna",delete_after=10)
         globalVar.getRestartMsg(int(0))
         print("Redémarrage terminé")
+
 
 # ====================================================================================================
 #                                               COMMANDS
@@ -983,10 +983,13 @@ async def normal(ctx):
                 lenBoucle = max(4,len(team1))
                 cmpt = 0
 
-                if maxLvl < tablAllEnnemies[42].baseLvl:
-                    alea = copy.deepcopy(tablAllEnnemies[6])
+                octoHealVet = findEnnemi("Octo Soigneur Vétéran")
+                octoHeal = findEnnemi("Octo Soigneur")
+
+                if maxLvl < octoHealVet.baseLvl:
+                    alea = copy.deepcopy(octoHeal)
                 else:
-                    alea = copy.deepcopy(tablAllEnnemies[42])
+                    alea = copy.deepcopy(octoHealVet)
 
                 alea.changeLevel(maxLvl)
                 alea.charisma = alea.charisma//2
@@ -1424,7 +1427,7 @@ async def teamAdd(ctx,joueur):
         pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
         msg = await loadingSlashEmbed(ctx)
 
-        if not(os.path.exists(pathTeam) and user.team != "0"):
+        if not(os.path.exists(pathTeam) and user.team != 0):
             rdm = str(random.randint(1,10000))
             pathTeam = absPath + "/userTeams/" + rdm +".team"
             rewriteFile(pathTeam,f"{str(user.owner)};")
@@ -1434,20 +1437,19 @@ async def teamAdd(ctx,joueur):
         noneCap,selfAdd,temp = True,False,readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")
 
         if len(temp[0]) >= 8:
-            noneCap = False      
+            noneCap = False
 
         if ctx.author == joueur:
-            selfAdd = True          
+            selfAdd = True
 
         if noneCap and not(selfAdd):
             mention = joueur
             if os.path.exists(absPath + "/userProfile/" + str(mention.id) + ".prof"):
                 allReadyinTeam,allReadyInThatTeam,mate = False, False,loadCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof")
-                if mate.team != "0":
+                if mate.team != 0:
                     allReadyinTeam = True
                     if mate.team == user.team:
                         allReadyInThatTeam = True
-
 
                 if not(allReadyinTeam):
                     await msg.edit(embed = discord.Embed(title = "/team add "+joueur.name, color = user.color, description = f"{mention.mention}, {ctx.author.mention} vous propose de rejoidre son équipe. Qu'en dites vous ?"))
@@ -1455,29 +1457,34 @@ async def teamAdd(ctx,joueur):
                     await msg.add_reaction(emoji.cross)
 
                     def checkisIntendedUser(reaction,user):
-                        return user == mention
+                        return int(user.id) == int(mention.id)
 
                     try:
                         reaction = await bot.wait_for("reaction_add",timeout=60,check=checkisIntendedUser)
-                        if str(reaction[0]) == emoji.check:
-                            mate[0].team = user.team
-                            saveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
-
-                            file = readSaveFiles(pathTeam)
-                            file[0] += [str(mention.id)]
-                            saveSaveFiles(pathTeam,file)
-                            await msg.clear_reactions()
-                            await msg.edit(embed = discord.Embed(title="/team add "+joueur.name,color = user.color,description = "Vous faites dorénavent parti de la même équipe"))
                     except:
                         await msg.clear_reactions()
+                        await msg.edit(embed = errorEmbed("/team add "+joueur.name,"La commande n'a pas pu aboutir"))
+
+                    if str(reaction[0]) == emoji.check:
+                        mate.team = user.team
+                        saveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
+                        file = readSaveFiles(pathTeam)
+                        file[0] += [str(mention.id)]
+                        saveSaveFiles(pathTeam,file)
+                        await msg.clear_reactions()
+                        await msg.edit(embed = discord.Embed(title="/team add "+joueur.name,color = user.color,description = "Vous faites dorénavent parti de la même équipe"))
                 
                 elif allReadyInThatTeam:
                     await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Ce joueur est déjà dans ton équipe"))
                 elif allReadyinTeam:
-                    await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Ce joueur est déjà dans une équipe"))
+                    await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Ce joueur a déjà une équipe"))
 
             else:
-                await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Cet utilisateur n'a pas commencé l'aventure"))  
+                await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Cet utilisateur n'a pas commencé l'aventure"))
+        elif noneCap:
+            await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Votre équipe est déjà au complet"))
+        elif selfAdd:
+            await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Vous voulez faire équipe avec vous-même ?"))
 
 # team quit
 @slash.subcommand(base="team",name="quit",description="Permet de quitter son équipe")
@@ -1487,10 +1494,10 @@ async def teamQuit(ctx):
         user = loadCharFile(pathUserProfile)
         pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
 
-    if user.team != "0":
+    if user.team != 0:
         team = readSaveFiles(pathTeam)
         team[0].remove(str(ctx.author.id))
-        user.team = "0"
+        user.team = 0
 
         saveSaveFiles(pathTeam,team)
         await ctx.send(embed = discord.Embed(title = "/team quit",color = user.color, description = "Vous avez bien quitté votre équipe"))
@@ -2089,6 +2096,47 @@ async def seeEnnemyRep(ctx):
     embed = discord.Embed(title="__Hors catégorie :__".format(["DPT","Healer/Shilder","Support"][cmpt]),color=light_blue,description=desc)
 
     await ctx.channel.send(embed = embed)
+
+# -------------------------------------------- SEE SKILL RECOMMENDED POWER
+@slash.subcommand(base="see",name="skillRecommandedPower",guild_ids=[615257372218097691],description="Permet de voir la répartition des ennemis")
+async def seeSkillRecommandedPower(ctx):
+    temp,debut = "",False
+    for cmpt in range(len(skills)):
+        castTime = 0
+        tempSkill = skills[cmpt]
+        if tempSkill.type == TYPE_DAMAGE:
+            while not(tempSkill.effectOnSelf == None or (tempSkill.effectOnSelf != None and findEffect(tempSkill.effectOnSelf).replica == None)):
+                tempSkill = findSkill(findEffect(tempSkill.effectOnSelf).replica)
+                castTime += 1
+
+            power = 25 + 25 * tempSkill.cooldown + 50 * castTime + 55 * tempSkill.ultimate
+
+            if tempSkill.effectOnSelf != None and findEffect(tempSkill.effectOnSelf).stun:
+                power += (findEffect(tempSkill.effectOnSelf).turnInit -1) * 15
+
+
+            if tempSkill.area != AREA_MONO:
+                power = power * 0.7
+            if tempSkill.use == MAGIE:
+                power = power * 1.2
+
+            if tempSkill.effect[0] != None or tempSkill.effectOnSelf != None:
+                power = power * 0.7
+            
+            if tempSkill.onArmor != 1:
+                power = power * (1 - min(0.5,(tempSkill.onArmor-1)/2))
+
+            power = int(power / tempSkill.repetition)
+
+            if power != tempSkill.power:
+                temp += "{0} __{1}__ : {2} (rec : {3})\n".format(tempSkill.emoji,tempSkill.name,tempSkill.power,power)
+        if ((cmpt+1)%20 == 0 or cmpt == len(skills)-1) and temp != "":
+            if not(debut):
+                await ctx.send(embed=discord.Embed(title="Recommaned power",color=light_blue,description=temp))
+                debut = True
+            else:
+                await ctx.channel.send(embed=discord.Embed(title="Recommaned power",color=light_blue,description=temp))
+            temp = ""
 
 ###########################################################
 # Démarrage du bot

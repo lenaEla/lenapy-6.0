@@ -115,105 +115,6 @@ tablVarAllies = [
     tmpAllie("Shushi Cohabitée",1,blue,PREVOYANT,shushiWeap,[shushiHat,shushiDress,shushiBoots],GENDER_FEMALE,[shushiSkill1,shushiArmorSkill,shushiSkill3,shushiSkill4,shushiSkill5],"S'étant comprise l'une et l'autre, Shushi et Shihu ont décidé de se liguer contre la mère de cette dernière.\nCette allié temporaire n'apparait que contre le boss \"Luna\"",ELEMENT_LIGHT,True,icon='<:shushiCoa:915488591654842368>',bonusPoints=[MAGIE,AGILITY]),
     tmpAllie("Alice Exaltée",1,aliceColor,IDOLE,aliceExWeap,[aliceExHeadruban,aliceExDress,aliceExShoes],GENDER_FEMALE,[aliceSkill1,aliceSkill2,aliceSkill3,aliceSkill4,aliceRez],"Voyant qu'elle n'arriverai pas à ramener sa sœur à la raison, Alice a décider d'aller contre ses principes et de révéler toute sa puissance vampirique pour tenter de redresser la balance.\nN'apparait que contre Clémence possédée",element=ELEMENT_LIGHT,variant=True,deadIcon="<:AliceOut:908756108045332570>",icon="<a:aliceExalte:914782398451953685>",bonusPoints=[CHARISMA,ENDURANCE],say=aliceExSays)
 ]
-
-if not(isLenapy):
-    print("\nVérification de l'équilibrage des stuffs...")
-    allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    for a in stuffs:
-        ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
-        babie = [a.negativeHeal,a.negativeBoost,a.negativeShield,a.negativeDirect,a.negativeIndirect]
-        sumation = 0
-        for b in range(0,len(ballerine)):
-            sumation += ballerine[b]
-            allstats[b] += ballerine[b]
-
-        for b in babie:
-            sumation -= b
-
-        if sumation != 20 and a.effect == None and a.name != "Claquettes chaussettes":
-            print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
-
-        elif sumation != 10 and a.effect != None:
-            print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
-
-    temp = "\nDistribution des statistiques :\n"
-    total = 0
-    for a in allstats:
-        total += a
-
-    for a in range(0,len(allStatsNames)):
-        temp += "{0} : {1}% ({2})\n".format(allStatsNames[a],round(allstats[a]/total*100,2),allstats[a])
-    print(temp)
-
-    lvlTabl = [{"level":0,"nombre":0}]
-    for equip in stuffs:
-        find = False
-        for temp in lvlTabl:
-            if temp["level"] == equip.minLvl:
-                temp["nombre"]+=1
-                find = True
-                break
-
-        if not(find):
-            lvlTabl.append({"level":equip.minLvl,"nombre":1})
-
-    lenStuff = len(stuffs)
-    lvlTabl.sort(key=lambda ballerine: ballerine["level"])
-
-    for temp in lvlTabl:
-        print("Objets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),20 + (temp["level"] * 2)))
-
-    tabl = copy.deepcopy(tablAllAllies)
-    tablTank = []
-    tablMid = []
-    tablBack = []
-
-    for allie in tabl:
-        [tablTank,tablMid,tablBack][allie.weapon.range].append(allie)
-
-    print("")
-    for num in range(3):
-        print("Nombre de Temp's en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
-
-    tabl = copy.deepcopy(tablAllEnnemies)
-    alReadySeen = []
-    tablTank = []
-    tablMid = []
-    tablBack = []
-
-    for ennemi in tabl:
-        if ennemi.name not in alReadySeen:
-            [tablTank,tablMid,tablBack][ennemi.weapon.range].append(ennemi)
-            alReadySeen.append(ennemi.name)
-            stat = ennemi.allStats()+[ennemi.resistance,ennemi.percing,ennemi.critical]
-            summ = 0
-            for a in stat:
-                summ += a
-
-            awaited = int((230+110*3)*0.9)
-            if summ < awaited*0.9 or summ > awaited*1.1:
-                print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
-
-    print("")
-    for num in range(3):
-        print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
-
-    for weap in weapons:
-        summation = 0
-        for stats in weap.allStats()+[weap.resistance,weap.percing,weap.critical]:
-            if stats < 0:
-                print("{0} : Stat négative détectée !".format(weap.name))
-            else:
-                summation += stats
-
-        toVerif = 30
-        if weap.effect != None or weap.effectOnUse != None:
-            toVerif = 15
-
-        if int(summation) != int(toVerif):
-            print("{0} : Cumule de stats non égal à {1} ({2} / {1})".format(weap.name,toVerif,summation))
-    print("\nVérification de l'équilibrage des stuffs terminée")
-
 def findWeapon(WeaponId) -> weapon:
     typi = type(WeaponId)
     if typi == weapon:
@@ -310,6 +211,105 @@ def findAllie(name) -> tmpAllie:
         if a.name == name:
             return a
     return None
+
+if not(isLenapy):
+    print("\nVérification de l'équilibrage des stuffs...")
+    allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    for a in stuffs:
+        if a.effect == None or (a.effect != None and findEffect(a.effect).id != summonerMalus.id):
+            ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
+            babie = [a.negativeHeal,a.negativeBoost,a.negativeShield,a.negativeDirect,a.negativeIndirect]
+            sumation = 0
+            for b in range(0,len(ballerine)):
+                sumation += ballerine[b]
+                allstats[b] += ballerine[b]
+
+            for b in babie:
+                sumation -= b
+
+            if sumation != 20 and a.effect == None and a.name != "Claquettes chaussettes":
+                print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
+
+            elif sumation != 10 and a.effect != None:
+                print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
+
+    temp = "\nDistribution des statistiques :\n"
+    total = 0
+    for a in allstats:
+        total += a
+
+    for a in range(0,len(allStatsNames)):
+        temp += "{0} : {1}% ({2})\n".format(allStatsNames[a],round(allstats[a]/total*100,2),allstats[a])
+    print(temp)
+
+    lvlTabl = [{"level":0,"nombre":0}]
+    for equip in stuffs:
+        find = False
+        for temp in lvlTabl:
+            if temp["level"] == equip.minLvl:
+                temp["nombre"]+=1
+                find = True
+                break
+
+        if not(find):
+            lvlTabl.append({"level":equip.minLvl,"nombre":1})
+
+    lenStuff = len(stuffs)
+    lvlTabl.sort(key=lambda ballerine: ballerine["level"])
+
+    for temp in lvlTabl:
+        print("Objets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),20 + (temp["level"] * 2)))
+
+    tabl = copy.deepcopy(tablAllAllies)
+    tablTank = []
+    tablMid = []
+    tablBack = []
+
+    for allie in tabl:
+        [tablTank,tablMid,tablBack][allie.weapon.range].append(allie)
+
+    print("")
+    for num in range(3):
+        print("Nombre de Temp's en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
+
+    tabl = copy.deepcopy(tablAllEnnemies)
+    alReadySeen = []
+    tablTank = []
+    tablMid = []
+    tablBack = []
+
+    for ennemi in tabl:
+        if ennemi.name not in alReadySeen:
+            [tablTank,tablMid,tablBack][ennemi.weapon.range].append(ennemi)
+            alReadySeen.append(ennemi.name)
+            stat = ennemi.allStats()+[ennemi.resistance,ennemi.percing,ennemi.critical]
+            summ = 0
+            for a in stat:
+                summ += a
+
+            awaited = int((230+110*3)*0.9)
+            if summ < awaited*0.9 or summ > awaited*1.1:
+                print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
+
+    print("")
+    for num in range(3):
+        print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
+
+    for weap in weapons:
+        summation = 0
+        for stats in weap.allStats()+[weap.resistance,weap.percing,weap.critical]:
+            if stats < 0:
+                print("{0} : Stat négative détectée !".format(weap.name))
+            else:
+                summation += stats
+
+        toVerif = 30
+        if weap.effect != None or weap.effectOnUse != None:
+            toVerif = 15
+
+        if int(summation) != int(toVerif):
+            print("{0} : Cumule de stats non égal à {1} ({2} / {1})".format(weap.name,toVerif,summation))
+    print("\nVérification de l'équilibrage des stuffs terminée")
 
 listAllBuyableShop = []
 for a in weapons+skills+stuffs:

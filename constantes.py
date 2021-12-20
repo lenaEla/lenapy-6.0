@@ -46,6 +46,7 @@ AREA_ARC_1 = 34 # Arc
 AREA_ARC_2 = 35
 AREA_ARC_3 = 36
 
+areaNames = ["Monocible","Cercle de rayon 1","Cercle de rayon 2","Cercle de rayon 3","Cercle de rayon 4","Cercle de rayon 5","Cercle de rayon 6","Cercle de rayon 7","Tous les alliés","Tous les ennemis","Tous les combattants","Cone simple","Cone Large","Cone Large","Cone Large","Cone Large","Cone Large","Ligne de 2 de longueur","Ligne de 3 de longueur","Ligne de 4 de longueur","Ligne de 5 de longueur","Ligne de 6 de longueur","Donut de 1 de rayon","Donut de 2 de rayon","Donut de 3 de rayon","Donut de 4 de rayon","Donut de 5 de rayon","Donut de 6 de rayon","Donut de 7 de rayon","Anneau Distance de 1 de largeur","Anneau Distance de 2 de largeur","Anneau Distance de 3 de largeur","Anneau Distance de 4 de largeur","Anneau Distance de 5 de largeur","Arc de Cercle de 1 de rayon","Arc de Cercle de 2 de rayon","Arc de Cercle de 3 de rayon"]
 # Weapon's range
 RANGE_MELEE = 0
 RANGE_DIST = 1
@@ -75,7 +76,7 @@ TYPE_DAMAGE = 6
 TYPE_MALUS = 7
 TYPE_HEAL = 8
 TYPE_UNIQUE = 9
-TYPE_INVOC = 10
+TYPE_SUMMON = 10
 TYPE_PASSIVE = 11
 
 tablTypeStr = ["Armure","Dégâts indirects","Soins Indirects","Résurection indirecte","Boost","Resurection","Dégâts","Malus","Soins","Unique","Invocation","Passif"]
@@ -94,7 +95,7 @@ CRITICAL = 9
 PURCENTAGE = 11
 FIXE = 12
 HARMONIE = 13
-
+AUTO_POWER = "autoPower"
 nameStats,nameStats2 = ["Force","Endurance","Charisme","Agilité","Précision","Intelligence","Magie"],["Résistance","Pénétration","Critique"]
 allStatsNames = nameStats+nameStats2
 

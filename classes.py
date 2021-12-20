@@ -226,7 +226,7 @@ class weapon:
                     self.emoji='<:defDamage:885899060488339456>'
                 elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
                     self.emoji='<:defHeal:885899034563313684>'
-                elif self.type in [TYPE_BOOST,TYPE_INVOC]:
+                elif self.type in [TYPE_BOOST,TYPE_SUMMON]:
                     self.emoji='<:defSupp:885899082453880934>'
                 elif self.type in [TYPE_ARMOR]:
                     self.emoji='<:defarmor:895446300848427049>'
@@ -284,7 +284,17 @@ class skill:
         self.say = say                                  # Does the attacker say something when the skill is used ?
         self.id = id                                    # The id of the skill.  Idealy, unique
         self.type = types                               # The type of the skill. See constante.types
-        self.power = power                              # Power of the skill. Use for damage and healing skills
+        
+        if power != AUTO_POWER:
+            self.power = power                              # Power of the skill. Use for damage and healing skills
+        else:
+            power = 25 + 25*cooldown
+            if area != AREA_MONO:
+                power = power * 0.7
+            if use == MAGIE:
+                power = power * 1.2
+            self.power = int(power)
+
         self.knockback = knockback
         self.effPowerPurcent = effPowerPurcent
         self.become = become
@@ -385,7 +395,7 @@ class skill:
                 self.emoji='<:defDamage:885899060488339456>'
             elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
                 self.emoji='<:defHeal:885899034563313684>'
-            elif self.type in [TYPE_BOOST,TYPE_INVOC]:
+            elif self.type in [TYPE_BOOST,TYPE_SUMMON]:
                 self.emoji='<:defSupp:885899082453880934>'
             elif self.type in [TYPE_ARMOR]:
                 self.emoji='<:defarmor:895446300848427049>'
