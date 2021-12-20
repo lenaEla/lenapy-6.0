@@ -1,3 +1,4 @@
+from inspect import EndOfBlock
 from operator import neg
 from classes import *
 from constantes import *
@@ -158,11 +159,11 @@ blueNoeud = stuff("Noeud bleu",'mz',0,1,intelligence=30,negativeHeal=30,negative
 whiteNoeud = stuff("Noeud blanc",'na',0,1,charisma=30,negativeHeal=-20,negativeBoost=5,negativeShield=25,emoji='<:noeudBl:907386972505522178>',orientation=[None,HEALER],position=barrette.position)
 giletShirt = stuff("Gilet avec T-shirt",'nb',1,1,endurance=10,resistance=10,magie=10,negativeIndirect=10,emoji='<:giletTshirt:907386967472365618>',orientation=[TANK,MAGIC])
 LBBerer = stuff("Bêret azuré",'nc',0,1,precision=20,negativeDirect=-20,negativeIndirect=20,emoji='<:beretBleu:907386673166426187>')
-starBoots = stuff("Cuissardes nébuleuse","nd",2,1,endurance=30,resistance=20,magie=35,intelligence=5,negativeDirect=30,negativeIndirect=30,precision=-10,emoji='<:startBoots:907799882776076318>',orientation=[TANK,MAGIC])
-starPull = stuff("Pull nébuleuse","ne",1,1,endurance=30,resistance=20,magie=35,negativeHeal=25,negativeShield=15,negativeBoost=15,strength=-10,emoji='<:starsPull:907778034738811000>',orientation=[TANK,MAGIC])
+starBoots = stuff("Cuissardes nébuleuse","nd",2,1,endurance=30,resistance=20,magie=35,precision=5,negativeDirect=30,negativeIndirect=30,agility=-10,emoji='<:startBoots:907799882776076318>',orientation=[TANK,MAGIC])
+starPull = stuff("Pull nébuleuse","ne",1,1,endurance=25,resistance=20,magie=30,precision=10,negativeHeal=25,negativeShield=15,negativeBoost=15,strength=-10,emoji='<:starsPull:907778034738811000>',orientation=[TANK,MAGIC])
 starBar = stuff("Barette étoilée","nf",0,1,endurance=10,resistance=10,magie=30,precision=20,critical=5,intelligence=10,negativeHeal=30,negativeShield=35,emoji='<:startBar:907779307630391307>',orientation=[None,MAGIC],position=barrette.position)
-starDress = stuff("Robe nébuleuse","ng",1,1,endurance=10,resistance=10,magie=35,negativeDirect=-35,strength=-40,negativeBoost=30,emoji='<:starDress:907799795228352544>',orientation=[None,MAGIC])
-starFlats = stuff("Ballerines nébuleuses","nh",2,1,endurance=10,resistance=5,magie=20,negativeIndirect=-35,negativeDirect=-18,negativeHeal=35,negativeShield=33,emoji='<:startFlats:907778001897414766>',orientation=[None,MAGIC])
+starDress = stuff("Robe nébuleuse","ng",1,1,precision=10,resistance=10,magie=35,negativeDirect=-35,strength=-40,negativeBoost=30,emoji='<:starDress:907799795228352544>',orientation=[None,MAGIC])
+starFlats = stuff("Ballerines nébuleuses","nh",2,1,precision=10,resistance=5,magie=20,negativeIndirect=-35,negativeDirect=-18,negativeHeal=35,negativeShield=33,emoji='<:startFlats:907778001897414766>',orientation=[None,MAGIC])
 celestBronzeHat = stuff("Casque en bronze céleste","ni",0,1,emoji='<:feliHelmet:912418068649611314>',strength=35,endurance=30,resistance=15,negativeDirect=-15,precision=-25,negativeHeal=25,magie=-25,orientation=[TANK,DPT])
 celestBronzeArmor = stuff("Armure en bronze céleste",'nj',1,1,emoji='<:feliArmor:912418017181302824>',strength=25,endurance=30,resistance=25,negativeDirect=-20,agility=-30,negativeIndirect=20,negativeBoost=30,orientation=[TANK,DPT])
 celestBronzeBoots = stuff("Bottes en bronze céleste",'nk',2,1,emoji='<:feliBoots:912418033878859796>',strength=35,endurance=30,resistance=15,negativeDirect=-15,precision=-25,negativeHeal=25,magie=-25,orientation=[TANK,DPT])
@@ -184,12 +185,12 @@ julieShoes = stuff("Escarpins de la soubrette écarlate","oa",2,1,endurance=5,ch
 obsiHelmet = stuff("Casque en obsidienne","ob",0,1,endurance=70,resistance=25,agility=20,negativeDirect=20,negativeBoost=15,negativeShield=20,negativeHeal=20,negativeIndirect=20,emoji='<:obsiHelmet:910569288937635900>',orientation=[TANK])
 obsiBody = stuff("Armure en obsidienne","oc",1,1,endurance=70,resistance=35,agility=10,negativeDirect=20,negativeBoost=20,negativeShield=15,negativeHeal=20,negativeIndirect=20,emoji='<:obsiBody:910569302615277630>',orientation=[TANK])
 obsiBoots = stuff("Bottes en obsidienne","od",2,1,endurance=70,resistance=25,agility=20,negativeDirect=20,negativeBoost=20,negativeShield=20,negativeHeal=15,negativeIndirect=20,emoji='<:obsiBoots:910569317165318174>',orientation=[TANK])
-magicArmorHelmet = stuff("Casque magicochromatique de l'EEv3","oe",0,1,endurance=45,magie=35,resistance=20,negativeDirect=-20,strength=-40,intelligence=-30,charisma=-30,emoji='<:magicHelmet:916193178032431155>',orientation=[TANK,MAGIC])
-magicArmorBody = stuff("Armure magicochromatique de l'EEv3","of",1,1,endurance=45,magie=25,resistance=25,negativeDirect=-20,strength=-35,intelligence=-30,charisma=-30,emoji='<:magicArmor:916193242507272202>',orientation=[TANK,MAGIC])
-magicArmorBoots = stuff("Bottes magicochromatique de l'EEv3","og",2,1,endurance=45,magie=35,resistance=20,negativeDirect=-20,strength=-40,intelligence=-30,charisma=-30,emoji='<:magicoBoots:916193195552022538>',orientation=[TANK,MAGIC])
-mysticHat = stuff("Coiffe mystique","oh",0,1,emoji='<:magHat:912405415067783228>',magie=60,endurance=10,negativeDirect=-25,strength=-10,negativeIndirect=-25,negativeBoost=30,negativeHeal=30,negativeShield=30,orientation=[DISTANCE,MAGIC])
-mysticBody = stuff("Tunique mystique","oi",1,1,magie=50,emoji='<:magTunic:912405342888013874>',endurance=15,negativeDirect=-20,negativeIndirect=-20,strength=-10,resistance=15,negativeBoost=30,negativeHeal=30,negativeShield=30,orientation=[DISTANCE,MAGIC])
-mysticBoots = stuff("Bottes mystiques","oj",2,1,magie=60,emoji='<:magBoots:912405359128346694>',endurance=10,negativeDirect=-25,negativeIndirect=-25,strength=-10,negativeBoost=30,negativeHeal=30,negativeShield=30,orientation=[DISTANCE,MAGIC])
+magicArmorHelmet = stuff("Casque magicochromatique de l'EEv3","oe",0,1,endurance=35,agility=10,magie=35,resistance=20,negativeDirect=-20,strength=-40,intelligence=-30,charisma=-30,emoji='<:magicHelmet:916193178032431155>',orientation=[TANK,MAGIC])
+magicArmorBody = stuff("Armure magicochromatique de l'EEv3","of",1,1,endurance=35,agility=10,magie=25,resistance=25,negativeDirect=-20,strength=-35,intelligence=-30,charisma=-30,emoji='<:magicArmor:916193242507272202>',orientation=[TANK,MAGIC])
+magicArmorBoots = stuff("Bottes magicochromatique de l'EEv3","og",2,1,endurance=35,agility=10,magie=35,resistance=20,negativeDirect=-20,strength=-40,intelligence=-30,charisma=-30,emoji='<:magicoBoots:916193195552022538>',orientation=[TANK,MAGIC])
+mysticHat = stuff("Coiffe mystique","oh",0,1,emoji='<:magHat:912405415067783228>',magie=60,precision=10,negativeDirect=-25,strength=-10,negativeIndirect=-25,negativeBoost=30,negativeHeal=30,negativeShield=30,orientation=[DISTANCE,MAGIC])
+mysticBody = stuff("Tunique mystique","oi",1,1,magie=50,emoji='<:magTunic:912405342888013874>',endurance=5,precision=10,negativeDirect=-20,negativeIndirect=-20,strength=-10,resistance=15,negativeBoost=30,negativeHeal=30,negativeShield=30,orientation=[DISTANCE,MAGIC])
+mysticBoots = stuff("Bottes mystiques","oj",2,1,magie=60,emoji='<:magBoots:912405359128346694>',precision=10,negativeDirect=-25,negativeIndirect=-25,strength=-10,negativeBoost=30,negativeHeal=30,negativeShield=30,orientation=[DISTANCE,MAGIC])
 whiteButterFlyBoots = stuff("Bottes du papillon blanc","ok",2,1,charisma=30,negativeHeal=-30,endurance=10,intelligence=20,negativeShield=20,negativeBoost=30,negativeDirect=20,emoji='<:whiteButterflyBoots:911245758081138758>',orientation=[DISTANCE,BOOSTER])
 pinkButterFlyBoots = stuff("Bottes du papillon rose","ol",2,1,charisma=30,negativeBoost=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20,emoji='<:pinkButterflyBoots:911245683124752445>',orientation=[DISTANCE,BOOSTER])
 purpleButterFlyBoots = stuff("Bottes du papillon violet","om",2,1,magie=30,negativeIndirect=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20,emoji='<:purpleButterflyBoots:911245717715161098>',orientation=[DISTANCE,MAGIC])
@@ -199,9 +200,9 @@ blueChemVeste = stuff("Veste et robe papillon bleu","op",1,1,emoji='<:blueButter
 lunaPandan = stuff("Obsidienne en pendantif","oq",0,0,strength=40,agility=40,endurance=20,resistance=15,charisma=-30,negativeIndirect=40,negativeHeal=25,emoji='<:obsiPendan:911086215409848341>',position=batPendant.position,orientation=[TANK,DPT])
 lunaDress = stuff("Robe et veste noire","or",1,0,strength=35,agility=35,endurance=25,resistance=20,intelligence=-30,negativeBoost=40,negativeIndirect=25,emoji='<:blackDress:911086257831039016>',orientation=[TANK,DPT])
 lunaBoots = stuff("Cuissardes noires","os",2,0,strength=40,agility=40,endurance=20,resistance=15,magie=-30,negativeHeal=40,negativeBoost=25,emoji='<:blackBoots:911086872900546560>',orientation=[TANK,DPT])
-coalHat = stuff("Barrête de la cohabitation rep.","ot",0,0,magie=50,negativeDirect=-50,endurance=10,resistance=10,negativeIndirect=100,emoji='<:coaBar:911659734812229662>',position=barrette.position,orientation=[DISTANCE,MAGIC])
-coalDress = stuff("Robe de la cohabitation rep.","ou",1,0,magie=45,negativeDirect=-45,endurance=15,resistance=15,negativeIndirect=100,emoji='<:coaDress:911659797076660294>',orientation=[DISTANCE,MAGIC])
-coalBoots = stuff("Bottines de la cohabitation rep.","ov",2,0,magie=50,negativeDirect=-50,endurance=10,resistance=10,negativeIndirect=100,emoji="<:coaBoots:911659778995007528>",orientation=[DISTANCE,MAGIC])
+coalHat = stuff("Barrête de la cohabitation rep.","ot",0,0,magie=50,negativeDirect=-50,precision=10,resistance=10,negativeIndirect=100,emoji='<:coaBar:911659734812229662>',position=barrette.position,orientation=[DISTANCE,MAGIC])
+coalDress = stuff("Robe de la cohabitation rep.","ou",1,0,magie=45,negativeDirect=-45,precision=15,resistance=15,negativeIndirect=100,emoji='<:coaDress:911659797076660294>',orientation=[DISTANCE,MAGIC])
+coalBoots = stuff("Bottines de la cohabitation rep.","ov",2,0,magie=50,negativeDirect=-50,precision=10,resistance=10,negativeIndirect=100,emoji="<:coaBoots:911659778995007528>",orientation=[DISTANCE,MAGIC])
 redButterFlyBoots = stuff("Bottes du papillon rouge","ow",2,1,magie=30,negativeDirect=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeIndirect=20,emoji='<:redButterflyBoots:911245739093524480>',orientation=[DISTANCE,MAGIC])
 redChemVeste = stuff("Veste et robe papillon rouge","ox",1,1,emoji='<:redButterflyDress:911245794617724968>',negativeDirect=-40,endurance=10,magie=40,negativeIndirect=70,orientation=[DISTANCE,MAGIC])
 newMoonHat = stuff("Coiffe de la nouvelle lune","oy",0,1,endurance=20,intelligence=30,resistance=20,negativeShield=-20,negativeHeal=30,precision=-10,strength=-30,emoji='<:newMoonHead:912914075581808690>',orientation=[TANK,SHIELDER])
@@ -247,11 +248,11 @@ krysshirt = stuff("T-shirt cristalin","rj",1,1,strength=10,endurance=50,resistan
 kryschains = stuff("Chaînes cristalines","rk",2,1,strength=15,endurance=50,resistance=20,negativeDirect=-15,intelligence=-50,magie=-30,emoji='<:line:916156940588040205>',orientation=[TANK,DPT])
 
 corruptRedBoots = stuff("Bottes corrompues rouges","rl",2,1,magie=40,negativeDirect=-40,percing=10,precision=10,negativeIndirect=40,strength=-40,emoji='<:redCorruptBoots:916598561158856705>',orientation=[DISTANCE,MAGIC])
-corruptRedVeste = stuff("Veste corrompue rouge","rm",1,1,magie=45,negativeDirect=-45,precision=20,negativeIndirect=40,endurance=-10,resistance=-10,charisma=-20,agility=-10,emoji='<:redCorruptBody:916598576879116328>',orientation=[DISTANCE,MAGIC])
+corruptRedVeste = stuff("Veste corrompue rouge","rm",1,1,magie=45,negativeDirect=-45,precision=30,negativeIndirect=30,endurance=-10,resistance=-10,charisma=-20,agility=-30,emoji='<:redCorruptBody:916598576879116328>',orientation=[DISTANCE,MAGIC])
 corruptPurpleBoots = stuff("Bottes corrompues violettes","rn",2,1,magie=40,negativeIndirect=-40,percing=10,precision=10,negativeDirect=40,strength=-40,emoji='<:purpleCorruptBoots:916598547045040149>',orientation=[DISTANCE,MAGIC])
 corruptPurpleVeste = stuff("Veste corrompue violette","ro",1,1,magie=45,negativeIndirect=-45,precision=20,negativeDirect=40,endurance=-10,resistance=-10,charisma=-20,agility=-10,emoji='<:purpleCorruptBody:916598609665998858>',orientation=[DISTANCE,MAGIC])
 flumOr = stuff("Fleur lumineuse de la rosée du matin","rp",0,1,position=barrette.position,charisma=40,negativeHeal=-35,magie=20,negativeShield=40,intelligence=-15,agility=-30,effect=flum.effect,emoji='<:flum2:916593073369280552>',orientation=[DISTANCE,MAGIC])
-darFlumOr = stuff("Fleur ténèbreuse de la rosée du soir","rq",0,1,position=barrette.position,magie=45,negativeIndirect=-30,charisma=20,negativeDirect=40,strength=-15,agility=-30,effect=darkFlum.effect,emoji='<:darkflum2:916593089743826974>',orientation=[DISTANCE,MAGIC])
+darFlumOr = stuff("Fleur ténèbreuse de la rosée du soir","rq",0,1,position=barrette.position,magie=45,negativeIndirect=-30,precision=20,negativeDirect=40,strength=-15,agility=-30,effect=darkFlum.effect,emoji='<:darkflum2:916593089743826974>',orientation=[DISTANCE,MAGIC])
 fullTempCharp = stuff("Écharpe dans son temps","rr",0,1,position=blueCharpe.position,negativeHeal=-45,negativeShield=-45,charisma=10,intelligence=10,negativeBoost=90,emoji='<:intemcharpev2:916591302940950578>',orientation="Distance - Support")
 fullTempVest = stuff("Veste dans son temps","rs",1,1,negativeHeal=-45,negativeShield=-45,charisma=10,intelligence=10,negativeBoost=90,emoji='<:intempJacketv2:916591288994902027>',orientation="Distance - Support")
 fullTempShoes = stuff("Tennis montantes dans son temps","rt",2,1,negativeHeal=-45,negativeShield=-45,charisma=10,intelligence=10,negativeBoost=90,emoji='<:intempshoesV2:916591275795427358>',orientation="Distance - Support")
@@ -266,8 +267,39 @@ icealiaManteau = stuff("Manteau polaire","hab",1,1,intelligence=40,negativeShiel
 icealiaBoots = stuff("Bottes polaires","hac",2,1,intelligence=40,negativeShield=-40,endurance=20,negativeHeal=30,negativeDirect=30,strength=-10,magie=-10,orientation=[DISTANCE,SHIELDER],emoji='<:iceBoots:922061812994822194>')
 foulard = stuff("Foulard rouge","had",0,1,strength=10,agility=10,position=blueCharpe.position,emoji='<:foulard:920978522279915530>')
 
+summonerMalus = effect("Mal de l'invocation","summonerMalus",description="Empêche l'utilisation de toutes armes et compétences hors compétence d'invocation",turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:noneWeap:917311409585537075>'))
+
+summonerFoulard50 = stuff("Foulard du créateur d'obstacle","haf",0,1,strength=40,magie=40,charisma=40,intelligence=40,effect=summonerMalus,orientation=["Invocateur"])
+summonerMenteau50 = stuff("Veste du créateur d'obstacle","hag",1,1,strength=40,precision=40,agility=40,magie=40,effect=summonerMalus,orientation=["Invocateur"])
+summonerShoes50 = stuff("Bottes du créateur d'obstacle","hah",2,1,strength=40,endurance=40,charisma=10,intelligence=10,precision=10,agility=10,magie=40,effect=summonerMalus,orientation=["Invocateur"])
+
+summonerFoulard50.minLvl = summonerMenteau50.minLvl = summonerShoes50.minLvl = 50
+
+summonerFoulard30 = stuff("Foulard du procrastinateur","hai",0,1,strength=30,magie=30,charisma=30,intelligence=30,effect=summonerMalus,orientation=["Invocateur"])
+summonerMenteau30 = stuff("Veste du procrastinateur","haj",1,1,strength=30,precision=30,agility=30,magie=30,effect=summonerMalus,orientation=["Invocateur"])
+summonerShoes30 = stuff("Bottes du procrastinateur","hak",2,1,strength=30,endurance=30,charisma=15,intelligence=15,magie=30,effect=summonerMalus,orientation=["Invocateur"])
+
+summonerFoulard30.minLvl = summonerMenteau30.minLvl = summonerShoes30.minLvl = 30
+
+summonerFoulard10 = stuff("Foulard de l'invocateur","hal",0,1,strength=20,magie=20,charisma=20,intelligence=20,effect=summonerMalus,orientation="Invocateur")
+summonerMenteau10 = stuff("Veste du l'invocateur","ham",1,1,strength=20,precision=20,agility=20,magie=20,effect=summonerMalus,orientation="Invocateur")
+summonerShoes10 = stuff("Bottes du l'invocateur","han",2,1,strength=20,endurance=20,magie=20,agility=10,precision=10,effect=summonerMalus,orientation="Invocateur")
+
+summonerFoulard10.minLvl = summonerMenteau10.minLvl = summonerShoes10.minLvl = 10
+
+berserkHelmet = stuff("Casque du berskeur","hao",0,1,strength=45,endurance=45,resistance=20,precision=10,agility=-40,magie=-30,charisma=-30)
+berserkTorso = stuff("Armure du berskeur","hap",1,1,strength=45,endurance=45,resistance=20,precision=10,agility=-40,magie=-30,charisma=-30)
+berserkBoots = stuff("Bottes du berskeur","haq",2,1,strength=45,endurance=45,resistance=20,precision=10,agility=-40,magie=-30,charisma=-30)
+
+UnnamedHelmet = stuff("Casque immunable","har",0,1,strength=75,endurance=15,resistance=5,precision=20,agility=-30,magie=-40,charisma=-30)
+UnnamedTorso = stuff("Armure immunable","has",1,1,strength=80,resistance=10,precision=20,agility=-30,magie=-40,intelligence=-30)
+UnnamedBoots = stuff("Bottes immunable","hat",2,1,strength=75,endurance=15,resistance=5,precision=20,agility=-30,magie=-40,charisma=-15,intelligence=-15)
+
+
 # Stuff
-stuffs = [clemBoots,clemVeste,clemEarRings,icealiaHat,icealiaManteau,icealiaBoots,foulard,
+stuffs =[berserkHelmet,berserkTorso,berserkBoots,UnnamedHelmet,UnnamedTorso,UnnamedBoots,
+    summonerFoulard50,summonerMenteau50,summonerShoes50,summonerFoulard30,summonerMenteau30,summonerShoes30,summonerFoulard10,summonerMenteau10,summonerShoes10,
+    clemBoots,clemVeste,clemEarRings,icealiaHat,icealiaManteau,icealiaBoots,foulard,
     corruptRedBoots,corruptRedVeste,corruptPurpleBoots,corruptPurpleVeste,flumOr,darFlumOr,fullTempCharp,fullTempVest,fullTempShoes,firstBar,firstShoes,firstUniform,
     scienceHat,scienceBody,scienceShoes,battleHealHat,battleHealUnif,battleHealShoes,kryscharpe,krysshirt,kryschains,battleShieldHat,battleShieldUnif,battleShieldShoes,crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,dragoonHelmet,dragoonArmor,dragoonBoots,whiteLily,bloodLily,pompomHat,pompomBody,pompomShoes,lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,bbandeau,bshirt,bshoes,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
 ]
