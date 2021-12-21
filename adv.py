@@ -37,7 +37,42 @@ lohicaFocal.say = "Vous commencez sérieusement à me tapez sur les nerfs..."
 lenaChangeDict = createTpmChangeDict(30,0,[bigMonoLaser2],[tripleMissiles],35)
 aliceChangeDict = createTpmChangeDict(1,0,[roses],[rosesMagic],50)
 
-# Alliés temporaires
+# Specials skills ================================================================================
+# Total Kboum
+totalAnnilLauch = copy.deepcopy(explosion)
+
+totalAnnilCastEff4 = copy.deepcopy(castExplo)
+totalAnnilCastEff4.replica, totalAnnilCastEff4.name = totalAnnilLauch, "Annihilation totale dans 1 tour !"
+totalAnnilCastSkill4 = copy.deepcopy(explosionCast)
+totalAnnilCastSkill4.effectOnSelf = totalAnnilCastEff4
+
+totalAnnilCastEff3 = copy.deepcopy(castExplo)
+totalAnnilCastEff3.replica, totalAnnilCastEff3.name = totalAnnilCastSkill4, "Annihilation totale dans 2 tours !"
+totalAnnilCastSkill3 = copy.deepcopy(explosionCast)
+totalAnnilCastSkill3.effectOnSelf = totalAnnilCastEff3
+
+totalAnnilCastEff2 = copy.deepcopy(castExplo)
+totalAnnilCastEff2.replica, totalAnnilCastEff2.name = totalAnnilCastSkill3, "Annihilation totale dans 3 tours !"
+totalAnnilCastSkill2 = copy.deepcopy(explosionCast)
+totalAnnilCastSkill2.effectOnSelf = totalAnnilCastEff2
+
+totalAnnilCastEff1 = copy.deepcopy(castExplo)
+totalAnnilCastEff1.replica, totalAnnilCastEff1.name = totalAnnilCastSkill2, "Annihilation totale dans 4 tours !"
+totalAnnilCastSkill1 = copy.deepcopy(explosionCast)
+totalAnnilCastSkill1.effectOnSelf = totalAnnilCastEff1
+
+totalAnnilCastEff0 = copy.deepcopy(castExplo)
+totalAnnilCastEff0.replica, totalAnnilCastEff0.name = totalAnnilCastSkill1, "Annihilation totale dans 5 tours !"
+totalAnnilCastSkill0 = copy.deepcopy(explosionCast)
+totalAnnilCastSkill0.effectOnSelf = totalAnnilCastEff0
+
+totalAnnilLauch.name = totalAnnilCastSkill1.name = totalAnnilCastSkill2.name = totalAnnilCastSkill3.name = totalAnnilCastSkill4.name = totalAnnilCastSkill0.name = "Annihilation totale"
+totalAnnilLauch.ultimate = totalAnnilCastSkill1.ultimate = totalAnnilCastSkill2.ultimate = totalAnnilCastSkill3.ultimate = totalAnnilCastSkill4.ultimate = totalAnnilCastSkill0.ultimate = totalAnnilLauch.shareCooldown = totalAnnilCastSkill1.shareCooldown = totalAnnilCastSkill2.shareCooldown = totalAnnilCastSkill3.shareCooldown = totalAnnilCastSkill4.shareCooldown = totalAnnilCastSkill0.shareCooldown = False
+
+BOUMBOUMBOUMBOUMweap = weapon("noneWeap","BoumX4",1,AREA_CIRCLE_1,0,0,0) 
+
+
+# Alliés temporaires =============================================================================
 tablAllAllies = [
     tmpAllie("Lena",1,light_blue,OBSERVATEUR,splatcharger,[amethystEarRings,lightBlueJacket,lightBlueFlats],GENDER_FEMALE,[waterlame,bigMonoLaser2,trans,shot,invocCarbSaphir],"Une inkling qui en a vu des vertes et des pas murs.\nPréfère rester loin de la mêlée et abattre ses ennemis à bonne distance",ELEMENT_WATER,icon='<:lena:909047343876288552>',bonusPoints=[STRENGTH,PRECISION],say=lenaSays,changeDict=lenaChangeDict),
     tmpAllie("Gwendoline",2,yellow,POIDS_PLUME,roller,[anakiMask,FIACNf,blackFlat],GENDER_FEMALE,[defi,splashdown,balayette,airStrike,airlame],"Bien qu'elle essaye de l'éviter, cette jeune femme se retrouve toujours à devoir en venir aux mains pour se débarraser des gros lourds de la première ligne ennemie.\nIl est vrai aussi qu'elle n'est pas toute seule dans sa tête",ELEMENT_AIR,bonusPoints=[STRENGTH,ENDURANCE],icon='<:gweny:906303014665617478>'),
@@ -56,7 +91,7 @@ tablAllAllies = [
     tmpAllie("Hina",1,purple,OBSERVATEUR,plume,[hinaAcc,hinaBody,hinaShoes],GENDER_FEMALE,[multishot,multiMissiles,hinaUlt,airlame,preciseShot],icon='<:hina:908820821185810454>',element=ELEMENT_AIR,bonusPoints=[AGILITY,STRENGTH]),
     tmpAllie("John",2,orange,POIDS_PLUME,airsword,[bandNoir,pullCamo,kanisand],GENDER_MALE,[airlame,airStrike,airlame],description="Un Loup Garou qui a réussi à tomber amoureux de la vampire responsable des pluparts des vas et viens à l'infirmerie du village de sa meute\n\nAprès de multiple tentatives de l'approcher sans grand succès, il a réussi à changer la clémence qu'éprouvait cette dernière à son égars en affection, mais a peur d'essayer de monter dans son estime",icon='<:john:908887592756449311>',bonusPoints=[STRENGTH,AGILITY],say=johnSays),
     tmpAllie("Julie",1,red,ALTRUISTE,julieWeap,[julieHat,julieDress,julieShoes],GENDER_FEMALE,[altOH,infraMedica,julieUlt,timeSp,trans],"La principale (et unique) servante d'une des vampires les plus puissante du pays.\nElle a appris la magie curative à l'aide des nombreux grimoires dans la bibliothèque du manoire, mais il lui arrive souvent de demander de l'aide à Clémence lorsque sa maîtresse (qui ai d'ailleurs la tutrice magique de cette dernière) lui demande de récupérer des organes de monstres.\nElle se sent souvent petite, en compagnie de ces puissantes vampires\n\nDire qu'elle est légèrement inspirée serait un euphémisme. Au moins elle utilise pas de dagues",element=ELEMENT_TIME,bonusPoints=[CHARISMA,INTELLIGENCE],icon="<:julie:910185448951906325>",say=julieSays),
-    tmpAllie("Krys",2,purple,TETE_BRULE,krystalFist,[kryscharpe,krysshirt,kryschains],GENDER_OTHER,[krysUlt,earthStrike,mudlame,uppercut,demolish],"placeholder.krys.desc",element=ELEMENT_EARTH,icon="<:krys:916118008991215726>",deadIcon='<:krysCan:916117137339322388>',bonusPoints=[ENDURANCE,STRENGTH]),
+    tmpAllie("Krys",2,purple,TETE_BRULE,krystalFist,[kryscharpe,krysshirt,kryschains],GENDER_OTHER,[defi,krysUlt,earthStrike,mudlame,demolish],"placeholder.krys.desc",element=ELEMENT_EARTH,icon="<:krys:916118008991215726>",deadIcon='<:krysCan:916117137339322388>',bonusPoints=[ENDURANCE,STRENGTH]),
     tmpAllie("Edelweiss",1,white,PREVOYANT,eternalInkScience,[battleShieldHat,battleShieldUnif,battleShieldShoes],GENDER_FEMALE,[preOS,soulagement,haimaSkill,protect,inkRes],element=ELEMENT_EARTH,icon='<:edelweiss:918451422939451412>',deadIcon="<:flowernt:894550324705120266>",bonusPoints=[INTELLIGENCE,ENDURANCE])
 ]
 
@@ -76,7 +111,7 @@ shushiArmorSkillEff = effect("Armure Harmonique","shushiArmor",MAGIE,overhealth=
 shushiArmorSkill = skill("Armure Harmonique","shushiArmorSkill",TYPE_ARMOR,0,effect=shushiArmorSkillEff,range=AREA_MONO,area=AREA_CIRCLE_5,cooldown=7,use=MAGIE,emoji='<a:transArmorB:900037831257358378>')
 
 shihuDarkBoom1 = copy.deepcopy(explosion)
-shihuDarkBoom2 = copy.deepcopy(explosion2)
+shihuDarkBoom2 = copy.deepcopy(explosionCast)
 shihuDarkBoomEff = copy.deepcopy(castExplo)
 shihuDarkBoom1.emoji= '<a:darkExplosion:899451335269822475>'
 shihuDarkBoom1.id = "ShihuDarkBoomLaunch"
@@ -115,6 +150,7 @@ tablVarAllies = [
     tmpAllie("Shushi Cohabitée",1,blue,PREVOYANT,shushiWeap,[shushiHat,shushiDress,shushiBoots],GENDER_FEMALE,[shushiSkill1,shushiArmorSkill,shushiSkill3,shushiSkill4,shushiSkill5],"S'étant comprise l'une et l'autre, Shushi et Shihu ont décidé de se liguer contre la mère de cette dernière.\nCette allié temporaire n'apparait que contre le boss \"Luna\"",ELEMENT_LIGHT,True,icon='<:shushiCoa:915488591654842368>',bonusPoints=[MAGIE,AGILITY]),
     tmpAllie("Alice Exaltée",1,aliceColor,IDOLE,aliceExWeap,[aliceExHeadruban,aliceExDress,aliceExShoes],GENDER_FEMALE,[aliceSkill1,aliceSkill2,aliceSkill3,aliceSkill4,aliceRez],"Voyant qu'elle n'arriverai pas à ramener sa sœur à la raison, Alice a décider d'aller contre ses principes et de révéler toute sa puissance vampirique pour tenter de redresser la balance.\nN'apparait que contre Clémence possédée",element=ELEMENT_LIGHT,variant=True,deadIcon="<:AliceOut:908756108045332570>",icon="<a:aliceExalte:914782398451953685>",bonusPoints=[CHARISMA,ENDURANCE],say=aliceExSays)
 ]
+
 def findWeapon(WeaponId) -> weapon:
     typi = type(WeaponId)
     if typi == weapon:

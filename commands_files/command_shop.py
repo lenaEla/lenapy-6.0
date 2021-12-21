@@ -22,7 +22,6 @@ allGiveButtonButAllreadyHaveM = create_button(ButtonStyle.gray,"Vous êtes un ac
 allBuyButtonButAllreadyHaveF = create_button(ButtonStyle.gray,"Vous êtes une acheteuse compulsive",getEmojiObject('<:bought:906623435256504451>'),"buy all",disabled=True)
 allGiveButtonButAllreadyHaveF = create_button(ButtonStyle.gray,"Vous êtes une acheteuse compulsive deluxe",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all",disabled=True)
 
-
 haveIcon = "<:bought:906623435256504451>" 
 allTeamHaveIcon = "<:teamBought:906621631143743538>"
 
@@ -175,14 +174,14 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             if totalCost > user.currencies:
                 temp1 = allBuyButtonButPoor
             elif totalCost == 0:
-                temp1 = [allBuyButtonButAllreadyHaveM,allBuyButtonButAllreadyHaveF][user.gender]
+                temp1 = [allBuyButtonButAllreadyHaveM,allBuyButtonButAllreadyHaveF,allBuyButtonButAllreadyHaveM][user.gender]
             elif user.currencies >= totalCost:
                 temp1 = allBuyButton
 
             if user.team == 0 or totalTeamCost > user.currencies:
                 temp2 = allGiveButtonButPoor
             elif totalTeamCost == 0:
-                temp2 = [allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF][user.gender]
+                temp2 = [allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF,allGiveButtonButAllreadyHaveM][user.gender]
             elif user.currencies >= totalTeamCost:
                 temp2 = allGiveButton
 

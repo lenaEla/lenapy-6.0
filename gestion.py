@@ -220,11 +220,16 @@ def saveCharFile(path : str = None, user : char = None):
     #except:
         #return False
 
-def loadCharFile(path : str) -> char:
+def loadCharFile(path : str = None, user:char = None) -> char:
     """
         Return a ``char`` object loaded from the file at ``path``
     """
-    file = readSaveFiles(path)
+    if path != None:
+        file = readSaveFiles(path)
+    elif user != None:
+        file = readSaveFiles("./userProfile/{0}.prof".format(user.owner))
+    else:
+        raise Exception("Argument error : No path or user given")
     rep = char(owner = int(file[0][0]))                     # Owner
     rep.name = file[0][1]                                   # Name
     rep.level = int(file[0][2])                             # Level

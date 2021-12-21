@@ -159,140 +159,144 @@ class shopClass:
         except:
             return False
 
-async def inventoryVerif(bot):
-    for fileName in os.listdir(absPath + "/userProfile/"):
-        user = loadCharFile(absPath + "/userProfile/" + fileName)
-        aliceStatsDb.addUser(user)
-        allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
-        ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
-        babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
+async def inventoryVerif(bot,toVerif:Union[char,str]):
+    if type(toVerif) == str:
+        user = loadCharFile(absPath + "/userProfile/" + toVerif)
+    else:
+        user = toVerif
+    aliceStatsDb.addUser(user)
+    allReadySee,haveUltimate,modifSkill,modifStuff = [],False,0,0
+    ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
+    babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
 
-        for a in range(0,5):
-            if user.skills[a] != None and user.skills[a] != "0":
-                if user.skills[a] in allReadySee:
-                    ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
-                    modifSkill += 1
-                    user.skills[a] = "0"
-                else:
-                    allReadySee+=[user.skills[a]]
-
-            if user.skills[a] != "0" and user.skills[a] != None:
-                if not(user.skills[a].havConds(user=user)):
-                    ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
-                    modifSkill += 1
-                    user.skills[a] = "0"
-
-            if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
-                ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
+    for a in range(0,5):
+        if user.skills[a] != None and user.skills[a] != "0":
+            if user.skills[a] in allReadySee:
+                ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
                 modifSkill += 1
                 user.skills[a] = "0"
-            elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
-                haveUltimate = True
-
-        tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
-        for y in tablInventory:
-            allReadySee = []
-            for a in y:
-                if a not in allReadySee:
-                    allReadySee.append(a)
-                else:
-                    babie += f"\n__{a.name}__ (Doublon)"
-                    modifStuff += 1
-                    y.remove(a)
-                    user.currencies += a.price
-
-        if modifStuff > 0:
-            user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
-            babie += "\n\nCes objets vous ont été remboursés"
-
-        if modifSkill+modifStuff > 0:
-            saveCharFile(absPath + "/userProfile/" + fileName,user)
-            try:
-                toUser = await bot.fetch_user(user.owner)
-                message = ""
-                if modifSkill > 0:
-                    message+=ballerine+"\n"
-                if modifStuff > 0:
-                    message+=babie
-                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description=message))
-            except:
-                pass
-
-            print(f"Le profil de {user.name} a été mise à jour")
-
-        temp = ""
-        for equip in user.stuff:
-            if not(equip.havConds(user)):
-                change = getAutoStuff(equip,user)
-                user.stuff[equip.type] = change
-
-                temp += "{0} {2} -> {1} {3}\n".format(equip.emoji,change.emoji,equip.name,change.name)
-
-        if temp != "":
-            temp = "Vous ne respectez pas les conditions de niveaux d'un ou plusieurs de vos équipements\nLe(s) équipement(s) suivant a(ont) automatiquement été remplacé(s) :\n\n"+temp
-            saveCharFile(absPath + "/userProfile/" + fileName,user)
-            try:
-                toUser = await bot.fetch_user(user.owner)
-                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description=temp))
-            except:
-                pass
-
-            print(f"Le profil de {user.name} a été mise à jour")
-
-        errorElem = False
-        if user.level < 20 and user.element in [ELEMENT_SPACE,ELEMENT_TIME,ELEMENT_LIGHT,ELEMENT_DARKNESS]:
-            errorElem = True
-        elif user.level < 10 and user.element != ELEMENT_NEUTRAL:
-            errorElem = True
-
-        if errorElem:
-            temp = ""
-            user.element = ELEMENT_NEUTRAL
-            if user.have(elementalCristal):
-                user.currencies += elementalCristal.price
-                temp = "Vous avez été crédité de {0} <:coins:862425847523704832>".format(elementalCristal)
             else:
-                user.otherInventory.append(elementalCristal)
-                temp = "Vous avez obtenu un {0} {1}".format(elementalCristal.emoji,elementalCristal.name)
-            saveCharFile(absPath + "/userProfile/" + fileName,user)
+                allReadySee+=[user.skills[a]]
 
-            try:
-                toUser = await bot.fetch_user(user.owner)
-                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description="Votre élément de ne respecte pas les restrictions de niveau\n\n"+temp))
-            except:
-                pass
+        if user.skills[a] != "0" and user.skills[a] != None:
+            if not(user.skills[a].havConds(user=user)):
+                ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
+                modifSkill += 1
+                user.skills[a] = "0"
 
-        userAchivments = achivement.getSuccess(user)
-        tempMissingAchivRecompMsg = ""
-        for ach in userAchivments.tablAllSuccess():
-            if ach.haveSucced and ach.recompense != [None] and ach.recompense not in [["qe"],["qh"]]:
-                for rec in ach.recompense:
-                    whatty = whatIsThat(rec)
-                    obj = [findWeapon(rec),findSkill(rec),findStuff(rec)][whatty]
+        if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
+            ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
+            modifSkill += 1
+            user.skills[a] = "0"
+        elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
+            haveUltimate = True
 
-                    if not(user.have(obj)):
-                        if whatty == 0:
-                            user.weaponInventory.append(obj)
-                        elif whatty == 1:
-                            user.skillInventory.append(obj)
-                        elif whatty == 2:
-                            user.stuffInventory.append(obj)
+    tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
+    for y in tablInventory:
+        allReadySee = []
+        for a in y:
+            if a not in allReadySee:
+                allReadySee.append(a)
+            else:
+                babie += f"\n__{a.name}__ (Doublon)"
+                modifStuff += 1
+                y.remove(a)
+                user.currencies += a.price
 
-                        tempMissingAchivRecompMsg += "\n{0} {1} ({2})".format(obj.emoji,obj.name,ach.name)
-                saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
+    if modifStuff > 0:
+        user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory = tablInventory[0],tablInventory[1],tablInventory[2],tablInventory[3]
+        babie += "\n\nCes objets vous ont été remboursés"
 
-        if tempMissingAchivRecompMsg != "":
-            try:
-                toUser = await bot.fetch_user(user.owner)
-                await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description="Une ou plusieurs récompenses de succès n'ont pas été trouvées dans votre inventaire et vous ont été restituée :\n"+tempMissingAchivRecompMsg))
-                print("{0} n'avait pas toutes ces récompenses de succès".format(user.name))
-            except:
-                pass
+    if modifSkill+modifStuff > 0:
+        saveCharFile(user=user)
+        try:
+            toUser = await bot.fetch_user(user.owner)
+            message = ""
+            if modifSkill > 0:
+                message+=ballerine+"\n"
+            if modifStuff > 0:
+                message+=babie
+            await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description=message))
+        except:
+            pass
+
+        print(f"Le profil de {user.name} a été mise à jour")
+
+    temp = ""
+    for equip in user.stuff:
+        if not(equip.havConds(user)):
+            change = getAutoStuff(equip,user)
+            user.stuff[equip.type] = change
+
+            temp += "{0} {2} -> {1} {3}\n".format(equip.emoji,change.emoji,equip.name,change.name)
+
+    if temp != "":
+        temp = "Vous ne respectez pas les conditions de niveaux d'un ou plusieurs de vos équipements\nLe(s) équipement(s) suivant a(ont) automatiquement été remplacé(s) :\n\n"+temp
+        saveCharFile(user=user)
+        try:
+            toUser = await bot.fetch_user(user.owner)
+            await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description=temp))
+        except:
+            pass
+
+        print(f"Le profil de {user.name} a été mise à jour")
+
+    errorElem = False
+    if user.level < 20 and user.element in [ELEMENT_SPACE,ELEMENT_TIME,ELEMENT_LIGHT,ELEMENT_DARKNESS]:
+        errorElem = True
+    elif user.level < 10 and user.element != ELEMENT_NEUTRAL:
+        errorElem = True
+
+    if errorElem:
+        temp = ""
+        user.element = ELEMENT_NEUTRAL
+        if user.have(elementalCristal):
+            user.currencies += elementalCristal.price
+            temp = "Vous avez été crédité de {0} <:coins:862425847523704832>".format(elementalCristal)
+        else:
+            user.otherInventory.append(elementalCristal)
+            temp = "Vous avez obtenu un {0} {1}".format(elementalCristal.emoji,elementalCristal.name)
+        saveCharFile(user=user)
+
+        try:
+            toUser = await bot.fetch_user(user.owner)
+            await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description="Votre élément de ne respecte pas les restrictions de niveau\n\n"+temp))
+        except:
+            pass
+
+    userAchivments = achivement.getSuccess(user)
+    tempMissingAchivRecompMsg = ""
+    for ach in userAchivments.tablAllSuccess():
+        if ach.haveSucced and ach.recompense != [None] and ach.recompense not in [["qe"],["qh"]]:
+            for rec in ach.recompense:
+                whatty = whatIsThat(rec)
+                obj = [findWeapon(rec),findSkill(rec),findStuff(rec)][whatty]
+
+                if not(user.have(obj)):
+                    if whatty == 0:
+                        user.weaponInventory.append(obj)
+                    elif whatty == 1:
+                        user.skillInventory.append(obj)
+                    elif whatty == 2:
+                        user.stuffInventory.append(obj)
+
+                    tempMissingAchivRecompMsg += "\n{0} {1} ({2})".format(obj.emoji,obj.name,ach.name)
+            saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
+
+    if tempMissingAchivRecompMsg != "":
+        try:
+            toUser = await bot.fetch_user(user.owner)
+            await toUser.send(embed=discord.Embed(title = "__Problème lors de la vérification automatique de l'inventaire__",color=user.color,description="Une ou plusieurs récompenses de succès n'ont pas été trouvées dans votre inventaire et vous ont été restituée :\n"+tempMissingAchivRecompMsg))
+            print("{0} n'avait pas toutes ces récompenses de succès".format(user.name))
+        except:
+            pass
 
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
 
 async def restart_program(bot : discord.Client, ctx=None):
+    """If no teams are into a fight, restart the bot\n
+    If a team fighting, wiat for them to finish then restart the bot"""
     if ctx != None:
         msg = await ctx.send(embed = discord.Embed(title="Redémarrage en attente...",description="Vérifications des équipes en combat..."))
     else:
@@ -329,6 +333,8 @@ async def restart_program(bot : discord.Client, ctx=None):
     os.execv(sys.executable, args)
 
 def create_backup():
+    """Copy all the characters profiles files into a new directory\n
+    Return a ``string`` with the path of the backup directory"""
     now = datetime.datetime.now()
     nowStr = now.strftime("%Y%m%d_%H%M")
     path = "./data/backups/"+nowStr
@@ -343,6 +349,7 @@ def create_backup():
     return "Un backup a été sauvegardé à la destinaiton suivante :\n"+path
 
 def delete_old_backups():
+    """Remove backups directorys older than 3 days"""
     now = datetime.datetime.now()
     temp = ""
     for name in os.listdir("./data/backups/"):
@@ -359,12 +366,19 @@ def delete_old_backups():
 
 @tasks.loop(seconds=1)
 async def oneClock():
+    """A simple clock who check every second if a minute have passed\n
+    If it is the case, start ``minuteClock``"""
     tick = datetime.datetime.now()
     if tick.second%60 == 0 and not(minuteClock.is_running()):
         minuteClock.start()
 
 @tasks.loop(minutes=1)
 async def minuteClock():
+    """
+        A simple clock who check every minutes if a hour have passed\n
+        If it is the case, start ``hourClock``\n
+        If ``oneClock`` is running, end it
+    """
     if oneClock.is_running():
         oneClock.stop()
     tick = datetime.datetime.now()
@@ -398,7 +412,8 @@ async def hourClock():
         await restart_program(bot)
 
     # Skill Verif
-    await inventoryVerif(bot)
+    for filename in os.listdir("./userProfile/"):
+        await inventoryVerif(bot,filename)
 
 # -------------------------------------------- ON READY --------------------------------------------
 @bot.event
@@ -461,7 +476,8 @@ async def on_ready():
     await downloadElementIcon(bot)
     print("Download complete\nVerefying the characters inventorys...")
     
-    await inventoryVerif(bot)
+    for filename in os.listdir("./userProfile/"):
+        await inventoryVerif(bot,filename)
 
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
@@ -472,7 +488,6 @@ async def on_ready():
         await msg.channel.send("Le redémarrage du bot est terminé Léna",delete_after=10)
         globalVar.getRestartMsg(int(0))
         print("Redémarrage terminé")
-
 
 # ====================================================================================================
 #                                               COMMANDS
@@ -908,7 +923,6 @@ async def comEncyclopedia(ctx,destination):
         
     await encylopedia(bot,ctx,destination,user)
 
-
 # -------------------------------------------- FIGHT --------------------------------------------
 # normal fight
 @slash.subcommand(base="fight",name="normal",description="Permet de lancer un combat normal")
@@ -962,7 +976,29 @@ async def normal(ctx):
             fun = random.randint(0,99)
 
             fightAnyway = True
-            if fun < 1:                # But nobody came
+
+            if False:        # Test
+                temp = team1
+                temp.sort(key=lambda overheal: overheal.level,reverse=True)
+                maxLvl = temp[0].level
+
+                team2 = []
+                lenBoucle = 10
+                cmpt = 0
+
+                octoShield = findEnnemi("Octo Bouclier")
+                alea = copy.deepcopy(findEnnemi("Octo Bouclier"))
+
+                alea.changeLevel(maxLvl)
+
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
+
+                await fight(bot,team1,team2,ctx,guild,False,slash=True)
+                fightAnyway = False
+
+            elif fun < 1:                # But nobody came
                 teamIcon = ""
                 for wonderfullIdea in team1:
                     teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
@@ -974,7 +1010,7 @@ async def normal(ctx):
                 await ctx.send(embed = temp1,components=[])
                 fightAnyway = False
 
-            elif fun < 3:              # All OctoHeals ! Yes, it's for you H
+            elif fun < 2:              # All OctoHeals ! Yes, it's for you H
                 temp = team1
                 temp.sort(key=lambda overheal: overheal.level,reverse=True)
                 maxLvl = temp[0].level
@@ -1001,7 +1037,7 @@ async def normal(ctx):
                 await fight(bot,team1,team2,ctx,guild,False,slash=True)
                 fightAnyway = False
 
-            elif fun < 5:              # All Temmies
+            elif fun < 3:              # All Temmies
                 temp = team1
                 temp.sort(key=lambda overheal: overheal.level,reverse=True)
                 maxLvl = temp[0].level
@@ -1013,6 +1049,26 @@ async def normal(ctx):
                 alea = copy.deepcopy(findEnnemi("Temmie"))
                 alea.changeLevel(maxLvl)
                 alea.magie = alea.magie // 3
+
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
+
+                await fight(bot,team1,team2,ctx,guild,False,slash=True)
+                fightAnyway = False
+
+            elif fun < 4:              # BOUM BOUM BOUM BOUM
+                temp = team1
+                temp.sort(key=lambda overheal: overheal.level,reverse=True)
+                maxLvl = temp[0].level
+
+                team2 = []
+                lenBoucle = max(4,len(team1))
+                cmpt = 0
+
+                alea = copy.deepcopy(findEnnemi("OctoBOUM"))
+                alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCastSkill0,None,None,None,None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
+                alea.changeLevel(maxLvl)
 
                 while cmpt < lenBoucle:
                     team2.append(alea)
@@ -1885,6 +1941,7 @@ async def resetCustomEmoji(ctx):
     lenAllChar = len(allChar)
     cmpt = 0
 
+    await refresh("Création des émojis...")
     for num in allChar:
         user = loadCharFile("./userProfile/"+num)
         await getUserIcon(bot,user)

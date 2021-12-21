@@ -13,7 +13,7 @@ kcharger = weapon("Concentraceur alt.","ak",RANGE_MELEE,AREA_CIRCLE_1,38,60,200,
 HunterRiffle = weapon("Fusil de chasseur","al",RANGE_DIST,AREA_CIRCLE_4,67,65,250,precision=15,effect="ls",emoji="<:hunterRifle:872034208095297597>",affinity=ELEMENT_NEUTRAL)
 firework = weapon("Arbalette avec feu d'artifice","am",RANGE_LONG,AREA_CIRCLE_4,76,50,150,strength=10,precision=15,percing=5,emoji='<:crossbow:871746122899664976>',area=AREA_CONE_2)
 plume = weapon("Plumes tranchantes","ao",RANGE_DIST,AREA_CIRCLE_4,60,50,250,precision=10,percing=5,emoji='<:plume:871893045296128030>',area=AREA_CONE_2,needRotate=False,affinity=ELEMENT_AIR,effectOnUse=incur[2])
-hourglass1Weap = weapon("Sablier intemporel I","ap",RANGE_DIST,AREA_CIRCLE_3,45,100,250,charisma=15,target=ALLIES,affinity=ELEMENT_TIME,type=TYPE_HEAL,effectOnUse="lx",emoji='<:hourglass1:872181735062908978>',use=CHARISMA)
+hourglass1Weap = weapon("Sablier intemporel","ap",RANGE_DIST,AREA_CIRCLE_3,50,100,250,charisma=15,target=ALLIES,affinity=ELEMENT_TIME,type=TYPE_HEAL,emoji='<:hourglass1:872181735062908978>',use=CHARISMA)
 clashBlaster = weapon("Rafa-Blasteur","aq",RANGE_MELEE,AREA_CIRCLE_2,28,40,250,endurance=10,agility=10,resistance=10,emoji='<:clashBlaster:877666681869176853>',area=AREA_CIRCLE_1,repetition=4)
 dualies = weapon("Double Encreur","ar",RANGE_DIST,AREA_CIRCLE_4,34,40,150,agility=15,precision=15,repetition=4,emoji='<:splatDualies:866465264434806815>')
 splatling = weapon("Badigeonneur","as",RANGE_LONG,AREA_CIRCLE_5,33,30,300,precision=10,strength=10,intelligence=10,repetition=5,emoji='<:splatling:877666764736061490>')
@@ -24,7 +24,7 @@ butterfly = weapon("Papillon Blanc","aw",RANGE_LONG,AREA_CIRCLE_5,50,80,150,char
 mic = weapon("Micro mignon","ax",RANGE_LONG,AREA_CIRCLE_3,64,75,300,charisma=30,emoji='<:pinkMic:917838961236377690>',needRotate=False,use=CHARISMA,message="{0} pousse la chansonnette !")
 spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,magie=20,percing=10,emoji='<:spellBook:878723144326725744>',needRotate=False,use=MAGIE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE,message="{0} lance une boule de feu sur {1}")
 legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,82,85,300,strength=10,endurance=10,resistance=10,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT)
-depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,77,90,300,strength=20,resistance=10,emoji='<:LameDimensionnelle:881595204484890705>')
+depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,77,90,300,strength=20,resistance=10,emoji='<:ailSword:922696057350127697>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,50,80,150,charisma=20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
 butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,32,100,250,magie=15,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
 dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,65,85,500,strength=10,resistance=5,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL,effectOnUse=incur[2])
@@ -75,7 +75,7 @@ etInkBases = ["<:BaseinkEtSword:918071336994230302>","<:BaseinkEtDague:918169899
 etInkLines = ["<:LineinkEtSword:918071323618607144>","<:LineinkEtDague:918169920951418890>","<:LineinkEtShield:918169983152975893>","<:LineinkEtStick:918170024370380841>","<:LineinkEtFan:918170074400055317>","<:LineinkEtGlove:918170114984124426>","<:LineinkEtBow:918170144499466300>"]
 
 purpleSecretEff = effect("Secretum purpureum prædictas","purpleSecrets",turnInit=-1,emoji=uniqueEmoji('<:plsLetMeSleep:919713870858317875>'),area=AREA_DONUT_2,description="Lorsqu'un adversaire meurt, s'il portait au moins 1 effet __Poison d'Estialba__ venant de votre part, une explosion **indirecte magique** dont la puissance dépend de celles de vos effets __Poison d'Estialba__ et de leur durée restante sur le porteur se produit\nTous les ennemis dans la zone d'effet reçoive un effet __Poison d'Estialba__ ayant une puissance équivalente à {0}% de celle de l'effet de base\n\n__Vous empèche d'utiliser votre arme principale !__",reject=['np',"ns","pacteDeSang","pacteD'âme"],power=25)
-secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_4,30,100,750,emoji='<:plsLetMeSleep:919713870858317875>',magie=10,resistance=5,effect=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,ignoreAutoVerif=True)
+secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_3,30,100,750,emoji='<:plsLetMeSleep:919713870858317875>',magie=10,resistance=5,effect=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,ignoreAutoVerif=True)
 
 # Weapon
 weapons = [secretum,
