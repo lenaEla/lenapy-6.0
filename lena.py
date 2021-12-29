@@ -30,8 +30,6 @@ from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
 from data.bot_tokens import lenapy, shushipy
 
-print(completlyRemoveEmoji('<:battleHealBoots:916153741487530005> chocolatine'))
-
 ###########################################################
 # Initialisations des variables de bases :
 started = False
@@ -93,14 +91,17 @@ class shopClass:
             for a in range(0,len(shopList)):
                 if a != None:
                     nani = whatIsThat(shopList[a])
-                    if nani == 0:
-                        self.shopping[a] = findWeapon(shopList[a])
-                    elif nani == 1:
-                        self.shopping[a] = findSkill(shopList[a])
-                    elif nani == 2:
-                        self.shopping[a] = findStuff(shopList[a])
-                    elif nani == 3:
-                        self.shopping[a] = findOther(shopList[a])
+                    try:
+                        if nani == 0:
+                            self.shopping[a] = findWeapon(shopList[a])
+                        elif nani == 1:
+                            self.shopping[a] = findSkill(shopList[a])
+                        elif nani == 2:
+                            self.shopping[a] = findStuff(shopList[a])
+                        elif nani == 3:
+                            self.shopping[a] = findOther(shopList[a])
+                    except:
+                        pass
 
     async def newShop(self):
         """Genere a new shop and upload it in the database\n

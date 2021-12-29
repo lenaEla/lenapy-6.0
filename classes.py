@@ -97,7 +97,7 @@ class effect:
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
         self.overhealth = overhealth        # Base shield power
         self.redirection = redirection      # Damage redirection ratio. Unuse yet
-        self.reject = reject                # A list of the rejected effects
+        self.reject = copy.deepcopy(reject)                # A list of the rejected effects
         self.description = description.format(power,power//2)      # A (quick) description of the effect
         self.turnInit = turnInit            # How many turn does the effect stay ?
         self.stat = stat                    # Wich stat is use by the effect ?
@@ -126,11 +126,15 @@ class effect:
         self.onDeclancher:bool = onDeclancher
         self.inkResistance = inkResistance
 
+
+        if self.reject != None and self.id in self.reject:
+            self.reject.remove(self.id)
+
         if emoji == None:
             if self.inkResistance > 0:
                 self.emoji=[['<:inkResB:921486005008216094>','<:inkResR:921486021265354814>'],['<:inkResB:921486005008216094>','<:inkResR:921486021265354814>'],['<:inkResB:921486005008216094>','<:inkResR:921486021265354814>']]
             elif self.type in [TYPE_BOOST]:
-                self.emoji=[['<:ink1buff:866828199156252682>','<:ink2buff:866828277171093504>'],['<:oct1buff:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octarianbuff:866828373345959996>']]
+                self.emoji=[['<:i1b:866828199156252682>','<:ink2buff:866828277171093504>'],['<:o1b:866828236724895764>','<:oct2buff:866828319528583198>'],['<:octarianbuff:866828373345959996>','<:octarianbuff:866828373345959996>']]
             elif self.type in [TYPE_MALUS]:
                 self.emoji=[['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
             elif self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
@@ -626,12 +630,6 @@ class invoc:
     def isNpc(self,name : str):
         return False
 
-def getColorId(user: char):
-    """Return the color indice of the user. Only use for summons, now"""
-    for b in range(0,len(colorId)):
-        if user.color == colorId[b]:
-            return b
-
 incurable = effect("Incurable","incur",power=100,description="Diminue les soins reçus par la cible de **(puissance)**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent",emoji=[['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>']])
 
 incur = []
@@ -642,7 +640,7 @@ for num in range(0,10):
     incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
 
-intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement")
+intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement",turnInit=2)
 
 textBaliseAtReplace = ["Ã©","Ã","à§"]
 textBaliseToReplace = ["é","à","ç"]
@@ -886,7 +884,7 @@ class tmpAllie:
         self.stuff = stuff
         self.gender = gender
         if icon == None:
-            self.icon = emoji.icon[species][getColorId(self)]
+            raise Exception("No icon given")
         else:
             self.icon = icon
         self.description=description
