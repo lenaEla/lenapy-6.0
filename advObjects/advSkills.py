@@ -18,7 +18,7 @@ contrecoup = skill("Contre-coup","zm",TYPE_INDIRECT_DAMAGE,250,effect="ln",coold
 boom = skill("Réaction en chaîne","zl",TYPE_INDIRECT_DAMAGE,250,effect="lv",cooldown=3,emoji='<:bimbamboum:873698494874017812>',use=MAGIE)
 balayette = skill("Baleyette","zk",TYPE_DAMAGE,100,70,range=AREA_MONO,area=AREA_CIRCLE_1,emoji='<:baleyette:873924668963291147>',cooldown=2)
 firstheal = skill("Premiers secours","zj",TYPE_HEAL,100,40,emoji="<:bandage:873542442484396073>")
-cure = skill("Guérison","zi",TYPE_HEAL,250,80,cooldown=5,emoji='<:cure:873542385731244122>')
+cure = skill("Guérison","zi",TYPE_HEAL,250,80,cooldown=5,emoji='<:cure:925190515845132341>')
 lightAura = skill("Aura de Lumière I","zh",TYPE_PASSIVE,250,effectOnSelf="ly",emoji="<:AdL:873548073769533470>")
 splatbomb = skill("Bombe splash","zg",TYPE_DAMAGE,100,cooldown=4,area=AREA_CIRCLE_1,power=87,emoji='<:splatbomb:873527088286687272>',message="{0} lance une {1} sur {2} :")
 explosion = skill("Explosion","KBOOM",TYPE_DAMAGE,1000,power=300,ultimate=True,cooldown=12,area=AREA_CIRCLE_2,shareCooldown=True,effectOnSelf="mb",use=MAGIE,emoji='<a:explosion:882627170944573471>',damageOnArmor=0.8)
@@ -275,8 +275,8 @@ physicRune = skill("Rune - Sanguis Pact","se",TYPE_PASSIVE,750,effectOnSelf="pac
 magicRune = skill("Rune - Animae Foedus","sd",TYPE_PASSIVE,750,effectOnSelf="pacteD'âme",emoji='<:pacteDame:917096164942295101>')
 lightBigHealArea = skill("Lumière éclatante","sb",TYPE_HEAL,750,80,AREA_MONO,["exclusive","element",ELEMENT_LIGHT],True,area=AREA_CIRCLE_4,cooldown=7,use=CHARISMA,emoji='<:shiningLight:919514898784981012>')
 focus = skill("Focus","sa",TYPE_INDIRECT_DAMAGE,1000,range=AREA_CIRCLE_3,cooldown=7,effect=["mx","mx","mx"],effectOnSelf="mx",shareCooldown=True,use=STRENGTH,description="Applique 3 effets Hémorragie à la cible, mais vous en donne un également",emoji='<:focus:919515555738820628>')
-poisonusPuit = skill("Piliers magico-empoisoné","zzz",TYPE_DAMAGE,500,39,area=AREA_CIRCLE_1,use=MAGIE,effect=["me"],repetition=3,cooldown=7,emoji='<a:poisPillard:918424661631569960>')
-bleedingPuit = skill("Pièges à ressorts","zzy",TYPE_DAMAGE,500,32,area=AREA_CIRCLE_1,effect=["mx"],repetition=3,cooldown=7,emoji='<a:shiTrap:919513726338625626>')
+poisonusPuit = skill("Piliers magico-empoisoné","zzz",TYPE_DAMAGE,500,39,area=AREA_CIRCLE_1,use=MAGIE,effect=["me"],repetition=3,cooldown=7,emoji='<a:mpp:925181294906843136>')
+bleedingPuit = skill("Pièges à ressorts","zzy",TYPE_DAMAGE,500,32,area=AREA_CIRCLE_1,effect=["mx"],repetition=3,cooldown=7,emoji='<a:par:925183389252874261>')
 supprZone = skill("Dispersion","zzx",TYPE_DAMAGE,650,70,emoji='<:principio:919529034663223376>',cooldown=5,use=MAGIE,damageOnArmor=3,sussess=60,area=AREA_CIRCLE_1)
 invocCarbSaphir = skill("Invocation - Carbuncle Saphir","zzw",TYPE_SUMMON,500,invocation="Carbuncle Saphir",emoji="<:innvocSafir:919857914490007574>",shareCooldown=True,use=STRENGTH,cooldown=3)
 invocCarbObsi = skill("Invocation - Carbuncle Obsidienne","zzv",TYPE_SUMMON,500,invocation="Carbuncle Obsidienne",emoji="<:invocObs:919872508226830336>",shareCooldown=True,use=STRENGTH,cooldown=3)
@@ -284,7 +284,7 @@ requiem = skill("Requiem","zzu",TYPE_DAMAGE,500,23,range=AREA_MONO,area=AREA_CIR
 cosmicEff = effect("Pouvoir cosmique","cosmicPowerEff",HARMONIE,strength=5,magie=5,resistance=5,emoji=sameSpeciesEmoji('<:comicPowerB:919866210768801833>','<:cosmicPowerR:919866197850353685>'),redirection=15)
 cosmicEffSelf = effect("Pouvoir cosmique","cosmicPowerEffOnSelf",resistance=20,emoji=sameSpeciesEmoji('<:comicPowerB:919866210768801833>','<:cosmicPowerR:919866197850353685>'))
 cosmicPower = skill("Pouvoir cosmique","zzt",TYPE_BOOST,1000,range=AREA_MONO,area=AREA_DONUT_2,use=HARMONIE,cooldown=7,emoji='<:cosmic:919866054992334848>',conditionType=["exclusive","element",ELEMENT_SPACE],effect=cosmicEff,effectOnSelf=cosmicEffSelf)
-propag = skill("Propagation","zzs",TYPE_INDIRECT_DAMAGE,750,cooldown=5,ultimate=True,emoji='<:dispersion:919516925644648518>',use=MAGIE,effect=["me","mx"],description="Après la pose des effets de cette compétence, les alliés en mêlée de la cible reçoivent les effets __Poison d'Estialba__ et __Hémorragie__ de la cible pour une puissance équivalente à **{0}%** de la puissance de l'effet, pour la durée restante de l'effet de base\nSi vous n'êtes pas à l'origine de l'effet de base, la puissance de l'effet propagé équivaux à **{1}**% de la puissance de l'effet de base",power=30,effPowerPurcent=55)
+propag = skill("Propagation","zzs",TYPE_INDIRECT_DAMAGE,750,cooldown=5,ultimate=True,emoji='<a:propa:925188411617345560>',use=MAGIE,effect=["me","mx"],description="Après la pose des effets de cette compétence, les alliés en mêlée de la cible reçoivent les effets __Poison d'Estialba__ et __Hémorragie__ de la cible pour une puissance équivalente à **{0}%** de la puissance de l'effet, pour la durée restante de l'effet de base\nSi vous n'êtes pas à l'origine de l'effet de base, la puissance de l'effet propagé équivaux à **{1}**% de la puissance de l'effet de base",power=30,effPowerPurcent=55)
 
 inkResEff = effect("Pied au sec","inkRes",INTELLIGENCE,turnInit=2,inkResistance=10,description="Réduit de 10% les dégâts indirects reçu.\nLe pourcentage de réduction est affecté par l'Intelligence et le Bonus aux Armures et Mitigation")
 inkResEff2 = copy.deepcopy(inkResEff)
@@ -304,8 +304,17 @@ medicamentum = skill("Rune - Medicamentum",'zzn',TYPE_INDIRECT_HEAL,750,ultimate
 ultMonoArmorEff = effect("Armis","ultMonoArmor",INTELLIGENCE,overhealth=150,turnInit=3,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR)
 ultMonoArmor = skill("Rune - Armis","zzm",TYPE_ARMOR,750,0,ultimate=True,effect=ultMonoArmorEff,cooldown=7,use=INTELLIGENCE)
 
+neutralZone1 = skill("Primum multi scopum magicae","zzl",TYPE_DAMAGE,100,42,area=AREA_CONE_2,use=MAGIE,emoji='<:nm1:925185303659053088>')
+neutralZone2 = skill("Secundum multi scopum magicae","zzk",TYPE_DAMAGE,250,84,area=AREA_CONE_2,use=MAGIE,cooldown=3,emoji='<:nm2:925185316409716746>')
+neutralZone3 = skill("Tertio multi scopum magicae","zzj",TYPE_DAMAGE,500,126,area=AREA_CONE_2,use=MAGIE,cooldown=5,emoji='<:nm3:925185333446971492>')
+neutralMono1 = skill("Primum unum scopum magicae","zzi",TYPE_DAMAGE,100,60,use=MAGIE,emoji='<:nz1:925184839257317398>')
+neutralMono2 = skill("Secundum unum scopum magicae","zzh",TYPE_DAMAGE,250,120,use=MAGIE,cooldown=3,emoji='<:nz2:925184858584662127>')
+neutralMono3 = skill("Tertio singula scopum magicae","zzg",TYPE_DAMAGE,500,180,use=MAGIE,cooldown=5,emoji='<:nz3:925184871612157953>')
+
+
 # Skill
-skills = [reconst,medicamentum,ultMonoArmor,
+skills = [neutralMono1,neutralZone1,neutralMono2,neutralZone2,neutralMono3,neutralZone3,
+    reconst,medicamentum,ultMonoArmor,
     inkRes,inkRes2,booyahBombCast,
     propag,invocCarbSaphir,invocCarbObsi,supprZone,cosmicPower,requiem,
     magicRuneStrike,infinitDark,preciseShot,troublon,haimaSkill,physicRune,magicRune,rosesMagic,lightBigHealArea,focus,poisonusPuit,bleedingPuit,
