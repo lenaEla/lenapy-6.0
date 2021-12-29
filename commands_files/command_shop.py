@@ -34,7 +34,31 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
         except:
             msg = await loadingSlashEmbed(ctx)
 
-        shopRdMsg = shopRandomMsg[random.randint(0,len(shopRandomMsg)-1)].format(ctx.author.name,user.name)
+        shopTotalRandom = shopRandomMsg
+        years = datetime.datetime.now().year
+
+        if datetime.datetime.now() > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
+            shopTotalRandom += shopEventEndYears + shopEventEndYears
+        elif datetime.datetime.now() > datetime.datetime.strptime("19/0/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("20/0/{0}".format(years),"%d/%m/%Y"):
+            shopTotalRandom += shopEventLenaBday + shopEventLenaBday
+        elif datetime.datetime.now() > datetime.datetime.strptime("17/0/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("18/0/{0}".format(years),"%d/%m/%Y"):
+            shopTotalRandom += shopEventPaques + shopEventPaques
+
+
+        shopRdMsg = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)].format(
+            ctx.author.name,
+            user.name,
+            lena = '<:lena:909047343876288552>',
+            alice = '<:alice:908902054959939664>',
+            shushi = '<:shushi:909047653524963328>',
+            clemence = '<:clemence:908902579554111549>',
+            luna = '<:luna:909047362868105227>',
+            feli = '<:felicite:909048027644317706>',
+            icelia = '<:icealia:909065559516250112>',
+            shihu = '<:shihu:909047672541945927>',
+            shehisa = '<:shehisa:919863933320454165>',
+            sixtine = '<:sixtine:908819887059763261>'
+            )
         initMsg = msg
 
         if user.team != 0:
@@ -205,6 +229,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 if respond.custom_id =="buy all":
                     tempMsg = await respond.send(embed=discord.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
                     user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+                    tempTabl = []
                     for obj in listNotHave:
                         if not(user.have(obj)) and user.currencies >= obj.price:
                             if type(obj) == weapon:
@@ -216,12 +241,17 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             elif type(obj) == other:
                                 user.otherInventory.append(obj)
                             user.currencies -= obj.price
+                            tempTabl += [[obj.emoji,obj.name]]
                     saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
-                    await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="Vos achats ont bien été enregistrés"))
+                    temp = ""
+                    for a in tempTabl:
+                        temp += "{0} {1}\n".format(a[0],a[1])
+                    await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="__Vous avez acheté les objets suivants pour la somme de **{0}** <:coins:862425847523704832> :__\n{1}".format(separeUnit(totalCost),temp)))
 
                 elif respond.custom_id == "buy'n'send all":
                     tempMsg = await respond.send(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
                     user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+                    tempTabl1,tempTabl2,tempTabl3 = [],[],[]
                     for teamUser in teamMember:
                         gifted = loadCharFile("./userProfile/{0}.prof".format(teamUser.owner))
                         tempDeleveryMsg = ""
@@ -237,6 +267,15 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                     gifted.otherInventory.append(obj)
                                 user.currencies -= obj.price
                                 tempDeleveryMsg += "\n{0} {1}".format(obj.emoji,obj.name)
+
+                                if obj.name not in tempTabl1:
+                                    tempTabl1.append(obj.name)
+                                    tempTabl2.append(1)
+                                    tempTabl3.append(obj.emoji)
+                                else:
+                                    for cmpt in range(len(tempTabl1)):
+                                        if tempTabl1[cmpt] == obj.name:
+                                            tempTabl2[cmpt] += 1
 
                         saveCharFile("./userProfile/{0}.prof".format(gifted.owner),gifted)
 
@@ -259,8 +298,12 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                 user.otherInventory.append(obj)
                             user.currencies -= obj.price
 
+                    temp = ""
+                    for cmpt in range(len(tempTabl1)):
+                        temp += "{0} {1} *x{2}*\n".format(tempTabl3[cmpt],tempTabl1[cmpt],tempTabl2[cmpt])
+
                     saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
-                    await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="Vos achats ont bien été enregistrés et envoyés"))
+                    await tempMsg.edit(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="__Vous avez acheté les objets suivants pour la somme de **{0}** <:coins:862425847523704832> :__\n{1}".format(separeUnit(totalTeamCost),temp)))
 
             else:
                 await initMsg.edit(embed = shopEmb,components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
