@@ -164,7 +164,7 @@ def saveCharFile(path : str = None, user : char = None):
         path = './userProfile/{0}.prof'.format(user.owner)
     #try:
     saved = ""
-    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex]:
+    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars]:
         saved += str(a)+";"
     saved += "\n"
     for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
@@ -172,7 +172,7 @@ def saveCharFile(path : str = None, user : char = None):
     saved += "\n"
     for a in [user.resistance,user.percing,user.critical,user.points]:
         saved += str(a)+";"
-    for a in user.bonusPoints:
+    for a in user.bonusPoints+user.majorPoints+[user.majorPointsCount]:
         saved += str(a)+";"
     saved += "\n"
     saved += user.weapon.id +";\n"
@@ -252,20 +252,42 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         rep.colorHex = file[0][9]
     except:
         rep.colorHex = "None"
+
+    try:
+        rep.stars = int(file[0][10])
+    except:
+        rep.stars = 0
+        print('No stars founds')
     
     # Stats
     rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
     rep.resistance,rep.percing,rep.critical,rep.points = int(file[2][0]),int(file[2][1]),int(file[2][2]),int(file[2][3])
+
+    try:
+        rep.majorPointsCount = int(file[2][-1])
+    except:
+        rep.majorPointsCount = 0
+        print("No major point count")
+
     try:                                                    # Bonus points
         temp = []
         for a in file[2][4:11]:
             temp += [int(a)]
-        if len(temp) == 7:
-            rep.bonusPoints = temp
-        else:
-            rep.bonusPoints = temp[0:6]+[0]+temp[6:]
+        rep.bonusPoints = temp
     except:
         rep.bonusPoints = [0,0,0,0,0,0,0]
+
+    try:
+        temp = []
+        for a in file[2][11:-1]:
+            temp += [int(a)]
+        while len(temp) < 15:
+            temp.append(0)
+        rep.majorPoints = temp
+    except:
+        rep.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
+        print("No major point")
+
     rep.weapon = findWeapon(file[3][0])                     # Weapon
     cmpt,temp = 0,[]
     while cmpt < len(file[4]):                              # Weapon Inventort

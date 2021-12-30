@@ -2,6 +2,8 @@
 # Importations :
 import asyncio
 import discord, random, os, emoji, datetime, sys, shutil
+
+from discord import embeds
 from discord_slash.model import SlashCommandOptionType,ButtonStyle
 
 from data.database import *
@@ -292,6 +294,20 @@ async def inventoryVerif(bot,toVerif:Union[char,str]):
         except:
             pass
 
+    if user.level > 55:
+        user = loadCharFile(user=user)
+        user.level, user.exp = 55,0
+        user = restats(user)
+
+        saveCharFile(user=user)
+
+        toSend = await bot.fetch_user(user.owner)
+
+        try:
+            await toSend.send(embed=discord.Embed(title="__Problème lors de la vérification automatique de votre inventaire :__",description="Votre niveau est supérieur au niveau maximal, et à été ramené à ce dernier\nVos points bonus ont été rénitialisées\n\nPensez à faire un tour vers /prestige",color=light_blue))
+        except:
+            pass
+
 bidule = stuffDB.getShop()
 shopping = shopClass(bidule["ShopListe"])
 
@@ -409,7 +425,7 @@ async def hourClock():
         await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=create_backup()))
         temp = delete_old_backups()
         if temp != "":
-            await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=delete_old_backups()))
+            await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=temp))
         await restart_program(bot)
 
     # Skill Verif
@@ -978,28 +994,7 @@ async def normal(ctx):
 
             fightAnyway = True
 
-            if False:        # Test
-                temp = team1
-                temp.sort(key=lambda overheal: overheal.level,reverse=True)
-                maxLvl = temp[0].level
-
-                team2 = []
-                lenBoucle = 10
-                cmpt = 0
-
-                octoShield = findEnnemi("Octo Bouclier")
-                alea = copy.deepcopy(findEnnemi("Octo Bouclier"))
-
-                alea.changeLevel(maxLvl)
-
-                while cmpt < lenBoucle:
-                    team2.append(alea)
-                    cmpt += 1
-
-                await fight(bot,team1,team2,ctx,guild,False,slash=True)
-                fightAnyway = False
-
-            elif fun < 1:                # But nobody came
+            if fun < 1:                # But nobody came
                 teamIcon = ""
                 for wonderfullIdea in team1:
                     teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
@@ -1149,7 +1144,7 @@ async def comQuickFight(ctx):
             msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats rapides que dans {timing//60} minute(s)"),delete_after=10)
 
 # octogone fight
-@slash.subcommand(base="fight",name="octogone",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
+@slash.subcommand(base="fight",subcommand_group="octogone",name="solo",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
     create_option("versus","Affronter qui ?",6,required=True)
 ])
 async def octogone(ctx,versus):
@@ -1200,7 +1195,7 @@ async def octogone(ctx,versus):
             await ctx.send(ballerine,delete_after=5)
 
 # team fight
-@slash.subcommand(base="fight",name="team",description="Affrontez l'équipe de quelqu'un avec la votre",options=[
+@slash.subcommand(base="fight",subcommand_group="octogone",name="team",description="Affrontez l'équipe de quelqu'un avec la votre",options=[
     create_option("versus","Affronter qui ?",6,required=True)
 ])
 async def teamFight(ctx,versus):
@@ -1332,7 +1327,7 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
 
         if nom != None:
             nom = nom.replace("_"," ")
-            nom = nom.lower()
+            nom = remove_accents(nom.lower())
             while nom.endswith(" "):
                 nom = nom[0:-1]
 
@@ -1342,13 +1337,13 @@ async def invent2(ctx,destination=None,procuration=None,nom=None):
                 nameTempCmpt,lenName = 0, len(nom)
                 while 1:
                     lastResarch = research[:]
-                    if nameTempCmpt+2 <= lenName:
-                        nameTempCmpt += 2
+                    if nameTempCmpt+1 <= lenName:
+                        nameTempCmpt += 1
                     else:
                         nameTempCmpt = lenName
 
                     for a in research[:]:
-                        temp = a.name.lower()
+                        temp = remove_accents(a.name.lower())
                         if nom[0:nameTempCmpt] not in temp:
                             research.remove(a)
 
@@ -1618,12 +1613,15 @@ async def stats(ctx,joueur=None):
 
         userIcon = await getUserIcon(bot,user)
 
-        rep = discord.Embed(title = f"__Page de statistique de {user.name} {userIcon}__",color = user.color,description = f"__Niveau :__ {user.level}\n__Expérience :__ {user.exp} / {user.level*50-20}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]}\n<:empty:866459463568850954>")
+        level = str(user.level)+['',"<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars > 0]
+        exp = [str(user.level*50-20),"MAX"][user.level == 55]
+        rep = discord.Embed(title = f"__Page de statistique de {user.name} {userIcon}__",color = user.color,description = f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]}\n<:empty:866459463568850954>")
 
         rep.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
         rep.add_field(name = "__Aspiration :__",value = aspiEmoji[user.aspiration] + " " + inspi[user.aspiration],inline = False)
 
-        sumStatsBonus = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        print(user.majorPoints)
+        sumStatsBonus = [user.majorPoints[0],user.majorPoints[1],user.majorPoints[2],user.majorPoints[3],user.majorPoints[4],user.majorPoints[5],user.majorPoints[6],user.majorPoints[7],user.majorPoints[8],user.majorPoints[9],user.majorPoints[10],user.majorPoints[11],user.majorPoints[12],user.majorPoints[13],user.majorPoints[14]]
 
         for a in [user.weapon,user.stuff[0],user.stuff[1],user.stuff[2]]:
             sumStatsBonus[0] += a.strength
@@ -2130,7 +2128,6 @@ async def seeEnnemyRep(ctx):
         if roleId != -1:
             octoRolesNPos[roleId][octa.weapon.range].append(octa)
 
-    tablNames = [[[],[],[]],[[],[],[]],[[],[],[]]]
     for cmpt in (0,1,2):
         embed = discord.Embed(title="__Ennemi répartion : {0}__".format(["DPT","Healer/Shilder","Support"][cmpt]),color=light_blue)
         for cmptBis in range(len(octoRolesNPos[cmpt])):
@@ -2155,46 +2152,40 @@ async def seeEnnemyRep(ctx):
 
     await ctx.channel.send(embed = embed)
 
-# -------------------------------------------- SEE SKILL RECOMMENDED POWER
-@slash.subcommand(base="see",name="skillRecommandedPower",guild_ids=[615257372218097691],description="Permet de voir la répartition des ennemis")
-async def seeSkillRecommandedPower(ctx):
-    temp,debut = "",False
-    for cmpt in range(len(skills)):
-        castTime = 0
-        tempSkill = skills[cmpt]
-        if tempSkill.type == TYPE_DAMAGE:
-            while not(tempSkill.effectOnSelf == None or (tempSkill.effectOnSelf != None and findEffect(tempSkill.effectOnSelf).replica == None)):
-                tempSkill = findSkill(findEffect(tempSkill.effectOnSelf).replica)
-                castTime += 1
+# ------------------------------------------- PRESTIGE -------------------------------------------
+@slash.slash(name="prestige",description="Permet de revenir au niveau 1, avec quelques bonus en primes")
+async def prestigeCmd(ctx):
+    try:
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+    except:
+        await ctx.send("Vous n'avez même pas encore commencé l'aventure et vous voulez déjà prestige ?",delete_after=15)
+        return 0
 
-            power = 25 + 25 * tempSkill.cooldown + 50 * castTime + 55 * tempSkill.ultimate
+    if user.level < 55:
+        await ctx.send("Vous devez être niveau 55 pour pouvoir utiliser cette commande",delete_after=15)
+        return 0
 
-            if tempSkill.effectOnSelf != None and findEffect(tempSkill.effectOnSelf).stun:
-                power += (findEffect(tempSkill.effectOnSelf).turnInit -1) * 15
+    embed = discord.Embed(title="__Prestige__",color=light_blue,description="En prestigeant votre personnage, vous retournerez au niveau 1<:littleStar:925860806602682369>{0}.\n\nVous conserverez votre inventaire d'objet des de compétences et obtiendrez un __Point Majeur__.\nVous pourrez l'utiliser pour augmenter une de vos statistiques principales de 30 points supplémentaires, ou augmenter vos statistiques secondaires de 10 points".format(user.stars+1))
+    comfirm = create_button(ButtonStyle.green,"Prestige votre personnage",'✅','✅')
 
+    msg = await ctx.send(embed=embed,components=[create_actionrow(comfirm)])
 
-            if tempSkill.area != AREA_MONO:
-                power = power * 0.7
-            if tempSkill.use == MAGIE:
-                power = power * 1.2
+    def check(m):
+        return int(m.author_id) == int(ctx.author.id)
 
-            if tempSkill.effect[0] != None or tempSkill.effectOnSelf != None:
-                power = power * 0.7
-            
-            if tempSkill.onArmor != 1:
-                power = power * (1 - min(0.5,(tempSkill.onArmor-1)/2))
+    try:
+        await wait_for_component(bot,msg,check=check,timeout=30)
+    except:
+        await msg.edit(embed=embed,components=[])
+        return 0
 
-            power = int(power / tempSkill.repetition)
+    user = loadCharFile(user=user)
+    user.level, user.exp, user.stars = 1,0,user.stars+1
+    user = restats(user)
 
-            if power != tempSkill.power:
-                temp += "{0} __{1}__ : {2} (rec : {3})\n".format(tempSkill.emoji,tempSkill.name,tempSkill.power,power)
-        if ((cmpt+1)%20 == 0 or cmpt == len(skills)-1) and temp != "":
-            if not(debut):
-                await ctx.send(embed=discord.Embed(title="Recommaned power",color=light_blue,description=temp))
-                debut = True
-            else:
-                await ctx.channel.send(embed=discord.Embed(title="Recommaned power",color=light_blue,description=temp))
-            temp = ""
+    saveCharFile(user=user)
+    await inventoryVerif(bot,user)
+    await msg.edit(embed = discord.Embed(title="__Prestige__",color=light_blue,description="Vous avez bien prestige votre personnage"),components=[])    
 
 ###########################################################
 # Démarrage du bot

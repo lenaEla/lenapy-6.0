@@ -8,9 +8,9 @@ from commands_files.alice_stats_endler import *
 
 nextButton = create_button(ButtonStyle.blue,"Suivant","▶️","next")
 pauseButton = create_button(ButtonStyle.grey,"Faire une pause","⏸️","pause")
-enableFavTeam = create_button(ButtonStyle.secondary,"Utiliser l'équipe favorite","⭐","fav")
-disabledFavTeam = create_button(ButtonStyle.secondary,"Vous n'avez pas d'équipe favorite","⭐","fav",disabled=True)
-errorFavTeam = create_button(ButtonStyle.red,"Erreur lord du chargement de l'équipe favorite","⭐","fav",disabled=True)
+enableFavTeam = create_button(ButtonStyle.secondary,"Utiliser l'équipe favorite","<:littleStar:925860806602682369>","fav")
+disabledFavTeam = create_button(ButtonStyle.secondary,"Vous n'avez pas d'équipe favorite","<:littleStar:925860806602682369>","fav",disabled=True)
+errorFavTeam = create_button(ButtonStyle.red,"Erreur lord du chargement de l'équipe favorite","<:littleStar:925860806602682369>","fav",disabled=True)
 classicButtons = [create_actionrow(pauseButton,nextButton)]
 
 async def adventureDutySelect(bot : discord.client, ctx : SlashContext, user : char): 
