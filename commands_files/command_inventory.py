@@ -950,6 +950,9 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                         nim = nim[0:3]+"."
                                     temp += " Elem. : "+nim
 
+                                if a.effect != None:
+                                    temp += " *{0}*".format(findEffect(a.effect).name)
+
                             else:
                                 if a.ultimate:
                                     temp += "Ultime"

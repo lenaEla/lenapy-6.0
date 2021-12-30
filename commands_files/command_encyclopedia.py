@@ -258,6 +258,9 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                                 if len(nim) > 3:
                                     nim = nim[0:3]+"."
                                 temp += " Elem. : "+nim
+
+                            if a.effect != None:
+                                temp += " *{0}*".format(findEffect(a.effect).name)
                 
                     # Création de l'option
                     mess += temp+"\n"

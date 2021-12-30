@@ -642,7 +642,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     baseStats[14] += int(obj.negativeIndirect)
 
             else:
-                baseStats = {STRENGTH:0,ENDURANCE:0,CHARISMA:0,AGILITY:0,PRECISION:0,INTELLIGENCE:0,MAGIE:0,RESISTANCE:0,PERCING:0,CRITICAL:0,10:0,11:0,12:0,13:0,14:0}
+                baseStats = {STRENGTH:self.char.majorPoints[0],ENDURANCE:self.char.majorPoints[1],CHARISMA:self.char.majorPoints[2],AGILITY:self.char.majorPoints[3],PRECISION:self.char.majorPoints[4],INTELLIGENCE:self.char.majorPoints[5],MAGIE:self.char.majorPoints[6],RESISTANCE:self.char.majorPoints[7],PERCING:self.char.majorPoints[8],CRITICAL:self.char.majorPoints[9],10:self.char.majorPoints[10],11:self.char.majorPoints[11],12:self.char.majorPoints[12],13:self.char.majorPoints[13],14:self.char.majorPoints[14]}
                 temp = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
                 temp2 = self.summoner.allStats()+[self.summoner.resistance,self.summoner.percing,self.summoner.critical]
                 adv = 0
@@ -1230,18 +1230,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 entityInArea.refreshEffects()
 
                                 # Critical
-                                critRoll = random.randint(0,99)
+                                critRoll, critBonus = random.randint(0,99), 0.15 * int(self.char.weapon.id == ElitherScope.id)
                                 critMsg = ""
                                 if critRoll < critRate and damage > 0:
                                     if self.char.aspiration not in [POIDS_PLUME, OBSERVATEUR]:
                                         critMsg = " (Critique !)"
-                                        multiplicateur = multiplicateur * 1.25
+                                        multiplicateur = multiplicateur * (1.25 + critBonus)
                                     else:
                                         critMsg = " (Critique !!)"
-                                        multiplicateur = multiplicateur * 1.35
+                                        multiplicateur = multiplicateur * (1.35 + critBonus)
                                     self.stats.crits += 1
                                 elif critRoll < critRate + pp and self.char.aspiration in [POIDS_PLUME,OBSERVATEUR] and damage > 0:
-                                    multiplicateur = multiplicateur * 1.45
+                                    multiplicateur = multiplicateur * (1.45 + critBonus)
                                     critMsg = " (Critique !!!)"
                                     actTurn.specialVars["aspiSlot"].value = 0
                                     self.stats.crits += 1
@@ -1771,6 +1771,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             """Return the aggro value agains the target. Made for be use as a key for sort lists"""
             if not(target.untargetable):
                 aggro = 20                                          # Base aggro value. Maybe some skills will influe on it later
+                if target.char.weapon.id == grav.id:
+                    aggro += self.stats.survival
 
                 for eff in target.effect:                           # Change the aggro
                     aggro += eff.effect.aggro
@@ -2734,9 +2736,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
         if random.randint(0,99) > 15 or leni < 4: # Vs normal team
             winStreak = teamWinDB.getVictoryStreak(team1[0])
-        
             danger = dangerLevel[winStreak]
-
 
             aleaMax = len(tablAllEnnemies)-1
             alreadyFall = []
@@ -2869,53 +2869,75 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 except:
                     pass
 
-            while len(team2) < len(team1) and not(oneVAll):
-                for tempCmpt in range(len(tablTeamOctaComp)):
-                    if tablTeamOctaComp[tempCmpt] > 0 and len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]]) > 0:
-                        break
+            if lvlMax > 20:
+                while len(team2) < len(team1) and not(oneVAll):
+                    for tempCmpt in range(len(tablTeamOctaComp)):
+                        if tablTeamOctaComp[tempCmpt] > 0 and len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]]) > 0:
+                            break
 
-                """print("octoRolesNPos : {0}".format(len(octoRolesNPos)))
-                print("tempCmpt : {0}".format(tempCmpt))
-                print("octoRolesNPos[tempCmpt] : {0}".format(len(octoRolesNPos[tempCmpt])))
-                print("tablTeamOctaPos : {0}".format(len(tablTeamOctaPos)))
-                print("octoRolesNPos[tempCmpt][tablTeamOctaPos[0]] : {0}".format(len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]])))"""
+                    """print("octoRolesNPos : {0}".format(len(octoRolesNPos)))
+                    print("tempCmpt : {0}".format(tempCmpt))
+                    print("octoRolesNPos[tempCmpt] : {0}".format(len(octoRolesNPos[tempCmpt])))
+                    print("tablTeamOctaPos : {0}".format(len(tablTeamOctaPos)))
+                    print("octoRolesNPos[tempCmpt][tablTeamOctaPos[0]] : {0}".format(len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]])))"""
 
-                for secondCmpt in range(len(tablTeamOctaPos)):
-                    if len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]]) > 0:
-                        break
+                    for secondCmpt in range(len(tablTeamOctaPos)):
+                        if len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]]) > 0:
+                            break
 
-                if len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]]) > 1:
-                    alea = octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]][random.randint(0,len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]])-1)]
-                else:
-                    try:
-                        alea = octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]][0]
-                    except:
-                        print('=============================')
-                        print(tablTeamOctaPos)
-                        for a in octoRolesNPos[tempCmpt]:
-                            for b in a:
-                                print(b.name)
-                        print('=============================')
-                
-                octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]].remove(alea)
-                tablTeamOctaPos.remove(tablTeamOctaPos[secondCmpt])
-                tablTeamOctaComp[tempCmpt] -= 1
+                    if len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]]) > 1:
+                        alea = octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]][random.randint(0,len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]])-1)]
+                    else:
+                        try:
+                            alea = octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]][0]
+                        except:
+                            print('=============================')
+                            print(tablTeamOctaPos)
+                            for a in octoRolesNPos[tempCmpt]:
+                                for b in a:
+                                    print(b.name)
+                            print('=============================')
+                    
+                    octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]].remove(alea)
+                    tablTeamOctaPos.remove(tablTeamOctaPos[secondCmpt])
+                    tablTeamOctaComp[tempCmpt] -= 1
 
-                if alea.isNpc("Octaling"):
-                    alea = copy.deepcopy(alea)
-                    alea.weapon = weapons[random.randint(0,len(weapons)-1)]
-                    alea.aspiration = random.randint(0,len(inspi)-1)
-                    temp2 = copy.deepcopy(skills)
-                    for cmpt in (0,1,2,3,4):
-                        rand = random.randint(0,len(temp2)-1)
-                        alea.skills[cmpt] = temp2[rand]
-                        temp2.remove(temp2[rand])
-                    alea.element = random.randint(0,len(elemNames)-1)
+                    if alea.isNpc("Octaling"):
+                        alea = copy.deepcopy(alea)
+                        alea.weapon = weapons[random.randint(0,len(weapons)-1)]
+                        alea.aspiration = random.randint(0,len(inspi)-1)
+                        temp2 = copy.deepcopy(skills)
+                        for cmpt in (0,1,2,3,4):
+                            rand = random.randint(0,len(temp2)-1)
+                            alea.skills[cmpt] = temp2[rand]
+                            temp2.remove(temp2[rand])
+                        alea.element = random.randint(0,len(elemNames)-1)
 
-                alea.changeLevel(lvlMax)
-                
-                team2.append(alea)
-                logs += "{0} have been added into team2\n".format(alea.name)
+                    alea.changeLevel(lvlMax)
+                    
+                    team2.append(alea)
+                    logs += "{0} have been added into team2\n".format(alea.name)
+
+            else:
+                while len(team2) < len(team1) and not(oneVAll):
+                    alea = tablOctaTemp[random.randint(0,len(tablOctaTemp))]                
+                    tablOctaTemp.remove(alea)
+
+                    if alea.isNpc("Octaling"):
+                        alea = copy.deepcopy(alea)
+                        alea.weapon = weapons[random.randint(0,len(weapons)-1)]
+                        alea.aspiration = random.randint(0,len(inspi)-1)
+                        temp2 = copy.deepcopy(skills)
+                        for cmpt in (0,1,2,3,4):
+                            rand = random.randint(0,len(temp2)-1)
+                            alea.skills[cmpt] = temp2[rand]
+                            temp2.remove(temp2[rand])
+                        alea.element = random.randint(0,len(elemNames)-1)
+
+                    alea.changeLevel(lvlMax)
+                    
+                    team2.append(alea)
+                    logs += "{0} have been added into team2\n".format(alea.name)
 
         else: # Vs temp ally team
             winStreak = teamWinDB.getVictoryStreak(team1[0])
@@ -3799,7 +3821,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 # Generating the main menu of the window
                                 for a in range(len(tabltabl)):
                                     if tempTabl[a] != None and tabltabl[a] == 0:                                   # If the option is a valid option and the cooldown is down
-                                        if type(tempTabl[a]) == weapon and len(actTurn.atRange()) > 0 and actTurn.char.weapon.id not in [secretum.id]:                  # Aff. the number of targets if the option is a Weapon
+                                        if type(tempTabl[a]) == weapon and len(actTurn.atRange()) > 0 and actTurn.char.weapon.id not in cannotUseMainWeapon:                  # Aff. the number of targets if the option is a Weapon
                                             canBeUsed += [tempTabl[a]]
                                             choiceMsgTemp += f"{tempTabl[a].emoji} {tempTabl[a].name} (Cibles à portée : {str(nbTargetAtRange)})\n"
                                         elif type(tempTabl[a]) != weapon:
@@ -4188,9 +4210,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 probaAtkWeap = [80,40,50,40,40,50,60,60] 
                                 probaHealWeap = [0,60,30,30,70,30,0,0]
 
-                                if actTurn.isNpc("Kiku"):
+                                if actTurn.isNpc("Kiku"):                               # Kiku have a ways better chance to raise her allies
                                     probaReaSkill = [5000,5000,5000,5000,5000,5000,5000,5000]
-                                elif (dictIsPnjVar["Kiku"] and actTurn.team == 1):
+                                elif (dictIsPnjVar["Kiku"] and actTurn.team == 1):      # If there is a ally Kiku, let her raise
                                     probaReaSkill = [0,0,0,0,0,0,0,0]
                                 else:
                                     probaReaSkill = [50,150,150,30,150,100,50,50]
@@ -4220,7 +4242,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         probaArmor[value] = int(probaArmor[value]*2)
 
                                 # Weapons proba's ----------------------------------
-                                if actTurn.char.weapon.name == "noneWeap" or (actTurn.char.weapon.id in [secretum.id] and len(actTurn.atRange()) > 0):
+                                if actTurn.char.weapon.name == "noneWeap" or (actTurn.char.weapon.id in cannotUseMainWeapon and len(actTurn.atRange()) > 0):
                                     probaHealWeap = [0,0,0,0,0,0,0,0]
                                     probaAtkWeap = [0,0,0,0,0,0,0,0]
                                 else:
@@ -5081,7 +5103,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                             tempTurnMsg += funnyTempVarName
                                             logs += funnyTempVarName
                                         elif tour < 16 and tablEntTeam[actTurn.team][a].status == STATUS_DEAD:    # Resurect
-                                            healPowa = round(skillToUse.power * (1+(statUse-actTurn.negativeHeal)/120+(tablEntTeam[actTurn.team][a].endurance/1500))* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(tablEntTeam[actTurn.team][a],area = AREA_MONO,type = TYPE_HEAL))
+                                            healPowa = round(skillToUse.power * (1+(statUse-max(actTurn.negativeHeal,actTurn.negativeShield,actTurn.negativeBoost))/100+(tablEntTeam[actTurn.team][a].endurance/1500))* actTurn.valueBoost(target = tablEntTeam[actTurn.team][a],heal=True)*actTurn.getElementalBonus(tablEntTeam[actTurn.team][a],area = AREA_MONO,type = TYPE_HEAL))
                                             healPowa = round(healPowa * (0.5+actTurn.char.level*0.01))
                                             funnyTempVarName = await actTurn.resurect(tablEntTeam[actTurn.team][a],healPowa,skillToUse.emoji,danger=danger)
                                             tempTurnMsg += funnyTempVarName
@@ -5147,7 +5169,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         for a in temp:
                                             statUse = max(a,statUse)
 
-                                    healPowa = min(a.maxHp-a.hp,round(skillToUse.power * (1+(statUse-actTurn.negativeHeal)/120)* actTurn.valueBoost(target=a,heal=True)*actTurn.getElementalBonus(a,area=AREA_MONO,type=TYPE_HEAL)))
+                                    healPowa = min(a.maxHp-a.hp,round(skillToUse.power * (1+(statUse-max(actTurn.negativeHeal,actTurn.negativeShield,actTurn.negativeBoost))/100)* actTurn.valueBoost(target=a,heal=True)*actTurn.getElementalBonus(a,area=AREA_MONO,type=TYPE_HEAL)))
 
                                 elif stat == PURCENTAGE:
                                     healPowa = round(a.maxHP * skillToUse.power/100 * (100-a.healResist)/100)
@@ -5519,7 +5541,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     gainCoins = gainCoins//2
 
                 logs += "Gains exp : {0} ({1} * {2})\n".format(gainExp,gainInit,multi)
-                gainMsg = f"Points d'expériences : {gainInit}{multiStr}\nPièces : {gainCoins}\n"
+                gainMsg = f"Pièces : {gainCoins}"
 
                 maxLevel = -1
                 for players in tablEntTeam[0]:
@@ -5530,13 +5552,17 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         path = absPath + "/userProfile/" + str(a.char.owner) + ".prof"
 
                         veryLate = 1 + (int(maxLevel-a.char.level > 10 and winners) * 0.5)
-
-                        baseGain = gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
-                        effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate)
+                        if a.char.level < 55:
+                            baseGain = gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
+                        else:
+                            baseGain = 0
+                        effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate*[1,1.5][a.char.stars > 0 and a.char.level <=30])
                         a.char = await addExpUser(bot,guild,path,ctx,exp=effectiveExpGain,coins=gainCoins)
 
-                        if a.char.level < maxLevel:
-                            logs += "\n{0} got a {1}% exp boost for being power leveling by a team mate (total : +{2} exp)".format(a.char.name,int((effectiveExpGain/baseGain-1)*100),effectiveExpGain)
+                        gainMsg += "\n{0} → <:exp:926106339799887892> +{1}".format(await getUserIcon(bot,a.char),effectiveExpGain)
+
+                        if baseGain != effectiveExpGain:
+                            logs += "\n{0} got a {1}% exp boost (total : +{2} exp)".format(a.char.name,int((effectiveExpGain/baseGain-1)*100),effectiveExpGain)
 
                         sussesfullRoll = random.randint(0,99) < [25,35][int(userShopPurcent(a.char)<90)]
                         #sussesfullRoll = False
@@ -5562,7 +5588,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     a.char.stuffInventory += [rand]
 
                                 saveCharFile(path,a.char)
-                                gainMsg += f"{await getUserIcon(bot,a.char)} → {rand.emoji} {rand.name}\n"
+                                gainMsg += f", {rand.emoji} {rand.name}"
 
                             elif len(temp) == 0:
                                 gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
@@ -5579,13 +5605,13 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 logs += " {0} pièces".format(gain)
                                 a.char.currencies += gain
                                 saveCharFile(path,a.char)
-                                gainMsg += f"{await getUserIcon(bot,a.char)} → {gain} <:coins:862425847523704832>\n"
+                                gainMsg += f", {gain} <:coins:862425847523704832>"
 
                         elif not(sussesfullRoll) and mainUser.owner == a.char.owner and allOcta and not(winners):
                             if random.randint(0,999) < 334:
                                 aliceStatsDb.updateJetonsCount(mainUser,1)
                                 logs += "\n{0} a obtenu un jeton de roulette".format(mainUser.name)
-                                gainMsg += f"{await getUserIcon(bot,a.char)} → <:jeton:917793426949435402> Jeton de roulette\n"
+                                gainMsg += f", <:jeton:917793426949435402> Jeton de roulette"
 
                 resultEmbed.add_field(name="<:empty:866459463568850954>\n__Gains de l'équipe joueur :__",value = gainMsg,inline=False)
         else:
