@@ -126,7 +126,6 @@ class effect:
         self.onDeclancher:bool = onDeclancher
         self.inkResistance = inkResistance
 
-
         if self.reject != None and self.id in self.reject:
             self.reject.remove(self.id)
 
@@ -151,9 +150,37 @@ class effect:
         if self.emoji[0] == "<":
             self.emoji = [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
 
+        for a in [0,1,2]:
+            for b in [0,1]:
+                try:
+                    self.emoji[a][b]
+                except:
+                    raise Exception(self.name)
+            
+                if self.emoji[a][b] != None:
+                    chocolatine = ["",""]
+                    first, second, temp = False, False, ""
+                    for c in self.emoji[a][b]:
+                        if c == ":":
+                            if not(first):
+                                first = True
+                            elif not(second):
+                                chocolatine[0] = temp
+                                temp, second = "",True
+                        elif first and c != ">":
+                            temp += c
+
+                    chocolatine[1] = int(temp)
+                    if self.emoji[a][b][1] == "a":
+                        self.emoji[a][b] = "<a:{0}:{1}>".format(chocolatine[0][:2],chocolatine[1])
+                    else:
+                        self.emoji[a][b] = "<:{0}:{1}>".format(chocolatine[0][:2],chocolatine[1])
+
+                
+
+
     def __str__(self) -> str:
         return self.name
-
     def setTurnInit(self,newTurn = 1):
         """Change the "turnInit" value. Why I need a function for that ?"""
         self.turnInit = newTurn
@@ -559,6 +586,7 @@ class char:
         self.owner = owner
         self.name = str(name)
         self.level = int(level)
+        self.stars = 0
         self.exp = 0
         self.currencies = 0
         self.species = species
@@ -569,6 +597,7 @@ class char:
         self.resistance,self.percing,self.critical = 0,0,0
         self.aspiration = -1
         self.points = 0
+        self.majorPointsCount = 0
         self.weapon = splattershotJR
         self.weaponInventory = [splattershotJR,mainLibre]
         self.skills = ["0","0","0","0","0"]
@@ -578,6 +607,7 @@ class char:
         self.otherInventory = []
         self.procuration = []
         self.bonusPoints = [0,0,0,0,0,0,0]
+        self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         self.icon = None
         self.customColor = False
         self.element = ELEMENT_NEUTRAL
@@ -611,6 +641,7 @@ class invoc:
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
         self.weapon = weapon
+        self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
 
         self.description = description
         
@@ -765,6 +796,7 @@ class octarien:
             self.skills+=["0"]
 
         self.skillsInventory = []
+        self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         self.color = red
         self.level = 1
         self.stuff = [octoEmpty1,octoEmpty2,octoEmpty3]
@@ -876,6 +908,7 @@ class tmpAllie:
         self.aspiration = aspiration
         self.weapon = weapon
         self.skills = ["0","0","0","0","0"]
+        self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         for a in range(0,len(skill)):
             self.skills[a] = skill[a]
         self.skillsInventory = []

@@ -791,7 +791,9 @@ def restats(user : char):
         stats[a] = round(allMax[a][user.aspiration]*0.1+allMax[a][user.aspiration]*0.9*user.level/50)
 
     user.points = user.level
+    user.majorPointsCount = user.stars
     user.bonusPoints = [0,0,0,0,0,0,0]
+    user.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
 
     return userMajStats(user,stats)
 
@@ -807,7 +809,10 @@ def silentRestats(user : char):
 async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins = 0):
     user = loadCharFile(path)
 
-    user.exp = user.exp + exp
+    if user.level < 55:
+        user.exp = user.exp + exp
+    else:
+        user.exp = 0
     user.currencies = user.currencies + coins
 
     upLvl = (user.level-1)*50+30
