@@ -637,6 +637,7 @@ class invoc:
         self.gender = gender
         self.color = 0
         self.species = 1
+        self.stars = 0
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
@@ -792,6 +793,7 @@ class octarien:
         self.weapon = weapon
         self.number = number
         self.skills = skill
+        self.stars = 0
         while len(self.skills) < 5:
             self.skills+=["0"]
 
@@ -907,6 +909,7 @@ class tmpAllie:
         self.resistance,self.percing,self.critical = 0,0,0
         self.aspiration = aspiration
         self.weapon = weapon
+        self.stars = 0
         self.skills = ["0","0","0","0","0"]
         self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         for a in range(0,len(skill)):

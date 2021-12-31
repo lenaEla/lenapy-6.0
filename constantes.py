@@ -136,7 +136,6 @@ maxStrength = [
     25, # Enc
     15  # Pro
 ]
-
 maxEndur = [
     60, # Ber
     20, # Obs
@@ -150,7 +149,6 @@ maxEndur = [
     50, # Enc
     50  # Pro
 ]
-
 maxChar = [
     30, # Ber
     35, # Obs
@@ -164,7 +162,6 @@ maxChar = [
     30, # Enc
     45  # Pro
 ]
-
 maxAgi = [
     25, # Ber
     25, # Obs
@@ -178,7 +175,6 @@ maxAgi = [
     35, # Enc
     35  # Pro
 ]
-
 maxPreci = [
     30, # Ber
     40, # Obs
@@ -192,7 +188,6 @@ maxPreci = [
     25, # Enc
     15  # Pro
 ]
-
 maxIntel = [
     15, # Ber
     15, # Obs
@@ -206,7 +201,6 @@ maxIntel = [
     10, # Enc
     45  # Pro
 ]
-
 maxMagie = [
     10, # Ber
     35, # Obs
@@ -340,7 +334,10 @@ shopRandomMsg = [
     "{shushi} : \"Hé hé Midame des neizes ! Z'est touvé za part terre, y a maqué quoi dezu ?\"\n{icelia} : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)",
     "{lena} : \"...\"\n{luna} : \"Tu commencerais pas à nous faire une crise de jalousie toi ?\"\n{lena} : \"Je vois pas de quoi tu parles.\"\n{luna} : \"J'en pris, je suis mieux placée que qui-conque pour voir comment tu regardes Clémence depuis qu'elle a sa version boss\"\n{lena} : \"...\"\n{luna} : \"En même temps tu passes ton temps à lui montrer que tu peux te débrouiller toute seule, tu vas pas lui reprocher de s'occuper de ses autres OCs de temps en temps, si ?\"\n{lena} : \"Non évidament...\"",
     "{lena} : \"La vache c'est bien plus compliqué que je le pensais de lancer ces plumes enfaites...\"\n<:hina:908820821185810454> : \"C'est qu'une question d'habitude ^^ Hônnetement... J'arriverai même pas à tenir un de tes fusils donc bon ^^'\"",
-    "{sixtine} : \"...\"\n<:krys:916118008991215726> : ?\"\n{sixtine} : \"...\"\n<:krys:916118008991215726> : \"?.? Je peux t'aider ?\"\n{sixtine} : \"Oh heu... Je me demandais juste si tu avais un coeur de pierre...\"\n<:krys:916118008991215726> : \"??.??\""
+    "{sixtine} : \"...\"\n<:krys:916118008991215726> : ?\"\n{sixtine} : \"...\"\n<:krys:916118008991215726> : \"?.? Je peux t'aider ?\"\n{sixtine} : \"Oh heu... Je me demandais juste si tu avais un coeur de pierre...\"\n<:krys:916118008991215726> : \"??.??\"",
+    "{lena} : \"Maintenant que j'y pense, vous avez pas vraiment été gaté en terme d'évolution vous autre\"\nDe la part de quelqu'un qui a un corps tellement fragile qu'elle ne peut pas survivre dans l'eau c'est plutôt ironique\n{lena} : \"Tu sais très bien ce que je veux dire\"",
+    "{iliana} : \"Cl-Clméence... ? Hum... tu sais pourquoi ta soeur m'évite toi... ?\"\n{clemence} : \"Si tu parles d'Alice, elle a eu quelques porblèmes avec un chat quand elle était plus jeune donc elle en est un peu traumatisée\"\n{iliana} : \"Oh... la pauvre...\"",
+    "{iliana} : \"Je... C'est ton droit de me détester mais... Je pourrais au moins savoir pourquoi... ?\"\n{iliana} : \"Lena... qu'est-ce que j'ai mal fait... ?\"\n{iliana} : \"L-Lena... m'ignore pas s'il te plaît...\"\n{iliana}  : \"... Désolée...\""
 ]
 
 shopEventEndYears = [
