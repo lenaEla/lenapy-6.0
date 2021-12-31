@@ -619,7 +619,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     self.IA = AI_AVENTURE
 
             if type(self.char) != invoc:
-                baseStats = {STRENGTH:self.char.strength,ENDURANCE:self.char.endurance,CHARISMA:self.char.charisma,AGILITY:self.char.agility,PRECISION:self.char.precision,INTELLIGENCE:self.char.intelligence,MAGIE:self.char.magie,RESISTANCE:0,PERCING:0,CRITICAL:0,10:0,11:0,12:0,13:0,14:0}
+                baseStats = {STRENGTH:self.char.strength+self.char.majorPoints[0],ENDURANCE:self.char.endurance+self.char.majorPoints[1],CHARISMA:self.char.charisma+self.char.majorPoints[2],AGILITY:self.char.agility+self.char.majorPoints[3],PRECISION:self.char.precision+self.char.majorPoints[4],INTELLIGENCE:self.char.intelligence+self.char.majorPoints[5],MAGIE:self.char.magie+self.char.majorPoints[6],RESISTANCE:self.char.majorPoints[7],PERCING:self.char.majorPoints[8],CRITICAL:self.char.majorPoints[9],10:self.char.majorPoints[10],11:self.char.majorPoints[11],12:self.char.majorPoints[12],13:self.char.majorPoints[13],14:self.char.majorPoints[14]}
                 for obj in [self.char.weapon,self.char.stuff[0],self.char.stuff[1],self.char.stuff[2]]:
                     valueElem = 1
                     if obj.affinity == self.char.element :
@@ -2919,8 +2919,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     logs += "{0} have been added into team2\n".format(alea.name)
 
             else:
-                while len(team2) < len(team1) and not(oneVAll):
-                    alea = tablOctaTemp[random.randint(0,len(tablOctaTemp))]                
+                while len(team2) < len(team1) and not(oneVAll) and len(tablOctaTemp)>0:
+                    if len(tablOctaTemp) > 1:
+                        alea = tablOctaTemp[random.randint(0,len(tablOctaTemp)-1)]
+                    else:
+                        alea = tablOctaTemp[0]              
                     tablOctaTemp.remove(alea)
 
                     if alea.isNpc("Octaling"):
@@ -3176,7 +3179,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         await msg.edit(embed = repEmb)
 
     choiceMsg = 0
-    if not(auto):                       # Utilisateurs présent ?
+    if not(auto):                       # User there ?
         allReady = False
         already, awaited,awaitedChar = [],[],[]
 
@@ -3610,7 +3613,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     else:
                         temp += f"\n__{allStatsNames[a]}__ : {temp2[a]}"
 
-                embInfo.add_field(name = f"__{actTurn.icon} {unhyperlink(actTurn.char.name)}__ (Niveau {actTurn.char.level})",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
+                level = str(actTurn.char.level) + ["","<:littleStar:925860806602682369>{0}".format(actTurn.char.stars)][actTurn.char.stars>0]
+                embInfo.add_field(name = f"__{actTurn.icon} {unhyperlink(actTurn.char.name)}__ (Niveau {level})",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
                 embInfo.add_field(name = "__Liste des effets :__",value=actTurn.effectIcons(),inline = True)
                 embInfo.add_field(name = "__Statistiques :__",value = temp,inline = True)
                 embInfo.add_field(name = "<:empty:866459463568850954>",value='**__Liste des effets :__**',inline=False)

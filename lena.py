@@ -1440,10 +1440,7 @@ async def teamView(ctx,joueur=None):
                 temp = ""
                 for a in file[0]:
                     temp2 = loadCharFile(absPath + "/userProfile/" + a + ".prof")
-                    temp3 = None
-
-                    temp3 = await bot.fetch_user(int(a))
-                    temp3 = temp3.name
+                    level = str(temp2.level) + ["","<:littleStar:925860806602682369>{0}".format(temp2.stars)][temp2.stars>0]
 
                     ballerine = f'{aspiEmoji[temp2.aspiration]} | {elemEmojis[temp2.element]} | {temp2.weapon.emoji} | {temp2.stuff[0].emoji} {temp2.stuff[1].emoji} {temp2.stuff[2].emoji} | '
                     for b in temp2.skills:
@@ -1456,7 +1453,7 @@ async def teamView(ctx,joueur=None):
                     points = ""
                     if temp2.points > 0:
                         points = " *(+)*"
-                    temp += f"__{icon} **{temp2.name}** ({temp3})__{points}\n{ballerine}"
+                    temp += f"__{icon} **{temp2.name}** ({level})__{points}\n{ballerine}"
 
                 if int(user.owner) == int(ctx.author.id):
                     embed = discord.Embed(title = "/team view",color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp)

@@ -57,7 +57,8 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             icelia = '<:icealia:909065559516250112>',
             shihu = '<:shihu:909047672541945927>',
             shehisa = '<:shehisa:919863933320454165>',
-            sixtine = '<:sixtine:908819887059763261>'
+            sixtine = '<:sixtine:908819887059763261>',
+            iliana = '<:Iliana:926425844056985640>'
             )
         initMsg = msg
 

@@ -832,7 +832,8 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
         user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
 
         ballerine = await bot.fetch_user(user.owner)
-        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = user.color,description = f"Le personnage de {ballerine.mention} ({user.name}) a gagné un niveau !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande \"points\".")
+        level = str(user.level+1) + ["","<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars>0]
+        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = user.color,description = f"Le personnage de {ballerine.mention} ({user.name}) est passé au niveauv {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande \"points\".")
         
         if (user.level+1) % 5 == 0:
             unlock = ""
