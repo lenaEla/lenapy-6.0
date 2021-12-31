@@ -1,10 +1,10 @@
 from classes import *
 from constantes import *
 from advObjects.advSkills import *
-from advObjects.advWeapons import purpleSecretEff
+from advObjects.advWeapons import purpleSecretEff, critBonusEff
 
 tankStans = ["ne","ng","nh","ol","nf"]
-dptStans = ["ns","np","pacteDeSang","pacteD'âme","purpleSecrets"]
+dptStans = ["ns","np","pacteDeSang","pacteD'âme","purpleSecrets",critBonusEff.id]
 healStans = ["idoOHEff","proOHEff","altOHEff","ly","idoOSEff","proOSEff","preOSEff","lightaura2Pa"]
 
 armor = effect("Armure d'Encre","la",INTELLIGENCE,overhealth=100,emoji=sameSpeciesEmoji('<:armor1:866828463751036929>','<:armor2:866828487038205962>'),description="Une armure qui protège le porteur des dégâts directs",trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR)
@@ -16,7 +16,7 @@ bpEffect = effect("Potion étrange","lf",5,-5,-5,-5,-5,-5,-5,-5,-5,-5,turnInit=1
 deterEff1 = effect("Détermination","lg",emoji=uniqueEmoji('<:determination:867894180851482644>'),turnInit=-1,description="Sur le points de mourir, votre volonté vous permet de tenir jusqu'à votre prochain tour",trigger=TRIGGER_DEATH,callOnTrigger="lh",power=1,type=TYPE_INDIRECT_REZ)
 undying = effect("Undying","lh",reject=["li","lj"],turnInit=2,trigger=TRIGGER_END_OF_TURN,immunity=True,description="Vos dernières forces pour rendent insensible à toutes attaques.\nMais à la fin de votre tour, vous mourrerez, pour de bon.",callOnTrigger="li",type=TYPE_INDIRECT_DAMAGE,power=9999,ignoreImmunity=True)
 onceButNotTwice = effect("Une fois mais pas deux","li",emoji=uniqueEmoji('<:notTwice:867536068110057483>'),description="La mort ne vous laissera pas filer une seconde fois",turnInit=-1,silent=True)
-zelianR = effect("Chronoshift","lj",PURCENTAGE,trigger=TRIGGER_DEATH,description = "Si le porteur venait à mourir tant qu'il porte cet effet, il est réssucité avec la moitié de sa vie",emoji=[['<:chronoshift1:867877564864790538>','<:chronoshift2:867877584518905906>'],['<:chronoshift1:867877564864790538>','<:chronoshift2:867877584518905906>']],reject=["lh","li"],type=TYPE_INDIRECT_REZ,power=50)
+zelianR = effect("Chronoshift","lj",PURCENTAGE,trigger=TRIGGER_DEATH,description = "Si le porteur venait à mourir tant qu'il porte cet effet, il est réssucité avec la moitié de sa vie",emoji=sameSpeciesEmoji('<:chronoshift1:867877564864790538>','<:chronoshift2:867877584518905906>'),reject=["lh","li"],type=TYPE_INDIRECT_REZ,power=50)
 courageE = effect("Motivé","lk",CHARISMA,15,emoji=sameSpeciesEmoji('<:charge1:866832660739653632>','<:charge2:866832677512282154>'),description="Augmente la force pendant un tour")
 nostalgiaE = effect("Nostalgie","lm",INTELLIGENCE,turnInit=2,strength=-10,magie=-10,resistance=-5,emoji=emojiMalus,description='Plonge le porteur dans ses souvenirs, le rendant plus vulnérable aux attaques')
 afterShockDmg = effect("Acharnement","ln",MAGIE,turnInit=1,power=30,aggro=10,lvl=5,trigger=TRIGGER_DAMAGE,type=TYPE_INDIRECT_DAMAGE,emoji=sameSpeciesEmoji('<:aftershock1:882889524122898452>','<:aftershock2:882889538886852650>'),description="Lorsque la porteur reçoit des dégâts, le lanceur de la compétence lui inflige des dégâts indirects supplémentaire")
@@ -127,11 +127,12 @@ preOSEff = effect("Armures avancées","preOSEff",emoji=uniqueEmoji('<:osPre:9138
 GESredirect = effect("The Giant Enemy Spider","TheGiantEnemySpiderRedirect",turnInit=-1,unclearable=True,redirection=50)
 physicRuneEff = effect("Sanguis Pact","pacteDeSang",description="Augmente la puissance de vos attaques **Physiques** et **Corporelles** de **{0}%**.\nAprès chaque utilisation d'une arme ou compétence offensive, vous inflige des dégâts non réductibles d'une valeur de **{0}%** de vos PV maximums",power=15,unclearable=True,reject=dptStans,emoji=uniqueEmoji('<:pacteDeSang:917096147452035102>'),turnInit=-1)
 magicRuneEff = effect("Animae Foedus","pacteD'âme",description="Augmente la puissance de vos attaques **Magiques** et **Psychique** de **{0}%**.\nAprès chaque utilisation d'une arme ou compétence offensive, vous inflige des dégâts non réductibles d'une valeur de **{0}%** de vos PV maximums",power=15,unclearable=True,reject=dptStans,emoji=uniqueEmoji('<:pacteDame:917096164942295101>'),turnInit=-1)
-purpleSecretEff.reject = dptStans
+purpleSecretEff.reject = critBonusEff.reject = dptStans
 
 chaosProhib = [undying,deterEff1,dephased,cafeine,octoboum,const,lostSoul,onceButNotTwice,zelianR,octoshield]
 
 #Effect
-effects = [idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff,magicRuneEff,purpleSecretEff,
+effects = [critBonusEff,
+    idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff,magicRuneEff,purpleSecretEff,
     fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff2,blackHoleEff3,convertEff,vampirismeEff,heriteEstialbaEff,estal2,bleeding2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,bleeding,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,onstageeff,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAuraEffect,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,hunter,hunterBuff,menthe,badaboum,courageE
 ]
