@@ -1478,6 +1478,196 @@ maj14="""
 
     PRAGMA foreign_keys = 1;
 """
+maj15="""
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM achivements;
+
+    DROP TABLE achivements;
+
+    CREATE TABLE achivements (
+        id              INTEGER PRIMARY KEY
+                                UNIQUE,
+        aliceCount      INTEGER,
+        aliceHave       BOOLEAN,
+        clemenceCount   INTEGER,
+        clemenceHave    INTEGER,
+        akiraCount      INTEGER,
+        akiraHave       BOOLEAN,
+        fightCount      INTEGER,
+        fightHave       BOOLEAN,
+        gwenCount       INTEGER,
+        gwenHave        BOOLEAN,
+        quickFightCount INTEGER,
+        quickFightHave  BOOLEAN,
+        heleneCount     INTEGER,
+        heleneHave      BOOLEAN,
+        schoolCount     INTEGER,
+        schoolHave      BOOLEAN,
+        elementalCount  INTEGER,
+        elementalHave,
+        notHealButCount,
+        notHealButHave,
+        greatHealCount,
+        greatHealHave,
+        greatDpsCount,
+        greatDpsHave,
+        poisonCount,
+        poisonHave,
+        iceaCount,
+        iceaHave,
+        sramCount,
+        sramHave,
+        estialbaCount,
+        estialbaHave,
+        lesathCount,
+        lesathHave,
+        powehiCount,
+        powehiHave,
+        dimentioCount,
+        dimentioHave,
+        feliCount,
+        feliHave,
+        sixtineCount,
+        sixtineHave,
+        hinaCount,
+        hinaHave,
+        lunaCount,
+        lunaHave,
+        julieCount,
+        julieHave,
+        clemMemCount,
+        clemMemHave,
+        krysCount,
+        krysHave,
+        liuHave,
+        liuCount,
+        liaHave,
+        liaCount,
+        lioHave,
+        lioCount,
+        lizHave,
+        LizCount,
+        ailillHave,
+        ailillCount
+    );
+
+    INSERT INTO achivements (
+                                id,
+                                aliceCount,
+                                aliceHave,
+                                clemenceCount,
+                                clemenceHave,
+                                akiraCount,
+                                akiraHave,
+                                fightCount,
+                                fightHave,
+                                gwenCount,
+                                gwenHave,
+                                quickFightCount,
+                                quickFightHave,
+                                heleneCount,
+                                heleneHave,
+                                schoolCount,
+                                schoolHave,
+                                elementalCount,
+                                elementalHave,
+                                notHealButCount,
+                                notHealButHave,
+                                greatHealCount,
+                                greatHealHave,
+                                greatDpsCount,
+                                greatDpsHave,
+                                poisonCount,
+                                poisonHave,
+                                iceaCount,
+                                iceaHave,
+                                sramCount,
+                                sramHave,
+                                estialbaCount,
+                                estialbaHave,
+                                lesathCount,
+                                lesathHave,
+                                powehiCount,
+                                powehiHave,
+                                dimentioCount,
+                                dimentioHave,
+                                feliCount,
+                                feliHave,
+                                sixtineCount,
+                                sixtineHave,
+                                hinaCount,
+                                hinaHave,
+                                lunaCount,
+                                lunaHave,
+                                julieCount,
+                                julieHave,
+                                clemMemCount,
+                                clemMemHave,
+                                krysCount,
+                                krysHave
+                            )
+                            SELECT id,
+                                aliceCount,
+                                aliceHave,
+                                clemenceCount,
+                                clemenceHave,
+                                akiraCount,
+                                akiraHave,
+                                fightCount,
+                                fightHave,
+                                gwenCount,
+                                gwenHave,
+                                quickFightCount,
+                                quickFightHave,
+                                heleneCount,
+                                heleneHave,
+                                schoolCount,
+                                schoolHave,
+                                elementalCount,
+                                elementalHave,
+                                notHealButCount,
+                                notHealButHave,
+                                greatHealCount,
+                                greatHealHave,
+                                greatDpsCount,
+                                greatDpsHave,
+                                poisonCount,
+                                poisonHave,
+                                iceaCount,
+                                iceaHave,
+                                sramCount,
+                                sramHave,
+                                estialbaCount,
+                                estialbaHave,
+                                lesathCount,
+                                lesathHave,
+                                powehiCount,
+                                powehiHave,
+                                dimentioCount,
+                                dimentioHave,
+                                feliCount,
+                                feliHave,
+                                sixtineCount,
+                                sixtineHave,
+                                hinaCount,
+                                hinaHave,
+                                lunaCount,
+                                lunaHave,
+                                julieCount,
+                                julieHave,
+                                clemMemCount,
+                                clemMemHave,
+                                krysCount,
+                                krysHave
+                            FROM sqlitestudio_temp_table;
+
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;
+"""
+
 if not(os.path.exists("./data/database/success.db")):
     temp = open("./data/database/success.db","bw")
     print("Création du fichier \"success.db\"")
@@ -1531,10 +1721,15 @@ class successTabl:
         self.julie = success("Être dans les temps",10,"julie","ti","Affrontez ou faites équipe avec Julie {0} fois","<:julie:910185448951906325>")
         self.memClem = success("La Chauve-Souris Archaniste et la Rose",3,"clemMem","sv","Combattez Clémence Possédée {0} fois","<a:clemPos:914709222116175922><a:aliceExalte:914782398451953685>")
         self.krys = success("Cris \"Staline\" !",10,"krys","st","Affrontez ou faites équipe avec Krys {0} fois","<:krys:916118008991215726>")
+        self.liu = success("Tochi no ai",10,"liu",description="Combattez Liu {0} fois",emoji='<:earthKitsune:917670882586017792>',recompense='zzc')
+        self.lia = success("Kaze no ai",10,"lia",description="Combattez Lia {0} fois",emoji='<:airKitsune:917670912646602823>',recompense='zzb')
+        self.lio = success("Mizu no ai",10,"lio",description="Combattez Lio {0} fois",emoji='<:waterKitsune:917670866626707516>',recompense='zza')
+        self.liz = success("Hi no ai",10,"liz",description="Combattez Liz {0} fois",emoji='<:fireKitsune:917670925904785408>',recompense='zyz')
+        self.head = success("???",1,"ailill",description="Subire une compétence avec 6666 de puissance de base",emoji='<:blocked:897631107602841600>')
 
     def tablAllSuccess(self):
         """Renvoie un tableau avec tous les objets success"""
-        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys]
+        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head]
 
     def where(self,where : str):
         alls = self.tablAllSuccess()
@@ -1853,6 +2048,26 @@ class succesDb:
             self.con.commit()
             print("maj14 réalisée")
 
+        try:
+            cursor.execute("SELECT liuCount FROM achivements;")
+        except:
+            temp = ""
+            for a in maj15:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            cursor.execute("UPDATE achivements SET liuCount = ?, liuHave = ?, liaCount = ?, liaHave = ?, lioCount = ?, lioHave = ?, lizCount = ?, lizHave = ?, ailillCount = ?, ailillHave = ?;",(0,False,0,False,0,False,0,False,0,False,))
+            self.con.commit()
+            print("maj15 réalisée")
+
+        cursor.execute("SELECT liuCount FROM achivements;")
+        if cursor.fetchone()["liuCount"] == None:
+            cursor.execute("UPDATE achivements SET liuCount = ?, liuHave = ?, liaCount = ?, liaHave = ?, lioCount = ?, lioHave = ?, lizCount = ?, lizHave = ?, ailillCount = ?, ailillHave = ?;",(0,False,0,False,0,False,0,False,0,False,))
+
+
         # Fin des majs
         cursor.close()
 
@@ -1864,8 +2079,8 @@ class succesDb:
         result = cursor.fetchall()
 
         if len(result) == 0: # L'utilisateur n'est pas dans la base de donnée
-            params = (int(user.owner),0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,)
-            cursor.execute("INSERT INTO achivements VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params)
+            params = (int(user.owner),0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,0,False,)
+            cursor.execute("INSERT INTO achivements VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",params)
             self.con.commit()
 
             cursor.execute("SELECT * FROM achivements WHERE id = ?",(user.owner,))

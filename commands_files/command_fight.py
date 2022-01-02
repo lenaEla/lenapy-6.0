@@ -2801,6 +2801,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         team1.append(alea)
                         logs += "{0} have been added into team1\n".format(alea.name)
 
+                        alea = copy.deepcopy(findAllie("Iliana"))
+                        alea.changeLevel(lvlMax)
+
+                        team1.append(alea)
+                        logs += "{0} have been added into team1\n".format(alea.name)
+
                     if alea.isNpc("Clémence pos."):
                         alea = copy.deepcopy(findAllie("Alice Exaltée"))
                         alea.changeLevel(lvlMax)
@@ -5276,6 +5282,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                                 actTurn.refreshEffects()
 
+                            if actTurn.isNpc("Ailill") and skillToUse.id == "headnt":
+                                ennemi.stats.headnt = True
                         if skillToUse.knockback > 0:
                             tempTurnMsg += actTurn.knockback(ennemi,skillToUse.knockback)
 
@@ -5666,36 +5674,20 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if not(b.auto): # Ivresse du combat
                             b.char = await achivements.addCount(ctx,b.char,"fight")
 
-                        if dictIsPnjVar["Alice"]: # Souvenez vous que chaque roses a des épines
-                            b.char = await achivements.addCount(ctx,b.char,"alice")
-                        if dictIsPnjVar["Clémence"]: # La quête de la nuit
-                            b.char = await achivements.addCount(ctx,b.char,"clemence")
-                        if dictIsPnjVar["Akira"]: # Seconde impression
-                            b.char = await achivements.addCount(ctx,b.char,"akira")
-                        if dictIsPnjVar["Gwendoline"]: # Une histoire de vangeance
-                            b.char = await achivements.addCount(ctx,b.char,"gwen")
-                        if dictIsPnjVar["Hélène"]: # Là où mes ailes me porteront
-                            b.char = await achivements.addCount(ctx,b.char,"helene")
-                        if dictIsPnjVar["Icealia"]: # Prévoir l'imprévisible
-                            b.char = await achivements.addCount(ctx,b.char,"icea")
-                        if dictIsPnjVar["Shehisa"]: # Pas vue, pas prise
-                            b.char = await achivements.addCount(ctx,b.char,"sram")
-                        if dictIsPnjVar["Powehi"]: # La fin de tout, et renouvellement
-                            b.char = await achivements.addCount(ctx,b.char,"powehi")
-                        if dictIsPnjVar["Félicité"]:
-                            b.char = await achivements.addCount(ctx,b.char,"feli")
-                        if dictIsPnjVar["Sixtine"]:
-                            b.char = await achivements.addCount(ctx,b.char,"sixtine")
-                        if dictIsPnjVar["Hina"]:
-                            b.char = await achivements.addCount(ctx,b.char,"hina")
-                        if dictIsPnjVar["Julie"]:
-                            b.char = await achivements.addCount(ctx,b.char,"julie")
+                        tablAchivNpcName = ["Alice","Clémence","Akira","Gwendoline","Hélène","Icealia","Shehisa","Powehi","Félicité","Sixtine","Hina","Julie","Krys","Lio","Liu","Liz","Lia"]
+                        tablAchivNpcCode = ["alice","clemence","akira","gwen","helene","icea","sram","powehia","feli","sixtine","hina","julie","krys","lio","liu","liz","lia"]
+
+                        for cmpt in range(len(tablAchivNpcName)):
+                            if dictIsPnjVar["{0}".format(tablAchivNpcName[cmpt])]: # Temp or enemy presence sussesss
+                                b.char = await achivements.addCount(ctx,b.char,tablAchivNpcCode[cmpt])
+
                         if tablEntTeam[1][0].isNpc("Luna") and type(tablEntTeam[1][0].char) == octarien:
                             b.char = await achivements.addCount(ctx,b.char,"luna")
                         if tablEntTeam[1][0].isNpc("Clémence pos."):
                             b.char = await achivements.addCount(ctx,b.char,"clemMem")
-                        if dictIsPnjVar["Krys"]:
-                            b.char = await achivements.addCount(ctx,b.char,"krys")
+
+                        if b.stats.headnt:
+                            b.char = await achivements.addCount(ctx,b.char,"ailill")
 
                         if auto and int(ctx.author.id) == int(b.char.owner): # Le temps c'est de l'argent
                             b.char = await achivements.addCount(ctx,b.char,"quickFight")
@@ -5713,10 +5705,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                         # Soigneur de compette
                         b.char = await achivements.addCount(ctx,b.char,"greatHeal",b.stats.heals)
-
-                        # Situation désespérée
-                        if b.char.aspiration not in [ALTRUISTE,PREVOYANT,IDOLE,PROTECTEUR]:
-                            b.char = await achivements.addCount(ctx,b.char,"notHealBut",b.stats.heals)
 
                         # La meilleure défense c'est l'attaque
                         b.char = await achivements.addCount(ctx,b.char,"greatDps",b.stats.damageDeal-b.stats.indirectDamageDeal)
