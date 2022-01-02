@@ -198,12 +198,12 @@ jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,120,AREA_MONO,area
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=-1,unclearable=True,description="Confuse confusing confusion")
 
 # Ailill
-ailillSkill = skill("Décapitage","aaa",TYPE_DAMAGE,0,6666,AREA_CIRCLE_1,initCooldown=5,cooldown=5,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
+ailillSkill = skill("Décapitage","headnt",TYPE_DAMAGE,0,6666,AREA_CIRCLE_1,initCooldown=5,cooldown=5,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
 ailillWeap = copy.deepcopy(depha)
 ailillWeap.effect, ailillWeap.power = 'mx', ailillWeap.power + 10
 
 # Luna (Oh it's will be funny)
-lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,75,AREA_MONO,area=AREA_CIRCLE_7,emoji='<a:darkExplosion:899451335269822475>',say="Laissez moi vous montrer un avant goût des Ténèbres Éternels !",description="\n\nInvoque X **Convictions des Ténèbres**, X étant la taille de l'équipe bleue au début du combat.\nAprès 3 tours de chargement, Luna enveloppe le terrain de Ténèbres, infligeant des dégâts massifs à toute l'équipe en fonction du nombre de **Convictions des Ténèbres** présent sur le terrain\n\nDurant la période de chargement, Luna est **Invisible**, **Inciblable** et **Imunisée**",cooldown=99,initCooldown=10,damageOnArmor=1.33)
+lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,80,AREA_MONO,area=AREA_CIRCLE_7,emoji='<a:darkExplosion:899451335269822475>',say="Laissez moi vous montrer un avant goût des Ténèbres Éternels !",description="\n\nInvoque X **Convictions des Ténèbres**, X étant la taille de l'équipe bleue au début du combat.\nAprès 3 tours de chargement, Luna enveloppe le terrain de Ténèbres, infligeant des dégâts massifs à toute l'équipe en fonction du nombre de **Convictions des Ténèbres** présent sur le terrain\n\nDurant la période de chargement, Luna est **Invisible**, **Inciblable** et **Imunisée**",cooldown=99,initCooldown=10,damageOnArmor=1.33)
 lunaRepEffect = effect("Cast - Ténèbres Éternels","darkerYetDarker3",replique=lunaSpe,turnInit=2,silent=True,emoji=uniqueEmoji("<a:lunaInfDarkTurn3:916575004492169226>"),immunity=True,translucide=True,untargetable=True)
 lunaSpe2 = skill("Ténèbres Éternels","aab",TYPE_DAMAGE,0,0,AREA_MONO,area=AREA_DONUT_7,effectOnSelf=lunaRepEffect,say="Si je dois en arriver à là pour vous montrer que vous faites fausses routes, alors soit !",message="Luna concentre les Ténèbres environants...",emoji='<:infiniteDarkness:898497770531455008>')
 lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_MELEE,AREA_CIRCLE_1,50,70,0,0,0,0,0,0,0,0,0,0,0,5,'<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True)
@@ -212,18 +212,18 @@ lunaSpe3 = skill("Ténèbres Éternels","aac",TYPE_DAMAGE,0,0,AREA_MONO,area=ARE
 lenaRepEffect3 = effect("Cast - Ténèbres Éternels","darkerYetDarker1",replique=lunaSpe3,turnInit=4,silent=True,emoji=uniqueEmoji('<a:lunaInfDarkTurn1:916574972321873951>'),immunity=True,translucide=True,untargetable=True)
 lunaSpe4 = skill("Ténèbres Éternels","InfiniteDarkness",TYPE_DAMAGE,0,0,AREA_MONO,cooldown=99,initCooldown=8,area=AREA_DONUT_7,effectOnSelf=lenaRepEffect3,emoji='<:infiniteDarkness:898497770531455008>',say="C'est que vous commencez vraiment à être gênant vous !")
 lunaSkill = copy.deepcopy(soupledown)
-lunaSkill.power = 200
-lunaSkill2 = skill("Frappes des Ténèbres","aaa",TYPE_DAMAGE,0,120,AREA_CIRCLE_2,repetition=3,cooldown=5,initCooldown=2,emoji='<a:lunaTB:899456356036251658>',say="Je pense pas que tu va pouvoir prendre celui-ci sans broncher.")
+lunaSkill.power = 220
+lunaSkill2 = skill("Frappes des Ténèbres","aaa",TYPE_DAMAGE,0,130,AREA_CIRCLE_2,repetition=3,cooldown=5,initCooldown=2,emoji='<a:lunaTB:899456356036251658>',say="Je pense pas que tu va pouvoir prendre celui-ci sans broncher.")
 lunaSkill4Eff = copy.deepcopy(innerdarknessEff)
 lunaSkill4Eff.stat = STRENGTH
 lunaSkill4Eff.power = 50
 lunaSkill4EffAlt = copy.deepcopy(lunaSkill4Eff)
-lunaSkill4EffAlt.power, lunaSkill4EffAlt.area = 80,AREA_MONO
+lunaSkill4EffAlt.power, lunaSkill4EffAlt.area = 85,AREA_MONO
 lunaSkill4 = skill("Déchirment","lunaSkill4",TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effect=lunaSkill4Eff,cooldown=3,use=MAGIC,say="Votre Lumière ne vous protègera pas éternellement !",emoji=innerdarkness.emoji,description="Cette compétence à 50% de change de voir sa zone d'effet modifiée ainsi que la puissance de son effet et sa zone d'effet modifiée")
 lunaSkill5_1 = skill("Reverse roundhouse-kick","lunaSkill5",TYPE_DAMAGE,0,110,AREA_CIRCLE_1,area=AREA_ARC_1,emoji='<:luna4inOne:919260128698589184>')
-lunaSkill5_2 = skill("Side-kick fouetté","lunaSkill5",TYPE_DAMAGE,0,130,AREA_CIRCLE_1,emoji='<:luna4inOne:919260128698589184>',say="Hmf !")
+lunaSkill5_2 = skill("Side-kick fouetté","lunaSkill5",TYPE_DAMAGE,0,135,AREA_CIRCLE_1,emoji='<:luna4inOne:919260128698589184>',say="Hmf !")
 lunaSkill5_3_eff = effect("Destabilisé","lunaSkill5_3Eff",type=TYPE_MALUS,emoji=stuned.emoji,stun=True)
-lunaSkill5_3 = skill("Sweeping into Backflip","lunaSkill5",TYPE_DAMAGE,0,80,AREA_CIRCLE_1,repetition=2,effect=lunaSkill5_3_eff,knockback=1,emoji='<:luna4inOne:919260128698589184>',say="C'est que tu es colant toi !")
+lunaSkill5_3 = skill("Sweeping into Backflip","lunaSkill5",TYPE_DAMAGE,0,85,AREA_CIRCLE_1,repetition=2,effect=lunaSkill5_3_eff,knockback=1,emoji='<:luna4inOne:919260128698589184>',say="C'est que tu es colant toi !")
 lunaSkill5_4 = skill("Double High roundhouse-kick into Side-kick","lunaSkill5",TYPE_DAMAGE,0,50,AREA_CIRCLE_1,repetition=3,knockback=3,emoji='<:luna4inOne:919260128698589184>',say="Hé vous derrière ! Cadeau !")
 
 lunaSkill5Base = skill("Corps à corps","lunaSkill5",TYPE_DAMAGE,0,0,AREA_CIRCLE_1,description="Cette compétence peut avoir 4 effets différents, sélectionné de manière aléatoire",emoji='<:luna4inOne:919260128698589184>',become=[lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4])
