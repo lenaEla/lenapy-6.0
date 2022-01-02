@@ -319,8 +319,16 @@ ultRedirectEff = effect("Teliki Anakatéfthynsi","ultRedirect",redirection=100,t
 ultRedirect = skill("Teliki Anakatéfthynsi","zze",TYPE_BOOST,1000,range=AREA_MONO,area=AREA_DONUT_3,cooldown=7,ultimate=True,effect=ultRedirectEff,effectOnSelf=ultRedirectSelfEff,use=ENDURANCE)
 clemency = skill('Clémence','zzd',TYPE_HEAL,350,50,cooldown=3,use=ENDURANCE,emoji='<:clemency:926433653037367318>')
 
+liuSkillSusEff = effect("Asuama","liuSussessArmor",ENDURANCE,overhealth=75,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,inkResistance=10,turnInit=2,emoji=uniqueEmoji("<:liuArmor:922292960886915103>"))
+liuSkillSus = skill("Guraundo Sutoraiku","zzc",TYPE_DAMAGE,0,50,range=AREA_CIRCLE_2,use=ENDURANCE,effectOnSelf=liuSkillSusEff,cooldown=5,emoji='<:liuSkill:922328931502280774>')
+liaSkillSus = skill("Kuchu Sutoraiku","zzb",TYPE_DAMAGE,0,25,range=AREA_CIRCLE_2,cooldown=5,knockback=1,repetition=3,use=AGILITY,emoji='<:liaSkill:922291249002709062>')
+lioSkillSusEff = effect('Shinju no haha',"lioSussessEff",CHARISMA,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,power=10,turnInit=3,strength=5,magie=5,emoji=uniqueEmoji('<:lioWeap:908859876812415036>'))
+lioSkillSus = skill("Shio",'zza',TYPE_INDIRECT_HEAL,0,cooldown=7,effect=lioSkillSusEff,area=AREA_CIRCLE_2,emoji='<:lioSkill:922328964926697505>')
+lizSkillSusEff = effect("Tanka",'lizWillBurnThemAll',MAGIE,power=15,area=AREA_CIRCLE_1,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
+lizSKillSus = skill("Shokyaku","zyz",TYPE_INDIRECT_DAMAGE,0,effect=lizSkillSusEff,area=AREA_CONE_4,cooldown=7,emoji='<:lizSkill:922328829765242961>')
+
 # Skill
-skills = [intelRaise,ultRedirect,clemency,
+skills = [intelRaise,ultRedirect,clemency,liuSkillSus,liaSkillSus,lioSkillSus,lizSKillSus,
     neutralMono1,neutralZone1,neutralMono2,neutralZone2,neutralMono3,neutralZone3,
     reconst,medicamentum,ultMonoArmor,
     inkRes,inkRes2,booyahBombCast,

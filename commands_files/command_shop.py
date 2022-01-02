@@ -39,9 +39,9 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
         if datetime.datetime.now() > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
             shopTotalRandom += shopEventEndYears + shopEventEndYears
-        elif datetime.datetime.now() > datetime.datetime.strptime("19/0/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("20/0/{0}".format(years),"%d/%m/%Y"):
+        elif datetime.datetime.now() > datetime.datetime.strptime("19/1/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("20/1/{0}".format(years),"%d/%m/%Y"):
             shopTotalRandom += shopEventLenaBday + shopEventLenaBday
-        elif datetime.datetime.now() > datetime.datetime.strptime("17/0/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("18/0/{0}".format(years),"%d/%m/%Y"):
+        elif datetime.datetime.now() > datetime.datetime.strptime("17/4/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("18/4/{0}".format(years),"%d/%m/%Y"):
             shopTotalRandom += shopEventPaques + shopEventPaques
 
 

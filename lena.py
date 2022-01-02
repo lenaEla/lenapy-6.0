@@ -878,17 +878,9 @@ async def on_message(ctx : discord.message.Message):
                     #await ctx.add_reaction('<:LenaWhat:760884455727955978>')
 
             elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                test = loadAdvDutyFile("act0","prologue")
                 user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
-
-                toEmb = test.nextText()
-                desc = toEmb.text.format(name=user.name)
-                toBotton = "Réf. : {0}".format(toEmb.ref)
-
-                embed = discord.Embed(title="__{0} - {1}__".format(test.act[0].upper()+test.act[1:],test.name[0].upper()+test.name[1:]),color=user.color,description=desc)
-                embed.set_footer(text=toBotton)
-
-                await ctx.channel.send(embed=embed)
+                await makeCustomIcon(bot,user)
+                await ctx.add_reaction('<:littleStar:925860806602682369>')
 
             elif args[0] == "l!new_patch" and ctx.author.id == 213027252953284609:
                 await new_patch(bot,ctx)

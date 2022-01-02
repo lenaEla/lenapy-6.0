@@ -78,12 +78,14 @@ purpleSecretEff = effect("Secretum purpureum prædictas","purpleSecrets",turnIni
 secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_3,30,100,750,emoji='<:sdf:919713870858317875>',magie=10,resistance=5,effect=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,ignoreAutoVerif=True)
 
 critBonusEff = effect("Bonus critique","scopeCritBonus",turnInit=-1,unclearable=True,emoji=sameSpeciesEmoji('<:critB:925763298346033193>','<:critR:925763310383677490>'),description="Augmente les dégâts de coup critique de 15% mais __empêche l'utilisation de votre arme principale__")
-ElitherScope = weapon("Extraceur Zoom +","cr",RANGE_LONG,AREA_CIRCLE_7,80,65,1,precision=15,effect=critBonusEff,emoji='<:elitherScope:925762142202921040>')
+ElitherScope = weapon("Extraceur Zoom +","cr",RANGE_LONG,AREA_CIRCLE_7,49,65,1,precision=15,effect=critBonusEff,emoji='<:elitherScope:925762142202921040>')
 
 gravEff = effect("Gravitation","grav",turnInit=-1,unclearable=True,description="Augmente progressivement votre agression au fur et à mesure du combat mais __empêche l'utilisation de votre arme principale__",emoji='<a:ble:925774688641228810>')
-grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,50,99,1,endurance=10,resistance=5,effect=gravEff,emoji='<:bl:925774629711282196>')
+grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,56,99,1,endurance=10,resistance=5,effect=gravEff,emoji='<:bl:925774629711282196>')
+
+darkbluebutterfly = weapon("Papillon bleu marine",'ct',RANGE_MELEE,AREA_CIRCLE_2,78,66,1,magie=10,endurance=10,resistance=10,use=MAGIE,needRotate=False,emoji='<:dbb:926954332593725511>')
 # Weapon
-weapons = [secretum,ElitherScope,grav,
+weapons = [secretum,ElitherScope,grav,darkbluebutterfly,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
     julieWeap,blueButterfly,butterflyRed,luth,krystalFist,musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]
