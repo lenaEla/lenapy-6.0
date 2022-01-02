@@ -16,7 +16,7 @@ AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHA
 moveEmoji = ['⬅️','➡️','⬆️','⬇️']
 cancelButton = create_actionrow(create_button(ButtonStyle.grey,"Retour",'◀️',custom_id="return"))
 
-async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashContext, guild, auto:bool = True,contexte:list=[],octogone:bool=False,slash:bool=False):
+async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashContext, guild, auto:bool = True,contexte:list=[],octogone:bool=False,bigMap:bool=False):
     """
         Base command for the fights\n
         \n
@@ -33,14 +33,18 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         octogone : If at ``False``, enable the loots and exp gains of the fight and lock the Fighting status of the team. Default ``False``
         slash : Does the command is slashed ? Default ``False``
     """
-
     mainUser = None
     for user in team1:
-        if int(user.owner) == int(ctx.author_id):
+        if type(user) == char and int(user.owner) == int(ctx.author_id):
             mainUser = user
 
     if mainUser == None:
         raise Exception("Loading error : Main user not found")
+
+    listImplicadTeams = []
+    for teamMembed in team1:
+        if type(teamMembed) == char and teamMembed.team not in listImplicadTeams:
+            listImplicadTeams.append(teamMembed.team)
 
     tablIsPnjName = []
     for a in tablAllAllies + tablVarAllies:
@@ -439,14 +443,14 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             return [findCell(self.x-1,self.y),findCell(self.x+1,self.y),findCell(self.x,self.y-1),findCell(self.x,self.y+1)]
 
     for a in [0,1,2,3,4,5]:             # Creating the board
-        for b in [0,1,2,3,4]:
+        for b in [[0,1,2,3,4],[0,1,2,3,4,5,6]][bigMap]:
             tablAllCells += [cell(a,b,cmpt)]
             cmpt += 1
 
     def findCell(x : int, y : int) -> cell:
         """Return the cell in X:Y, if it exist"""
-        cmpt = 0
-        while cmpt < 30:
+        cmpt, maxCellNum = 0, len(tablAllCells)
+        while cmpt < maxCellNum:
             if tablAllCells[cmpt].x == x and tablAllCells[cmpt].y == y:
                 return tablAllCells[cmpt]
             cmpt += 1
@@ -2584,17 +2588,22 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         line1,line2,line3,line4,line5 = [None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None]
         lines = [line1,line2,line3,line4,line5]
 
+        if bigMap:
+            line6, line7 = [None,None,None,None,None,None],[None,None,None,None,None,None]
+            lines.append(line6)
+            lines.append(line7)
+
         for a in tablAllCells:
             if isLenapy or True:
-                temp = '<:empty:866459463568850954>'
+                temp = '<:em:866459463568850954>'
             else:
                 temp = f'{str(a.x)}:{str(a.y)}'                         # Show cells ID
             if a.on != None:
                 if a.on.status == STATUS_DEAD:
-                    temp = ['<:ls1:868838101752098837>','<:ls2:868838465180151838>'][a.on.team]
+                    temp = ['<:ls:868838101752098837>','<:ls:868838465180151838>'][a.on.team]
                 elif a.on.status != STATUS_TRUE_DEATH:
                     if a.on.invisible:                              # If the entity is invisible, don't show it. Logic
-                        temp = '<:empty:866459463568850954>'
+                        temp = '<:em:866459463568850954>'
                     else:
                         temp = a.on.icon
                 else:
@@ -2653,7 +2662,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     leni = len(team1)
 
     # Teams generations -----------------------------------------------
-    if len(team1) < 4 and not(octogone): # Remplisage de la team1
+    if len(team1) < [4,16][bigMap] and not(octogone): # Remplisage de la team1
         aleaMax = len(tablAllAllies)-1
         alreadyFall = []
         lvlMax = 0
@@ -2662,7 +2671,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             lvlMax = max(lvlMax,a.level)
 
         copyTablTemp = copy.deepcopy(tablAllAllies)
-        while len(team1) < 4:
+        while len(team1) < [4,16][bigMap]:
             vacantRole = ["DPT1","DPT2","Healer","Booster"]
 
             for perso in team1:
@@ -2876,7 +2885,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     pass
 
             if lvlMax > 20:
-                while len(team2) < len(team1) and not(oneVAll):
+                while len(team2) < min(8,len(team1)) and not(oneVAll):
                     for tempCmpt in range(len(tablTeamOctaComp)):
                         if tablTeamOctaComp[tempCmpt] > 0 and len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]]) > 0:
                             break
@@ -3054,11 +3063,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
     if not(auto):                   # Send the first embed for the inital "Vs" message and start generating the message
         if not(octogone):
-            team = team1[0].team
-            teamWinDB.changeFighting(team,True)
+            for team in listImplicadTeams:
+                print(team)
+                teamWinDB.changeFighting(team,msg.id,ctx.channel.id,team2)
 
-        repEmb = discord.Embed(tilte = "Combat <:turf:810513139740573696>",color = light_blue)
-        
         logs += "\n"
         versus = ""
         for a in [0,1]:
@@ -3070,9 +3078,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
     # Placement phase -----------------------------------------------------
     logs += "\n=========\nInitial placements phase\n=========\n\n"
-    temp3 = [[0,1,2],[3,4,5]]
-    placementlines=[[[],[],[]],[[],[],[]]]
-    allAuto = True
+    temp3, placementlines, allAuto, maxPerLine = [[0,1,2],[3,4,5]], [[[],[],[]],[[],[],[]]], True, [5,7][bigMap]
+
     for a in [0,1]:                     # Sort the entities and place them
         melee, dist, snipe, lenMel, lenDist, lenSnip = [],[],[],0,0,0
 
@@ -3089,98 +3096,86 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 lenSnip += 1
 
         if a == 1:
-            temp1,temp2 = [melee,dist,snipe],[lenMel,lenDist,lenSnip]
+            tablEntOnLine,tablNbEntOnLine = [melee,dist,snipe],[lenMel,lenDist,lenSnip]
         else:
-            temp1,temp2 = [snipe,dist,melee],[lenMel,lenDist,lenSnip]
+            tablEntOnLine,tablNbEntOnLine = [snipe,dist,melee],[lenMel,lenDist,lenSnip]
 
-        for b in [0,1]:
-            if temp2[b] > 5:
-                temp1[b+1] += temp1[b][5:]
-                temp1[b] = temp1[b][0:5]
+        for b in [[0,1],[1,2]][a]:
+            if tablNbEntOnLine[b] > maxPerLine:
+                tablEntOnLine[b+[-1,1][a]] += tablEntOnLine[b][maxPerLine:]
+                tablEntOnLine[b] = tablEntOnLine[b][0:maxPerLine]
 
-        if temp2[2] > 5:
-            temp1[1] += temp1[2][5:]
-            temp1[2] = temp1[2][0:5]
+        if tablNbEntOnLine[[0,2][a]] > maxPerLine:
+            tablEntOnLine[1] += tablEntOnLine[[0,2][a]][maxPerLine:]
+            tablEntOnLine[[0,2][a]] = tablEntOnLine[[0,2][a]][0:maxPerLine]
 
-            if len(temp[1]) > 5:
-                random.shuffle(temp[1])
-                temp1[0] += temp1[1][5:]
-                temp1[1] = temp1[1][0:5]
+            if len(tablEntOnLine[1]) > maxPerLine:
+                random.shuffle(tablEntOnLine[1])
+                tablEntOnLine[[2,0][a]] += tablEntOnLine[1][maxPerLine:]
+                tablEntOnLine[1] = tablEntOnLine[1][0:maxPerLine]
         
         if a == 0:
             placementlines[a]=[snipe,dist,melee]
         else:
             placementlines[a]=[melee,dist,snipe]
     
-        temp2[0],temp2[1],temp2[2],cmpt = len(temp1[0]),len(temp1[1]),len(temp1[2]),0
+        tablNbEntOnLine[0],tablNbEntOnLine[1],tablNbEntOnLine[2],cmpt = len(tablEntOnLine[0]),len(tablEntOnLine[1]),len(tablEntOnLine[2]),0
 
         for b in temp3[a]:
-            random.shuffle(temp1[cmpt])
+            random.shuffle(tablEntOnLine[cmpt])
 
             if (a == 1 and b % 3 == 0) or (a == 0 and b % 3 == 2):
-                if temp2[cmpt] == 1:
-                    temp1[cmpt][0].move(y=2,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][0].char.name,0,0,b,2)
+                tablSetPos = [
+                    [
+                        [],
+                        [2],
+                        [1,3],
+                        [1,2,3],
+                        [0,1,3,4],
+                        [0,1,2,3,4]
+                    ],
+                    [
+                        [],
+                        [3],
+                        [3,random.randint(2,4)],
+                        [2,3,4],
+                        [2,3,4,[1,5][random.randint(0,1)]],
+                        [1,2,3,4,5],
+                        [1,2,3,4,5,[0,6][random.randint(0,1)]],
+                        [0,1,2,3,4,5,6]
+                    ]
+                ][bigMap]
 
-                elif temp2[cmpt] == 2:
-                    temp1[cmpt][0].move(y=1,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][0].char.name,0,0,b,1)
-                    temp1[cmpt][1].move(y=3,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][1].char.name,0,0,b,3)
-
-                elif temp2[cmpt] == 3:
-                    temp1[cmpt][0].move(y=1,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][0].char.name,0,0,b,1)
-                    temp1[cmpt][1].move(y=2,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][1].char.name,0,0,b,2)
-                    temp1[cmpt][2].move(y=3,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][2].char.name,0,0,b,3)
-
-                elif temp2[cmpt] == 4:
-                    temp1[cmpt][0].move(y=0,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][0].char.name,0,0,b,0)
-                    temp1[cmpt][1].move(y=1,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][1].char.name,0,0,b,1)
-                    temp1[cmpt][2].move(y=3,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][2].char.name,0,0,b,3)
-                    temp1[cmpt][3].move(y=4,x=b) 
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][3].char.name,0,0,b,4)
+                if len(tablEntOnLine[cmpt]) != len(tablSetPos[len(tablEntOnLine[cmpt])]):
+                    raise Exception((len(tablEntOnLine[cmpt]),len(tablSetPos[len(tablEntOnLine[cmpt])])))
                 
-                elif temp2[cmpt] == 5:
-                    temp1[cmpt][0].move(y=0,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][0].char.name,0,0,b,0)
-                    temp1[cmpt][1].move(y=1,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][1].char.name,0,0,b,1)
-                    temp1[cmpt][2].move(y=2,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][2].char.name,0,0,b,2)
-                    temp1[cmpt][3].move(y=3,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][3].char.name,0,0,b,3)
-                    temp1[cmpt][4].move(y=4,x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][4].char.name,0,0,b,4)
+                for pos in range(len(tablSetPos[len(tablEntOnLine[cmpt])])):
+                    tablEntOnLine[cmpt][pos].move(y=tablSetPos[len(tablEntOnLine[cmpt])][pos],x=b)
+                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(tablEntOnLine[cmpt][pos].char.name,0,0,b,tablSetPos[len(tablEntOnLine[cmpt])][pos])
+
             else:
-                if temp2[cmpt] == 1:
-                    temp1[cmpt][0].move(y=random.randint(1,3),x=b)
-                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(temp1[cmpt][0].char.name,0,0,b,2)
+                if tablNbEntOnLine[cmpt] == 1:
+                    tablEntOnLine[cmpt][0].move(y=random.randint(1,3),x=b)
+                    logs += "{0} moved from {1}:{2} to {3}:{4}\n".format(tablEntOnLine[cmpt][0].char.name,0,0,b,2)
 
                 else:
-                    tabl = [0,1,2,3,4]
+                    tabl = [[0,1,2,3,4],[0,1,2,3,4,5,6]][bigMap]
                     cmpt2 = 0
 
-                    for useless in range(temp2[cmpt]):
+                    for useless in range(tablNbEntOnLine[cmpt]):
                         if len(tabl) > 1:
                             rand = random.randint(0,len(tabl)-1)
                         else:
                             rand = 0
                         ruby = tabl[rand]
                         tabl.remove(ruby)
-                        temp1[cmpt][cmpt2].move(y=ruby,x=b)
-                        logs += "{0} has been place at {1}:{2}\n".format(temp1[cmpt][0].char.name,b,ruby)
+                        tablEntOnLine[cmpt][cmpt2].move(y=ruby,x=b)
+                        logs += "{0} has been place at {1}:{2}\n".format(tablEntOnLine[cmpt][0].char.name,b,ruby)
                         cmpt2 += 1
             cmpt += 1
 
     if not(auto):                       # Edit the Vs embed for his message
-        repEmb.add_field(name = "Ce combat oppose :",value = versus)
-        repEmb.add_field(name = "__Carte__",value= map(),inline = False)
+        repEmb = discord.Embed(title = "__Ce combat oppose :__",color = light_blue, description="{0}\n\n__Carte__ :\n{1}".format(versus,map()))
         repEmb.add_field(name = "__Taux de danger :__",value=danger,inline=False)
         await msg.edit(embed = repEmb)
 
@@ -3531,9 +3526,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if b.hp > 0:
                             b.stats.survival = tour
 
-                            if b.cell.on != b and b.cell.on == None:
-                                b.cell.on = b
-                                print("{0} n'était pas sur sa cellule, apparament".format(b.char.name))
+                            if b.cell != None:
+                                if b.cell.on != b and b.cell.on == None:
+                                    b.cell.on = b
+                                    print("{0} n'était pas sur sa cellule, apparament".format(b.char.name))
+                            else:
+                                raise Exception("{0} n'est pas sur une cellule !!".format(b.char.name))
 
                 if tour >= 21:
                     funnyTempVarName = f"\n__Mort subite !__\nTous les combattants perdent **{10*(tour-20)}%** de leurs PV maximums\n"
@@ -3581,10 +3579,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             # Generating the first part of the main message -
             if not(auto):
-                embInfo = discord.Embed(title = "Combat {0} (D.{1})".format(rdmEmoji,danger),color = mainUser.color)
-
-                embInfo.add_field(name = "__Carte__",value=map(),inline = False)
-                embInfo.add_field(name = "__Timeline__",value=time.icons(),inline = False)
+                embInfo = discord.Embed(title = "__Combat {0} (D.{1})__".format(rdmEmoji,danger),color = mainUser.color,description="__Carte__ :\n{0}\n__Timeline__ :\n{1}\n<:em:866459463568850954>".format(map(),time.icons()))
 
             # Start of the turn ---------------------------------------------------------------------------------
             wasAlive = actTurn.hp > 0
@@ -5361,8 +5356,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         # End of the fight ============================
         logs += "\n\n================= End of the fight ================="
     except:
-        team = team1[0].team
-        teamWinDB.changeFighting(team,False)
+        for team in listImplicadTeams:
+            teamWinDB.changeFighting(team,0)
         logs += "\n"+format_exc()
         date = datetime.datetime.now()+horaire
         date = date.strftime("%H%M")
@@ -5568,8 +5563,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             baseGain = gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
                         else:
                             baseGain = 0
-                        effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate*[1,1.5][a.char.stars > 0 and a.char.level <=30])
-                        a.char = await addExpUser(bot,guild,path,ctx,exp=effectiveExpGain,coins=gainCoins)
+                        effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate*[1,1.5][a.char.stars > 0 and a.char.level <=30] * (1-0.67*(a.char.team == mainUser.team)))
+                        a.char = await addExpUser(bot,guild,path,ctx,exp=effectiveExpGain,coins=int(gainCoins*(1-0.67*(a.char.team == mainUser.team))))
 
                         gainMsg += "\n{0} → <:exp:926106339799887892> +{1}".format(await getUserIcon(bot,a.char),effectiveExpGain)
 
@@ -5628,8 +5623,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 resultEmbed.add_field(name="<:empty:866459463568850954>\n__Gains de l'équipe joueur :__",value = gainMsg,inline=False)
         else:
             logs += mauvaisePerdante
-            team = team1[0].team
-            teamWinDB.changeFighting(team,False)
+            for team in listImplicadTeams:
+                teamWinDB.changeFighting(team,0)
             logs += "\n"+format_exc()
             date = datetime.datetime.now()
             date = date.strftime("%H_%M")
@@ -5664,7 +5659,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:
                 await msg.edit(embed = resultEmbed,components=[])
             if not(octogone):
-                teamWinDB.changeFighting(team,False)
+                for team in listImplicadTeams:
+                    teamWinDB.changeFighting(team,0)
         # ------------ Succès -------------- #
         if not(octogone):
             for a in [0,1]:
@@ -5675,7 +5671,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             b.char = await achivements.addCount(ctx,b.char,"fight")
 
                         tablAchivNpcName = ["Alice","Clémence","Akira","Gwendoline","Hélène","Icealia","Shehisa","Powehi","Félicité","Sixtine","Hina","Julie","Krys","Lio","Liu","Liz","Lia"]
-                        tablAchivNpcCode = ["alice","clemence","akira","gwen","helene","icea","sram","powehia","feli","sixtine","hina","julie","krys","lio","liu","liz","lia"]
+                        tablAchivNpcCode = ["alice","clemence","akira","gwen","helene","icea","sram","powehi","feli","sixtine","hina","julie","krys","lio","liu","liz","lia"]
 
                         for cmpt in range(len(tablAchivNpcName)):
                             if dictIsPnjVar["{0}".format(tablAchivNpcName[cmpt])]: # Temp or enemy presence sussesss
@@ -5755,8 +5751,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         startMsg = startMsg == 0
 
         if longTurn:
-            team = team1[0].team
-            teamWinDB.changeFighting(team,False)
+            for team in listImplicadTeams:
+                teamWinDB.changeFighting(team,0)
             logs += "\n"+format_exc()
             date = datetime.datetime.now()+horaire
             date = date.strftime("%H%M")

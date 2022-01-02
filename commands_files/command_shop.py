@@ -180,10 +180,28 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             else:
                 ballerine = user.team
 
-            if not(teamWinDB.isFightingBool(ballerine)):
-                shopEmb.add_field(name=f"<:empty:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",inline=False)
+            fightingStatus = teamWinDB.isFightingBool(ballerine)
+
+            if fightingStatus[0]:
+                channel = await bot.fetch_channel(fightingStatus[2])
+                fightingMessage = await channel.fetch_message(fightingStatus[0])
+                
+                fightingRespond = "__Votre équipe affronte actuellement :__\n"
+                temp = ""
+                for letter in fightingStatus[1]:
+                    if letter==";" and len(temp) > 0:
+                        ennemi = findEnnemi(temp)
+                        if ennemi != None:
+                            fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
+                        else:
+                            fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                        temp = ""
+                    else:
+                        temp+=letter
+
+                shopEmb.add_field(name="<:em:866459463568850954>\n__/cooldowns__",value=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url))
             else:
-                shopEmb.add_field(name=f"<:empty:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : En combat <:turf:810513139740573696>\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",inline=False)
+                shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",inline=False)
 
             if userShopPurcent(user) >= 75 and not(user.have(trans)):
                 fullEmb = discord.Embed(title="Vous avez obtenu 75% du magasin",description="Vous recevez la compétence suivante en récompense :\n<:limiteBreak:886657642553032824> Transcendance (identifiant : yt)",color=user.color)

@@ -101,7 +101,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             elif value == 6:
                 tablToSee = tablUniqueEnnemies[:]
             elif value == 7:
-                for a in tablBoss:
+                for a in tablBoss+tablRaidBoss:
                     trouv=False
                     for b in tablToSee:
                         if a.name == b.name:
