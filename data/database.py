@@ -1,7 +1,76 @@
-import os, sqlite3, classes, datetime,adv
+import  sqlite3, classes, datetime, adv
+from typing import List, Union
 
-from discord_slash.utils.manage_components import create_button
+majTeamVic2 = """
+    PRAGMA foreign_keys = 0;
 
+    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
+                                            FROM teamVictory;
+
+    DROP TABLE teamVictory;
+
+    CREATE TABLE teamVictory (
+        id                     PRIMARY KEY
+                            UNIQUE
+                            NOT NULL,
+        [1],
+        [2],
+        [3],
+        [4],
+        [5],
+        [6],
+        [7],
+        [8],
+        [9],
+        [10],
+        lastFight,
+        lastQuickFight,
+        isFighting,
+        totalWin,
+        totalFight,
+        fightingInfo
+    );
+
+    INSERT INTO teamVictory (
+                                id,
+                                [1],
+                                [2],
+                                [3],
+                                [4],
+                                [5],
+                                [6],
+                                [7],
+                                [8],
+                                [9],
+                                [10],
+                                lastFight,
+                                lastQuickFight,
+                                isFighting,
+                                totalWin,
+                                totalFight
+                            )
+                            SELECT id,
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                lastFight,
+                                lastQuickFight,
+                                isFighting,
+                                totalWin,
+                                totalFight
+                            FROM sqlitestudio_temp_table0;
+
+    DROP TABLE sqlitestudio_temp_table0;
+
+    PRAGMA foreign_keys = 1;
+"""
 majTeamVic1 = """
     PRAGMA foreign_keys = 0;
 
@@ -67,10 +136,82 @@ majTeamVic1 = """
 
     PRAGMA foreign_keys = 1;
 """
+majTeamVic3 = """
+    PRAGMA foreign_keys = 0;
 
+    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
+                                            FROM teamVictory;
+
+    DROP TABLE teamVictory;
+
+    CREATE TABLE teamVictory (
+        id                     PRIMARY KEY
+                            UNIQUE
+                            NOT NULL,
+        [1],
+        [2],
+        [3],
+        [4],
+        [5],
+        [6],
+        [7],
+        [8],
+        [9],
+        [10],
+        lastFight,
+        lastQuickFight,
+        isFighting,
+        totalWin,
+        totalFight,
+        fightingInfo,
+        fightingChannel
+    );
+
+    INSERT INTO teamVictory (
+                                id,
+                                [1],
+                                [2],
+                                [3],
+                                [4],
+                                [5],
+                                [6],
+                                [7],
+                                [8],
+                                [9],
+                                [10],
+                                lastFight,
+                                lastQuickFight,
+                                isFighting,
+                                totalWin,
+                                totalFight,
+                                fightingInfo
+                            )
+                            SELECT id,
+                                "1",
+                                "2",
+                                "3",
+                                "4",
+                                "5",
+                                "6",
+                                "7",
+                                "8",
+                                "9",
+                                "10",
+                                lastFight,
+                                lastQuickFight,
+                                isFighting,
+                                totalWin,
+                                totalFight,
+                                fightingInfo
+                            FROM sqlitestudio_temp_table0;
+
+    DROP TABLE sqlitestudio_temp_table0;
+
+    PRAGMA foreign_keys = 1;
+"""
 class dbHandler():
     def __init__(self, database : str):
-        self.con = sqlite3.connect(f"{os.path.dirname(os.path.abspath(__file__))}/{database}")
+        self.con = sqlite3.connect(f"./data/database/{database}")
         self.con.row_factory = sqlite3.Row
         self.database = database
 
@@ -92,6 +233,36 @@ class dbHandler():
                 cursor.execute("UPDATE teamVictory SET totalWin = ?, totalFight = ?;",(0,0))
                 self.con.commit()
                 print("majTeamVic1 réalisée")
+
+            try:
+                cursor.execute("SELECT fightingInfo FROM teamVictory;")
+            except:
+                temp = ""
+                for a in majTeamVic2:
+                    if a != ";":
+                        temp+=a
+                    else:
+                        cursor.execute(temp)
+                        temp = ""
+
+                cursor.execute("UPDATE teamVictory SET fightingInfo = ?;",(';',))
+                self.con.commit()
+                print("majTeamVic2 réalisée")                
+        
+            try:
+                cursor.execute("SELECT fightingChannel FROM teamVictory;")
+            except:
+                temp = ""
+                for a in majTeamVic3:
+                    if a != ";":
+                        temp+=a
+                    else:
+                        cursor.execute(temp)
+                        temp = ""
+
+                cursor.execute("UPDATE teamVictory SET fightingChannel = ?;",(0,))
+                self.con.commit()
+                print("majTeamVic3 réalisée")                
         
     def getAllHeadGear(self):
         """cursor = self.con.cursor()
@@ -197,25 +368,25 @@ class dbHandler():
             cursor.close()
             self.con.commit()
 
-    def getColorFile(self,user):
+    def getWeaponFile(self,user : classes.char):
         cursor = self.con.cursor()
-        query = f"SELECT file FROM color_icon WHERE species = {user.species} AND color = {classes.getColorId(user)};"
+        if user.apparaWeap == None:
+            where = user.weapon.id
+        else:
+            where = user.apparaWeap.id
+        query = f"SELECT file FROM weap_has_png WHERE weapon = '{where}';"
         cursor.execute(query)
         result = cursor.fetchall()
         cursor.close()
         return result[0]["file"]
 
-    def getWeaponFile(self,user):
+    def getAccFile(self,user : classes.char):
         cursor = self.con.cursor()
-        query = f"SELECT file FROM weap_has_png WHERE weapon = '{user.weapon.id}';"
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        return result[0]["file"]
-
-    def getAccFile(self,user):
-        cursor = self.con.cursor()
-        query = f"SELECT fichier FROM head_has_png WHERE accessoire = '{user.stuff[0].id}';"
+        if user.apparaAcc == None:
+            where = user.stuff[0].id
+        else:
+            where = user.apparaAcc.id
+        query = f"SELECT fichier FROM head_has_png WHERE accessoire = '{where}';"
         cursor.execute(query)
         result = cursor.fetchall()
         cursor.close()
@@ -229,7 +400,10 @@ class dbHandler():
         cursor.execute(query,(user.owner,))
         result = cursor.fetchall()
         cursor.close()
-        return result[0]["emoji"]
+        try:
+            return result[0]["emoji"]
+        except:
+            return '<:LenaWhat:760884455727955978>'
 
     def isDifferent(self,user):
         query = f"SELECT * FROM custom_icon WHERE owner_id = ?;"
@@ -261,7 +435,7 @@ class dbHandler():
             return win
 
         else:
-            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
+            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,';',0);"
             params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
             cursor.execute(query,params)
             cursor.close()
@@ -385,23 +559,33 @@ class dbHandler():
             return rep
         else:
             return False
+    
     def isFightingBool(self,team : int):
         cursor = self.con.cursor()
-        cursor.execute("SELECT isFighting FROM teamVictory where id = ?;",(team,))
+        cursor.execute("SELECT isFighting, fightingInfo, fightingChannel FROM teamVictory WHERE id = ?;",(team,))
         result = cursor.fetchall()
         if len(result)>0:
-            result = result[0]["isFighting"]
+            result = result[0]
             cursor.close()
-            if result == None:
-                result = False
-            return result
+            return result["isFighting"], result["fightingInfo"], result["fightingChannel"]
         else:
-            return False
-    def changeFighting(self,team : int,value=bool):
+            return 0,";",0
+        
+    def changeFighting(self,team : int,value:int, channel:int = 0, ennemis:List[Union[classes.char,classes.tmpAllie,classes.octarien]] = []):
         cursor = self.con.cursor()
-        cursor.execute("UPDATE teamVictory SET isFighting = ? WHERE id = ?",(value,team,))
+        ennemiNames = ""
+        for a in ennemis:
+            ennemiNames += "{0};".format(a.name)
+
+        if ennemiNames == "":
+            ennemiNames = ";"
+        
+        if value == 0:
+            channel = 0
+        cursor.execute("UPDATE teamVictory SET isFighting = ?, fightingInfo = ?, fightingChannel = ? WHERE id = ?",(value,ennemiNames,channel,team,))
         self.con.commit()
         cursor.close()
+
     def getFightCooldown(self,team : int,quickFight = False):
         cursor = self.con.cursor()
         quickFight = int(quickFight)
@@ -427,9 +611,12 @@ class dbHandler():
         else:
             return 0
 
-    def refreshFightCooldown(self,team : int,quickFight = False):
+    def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime.datetime] = None):
         cursor = self.con.cursor()
-        now = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        if fromTime == None:
+            now = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        else:
+            now = fromTime.strftime("%m/%d/%Y, %H:%M:%S")
         if quickFight:
             cursor.execute("UPDATE teamVictory SET lastQuickFight = ? WHERE id = ?;",(now,team,))
         else:
@@ -442,3 +629,9 @@ class dbHandler():
         cursor.execute("UPDATE teamVictory SET isFighting = ?;",(False,))
         self.con.commit()
         cursor.close
+
+    def dropCustom_iconTablDB(self):
+        cursor = self.con.cursor()
+        cursor.execute("DROP TABLE custom_icon;")
+        self.con.commit()
+        cursor.close()
