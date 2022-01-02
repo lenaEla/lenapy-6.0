@@ -81,6 +81,7 @@ class statTabl:
         self.bleeding = 0
         self.underBoost = 0
         self.selfBurn = 0
+        self.headnt = False
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""

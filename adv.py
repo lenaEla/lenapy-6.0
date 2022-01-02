@@ -277,7 +277,7 @@ if not(isLenapy):
 
     for a in range(0,len(allStatsNames)):
         temp += "{0} : {1}% ({2})\n".format(allStatsNames[a],round(allstats[a]/total*100,2),allstats[a])
-    print(temp)
+    #print(temp)
 
     lvlTabl = [{"level":0,"nombre":0}]
     for equip in stuffs:
@@ -295,7 +295,8 @@ if not(isLenapy):
     lvlTabl.sort(key=lambda ballerine: ballerine["level"])
 
     for temp in lvlTabl:
-        print("Objets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),20 + (temp["level"] * 2)))
+        pass
+        #print("Objets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),20 + (temp["level"] * 2)))
 
     tabl = copy.deepcopy(tablAllAllies)
     tablTank = []
@@ -307,7 +308,8 @@ if not(isLenapy):
 
     print("")
     for num in range(3):
-        print("Nombre de Temp's en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
+        pass
+        #print("Nombre de Temp's en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
 
     tabl = copy.deepcopy(tablAllEnnemies)
     alReadySeen = []
@@ -330,7 +332,8 @@ if not(isLenapy):
 
     print("")
     for num in range(3):
-        print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
+        #print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
+        pass
 
     for weap in weapons:
         summation = 0

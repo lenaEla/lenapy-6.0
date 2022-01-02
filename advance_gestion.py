@@ -833,7 +833,7 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
 
         ballerine = await bot.fetch_user(user.owner)
         level = str(user.level+1) + ["","<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars>0]
-        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = user.color,description = f"Le personnage de {ballerine.mention} ({user.name}) est passé au niveauv {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande \"points\".")
+        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = user.color,description = f"Le personnage de {ballerine.mention} ({user.name}) est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande \"points\".")
         
         if (user.level+1) % 5 == 0:
             unlock = ""
@@ -1005,7 +1005,7 @@ async def downloadAllIconPng(bot : discord.Client):
         for b in range(0,len(listEmojiHead[a])):
             emojiObject = getEmojiInfo(listEmojiHead[a][b])
             if emojiObject[0] + ".png" not in listDir:
-                guildStuff = [862320563590529056]
+                guildStuff = [862320563590529056,615257372218097691]
 
                 emoji_2 = None
                 for c in guildStuff:
@@ -1047,6 +1047,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
     # Récupération de l'icone de base -----------------------------
     tabl = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/baseIka.png"],["./data/images/char_icons/empty_octo.png","./data/images/char_icons/baseTako.png"]]
     background = Image.open(tabl[user.species-1][1])
+    background2 = None
 
     if pos == 6:                                 # Behind
         background2 = Image.new("RGBA",background.size,(0,0,0,0))
@@ -1055,6 +1056,18 @@ async def makeCustomIcon(bot : discord.Client, user : char):
         position = (round(background.size[0]/2-accessoire.size[0]/2),-10)
         background2.paste(accessoire,position,accessoire)
         accessoire.close()
+
+    if user.stars > 0:
+        print("printy")
+        if background2 == None:
+            background2 = Image.new("RGBA",background.size,(0,0,0,0))
+        cmpt = 0
+        while cmpt < user.stars:
+            litStar = Image.open("./data/images/char_icons/littleStar.png")
+            litStar = litStar.resize((38,38))
+            background2.paste(litStar,(33*(cmpt%4)+5,38*(cmpt//4)),litStar)
+            litStar.close()
+            cmpt += 1
 
     pixel = background.load()
     layer = Image.open(tabl[user.species-1][0])
@@ -1080,7 +1093,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
     background.paste(layer,[0,0],layer)
     background.paste(layer,[0,0],layer)
 
-    if pos == 6:
+    if pos == 6 or user.stars > 0:
         background2.paste(background,[0,0],background)
         background = background2
 
@@ -1346,7 +1359,7 @@ def infoEnnemi(ennemi : octarien):
     return embed
 
 def getAutoStuff(object: stuff, user: char):
-    if user.level//5 == object.minLvl//5:
+    if user.level//5 == object.minLvl//5 or object.minLvl == 50:
         return object
     else:
         tablAllStats = object.allStats()+[object.resistance,object.percing,object.critical]+[object.negativeHeal*-1,object.negativeBoost*-1,object.negativeShield*-1,object.negativeDirect*-1,object.negativeIndirect*-1]
