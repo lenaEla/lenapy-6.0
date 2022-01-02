@@ -279,13 +279,25 @@ tablBoss = [
     octarien("Kiku",0,135,50,120,100,5,350,25,35,0,kikuBossWeap,10,'<:kiku:921704515332358174>',[kikuBossRes,kikuUltimaFerrum],gender=GENDER_FEMALE,deadIcon ='<:kikuOut:921709153892831294>',baseLvl=15,rez=False,element=ELEMENT_EARTH)
 ]
 
+# ====================================== Raid Boss ======================================
+nookWeapon = weapon("Dettes","nookWeapon",RANGE_DIST,AREA_CIRCLE_1,120,65,0,area=AREA_ARC_1,ignoreAutoVerif=True)
+nookSkill1 = skill("Fissure temporelle","nookSkill1",TYPE_DAMAGE,0,150,range=AREA_MONO,area=AREA_ALL_ENEMIES,sussess=80,initCooldown=2,cooldown=5)
+nookSkill2 = skill("Stonks","nookSkill2",TYPE_DAMAGE,0,250,range=AREA_CIRCLE_1,area=AREA_CIRCLE_1,repetition=3,cooldown=6,initCooldown=2)
+nookSkill3 = skill("Habitat naturel","nookSkill3",TYPE_DAMAGE,0,200,area=AREA_CIRCLE_2,range=AREA_MONO,cooldown=5,initCooldown=2)
+nookSkill4 = skill("Déluge insulaire","nookSkill4",TYPE_DAMAGE,0,135,AREA_MONO,area=AREA_DIST_7,cooldown=6)
+
+tablRaidBoss = [
+    octarien("Tom Nook",500,2300,100,20,50,250,0,35,10,0,nookWeapon,70,'<:nook:927252158141849670>',[nookSkill1,nookSkill2,nookSkill3,nookSkill4],oneVAll=True,baseLvl=25)
+]
+
+
 # --------------------------------------------------------- FindEnnemi ---------------------------------------------------------
 def findEnnemi(name:str) -> Union[octarien,None]:
     """Return the normal ennemi or the boss with the given name\n
     Return ``None`` if not found\n
     
     /!\ Return the original and not a copy"""
-    for a in tablUniqueEnnemies+tablBoss:
+    for a in tablUniqueEnnemies+tablBoss+tablRaidBoss:
         if a.name == name:
             return a
     return None

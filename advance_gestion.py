@@ -1489,8 +1489,11 @@ async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], te
                 if int(records["owner"]) == int(choisen["char"].owner):
                     desc += "\n\nC'est d'ailleurs le record tiens"
                 else:
-                    recorder = loadCharFile(absPath + "/userProfile/" + str(records["owner"]) + ".prof")
-                    desc += "\n\n"+randomRecordMsg[random.randint(0,len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot,recorder),value=separeUnit(int(records["value"])),name=recorder.name)
+                    try:
+                        recorder = loadCharFile(absPath + "/userProfile/" + str(records["owner"]) + ".prof")
+                        desc += "\n\n"+randomRecordMsg[random.randint(0,len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot,recorder),value=separeUnit(int(records["value"])),name=recorder.name)
+                    except:
+                        desc += "\n\nJ'ai pas pu trouver qui avait le record, par contre"
             else:
                 summation = 0
                 for di in listDict:
