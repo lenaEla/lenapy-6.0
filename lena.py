@@ -328,7 +328,7 @@ async def restart_program(bot : discord.Client, ctx=None):
     while fighting:
         fighting = False
         for team in os.listdir("./userTeams/"):
-            if teamWinDB.isFightingBool(int(team[:-5])):
+            if teamWinDB.isFightingBool(int(team[:-5]))[0]:
                 if firstIt:
                     teamTemp = readSaveFiles("./userTeams/"+team)[0]
                     us = await bot.fetch_user(teamTemp[0])
@@ -938,140 +938,197 @@ async def comEncyclopedia(ctx,destination):
 async def normal(ctx):
     if not(globalVar.fightEnabled()):
         await ctx.send(embed=discord.Embed(title="__Combats désactivés__",description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),delete_after=10)
-    else:
-        try:
-            pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-            valid = True
-        except:
-            pass
-        
-        if valid:
-            if not existFile(pathGuildSettings):
-                tempGuild = server(ctx.guild.id)
-                saveGuildSettings(pathGuildSettings, tempGuild)
-                print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-                guilds.append(tempGuild) 
-            
-            guild = None
+        return 0
+    try:
+        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
+    except:
+        return 0
+    
+    if not existFile(pathGuildSettings):
+        tempGuild = server(ctx.guild.id)
+        saveGuildSettings(pathGuildSettings, tempGuild)
+        print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
+        guilds.append(tempGuild) 
+    
+    guild = None
 
-            for a in guilds:
-                if type(a) != int:
-                    if ctx.guild.id == a.id:
-                        guild = a
+    for a in guilds:
+        if type(a) != int:
+            if ctx.guild.id == a.id:
+                guild = a
 
-        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    try:
         user = loadCharFile(pathUserProfile)
-        ballerine,temp = 0,0
-        if user.team == 0:
-            ballerine = user.owner
-        else:
-            ballerine = user.team
+    except:
+        await ctx.send("Vous n'avez pas commencé l'aventure",delete_after=10)
+        return 0
 
-        cooldownOk = True
-        timing = teamWinDB.getFightCooldown(ballerine)
-        if timing > 0:
-            cooldownOk = False
+    ballerine,temp = 0,0
+    if user.team == 0:
+        ballerine = user.owner
+    else:
+        ballerine = user.team
 
-        if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
-            team1 = []
-            if user.team != 0:
-                file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-                for a in file[0]:
-                    team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-            else:
-                team1 = [user]
+    timing = teamWinDB.getFightCooldown(ballerine)
+    fightingStatus = teamWinDB.isFightingBool(ballerine)
 
-            # Random event
-            fun = random.randint(0,99)
-
-            fightAnyway = True
-
-            if fun < 1:                # But nobody came
-                teamIcon = ""
-                for wonderfullIdea in team1:
-                    teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
-
-                temp1 = discord.Embed(title = "__Résultats du combat :__",color = black,description="__Danger :__ <a:bnc:908762423111081994>\n__Nombre de tours :__ <a:bnc:908762423111081994>\n__Durée :__ <a:bnc:908762423111081994>")
-                temp1.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=teamIcon,inline=True)
-                temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",value="[[But nobody came](https://bit.ly/3wDwyF3)]",inline=True)
-
-                await ctx.send(embed = temp1,components=[])
-                fightAnyway = False
-
-            elif fun < 2:              # All OctoHeals ! Yes, it's for you H
-                temp = team1
-                temp.sort(key=lambda overheal: overheal.level,reverse=True)
-                maxLvl = temp[0].level
-
-                team2 = []
-                lenBoucle = max(4,len(team1))
-                cmpt = 0
-
-                octoHealVet = findEnnemi("Octo Soigneur Vétéran")
-                octoHeal = findEnnemi("Octo Soigneur")
-
-                if maxLvl < octoHealVet.baseLvl:
-                    alea = copy.deepcopy(octoHeal)
+    if fightingStatus[0]:
+        channel = await bot.fetch_channel(fightingStatus[2])
+        fightingMessage = await channel.fetch_message(fightingStatus[0])
+        
+        fightingRespond = "__Votre équipe affronte actuellement :__\n"
+        temp = ""
+        for letter in fightingStatus[1]:
+            if letter==";" and len(temp) > 0:
+                ennemi = findEnnemi(temp)
+                if ennemi != None:
+                    fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                 else:
-                    alea = copy.deepcopy(octoHealVet)
+                    fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                temp = ""
+            else:
+                temp+=letter
 
-                alea.changeLevel(maxLvl)
-                alea.charisma = alea.charisma//2
+        msg = await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
+        return 0
+    elif timing > 0:
+        msg = await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60,["","s"][timing//60 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
+        return 0
 
-                while cmpt < lenBoucle:
-                    team2.append(alea)
-                    cmpt += 1
+    team1 = []
+    if user.team != 0:
+        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
+        for a in file[0]:
+            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+    else:
+        team1 = [user]
 
-                await fight(bot,team1,team2,ctx,guild,False,slash=True)
-                fightAnyway = False
+    # Random event
+    fun = random.randint(0,99)
+    if False:
+        await fight(bot,team1,[],ctx,guild,bigMap=True,auto=False)
 
-            elif fun < 3:              # All Temmies
-                temp = team1
-                temp.sort(key=lambda overheal: overheal.level,reverse=True)
-                maxLvl = temp[0].level
+    elif fun < 1:                # But nobody came
+        teamIcon = ""
+        for wonderfullIdea in team1:
+            teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
 
-                team2 = []
-                lenBoucle = max(4,len(team1))
-                cmpt = 0
+        temp1 = discord.Embed(title = "__Résultats du combat :__",color = black,description="__Danger :__ <a:bnc:908762423111081994>\n__Nombre de tours :__ <a:bnc:908762423111081994>\n__Durée :__ <a:bnc:908762423111081994>")
+        temp1.add_field(name="<:empty:866459463568850954>\n__Vainqueurs :__",value=teamIcon,inline=True)
+        temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",value="[[But nobody came](https://bit.ly/3wDwyF3)]",inline=True)
 
-                alea = copy.deepcopy(findEnnemi("Temmie"))
-                alea.changeLevel(maxLvl)
-                alea.magie = alea.magie // 3
+        await ctx.send(embed = temp1,components=[])
 
-                while cmpt < lenBoucle:
-                    team2.append(alea)
-                    cmpt += 1
+    elif fun < 2:              # All OctoHeals ! Yes, it's for you H
+        temp = team1
+        temp.sort(key=lambda overheal: overheal.level,reverse=True)
+        maxLvl = temp[0].level
 
-                await fight(bot,team1,team2,ctx,guild,False,slash=True)
-                fightAnyway = False
+        team2 = []
+        lenBoucle = max(4,len(team1))
+        cmpt = 0
 
-            elif fun < 4:              # BOUM BOUM BOUM BOUM
-                temp = team1
-                temp.sort(key=lambda overheal: overheal.level,reverse=True)
-                maxLvl = temp[0].level
+        octoHealVet = findEnnemi("Octo Soigneur Vétéran")
+        octoHeal = findEnnemi("Octo Soigneur")
 
-                team2 = []
-                lenBoucle = max(4,len(team1))
-                cmpt = 0
-
-                alea = copy.deepcopy(findEnnemi("OctoBOUM"))
-                alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCastSkill0,None,None,None,None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
-                alea.changeLevel(maxLvl)
-
-                while cmpt < lenBoucle:
-                    team2.append(alea)
-                    cmpt += 1
-
-                await fight(bot,team1,team2,ctx,guild,False,slash=True)
-                fightAnyway = False
-
-            if fightAnyway:
-                await fight(bot,team1,[],ctx,guild,False,slash=True)
-
-        elif teamWinDB.isFightingBool(ballerine):
-            msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
+        if maxLvl < octoHealVet.baseLvl:
+            alea = copy.deepcopy(octoHeal)
         else:
-            msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats normaux que dans {timing//60} minute(s)"),delete_after=10)
+            alea = copy.deepcopy(octoHealVet)
+
+        alea.changeLevel(maxLvl)
+        alea.charisma = alea.charisma//2
+
+        while cmpt < lenBoucle:
+            team2.append(alea)
+            cmpt += 1
+
+        await fight(bot,team1,team2,ctx,guild,False)
+        fightAnyway = False
+
+    elif fun < 3:              # All Temmies
+        temp = team1
+        temp.sort(key=lambda overheal: overheal.level,reverse=True)
+        maxLvl = temp[0].level
+
+        team2 = []
+        lenBoucle = max(4,len(team1))
+        cmpt = 0
+
+        alea = copy.deepcopy(findEnnemi("Temmie"))
+        alea.changeLevel(maxLvl)
+        alea.magie = alea.magie // 3
+
+        while cmpt < lenBoucle:
+            team2.append(alea)
+            cmpt += 1
+
+        await fight(bot,team1,team2,ctx,guild,False)
+        fightAnyway = False
+
+    elif fun < 4:              # BOUM BOUM BOUM BOUM
+        temp = team1
+        temp.sort(key=lambda overheal: overheal.level,reverse=True)
+        maxLvl = temp[0].level
+
+        team2 = []
+        lenBoucle = max(4,len(team1))
+        cmpt = 0
+
+        alea = copy.deepcopy(findEnnemi("OctoBOUM"))
+        alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCastSkill0,None,None,None,None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
+        alea.changeLevel(maxLvl)
+
+        while cmpt < lenBoucle:
+            team2.append(alea)
+            cmpt += 1
+
+        await fight(bot,team1,team2,ctx,guild,False)
+        fightAnyway = False
+
+    elif fun < 9:              # Raid
+        tablAllTeams = os.listdir("./userTeams/")
+        random.shuffle(tablAllTeams)
+
+        moyTeam = 0
+        for a in team1:
+            moyTeam += a.level
+
+        moyTeam = moyTeam/len(team1)
+
+        for tempTeamPath in tablAllTeams:
+            if int(tempTeamPath.replace(".team","")) != user.team and not(teamWinDB.isFightingBool(int(tempTeamPath.replace(".team","")))[0]):
+                tempTeam, moyTempTeam = [], 0
+                file = readSaveFiles(absPath + "/userTeams/" + tempTeamPath)
+                for a in file[0]:
+                    tempUser = loadCharFile(absPath + "/userProfile/" + a + ".prof")
+                    moyTempTeam += tempUser.level
+                    tempTeam += [tempUser]
+
+                moyTempTeam = moyTempTeam/len(tempTeam)
+                print(moyTempTeam,moyTeam)
+                if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                    team1 += tempTeam
+                    break
+        
+        temp = team1
+        temp.sort(key=lambda overheal: overheal.level,reverse=True)
+        maxLvl = temp[0].level
+        team2 = []
+
+        if len(tablRaidBoss) > 1:
+            alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
+        else:
+            alea = copy.deepcopy(tablRaidBoss[0])
+    
+        alea.changeLevel(maxLvl)
+        team2.append(alea)
+
+        await fight(bot,team1,team2,ctx,guild,False,bigMap=True)
+
+    else:
+        await fight(bot,team1,[],ctx,guild,False)
 
 # quick fight
 @slash.subcommand(base="fight",name="quick",description="Vous permet de faire un combat en sautant directement à la fin")
@@ -1112,7 +1169,8 @@ async def comQuickFight(ctx):
         if timing > 0 :
             cooldownOk = False
 
-        if cooldownOk and not(teamWinDB.isFightingBool(ballerine)):
+        fightingStatus = teamWinDB.isFightingBool(ballerine)
+        if cooldownOk and not(fightingStatus[0]):
             team1 = []
             if user.team != 0:
                 file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
@@ -1128,10 +1186,26 @@ async def comQuickFight(ctx):
                 await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1))
 
             if fightAnyway:
-                await fight(bot,team1,[],ctx,guild,slash=True)
+                await fight(bot,team1,[],ctx,guild)
 
-        elif teamWinDB.isFightingBool(ballerine):
-            msg = await ctx.send(embed = errorEmbed("Woopsy","Vous êtes déjà en train de vous battre"),delete_after=10)
+        elif fightingStatus[0]:
+            channel = await bot.fetch_channel(fightingStatus[2])
+            fightingMessage = await channel.fetch_message(fightingStatus[0])
+            
+            fightingRespond = "__Votre équipe affronte actuellement :__\n"
+            temp = ""
+            for letter in fightingStatus[1]:
+                if letter==";" and len(temp) > 0:
+                    ennemi = findEnnemi(temp)
+                    if ennemi != None:
+                        fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
+                    else:
+                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                    temp = ""
+                else:
+                    temp+=letter
+
+            msg = await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
         else:
             msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats rapides que dans {timing//60} minute(s)"),delete_after=10)
 
@@ -1170,13 +1244,13 @@ async def octogone(ctx,versus):
             ballerine = f'{versus.name} n\'a pas commencé l\'aventure Léna'
 
         elif checkIsBotChannel(ctx,guild,bot) and os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof"):
-            await fight(bot,[loadCharFile(pathUserProfile)],[loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")],ctx,guild,auto=False,octogone=True,slash=True)
+            await fight(bot,[loadCharFile(pathUserProfile)],[loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")],ctx,guild,auto=False,octogone=True)
 
         elif checkIsBotChannel(ctx,guild,bot) and (versus.id in [623211750832996354,769999212422234122]):
             temp = loadCharFile(pathUserProfile)
             tempi = tablAllAllies[0]
             tempi.changeLevel(temp.level)
-            await fight(bot,[temp],[tempi],ctx,guild,auto=False,octogone=True,slash=True)
+            await fight(bot,[temp],[tempi],ctx,guild,auto=False,octogone=True)
 
         elif checkIsBotChannel(ctx,guild,bot):
             await ctx.send(f"{versus.name} n'a pas commencé l'aventure",delete_after=5)
@@ -1240,7 +1314,7 @@ async def teamFight(ctx,versus):
             else:
                 team2 = [octogoned]
 
-            await fight(bot,team1,team2,ctx,guild,False,octogone=True,slash=True)
+            await fight(bot,team1,team2,ctx,guild,False,octogone=True)
         else:
             await ctx.send("L'utilisateur mentioné n'a pas commencé l'aventure",delete_after=5)
     else:
@@ -1263,10 +1337,29 @@ async def cooldowns(ctx):
             fsaccord = "s"
         if fqseconds > 1:
             fqsaccord = "s"
-        if not(teamWinDB.isFightingBool(int(user.team))):
-            await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
+
+        fightingStatus = teamWinDB.isFightingBool(int(user.team))
+
+        if fightingStatus[0]:
+            channel = await bot.fetch_channel(fightingStatus[2])
+            fightingMessage = await channel.fetch_message(fightingStatus[0])
+            
+            fightingRespond = "__Votre équipe affronte actuellement :__\n"
+            temp = ""
+            for letter in fightingStatus[1]:
+                if letter==";" and len(temp) > 0:
+                    ennemi = findEnnemi(temp)
+                    if ennemi != None:
+                        fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
+                    else:
+                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                    temp = ""
+                else:
+                    temp+=letter
+
+            msg = await ctx.send(embed = discord.Embed(title="__/cooldowns__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
         else:
-            await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : En combat <:turf:810513139740573696>\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
+            await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
 
 # -------------------------------------------- PATCHNOTE --------------------------------------------
 @slash.slash(name="patchnote",description="Renvoie le dernier patchnote du bot")
@@ -1416,7 +1509,7 @@ async def teamView(ctx,joueur=None):
         user = loadCharFile(pathUserProfile)
         pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
         msg = await loadingSlashEmbed(ctx)
-        if user.team == "0":
+        if user.team == 0:
             if int(user.owner) == int(ctx.author.id):
                 await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "Vous n'avez pas d'équipe pour le moment"))
             else:
