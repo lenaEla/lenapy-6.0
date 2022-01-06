@@ -62,3 +62,10 @@ carbSaphir = invoc("Carbuncle Saphir",strength=[PURCENTAGE,0.7],endurance=[PURCE
 invocTabl = [seraf,carbObsi,carbSaphir,
     darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
 ]
+
+def findInvoc(name) -> invoc:
+    for a in invocTabl:
+        if a.name == name:
+            return a
+
+    return None

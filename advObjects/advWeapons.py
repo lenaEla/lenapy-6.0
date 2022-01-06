@@ -84,6 +84,7 @@ gravEff = effect("Gravitation","grav",turnInit=-1,unclearable=True,description="
 grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,56,99,1,endurance=10,resistance=5,effect=gravEff,emoji='<:bl:925774629711282196>')
 
 darkbluebutterfly = weapon("Papillon bleu marine",'ct',RANGE_MELEE,AREA_CIRCLE_2,78,66,1,magie=10,endurance=10,resistance=10,use=MAGIE,needRotate=False,emoji='<:dbb:926954332593725511>')
+
 # Weapon
 weapons = [secretum,ElitherScope,grav,darkbluebutterfly,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
@@ -92,3 +93,23 @@ weapons = [secretum,ElitherScope,grav,darkbluebutterfly,
 
 # Can't use weapon
 cannotUseMainWeapon = [secretum.id,ElitherScope.id,grav.id]
+
+# Find Weapon
+def findWeapon(WeaponId) -> weapon:
+    typi = type(WeaponId)
+    if typi == weapon:
+        return WeaponId
+
+    elif type(WeaponId) != str:
+        return None
+    else:
+        rep,id = None,WeaponId
+
+        if WeaponId.startswith("\n"):
+            id = id.replace("\n","")
+        for a in weapons:
+            if a.id == id or a.name.lower() == id.lower():
+                rep = a
+                break
+    
+        return rep
