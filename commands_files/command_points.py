@@ -10,6 +10,15 @@ from advance_gestion import *
 from typing import List
 
 async def points(bot : discord.client, ctx : discord.message, args : List[str], procuration = None, slashed = False):
+    listUserProcure = []
+    mainUser = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+    if mainUser.team != 0:
+        file = readSaveFiles("./userTeams/{0}.team".format(mainUser.team))
+        for a in file[0]:
+            temp = loadCharFile("./userProfile/" + a + ".prof")
+            if ctx.author_id in temp.procuration:
+                listUserProcure.append(temp)
+
     if procuration == None:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     else:
@@ -35,6 +44,14 @@ async def points(bot : discord.client, ctx : discord.message, args : List[str], 
         return m.author_id == ctx.author.id
 
     while 1:
+        user = loadCharFile(pathUserProfile)
+        if len(listUserProcure) > 0:
+            procurOptions = []
+            for a in listUserProcure:
+                procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner,description=["{0} point{1} bonus restants".format(a.points,["","s"][a.points>1]),None][a.points==0]))
+            procurSelect = [create_actionrow(create_select(procurOptions))]
+        else:
+            procurSelect = []
         temp = user.allStats()
 
         msgTemp = "\n"
@@ -85,74 +102,80 @@ async def points(bot : discord.client, ctx : discord.message, args : List[str], 
             placeholder=["Utiliser vos points majeurs","Vous n'avez pas de points majeurs à répartir"][user.majorPointsCount == 0],
             disabled=user.majorPointsCount == 0
         )
-
-        await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = f"Vous avez {user.points} points et {user.majorPointsCount} points majeurs à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)"),components=[[create_actionrow(select),create_actionrow(select2)],[create_actionrow(select)]][user.stars == 0])
+        await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = f"Vous avez {user.points} points et {user.majorPointsCount} points majeurs à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)").set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])),components=procurSelect+[[create_actionrow(select),create_actionrow(select2)],[create_actionrow(select)]][user.stars == 0])
         
         try:
             respond = await wait_for_component(bot,msg,timeout=30,check=check)
         except:
-            await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = f"Vous avez {user.points} points et {user.majorPointsCount} points majeurs à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)"),components=[])
+            await msg.edit(embed = discord.Embed(title = args[0],color = user.color,description = msgTemp).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])),components=[])
             return 0
 
         ballerine = respond
-        respond = int(ballerine.values[0])
-        temp = user.allStats()
 
-        if respond <= 6:
-            stat = temp[respond]
-            trueStat = stat-user.bonusPoints[respond]
-            dif = user.bonusPoints[respond]
-            if dif < 30:
-                def checkIsAuthor(message):
-                    return int(message.channel.id) == int(babie.channel.id) and int(message.author.id) == int(ctx.author.id)
-
-                babie = await ballerine.send(embed = discord.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = f"__{nameStats[respond]} :__ {trueStat} *+{dif}*\n\nCombien de points voulez vous rajouter ?\nPour rappel, vous avez {user.points} points bonus à votre disposition."))
-                resp = await bot.wait_for("message",timeout=60,check=checkIsAuthor)
-                repMsg = resp
-                if not resp.content.isdigit():
-                    await msg.edit(embed = errorEmbed(args[0],"La réponse donnée n'est pas un nombre"))
-                else:
-                    resp = int(resp.content)
-                    if resp <= user.points and resp >= 0 and user.bonusPoints[respond]+resp <= 30:
-                        temp[respond] = temp[respond]+resp
-                        user.points -= resp
-                        user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
-                        user.bonusPoints[respond] += resp
-                        await babie.edit(embed = discord.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = "Vos points ont bien été attribué !"),components=[])
-                        saveCharFile(pathUserProfile,user)
-
-                    else:
-                        await babie.edit(embed = errorEmbed(args[0],"Tu as donné un nombre non valide"))
-
-                try:
-                    await repMsg.delete()
-                except:
-                    pass
-
-                await asyncio.sleep(3)
-                await babie.delete()
-            
-            else:
-                await msg.edit(embed = discord.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = "Vous avez déjà attribué le maximum de points bonus possibles dans cette catégorie"))
-
+        if ballerine.values[0].startswith('user_'):
+            pathUserProfile = "./userProfile/{0}.prof".format(respond.values[0].replace("user_",""))
         else:
-            respond = respond-7
-            dif = user.majorPoints[respond]
-            if dif == 0:
-                def check1(message):
-                    return message.author_id == int(ctx.author.id)
+            respond = int(ballerine.values[0])
+            temp = user.allStats()
 
-                conf = create_button(ButtonStyle.green,"Utiliser votre point majeur",'✅','✅')
-                await msg.edit(embed=discord.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond],[10,35][respond not in [RESISTANCE,PERCING,CRITICAL]])),components=[create_actionrow(conf)])
-                try:
-                    await wait_for_component(bot,msg,check=check1,timeout=30)
-                except:
-                    await msg.edit(embed = discord.Embed(title = "__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color = user.color,description = f"Vous avez {user.points} points à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)"),components=[])
-                    return 0
+            if respond <= 6:
+                stat = temp[respond]
+                trueStat = stat-user.bonusPoints[respond]
+                dif = user.bonusPoints[respond]
+                if dif < 30:
+                    def checkIsAuthor(message):
+                        return int(message.channel.id) == int(babie.channel.id) and int(message.author.id) == int(ctx.author.id)
+
+                    babie = await ballerine.send(embed = discord.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = f"__{nameStats[respond]} :__ {trueStat} *+{dif}*\n\nCombien de points voulez vous rajouter ?\nPour rappel, vous avez {user.points} points bonus à votre disposition."))
+                    resp = await bot.wait_for("message",timeout=60,check=checkIsAuthor)
+                    repMsg = resp
+                    if not resp.content.isdigit():
+                        await msg.edit(embed = errorEmbed(args[0],"La réponse donnée n'est pas un nombre"))
+                    else:
+                        resp = int(resp.content)
+                        if resp <= user.points and resp >= 0 and user.bonusPoints[respond]+resp <= 30:
+                            temp[respond] = temp[respond]+resp
+                            user.points -= resp
+                            user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
+                            user.bonusPoints[respond] += resp
+                            await babie.edit(embed = discord.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = "Vos points ont bien été attribué !"),components=[])
+                            saveCharFile(pathUserProfile,user)
+
+                        else:
+                            await babie.edit(embed = errorEmbed(args[0],"Tu as donné un nombre non valide"))
+
+                    try:
+                        await repMsg.delete()
+                    except:
+                        pass
+
+                    await asyncio.sleep(2)
+                    await babie.delete()
                 
-                user.majorPoints[respond] += [10,35][respond not in [RESISTANCE,PERCING,CRITICAL]]
-                user.majorPointsCount -= 1
-                saveCharFile(user=user)
+                else:
+                    await msg.edit(embed = discord.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = "Vous avez déjà attribué le maximum de points bonus possibles dans cette catégorie"))
+
             else:
-                await msg.edit(embed=discord.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Vous avez déjà attribué un point majeur dans cette catégorie"),components=[])
-                await asyncio.sleep(3) 
+                respond = respond-7
+                dif = user.majorPoints[respond]
+                if dif == 0:
+                    def check1(message):
+                        return message.author_id == int(ctx.author.id)
+
+                    conf = create_button(ButtonStyle.green,"Utiliser votre point majeur",'✅','✅')
+                    await msg.edit(embed=discord.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond],[10,35][respond not in [RESISTANCE,PERCING,CRITICAL]])),components=[create_actionrow(conf)])
+                    try:
+                        await wait_for_component(bot,msg,check=check1,timeout=30)
+                    except:
+                        await msg.edit(embed = discord.Embed(title = "__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color = user.color,description = f"Vous avez {user.points} points à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)"),components=[])
+                        return 0
+                    
+                    user.majorPoints[respond] += [10,35][respond not in [RESISTANCE,PERCING,CRITICAL]]
+                    user.majorPointsCount -= 1
+                    saveCharFile(user=user)
+                else:
+                    await msg.edit(embed=discord.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Vous avez déjà attribué un point majeur dans cette catégorie"),components=[])
+                    await asyncio.sleep(2)
+            for cmpt in range(len(listUserProcure)):
+                if listUserProcure[cmpt].owner == user.owner:
+                    listUserProcure[cmpt] = user

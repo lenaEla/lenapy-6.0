@@ -29,7 +29,6 @@ menthe = effect("Mentiné","lu",CHARISMA,percing=5,resistance=5,critical=10,reje
 badaboum = effect("Ça fait bim bam boum","lv",MAGIE,aggro=10,turnInit=2,trigger=TRIGGER_DEATH,power=int(100*(1+AOEDAMAGEREDUCTION)),type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_2,emoji=sameSpeciesEmoji("<:deathBoomB:915050502369214474>","<:deathBoomR:915050526436102155>"),description="Lorsque le porteur meurt, cela délanche une explosion infligeant des dégâts à ses alliés alentours")
 charme = effect("Sous le charme","lw",CHARISMA,strength=-10,resistance=-5,magie=-10,description="Le porteur est distrait, ce qui diminue ses capacitées offensives et défensives",type=TYPE_MALUS,emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"),turnInit=2)
 jetlag = effect("Jetlag",'jetLag',None,emoji=uniqueEmoji('<:jetlag:872181671372402759>'),silent=True,description="Le porteur de cet effet est insenssible aux sorts/armes de type \"Sablier\"")
-hourglass1 = effect("Rollback","lx",None,trigger=TRIGGER_ON_REMOVE,type=TYPE_UNIQUE,emoji=hourglassEmoji,description="Lorsque l'initiateur de cet effet commence son prochain tour, le porteur récupèrera 50% des PV perdues depuis que cet effet est actif",reject=[jetlag])
 lightAuraEffect = effect("Aura de Lumière I","ly",CHARISMA,turnInit=-1,power=15,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_END_OF_TURN,emoji=sameSpeciesEmoji("<:AdL1:873549174052892672>","<:AdL2:873549232601182249>"),description="À la fin du tour du porteur, lui et ses alliés proches reçoivent des soins",area=AREA_CIRCLE_2,reject=healStans)
 flumEffect = effect("Douce lueur","lz",CHARISMA,power=10,turnInit=-1,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji=uniqueEmoji('<:flum:876079513954557952>'),description="Soigne le porteur au début de son tour")
 dephased = effect("Déphasée","ma",None,emoji=uniqueEmoji('<a:dephasee:882042949494525973>'),description="Ailill n'aime pas affronter trop d'ennemi à la fois, ni ceux qui essaye de l'avoir de loin",type=TYPE_UNIQUE,turnInit=-1)
@@ -132,7 +131,21 @@ purpleSecretEff.reject = critBonusEff.reject = dptStans
 chaosProhib = [undying,deterEff1,dephased,cafeine,octoboum,const,lostSoul,onceButNotTwice,zelianR,octoshield]
 
 #Effect
-effects = [critBonusEff,
-    idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff,magicRuneEff,purpleSecretEff,
-    fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff2,blackHoleEff3,convertEff,vampirismeEff,heriteEstialbaEff,estal2,bleeding2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,bleeding,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,onstageeff,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAuraEffect,hourglass1,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,hunter,hunterBuff,menthe,badaboum,courageE
+effects = [
+    critBonusEff,idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff,magicRuneEff,purpleSecretEff,fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff2,blackHoleEff3,convertEff,vampirismeEff,heriteEstialbaEff,estal2,bleeding2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,bleeding,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,onstageeff,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,cafeine,defensive,stuned,flumEffect,lightAuraEffect,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,undying,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,hunter,hunterBuff,menthe,badaboum,courageE
 ]
+
+def findEffect(effectId) -> effect:
+    if type(effectId) == effect:
+        return effectId
+    elif type(effectId) != str:
+        
+        return None
+    else:
+        rep,id = None,effectId
+        for a in effects:
+            if a.id == id or a.name.lower() == id.lower():
+                rep = a
+                break
+    
+        return rep

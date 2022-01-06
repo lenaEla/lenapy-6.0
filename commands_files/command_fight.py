@@ -98,7 +98,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             rep = []
 
             # Circles
-            if area in [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7]:
+            if area==AREA_MONO:
+                return [self]
+            elif area in [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7]:
                 dist = area
                 if area > AREA_CIRCLE_7:
                     if area <= AREA_DONUT_7:
@@ -169,8 +171,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             rep.append(cell2)
                     cmptx+=1
                 rep.append(self)
-            elif area==AREA_MONO:
-                return [self]            
+            elif area in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+                for cell in tablAllCells:
+                    if cell.on != None and cell.on.team != team:
+                        rep.append(cell)
+                random.shuffle(rep)
+                return rep[0:min(area-AREA_RANDOMENNEMI_1+1,len(rep))]
             return rep
 
         def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=100,dead=False,effect=[None],ignoreInvoc = False, directTarget=True,ignoreAspiration = None) -> list: 
@@ -497,13 +503,12 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             if type(perso) not in [invoc,octarien]:
                 baseHP,HPparLevel = 100,13
-
             elif type(perso) == invoc:
-                baseHP,HPparLevel = 50,8
-                perso.level = summoner.char.level
-        
-            else:
+                baseHP, HPparLevel, perso.level = 50, 8, summoner.char.level
+            elif not(perso.oneVAll):
                 baseHP,HPparLevel = 95,10
+            else:
+                baseHP,HPparLevel = 500,115
 
             self.effect: List[fightEffect] = []
             self.ownEffect =  []
@@ -1367,9 +1372,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     actTurn.refreshEffects()
 
                                 for eff in entityInArea.effect:
-                                    if eff.effect == hourglass1:
-                                        eff.value += effectiveDmg
-                                    elif eff.effect.id == lightAura2ActiveEff.id:                                 # Aura de lumière 2
+                                    if eff.effect.id == lightAura2ActiveEff.id:                                 # Aura de lumière 2
                                         for ent in entityInArea.cell.getEntityOnArea(area=lightAura2ActiveEff.area,team=entityInArea.team,wanted=ALLIES,directTarget=False):
                                             popipo += eff.caster.heal(ent,eff.icon,lightAura2ActiveEff.stat,lightAura2ActiveEff.power,eff.effect.name,danger)
                                         popipo += eff.decate(value=1)
@@ -1611,7 +1614,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                     return f"{self.icon} : <:lostSoul:887853918665707621>\n"
 
                 for a in self.effect:
-                    if (a.icon not in ['<:constitution:888746214999339068>','<:lenapy:892372680777539594>','<:tower:905169617163538442>','<:lostSoul:887853918665707621>','<:colegue:895440308257558529>']+aspiEmoji) and not(a.effect.silent and a.effect.replica == None) and a.effect.id not in [lightAura2PassiveEff.id]:
+                    if (a.icon not in ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:905169617163538442>','<:lo:887853918665707621>','<:co:895440308257558529>']+aspiEmoji) and not(a.effect.silent and a.effect.replica == None) and a.effect.id not in [lightAura2PassiveEff.id]:
                         if a.effect.replica != None or a.effect.stun:
                             return f"{self.icon} : {a.icon} {a.effect.name}\n"
 
@@ -1632,14 +1635,14 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 temp += "("+str(a.effect.power//flambe.power)+")"
 
                 if temp != f"{self.icon} : ":
-                    if self.invisible and "<:invisible:899788326691823656>" not in temp:
+                    if self.invisible and "<:in:899788326691823656>" not in temp:
                         temp += "<:invisible:899788326691823656>"
-                    if self.translucide and "<:translucide:914232635176415283>" not in temp:
+                    if self.translucide and "<:tr:914232635176415283>" not in temp:
                         temp += "<:translucide:914232635176415283>"
-                    if self.untargetable and "<:untargetable:899610264998125589>" not in temp:
+                    if self.untargetable and "<:un:899610264998125589>" not in temp:
                         temp += "<:untargetable:899610264998125589>"
-                    if self.immune:
-                        temp += "[Immune]"
+                    if self.immune and "<:im:914232617660981249>" not in temp:
+                        temp += "<:immunite:914232617660981249>"
 
                     temp += "\n"
                     return temp
@@ -1914,49 +1917,44 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             posArea = []
             for cellule in tablAllCells:
-                if cellule == target.cell:
-                    posArea.append(cellule)
-                else:
-                    temp = (target.cell.x - cellule.x, target.cell.y - cellule.y)
-                    if temp[0] == 0 or temp[1] == 0:
-                        temp2 = [temp[0] < 0, temp[0] > 0, temp[1] > 0, temp[1] < 0]
-                        temp3 = ["-x","+x","+y","-y"]
-                        for cmpt in (0,1,2,3):
-                            if temp2[cmpt] and axis == temp3[cmpt] and target.cell.distance(cellule) <= power:
-                                posArea.append(cellule)
-                                break
+                temp = (target.cell.x - cellule.x, target.cell.y - cellule.y)
+                if (temp[0] == 0 or temp[1] == 0) and (temp[0] != temp[1]):
+                    temp2 = [temp[0] < 0, temp[0] > 0, temp[1] > 0, temp[1] < 0]
+                    temp3 = ["-x","+x","+y","-y"]
+                    for cmpt in (0,1,2,3):
+                        if temp2[cmpt] and axis == temp3[cmpt] and target.cell.distance(cellule) <= power:
+                            posArea.append(cellule)
+                            break
 
             if len(posArea) > 0:
                 posArea.sort(key=lambda dist:target.cell.distance(dist))
 
-                cmpt = 1
-                cellToPush = posArea[0]
-                while posArea[cmpt] == None and cmpt < len(posArea)-1:
-                    cellToPush = posArea[cmpt]
-                    cmpt += 1
+            cmpt = 0
+            cellToPush = target.cell
+            while cmpt < len(posArea) and posArea[cmpt].on == None:
+                cellToPush = posArea[cmpt]
+                cmpt += 1
 
-                cmpt -= 1
+            initTagetCell = target.cell
+            if cellToPush != target.cell:
+                target.move(cellToMove=cellToPush)
+            toReturn = "\n__{0} ({1})__ est repoussé{3} de {2} case{4} en arrière\n".format(target.char.name,target.icon,power,target.accord(),["","s"][int(power>1)])
 
-                initTagetCell = target.cell
-                if cellToPush != target.cell:
-                    target.move(cellToMove=cellToPush)
-                toReturn = "\n__{0} ({1})__ est repoussé{3} de {2} case{4} en arrière\n".format(target.char.name,target.icon,power,target.accord(),["","s"][int(power>1)])
+            if cmpt < power:
+                lastingPower = power-initTagetCell.distance(cellToPush)
 
-                if cmpt < power:
-                    lastingPower = power-initTagetCell.distance(cellToPush)
+                stat,damageBase = -100,10*lastingPower
 
-                    stat,damageBase = -100,10*lastingPower
+                for stats in self.allStats():
+                    if not(type(self.char) == octarien and self.char.oneVAll and stats == self.allStats()[ENDURANCE]):
+                        stat = max(stats,stat)
 
-                    for stats in self.allStats():
-                        if not(type(self.char) == octarien and self.char.oneVAll and stats == self.allStats()[ENDURANCE]):
-                            stat = max(stats,stat)
-
-                    badaboum = [target]
-                    if cmpt < len(posArea)-1 and posArea[cmpt+1].on != None:
-                        badaboum.append(posArea[cmpt+1].on)
-                    for a in badaboum:
-                        damage = damageBase * (1+(stat/100)) * (1-(min(95,a.resistance*(1-self.percing/100))/100)) * self.getElementalBonus(a,AREA_MONO,TYPE_INDIRECT_DAMAGE) * (1+(0.01*self.level))
-                        toReturn += self.indirectAttack(a,value=damage,name="Collision")
+                badaboum = [target]
+                if cmpt < len(posArea) and posArea[cmpt].on != None:
+                    badaboum.append(posArea[cmpt].on)
+                for a in badaboum:
+                    damage = damageBase * (1+(stat/100)) * (1-(min(95,a.resistance*(1-self.percing/100))/100)) * self.getElementalBonus(a,AREA_MONO,TYPE_INDIRECT_DAMAGE) * (1+(0.01*self.level))
+                    toReturn += self.indirectAttack(a,value=damage,name="Collision")
 
             return toReturn
 
@@ -2366,11 +2364,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             else:
                 message = ""
             if self.type == TYPE_UNIQUE:
-                if self.effect == hourglass1 and self.on.hp > 0:                # Sablier Imtempo 1 effect
-                    heal = min(self.on.maxHp - self.on.hp, round(self.value * 0.50))
-                    message = self.caster.heal(self.on,self.icon,None,heal,self.effect.name)
-
-                elif self.effect.id == lostSoul.id:                                   # Remove the body effect
+                if self.effect.id == lostSoul.id:                                   # Remove the body effect
                     if self.on.status == STATUS_DEAD and not(aliceMemCastTabl[self.on.team]):
                         self.on.status = STATUS_TRUE_DEATH
                         message="{0} en avait marre d'attendre une résurection et a quitté le combat\n".format(self.on.char.name)
@@ -2890,12 +2884,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         if tablTeamOctaComp[tempCmpt] > 0 and len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]]) > 0:
                             break
 
-                    """print("octoRolesNPos : {0}".format(len(octoRolesNPos)))
-                    print("tempCmpt : {0}".format(tempCmpt))
-                    print("octoRolesNPos[tempCmpt] : {0}".format(len(octoRolesNPos[tempCmpt])))
-                    print("tablTeamOctaPos : {0}".format(len(tablTeamOctaPos)))
-                    print("octoRolesNPos[tempCmpt][tablTeamOctaPos[0]] : {0}".format(len(octoRolesNPos[tempCmpt][tablTeamOctaPos[0]])))"""
-
                     for secondCmpt in range(len(tablTeamOctaPos)):
                         if len(octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]]) > 0:
                             break
@@ -2906,12 +2894,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         try:
                             alea = octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]][0]
                         except:
-                            print('=============================')
-                            print(tablTeamOctaPos)
-                            for a in octoRolesNPos[tempCmpt]:
-                                for b in a:
-                                    print(b.name)
-                            print('=============================')
+                            pass
                     
                     octoRolesNPos[tempCmpt][tablTeamOctaPos[secondCmpt]].remove(alea)
                     tablTeamOctaPos.remove(tablTeamOctaPos[secondCmpt])
@@ -3064,7 +3047,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
     if not(auto):                   # Send the first embed for the inital "Vs" message and start generating the message
         if not(octogone):
             for team in listImplicadTeams:
-                print(team)
                 teamWinDB.changeFighting(team,msg.id,ctx.channel.id,team2)
 
         logs += "\n"
@@ -3160,9 +3142,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                 else:
                     tabl = [[0,1,2,3,4],[0,1,2,3,4,5,6]][bigMap]
-                    cmpt2 = 0
 
-                    for useless in range(tablNbEntOnLine[cmpt]):
+                    for cmpt2 in range(tablNbEntOnLine[cmpt]):
                         if len(tabl) > 1:
                             rand = random.randint(0,len(tabl)-1)
                         else:
@@ -3171,7 +3152,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                         tabl.remove(ruby)
                         tablEntOnLine[cmpt][cmpt2].move(y=ruby,x=b)
                         logs += "{0} has been place at {1}:{2}\n".format(tablEntOnLine[cmpt][0].char.name,b,ruby)
-                        cmpt2 += 1
+        
             cmpt += 1
 
     if not(auto):                       # Edit the Vs embed for his message
@@ -3379,7 +3360,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     add_effect(b,ent,octoTourEff2)
                                     
                                     logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effect.name,ent.char.name,effect.turnInit)
-                    
+
                     if skil.id == trans.id:
                         nbLB[a] += 1
 
@@ -3405,7 +3386,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(b.char.name,effect.name,z.char.name,effect.turnInit)
                             z.refreshEffects()
 
-                        tempTurnMsg += "{0} ({1}) a donné l'effet de __{2}__ (<:constitution:888746214999339068>) à son équipe ({3})\n".format(b.char.name,b.icon,effect.name,c.name)
+                        tempTurnMsg += "{0} ({1}) a donné l'effet de __{2}__ (<:co:888746214999339068>) à son équipe ({3})\n".format(b.char.name,b.icon,effect.name,c.name)
                     else:                           # Any other effects
                         effect=findEffect(c.effect)
                         tempTurnMsg += add_effect(b,b,effect," ({0})".format(c.name),danger=danger)
@@ -3479,7 +3460,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
     if not(auto):                               # Send the turn 0 msg
         await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = light_blue))
-        await asyncio.sleep(2+(len(tempTurnMsg)/1500*5))
+        await asyncio.sleep(2+(min(len(tempTurnMsg),2000)/2000*5))
 
     fight = True
 
@@ -3491,7 +3472,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             nextNotAuto,lastNotAuto = 0,0
 
             everyoneStillThere = False
-            for a in time.timeline : # Vérification du prochain joueur non automatique
+            for a in time.timeline : # Looking for the next not auto player
                 if not(a.auto):
                     everyoneStillThere = True
                     if a.hp > 0:
@@ -3557,7 +3538,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             if len(funnyTempVarName) > 4096:
                                 funnyTempVarName = "OVERLOAD"
                         await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=funnyTempVarName))
-                        await asyncio.sleep(2+(len(funnyTempVarName)/1500)*5)
+                        await asyncio.sleep(2+(min(len(funnyTempVarName),2000)/2000*5))
 
                     logs += funnyTempVarName
 
@@ -3773,9 +3754,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             if wasAlive and actTurn.hp <= 0 and not(auto):        # Died from indirect damages at the start
                 await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
                 if type(actTurn.char) != invoc:
-                    await asyncio.sleep(2+(len(tempTurnMsg)/1500*5))
+                    await asyncio.sleep(2+(min(len(tempTurnMsg),1500)/1500*5))
                 else:
-                    await asyncio.sleep(2+(len(tempTurnMsg)/2500*5))
+                    await asyncio.sleep(2+(min(len(tempTurnMsg),2000)/2000*5))
 
             elif actTurn.hp > 0:                    # Still alive
                 cmpt,iteration,ennemi = 0,actTurn.char.weapon.repetition,actTurn
@@ -3906,7 +3887,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 if haveIterate:                         # Time limite stuff
                                     timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
                                     await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[waitingSelect])
-                                    await asyncio.sleep(3)
                                     dateLimite = dateLimite+datetime.timedelta(seconds=3)
 
                                 timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
@@ -3956,7 +3936,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     elif choiceMsgTemp != "":
                                         timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
                                         await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
-                                        await asyncio.sleep(3)
                                         dateLimite = dateLimite+datetime.timedelta(seconds=3)
                                         timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
                                         await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,create_actionrow(weapSelect)])
@@ -4055,7 +4034,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     elif choiceMsgTemp != "":
                                         timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
                                         await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
-                                        await asyncio.sleep(3)
                                         dateLimite = dateLimite+datetime.timedelta(seconds=3)
                                         timeLimite = (dateLimite - datetime.datetime.now()).total_seconds()
                                         await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+[create_actionrow(skillSelect)])
@@ -4210,7 +4188,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 logs += "\nAuto Fighter. Selected AI : {0}".format(["AI Damage","AI Idole","AI Shield","AI Aventurer","AI Healer","AI agressive supp","AI Mage","AI Enchant"][choisenIA])
                                 
                                 # Définition des probabilités :
-                                # [DPT,BOOST,SHIELD,AVENTURE,ALTRUISTE,OFFERUt,MAGE,ECHANT]
+                                # [DPT_PHYS,BOOST,SHIELD,AVENTURE,ALTRUISTE,OFFERUt,MAGE,ECHANT]
 
                                 probaAtkWeap = [80,40,50,40,40,50,60,60] 
                                 probaHealWeap = [0,60,30,30,70,30,0,0]
@@ -4792,7 +4770,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     optionChoisen = True
                                 elif not(optionChoisen):
                                     probaRoll -= probaInvoc[choisenIA]
-                                
+
                                 if probaRoll == -1 and probaAtkWeap[choisenIA] == probaHealWeap[choisenIA] == 0 and not(optionChoisen):     # Can't use anything
                                     logs += "\nNo target at range. Trying to move"
                                     optionChoice,choiceToMove = OPTION_MOVE, actTurn.getCellToMove()
@@ -4801,7 +4779,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                     if choiceToMove == None:
                                         optionChoice = OPTION_SKIP
                                         logs += "\nNo valid cells found. Skipping the turn"
-                                
+
                                 elif not(optionChoisen):
                                     optionChoice = OPTION_SKIP
 
@@ -4818,7 +4796,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                         skillToUse = serenaSpe
                                         ennemi = actTurn
 
-                                elif actTurn.isNpc("Ailill") and actTurn.cooldowns[2] == 0:
+                                elif actTurn.isNpc("Ailill") and actTurn.cooldowns[0] == 0:
                                     atRangeAilill = actTurn.cell.getEntityOnArea(area=ailillSkill.range,team=actTurn.team,wanted=ENNEMIS,lineOfSight=True,effect=ailillSkill.effect,ignoreInvoc = (ailillSkill.effectOnSelf == None or (ailillSkill.effectOnSelf != None and findEffect(ailillSkill.effectOnSelf).replica != None)))
                                     if len(atRange) > 0:
                                         optionChoice = OPTION_SKILL
@@ -4929,11 +4907,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                                 logs+= funnyTempVarName
                                 tempTurnMsg += funnyTempVarName
 
-                                for a in hourglassEffects:
-                                    if a == findEffect(actTurn.char.weapon.effectOnUse):
-                                        add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
-                                        
-                                        break
                                 ennemi.refreshEffects()
 
                         elif actTurn.char.weapon.effectOnUse != None: # Other weapons
@@ -4944,11 +4917,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             logs+= funnyTempVarName
                             tempTurnMsg += funnyTempVarName
 
-                            for a in hourglassEffects:
-                                if a == findEffect(actTurn.char.weapon.effectOnUse):
-                                    add_effect(actTurn,ennemi,jetlag.setTurnInit(newTurn = 2))
-                                    
-                                    break
                             ennemi.refreshEffects()
 
                     elif optionChoice == OPTION_MOVE: #Option : Déplacement
@@ -5337,9 +5305,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             tempTurnMsg = "OVERLOAD"
                     await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
                     if type(actTurn.char) != invoc:
-                        await asyncio.sleep(2+(len(tempTurnMsg)/1500*5))
+                        await asyncio.sleep(2+(min(len(tempTurnMsg),1500)/1500*5))
                     else:
-                        await asyncio.sleep(2+(len(tempTurnMsg)/2500*5))
+                        await asyncio.sleep(2+(min(len(tempTurnMsg),2000)/2000*5))
 
             # End of the turn - timeline stuff ------------------------------------------------------------------
             tablEntTeam,tablAliveInvoc = time.endOfTurn(tablEntTeam,tablAliveInvoc)
@@ -5402,7 +5370,10 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
             if type(tablEntTeam[1][a].char) == char:
                 tablEntTeam[1][a].char = loadCharFile(absPath + "/userProfile/" + str(tablEntTeam[1][a].char.owner) + ".prof")
 
-        winners = int(not(everyoneDead[1]))         # The winning team. 0 -> Blue, 1 -> Red
+        if not(everyoneDead[1] and everyoneDead[0]):
+            winners = int(not(everyoneDead[1]))         # The winning team. 0 -> Blue, 1 -> Red
+        else:
+            winners = 1
 
         if not(octogone and team2[0].isNpc('Lena') and len(team2) == 1 and not(winners)):               # None Special fights
             for z in (0,1):
@@ -5563,8 +5534,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             baseGain = gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
                         else:
                             baseGain = 0
-                        effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate*[1,1.5][a.char.stars > 0 and a.char.level <=30] * (1-0.67*(a.char.team == mainUser.team)))
-                        a.char = await addExpUser(bot,guild,path,ctx,exp=effectiveExpGain,coins=int(gainCoins*(1-0.67*(a.char.team == mainUser.team))))
+                        effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate*[1,1.5][a.char.stars > 0 and a.char.level <=30] * (1-0.67*(a.char.team != mainUser.team)))
+                        a.char = await addExpUser(bot,guild,path,ctx,exp=effectiveExpGain,coins=int(gainCoins*(1-0.67*(a.char.team != mainUser.team))))
 
                         gainMsg += "\n{0} → <:exp:926106339799887892> +{1}".format(await getUserIcon(bot,a.char),effectiveExpGain)
 

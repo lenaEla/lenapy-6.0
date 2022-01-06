@@ -4,6 +4,7 @@ import discord_slash
 from classes import *
 from adv import findWeapon,findOther,findSkill,findStuff
 
+
 """
 Main functions module
 """

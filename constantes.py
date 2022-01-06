@@ -45,8 +45,14 @@ AREA_DIST_7 = 33
 AREA_ARC_1 = 34 # Arc
 AREA_ARC_2 = 35
 AREA_ARC_3 = 36
+AREA_RANDOMENNEMI_1 = 37
+AREA_RANDOMENNEMI_2 = 38
+AREA_RANDOMENNEMI_3 = 39
+AREA_RANDOMENNEMI_4 = 40
+AREA_RANDOMENNEMI_5 = 41
 
-areaNames = ["Monocible","Cercle de rayon 1","Cercle de rayon 2","Cercle de rayon 3","Cercle de rayon 4","Cercle de rayon 5","Cercle de rayon 6","Cercle de rayon 7","Tous les alliés","Tous les ennemis","Tous les combattants","Cone simple","Cone Large","Cone Large","Cone Large","Cone Large","Cone Large","Ligne de 2 de longueur","Ligne de 3 de longueur","Ligne de 4 de longueur","Ligne de 5 de longueur","Ligne de 6 de longueur","Donut de 1 de rayon","Donut de 2 de rayon","Donut de 3 de rayon","Donut de 4 de rayon","Donut de 5 de rayon","Donut de 6 de rayon","Donut de 7 de rayon","Anneau Distance de 1 de largeur","Anneau Distance de 2 de largeur","Anneau Distance de 3 de largeur","Anneau Distance de 4 de largeur","Anneau Distance de 5 de largeur","Arc de Cercle de 1 de rayon","Arc de Cercle de 2 de rayon","Arc de Cercle de 3 de rayon"]
+areaNames = ["Monocible","Cercle de rayon 1","Cercle de rayon 2","Cercle de rayon 3","Cercle de rayon 4","Cercle de rayon 5","Cercle de rayon 6","Cercle de rayon 7","Tous les alliés","Tous les ennemis","Tous les combattants","Cone simple","Cone Large","Cone Large","Cone Large","Cone Large","Cone Large","Ligne de 2 de longueur","Ligne de 3 de longueur","Ligne de 4 de longueur","Ligne de 5 de longueur","Ligne de 6 de longueur","Donut de 1 de rayon","Donut de 2 de rayon","Donut de 3 de rayon","Donut de 4 de rayon","Donut de 5 de rayon","Donut de 6 de rayon","Donut de 7 de rayon","Anneau Distance de 1 de largeur","Anneau Distance de 2 de largeur","Anneau Distance de 3 de largeur","Anneau Distance de 4 de largeur","Anneau Distance de 5 de largeur","Arc de Cercle de 1 de rayon","Arc de Cercle de 2 de rayon","Arc de Cercle de 3 de rayon","1 ennemi aléatoire","2 ennemis aléatoires","3 ennemis aléatoires","4 ennemis aléatoires","5 ennemis aléatoires"]
+
 # Weapon's range
 RANGE_MELEE = 0
 RANGE_DIST = 1
@@ -215,7 +221,7 @@ maxMagie = [
     15  # Pro
 ]
 
-for a in range(0,len(inspi)):
+for a in range(0,len(inspi)):                           # Aspi base stats verification
     summation = 0
     for b in (maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie):
         try:
@@ -228,7 +234,7 @@ for a in range(0,len(inspi)):
 
 # Constants for "orientation" field for skills
 TANK,DISTANCE,LONG_DIST = "Tank","Distance","Longue Distance"
-DPT,HEALER,BOOSTER,MAGIC,SHIELDER = "Bers, Obs, P.Plu, T.Bru","Ido, Pro, Alt","Ido, Pro","Enc, Mag","Ido, Pro, Pre"
+DPT_PHYS,HEALER,BOOSTER,DPT_MAGIC,SHIELDER = "Bers, Obs, P.Plu, T.Bru","Ido, Pro, Alt","Ido, Pro","Enc, Mag","Ido, Pro, Pre"
 
 # Elementals
 ELEMENT_NEUTRAL = 0
@@ -255,9 +261,9 @@ elemDesc = [
 ]
 elemNames = ["Neutre","Feu","Eau","Air","Terre","Lumière","Ténèbre","Astral","Temporel"]
 
+# AoE stuff
 AOEDAMAGEREDUCTION = 0.35
 AOEMINDAMAGE = 0.2
-
 
 def uniqueEmoji(emoji):
     return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
@@ -267,7 +273,6 @@ def sameSpeciesEmoji(team1,team2):
 
 dangerEm = sameSpeciesEmoji('<a:dangerB:898372745023336448>','<a:dangerR:898372723150041139>')
 untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
-hourglassEmoji = [['<:hourglass1:872181651801772052>','<:hourglass2:872181632801603644>'],['<:hourglass1:872181651801772052>','<:hourglass2:872181632801603644>'],['<:hourglass1:872181651801772052>','<:hourglass2:872181632801603644>']]
 
 # List of guild ids for the bots
 ShushyCustomIcons = [881900244487516180]
@@ -281,27 +286,19 @@ if not(os.path.exists("../Kawi")):
     horaire = timedelta(hours=1)
 else:
     horaire = timedelta(hours=0)
-    
+
 # Are we on the livebot or the test bot ?
 isLenapy = not(os.path.exists("../Kawi"))
 
 # Tabl of random messages for the shop
 shopRandomMsg = [
-    '{lena} : "Si j\'en crois la loi, je suis sensée vous rappeller que vous acceptez d\'utiliser vos armes à vos risques et périls.\nJe suis en aucun cas responsable si elle vous explose dans les mains et que vous la passez à gauche"',
-    '{lena} : "Si quelqu\'un vois l\'autre fanatique des fleurs roses, vous pourrez lui dire qu\'il y en a une qui a poussée dans mon shop ?"',
-    '{lena} : "Hônnetement, ça fait un moment que j\'ai arrêté de compter le nombre de canettes de Coca que me dois Léna"',
-    '{lena} : "Des fleurs roses, blues, jaunes... Je dois vous rappeler que vous partez pas en mission jardinage ?"',
-    "{lena} : \"Faites attention si Alice vous rejoint pour un combat. Il est fort probable qu'elle cherche à obtenir des infos sur vous plutôt que de vaincre vos ennemis\"",
     "{alice} : \"J'aime bien les vêtements que tu proposes, mais ça manque de rose...\"\n{lena} : \"C'est une blague j'espère\"",
-    "<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`",
     "<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`\n{shushi} : `Regarde les pop-corns avec un air interresée`",
-    "<:ikaPink:866459344173137930> : \"Flum POWA !\"",
     "<:ikaPink:866459344173137930> : \"Flum POWA !\"\n{clemence} : \"Les coquelicots c'est mieux je trouve\"\n{alice} : \"N'importe quoi ! Ce sont les roses les plus jolies !\"\n{lena} : \"Vous trois, vous pourriez arrêter de débattre dans mon shop, s'il vous plait ?\"",
     "{lena} : \"Tiens, Clémence, j'ai trouvé un drôle de livre ces derniers temps et vu que tu t'y connais un peu en runes et magie, je me demandais si tu pouvais essayer de m'apprendre un peu comment m'en servir...\"\n{clemence} : \"Heu... ok\"",
     "{clemence} : \"Ah, Lena. J'ai jeté un coup d'œil à ton livre et heu... Tu as au moins une idée de ce qu'est un Carbuncle ?\"\n{lena} : \"Absolument pas\"\n{clemence} : \"... Ça va être long...\"",
     '{lena} : "Si quelqu\'un vois Ly, vous pourrez lui dire que ma proposition tiens toujours ?"',
     '{clemence} : "Hum... j\'ai trouvé des trucs qui pourrait t\'interresser lors de ma dernière escapade dans les ruines d\'Elidyn, Lena"\n{lena} : "Ow ? Montre pour voir ?"',
-    '{luna} : "On a tous une part sombre en nous. Si vous voulez je peux vous aider à la trouver"',
     '{shihu} : "Ti miman a un pobem"\n{shushi} : "Gomment za ?"\n{shihu} : "Mi miman commenze a en awoir marre de fire la zentille fifille"\n{shushi} : "..."',
     '{alice} : "Mooow tu sais que tu es trop mignone toi ?"\n{shushi} : "Heu... gwa ?"',
     '{clemence} : "Je me doute déjà de la réponse mais... Alice, pourquoi tu es quasiment toujours là où se trouve Hélène en ce moment ?"\n{alice} : "... Pour rien ^^"\n{clemence} : "Je suis pas vraiment convaincue..."',
@@ -311,7 +308,6 @@ shopRandomMsg = [
     '{lena} : "\"Fini de jouer\" ? Tu as pas mieux comme phrase d\'accroche ?"\n{luna} : "Est-ce que je critique tes \"It\'s now or never\" moi ?"\n{lena} : "Roh, je suis sûre que tu l\'aime bien aussi cette chanson"\n{luna} : "Tss. Uniquement l\'originale."',
     '<:helene:906303162854543390> : "Tu es au courant que mourir par hémorragie est tout sauf une mort agréable hein ?"\n{shehisa} : "Je vois pas où est la différence avec les infections que tu donnes à tes adversaires. Je suis peut-être pas une soigneuse, mais Papa m\'a suffisament initiée pour savoir que les maladies que tu leur refile sont tous sauf agréable"',
     '{shehisa} : "Tu me reproche d\'avoir suivi la voie de Maman, mais tu devrais voir comment tu te comporte face à un ennemi quand tu veux lui faire avaler la pilule"\n<:helene:906303162854543390> : "Qu\'est-ce que tu insinue par là ?"\n{shehisa} : "Que je suis pas la seule à avoir héritée des talents de Maman"',
-    '{shehisa} : "Toujours rassurant de te savoir dans les parages, Icealia"\n{icelia} : "Oh, je n\'arrive pas au niveau de ta soeur en terme de soutiens quand même..."',
     '{shehisa} : "Toujours rassurant de te savoir dans les parages, Icealia"\n{icelia} : "Et moi je suis toujours rasurée de te savoir dans mon camp..."',
     '<:determination:867894180851482644> : "Laisse tomber Lena. De toutes façons il me considre même pas comme un de ses OCs"\n{lena} : "Tu vas pas rester dans le retrait et dans l\'oublie quand même ! Tu es presque aussi vielle que moi !"\n<:determination:867894180851482644> : "Undertale est plus vieux que toi"\n{lena} : "Si tu veux jouer à qui a la plus grosse je pense que je t\'explose"\n<:determination:867894180851482644> : "Oh ça dépend de la catégorie. En combat, tu m\'as jamais vaincue"\n{luna} : "Mais moi si"',
     'Les anges c\'est surc-\n{lena} : .',
@@ -324,9 +320,6 @@ shopRandomMsg = [
     '{clemence} : "Hé Powehi, je me suis retrouvée avec plein de Rotten Flesh lors de ma dernière expédition, tu veux que je te les passes ?"\n<:powehi:909048473666596905> : "Oh que oui !"',
     '<:gweny:906303014665617478> : "Toujours à regarder les étoiles ?"\n<:powehi:909048473666596905> : "J\'ai une question Gwendoline... Tu réagirais comment si tu étais bloquée dans ce monde après ta mort et ne pouvais que regarder les autres être vivant te fuir dès que tu t\'approches trop d\'eux ?"\n<:gweny:906303014665617478> : "Oh heu... Je sais pas vraiment désolée. Compliqué de se mettre à ta place, j\'en ai bien peur"\n<:powehi:909048473666596905> : "C\'est pas grave, merci quand même..."',
     '`En entrant dans une pièce présumée vide, vous êtes surpris de voir des reflets lumineux dans un coin. En allant l\'examiner, vous découvrez Shushi et Sixtine qui dorment l\'une contre l\'autre. Au sol se trouve un lecteur de musique`\n\n📱 [Liste de musique en file d\'attente](https://bit.ly/3D6Ltdh)',
-    "{lena} : \"Qu'est-ce que l'EEv3 ? J'aurais peut-être dû te dire ça avant de t'envoyer taper les octariens à tout bout de champ...\"\n\n`Elle s'adossa à un mur, en réfléchissant à comment elle pourrait expliquer ça sans dépasser la limite de caractère`\n\n{lena} : \"Pour commencer, l'Escadron Espadon (premier du nom) était le nom de l'armée de mon peuple, les Inklings, lors de la Grande Guerre de Territoire. Déjà si tu en est arrivé à là j'en déduis que tu es pas Flora. Je te passe les détails, mais on l'a gagné.\nUn siècle plus tard, les Octariens ont relancé une offensive contre Chromapolis, mais qui fût repoussé par l'Escadron Espadon Nouvelle Version, nouvellement reformé à l'occasion. Oh ça n'a pas empêché les Octariens de lancer d'autres offensives, et c'est au cours de l'une d'elle que j'ai rejoins les rangs.\n\nLe temps à passé, et au final je me suis retrouvé à la tête de l'Escadron. C'est à ce moment là que j'ai décidé d'en faire une société un peu moins secrète et fait batir ce QG tout en changeant le nom de l'Escadron une nouvelle fois pour Escadron Espadon 3e Version.\nNotre role premier consiste évidamment à protéger Chromapolis contre les agressions, mais ces derniers temps, plusieurs failles dimentionnels sont apparues menacent la notre.\n\nC'est là que tu rentre en jeu {0}. Ouais bon, je vais continuer de t'appeller {1} enfaite. Plus court. Donc bref, comme tu peux t'en douter, tu, et ton équipe, viens de l'une de ses failles des dimensions de l'imaginaire et avec votre aide j'aimerais bien tirer au clair toute cette histoire. Comme tu aura pu le remarquer, les Octariens aussi ont saisi cette occasion pour renforcer leurs rangs, et poussent leurs assauts à un autre niveau que précédamment, mais tant que les équipes d'interventions comme vous seront là, j'ai pas vraiment de soucis à me faire.\"",
-    "{lena} : \"La plupart des armes que tu trouveras dans cet arsenal viennent de d'autres dimensions tu t'en doute. Mais elles ont toutes été vérifiées par notre expert qui les as toutes certifiées avec un \"Dans les conditions normales d'utilisation, sans danger pour l'utilisateur\". Va savoir ce qui se passe dans des conditions anormales, par contre.\"",
-    "{lena} : \"À quoi sert mon équipe des \"Temp's\" ? Basiquement on remplie la tienne si elle contient pas assez de membre pour partir en mission, mais de temps en temps on organise des combats d'entrainement contre des équipes d'intervention, histoire de tester des armes et compétences. Et puis ça vous change de vos adversaires habituels.\"",
     "<:john:908887592756449311> : \"A-Alice, toi qui la connais bien tu... saurais ce que je pourrais faire pour... qu'elle me voit comme autre chose qu'un... ami ?\"\n{alice} : \"Commence par être un peu plus sûr de toi. Là, elle continue de voir le louvetau naïf qui essayait de se coucher à ses pieds au lieu de fuir\"\n<:john:908887592756449311> : \"Mais je-\"\n{alice} : \"Passe ton temps avec elle sous ta forme de loup à être couché à ses pieds. Si tu veux qu'elle te vois comme autre chose qu'un chien de compagnie, va falloir que tu arrête de te comporter tel quel.\"",
     "<:lio:908754690769043546> : \"H-hm !? Oh c'est toi...\"\n{feli} : \"Tiens tu es là toi aussi ?\"\n<:lio:908754690769043546> : \"J'ai pas trouvé d'autres points d'eau dans le coin donc oui... je suppose...\"",
     "<:gweny:906303014665617478> : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
@@ -363,7 +356,23 @@ shopEventPaques = [
     "{lena} : \"J'ai jamais compris pourquoi les gens cachent des oeufs en chocolat pour Pâques\"\n{luna} : \"Ça ne t'empêches pas de le faire quand même\"\n{lena} : \"En même temps, même toi tu ne peux pas être insensibles à toutes leurs bouilles heureuses\"\n{luna} : \"Évite de parler en mon nom s'il te plaît\""
 ]
 
-shopRepatition = [4,5,8,2]                 # Répartition des objets du shop
+shopSeasonWinter = [
+    "{clemence} : `Lit un grimoire en étant assise sur un fauteuil devant la cheminée`",
+    "{lena} : \"Féli, si tu pouvais arrêter de dormir dans le feu ça m'arrangerais pas mal\"\n{feli} : \"Bah pourquoi :< ?\"\n{lena} : \"Parceque après tes soeurs et Shushi veulent faire la même chose. Et elles, elles ne sont pas fireproof.\"\n{feli} : \"Oh\"",
+    "{shushi} : \"Miman pourquoi j'ai pas le droit de rester près du feu moi :< ?\"\n{lena} : \"Parceque ta membrane extérieure est trop jeune et tout ton corps va sécher si tu restes trop près du feu, voilà pourquoi\"",
+    "{alice} : `Boit un chocolat chaud en étant assise sur un fauteuil devant la cheminée`\n{sixtine} : `Arrive dans le salon avec sa couette sur les épaules et monte dans le fauteuil pour se blottir contre Alice`\n{alice} : \"ça va pas ?\"\n{sixtine} : \"Juste un cauchemar...\"\n{alice} : `patpat`",
+    "{clemence} : `Regarde Félicité de haut en bas` \"Toi tu as encore dormi dans la cheminée\"\n{feli} : \"D: Non c'est faux !\"\n{clemence} : \"Tu es pleine de cendres, s'il te plaît x)\"",
+    "{lena} : `Descend dans le salon à 3h du matin pour prendre un verre d'eau et voit une boule de poils blancs devant la cheminée` \"C'est pour ça qu'on porte des vêtements, Lio\"\n<:lio:908754690769043546> : `Eternue dans son sommeil`\n{lena} : `Soupir, remet une buche dans la cheminée puis pose une couverture sur la grosse boule de poils`"
+]
+
+shopSeasonSpring = [
+    "{alice} : `Est assise sur une commode devant une fênetre et regarde la pluie arroser ses fleurs`",
+    "{alice} : `Plante des fleurs dans le jardins tandis que Sixtine regarde les nuages`",
+    "{luna} : \"Dans notre ancien chez nous les fleurs mourraient si elles avaient trop de Lumière\"\n{iliana} : \"Vraiment toutes ? Même ici il y a des fleurs qui vivent dans l'ombre\"\n{luna} : \"À quelques exeptions près, effectivement\"",
+    "{lena} : \"Surtout tu oublie pas ton parapluie !\"\n{shushi} : \"Mi il fait grand soleil !\"\n{lena} : \"Il peut très rapidement se mettre à pleuvoir à cette saison, Shu'\""
+]
+
+shopRepatition = [4,5,8,2]                 # Shop's item category length
 
 # Same, but for the roll command
 rollMessage = ["Selon toute vraisemblance ce sera un **{0}**","Puisse la chance être avec toi... **{0}** !","Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**","Le nombre de lances que tu va avoir à esquiver est... **{0}**"]

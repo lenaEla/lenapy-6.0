@@ -418,11 +418,10 @@ def infoSkill(skill : skill, user : char,ctx):
                     multi = " x{0}".format(skil.become[cmpt].repetition)
                 temp += "__{0}__{2} ({1})\n".format(skil.become[cmpt].power, skil.become[cmpt].name, multi)
 
-            
             temp+="\n__Zone d'effet :__\n"
             for cmpt in range(len(skil.become)):
                 temp += "{0} ({1})\n".format(areaNames[skil.become[cmpt].area], skil.become[cmpt].name)
-            
+
             temp+="\n__Précisions :__\n"
             for cmpt in range(len(skil.become)):
                 temp += "{0}% ({1})\n".format(skil.become[cmpt].sussess, skil.become[cmpt].name)
@@ -462,7 +461,9 @@ def infoSkill(skill : skill, user : char,ctx):
 
         if skil.description != None:
             temp += "\n\n__Description :__\n"+skil.description+"\n"
-        
+
+        temp+="\n__Zone d'effet :__ {0}\n".format(areaNames[skil.area])
+
         if skil.id.startswith("clem") or skil.id.startswith("alice"):
             for skillID, cost in clemBJcost.items():
                 if skil.id == skillID:
@@ -548,7 +549,7 @@ def infoSkill(skill : skill, user : char,ctx):
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
 
     if skil.become == None:
-        if skil.range != AREA_MONO:
+        if skil.range not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
             ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
             for a in ballerine:
                 if a == skil.type:
@@ -560,7 +561,7 @@ def infoSkill(skill : skill, user : char,ctx):
                     repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ENNEMIS))
                     break
 
-        if skil.area != AREA_MONO and skil.area != AREA_ALL_ALLIES and skil.area != AREA_ALL_ENEMIES and skil.area != AREA_ALL_ENTITES:
+        if skil.area not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
             if skil.type in [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL]:
                 repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ALLIES,ranged=False))
 
@@ -831,10 +832,10 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
 
         user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
 
-        ballerine = await bot.fetch_user(user.owner)
-        level = str(user.level+1) + ["","<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars>0]
-        lvlEmbed = discord.Embed(title = f"__Niveau supérieur__",color = user.color,description = f"Le personnage de {ballerine.mention} ({user.name}) est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande \"points\".")
-        
+
+        level, ballerine = str(user.level+1) + ["","<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars>0], await getUserIcon(bot,user)
+        lvlEmbed = discord.Embed(title = f"__Montée de niveau__",color = user.color,description = f"{ballerine} {user.name} est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande /points\.")
+
         if (user.level+1) % 5 == 0:
             unlock = ""
             listUnlock = []
@@ -852,7 +853,7 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
 
             if unlock != "":
                 lvlEmbed.add_field(name="<:empty:866459463568850954>\n__Vous pouvez désormais équiper les objets de votre inventaire suivants :__",value=unlock)
-        
+
         if guild.bot != 0:
             await bot.get_guild(guild.id).get_channel(guild.bot).send(embed = lvlEmbed)
         else:
