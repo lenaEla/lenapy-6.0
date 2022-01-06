@@ -521,9 +521,9 @@ class stuff:
             elif orientation[1] == None:
                 self.orientation = orientation[0] + " - Neutre"
             else:
-                if orientation == [LONG_DIST,DPT,None]:
+                if orientation == [LONG_DIST,DPT_PHYS,None]:
                     self.orientation = LONG_DIST + " - Obs, T.Bru"
-                elif orientation == [TANK,DPT,None]:
+                elif orientation == [TANK,DPT_PHYS,None]:
                     self.orientation = TANK + " - Bers, P.Plu"
                 else:
                     self.orientation = orientation[0] + " - "+orientation[1]

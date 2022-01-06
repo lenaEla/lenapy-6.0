@@ -943,13 +943,13 @@ async def normal(ctx):
         pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
     except:
         return 0
-    
+
     if not existFile(pathGuildSettings):
         tempGuild = server(ctx.guild.id)
         saveGuildSettings(pathGuildSettings, tempGuild)
         print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
         guilds.append(tempGuild) 
-    
+
     guild = None
 
     for a in guilds:
@@ -982,10 +982,12 @@ async def normal(ctx):
         for letter in fightingStatus[1]:
             if letter==";" and len(temp) > 0:
                 ennemi = findEnnemi(temp)
+                if ennemi == None:
+                    ennemi = findAllie(temp)
                 if ennemi != None:
                     fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                 else:
-                    fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                    fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
                 temp = ""
             else:
                 temp+=letter
@@ -1087,7 +1089,7 @@ async def normal(ctx):
         await fight(bot,team1,team2,ctx,guild,False)
         fightAnyway = False
 
-    elif fun < 9:              # Raid
+    elif fun < 12:              # Raid
         tablAllTeams = os.listdir("./userTeams/")
         random.shuffle(tablAllTeams)
 
@@ -1111,17 +1113,13 @@ async def normal(ctx):
                 if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
                     team1 += tempTeam
                     break
-        
+
         temp = team1
         temp.sort(key=lambda overheal: overheal.level,reverse=True)
         maxLvl = temp[0].level
         team2 = []
+        alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
 
-        if len(tablRaidBoss) > 1:
-            alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
-        else:
-            alea = copy.deepcopy(tablRaidBoss[0])
-    
         alea.changeLevel(maxLvl)
         team2.append(alea)
 
@@ -1197,10 +1195,12 @@ async def comQuickFight(ctx):
             for letter in fightingStatus[1]:
                 if letter==";" and len(temp) > 0:
                     ennemi = findEnnemi(temp)
+                    if ennemi == None:
+                        ennemi = findAllie(temp)
                     if ennemi != None:
                         fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                     else:
-                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
                     temp = ""
                 else:
                     temp+=letter
@@ -1349,10 +1349,12 @@ async def cooldowns(ctx):
             for letter in fightingStatus[1]:
                 if letter==";" and len(temp) > 0:
                     ennemi = findEnnemi(temp)
+                    if ennemi == None:
+                        ennemi = findAllie(temp)
                     if ennemi != None:
                         fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                     else:
-                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
                     temp = ""
                 else:
                     temp+=letter
@@ -2211,7 +2213,7 @@ async def seeEnnemyRep(ctx):
             octoRolesNPos[roleId][octa.weapon.range].append(octa)
 
     for cmpt in (0,1,2):
-        embed = discord.Embed(title="__Ennemi répartion : {0}__".format(["DPT","Healer/Shilder","Support"][cmpt]),color=light_blue)
+        embed = discord.Embed(title="__Ennemi répartion : {0}__".format(["DPT_PHYS","Healer/Shilder","Support"][cmpt]),color=light_blue)
         for cmptBis in range(len(octoRolesNPos[cmpt])):
             desc = ""
             for name in octoRolesNPos[cmpt][cmptBis]:
@@ -2230,7 +2232,7 @@ async def seeEnnemyRep(ctx):
     desc = ''
     for name in dicidants:
         desc += "{0} {1}\n".format(name.icon,name.name)
-    embed = discord.Embed(title="__Hors catégorie :__".format(["DPT","Healer/Shilder","Support"][cmpt]),color=light_blue,description=desc)
+    embed = discord.Embed(title="__Hors catégorie :__".format(["DPT_PHYS","Healer/Shilder","Support"][cmpt]),color=light_blue,description=desc)
 
     await ctx.channel.send(embed = embed)
 
