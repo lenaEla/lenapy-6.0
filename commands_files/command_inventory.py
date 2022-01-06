@@ -735,8 +735,31 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         tri = 0
         needRemake = True
 
+        listUserProcure = []
+        if user.team != 0:
+            file = readSaveFiles("./userTeams/{0}.team".format(user.team))
+            for a in file[0]:
+                temp = loadCharFile("./userProfile/" + a + ".prof")
+                if ctx.author_id in temp.procuration:
+                    listUserProcure.append(temp)
+
         affAll,stuffAff,statsToAff,stuffToAff = True,True,0,0
         while 1:
+            if len(listUserProcure) > 0:
+                procurOptions = []
+                for a in listUserProcure:
+                    procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner))
+                procurSelect = [create_actionrow(create_select(procurOptions))]
+            else:
+                procurSelect = []
+
+            catSelect = create_select(
+                [
+                    create_select_option("Equipements","cat_0",getEmojiObject('<:uniform:866830066008981534>'),default=value==0),
+                    create_select_option("Armes","cat_1",getEmojiObject('<:kcharger:870870886939508737>'),default=value==1),
+                    create_select_option("Compétences","cat_2",getEmojiObject('<:stingray:899243721378390036>'),default=value==2)
+                ]
+            )
             user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
             userIconThub = getEmojiObject(await getUserIcon(bot,user))["id"]
             options = [
@@ -862,6 +885,8 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             firstOptions = []
 
+            if page > 0:
+                firstOptions.append(create_select_option("Page précédente","goto{0}".format(page-1),'◀️'))
             if lenTabl != 0: # Génération des pages
                 if value != 3:
                     mess=""
@@ -995,32 +1020,10 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             else:
                 mess = "Il n'y a rien à afficher dans cette catégorie"
 
-            pageOption = []
-            pageTemp = 0
-            while pageTemp <= maxPage:
-                maxi = min((pageTemp+1)*10,len(tablToSee)-1)
-                if tri < 2:
-                    desc2 = "{0} → {1}".format(tablToSee[pageTemp*10].name[0:2],tablToSee[maxi].name[0:2])
-                elif tri < 14:
-                    allStats1 = tablToSee[pageTemp*10].allStats() + [tablToSee[pageTemp*10].resistance,tablToSee[pageTemp*10].percing,tablToSee[pageTemp*10].critical]
-                    allStats2 = tablToSee[maxi].allStats() + [tablToSee[maxi].resistance,tablToSee[maxi].percing,tablToSee[maxi].critical]
-                    desc2 = "{0} → {1}".format(allStats1[tri-4],allStats2[tri-4])
-                else:
-                    desc2 = ""
+            if page < maxPage:
+                firstOptions.append(create_select_option("Page suivante","goto{0}".format(page+1),'▶️'))
 
-                pageOption += [create_select_option("Page {0}".format(pageTemp+1),"goto{0}".format(pageTemp),description=desc2,default=pageTemp==page)]
-                pageTemp += 1
-            if len(pageOption) == 0:
-                pageSelect = create_select([create_select_option("None","None")],placeholder="Il n'y a qu'une page à afficher",disabled=True)
-            else:
-                pageSelect = create_select(pageOption,placeholder="Changer de page")
-
-            if len(firstOptions) > 0:
-                firstSelect = create_select(options=firstOptions,placeholder="Voir la page de l'équipement")
-            else:
-                firstSelect = create_select(options=[create_select_option("None","None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
-
-            embed = discord.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
+            embed = discord.Embed(title="__/inventory__",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
             embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(userIconThub))
 
             if tri in [14,15]:
@@ -1053,19 +1056,35 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             else:
                 ultimateTemp = []
 
+            if len(firstOptions) > 0:
+                firstSelect = create_select(options=firstOptions,placeholder="Voir la page de l'équipement")
+            else:
+                firstSelect = create_select(options=[create_select_option("None","None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
+    
             if msg == None:
                 try:
-                    msg = await ctx.send(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
+                    msg = await ctx.send(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
                 except:
-                    msg = await ctx.channel.send(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
+                    msg = await ctx.channel.send(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
             else:
-                await msg.edit(embed=embed,components=[create_actionrow(pageSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
+                await msg.edit(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
 
             try:
                 respond = await wait_for_component(bot,msg,check=check,timeout=180)
             except:
-                await msg.edit(embed=embed,components=[])
-                break
+                embed = discord.Embed(title="__/inventory__",color=user.color)
+                embed.add_field(name="__Arme :__",value="{0} {1}".format(user.weapon.emoji,user.weapon.name))
+                embed.add_field(name="__Equipement :__",value="{0} {1}\n{2} {3}\n{4} {5}".format(user.stuff[0].emoji,user.stuff[0].name,user.stuff[1].emoji,user.stuff[1].name,user.stuff[2].emoji,user.stuff[2].name))
+                temp = ""
+                for obj in user.skills:
+                    if type(obj)==skill:
+                        temp += "{0} {1}\n".format(obj.emoji,obj.name)
+                    else:
+                        temp += " -\n"
+                embed.add_field(name="__Compétences :__",value=temp)
+                embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(userIconThub))
+                await msg.edit(embed = embed, components = [])
+                return 0
 
             if respond.component_type == 2:
                 respond.values = [respond.custom_id]
@@ -1101,12 +1120,15 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
                 tri=respond
 
-            elif respond.values[0].startswith("goto"):
-                temp = respond.values[0]
-                while not(temp.isdigit()):
-                    temp = temp[1:]
+            elif respond.values[0].startswith("cat_"):
+                value = int(respond.values[0].replace("cat_",""))
+                needRemake = True
 
-                page = int(temp)
+            elif respond.values[0].startswith("goto"):
+                page = int(respond.values[0].replace("goto",""))
+
+            elif respond.values[0].startswith("user_"):
+                user = loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
 
             elif respond.values[0] in ["hideNoneEquip","affNoneEquip"]:
                 if destination == 2:

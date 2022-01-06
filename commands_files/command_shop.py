@@ -1,3 +1,4 @@
+from re import findall
 import discord, os
 from discord_slash.utils.manage_components import *
 from adv import *
@@ -35,15 +36,19 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             msg = await loadingSlashEmbed(ctx)
 
         shopTotalRandom = shopRandomMsg
-        years = datetime.datetime.now().year
+        
+        dateNow = datetime.datetime.now()
+        years = dateNow.year
 
-        if datetime.datetime.now() > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
+        if dateNow > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
             shopTotalRandom += shopEventEndYears + shopEventEndYears
-        elif datetime.datetime.now() > datetime.datetime.strptime("19/1/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("20/1/{0}".format(years),"%d/%m/%Y"):
+        elif dateNow > datetime.datetime.strptime("19/1/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("20/1/{0}".format(years),"%d/%m/%Y"):
             shopTotalRandom += shopEventLenaBday + shopEventLenaBday
-        elif datetime.datetime.now() > datetime.datetime.strptime("17/4/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("18/4/{0}".format(years),"%d/%m/%Y"):
+        elif dateNow > datetime.datetime.strptime("17/4/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("18/4/{0}".format(years),"%d/%m/%Y"):
             shopTotalRandom += shopEventPaques + shopEventPaques
 
+        if dateNow.month <= 2 or dateNow.month == 12:
+            shopTotalRandom += shopSeasonWinter
 
         shopRdMsg = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)].format(
             ctx.author.name,
@@ -191,10 +196,13 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 for letter in fightingStatus[1]:
                     if letter==";" and len(temp) > 0:
                         ennemi = findEnnemi(temp)
+                        if ennemi == None:
+                            ennemi = findAllie(temp)
+
                         if ennemi != None:
                             fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                         else:
-                            fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n".format(ennemi.icon,ennemi.name)
+                            fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
                         temp = ""
                     else:
                         temp+=letter
@@ -209,11 +217,8 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 saveCharFile(pathUserProfile,user)
                 await ctx.channel.send(embed=fullEmb)
 
-            select = create_select(
-                options=options,
-                placeholder="Choisissez un article pour avoir plus d'informations dessus"
-                )
-            
+            select = create_select(options=options,placeholder="Choisissez un article pour avoir plus d'informations dessus")
+
             if totalCost > user.currencies:
                 temp1 = allBuyButtonButPoor
             elif totalCost == 0:
@@ -241,8 +246,17 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             try:
                 respond = await wait_for_component(bot,messages=initMsg,check=check2,timeout=60)
             except:
-                await initMsg.edit(embed = shopEmb,components=[timeoutSelect])
-                break
+                timeoutEmbed = discord.Embed(title="__/shop__",color=user.color,description=shopRdMsg)
+                shopField = ["","",""]
+                for a in [0,1,2]:
+                    for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
+                        if b != None:
+                            shopField[a] += "\n{0} {1}".format(b.emoji,b.name)
+
+                    timeoutEmbed.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=True)
+
+                await initMsg.edit(embed = timeoutEmbed,components=[])
+                return 0
 
             if respond.component_type == 2:
                 if respond.custom_id =="buy all":
@@ -774,4 +788,4 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                                 await msg.delete()
 
     else:
-        await ctx.channel.send(embed = errorEmbed("shop","Vous n'avez pas commencé l'aventure"))
+        await ctx.send(embed = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),delete_after=15)
