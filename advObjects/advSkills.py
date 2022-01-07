@@ -327,6 +327,8 @@ lioSkillSus = skill("Shio",'zza',TYPE_INDIRECT_HEAL,0,cooldown=7,effect=lioSkill
 lizSkillSusEff = effect("Tanka",'lizWillBurnThemAll',MAGIE,power=15,area=AREA_CIRCLE_1,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
 lizSKillSus = skill("Shokyaku","zyz",TYPE_INDIRECT_DAMAGE,0,effect=lizSkillSusEff,area=AREA_CONE_4,cooldown=7,emoji='<:lizSkill:922328829765242961>')
 
+freedlyPush = skill("Pousée amicale","movepls",TYPE_DAMAGE,0,1,range=AREA_DONUT_1,use=HARMONIE,knockback=3,emoji='<:movePlz:928756987532029972>',say=["Madness ? THIS IS SPARTA !","* Out of my ways","SPAR-TA"])
+
 # Skill
 skills = [intelRaise,ultRedirect,clemency,liuSkillSus,liaSkillSus,lioSkillSus,lizSKillSus,
     neutralMono1,neutralZone1,neutralMono2,neutralZone2,neutralMono3,neutralZone3,
