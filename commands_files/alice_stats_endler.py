@@ -28,7 +28,7 @@ tablCreate = """
         totalHeal          INTEGER,
         maxHeal            INTEGER,
         totalArmor         INTEGER,
-        maxArmor          INTEGER,
+        maxArmor           INTEGER,
         totalRecivedDamage INTEGER,
         maxRecivedDamage   INTEGER,
         totalKill          INTEGER,
@@ -244,6 +244,26 @@ maj3 = """
 
     PRAGMA foreign_keys = 1;
 """
+enemyStatCreate ="""
+    CREATE TABLE enemyStats (
+    Name                PRIMARY KEY,
+    NbFight             DEFAULT (0),
+    NbWin               DEFAULT (0),
+    PurcentFightWin           DEFAULT (0),
+    DPTperLevelMoy      DEFAULT (0),
+    HealPerLevelMoy     DEFAULT (0),
+    ArmorPerLevelMoy    DEFAULT (0),
+    BoostPerLevelMoy    DEFAULT (0),
+    KillMoy             DEFAULT (0),
+    DPTperLevel         DEFAULT (0),
+    HealPerLevel        DEFAULT (0),
+    ArmorPerLevel       DEFAULT (0),
+    BoostPerLevel       DEFAULT (0),
+    Kill                DEFAULT (0),
+    AllyRaise           DEFAULT (0),
+    AllyRaiseMoy        DEFAULT (0)
+    );
+"""
 class aliceStatsdbEndler:
     """This database keeps the user's fighting stats and their progress in the main adventure"""
     def __init__(self):
@@ -318,6 +338,20 @@ class aliceStatsdbEndler:
             cursor.execute("UPDATE userStats SET dutyResumeRef = ?, dutyGroupData = ?, jetonOws = ?;",(None,None,0))
             self.con.commit()
             print("maj3 done")
+
+        try:
+            cursor.execute("SELECT * FROM enemyStats;")
+        except:
+            temp = ""
+            for a in enemyStatCreate:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            self.con.commit()
+            print("enemyStat crée")
 
         cursor.close()
 
@@ -480,5 +514,46 @@ class aliceStatsdbEndler:
             return tabl
         else:
             return None
+
+    def addEnemyStats(self, enemy: Union[octarien,tmpAllie], tablStats: statTabl, winner:bool):
+        cursor = self.con.cursor()
+        nameEnemy = enemy.name.replace(" ","")
+        cursor.execute("SELECT * FROM enemyStats WHERE Name = ?",(nameEnemy,))
+        result = cursor.fetchall()
+
+        if len(result)==0:
+            cursor.execute("INSERT INTO enemyStats (Name) VALUES (?)",(nameEnemy,))
+            self.con.commit()
+            cursor.execute("SELECT * FROM enemyStats WHERE Name = ?",(nameEnemy,))
+            result = cursor.fetchall()
+
+        result = result[0]
+
+        dictModifValues = {
+            "NbFight" :result["NbFight"]+1,
+            "NbWin":result["NbWin"]+int(winner),
+            "PurcentFightWin":round((result["NbWin"]+int(winner))/(result["NbFight"]+1),2),
+            "DPTperLevel":result["DPTperLevel"]+round(tablStats.damageDeal/enemy.level,1),
+            "DPTperLevelMoy":round((result["DPTperLevel"]+round(tablStats.damageDeal/enemy.level,1)) / (result["NbFight"]+1),1),
+            "HealPerLevel":result["HealPerLevel"]+round(tablStats.heals/enemy.level,1),
+            "HealPerLevelMoy":round((result["HealPerLevel"]+round(tablStats.heals/enemy.level,1)) / (result["NbFight"]+1),1),
+            "ArmorPerLevel":result["ArmorPerLevel"]+round(tablStats.shieldGived/enemy.level,1),
+            "ArmorPerLevelMoy":round((result["ArmorPerLevel"]+round(tablStats.shieldGived/enemy.level,1)) / (result["NbFight"]+1),1),
+            "BoostPerLevel":result["BoostPerLevel"]+round((tablStats.damageBoosted+tablStats.damageDogded)/enemy.level,1),
+            "BoostPerLevelMoy":round((result["BoostPerLevel"]+round((tablStats.damageBoosted+tablStats.damageDogded)/enemy.level,1)) / (result["NbFight"]+1),1),
+            "Kill":result["Kill"]+tablStats.ennemiKill,
+            "KillMoy":round((result["Kill"]+tablStats.ennemiKill)/(result["NbFight"]+1),1),
+            "AllyRaise":result["AllyRaise"]+tablStats.allieResurected,
+            "AllyRaiseMoy":round((result["AllyRaise"]+tablStats.allieResurected)/(result["NbFight"]+1),1),
+        }
+
+        varExect = ""
+        for name, value in dictModifValues.items():
+            varExect += "{0} = {1}".format(name,value)
+            if name != "AllyRaiseMoy":
+                varExect += ", "
+
+        cursor.execute("UPDATE enemyStats SET {0} WHERE Name = ?".format(varExect),(nameEnemy,))
+        self.con.commit()
 
 aliceStatsDb = aliceStatsdbEndler()

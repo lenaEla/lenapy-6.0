@@ -301,29 +301,24 @@ async def blablaEdit(bot : discord.client, ctx : discord.Message, msg : discord.
 
     await msg.edit(embed=discord.Embed(title="/inventory say",color=user.color,description="Votre Blablator a été consommé"))
 
-async def inventory(bot : discord.client, ctx : discord.Message, args : list,slashed = None,delete=False):
+async def inventory(bot : discord.client, ctx : discord.Message, identifiant : str, delete=False, procur=None):
     """Old function for the user's inventory. Still called when we go a id"""
     oldMsg = None
-    if args[1] != None:
-        ctx.mentions = [slashed[1]]
-        pathUserProfile = "./userProfile/" + str(ctx.mentions[0].id) + ".prof"
+    if procur != None:
+        pathUserProfile = "./userProfile/" + str(procur) + ".prof"
     else:
-        ctx.mentions = []
         pathUserProfile = "./userProfile/" + str(ctx.author.id) + ".prof"
-
-    args.remove(args[1])
 
     def checkIsAuthorReact(reaction,user):
         return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id)
 
-    state = 0
     user = loadCharFile(pathUserProfile)
-    if ctx.mentions != [] and ctx.mentions != [None]:
+    if user.owner != ctx.author.id:
         if ctx.author.id not in user.procuration:
             try:
-                await ctx.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"),delete_after=10)
+                await ctx.send(embed = errorEmbed("__/inventory__",f"{user.name} ne vous a pas donné procuration sur son inventaire"),delete_after=10)
             except:
-                await ctx.channel.send(embed = errorEmbed(args[0],f"{ctx.mentions[0].name} ne vous a pas donné procuration sur son inventaire"),delete_after=10)
+                await ctx.channel.send(embed = errorEmbed("__/inventory__",f"{user.name} ne vous a pas donné procuration sur son inventaire"),delete_after=10)
             return 0
 
     if oldMsg == None:
@@ -331,15 +326,15 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
             oldMsg = await ctx.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
         except:
             oldMsg = await ctx.channel.send(embed = discord.Embed(title = "/inventory", description = emoji.loading))
-    inv = whatIsThat(args[1])
+    inv = whatIsThat(identifiant)
     if inv != None:
         if inv == 0: # Weapon
-            weap = findWeapon(args[1])
+            weap = findWeapon(identifiant)
             emb = infoWeapon(weap,user,ctx)
             
             trouv = False
             for a in user.weaponInventory:
-                if a.id == args[1][0:2] or a.name.lower() == args[1].lower():
+                if a.id == identifiant[0:2] or a.name.lower() == identifiant.lower():
                     trouv = True
 
             if not(trouv):
@@ -383,7 +378,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                     if rep.custom_id == "confirm":
                         user.weapon = weap
                         if saveCharFile(pathUserProfile,user):
-                            await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
+                            await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                         else:
                             await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                         break
@@ -402,7 +397,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                         break
 
         elif inv == 1: # Skills
-            weap = findSkill(args[1])
+            weap = findSkill(identifiant)
 
             emb = infoSkill(weap,user,ctx)
 
@@ -496,31 +491,31 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
 
                 if react != None:
                     try:
-                        await oldMsg.edit(embed = emb,components=[create_actionrow(getChoisenSelect(select,react.values[0]))])
+                        await oldMsg.edit(embed = emb,components=[create_actionrow(getChoisenSelect(select,react.destinations[0]))])
 
                         for a in [0,1,2,3,4]:
-                            ballerine,babie = False,react.values[0] == str(a+1)
+                            ballerine,babie = False,react.destinations[0] == str(a+1)
                             if user.skills[a] != "0" and user.skills[a] != None:
-                                ballerine = react.values[0] == user.skills[a].id
+                                ballerine = react.destinations[0] == user.skills[a].id
 
                             if babie or ballerine:
                                 try:
                                     user.skills[a] = weap
                                     saveCharFile(pathUserProfile,user)
-                                    await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))]),delete_after=5)
+                                    await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))]),delete_after=5)
                                 except:
-                                    await oldMsg.edit(embed = errorEmbed(args[0],"Une erreur est survenue",components=[]))
+                                    await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreur est survenue",components=[]))
                                 break
                     except:
                         await oldMsg.delete()
 
         elif inv == 2: # Stuff
-            weap = findStuff(args[1])
+            weap = findStuff(identifiant)
             emb = infoStuff(weap,user,ctx)
 
             trouv = False
             for a in user.stuffInventory:
-                if a.id == args[1][0:2] or a.name.lower() == args[1].lower():
+                if a.id == identifiant[0:2] or a.name.lower() == identifiant.lower():
                     trouv = True
 
             if not(trouv):
@@ -576,7 +571,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                     if rep.custom_id == "confirm":
                         user.stuff[weap.type] = weap
                         if saveCharFile(pathUserProfile,user):
-                            await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
+                            await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
                         else:
                             await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                         break
@@ -595,11 +590,11 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                         break
 
         elif inv == 3:
-            obj = findOther(args[1])
+            obj = findOther(identifiant)
             emb = infoOther(obj,user)
             trouv = False
             for a in user.otherInventory:
-                if a.id == args[1][0:2] or a.name.lower() == args[1].lower():
+                if a.id == identifiant[0:2] or a.name.lower() == identifiant.lower():
                     trouv = True
 
             if not(trouv):
@@ -624,22 +619,22 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                     await oldMsg.clear_reactions()
                     if obj==changeAspi:
                         try:
-                            user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user,args)
+                            user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user)
                             if user.aspiration != None:
                                 user = restats(user)
 
                                 user.otherInventory.remove(changeAspi)
                                 if saveCharFile(pathUserProfile,user):
                                     
-                                    await oldMsg.edit(embed = discord.Embed(title = args[0],color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
+                                    await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
                                 else:
                                     
-                                    await oldMsg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
+                                    await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreure est survenue"))
                         except:
-                            await oldMsg.edit(embed = errorEmbed(args[0],"Une erreure est survenue"))
+                            await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreure est survenue"))
                     elif obj==changeAppa:
                         
-                        await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
+                        await oldMsg.edit(embed = discord.Embed(title = "__/inventory__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
                         await oldMsg.add_reaction('<:ikaLBlue:866459302319226910>')
                         await oldMsg.add_reaction('<:takoLBlue:866459095875190804>')
 
@@ -654,7 +649,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                             user.species = 2
                         
                         await oldMsg.clear_reactions()
-                        await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
+                        await oldMsg.edit(embed = discord.Embed(title = "__/inventory__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
                         await oldMsg.add_reaction('♂️')
                         await oldMsg.add_reaction('♀️')
                         await oldMsg.add_reaction(emoji.forward_arrow)
@@ -668,7 +663,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                             if str(respond[0]) == titouille[a]:
                                 user.gender = testouille[a]
 
-                        user = await chooseColor(bot,oldMsg,ctx,user,args)
+                        user = await chooseColor(bot,oldMsg,ctx,user)
 
                         if user != False:
                             user.otherInventory.remove(changeAppa)
@@ -677,7 +672,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                             await oldMsg.edit(embed = discord.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
                     elif obj==changeName: 
                         
-                        await oldMsg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
+                        await oldMsg.edit(embed = discord.Embed(title = "__/inventory__" + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
                         timeout = False
                         def checkIsAuthor(message):
                             return int(ctx.author.id) == int(message.author.id)
@@ -709,7 +704,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, args : list,sla
                         
                         await oldMsg.edit(embed = discord.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
                     elif obj==customColor:
-                        user = await changeCustomColor(bot,oldMsg,ctx,user,args)
+                        user = await changeCustomColor(bot,oldMsg,ctx,user)
                         if user != None:
                             user.otherInventory.remove(customColor)
                             saveCharFile(pathUserProfile,user)
@@ -731,7 +726,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             return m.author_id == ctx.author.id and m.origin_message.id == msg.id
 
         msg = None
-        opValues,value=["equipement","armes","competences","autre"],destination
+        opValues=["equipement","armes","competences","autre"]
         tri = 0
         needRemake = True
 
@@ -755,19 +750,19 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             catSelect = create_select(
                 [
-                    create_select_option("Equipements","cat_0",getEmojiObject('<:uniform:866830066008981534>'),default=value==0),
-                    create_select_option("Armes","cat_1",getEmojiObject('<:kcharger:870870886939508737>'),default=value==1),
-                    create_select_option("Compétences","cat_2",getEmojiObject('<:stingray:899243721378390036>'),default=value==2)
+                    create_select_option("Equipements","cat_0",getEmojiObject('<:uniform:866830066008981534>'),default=destination==0),
+                    create_select_option("Armes","cat_1",getEmojiObject('<:kcharger:870870886939508737>'),default=destination==1),
+                    create_select_option("Compétences","cat_2",getEmojiObject('<:stingray:899243721378390036>'),default=destination==2)
                 ]
             )
             user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
             userIconThub = getEmojiObject(await getUserIcon(bot,user))["id"]
             options = [
-                create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3 and value != 9)),
+                create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and destination > 3 and destination != 9)),
                 create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
             ]
 
-            if value in [0,1]:
+            if destination in [0,1]:
                 options+=[
                     create_select_option("Force","4",'💪',default=4==tri),
                     create_select_option("Endurance","5",'🏃',default=5==tri),
@@ -780,7 +775,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     create_select_option("Pénétration","12",'🗡️',default=12==tri),
                     create_select_option("Critique","13",'🎲',default=13==tri)]
 
-            elif value == 2:
+            elif destination == 2:
                 options+=[
                     create_select_option("Dégâts","14",getEmojiObject('<:defDamage:885899060488339456>'),default=14==tri),
                     create_select_option("Dégâts indirects","15",getEmojiObject('<:defDamage:885899060488339456>'),default=15==tri),
@@ -794,7 +789,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             if needRemake:
                 tablToSee = []
-                if value == 0:
+                if destination == 0:
                     tablToSee = user.stuffInventory
                     if not(stuffAff) or stuffToAff > 0:
                         for a in tablToSee[:]:
@@ -803,9 +798,9 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             elif stuffToAff > 0 and a.type != stuffToAff-1:
                                 tablToSee.remove(a)
 
-                elif value == 1:
+                elif destination == 1:
                     tablToSee = user.weaponInventory
-                elif value == 2:
+                elif destination == 2:
                     tablToSee = user.skillInventory
                     if tri >= 14:
                         typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS]
@@ -826,10 +821,10 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             if not(a.havConds(user)):
                                 tablToSee.remove(a)
 
-                elif value == 3:
+                elif destination == 3:
                     tablToSee = user.otherInventory
 
-                if value in [0,1]:
+                if destination in [0,1]:
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
                     if tri in [2,3]:
                         tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
@@ -854,11 +849,11 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     elif tri == 13:
                         tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
 
-                elif value == 2 and tri in [14,16]:
+                elif destination == 2 and tri in [14,16]:
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-                elif value == 2 and tri in [15]:
+                elif destination == 2 and tri in [15]:
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-                elif value == 2 and tri in [17]:
+                elif destination == 2 and tri in [17]:
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
                 else:
                     tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
@@ -868,11 +863,11 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 page=0
                 needRemake = False
 
-            if value == 0:      # Equipement
+            if destination == 0:      # Equipement
                 desc = "**__Équipement équipé :__\n{0} {1}\n{2} {3}\n{4} {5}**".format(user.stuff[0].emoji,user.stuff[0].name,user.stuff[1].emoji,user.stuff[1].name,user.stuff[2].emoji,user.stuff[2].name)
-            elif value == 1:    # Arme
+            elif destination == 1:    # Arme
                 desc = "**__Arme équipée :__\n{0} {1}**".format(user.weapon.emoji,user.weapon.name)
-            elif value == 2:    # Compétences
+            elif destination == 2:    # Compétences
                 desc = "**__Compétences équipées :__"
                 for tip in user.skills:
                     if type(tip) == skill:
@@ -888,7 +883,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             if page > 0:
                 firstOptions.append(create_select_option("Page précédente","goto{0}".format(page-1),'◀️'))
             if lenTabl != 0: # Génération des pages
-                if value != 3:
+                if destination != 3:
                     mess=""
                     if page != maxPage:
                         maxi = (page+1)*15
@@ -907,9 +902,9 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             eff = findEffect(a.effect[0])
 
                         # Première info utile
-                        if value == 0 and type(a) == stuff:
+                        if destination == 0 and type(a) == stuff:
                             mess +="*"+a.orientation+"*\n"
-                        elif value in [1,2] and type(a) != stuff:
+                        elif destination in [1,2] and type(a) != stuff:
                             ballerine = tablTypeStr[a.type]
                             if a.power > 0:
                                 ballerine += " - {0}".format(a.power)
@@ -931,7 +926,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             elif a.use == HARMONIE:
                                 sandale = "Harmonie"
 
-                            if value == 1:
+                            if destination == 1:
                                 babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
                             else:
                                 babie=''
@@ -951,7 +946,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
                         # Statistiques
                         temp = ""
-                        if value in [0,1,2]:
+                        if destination in [0,1,2]:
                             if type(a) != skill:
                                 stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
                                 for b in range(0,len(stats)):
@@ -1121,7 +1116,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 tri=respond
 
             elif respond.values[0].startswith("cat_"):
-                value = int(respond.values[0].replace("cat_",""))
+                destination = int(respond.values[0].replace("cat_",""))
                 needRemake = True
 
             elif respond.values[0].startswith("goto"):
@@ -1149,16 +1144,14 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 if respond in opValues:
                     for a in range(0,len(opValues)):
                         if opValues[a] == respond:
-                            value = a
+                            destination = a
                             needRemake = True
                             break
                 
                 else:
                     await msg.edit(embed=embed,components=[create_actionrow(create_select([create_select_option("None","None")],placeholder="Une autre action est en cours",disabled=True))])
-                    
-                    if ctx.author_id != int(user.owner):
-                        procur = await ctx.guild.fetch_member(user.owner)
-                        await inventory(bot,inter,["/inventory"]+[procur.mention]+[respond],[destination,procur],delete=True)
+                    if ctx.author_id != user.owner:
+                        await inventory(bot,inter,respond,delete=True,procur=user.owner)
 
                     else:
-                        await inventory(bot,inter,["/inventory"]+[None]+[respond],delete=True)
+                        await inventory(bot,inter,respond,delete=True)

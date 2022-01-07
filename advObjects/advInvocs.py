@@ -63,7 +63,7 @@ invocTabl = [seraf,carbObsi,carbSaphir,
     darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
 ]
 
-def findInvoc(name) -> invoc:
+def findSummon(name) -> invoc:
     for a in invocTabl:
         if a.name == name:
             return a

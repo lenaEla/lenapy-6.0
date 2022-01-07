@@ -39,12 +39,12 @@ for a in range(0,len(colorChoice)):
     optionIka += [create_select_option(colorChoice[a],str(colorId[a]),emoji=getEmojiObject(emoji.icon[1][a]))]
     optionTako += [create_select_option(colorChoice[a],str(colorId[a]),emoji=getEmojiObject(emoji.icon[2][a]))]
 
-async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : discord.message,user : char,args: str):
+async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : discord.message,user : char):
     choosed = False
     while not(choosed):
         action = create_actionrow(aspirationMenu)
         await msg.clear_reactions()
-        await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
+        await msg.edit(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
 
         def check(m):
             return m.author_id == ctx.author.id and m.origin_message.id == msg.id
@@ -58,10 +58,10 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
 
         if haveReaction:
             action = create_actionrow(aspirationMenuD)
-            await msg.edit(embed = discord.Embed(title = args[0] + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
+            await msg.edit(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
             inspiDesc = [manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],manPage14[1],manPage15[1],manPage16[1],manPage17[1],manPage18[1],manPage19[1]]
 
-            msg2 = await respond.send(embed = discord.Embed(title = args[0] + " : "+inspi[int(respond.values[0])],color = user.color,description = f"{inspiDesc[int(respond.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"))
+            msg2 = await respond.send(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : "+inspi[int(respond.values[0])],color = user.color,description = f"{inspiDesc[int(respond.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"))
 
             await msg2.add_reaction(emoji.backward_arrow)
             await msg2.add_reaction(emoji.check)
@@ -81,10 +81,10 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
             await msg.clear_reactions()
             return None
 
-async def chooseName(bot : discord.client, msg : discord.message, ctx: discord.message, args : list,user : char):
+async def chooseName(bot : discord.client, msg : discord.message, ctx: discord.message,user : char):
     """Selection du nom du personnage\n
     Renvoie User avec le nouveau si réussite, False sinon"""
-    await msg.edit(embed = discord.Embed(title = args[0] + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
+    await msg.edit(embed = discord.Embed(title = "__Changement de Nom__" + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
     haveName = False
     def checkIsAuthor(message):
         return int(ctx.author.id) == int(message.author.id)
@@ -93,7 +93,7 @@ async def chooseName(bot : discord.client, msg : discord.message, ctx: discord.m
         user.name = respond.content
         haveName = True
     except:
-        await msg.edit(embed = errorEmbed(args[0],"Timeout, commande annulée"))    
+        await msg.edit(embed = errorEmbed("__Changement de Nom__","Timeout, commande annulée"))    
 
     if haveName:
         try:
@@ -104,7 +104,7 @@ async def chooseName(bot : discord.client, msg : discord.message, ctx: discord.m
     else:
         return False
 
-async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.message, user : char, args: str):
+async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.message, user : char):
     ballerine = ""
     for a in range(0,len(colorChoice)):
         ballerine += f"{emoji.icon[user.species][a]} - {colorChoice[a]}\n"
@@ -128,7 +128,7 @@ async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.
     elif user.species == 2:
         action = create_actionrow(colorMenuTako)
 
-    await msg.edit(embed = discord.Embed(title = args[0] + " : Couleur",color = light_blue,description = f"Sélectionnez la couleur de votre personnage :\n{ballerine}\nLa couleur sera affiché sur tous les embeds et l'icone de votre personnage."),components=[action])
+    await msg.edit(embed = discord.Embed(title = "__Changement de Couleur__" + " : Couleur",color = light_blue,description = f"Sélectionnez la couleur de votre personnage :\n{ballerine}\nLa couleur sera affiché sur tous les embeds et l'icone de votre personnage."),components=[action])
 
     def check(m):
         return m.author_id == ctx.author.id and m.origin_message.id == msg.id
@@ -151,7 +151,7 @@ async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.
     else:
         return False
 
-async def changeCustomColor(bot,msg,ctx,user : char,args):
+async def changeCustomColor(bot,msg,ctx,user : char):
     def check(param):
         return param.author.id == ctx.author.id and param.channel.id == ctx.channel.id
     def checkReact(param,second):
@@ -170,7 +170,7 @@ async def changeCustomColor(bot,msg,ctx,user : char,args):
             pass
 
         if color == None:
-            await msg.edit(embed = errorEmbed(args[0],"Le code donné n'est pas un code hexadecimal valide"))
+            await msg.edit(embed = errorEmbed("__Couleur personnalisée__","Le code donné n'est pas un code hexadecimal valide"))
             break
 
         await msg.edit(embed = discord.Embed(title = "Couleur personnalisée",description="Est-ce que cette couleur vous va ?",color = color))
@@ -189,25 +189,23 @@ async def changeCustomColor(bot,msg,ctx,user : char,args):
 
     return None
 
-async def start(bot : discord.client, ctx : discord.message, args : list):
+async def start(bot : discord.client, ctx : discord.message):
     """Commande de création de personnage"""
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
 
     if not os.path.exists(pathUserProfile):
-        def checkIsAuthor(message):
-            return int(ctx.author.id) == int(message.author.id)
 
         still = True
         user = char(ctx.author.id)
         msg = await loadingSlashEmbed(ctx)
 
-        user = await chooseName(bot,msg,ctx,args,user)
+        user = await chooseName(bot,msg,ctx,user)
 
         if user == False:
             still = False
         
         if still: #Espèce
-            await msg.edit(embed = discord.Embed(title = args[0] + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
+            await msg.edit(embed = discord.Embed(title = "__/start__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
             await msg.add_reaction('<:ikaLBlue:866459302319226910>')
             await msg.add_reaction('<:takoLBlue:866459095875190804>')
 
@@ -223,7 +221,7 @@ async def start(bot : discord.client, ctx : discord.message, args : list):
         
         if still: #Genre
             await msg.clear_reactions()
-            await msg.edit(embed = discord.Embed(title = args[0] + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
+            await msg.edit(embed = discord.Embed(title = "__/start__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
             await msg.add_reaction('♂️')
             await msg.add_reaction('♀️')
             await msg.add_reaction(emoji.forward_arrow)
@@ -238,13 +236,13 @@ async def start(bot : discord.client, ctx : discord.message, args : list):
 
         if still: #Couleur
             await msg.clear_reactions()
-            user = await chooseColor(bot,msg,ctx,user,args)
+            user = await chooseColor(bot,msg,ctx,user)
 
             if user == False:
                 still=False
 
         if still: #Aspiration
-            user.aspiration = await chooseAspiration(bot,msg,ctx,user,args)
+            user.aspiration = await chooseAspiration(bot,msg,ctx,user)
             if user.aspiration != None:
                 user = restats(user)
 
@@ -252,15 +250,15 @@ async def start(bot : discord.client, ctx : discord.message, args : list):
                 await msg.clear_reactions()
                 if saveCharFile(pathUserProfile,user):
                     await msg.delete()
-                    await ctx.channel.send(embed = discord.Embed(title = args[0], color= user.color, description = f"Tout a bien été enregistré !\nN'hésite pas à utiliser la commande /help pour connaître les commandes de l'Aventure\nOu bien juste lire le manuel avec /manuel"))
+                    await ctx.channel.send(embed = discord.Embed(title = "__/start__", color= user.color, description = f"Tout a bien été enregistré !\nN'hésite pas à utiliser la commande /help pour connaître les commandes de l'Aventure\nOu bien juste lire le manuel avec /manuel"))
                 else:
                     await msg.delete()
-                    await ctx.channel.send(embed = discord.Embed(title = args[0], color= red, description = "Un truc c'est mal passé, l'aventure attendra"))
+                    await ctx.channel.send(embed = discord.Embed(title = "__/start__", color= red, description = "Un truc c'est mal passé, l'aventure attendra"))
                     os.remove(pathUserProfile)
             else:
                 still = False
 
         if not(still):
-            await msg.edit(embed= errorEmbed(args[0],"Commande annulée (timeout)"))
+            await msg.edit(embed= errorEmbed("__/start__","Commande annulée (timeout)"))
     else:
-        await ctx.channel.send(embed=errorEmbed(args[0],"Vous avez déjà commencé l'aventure"))
+        await ctx.channel.send(embed=errorEmbed("__/start__","Vous avez déjà commencé l'aventure"))
