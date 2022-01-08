@@ -483,15 +483,6 @@ def loadCharFile(path : str = None, user:char = None) -> char:
 
     return rep
 
-def checkIsBotChannel(ctx : discord.Message, guild,bot : discord.Client):
-    if guild.bot > 0:
-        if ctx.channel == bot.get_channel(guild.bot):
-            return True
-        else:
-            return False
-    else:
-        return True
-
 def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):
     """``0`` : Weapon
         ``1`` : Skill
@@ -589,6 +580,13 @@ gbvdb0 = """
         value
 );"""
 
+gbvdb1 = """
+    CREATE TABLE guildSettings (
+        guildid  PRIMARY KEY
+                    UNIQUE,
+        botChannel  DEFAULT(0)
+);"""
+
 def completlyRemoveEmoji(text:str):
     toReturn,started,justExited = '',False,False
     for letter in text:
@@ -633,6 +631,20 @@ class globalVarDb:
 
             self.con.commit()
             print("Table globalVar crée")
+        
+        try:
+            cursor.execute("SELECT * FROM guildSettings;")
+        except:
+            temp = ""
+            for a in gbvdb1:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            self.con.commit()
+            print("Table guildSettings crée")
         cursor.close()
 
     def fightEnabled(self) -> bool:
@@ -681,7 +693,48 @@ class globalVarDb:
             cursor.close()
             return 0
 
+    def setGuildBotChannel(self,guild_id:int,channel_id:int):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT guildid FROM guildSettings WHERE guildid = {guild_id};")
+        result = cursor.fetchall()
+
+        if len(result) == 0:
+            cursor.execute(f"INSERT INTO guildSettings VALUES ({guild_id}, {channel_id});")
+        else:
+            cursor.execute(f"UPDATE guildSettings SET botChannel = {channel_id} WHERE guildid = {guild_id};")
+        self.con.commit()
+        cursor.close()
+
+    def getGuildBotChannel(self,guild_id:int):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT botChannel FROM guildSettings WHERE guildid = {guild_id};")
+        result = cursor.fetchall()
+
+        if len(result) == 0:
+            cursor.execute(f"INSERT INTO guildSettings (guildid) VALUES ({guild_id});")
+            self.con.commit()
+            cursor.close()
+            return 0
+        else:
+            cursor.close()
+            return result[0]["botChannel"]
+
 globalVar = globalVarDb()
+
+async def botChannelVerif(bot:discord.Client,ctx:discord_slash.SlashContext):
+    if globalVar.getGuildBotChannel(ctx.guild_id) in [0,ctx.channel_id]:
+        return True
+    
+    else:
+        chan = await bot.fetch_channel(globalVar.getGuildBotChannel(ctx.guild_id))
+        try:
+            await ctx.send(embed=discord.Embed(title="__Paramètres__",color=light_blue,description="Désolée, mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),delete_after=5)
+        except:
+            try:
+                await ctx.channel.send(embed=discord.Embed(title="__Paramètres__",color=light_blue,description="Désolée, mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),delete_after=5)
+            except:
+                pass
+        return False
 
 def loadAdvDutyFile(actName : str, dutyName : str) -> duty:
     """Load the texts for Duty of the main adventure\n

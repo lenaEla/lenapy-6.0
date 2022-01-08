@@ -360,11 +360,12 @@ class aliceStatsdbEndler:
         - Parameter\n
             - .user : The ``char`` to add into the database"""
         cursory = self.con.cursor()
-        cursory.execute("SELECT * FROM userStats WHERE id = ?",(int(user.owner),))
+        user.owner
+        cursory.execute("SELECT * FROM userStats WHERE id = ?",(user.owner,))
         result = cursory.fetchall()
 
         if len(result) == 0:
-            cursory.execute("INSERT INTO userStats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(int(user.owner),0,0,0,0,0,0,0,0,0,0,0,0,0,0,None,None,None,None,0))
+            cursory.execute("INSERT INTO userStats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(user.owner,0,0,0,0,0,0,0,0,0,0,0,0,0,0,None,None,None,None,0))
             self.con.commit()
             print("Le personnage {0} a été rajouté à la base de donnée".format(user.name))
         cursory.close()
@@ -408,12 +409,12 @@ class aliceStatsdbEndler:
             temp += "total"+a+", max"+a
             if a != tablAdd[-1]:
                 temp += ","
-        cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format(aliceStatsToLook),(int(user.owner),))
+        cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format(aliceStatsToLook),(user.owner,))
         result = cursor.fetchall()
 
         if len(result) == 0:
             self.addUser(char)
-            cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format,(int(user.owner),))
+            cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format,(user.owner,))
             result = cursor.fetchall()
 
         result = result[0]
@@ -533,7 +534,7 @@ class aliceStatsdbEndler:
             "NbFight" :result["NbFight"]+1,
             "NbWin":result["NbWin"]+int(winner),
             "PurcentFightWin":round((result["NbWin"]+int(winner))/(result["NbFight"]+1),2),
-            "DPTperLevel":result["DPTperLevel"]+round(tablStats.damageDeal/enemy.level,1),
+            "DPTperLevel":int(result["DPTperLevel"]+round(tablStats.damageDeal/enemy.level,1)),
             "DPTperLevelMoy":round((result["DPTperLevel"]+round(tablStats.damageDeal/enemy.level,1)) / (result["NbFight"]+1),1),
             "HealPerLevel":result["HealPerLevel"]+round(tablStats.heals/enemy.level,1),
             "HealPerLevelMoy":round((result["HealPerLevel"]+round(tablStats.heals/enemy.level,1)) / (result["NbFight"]+1),1),

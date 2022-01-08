@@ -334,13 +334,6 @@ class dbHandler():
         self.con.commit()
 
     def getIdFromEmoji(self,emoji,where):
-        """cursor = self.con.cursor()
-        query = f"SELECT id FROM {where} WHERE emoji = ?;"
-        cursor.execute(query,(emoji,))
-        result = cursor.fetchall()
-        cursor.close()
-        return result[0]["id"]"""
-
         for obj in adv.stuffs + adv.weapons:
             if obj.emoji == emoji:
                 return obj.id
@@ -486,7 +479,7 @@ class dbHandler():
             return "🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴"
 
         cursor.close()
-    
+
     def addResultToStreak(self,user,resultat : bool):
         team = user.team
         if team == 0:
@@ -633,5 +626,7 @@ class dbHandler():
     def dropCustom_iconTablDB(self):
         cursor = self.con.cursor()
         cursor.execute("DROP TABLE custom_icon;")
+        self.con.commit()
+        cursor.execute("CREATE TABLE custom_icon (\n    owner_id    PRIMARY KEY\n                UNIQUE\n                NOT NULL,\n    espece,\n    couleur,\n    accessoire,\n    arme,\n    emoji       UNIQUE\n);")
         self.con.commit()
         cursor.close()

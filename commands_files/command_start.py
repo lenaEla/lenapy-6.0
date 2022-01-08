@@ -5,6 +5,7 @@ from donnes import *
 from gestion import *
 from advance_gestion import *
 from discord_slash.utils.manage_components import *
+from commands_files.alice_stats_endler import aliceStatsDb
 
 import asyncio
 
@@ -110,8 +111,8 @@ async def chooseColor(bot : discord.client, msg : discord.message,ctx : discord.
         ballerine += f"{emoji.icon[user.species][a]} - {colorChoice[a]}\n"
     babie = []
     if user.customColor:
-        ballerine += [None,"<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]+" - Couleur personnalisé ("+hex(user.color)+")\n"
-        babie = [create_select_option("Couleur personnalisée","Custom",description=hex(user.color),emoji=getEmojiObject([None,"<:empty_squid:882766450308284417>","<:empty_octo:882766485754351698>"][user.species]))]
+        ballerine += "<:cutybat:884899538685530163> - Couleur personnalisé ("+hex(user.color)+")\n"
+        babie = [create_select_option("Couleur personnalisée","Custom",description=hex(user.color),emoji=getEmojiObject("<:cutybat:884899538685530163>"))]
 
     options = [optionIka,optionTako][user.species-1] + babie
     colorMenuIka = create_select(
@@ -250,6 +251,7 @@ async def start(bot : discord.client, ctx : discord.message):
                 await msg.clear_reactions()
                 if saveCharFile(pathUserProfile,user):
                     await msg.delete()
+                    aliceStatsDb.addUser(user)
                     await ctx.channel.send(embed = discord.Embed(title = "__/start__", color= user.color, description = f"Tout a bien été enregistré !\nN'hésite pas à utiliser la commande /help pour connaître les commandes de l'Aventure\nOu bien juste lire le manuel avec /manuel"))
                 else:
                     await msg.delete()

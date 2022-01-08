@@ -631,7 +631,7 @@ def infoSkill(skill : skill, user : char,ctx):
         repEmb = infoEffect(skil.effectOnSelf,user,repEmb,ctx,True)
 
     if skil.invocation != None:
-        repEmb = infoInvoc(findInvoc(skil.invocation),repEmb)
+        repEmb = infoInvoc(findSummon(skil.invocation),repEmb)
     
     if repEmb.__len__() > 6000:
         repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n__Statistiques :__\n"+temp+"\n\nCertaines infromations n'ont pas pu être affichées.")
@@ -807,8 +807,9 @@ def silentRestats(user : char):
 
     return userMajStats(user,stats)
 
-async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins = 0):
+async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Message,discord_slash.SlashContext],exp = 3,coins = 0):
     user = loadCharFile(path)
+    guild = ctx.channel.id
 
     if user.level < 55:
         user.exp = user.exp + exp
@@ -854,8 +855,8 @@ async def addExpUser(bot : discord.Client, guild, path : str,ctx,exp = 3,coins =
             if unlock != "":
                 lvlEmbed.add_field(name="<:empty:866459463568850954>\n__Vous pouvez désormais équiper les objets de votre inventaire suivants :__",value=unlock)
 
-        if guild.bot != 0:
-            await bot.get_guild(guild.id).get_channel(guild.bot).send(embed = lvlEmbed)
+        if globalVar.getGuildBotChannel(guild) != 0:
+            await bot.get_guild(guild).get_channel(globalVar.getGuildBotChannel(guild)).send(embed = lvlEmbed)
         else:
             await ctx.channel.send(embed = lvlEmbed)
 
@@ -1059,7 +1060,6 @@ async def makeCustomIcon(bot : discord.Client, user : char):
         accessoire.close()
 
     if user.stars > 0:
-        print("printy")
         if background2 == None:
             background2 = Image.new("RGBA",background.size,(0,0,0,0))
         cmpt = 0
@@ -1360,7 +1360,7 @@ def infoEnnemi(ennemi : octarien):
     return embed
 
 def getAutoStuff(object: stuff, user: char):
-    if user.level//5 == object.minLvl//5 or object.minLvl == 50:
+    if user.level//5 == object.minLvl//5 or (object.minLvl == 50 and user.level >= 50):
         return object
     else:
         tablAllStats = object.allStats()+[object.resistance,object.percing,object.critical]+[object.negativeHeal*-1,object.negativeBoost*-1,object.negativeShield*-1,object.negativeDirect*-1,object.negativeIndirect*-1]

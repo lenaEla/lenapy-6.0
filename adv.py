@@ -69,10 +69,7 @@ def findOther(otherId : Union[str,other]) -> Union[other,None]:
         otherId = otherId.replace("\n","")
         for a in others:
             if a.id == otherId or a.name.lower() == otherId.lower():
-                if otherId == "qj":
-                    print("finded !")
                 return a
-    print("{0} not finded".format(otherId))
     return None
 
 listAllBuyableShop = []
@@ -136,7 +133,6 @@ def seeAllStuffAtMinLvl(level:int):
         toReturn += "\n   {0}".format(name)
 
     return toReturn
-    
 
 # Stuff verifications ===========================================================================
 if not(isLenapy):
@@ -267,3 +263,7 @@ for obj in stuffs+weapons+skills+others:
 
 #print(seeSimilarStuffNameMinLvl("Ténèbres"))
 #print(seeAllStuffAtMinLvl(25))
+
+for weap in weapons:
+    if weap.emoji.endswith(" "):
+        print(weap.name)
