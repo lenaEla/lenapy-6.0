@@ -16,7 +16,7 @@ AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHA
 moveEmoji = ['⬅️','➡️','⬆️','⬇️']
 cancelButton = create_actionrow(create_button(ButtonStyle.grey,"Retour",'◀️',custom_id="return"))
 
-async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashContext, guild, auto:bool = True,contexte:list=[],octogone:bool=False,bigMap:bool=False):
+async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashContext, auto:bool = True,contexte:list=[],octogone:bool=False,bigMap:bool=False):
     """
         Base command for the fights\n
         \n
@@ -25,7 +25,6 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         team1 : A list of Char objects
         team2 : A list of Char objects. Unlike team1, can be empty
         ctx : The context of the command, for know where to send the messages
-        guild : A server object, for know where to send the level ups messages
         auto : Does the fight is a quick fight or a normal one ? Default ``True``
         contexte : A list of some parameters for the fight. Default ``[]``
             . exemple :
@@ -1139,7 +1138,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
             if killer != self or killer.team != self.team:
                 killer.stats.ennemiKill += 1
-            if killer.team == self.team:
+            elif killer != self and killer.team == self.team:
                 killer.stats.friendlyfire += 1
             return pipistrelle
 
@@ -1751,6 +1750,7 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
         async def resurect(self,target,value : int, icon : str,danger=danger):
             if self.team == 1:
                 value = int(value * (danger/100))
+            value = min(value,target.maxHp)
             self.stats.allieResurected += 1
             self.stats.heals += value
             target.healResist += int(value/target.maxHp/2*100/2)
@@ -5516,10 +5516,16 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                 gainExp, gainCoins, allOcta,gainMsg = tour,tour*20,True,""
                 # Base Exp Calculation
                 for a in tablEntTeam[1]:
-                    if type(a.char) == octarien and a.hp <= 0:
-                        gainExp += a.char.exp
-                    elif type(a.char) == tmpAllie and a.hp <=0:
-                        gainExp += 7
+                    if type(a.char) == octarien:
+                        if a.hp <= 0:
+                            gainExp += a.char.exp
+                        elif a.status == STATUS_RESURECTED:
+                            gainExp += int(a.char.exp/2)
+                    elif type(a.char) == tmpAllie:
+                        if a.hp <= 0:
+                            gainExp += 8
+                        elif a.status == STATUS_RESURECTED:
+                            gainExp += 4
                     else:
                         allOcta = False
 
@@ -5559,11 +5565,11 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
 
                         veryLate = 1 + (int(maxLevel-a.char.level > 10 and winners) * 0.5)
                         if a.char.level < 55:
-                            baseGain = gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)
+                            baseGain = gainExp+(a.medals[0]*3)+(a.medals[1]*2)+(a.medals[2]*1)+int((maxLevel-a.char.level > 10 and winners) * maxLevel/2)
                         else:
                             baseGain = 0
                         effectiveExpGain = int(baseGain*(1+0.02*(min(10,maxLevel-a.char.level)))*veryLate*[1,1.5][a.char.stars > 0 and a.char.level <=30] * (1-0.67*(a.char.team != mainUser.team)))
-                        a.char = await addExpUser(bot,guild,path,ctx,exp=effectiveExpGain,coins=int(gainCoins*(1-0.67*(a.char.team != mainUser.team))))
+                        a.char = await addExpUser(bot,path,ctx,exp=effectiveExpGain,coins=int(gainCoins*(1-0.67*(a.char.team != mainUser.team))))
 
                         if effectiveExpGain > 0:
                             gainMsg += "\n{0} → <:exp:926106339799887892> +{1}".format(await getUserIcon(bot,a.char),effectiveExpGain)
@@ -5581,6 +5587,8 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             for b in drop:
                                 if a.char.have(obj=b):
                                     temp.remove(b)
+                                elif type(b) == stuff and b.minLvl//5 == a.char.level//5:
+                                    temp.append(b)
 
                             if len(temp) > 0:
                                 rand = temp[random.randint(0,len(temp)-1)]
@@ -5689,9 +5697,9 @@ async def fight(bot : discord.Client ,team1 : list, team2 : list ,ctx : SlashCon
                             if dictIsPnjVar["{0}".format(tablAchivNpcName[cmpt])]: # Temp or enemy presence sussesss
                                 b.char = await achivements.addCount(ctx,b.char,tablAchivNpcCode[cmpt])
 
-                        if dictIsPnjVar("Iliana") and (dictIsPnjVar("Luna") or dictIsPnjVar("Shihu")):
+                        if dictIsPnjVar["Iliana"] and (dictIsPnjVar["Luna"] or dictIsPnjVar["Shihu"]):
                             b.char = await achivements.addCount(ctx,b.char,"lightNShadow")
-                        if dictIsPnjVar("Luna") and dictIsPnjVar("Shihu"):
+                        if dictIsPnjVar["Luna"] and dictIsPnjVar["Shihu"]:
                             b.char = await achivements.addCount(ctx,b.char,"fullDark")
                         if tablEntTeam[1][0].isNpc("Luna prê."):
                             b.char = await achivements.addCount(ctx,b.char,"luna")

@@ -170,7 +170,7 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
     else:
         while 1:
             elemEmbed = discord.Embed(title="__Éléments__",color=user.color,description="Les éléments renforcent la spécialisation d'un personnage en augmentant les dégâts qu'il fait suivant certaines conditions définie par l'élément choisi\nLes équipements peuvent également avoir des éléments. Avoir des équipements du même élément que soit accroie un peu leurs statistiques\n")
-            elemEmbed.add_field(name="__Votre élément actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.element],elemEmojis[user.element]),value=elemDesc[user.element])
+            elemEmbed.add_field(name="<:empty:866459463568850954>\n__Votre élément actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.element],elemEmojis[user.element]),value=elemDesc[user.element])
             await msg.edit(embed = elemEmbed,components=[create_actionrow(elemSelect)])
 
             try:
@@ -181,7 +181,6 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
 
             resp = int(respond.values[0])
             respEmb = discord.Embed(title = "__Élément : {0}__".format(elemNames[resp]),description = elemDesc[resp],color=user.color)
-
 
             if resp not in [ELEMENT_LIGHT,ELEMENT_DARKNESS,ELEMENT_SPACE,ELEMENT_TIME]:
                 if user.have(elementalCristal) and user.level >= 10:
@@ -334,7 +333,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
             
             trouv = False
             for a in user.weaponInventory:
-                if a.id == identifiant[0:2] or a.name.lower() == identifiant.lower():
+                if a.id == identifiant or a.name.lower() == identifiant.lower():
                     trouv = True
 
             if not(trouv):
@@ -349,7 +348,6 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                     await oldMsg.edit(embed = emb,components=[])
                 else:
                     await oldMsg.edit(embed = emb,components=[])
-
             else:
                 emb.set_footer(text = "Cliquez sur l'icone de l'arme pour l'équiper")
                 compareButton = create_button(ButtonStyle.grey,"Comparer",getEmojiObject(user.weapon.emoji),custom_id="compare")
@@ -397,31 +395,26 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         break
 
         elif inv == 1: # Skills
-            weap = findSkill(identifiant)
-
-            emb = infoSkill(weap,user,ctx)
-
-            trouv = False
+            invSkill = findSkill(identifiant)
+            emb, trouv = infoSkill(invSkill,user,ctx), False
+            emb = infoSkill(invSkill,user,ctx)
             for a in user.skillInventory:
-                if a == weap:
+                if a == invSkill:
                     trouv = True
                     break
             
             ballerine=False
             for a in user.skills:
                 if a != '0' and a != None:
-                    if a == weap:
+                    if a == invSkill:
                         ballerine = True
                         break
-
             if not(trouv):
                 emb.set_footer(text = "Vous ne possédez pas cette compétence")
                 if delete:
                     await oldMsg.edit(embed = emb,components=[],delete_after=60)
                 else:
                     await oldMsg.edit(embed = emb,components=[])
-
-
             elif ballerine:
                 emb.set_footer(text = "Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?")
                 await oldMsg.edit(embed = emb,components=[returnAndConfirmActionRow])
@@ -433,7 +426,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                     rep = await wait_for_component(bot,timeout=60,check=check,messages=oldMsg)
                     if rep.custom_id == "confirm":
                         for a in range(0,5):
-                            if user.skills[a] == weap:
+                            if user.skills[a] == invSkill:
                                 user.skills[a] = "0"
                                 break
 
@@ -444,29 +437,26 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         await oldMsg.delete()
                     else:
                         await oldMsg.edit(embed = emb,components=[])
-
-            elif not(weap.havConds(user=user)):
+            elif not(invSkill.havConds(user=user)):
                 emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
                 if delete:
                     await oldMsg.edit(embed = emb,components=[],delete_after=60)
                 else:
                     await oldMsg.edit(embed = emb,components=[])
-
             else:
                 hasUltimate=False
                 for a in [0,1,2,3,4]:
                     if type(user.skills[a]) == skill:
-                        if user.skills[a].ultimate and weap.ultimate:
+                        if user.skills[a].ultimate and invSkill.ultimate:
                             hasUltimate=True
                             break
-
                 options = []
                 for a in [0,1,2,3,4]:
                     if type(user.skills[a]) == skill:
                         ultimatum = ""
                         if user.skills[a].ultimate:
                             ultimatum = "Capacité ultime - "
-                        if hasUltimate and user.skills[a].ultimate and weap.ultimate:
+                        if hasUltimate and user.skills[a].ultimate and invSkill.ultimate:
                             options += [create_select_option(user.skills[a].name,user.skills[a].id,getEmojiObject(user.skills[a].emoji),ultimatum+tablTypeStr[user.skills[a].type])]
                         elif not(hasUltimate):
                             options += [create_select_option(user.skills[a].name,user.skills[a].id,getEmojiObject(user.skills[a].emoji),ultimatum+tablTypeStr[user.skills[a].type])]
@@ -479,7 +469,6 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                 await oldMsg.edit(embed = emb,components=[create_actionrow(returnButton),create_actionrow(select)])
                 def check(m):
                     return m.author_id == ctx.author.id and m.origin_message.id == oldMsg.id
-
                 react = None
                 try:
                     react = await wait_for_component(bot,messages=oldMsg,timeout=60,check=check)
@@ -491,18 +480,18 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
 
                 if react != None:
                     try:
-                        await oldMsg.edit(embed = emb,components=[create_actionrow(getChoisenSelect(select,react.destinations[0]))])
+                        await oldMsg.edit(embed = emb,components=[create_actionrow(getChoisenSelect(select,react.values[0]))])
 
                         for a in [0,1,2,3,4]:
-                            ballerine,babie = False,react.destinations[0] == str(a+1)
+                            ballerine,babie = False,react.values[0] == str(a+1)
                             if user.skills[a] != "0" and user.skills[a] != None:
-                                ballerine = react.destinations[0] == user.skills[a].id
+                                ballerine = react.values[0] == user.skills[a].id
 
                             if babie or ballerine:
                                 try:
-                                    user.skills[a] = weap
+                                    user.skills[a] = invSkill
                                     saveCharFile(pathUserProfile,user)
-                                    await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))]),delete_after=5)
+                                    await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !",components=[create_actionrow(create_select([create_select_option(unhyperlink(invSkill.name),"bidule",getEmojiObject(invSkill.emoji),default=True)],disabled=True))]),delete_after=5)
                                 except:
                                     await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreur est survenue",components=[]))
                                 break
@@ -510,12 +499,12 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         await oldMsg.delete()
 
         elif inv == 2: # Stuff
-            weap = findStuff(identifiant)
-            emb = infoStuff(weap,user,ctx)
+            invStuff = findStuff(identifiant)
+            emb = infoStuff(invStuff,user,ctx)
 
             trouv = False
             for a in user.stuffInventory:
-                if a.id == identifiant[0:2] or a.name.lower() == identifiant.lower():
+                if a.id == identifiant or a.name.lower() == identifiant.lower():
                     trouv = True
 
             if not(trouv):
@@ -525,14 +514,14 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                 else:
                     await oldMsg.edit(embed = emb,components=[])
 
-            elif weap == user.stuff[weap.type]:
+            elif invStuff == user.stuff[invStuff.type]:
                 emb.set_footer(text = "Vous portez déjà cet équipement")
                 if delete:
                     await oldMsg.edit(embed = emb,components=[],delete_after=60)
                 else:
                     await oldMsg.edit(embed = emb,components=[])
                 
-            elif weap.minLvl > user.level:
+            elif invStuff.minLvl > user.level:
                 emb.set_footer(text = "Cet équipement donne trop de statistiques pour votre niveau")
                 if delete:
                     await oldMsg.edit(embed = emb,components=[],delete_after=60)
@@ -541,8 +530,8 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
 
             else:
                 emb.set_footer(text = "Cliquez sur l'icone de l'équipement pour l'équiper")
-                compareButton = create_button(ButtonStyle.grey,"Comparer",getEmojiObject(user.stuff[weap.type].emoji),custom_id="compare")
-                if user.have(mimique) and weap.type == 0:
+                compareButton = create_button(ButtonStyle.grey,"Comparer",getEmojiObject(user.stuff[invStuff.type].emoji),custom_id="compare")
+                if user.have(mimique) and invStuff.type == 0:
                     toAdd = [create_actionrow(useMimikator)]
                 else:
                     toAdd = []
@@ -569,14 +558,14 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         break
 
                     if rep.custom_id == "confirm":
-                        user.stuff[weap.type] = weap
+                        user.stuff[invStuff.type] = invStuff
                         if saveCharFile(pathUserProfile,user):
-                            await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(weap.name),"bidule",getEmojiObject(weap.emoji),default=True)],disabled=True))],delete_after=5)
+                            await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[create_actionrow(create_select([create_select_option(unhyperlink(invStuff.name),"bidule",getEmojiObject(invStuff.emoji),default=True)],disabled=True))],delete_after=5)
                         else:
                             await oldMsg.edit(embed = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                         break
                     elif rep.custom_id == "compare":
-                        await compare(bot,rep,user,weap)
+                        await compare(bot,rep,user,invStuff)
                     elif rep.custom_id == "return":
                         if delete :
                             await oldMsg.delete()
@@ -584,7 +573,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                             await oldMsg.edit(embed = emb,components=[])
                         break
                     elif rep.custom_id == "mimikator":
-                        var = await mimikThat(bot,ctx,oldMsg,user,weap)
+                        var = await mimikThat(bot,ctx,oldMsg,user,invStuff)
                         if var:
                             await sleep(3)
                         break
@@ -594,7 +583,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
             emb = infoOther(obj,user)
             trouv = False
             for a in user.otherInventory:
-                if a.id == identifiant[0:2] or a.name.lower() == identifiant.lower():
+                if a.id == identifiant or a.name.lower() == identifiant.lower():
                     trouv = True
 
             if not(trouv):
