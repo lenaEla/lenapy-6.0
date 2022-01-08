@@ -1,9 +1,8 @@
 ##########################################################
 # Importations :
 import asyncio
+from copy import deepcopy
 import discord, random, os, emoji, datetime, sys, shutil
-
-from discord import embeds
 from discord_slash.model import SlashCommandOptionType,ButtonStyle
 
 from data.database import *
@@ -41,7 +40,6 @@ intents = discord.Intents.all()
 bot = commands.Bot(command_prefix = "l!", description= "LenaPy par LenaicU",intents=intents)
 slash = SlashCommand(bot, sync_commands=True)
 
-existDir(absPath+"/guildSettings/")
 existDir(absPath + "/userProfile/")
 existDir(absPath + "/userTeams/")
 existDir(absPath + "/data/images/")
@@ -66,9 +64,6 @@ for verif in allActs:
 
 actualyFight,actualyQuickFight = [],[]
 pathUserProfile = absPath + "/userProfile/"
-ctxChannel = 0
-listGuildSet = os.listdir(absPath + "/guildSettings/")
-guilds = list(range(0,len(listGuildSet)))
 
 ###########################################################
 # Initialisation
@@ -381,6 +376,78 @@ def delete_old_backups():
                 temp+="./data/backups/{0} n'a pas pu être supprimé\n".format(name)
     return temp
 
+async def remakeEmojis(ctx=None):
+    if ctx != None:
+        msg = await ctx.send(embed = discord.Embed(title="Remake des emojis..."))
+    else:
+        chan = await bot.fetch_channel(912137828614426707)
+        msg = await chan.send(embed = discord.Embed(title="Remake des emojis..."))
+
+    await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="refaire les emojis..."))
+    
+    async def refresh(text : str):
+        await msg.edit(embed = discord.Embed(title="Remake des emojis...",description=text))
+
+    await refresh("Suppression de la base de données...")
+    try:
+        customIconDB.dropCustom_iconTablDB()
+    except:
+        pass
+    await refresh("Supression des emojis...")
+
+    iconGuildList = []
+    if not(isLenapy):
+        iconGuildList = ShushyCustomIcons
+    else:
+        iconGuildList = LenaCustomIcons
+
+    allEmojisNum = 0
+    for a in iconGuildList:
+        emojiGuild = await bot.fetch_guild(a)
+        allEmojisNum += len(emojiGuild.emojis)
+
+    cmpt = 0
+    now = datetime.datetime.now().second
+    lastTime = copy.deepcopy(now)
+    for a in iconGuildList:
+        emojiGuild = await bot.fetch_guild(a)
+
+        for b in emojiGuild.emojis:
+            try:
+                print("Emoji de {0} supprimé".format(b.name))
+            except:
+                pass
+            await b.delete()
+            cmpt += 1
+
+            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+                await refresh("Supression des emojis ({0} %)".format(int(cmpt/allEmojisNum*100)))
+                lastTime = now
+
+    await refresh("Création des émojis...")
+    allChar = os.listdir("./userProfile/")
+    lenAllChar = len(allChar)
+    cmpt = 0
+
+    for num in allChar:
+        user = loadCharFile("./userProfile/"+num)
+        await makeCustomIcon(bot,user)
+        cmpt += 1
+
+        if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
+            await refresh("Création des émojis ({0} %)".format(int(cmpt/lenAllChar*100)))
+            lastTime = now
+
+    await refresh("Fini !")
+    if ctx != None:
+        await ctx.channel.send("Le remake des emojis est terminées !",delete_after=10)
+
+    ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+    while ballerine.hour%3 != 0:
+        ballerine = ballerine + datetime.timedelta(hours=1)
+
+    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
+
 @tasks.loop(seconds=1)
 async def oneClock():
     """A simple clock who check every second if a minute have passed\n
@@ -426,6 +493,7 @@ async def hourClock():
         temp = delete_old_backups()
         if temp != "":
             await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=temp))
+        await remakeEmojis()
         await restart_program(bot)
 
     # Skill Verif
@@ -445,30 +513,32 @@ async def on_ready():
         globalVar.changeFightEnabled(True)
 
     # Load the guild's settings files
-    cmpt = 0
-    lastTime = datetime.datetime.now().second
-    lenGuild = len(listGuildSet)
-    print("Starting guild's settings loading... 0%")
-    while cmpt < lenGuild:
-        try:
+    if os.path.exists("./guildSettings/"):
+        listGuildSet = os.listdir(absPath + "/guildSettings/")
+        guilds = list(range(0,len(listGuildSet)))
+        cmpt = 0
+        lastTime = datetime.datetime.now().second
+        lenGuild = len(listGuildSet)
+        print("Starting guild's settings loading... 0%")
+        while cmpt < lenGuild:
             guildSettings = readSaveFiles(absPath + "/guildSettings/"+listGuildSet[cmpt])
             guilds[cmpt] = server(int(listGuildSet[cmpt][0:-4]),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
             guilds[cmpt].colorRole.enable, guilds[cmpt].colorRole.red, guilds[cmpt].colorRole.orange, guilds[cmpt].colorRole.yellow, guilds[cmpt].colorRole.green, guilds[cmpt].colorRole.lightBlue, guilds[cmpt].colorRole.blue, guilds[cmpt].colorRole.purple, guilds[cmpt].colorRole.pink = bool(int(guildSettings[1][0][1:])),int(guildSettings[1][1]),int(guildSettings[1][2]),int(guildSettings[1][3]),int(guildSettings[1][4]),int(guildSettings[1][5]),int(guildSettings[1][6]),int(guildSettings[1][7]),int(guildSettings[1][8])
 
             guild = await bot.fetch_guild(guilds[cmpt].id)
             guilds[cmpt].name = guild.name
-
-        except:
+            globalVar.setGuildBotChannel(guilds[cmpt].id,guilds[cmpt].bot)
             os.remove(absPath + "/guildSettings/"+listGuildSet[cmpt])
 
-        now = datetime.datetime.now().second
-        if now >= lastTime + 2 or (now <= 2 and now >= lastTime + 2 - 60):
-            print("Loading guild's settings... {0}%".format(round((cmpt/lenGuild)*100)))
-            lastTime = now
+            now = datetime.datetime.now().second
+            if now >= lastTime + 2 or (now <= 2 and now >= lastTime + 2 - 60):
+                print("Loading guild's settings... {0}%".format(round((cmpt/lenGuild)*100)))
+                lastTime = now
 
-        cmpt += 1
+            cmpt += 1
 
-    print("All guild's settings are loaded !\n")
+        print("All guild's settings are loaded !\n")
+        os.rmdir("./guildSettings/")
 
     # Shop reload and status change
     if bidule != False:
@@ -513,400 +583,18 @@ async def on_ready():
 # -------------------------------------------- ON MESSAGE --------------------------------------------
 @bot.event
 async def on_message(ctx : discord.message.Message):
-    valid = False
-    try:
-        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-        valid = True
-    except:
-        pass
+    if ctx.content.startswith("l!test") and ctx.author.bot == 213027252953284609:
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+        await makeCustomIcon(bot,user)
+        await ctx.add_reaction('<:littleStar:925860806602682369>')
 
-    if valid:
-        if not existFile(pathGuildSettings):
-            tempGuild = server(ctx.guild.id)
-            saveGuildSettings(pathGuildSettings, tempGuild)
-            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-            guilds.append(tempGuild) 
-        
-        guild = None
-
-        for a in guilds:
-            if type(a) != int:
-                if ctx.guild.id == a.id:
-                    guild = a
-
-        if ((ctx.content.startswith(guild.prefixe) or ctx.content.startswith("l!")) and not(ctx.author.bot == True)):
-            args = commandArgs(ctx)
-            if args[0] == guild.prefixe + "settings" or args[0] == "l!settings":
-                msg = await loadingEmbed(ctx)
-                def checkIsAuthor(message):
-                    return message.author.id == ctx.author.id
-                    
-                if ctx.author.guild_permissions.manage_channels == False:
-                    await msg.edit(embed = errorEmbed(args[0],"Tu as pas les permissions nécéssaires pour réaliser cette commande désolée"))
-                    
-                else:
-                    guildSettingsTemp = guild
-                    choiceSettings = ["Salon des patchnotes","Salon bots"]
-                    etat = -1
-                    while etat > -10:
-                        if etat == -1:
-                            await msg.edit(embed = discord.Embed(title = args[0], description = choice(choiceSettings),color = light_blue))
-                            respond = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
-
-                            if not respond.content.isdigit():
-                                await msg.edit(embed = errorEmbed(args[0],"Je m'attendais plutôt à un nombre à vrai dire"))
-                            else:
-                                repMsg = respond
-                                respond = int(respond.content)
-                                if not(respond < len(choiceSettings) and respond >= 0):
-                                    await msg.edit(embed = errorEmbed(args[0],"Ta réponse ne correspond à aucune option"))
-                                else:
-                                    etat = respond
-
-                                try:
-                                    await repMsg.delete()
-                                except:
-                                    1
-
-                        elif etat == 0:
-                            if guild.patchnote == str(0):
-                                await msg.edit(embed = discord.Embed(title = args[0]+" : Salons de patchnote",color = light_blue,description = f"Aucun salon est n'actuellement défini comme Salon de patchnotes pour le serveur {ctx.guild.name}\nVeuillez mentionner le salon que vous souhaitez définir comme tel"))
-                            else:
-                                await msg.edit(embed = discord.Embed(title = args[0]+" : Salons de patchnote",color = light_blue,description = f"Le salon de patchnote du serveur {ctx.guild.name} est : **__{bot.get_channel(guild.patchnote)}__**\nVeuillez mentionner le nouveau salon"))
-
-                            newPatchnotes = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
-                            try:
-                                newPatchnotes = newPatchnotes.channel_mentions[0].id
-                                guildSettingsTemp.patchnote = newPatchnotes
-                                if saveGuildSettings(pathGuildSettings,guildSettingsTemp):
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Patchnote",description ="Les nouveaux paramètres ont bien été sauvegardé"))
-                                elif saveGuildSettings(pathGuildSettings,guild):
-                                    await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Patchnote",description ="Une erreur est survenue. L'opération est annulée"))
-                                else:
-                                    os.remove(pathGuildSettings)
-                                    await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue. Une corruption a été détecté. Fichier supprimé"))
-                            except:
-                                    await msg.edit(embed = errorEmbed(args[0],"Tu ne m'a pas mentionné un salon"))
-                            try:
-                                await newPatchnotes.delete()
-                            except:
-                                1
-                            etat = -10
-                                    
-                        elif etat == 1:
-                            if guild.bot == str(0):
-                                await msg.edit(embed = discord.Embed(title = args[0]+" : Salon des bots",color = light_blue,description = f"Lorsqu'un salon Bot est configuré, Lenapy ne réagira qu'aux commandes envoyé dans ce dit salon (à l'exeption des commandes de modération.\nDe plus, tous messages automatiques liés aux rappels ou à l'Aventure seront envoyé dans ce salon.\n\nAucun salon est n'actuellement défini comme Salon des bots pour le serveur {ctx.guild.name}\nVeuillez mentionner le salon que vous souhaitez définir comme tel"))
-                            else:
-                                await msg.edit(embed = discord.Embed(title = args[0]+" : Salon des bots",color = light_blue,description = f"Lorsqu'un salon Bot est configuré, Lenapy ne réagira qu'aux commandes envoyé dans ce dit salon (à l'exeption des commandes de modération.\nDe plus, tous messages automatiques liés aux rappels ou à l'Aventure seront envoyé dans ce salon.\n\nLe Salon des bots du serveur {ctx.guild.name} est : **__{bot.get_channel(guild.bot)}__**\nVeuillez mentionner le nouveau salon"))
-
-                                newBotChannel = await bot.wait_for("message",timeout = 60,check = checkIsAuthor)
-                                repMsg = newBotChannel
-                                try:
-                                    newBotChannel = newBotChannel.channel_mentions[0].id
-                                    guildSettingsTemp.bot = newBotChannel
-                                    if saveGuildSettings(pathGuildSettings,guildSettingsTemp):
-                                        await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Bot",description ="Les nouveaux paramètres ont bien été sauvegardé"))
-                                    elif saveGuildSettings(pathGuildSettings,guild):
-                                        await msg.edit(embed = discord.Embed(title = args[0] + " : Salon Bot",description ="Une erreur est survenue. L'opération est annulée"))
-                                    else:
-                                        os.remove(pathGuildSettings)
-                                        await msg.edit(embed = errorEmbed(args[0],"Une erreur est survenue. Une corruption a été détecté. Fichier supprimé"))
-                                except:
-                                    await msg.edit(embed = errorEmbed(args[0],"Tu ne m'a pas mentionné un salon"))
-                                try:
-                                    await repMsg.delete()
-                                except:
-                                    1
-                                etat = -10
-                
-                saveGuildSettings(pathGuildSettings,guild)
-
-            elif args[0] == "l!admin" and ctx.author.id == 213027252953284609:
-                #try:
-                if args[1] == "clearRoles":
-                    cmpt = 0
-                    for a in ctx.guild.roles:
-                        if a.name.startswith("lenapy_"):
-                            try:
-                                await a.delete()
-                                cmpt+= 1
-                            except:
-                                None
-                elif args[1] == "motherlode":
-                    try:
-                        mention = ctx.mentions[0]
-                        pathUserProfile = absPath + "/userProfile/" + str(mention.id) + ".prof"
-                        user = loadCharFile(pathUserProfile)
-                        user.currencies = user.currencies + 50000
-                        saveCharFile(pathUserProfile,user)
-                        await ctx.add_reaction('<:goodPileOfCoins:918042081224716309>')
-                    except:
-                        await ctx.add_reaction('❌')
-                elif args[1] == "forceRestat":
-                    if args[2] == "all":
-                        for a in os.listdir(absPath + "/userProfile/"):
-                            pathUserProfile = absPath + "/userProfile/" + a
-                            user = loadCharFile(pathUserProfile)
-                            user = silentRestats(user)
-
-                            saveCharFile(pathUserProfile,user)
-                            print(f"{user.name} a bien été restat")
-
-                    else:
-                        try:
-                            stated = ctx.mentions[0]
-                            pathUserProfile = absPath + "/userProfile/" + str(stated.id) + ".prof"
-                            user = loadCharFile(pathUserProfile)
-                            user = restats(user)
-
-                            if saveCharFile(pathUserProfile,user) :
-                                await stated.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {stated.name}",color = user.color,description = f"Votre profil a été restats de force par un administrateur.\n\nVous avez obtenus les statistiques correspondant à votre aspiration et votre niveau et vous avez récupéré vos {user.points} points bonus, que vous pouvez redistribuer à votre guise"))
-                                print(f"{user.name} a bien été restat")
-                        except:
-                            pass                            
-                elif args[1] == "give":
-                    if args[2] == "all":
-                        for a in os.listdir(absPath + "/userProfile/"):
-                            try:
-                                pathUserProfile = absPath + "/userProfile/" + a
-                                user = loadCharFile(pathUserProfile)
-                                whut = whatIsThat(args[3])
-
-                                if whut == 0:
-                                    weap = None
-                                    for a in weapons:
-                                        if args[3][0:2] == a.id:
-                                            weap = a
-                                    
-                                    if weap != None:                                         
-                                        trouv = False
-                                        for a in user.weaponInventory:
-                                            if a.id == args[3][0:2]:
-                                                trouv = True
-
-                                        if not(trouv):
-                                            user.weaponInventory += [weap]
-
-                                            saveCharFile(pathUserProfile,user)
-                                            owner = await bot.fetch_user(user.owner)
-                                            try:
-                                                await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"Vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                                print(f"{user.name} a bien reçu sont object")
-                                            except:
-                                                pass
-
-                                elif whut == 1:
-                                    weap = None
-                                    for a in skills:
-                                        if args[3][0:2] == a.id:
-                                            weap = a
-                                    
-                                    if weap != None:                                         
-                                        trouv = False
-                                        for a in user.skillInventory:
-                                            if a.id == args[3][0:2]:
-                                                trouv = True
-
-                                        if not(trouv):
-                                            user.skillInventory += [weap]
-
-                                            saveCharFile(pathUserProfile,user)
-                                            owner = await bot.fetch_user(user.owner)
-                                            try:
-                                                await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"Vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                                print(f"{user.name} a bien reçu sont object")
-                                            except:
-                                                pass
-
-                                if whut == 2:
-                                    weap = None
-                                    for a in stuffs:
-                                        if args[3][0:2] == a.id:
-                                            weap = a
-                                    
-                                    if weap != None:                                         
-                                        trouv = False
-                                        for a in user.stuffInventory:
-                                            if a.id == args[3][0:2]:
-                                                trouv = True
-
-                                        if not(trouv):
-                                            user.stuffInventory += [weap]
-
-                                            saveCharFile(pathUserProfile,user)
-                                            owner = await bot.fetch_user(user.owner)
-                                            try:
-                                                await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                                print(f"{user.name} a bien reçu sont object")
-                                            except:
-                                                pass
-
-                                if whut == 3:
-                                    weap = None
-                                    for a in others:
-                                        if args[3][0:2] == a.id:
-                                            weap = a
-                                    
-                                    if weap != None:                                         
-                                        trouv = False
-                                        for a in user.otherInventory:
-                                            if a.id == args[3][0:2]:
-                                                trouv = True
-
-                                        if not(trouv):
-                                            user.otherInventory += [weap]
-
-                                            saveCharFile(pathUserProfile,user)
-                                            owner = await bot.fetch_user(user.owner)
-                                            try:
-                                                await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                                print(f"{user.name} a bien reçu sont object")
-                                            except:
-                                                pass
-                            except:
-                                print("Une erreure est survenue")
-
-                    else:
-                        try:
-                            pathUserProfile = absPath + "/userProfile/" + str(ctx.mentions[0].id) + ".prof"
-                            user = loadCharFile(pathUserProfile)
-                            whut = whatIsThat(args[3])
-
-                            if whut == 0:
-                                weap = None
-                                for a in weapons:
-                                    if args[3][0:2] == a.id:
-                                        weap = a
-                                
-                                if weap != None:                                         
-                                    trouv = False
-                                    for a in user.weaponInventory:
-                                        if a.id == args[3][0:2]:
-                                            trouv = True
-
-                                    if not(trouv):
-                                        user.weaponInventory += [weap]
-
-                                        saveCharFile(pathUserProfile,user)
-                                        owner = await bot.fetch_user(user.owner)
-                                        try:
-                                            await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {owner.name}",color = user.color,description = f"vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                            print(f"{user.name} a bien reçu son object")
-                                        except:
-                                            pass
-
-                            elif whut == 1:
-                                weap = None
-                                for a in skills:
-                                    if args[3][0:2] == a.id:
-                                        weap = a
-                                
-                                if weap != None:                                         
-                                    trouv = False
-                                    for a in user.skillInventory:
-                                        if a.id == args[1][0:2]:
-                                            trouv = True
-
-                                    if not(trouv):
-                                        user.skillInventory += [weap]
-
-                                        saveCharFile(pathUserProfile,user)
-                                        owner = await bot.fetch_user(user.owner)
-                                        try:
-                                            await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                            print(f"{user.name} a bien reçu sont object")
-                                        except:
-                                            pass
-
-                            if whut == 2:
-                                weap = None
-                                for a in stuffs:
-                                    if args[3][0:2] == a.id:
-                                        weap = a
-                                
-                                if weap != None:                                         
-                                    trouv = False
-                                    for a in user.stuffInventory:
-                                        if a.id == args[3][0:2]:
-                                            trouv = True
-
-                                    if not(trouv):
-                                        user.stuffInventory += [weap]
-
-                                        saveCharFile(pathUserProfile,user)
-                                        owner = await bot.fetch_user(user.owner)
-                                        try:
-                                            await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                            print(f"{user.name} a bien reçu sont object")
-                                        except:
-                                            pass
-
-                            if whut == 3:
-                                weap = None
-                                for a in others:
-                                    if args[3][0:2] == a.id:
-                                        weap = a
-                                
-                                if weap != None:                                         
-                                    trouv = False
-                                    for a in user.otherInventory:
-                                        if a.id == args[3][0:2]:
-                                            trouv = True
-
-                                    if not(trouv):
-                                        user.otherInventory += [weap]
-
-                                        saveCharFile(pathUserProfile,user)
-                                        owner = await bot.fetch_user(user.owner)
-                                        try:
-                                            await owner.send(embed = discord.Embed(title = f"{args[0]} {args[1]} {args[2]}",color = user.color,description = f"vous avez reçu l'object \"{weap.name}\" de la part d'un administrateur"))
-                                            print(f"{user.name} a bien reçu sont object")
-                                        except:
-                                            pass
-                        except:
-                            print("Une erreure est survenue")
-                elif args[1] == "forceEmoji":
-                    await ctx.add_reaction('<:popcorn:695553322668785715>')
-                    for a in os.listdir("./userProfile/"):
-                        user = loadCharFile("./userProfile/"+a)
-                        await makeCustomIcon(bot,user)
-                elif args[1] == "forceShop":
-                    await shopping.newShop()
-                    await ctx.add_reaction('❄')
-
-                #except:
-                    #await ctx.add_reaction('<:LenaWhat:760884455727955978>')
-
-            elif args[0] == "l!test" and ctx.author.id == 213027252953284609:
-                user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
-                await makeCustomIcon(bot,user)
-                await ctx.add_reaction('<:littleStar:925860806602682369>')
-
-            elif args[0] == "l!new_patch" and ctx.author.id == 213027252953284609:
-                await new_patch(bot,ctx)
-                for a in guilds:
-                    try:
-                        if type(a) != int:
-                            ballerine = await bot.fetch_guild(a.id)
-                            if ballerine != None:
-                                guildSettings = readSaveFiles(absPath + "/guildSettings/"+str(ballerine.id)+".set")
-                                babie = server(int(ballerine.id),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
-                                if babie.patchnote != 0:
-                                    chan = await bot.fetch_channel(babie.patchnote)
-                                    await chan.send(send_patchnote())
-                                elif babie.bot != 0:
-                                    chan = await bot.fetch_channel(babie.bot)
-                                    await chan.send(embed=discord.Embed(title="/patchnote",color=light_blue,description="Un nouveau patchnote est disponible, vous pouvez le voir à l'aide de /patchnote\n\n*Note : Les nouvelles commandes slash peuvent mettre jusqu'à 1 heure pour apparaitre sur vos serveur*"))
-                    except:
-                        pass
-
-        else:
-            pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-            if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
-                try:
-                    await addExpUser(bot,guild,pathUserProfile,ctx,3,3)
-                except:
-                    print("Erreur dans la gestion du message de {0}".format(ctx.author.name))
+    else:
+        pathUserProfile = "./userProfile/{0}.prof".format(ctx.author.id)
+        if os.path.exists(pathUserProfile) and len(ctx.content)>=3:
+            try:
+                await addExpUser(bot,pathUserProfile,ctx,3,3)
+            except:
+                print("Erreur dans la gestion du message de {0}".format(ctx.author.name))
 
 # -------------------------------------------- ENCYCLOPEDIA --------------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
@@ -927,6 +615,9 @@ async def on_message(ctx : discord.message.Message):
     )
 ])
 async def comEncyclopedia(ctx,destination):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
+
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     user = loadCharFile(pathUserProfile)
         
@@ -936,26 +627,11 @@ async def comEncyclopedia(ctx,destination):
 # normal fight
 @slash.subcommand(base="fight",name="normal",description="Permet de lancer un combat normal")
 async def normal(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     if not(globalVar.fightEnabled()):
         await ctx.send(embed=discord.Embed(title="__Combats désactivés__",description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),delete_after=10)
         return 0
-    try:
-        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-    except:
-        return 0
-
-    if not existFile(pathGuildSettings):
-        tempGuild = server(ctx.guild.id)
-        saveGuildSettings(pathGuildSettings, tempGuild)
-        print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-        guilds.append(tempGuild) 
-
-    guild = None
-
-    for a in guilds:
-        if type(a) != int:
-            if ctx.guild.id == a.id:
-                guild = a
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     try:
@@ -1008,10 +684,7 @@ async def normal(ctx):
 
     # Random event
     fun = random.randint(0,99)
-    if False:
-        await fight(bot,team1,[],ctx,guild,bigMap=True,auto=False)
-
-    elif fun < 1:                # But nobody came
+    if fun < 1:                # But nobody came
         teamIcon = ""
         for wonderfullIdea in team1:
             teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
@@ -1046,8 +719,7 @@ async def normal(ctx):
             team2.append(alea)
             cmpt += 1
 
-        await fight(bot,team1,team2,ctx,guild,False)
-        fightAnyway = False
+        await fight(bot,team1,team2,ctx,False)
 
     elif fun < 3:              # All Temmies
         temp = team1
@@ -1066,8 +738,7 @@ async def normal(ctx):
             team2.append(alea)
             cmpt += 1
 
-        await fight(bot,team1,team2,ctx,guild,False)
-        fightAnyway = False
+        await fight(bot,team1,team2,ctx,False)
 
     elif fun < 4:              # BOUM BOUM BOUM BOUM
         temp = team1
@@ -1086,8 +757,7 @@ async def normal(ctx):
             team2.append(alea)
             cmpt += 1
 
-        await fight(bot,team1,team2,ctx,guild,False)
-        fightAnyway = False
+        await fight(bot,team1,team2,ctx,False)
 
     elif fun < 12:              # Raid
         tablAllTeams = os.listdir("./userTeams/")
@@ -1108,7 +778,7 @@ async def normal(ctx):
                     moyTempTeam += tempUser.level
                     tempTeam += [tempUser]
 
-                moyTempTeam = moyTempTeam/len(tempTeam)
+                moyTempTeam = moyTempTeam/max(1,len(tempTeam))
                 print(moyTempTeam,moyTeam)
                 if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
                     team1 += tempTeam
@@ -1123,202 +793,137 @@ async def normal(ctx):
         alea.changeLevel(maxLvl)
         team2.append(alea)
 
-        await fight(bot,team1,team2,ctx,guild,False,bigMap=True)
+        await fight(bot,team1,team2,ctx,False,bigMap=True)
 
     else:
-        await fight(bot,team1,[],ctx,guild,False)
+        await fight(bot,team1,[],ctx,False)
 
 # quick fight
 @slash.subcommand(base="fight",name="quick",description="Vous permet de faire un combat en sautant directement à la fin")
 async def comQuickFight(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     if not(globalVar.fightEnabled()):
         await ctx.send(embed=discord.Embed(title="__Combats désactivés__",description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),delete_after=10)
-    else:
-        try:
-            pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-            valid = True
-        except:
-            valid = False
-        
-        if valid:
-            if not existFile(pathGuildSettings):
-                tempGuild = server(ctx.guild.id)
-                saveGuildSettings(pathGuildSettings, tempGuild)
-                print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-                guilds.append(tempGuild) 
-            
-            guild = None
+        return 0
 
-            for a in guilds:
-                if type(a) != int:
-                    if ctx.guild.id == a.id:
-                        guild = a
-
-        pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    try:
         user = loadCharFile(pathUserProfile)
-        ballerine,trouv,temp = 0,False,0
-        if user.team == 0:
-            ballerine = user.owner
-        else:
-            ballerine = user.team
+    except:
+        await ctx.send("Vous n'avez pas commencé l'aventure",delete_after=10)
+        return 0
 
-        cooldownOk = True
-        timing = teamWinDB.getFightCooldown(ballerine,True)
-        if timing > 0 :
-            cooldownOk = False
+    ballerine,temp = 0,0
+    if user.team == 0:
+        ballerine = user.owner
+    else:
+        ballerine = user.team
 
-        fightingStatus = teamWinDB.isFightingBool(ballerine)
-        if cooldownOk and not(fightingStatus[0]):
-            team1 = []
-            if user.team != 0:
-                file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-                for a in file[0]:
-                    team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-            else:
-                team1 = [user]
+    timing = teamWinDB.getFightCooldown(ballerine,True)
+    fightingStatus = teamWinDB.isFightingBool(ballerine)
 
-            fun = random.randint(0,99)
-
-            fightAnyway = True
-            if fun < -1:           # Testing purposes
-                await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1))
-
-            if fightAnyway:
-                await fight(bot,team1,[],ctx,guild)
-
-        elif fightingStatus[0]:
-            channel = await bot.fetch_channel(fightingStatus[2])
-            fightingMessage = await channel.fetch_message(fightingStatus[0])
-            
-            fightingRespond = "__Votre équipe affronte actuellement :__\n"
-            temp = ""
-            for letter in fightingStatus[1]:
-                if letter==";" and len(temp) > 0:
-                    ennemi = findEnnemi(temp)
-                    if ennemi == None:
-                        ennemi = findAllie(temp)
-                    if ennemi != None:
-                        fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
-                    else:
-                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
-                    temp = ""
+    if fightingStatus[0]:
+        channel = await bot.fetch_channel(fightingStatus[2])
+        fightingMessage = await channel.fetch_message(fightingStatus[0])
+        
+        fightingRespond = "__Votre équipe affronte actuellement :__\n"
+        temp = ""
+        for letter in fightingStatus[1]:
+            if letter==";" and len(temp) > 0:
+                ennemi = findEnnemi(temp)
+                if ennemi == None:
+                    ennemi = findAllie(temp)
+                if ennemi != None:
+                    fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                 else:
-                    temp+=letter
+                    fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
+                temp = ""
+            else:
+                temp+=letter
 
-            msg = await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
-        else:
-            msg = await ctx.send(embed = errorEmbed("Cooldown",f"Votre équipe ne pourra faire de combats rapides que dans {timing//60} minute(s)"),delete_after=10)
+        await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
+        return 0
+    elif timing > 0:
+        await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats rapide que dans {0} minute{1} et {2} seconde{3}".format(timing//180,["","s"][timing//180 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
+        return 0
+
+    team1 = []
+    if user.team != 0:
+        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
+        for a in file[0]:
+            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+    else:
+        team1 = [user]
+
+    await fight(bot,team1,[],ctx)
 
 # octogone fight
 @slash.subcommand(base="fight",subcommand_group="octogone",name="solo",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
     create_option("versus","Affronter qui ?",6,required=True)
 ])
 async def octogone(ctx,versus):
-    try:
-        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-        valid = True
-    except:
-        pass
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    if not(os.path.exists(pathUserProfile)):
+        await ctx.send("Comment veut-tu affronter quelqu'un si tu n'a pas de personnage ?\nVa donc faire un tour vers /start",delete_after=15)
+        return 0
+
+    if os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof"):
+        await fight(bot,[loadCharFile(pathUserProfile)],[loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")],ctx,auto=False,octogone=True)
+
+    elif versus.id in [623211750832996354,769999212422234122]:
+        temp = loadCharFile(pathUserProfile)
+        tempi = tablAllAllies[0]
+        tempi.changeLevel(temp.level)
+        await fight(bot,[temp],[tempi],ctx,auto=False,octogone=True)
     
-    if valid:
-        if not existFile(pathGuildSettings):
-            tempGuild = server(ctx.guild.id)
-            saveGuildSettings(pathGuildSettings, tempGuild)
-            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-            guilds.append(tempGuild) 
-        
-        guild = None
-
-        for a in guilds:
-            if type(a) != int:
-                if ctx.guild.id == a.id:
-                    guild = a
-
-    pathUserProfile,ballerine = absPath + "/userProfile/" + str(ctx.author.id) + ".prof",""
-    if os.path.exists(pathUserProfile):
-        if not(checkIsBotChannel(ctx,guild,bot)) and ctx.author.id == 213027252953284609:
-            ballerine = "Tu va te calmer Léna, tu es pas dans le bon salon pour octogone quelqu'un"
-            if not(os.path.exists(absPath + "/userProfile/" + versus.id + ".prof")):
-                ballerine += f"\nEn plus {versus.name} n'a même pas commencé l'aventure"
-        elif checkIsBotChannel(ctx,guild,bot) and ctx.author.id == 213027252953284609 and not(os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof")) and not((versus.id in [623211750832996354,769999212422234122])):
-            ballerine = f'{versus.name} n\'a pas commencé l\'aventure Léna'
-
-        elif checkIsBotChannel(ctx,guild,bot) and os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof"):
-            await fight(bot,[loadCharFile(pathUserProfile)],[loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")],ctx,guild,auto=False,octogone=True)
-
-        elif checkIsBotChannel(ctx,guild,bot) and (versus.id in [623211750832996354,769999212422234122]):
-            temp = loadCharFile(pathUserProfile)
-            tempi = tablAllAllies[0]
-            tempi.changeLevel(temp.level)
-            await fight(bot,[temp],[tempi],ctx,guild,auto=False,octogone=True)
-
-        elif checkIsBotChannel(ctx,guild,bot):
-            await ctx.send(f"{versus.name} n'a pas commencé l'aventure",delete_after=5)
-        else:
-            await ctx.send("ok",delete_after=5)
-
-        if ballerine != "":
-            await ctx.send(ballerine,delete_after=5)
+    else:
+        await ctx.send("La personne que tu as désigné ne possède pas de personnage désolé",delete_after=15)
 
 # team fight
 @slash.subcommand(base="fight",subcommand_group="octogone",name="team",description="Affrontez l'équipe de quelqu'un avec la votre",options=[
     create_option("versus","Affronter qui ?",6,required=True)
 ])
 async def teamFight(ctx,versus):
-    try:
-        pathGuildSettings = absPath + "/guildSettings/"+str(ctx.guild.id)+".set"
-        valid = True
-    except:
-        pass
-    
-    if valid:
-        if not existFile(pathGuildSettings):
-            tempGuild = server(ctx.guild.id)
-            saveGuildSettings(pathGuildSettings, tempGuild)
-            print(f"Création du fichier {pathGuildSettings} ({ctx.guild.name})")
-            guilds.append(tempGuild) 
-        
-        guild = None
-
-        for a in guilds:
-            if type(a) != int:
-                if ctx.guild.id == a.id:
-                    guild = a
-
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile)
-        ballerine,trouv,temp = 0,False,0
-        if user.team == 0:
-            ballerine = user.owner
-        else:
-            ballerine = user.team
-
-        team1 = []
-        if user.team != 0:
-            file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-            for a in file[0]:
-                team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-        else:
-            team1 = [user]
-
-
-        team2 = []
-        pathOctogonedProfile = absPath + "/userProfile/" + str(versus.id) + ".prof"
-        if os.path.exists(pathOctogonedProfile):
-            octogoned = loadCharFile(pathOctogonedProfile,ctx)
-            if octogoned.team != 0:
-                file = readSaveFiles(absPath + "/userTeams/" + str(octogoned.team) + ".team")
-                for a in file[0]:
-                    team2 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
-            else:
-                team2 = [octogoned]
-
-            await fight(bot,team1,team2,ctx,guild,False,octogone=True)
-        else:
-            await ctx.send("L'utilisateur mentioné n'a pas commencé l'aventure",delete_after=5)
+    if not(os.path.exists(pathUserProfile)):
+        await ctx.send("Vous ne possédez pas de personnage.\nAllez donc faire un tour vers /start",delete_after=15)
+        return 0
+    user = loadCharFile(pathUserProfile)
+    team1 = []
+    if user.team != 0:
+        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
+        for a in file[0]:
+            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
     else:
-        await ctx.send("Tu n'as pas commencé l'aventure",delete_after=5)
+        team1 = [user]
+
+    team2 = []
+    pathOctogonedProfile = absPath + "/userProfile/" + str(versus.id) + ".prof"
+    if not(os.path.exists(pathOctogonedProfile)) and versus.id not in [623211750832996354,769999212422234122]:
+        await ctx.send("L'utilisateur désigné ne possède pas de personnage",delete_after=15)
+        return 0
+
+    if versus.id not in [623211750832996354,769999212422234122]:
+        octogoned = loadCharFile(pathOctogonedProfile,ctx)
+        if octogoned.team != 0:
+            file = readSaveFiles(absPath + "/userTeams/" + str(octogoned.team) + ".team")
+            for a in file[0]:
+                team2 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        else:
+            team2 = [octogoned]
+    else:
+        tablLenaTeam = ["Lena","Gwendoline","Shushi","Clémence","Alice","Félicité","Hélène","Iliana"]
+        for a in tablLenaTeam:
+            alea = copy.deepcopy(findAllie(a))
+            alea.changeLevel(55)
+            team2.append(alea)
+
+    await fight(bot,team1,team2,ctx,False,octogone=True)
 
 # -------------------------------------------- COOLDOWN --------------------------------------------
 @slash.slash(name="cooldowns",description="Vous donne les cooldowns des commandes /fight et /quickFight pour votre équipe")
@@ -1366,6 +971,8 @@ async def cooldowns(ctx):
 # -------------------------------------------- PATCHNOTE --------------------------------------------
 @slash.slash(name="patchnote",description="Renvoie le dernier patchnote du bot")
 async def patchnote(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     await send_patchnote(ctx)
 
 # -------------------------------------------- ROLL --------------------------------------------
@@ -1374,12 +981,16 @@ async def patchnote(ctx):
     create_option(name="max",description="Minimum du jet. Par défaut, 100",option_type=4,required=False),
 ])
 async def roll(ctx,min=1,max=100):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     rollmes = rollMessage[random.randint(0,len(rollMessage)-1)]
     await ctx.send(embed= discord.Embed(title=f"🎲 roll {min} - {max}",color=light_blue,description=rollmes.format(random.randint(min,max))))
 
 # -------------------------------------------- SHOP --------------------------------------------
 @slash.slash(name="shop",description="Vous permet d'entrer dans le magasin")
 async def shopSlash(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     await shop2(bot,ctx,shopping.shopping)
 
 # -------------------------------------------- INVENTORY --------------------------------------------
@@ -1394,106 +1005,103 @@ async def shopSlash(ctx):
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False),
     create_option("nom","Le nom ou l'identifiant d'un objet. Les espaces peuvent être remplacés par des _",3,required=False)
 ])
-async def invent2(ctx,destination=None,procuration=None,nom=None):
-    to = False
-    if destination == None and nom==None:
-        await ctx.send(embed=discord.Embed(title="/inventory",description="Les champs \"destination\" et \"nom\" ne peuvent pas être tous les deux vides"),delete_after=15)
-        to = True
+async def invent2(ctx,destination="Equipement",procuration=None,nom=None):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
+    for a in range(5):
+        if ["Equipement","Arme","Compétences","Objets spéciaux","Elements"][a] == destination:
+            destination = a
+            break
+
+    if procuration != None:
+        user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
     else:
-        for a in range(5):
-            if ["Equipement","Arme","Compétences","Objets spéciaux","Elements"][a] == destination:
-                destination = a
-                break
+        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
 
-        if procuration != None:
-            user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
-            procurTemp = procuration.mention
-        else:
-            user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
-            procurTemp = None
+    if nom != None:
+        nom = nom.replace("_"," ")
+        nom = remove_accents(nom.lower())
+        while nom.endswith(" "):
+            nom = nom[0:-1]
 
-        if nom != None:
-            nom = nom.replace("_"," ")
-            nom = remove_accents(nom.lower())
-            while nom.endswith(" "):
-                nom = nom[0:-1]
+        if whatIsThat(nom) == None:
+            research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token]
+            lastResarch = []
+            nameTempCmpt,lenName = 0, len(nom)
+            while 1:
+                lastResarch = research[:]
+                if nameTempCmpt+1 <= lenName:
+                    nameTempCmpt += 1
+                else:
+                    nameTempCmpt = lenName
 
-            if whatIsThat(nom) == None:
-                research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token]
-                lastResarch = []
-                nameTempCmpt,lenName = 0, len(nom)
-                while 1:
-                    lastResarch = research[:]
-                    if nameTempCmpt+1 <= lenName:
-                        nameTempCmpt += 1
+                for a in research[:]:
+                    temp = remove_accents(a.name.lower())
+                    if nom[0:nameTempCmpt] not in temp:
+                        research.remove(a)
+
+                leni = len(research)
+                if leni == 1:
+                    nom = research[0].name
+                    break
+                elif leni <= 0 or nameTempCmpt == lenName:
+                    desc = ""
+                    options = []
+                    for a in lastResarch:
+                        have = ""
+                        if not(user.have(a)):
+                            have = "`"
+                        desc += "{0} {2}{1}{2}\n".format(a.emoji,a.name,have)
+                        options += [create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.emoji))]
+
+                    if len(options) <= 25:
+                        select = create_select(options,placeholder="Sélectionnez un objet :")
                     else:
-                        nameTempCmpt = lenName
-
-                    for a in research[:]:
-                        temp = remove_accents(a.name.lower())
-                        if nom[0:nameTempCmpt] not in temp:
-                            research.remove(a)
-
-                    leni = len(research)
-                    if leni == 1:
-                        nom = research[0].name
+                        await ctx.send(embed=discord.Embed(title="/inventory",description="L'objet spécifié n'a pas été trouvé, et le nom donné est trop vague\nVeuillez réessayer avec un paramètre Nom plus précis"),delete_after=10)
+                        to = True
                         break
-                    elif leni <= 0 or nameTempCmpt == lenName:
-                        desc = ""
-                        options = []
-                        for a in lastResarch:
-                            have = ""
-                            if not(user.have(a)):
-                                have = "`"
-                            desc += "{0} {2}{1}{2}\n".format(a.emoji,a.name,have)
-                            options += [create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.emoji))]
+                    msg = await ctx.send(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(select)])
 
-                        if len(options) <= 25:
-                            select = create_select(options,placeholder="Sélectionnez un objet :")
-                        else:
-                            await ctx.send(embed=discord.Embed(title="/inventory",description="L'objet spécifié n'a pas été trouvé, et le nom donné est trop vague\nVeuillez réessayer avec un paramètre Nom plus précis"),delete_after=10)
-                            to = True
-                            break
-                        msg = await ctx.send(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(select)])
+                    def check(m):
+                        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
 
-                        def check(m):
-                            return m.author_id == ctx.author.id and m.origin_message.id == msg.id
-
-                        try:
-                            respond = await wait_for_component(bot,components=select,check=check,timeout=60)
-                        except:
-                            await msg.delete()
-                            to = True
-                            break
-
-                        nom = respond.values[0]
-                        await msg.edit(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                    try:
+                        respond = await wait_for_component(bot,components=select,check=check,timeout=60)
+                    except:
+                        await msg.delete()
+                        to = True
                         break
 
-            if nom == token.name:
-                obj = token
-                repEmb = infoOther(obj,user)
-                try:
-                    await ctx.send(embed = repEmb,components=[])
-                except:
-                    await ctx.channel.send(embed = repEmb,components=[])
-                return 0
+                    nom = respond.values[0]
+                    await msg.edit(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(getChoisenSelect(select,respond.values[0]))])
+                    break
 
-            nom = [nom,None]
+        if nom == token.name:
+            obj = token
+            repEmb = infoOther(obj,user)
+            try:
+                await ctx.send(embed = repEmb,components=[])
+            except:
+                await ctx.channel.send(embed = repEmb,components=[])
+            return 0
 
-        else:
-            nom = [None]
-    if not(to):
-        if nom != [None]:
-            await inventory(bot,ctx,["/inventory"]+[procurTemp]+nom,[destination,procuration])
-        else:
-            await inventoryV2(bot,ctx,destination,user)
+        nom = [nom,None]
+
+    else:
+        nom = [None]
+
+    if nom != [None]:
+        await inventory(bot,ctx,nom[0],procur=user.owner)
+    else:
+        await inventoryV2(bot,ctx,destination,user)
 
 # -------------------------------------------- POINTS --------------------------------------------
 @slash.slash(name="points",description="Vous permet de répartir vos points bonus",options=[
     create_option("procuration","De qui voulez vous consulter l'inventaire ?",6,required=False)
 ])
 async def pts(ctx,procuration=None):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     await points(bot,ctx, ["/points",None],procuration,slashed=True)
 
 # -------------------------------------------- TEAM --------------------------------------------
@@ -1502,6 +1110,8 @@ async def pts(ctx,procuration=None):
     create_option("joueur","Voir l'équipe d'un autre joueur",6,required=False)
 ])
 async def teamView(ctx,joueur=None):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     if joueur==None:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     else:
@@ -1556,6 +1166,8 @@ async def teamView(ctx,joueur=None):
     create_option("joueur","Le joueur à rajouter",6,required=True)
 ])
 async def teamAdd(ctx,joueur):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
@@ -1625,6 +1237,8 @@ async def teamAdd(ctx,joueur):
 # team quit
 @slash.subcommand(base="team",name="quit",description="Permet de quitter son équipe")
 async def teamQuit(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
@@ -1644,6 +1258,8 @@ async def teamQuit(ctx):
 # team fact
 @slash.subcommand(base="team",name="fact",description="Permet d'avoir des facts sur les membres de votre équipe")
 async def teamFact(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
@@ -1674,18 +1290,24 @@ async def teamFact(ctx):
 # -------------------------------------------- HELP --------------------------------------------
 @slash.slash(name="help",description="Ouvre la page d'aide du bot")
 async def helpCom(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     await helpBot(bot,ctx)
 
 # -------------------------------------------- START --------------------------------------------
 @slash.slash(name="start",description="Permet de commence l'aventure")
 async def started(ctx):
-    await start(bot,ctx,["/start"])
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
+    await start(bot,ctx)
 
 # -------------------------------------------- STATS --------------------------------------------
 @slash.slash(name="stats",description="Permet de voir vos statistiques ou celles d'un autre joueur",options=[
     create_option("joueur","Voir les statistiques d'un autre joueur",6,False)
 ])
-async def stats(ctx,joueur=None):
+async def statsCmd(ctx,joueur=None):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     if joueur == None:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     else:
@@ -1754,6 +1376,8 @@ async def stats(ctx,joueur=None):
     create_option("page","Spécifiez une page à laquelle ouvrir le manuel",4,False)
 ])
 async def manuel(ctx,page=0):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     msg,manPage,chapterInt,ini = await loadingSlashEmbed(ctx),page,0,True
     def checkReaction(reaction, user):
         return int(reaction.message.id) == int(msg.id) and int(user.id) == int(ctx.author.id) and (str(reaction) == emoji.backward_arrow or str(reaction) == emoji.forward_arrow or str(reaction) == '⏪' or str(reaction) == '⏩') 
@@ -1913,6 +1537,8 @@ async def seeStuffRepartition(ctx):
     create_option("choix5",description="Un potentiel cinquième de la liste",option_type=discord_slash.SlashCommandOptionType.STRING,required=False)
 ])
 async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     tempTabl = [choix1,choix2]
     for a in [choix3,choix4,choix5]:
         if a != None:
@@ -1926,8 +1552,12 @@ async def chooseCmd(ctx,choix1,choix2,choix3=None,choix4=None,choix5=None):
     await ctx.send(embed=discord.Embed(title="/choose",color=light_blue,description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0,len(randChooseMsg)-1)],selected)))
 
 # -------------------------------------------- ADMIN --------------------------------------------
+if isLenapy:
+    adminServ = [912137828614426704]
+else:
+    adminServ = [927195778013859902]
 
-@slash.subcommand(base="admin",name="enable_Fight",guild_ids=[912137828614426704],description="Permet d'activer les combats ou non",options=[
+@slash.subcommand(base="admin",name="enable_Fight",guild_ids=adminServ,description="Permet d'activer les combats ou non",options=[
     create_option("valeur","Activer ou désaciver les combats", SlashCommandOptionType.BOOLEAN,False)
 ])
 async def addEnableFight(ctx,valeur = None):
@@ -1946,11 +1576,11 @@ async def addEnableFight(ctx,valeur = None):
 
     await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__",description="Les combats sont désormais __{0}__".format(["désactivés","activés"][int(valeur)]),color=[red,light_blue][int(valeur)]))
 
-@slash.subcommand(base="admin",name="restart_Bot",guild_ids=[912137828614426704],description="Permet de redémarrer le bot lorsque tous les combats seront fini")
+@slash.subcommand(base="admin",name="restart_Bot",guild_ids=adminServ,description="Permet de redémarrer le bot lorsque tous les combats seront fini")
 async def restartCommand(ctx):
     await restart_program(bot,ctx)
 
-@slash.subcommand(base="admin",subcommand_group="emoji",name="reset_all",guild_ids=[912137828614426704],description="Lance une rénitialisation des emojis")
+@slash.subcommand(base="admin",subcommand_group="emoji",name="reset_all",guild_ids=adminServ,description="Lance une rénitialisation des emojis")
 async def resetCustomEmoji(ctx):
     msg = await ctx.send(embed = discord.Embed(title="Rénitialisation des emojis..."))
     await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="rénitialiser les emojis..."))
@@ -2011,7 +1641,7 @@ async def resetCustomEmoji(ctx):
     existDir(absPath + "/data/images/char_icons/")
     existDir(absPath + "/data/images/elemIcon/")
     await refresh("Création de la base de donnée")
-    base = open("./data/custom_icon.db","w")
+    base = open("./data/database/custom_icon.db","w")
     base.close()
     customIconDB.remarkeCustomDB()
     await downloadAllHeadGearPng(bot,msg,lastTime)
@@ -2043,72 +1673,11 @@ async def resetCustomEmoji(ctx):
 
     await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
-@slash.subcommand(base="admin",subcommand_group="emoji",name="remake_all",guild_ids=[912137828614426704],description="Supprime puis refait tous les emojis de personnage")
+@slash.subcommand(base="admin",subcommand_group="emoji",name="remake_all",guild_ids=adminServ,description="Supprime puis refait tous les emojis de personnage")
 async def remakeCustomEmoji(ctx):
-    msg = await ctx.send(embed = discord.Embed(title="Remake des emojis..."))
-    await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="refaire les emojis..."))
-    
-    async def refresh(text : str):
-        await msg.edit(embed = discord.Embed(title="Remake des emojis...",description=text))
+    await remakeEmojis(ctx)
 
-    await refresh("Suppression de la base de données")
-    try:
-        customIconDB.dropCustom_iconTablDB
-    except:
-        pass
-    await refresh("Supression des emojis")
-    iconGuildList = []
-    if os.path.exists("../Kawi/"):
-        iconGuildList = ShushyCustomIcons
-    else:
-        iconGuildList = LenaCustomIcons
-
-    allEmojisNum = 0
-    for a in iconGuildList:
-        emojiGuild = await bot.fetch_guild(a)
-        allEmojisNum += len(emojiGuild.emojis)
-
-    cmpt = 0
-    now = datetime.datetime.now().second
-    lastTime = copy.deepcopy(now)
-    for a in iconGuildList:
-        emojiGuild = await bot.fetch_guild(a)
-
-        for b in emojiGuild.emojis:
-            try:
-                print("Emoji {0} supprimé".format(b.name))
-            except:
-                pass
-            await b.delete()
-            cmpt += 1
-
-            if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
-                await refresh("Supression des emojis ({0} %)".format(int(cmpt/allEmojisNum*100)))
-                lastTime = now
-
-    allChar = os.listdir("./userProfile/")
-    lenAllChar = len(allChar)
-    cmpt = 0
-
-    for num in allChar:
-        user = loadCharFile("./userProfile/"+num)
-        await getUserIcon(bot,user)
-        cmpt += 1
-
-        if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
-            await refresh("Création des émojis ({0} %)".format(int(cmpt/lenAllChar*100)))
-            lastTime = now
-
-    await refresh("Fini !")
-    await ctx.channel.send("Le remake des emojis est terminées !",delete_after=10)
-
-    ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
-    while ballerine.hour%3 != 0:
-        ballerine = ballerine + datetime.timedelta(hours=1)
-
-    await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
-
-@slash.subcommand(base="admin",subcommand_group="backup",name="new",description="Permet de réaliser un backup des profiles de personnages",guild_ids=[912137828614426704])
+@slash.subcommand(base="admin",subcommand_group="backup",name="new",description="Permet de réaliser un backup des profiles de personnages",guild_ids=adminServ)
 async def adminBackup(ctx):
     temp = create_backup()
     try:
@@ -2119,7 +1688,7 @@ async def adminBackup(ctx):
 if isLenapy:
     tabl=[912137828614426704,405331357112205326]
 else:
-    tabl=[912137828614426704]
+    tabl=adminServ
 
 # -------------------------------------------- KIKIMETER --------------------------------------------
 @slash.slash(name="Kikimeter",description="Permet de voir le top 5 de chaques catégories",guild_ids=tabl,options=[create_option(name="what",description="Que regarder",option_type=str,required=True,choices=[create_choice("total","total"),create_choice("max","max")])])
@@ -2151,15 +1720,25 @@ async def kikimeterCmd(ctx,what):
 # -------------------------------------------- PROCURATION --------------------------------------------
 @slash.slash(name="procuration",description="Permet de donner à un autre utilisateur procuration sur votre inventaire",options=[create_option("utilisateur","L'utilisateur qui pourra modifier vos objets équipés",6,True)])
 async def procurCmd(ctx,utilisateur):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     await procuration(ctx,utilisateur)
 
 # -------------------------------------------- ICON --------------------------------------------
-@slash.slash(name="icon",description="Renvoie l'icone de votre personnage")
-async def iconCommand(ctx):
+@slash.slash(name="icon",description="Renvoie l'icone de votre personnage",options=[create_option("utilisateur","Voir l'icone d'un autre utilisateur",6,False)])
+async def iconCommand(ctx,utilisateur=None):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     try:
-        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+        if utilisateur == None:
+            user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+        else:
+            user = loadCharFile("./userProfile/{0}.prof".format(utilisateur.id))
     except:
-        await ctx.send("Vous devez avoir commencé l'Aventure pour utiliser cette commande\nFaites donc un tour du côté de /start !",delete_after=15)
+        if utilisateur == None:
+            await ctx.send("Vous devez avoir commencé l'Aventure pour utiliser cette commande\nFaites donc un tour du côté de /start !",delete_after=15)
+        else:
+            await ctx.send("La personne mentionnée n'a pas commencé l'aventure",delete_after=15)
         return 0
 
     embed = discord.Embed(title="__Icone de personnage__",color=user.color)
@@ -2184,6 +1763,8 @@ async def dutyStart(ctx):
 # -------------------------------------------- ROULETTE --------------------------------------------
 @slash.slash(name="roulette",description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
 async def rouletteSlash(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     try:
         user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
     except:
@@ -2236,9 +1817,11 @@ async def seeEnnemyRep(ctx):
 
     await ctx.channel.send(embed = embed)
 
-# ------------------------------------------- PRESTIGE -------------------------------------------
+# ------------------------------------------- PRESTIGE ---------------------------------------------
 @slash.slash(name="prestige",description="Permet de revenir au niveau 1, avec quelques bonus en primes")
 async def prestigeCmd(ctx):
+    if not(await botChannelVerif(bot,ctx)):
+        return 0
     try:
         user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
     except:
@@ -2270,6 +1853,19 @@ async def prestigeCmd(ctx):
     saveCharFile(user=user)
     await inventoryVerif(bot,user)
     await msg.edit(embed = discord.Embed(title="__Prestige__",color=light_blue,description="Vous avez bien prestige votre personnage"),components=[])    
+
+# ------------------------------------------- SET_BOT_CHANNEL --------------------------------------
+@slash.slash(name="set_bot_channel",description="Permet de définir un salon comme salon bot",options=[create_option("salon","Le salon dans lequel les utilisateurs pourront utiliser les commandes",7,True)])
+async def setChannel(ctx:discord_slash.SlashContext, salon:discord.TextChannel):
+    if not(ctx.author.guild_permissions.manage_channels):
+        await ctx.send(embed = discord.Embed(title="__/set_bot_channel__",color=red,description="Tu as besoin des permissions de gérer les salons textuels pour utiliser cette commande, désolée"),delete_after=10)
+        return 0
+    if type(salon) != discord.TextChannel:
+        await ctx.send(embed = discord.Embed(title="__/set_bot_channel__",color=red,description="Seul un salon textuel peut être rajouté comme salon bot, désolée"),delete_after=10)
+        return 0
+
+    globalVar.setGuildBotChannel(ctx.guild_id,salon.id)
+    await ctx.send(embed = discord.Embed(title="__/set_bot_channel__",color=light_blue,description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
 
 ###########################################################
 # Démarrage du bot

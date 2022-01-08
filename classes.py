@@ -82,6 +82,7 @@ class statTabl:
         self.underBoost = 0
         self.selfBurn = 0
         self.headnt = False
+        self.friendlyfire = 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -196,7 +197,7 @@ class weapon:
     def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect:Union[None,effect]=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False):
         """rtfm"""
         self.name:str = name
-        self.say:str = say
+        self.say:Union[str,List[str]] = say
         self.id:str = id
         self.range = range
         self.strength = strength
@@ -221,7 +222,6 @@ class weapon:
         self.type = type
         self.needRotate = needRotate
         self.use = use
-        self.say = ""
         if self.range == 2 and damageOnArmor == 1:
             damageOnArmor = 1.33
         self.onArmor = damageOnArmor
@@ -313,7 +313,7 @@ class skill:
         """rtfm"""
         self.name = name                                # Name of the skill
         self.repetition = repetition                    # The number of hits it does
-        self.say = say                                  # Does the attacker say something when the skill is used ?
+        self.say:Union[str,List[str]] = say                                  # Does the attacker say something when the skill is used ?
         self.id = id                                    # The id of the skill.  Idealy, unique
         self.type = types                               # The type of the skill. See constante.types
         
@@ -584,8 +584,8 @@ class char:
         .skills : A ``list`` of the equiped ``skill`` objects by the character
     """
     def __init__(self,owner,name = "",level = 1,species=0,color=red):
-        self.owner = owner
-        self.name = str(name)
+        self.owner:int = owner
+        self.name:str = str(name)
         self.level = int(level)
         self.stars = 0
         self.exp = 0
@@ -795,6 +795,7 @@ class octarien:
         self.number = number
         self.skills = skill
         self.stars = 0
+        self.team = -2
         while len(self.skills) < 5:
             self.skills+=["0"]
 
@@ -911,6 +912,7 @@ class tmpAllie:
         self.aspiration = aspiration
         self.weapon = weapon
         self.stars = 0
+        self.team = -1
         self.skills = ["0","0","0","0","0"]
         self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         for a in range(0,len(skill)):
