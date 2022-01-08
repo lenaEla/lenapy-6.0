@@ -292,7 +292,7 @@ chrismasBoots = stuff("Bottes de Noël","hbg",2,1,intelligence=35,negativeBoost=
 nemeBracelet = stuff("Bracelets cloutés","hdh",0,1,strength=25,negativeDirect=-10,endurance=10,resistance=5,negativeHeal=15,negativeIndirect=15,orientation=[TANK,DPT_PHYS])
 nemeManteau = stuff("Manteau à fourrure","hdi",1,1,strength=25,endurance=15,resistance=10,intelligence=-15,charisma=-15,orientation=[TANK,DPT_PHYS])
 nemeBottes = stuff("Bottes cloutés","hdj",2,1,strength=25,negativeDirect=-10,endurance=10,resistance=5,magie=-15,negativeBoost=15,orientation=[TANK,DPT_PHYS])
-ilHat = stuff("Collier à grelots","hdk",0,1,endurance=20,resistance=10,charisma=20,negativeHeal=-10,strength=-20,magie=-20,emoji='<:ilianaCollier:926879998139334656>',orientation=[TANK,HEALER])
+ilHat = stuff("Collier à grelots","hdk",0,1,endurance=20,resistance=10,charisma=20,negativeHeal=-10,strength=-20,magie=-20,emoji='<:ilianaCollier:926879998139334656>',orientation=[TANK,HEALER],position=foulard.position)
 ilBody = stuff("T-shirt à grelot","hdl",1,1,endurance=15,resistance=20,charisma=15,negativeHeal=-10,intelligence=-20,precision=-20,emoji='<:ilianaShirt:926880013805060116>',orientation=[TANK,HEALER])
 ilShoes = stuff("Bottines à grelots","hdm",2,1,endurance=20,resistance=10,charisma=20,negativeHeal=-10,agility=-20,percing=-20,emoji='<:ilianaBoots:926880028170526770>',orientation=[TANK,HEALER])
 pinkbutterflysandals = stuff("Sandales du papillon rose","hdn",2,1,emoji='<:pinkButSan:926904344014647306>',charisma=30,negativeBoost=-30,negativeHeal=20,negativeShield=20,orientation=[LONG_DIST,BOOSTER])
