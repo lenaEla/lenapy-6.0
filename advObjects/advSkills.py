@@ -2,7 +2,7 @@ from classes import *
 from constantes import *
 
 soupledown = skill("Choc Ténébreux","zz",TYPE_DAMAGE,500,150,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=80,ultimate=True,cooldown=7,emoji='<:darkdown:892350717384347648>',use=STRENGTH)
-inkarmor = skill("Armure d'Encre","zy",TYPE_ARMOR,250,ultimate=True,effect="la",emoji = '<:inkArmor:866829950463246346>',area=AREA_ALL_ALLIES,cooldown=5,range=AREA_MONO)
+inkarmor = skill("Armure d'Encre","zy",TYPE_ARMOR,250,ultimate=True,effect="la",emoji = '<:inkArmor:866829950463246346>',area=AREA_CIRCLE_2,cooldown=7,range=AREA_CIRCLE_5)
 coffeeSkill = skill("Suprématie du café","zx",TYPE_BOOST,500,effect=["lb","mc"],use=CHARISMA,conditionType=["reject","skill","zw"],area=AREA_ALL_ALLIES,emoji='<:coffee:867538582846963753>',cooldown=4,message="{0} prend le café avec ses alliés :")
 theSkill = skill("Liberté du thé","zw",TYPE_BOOST,500,effect=["lc","mc"],use=CHARISMA,conditionType=["reject","skill","zx"],area=AREA_ALL_ALLIES,emoji='<:the:867538602644602931>',cooldown=4,message="{0} prend le thé avec ses alliés :")
 gpotion = skill("Potion tonifiante","zv",TYPE_BOOST,200,emoji="<:bpotion:867165268911849522>",use=INTELLIGENCE,cooldown=3,effect="le",area=AREA_MONO,range=AREA_MONO)
@@ -37,13 +37,13 @@ descart = skill("Nous pensons donc nous somme","yu",TYPE_BOOST,250,range=AREA_MO
 trans = skill("Transcendance","yt",TYPE_UNIQUE,0,initCooldown=3,cooldown=5,emoji="<:limiteBreak:886657642553032824>",description="Un sort particulier qui a un effet différent en fonction de l'aspiration du lanceur\n\nUtiliser Transcendance vous empêche d'utiliser une compétence ultime lors du prochain tour",use=HARMONIE,shareCooldown=True)
 
 transMelee = copy.deepcopy(trans)
-transMelee.type,transMelee.power, transMelee.name = TYPE_DAMAGE,200, transMelee.name + " - Lasers Chromanergiques Prompts, Monocible"
+transMelee.type,transMelee.power, transMelee.name = TYPE_DAMAGE,220, transMelee.name + " - Lasers Chromanergiques Prompts, Monocible"
 
 transLine = copy.deepcopy(trans)
-transLine.type,transLine.power,transLine.area, transLine.name = TYPE_DAMAGE,180,AREA_LINE_6, transLine.name + " - Lasers Chromanergiques Prompts, Ligne"
+transLine.type,transLine.power,transLine.area, transLine.name = TYPE_DAMAGE,200,AREA_LINE_6, transLine.name + " - Lasers Chromanergiques Prompts, Ligne"
 
 transCircle = copy.deepcopy(trans)
-transCircle.type,transCircle.power,transCircle.area,transCircle.name, transCircle.cooldown = TYPE_DAMAGE,160,AREA_CIRCLE_2, transCircle.name + " - Explosion Prompte", transCircle.cooldown+1
+transCircle.type,transCircle.power,transCircle.area,transCircle.name, transCircle.cooldown = TYPE_DAMAGE,180,AREA_CIRCLE_2, transCircle.name + " - Explosion Prompte", transCircle.cooldown+1
 
 transHeal = copy.deepcopy(trans)
 transHeal.type,transHeal.power,transHeal.area,transHeal.range, transHeal.name, transHeal.cooldown = TYPE_HEAL,120,AREA_ALL_ALLIES,AREA_MONO, transHeal.name + " - Voie de l'Ange Prompte",7
@@ -52,7 +52,7 @@ transInvoc = copy.deepcopy(trans)
 transInvoc.type, transInvoc.invocation, transInvoc.name  = TYPE_SUMMON,"Titania", transInvoc.name + " - La lumière brille brille brille"
 
 transShield = copy.deepcopy(trans)
-effTransShield = effect("Transcendance - Armure","transArm",HARMONIE,overhealth=150,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),turnInit=3)
+effTransShield = effect("Transcendance - Armure","transArm",HARMONIE,overhealth=100,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"))
 
 transShield.type,transShield.area,transShield.range,transShield.effect,transShield.name, transShield.cooldown = TYPE_ARMOR,AREA_ALL_ALLIES,AREA_MONO,[effTransShield],transShield.name + " - Extra Armure d'Encre",7
 
@@ -93,18 +93,18 @@ flame = skill("Flamme","wn",TYPE_DAMAGE,250,84,area=AREA_CONE_2,use=MAGIE,condit
 pyro = skill("Pyrotechnie","wm",TYPE_DAMAGE,500,126,area=AREA_CONE_2,use=MAGIE,conditionType=["exclusive","element",ELEMENT_FIRE],cooldown=5,emoji='<:flame3:897812061139140651>')
 ecume = skill("Ecume","wl",TYPE_DAMAGE,100,60,use=MAGIE,conditionType=["exclusive","element",ELEMENT_WATER],emoji='<:splash1:897844189184811078>')
 courant = skill("Courant","wk",TYPE_DAMAGE,250,120,use=MAGIE,conditionType=["exclusive","element",ELEMENT_WATER],cooldown=3,emoji='<:splash2:897844205198659594>')
-torant = skill("Torrant","wd",TYPE_DAMAGE,500,180,use=MAGIE,conditionType=["exclusive","element",ELEMENT_WATER],cooldown=5,emoji='<:splash3:897844380491202581>')
+torant = skill("Torrant","wd",TYPE_DAMAGE,500,160,use=MAGIE,conditionType=["exclusive","element",ELEMENT_WATER],cooldown=5,emoji='<:splash3:897844380491202581>')
 brise = skill("Brise","wj",TYPE_DAMAGE,100,42,use=MAGIE,conditionType=["exclusive","element",ELEMENT_AIR],area=AREA_CIRCLE_1,emoji='<:wind1:897845097775915038>')
 storm2 = skill("Tempête","wi",TYPE_DAMAGE,250,84,use=MAGIE,conditionType=["exclusive","element",ELEMENT_AIR],area=AREA_CIRCLE_1,cooldown=3,emoji='<:wind2:897845144299110441>')
 tornado = skill("Tornade","wh",TYPE_DAMAGE,500,126,use=MAGIE,conditionType=["exclusive","element",ELEMENT_AIR],area=AREA_CIRCLE_1,cooldown=5,emoji='<:wind3:897845187940868156>')
 stone = skill("Caillou","wg",TYPE_DAMAGE,100,60,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],emoji='<:rock1:897846015552532531>')
 rock = skill("Rocher","wf",TYPE_DAMAGE,250,120,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],cooldown=3,emoji="<:rock2:897846028512944138>")
-mont = skill("Montagne","we",TYPE_DAMAGE,500,180,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],cooldown=5,emoji='<:rock3:897846042576420874>')
+mont = skill("Montagne","we",TYPE_DAMAGE,500,160,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],cooldown=5,emoji='<:rock3:897846042576420874>')
 stingray2 = skill("Pigmalance","wd",TYPE_DAMAGE,500,120,AREA_CIRCLE_7,ultimate=True,emoji='<:stingray:899243721378390036>',cooldown=5,area=AREA_LINE_6,sussess=110,description="Cette compétence dure **2** tours",damageOnArmor=0.66)
 stingray = skill("Pigmalance","wc",TYPE_DAMAGE,500,100,AREA_CIRCLE_7,ultimate=True,emoji='<:stingray:899243721378390036>',cooldown=5,area=AREA_LINE_6,sussess=80,effectOnSelf="nb",damageOnArmor=0.66)
 dark1 = skill("Cécité","wb",TYPE_DAMAGE,100,60,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],emoji='<:dark1:899599162566410280>')
 dark2 = skill("Obscurité","wa",TYPE_DAMAGE,250,120,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],cooldown=3,emoji='<:dark2:899599147399807006>')
-dark3 = skill("Pénombre","vz",TYPE_DAMAGE,500,180,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],cooldown=5,emoji='<:dark3:899598969930399765>')
+dark3 = skill("Pénombre","vz",TYPE_DAMAGE,500,160,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],cooldown=5,emoji='<:dark3:899598969930399765>')
 light1 = skill("Lueur","vy",TYPE_DAMAGE,100,42,use=MAGIE,conditionType=["exclusive","element",ELEMENT_LIGHT],area=AREA_CIRCLE_1,emoji='<:light1:899598879576690689>')
 light2 = skill("Éclat","vx",TYPE_DAMAGE,250,84,use=MAGIE,conditionType=["exclusive","element",ELEMENT_LIGHT],area=AREA_CIRCLE_1,cooldown=3,emoji='<:light2:899598896613969970>')
 light3 = skill("Éblouissement","vw",TYPE_DAMAGE,500,126,use=MAGIE,conditionType=["exclusive","element",ELEMENT_LIGHT],area=AREA_CIRCLE_1,cooldown=5,emoji='<:light3:899599232628043787>')
@@ -165,7 +165,7 @@ space2 = skill("Constelation","tz",TYPE_DAMAGE,250,84,use=MAGIE,conditionType=["
 space3 = skill("Nébuluse","ty",TYPE_DAMAGE,500,126,use=MAGIE,conditionType=["exclusive","element",ELEMENT_SPACE],area=AREA_CIRCLE_1,cooldown=5,emoji='<:ast3:907470880676917309>')
 time1 = skill("Seconde","tx",TYPE_DAMAGE,100,60,use=MAGIE,conditionType=["exclusive","element",ELEMENT_TIME],emoji='<:time1:907474383034023977>')
 time2 = skill("Minute","tw",TYPE_DAMAGE,250,120,use=MAGIE,conditionType=["exclusive","element",ELEMENT_TIME],cooldown=3,emoji='<:time2:907474439854235668>')
-time3 = skill("Heure","tv",TYPE_DAMAGE,500,180,use=MAGIE,conditionType=["exclusive","element",ELEMENT_TIME],cooldown=5,emoji='<:time3:907474471240216658>')
+time3 = skill("Heure","tv",TYPE_DAMAGE,500,160,use=MAGIE,conditionType=["exclusive","element",ELEMENT_TIME],cooldown=5,emoji='<:time3:907474471240216658>')
 
 timeSpEff = effect("Rembobinage","nigHotMF",CHARISMA,power=20,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,turnInit=3,emoji=uniqueEmoji('<:rlb:907687694476378112>'),stackable=True,description='Un effet de soin sur la durée qui se déclanche en début de tour')
 timeSp = skill("Rembobinage","tu",TYPE_INDIRECT_HEAL,500,use=CHARISMA,range=AREA_MONO,area=AREA_CIRCLE_5,effect=timeSpEff,conditionType=["exclusive","element",ELEMENT_TIME],cooldown=7,ultimate=True,emoji='<:rlb:907687694476378112>')
@@ -188,7 +188,7 @@ lightHeal2 = skill("Illumination","tn",TYPE_HEAL,350,60,cooldown=3,use=CHARISMA,
 extraEtingSkill = copy.deepcopy(eting)
 extraEtingSkill.name, extraEtingSkill.id, extraEtingSkill.effect, extraEtingSkill.condition, extraEtingSkill.emoji = "Marque Eting +","tm",["eting+"],[0,2,ELEMENT_TIME],'<:emeB:909132040392302703>'
 
-willShield = effect("Force de volonté","willShield",STRENGTH,overhealth=120,description="Votre force de volonté vous permet de vous protéger de quelques dégâts",turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+willShield = effect("Force de volonté","willShield",STRENGTH,overhealth=120,description="Votre force de volonté vous permet de vous protéger de quelques dégâts",turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji('<:willB:922987683217821727>','<:willR:922987661952708638>'))
 strengthOfWill = skill("Détermination inflexible","feliUltLaunch",TYPE_DAMAGE,0,power=200,cooldown=7,effectOnSelf=willShield,ultimate=True,emoji='<:feliSlash:916208942974132245>')
 strengthOfWillCastEff = effect("Cast - Force de volonté","castFeliEff",turnInit=2,silent=True,emoji=dangerEm,replique=strengthOfWill)
 strengthOfWillCast = copy.deepcopy(strengthOfWill)
@@ -206,8 +206,8 @@ mageUltMono.power,mageUltMono.area,mageUltMono.sussess = 150,AREA_MONO,160
 mageUltZone = copy.deepcopy(mageUlt)
 mageUltZone.power,mageUltZone.area,mageUltZone.sussess = 80,AREA_CONE_3,80
 
-soulaEff = effect("Traité de soulagement","soulaArmor",INTELLIGENCE,overhealth=55,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji('<:tsB:911732326818545664>','<:tsR:911732347601317908>'))
-soulagement = skill("Traité de soulagement","tf",TYPE_ARMOR,500,0,AREA_MONO,["exclusive","aspiration",PREVOYANT],area=AREA_CIRCLE_2,use=INTELLIGENCE,cooldown=3,effect=soulaEff,emoji='<:soul:911732783993483284>')
+soulaEff = effect("Traité de soulagement","soulaArmor",INTELLIGENCE,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji('<:tsB:911732326818545664>','<:tsR:911732347601317908>'))
+soulagement = skill("Traité de soulagement","tf",TYPE_ARMOR,500,0,AREA_MONO,["exclusive","aspiration",PREVOYANT],area=AREA_CIRCLE_2,use=INTELLIGENCE,cooldown=5,effect=soulaEff,emoji='<:soul:911732783993483284>')
 
 bloodArmor = effect("Bouclier sanguin","bloodyArmor",STRENGTH,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 bloodyStrike = skill("Frappe sanguine",'te',TYPE_DAMAGE,500,100,AREA_CIRCLE_2,["exclusive","aspiration",BERSERK],cooldown=5,effectOnSelf=bloodArmor,emoji='<:berkSlash:916210295867850782>')
@@ -304,12 +304,12 @@ medicamentum = skill("Rune - Medicamentum",'zzn',TYPE_INDIRECT_HEAL,750,ultimate
 ultMonoArmorEff = effect("Armis","ultMonoArmor",INTELLIGENCE,overhealth=150,turnInit=3,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR)
 ultMonoArmor = skill("Rune - Armis","zzm",TYPE_ARMOR,750,0,ultimate=True,effect=ultMonoArmorEff,cooldown=7,use=INTELLIGENCE)
 
-neutralZone1 = skill("Primum multi scopum magicae","zzl",TYPE_DAMAGE,100,42,area=AREA_CONE_2,use=MAGIE,emoji='<:nm1:925185303659053088>')
-neutralZone2 = skill("Secundum multi scopum magicae","zzk",TYPE_DAMAGE,250,84,area=AREA_CONE_2,use=MAGIE,cooldown=3,emoji='<:nm2:925185316409716746>')
-neutralZone3 = skill("Tertio multi scopum magicae","zzj",TYPE_DAMAGE,500,126,area=AREA_CONE_2,use=MAGIE,cooldown=5,emoji='<:nm3:925185333446971492>')
-neutralMono1 = skill("Primum unum scopum magicae","zzi",TYPE_DAMAGE,100,60,use=MAGIE,emoji='<:nz1:925184839257317398>')
-neutralMono2 = skill("Secundum unum scopum magicae","zzh",TYPE_DAMAGE,250,120,use=MAGIE,cooldown=3,emoji='<:nz2:925184858584662127>')
-neutralMono3 = skill("Tertio singula scopum magicae","zzg",TYPE_DAMAGE,500,180,use=MAGIE,cooldown=5,emoji='<:nz3:925184871612157953>')
+neutralZone1 = skill("Primum multi scopum magicae","zzl",TYPE_DAMAGE,100,42,area=AREA_CONE_2,use=MAGIE,emoji='<:nm1:925185303659053088>',conditionType=["exclusive","element",ELEMENT_NEUTRAL])
+neutralZone2 = skill("Secundum multi scopum magicae","zzk",TYPE_DAMAGE,250,84,area=AREA_CONE_2,use=MAGIE,cooldown=3,emoji='<:nm2:925185316409716746>',conditionType=["exclusive","element",ELEMENT_NEUTRAL])
+neutralZone3 = skill("Tertio multi scopum magicae","zzj",TYPE_DAMAGE,500,126,area=AREA_CONE_2,use=MAGIE,cooldown=5,emoji='<:nm3:925185333446971492>',conditionType=["exclusive","element",ELEMENT_NEUTRAL])
+neutralMono1 = skill("Primum unum scopum magicae","zzi",TYPE_DAMAGE,100,60,use=MAGIE,emoji='<:nz1:925184839257317398>',conditionType=["exclusive","element",ELEMENT_NEUTRAL])
+neutralMono2 = skill("Secundum unum scopum magicae","zzh",TYPE_DAMAGE,250,120,use=MAGIE,cooldown=3,emoji='<:nz2:925184858584662127>',conditionType=["exclusive","element",ELEMENT_NEUTRAL])
+neutralMono3 = skill("Tertio singula scopum magicae","zzg",TYPE_DAMAGE,500,160,use=MAGIE,cooldown=5,emoji='<:nz3:925184871612157953>',conditionType=["exclusive","element",ELEMENT_NEUTRAL])
 
 intelRaise = copy.deepcopy(renisurection)
 intelRaise.name, intelRaise.use, intelRaise.id, intelRaise.emoji = "Egeiro", INTELLIGENCE, "zzf", '<:egiero:925768359964979210>'
@@ -324,13 +324,24 @@ liuSkillSus = skill("Guraundo Sutoraiku","zzc",TYPE_DAMAGE,0,50,range=AREA_CIRCL
 liaSkillSus = skill("Kuchu Sutoraiku","zzb",TYPE_DAMAGE,0,25,range=AREA_CIRCLE_1,cooldown=5,knockback=1,repetition=3,use=AGILITY,emoji='<:liaSkill:922291249002709062>')
 lioSkillSusEff = effect('Shinju no haha',"lioSussessEff",CHARISMA,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,power=10,turnInit=3,strength=5,magie=5,emoji=uniqueEmoji('<:lioWeap:908859876812415036>'))
 lioSkillSus = skill("Shio",'zza',TYPE_INDIRECT_HEAL,0,cooldown=7,effect=lioSkillSusEff,area=AREA_CIRCLE_2,emoji='<:lioSkill:922328964926697505>')
-lizSkillSusEff = effect("Tanka",'lizWillBurnThemAll',MAGIE,power=15,area=AREA_CIRCLE_1,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
-lizSKillSus = skill("Shokyaku","zyz",TYPE_INDIRECT_DAMAGE,0,effect=lizSkillSusEff,area=AREA_CONE_4,cooldown=7,emoji='<:lizSkill:922328829765242961>')
+lizSkillSusEff = effect("Tanka",'lizWillBurnThemAll',MAGIE,power=20,area=AREA_CIRCLE_1,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
+lizSKillSus = skill("Shokyaku","zyz",TYPE_INDIRECT_DAMAGE,0,effect=lizSkillSusEff,area=AREA_CONE_4,cooldown=7,emoji='<:lizSkill:922328829765242961>',use=MAGIE)
 
 freedlyPush = skill("Pousée amicale","movepls",TYPE_DAMAGE,0,1,range=AREA_DONUT_1,use=HARMONIE,knockback=3,emoji='<:movePlz:928756987532029972>',say=["Madness ? THIS IS SPARTA !","* Out of my ways","SPAR-TA"])
 
+pepsis = skill("Pepsis","zyy",TYPE_HEAL,500,50,AREA_MONO,area=AREA_CIRCLE_3,use=INTELLIGENCE,cooldown=5,emoji='<:pepsis:930049497214644235>')
+darkShieldEff = effect("Nuit noirsisime","blackknightshield",ENDURANCE,overhealth=40,turnInit=2,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<:dsR:930048553835970580>","<:dsR:930048570688675900>"))
+darkShield = skill("Nuit noirsisime","zyx",TYPE_ARMOR,500,use=ENDURANCE,effect=darkShieldEff,cooldown=3,emoji='<:dsR:930048553835970580>')
+rencCelEff = effect('Rencontre Céleste','rencontreCel',CHARISMA,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji('<:rcb:930048878668046377>','<:rcr:930048892886720603>'))
+rencCel = skill("Rencontre Céleste",'zyw',TYPE_ARMOR,500,use=CHARISMA,range=AREA_MONO,area=AREA_CIRCLE_3,effect=rencCelEff,emoji='<:rencontreceleste:930049458488623104>',cooldown=5)
+valse = skill("Valse régénératrice","zyv",TYPE_HEAL,500,50,AREA_MONO,area=AREA_CIRCLE_1,cooldown=7,description="Soigne en zone autour du lanceur et de l'allié le plus blessé",emoji='<:valse:930051603543760936>')
+pasTech = effect("Pas Technique","pasTech",turnInit=5,emoji='<:pas:930051729523879966>',stackable=True)
+finalTech = skill("Final Technique","zyu",TYPE_DAMAGE,750,60,area=AREA_CIRCLE_1,cooldown=3,initCooldown=3,description="Equiper cette compétence accorde un effet __{0} {1}__ en début de tour (Cumulable jusqu'à 5 effets)\nLors de l'utilisation, tous les effets __{1}__ sont consommés, augmentant la puissance de cette compétence de **20%** par effet".format(pasTech.emoji[0][0],pasTech.name),emoji='<:final:930051626062991371>')
+dissi = skill("Dissipation","zyt",TYPE_HEAL,750,80,AREA_MONO,ultimate=True,cooldown=7,area=AREA_ALL_ALLIES,emoji='<:dissipation:930049419473211392>',use=HARMONIE,description="__**Nécessite d'avoir au moins une invocation propre sur le terrain**__\nDésinvoque toutes vos invocations pour effectuer un gros soins sur toute votre équipe. La puissance est multipliée par le nombre d'invocation renvoyés")
+
 # Skill
-skills = [intelRaise,ultRedirect,clemency,liuSkillSus,liaSkillSus,lioSkillSus,lizSKillSus,
+skills = [pepsis,darkShield,rencCel,valse,finalTech,dissi,
+    intelRaise,ultRedirect,clemency,liuSkillSus,liaSkillSus,lioSkillSus,lizSKillSus,
     neutralMono1,neutralZone1,neutralMono2,neutralZone2,neutralMono3,neutralZone3,
     reconst,medicamentum,ultMonoArmor,
     inkRes,inkRes2,booyahBombCast,
