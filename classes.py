@@ -502,7 +502,7 @@ class stuff:
                 self.emoji='<:defMid:896928729673109535>'
             elif self.type == 2:
                 self.emoji='<:defShoes:896928709330731018>'
-    
+
         self.effect = effect
         self.affinity = affinity
 
@@ -617,6 +617,7 @@ class char:
         self.apparaWeap = None
         self.apparaAcc = None
         self.colorHex = None
+        self.iconForm = 0
 
     def have(self,obj):
         """Verify if the character have the object Obj"""

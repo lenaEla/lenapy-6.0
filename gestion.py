@@ -165,7 +165,7 @@ def saveCharFile(path : str = None, user : char = None):
         path = './userProfile/{0}.prof'.format(user.owner)
     #try:
     saved = ""
-    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars]:
+    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars,user.iconForm]:
         saved += str(a)+";"
     saved += "\n"
     for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
@@ -258,7 +258,10 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         rep.stars = int(file[0][10])
     except:
         rep.stars = 0
-        print('No stars founds')
+    try:
+        rep.iconForm = int(file[0][11])
+    except:
+        rep.iconForm = 0
     
     # Stats
     rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])

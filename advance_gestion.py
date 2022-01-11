@@ -1007,7 +1007,7 @@ async def downloadAllIconPng(bot : discord.Client):
         for b in range(0,len(listEmojiHead[a])):
             emojiObject = getEmojiInfo(listEmojiHead[a][b])
             if emojiObject[0] + ".png" not in listDir:
-                guildStuff = [862320563590529056,615257372218097691]
+                guildStuff = [862320563590529056,615257372218097691,810212019608485918]
 
                 emoji_2 = None
                 for c in guildStuff:
@@ -1048,7 +1048,10 @@ async def makeCustomIcon(bot : discord.Client, user : char):
 
     # Récupération de l'icone de base -----------------------------
     tabl = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/baseIka.png"],["./data/images/char_icons/empty_octo.png","./data/images/char_icons/baseTako.png"]]
-    background = Image.open(tabl[user.species-1][1])
+    if user.iconForm == 0:
+        background = Image.open(tabl[user.species-1][1])
+    elif user.iconForm == 1:
+        background = Image.open(["./data/images/char_icons/ikaCatBody.png","./data/images/char_icons/takoCatBody.png"][user.species-1])
     background2 = None
 
     if pos == 6:                                 # Behind
@@ -1071,7 +1074,10 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             cmpt += 1
 
     pixel = background.load()
-    layer = Image.open(tabl[user.species-1][0])
+    if user.iconForm == 0:
+        layer = Image.open(tabl[user.species-1][0])
+    elif user.iconForm == 1:
+        layer = Image.open(["./data/images/char_icons/ikaCatLine.png","./data/images/char_icons/takoCatLine.png"][user.species-1])
 
     colorToUse = user.colorHex.replace("0x","#")
     if colorToUse == "None":
