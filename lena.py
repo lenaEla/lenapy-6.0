@@ -1,7 +1,6 @@
 ##########################################################
 # Importations :
 import asyncio
-from copy import deepcopy
 import discord, random, os, emoji, datetime, sys, shutil
 from discord_slash.model import SlashCommandOptionType,ButtonStyle
 
@@ -684,7 +683,12 @@ async def normal(ctx):
 
     # Random event
     fun = random.randint(0,99)
-    if fun < 1:                # But nobody came
+
+    if fun < 0:                 # For testing purposes
+        team1.append(findAllie("Alice"))
+        await fight(bot,team1,[],ctx,False)
+
+    elif fun < 1:               # But nobody came
         teamIcon = ""
         for wonderfullIdea in team1:
             teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
@@ -759,7 +763,7 @@ async def normal(ctx):
 
         await fight(bot,team1,team2,ctx,False)
 
-    elif fun < 12:              # Raid
+    elif fun < 10:             # Raid
         tablAllTeams = os.listdir("./userTeams/")
         random.shuffle(tablAllTeams)
 
@@ -779,7 +783,6 @@ async def normal(ctx):
                     tempTeam += [tempUser]
 
                 moyTempTeam = moyTempTeam/max(1,len(tempTeam))
-                print(moyTempTeam,moyTeam)
                 if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
                     team1 += tempTeam
                     break
@@ -856,7 +859,44 @@ async def comQuickFight(ctx):
     else:
         team1 = [user]
 
-    await fight(bot,team1,[],ctx)
+    fun = random.randint(0,99)
+
+    if fun < 5:             # Raid
+        tablAllTeams = os.listdir("./userTeams/")
+        random.shuffle(tablAllTeams)
+
+        moyTeam = 0
+        for a in team1:
+            moyTeam += a.level
+
+        moyTeam = moyTeam/len(team1)
+
+        for tempTeamPath in tablAllTeams:
+            if int(tempTeamPath.replace(".team","")) != user.team and not(teamWinDB.isFightingBool(int(tempTeamPath.replace(".team","")))[0]):
+                tempTeam, moyTempTeam = [], 0
+                file = readSaveFiles(absPath + "/userTeams/" + tempTeamPath)
+                for a in file[0]:
+                    tempUser = loadCharFile(absPath + "/userProfile/" + a + ".prof")
+                    moyTempTeam += tempUser.level
+                    tempTeam += [tempUser]
+
+                moyTempTeam = moyTempTeam/max(1,len(tempTeam))
+                if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                    team1 += tempTeam
+                    break
+
+        temp = team1
+        temp.sort(key=lambda overheal: overheal.level,reverse=True)
+        maxLvl = temp[0].level
+        team2 = []
+        alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
+
+        alea.changeLevel(maxLvl)
+        team2.append(alea)
+
+        await fight(bot,team1,team2,ctx,bigMap=True)
+    else:
+        await fight(bot,team1,[],ctx)
 
 # octogone fight
 @slash.subcommand(base="fight",subcommand_group="octogone",name="solo",description="Affrontez quelqu'un en 1v1 Gare Du Nord !",options=[
@@ -1866,6 +1906,69 @@ async def setChannel(ctx:discord_slash.SlashContext, salon:discord.TextChannel):
 
     globalVar.setGuildBotChannel(ctx.guild_id,salon.id)
     await ctx.send(embed = discord.Embed(title="__/set_bot_channel__",color=light_blue,description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
+
+
+@slash.slash(name="verif_team",guild_ids=adminServ)
+async def verifTeams(ctx):
+    toSend, allReadySeenn, msg, userTeam = "", [], None, []
+
+    def getUserMainTeam(user:char):
+        for look in userTeam:
+            if look[0] == user.owner:
+                return int(look[1])
+
+    for team in os.listdir("./userTeams/"):
+        temp = "__Team **{0}** :__".format(team.replace(".team",""))
+        teamMembers = readSaveFiles("./userTeams/"+team)[0]
+        if len(teamMembers) == 0:
+            os.remove("./userTeams/"+team)
+            temp += "\n`Equipe vide. Fichier supprimé`"
+        else:
+            tmpTeamMembers = teamMembers[:]
+            for ids in teamMembers:
+                user = loadCharFile(path="./userProfile/{0}.prof".format(ids))
+                if user.owner in allReadySeen:
+                    warn = "~~"
+                    if getUserMainTeam(user) != int(team.replace(".team","")):
+                        tmpTeamMembers.remove(str(user.owner))
+                else:
+                    warn = ""
+                    allReadySeen.append(user.owner)
+                    userTeam.append([user.owner,int(team.replace(".team",""))])
+
+                if int(user.team) != int(team.replace(".team","")):
+                    user.team = int(team.replace(".team",""))
+                    saveCharFile(user=user)
+                    redacted = " 📎"
+                else:
+                    redacted = ""
+
+                temp += "\n{2}{0} {1}{2}{3}".format(await getUserIcon(bot, user), user.name, warn, redacted)
+
+
+            if len(tmpTeamMembers) > 0:
+                saveSaveFiles("./userTeams/"+team,[tmpTeamMembers])
+            else:
+                os.remove("./userTeams/"+team)
+                temp += "\n`Equipe vide. Fichier supprimé`"
+
+
+        temp+="\n"
+        if len(toSend+temp) > 4000:
+            if msg == None:
+                msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+            else:
+                await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+            toSend = temp
+            temp = ""
+        else:
+            toSend = toSend + temp + "\n"
+
+    if toSend != "":
+        if msg == None:
+            msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+        else:
+            await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
 
 ###########################################################
 # Démarrage du bot

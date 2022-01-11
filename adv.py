@@ -1,4 +1,3 @@
-from os import remove
 from classes import *
 from advObjects.advWeapons import *
 from advObjects.advSkills import *
@@ -25,8 +24,10 @@ blablator = other("Blablator","qg",500,description="Permet de définir des messa
 dimentioCristal = other("Cristal dimentionel",'qh',500,'<:krysTal2:907638077307097088>',"Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory element (lvl 20)\n\nCe cristal permet de choisir les éléments suivants :\n<:light:887847410141921362> Lumière\n<:darkness:887847395067568128> Ténèbre\n<:astral:907467653147410475> Astral\n<:temporel:907467620930973707> Temporel")
 token = other("Jeton de roulette","None",0,'<:jeton:917793426949435402>',"Ce jeton est à utiliser dans la Roulette\nAllez donc faire un tour à /roulette !")
 mimique = other("Mimikator","qi",500,"<:mimikator:918073466077446164>","Cet emoji vous permet de changer l'apparance de votre arme ou accessoire sur votre icone de personnage.\n\nPour ce faire, appuyez juste sur le bouton correspondant lorsque vous ouvrez une page d'information d'une arme ou accessoire avec /inventory")
+ilianaGrelot = other("Grelot","qj",350,'<:iliGrelot:930385123130609684>',"Vous permet de changer la forme de votre icone de personnage en Inkling Chat ou Octaling Chat")
+grandNouveau = other("Boucles d'oreilles originelle","qk",350,amethystEarRings.emoji,"Vous permet de rénitialiser la forme de votre icone de personnage")
 
-others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique]
+others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau]
 
 # Specials skills ================================================================================
 # Total Kboum
@@ -184,7 +185,7 @@ if not(isLenapy):
     tempToPrint = ''
     for temp in lvlTabl:
         tempToPrint+="\nObjets de niveau {0} : {1} ({2})%, statsAttendues : {3}".format(temp["level"],temp["nombre"],round(temp["nombre"]/lenStuff*100,2),20 + (temp["level"] * 2))
-    print(tempToPrint)
+    #print(tempToPrint)
 
     tabl = copy.deepcopy(tablAllAllies)
     tablTank = []
@@ -261,9 +262,9 @@ for obj in stuffs+weapons+skills+others:
                 what += whaty.name + ", "
         raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("Ténèbres"))
+#print(seeSimilarStuffNameMinLvl("Escarpins"))
 #print(seeAllStuffAtMinLvl(25))
 
-for weap in weapons:
-    if weap.emoji.endswith(" "):
-        print(weap.name)
+"""for stuffy in stuffs:
+    if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:
+        print("{0} use a default emoji".format(stuffy.name))"""

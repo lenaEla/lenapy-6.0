@@ -214,9 +214,7 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
                 else:
                     user.otherInventory.remove(dimentioCristal)
                 saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
-                await secondMsg.edit(embed = discord.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément a bien été modifié",color=user.color),components=[])
-                await asyncio.sleep(5)
-                await secondMsg.delete()
+                await secondMsg.edit(embed = discord.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément a bien été modifié",color=user.color),components=[],delete_after=5)
             else:
                 await secondMsg.delete()
 
@@ -264,7 +262,7 @@ async def blablaEdit(bot : discord.client, ctx : discord.Message, msg : discord.
             desc = "Le message suivant est enregistré pour cet évémenement :\n\"{0}\"".format(tablSays[repValue])
         
         desc += "\n\nVeuillez renseigner le nouveau message :"
-        embed2 = discord.Embed(title = "\inventory says - {0}".format(tablCat[repValue]),color=user.color,description=desc)
+        embed2 = discord.Embed(title = "__/inventory says - {0}__".format(tablCat[repValue]),color=user.color,description=desc)
         reply = await respond.send(embed = embed2)
 
         try:
@@ -390,8 +388,6 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         break
                     elif rep.custom_id == "mimikator":
                         var = await mimikThat(bot,ctx,oldMsg,user,weap)
-                        if var:
-                            await sleep(3)
                         break
 
         elif inv == 1: # Skills
@@ -574,11 +570,9 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         break
                     elif rep.custom_id == "mimikator":
                         var = await mimikThat(bot,ctx,oldMsg,user,invStuff)
-                        if var:
-                            await sleep(3)
                         break
 
-        elif inv == 3:
+        elif inv == 3:              # Other
             obj = findOther(identifiant)
             emb = infoOther(obj,user)
             trouv = False
@@ -701,6 +695,25 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                             await oldMsg.edit(embed = discord.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
                     elif obj==blablator:
                         await blablaEdit(bot,ctx,oldMsg,user)
+                    elif obj==ilianaGrelot:
+                        if user.iconForm != 1:
+                            user.iconForm = 1
+                            user.otherInventory.remove(ilianaGrelot)
+                            saveCharFile(user=user)
+                            await makeCustomIcon(bot,user)
+                            await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Votre Grelot a bien été utilisé").set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])))
+                        else:
+                            await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
+                    elif obj==grandNouveau:
+                        if user.iconForm != 0:
+                            user.iconForm = 0
+                            user.otherInventory.remove(grandNouveau)
+                            saveCharFile(user=user)
+                            await makeCustomIcon(bot,user)
+                            await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Votre Boucle d'oreille originale a bien été utilisé").set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])))
+                        else:
+                            await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
+                    
                     await oldMsg.clear_reactions()
                 except asyncio.TimeoutError:
                     await oldMsg.clear_reactions()
@@ -1051,7 +1064,14 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 except:
                     msg = await ctx.channel.send(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
             else:
-                await msg.edit(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
+                try:
+                    await msg.edit(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
+                except:
+                    procurOptions = []
+                    for a in listUserProcure:
+                        procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject('<:LenaWhat:760884455727955978>'),default=a.owner == user.owner))
+                    procurSelect = [create_actionrow(create_select(procurOptions))]
+                    await msg.edit(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
 
             try:
                 respond = await wait_for_component(bot,msg,check=check,timeout=180)
@@ -1113,6 +1133,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             elif respond.values[0].startswith("user_"):
                 user = loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
+                needRemake = True
 
             elif respond.values[0] in ["hideNoneEquip","affNoneEquip"]:
                 if destination == 2:
@@ -1136,11 +1157,10 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             destination = a
                             needRemake = True
                             break
-                
+
                 else:
                     await msg.edit(embed=embed,components=[create_actionrow(create_select([create_select_option("None","None")],placeholder="Une autre action est en cours",disabled=True))])
                     if ctx.author_id != user.owner:
                         await inventory(bot,inter,respond,delete=True,procur=user.owner)
-
                     else:
                         await inventory(bot,inter,respond,delete=True)

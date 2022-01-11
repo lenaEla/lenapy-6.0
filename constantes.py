@@ -123,7 +123,7 @@ OPTION_WEAPON,OPTION_SKILL,OPTION_MOVE,OPTION_SKIP = 0,1,2,3
 GENDER_MALE, GENDER_FEMALE, GENDER_OTHER = 0,1,2
 
 # Color constants
-red,light_blue,yellow,green,blue,purple,pink,orange,white,black,aliceColor = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB,0xEF7C00,0xffffff,0x000000,0xFF83FF
+red,light_blue,yellow,green,blue,purple,pink,orange,white,black,aliceColor = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB,0xEF7C00,0xffffff,0x000000,0xffc3ff
 colorId = [red,orange,yellow,green,light_blue,blue,purple,pink,white,black]
 colorChoice = ["Rouge","Orange","Jaune","Vert","Bleu Clair","Bleu","Violet","Rose","Blanc","Noir"]
 
@@ -721,7 +721,7 @@ aliceExSays = says(
     blueWinAlive= "ça... ça va mieux ?"
 )
 
-def createTpmChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):
+def createTmpChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):
     """ChangeWhat : 0 == skills"""
     if len(change) != len(to):
         raise AttributeError("Change list and To list don't have the same length")

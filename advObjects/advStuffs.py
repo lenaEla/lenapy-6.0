@@ -49,8 +49,7 @@ legendaryBoots = stuff("Bottes de Légende","jb",2,300,endurance=10,resistance=1
 purpleBasket = stuff("Baskets Violettes","jc",2,50,10,10,emoji='<:BasketViolette:871880746535620618>',orientation=[TANK,DPT_PHYS])
 camoHat = stuff("Casquette Camouflage","jd",0,50,15,precision=25,resistance=-10,magie=-10,emoji='<:camohat:878721916570058754>',orientation=[LONG_DIST,DPT_PHYS])
 blueFlat = stuff("Ballerines Bleues Marines","je",2,100,magie=10,resistance=10,endurance=10,strength=-10,emoji='<:blueflat:881209954902638602>',orientation=[DISTANCE,DPT_MAGIC])
-redFlat = stuff("Ballerines Rouges","jf",2,100,strength=10,magie=10,negativeDirect=-10,resistance=-10,emoji='<:redflat:881209970568364173>',orientation=[DISTANCE,DPT_PHYS])
-redHeels = stuff("Escarpins Rouges","jg",2,150,magie=20,percing=10,negativeDirect=-20,resistance=-10,agility=-10,endurance=-10,emoji='<:heelsRed:881339121795215410>',orientation=[LONG_DIST,DPT_MAGIC])
+
 whiteHeels = stuff("Escarpins Blancs","jh",2,150,charisma=20,intelligence=10,negativeHeal=-20,resistance=-10,agility=-10,precision=-10,emoji='<:heelsWhite:881339137410609162>',orientation=[LONG_DIST,HEALER])
 blackHeels = stuff("Escarpins Noirs","ji",2,150,strength=20,percing=10,endurance=10,resistance=10,agility=-20,magie=-10,emoji='<:heelsBlack:881339167357935616>',orientation=[TANK,DPT_PHYS])
 heroHead = stuff("Casque Héroïque","jj",0,250,20,-10,percing=10,emoji='<:heroicheadset:881326928802496562>',orientation=[DISTANCE,DPT_PHYS])
@@ -315,26 +314,26 @@ bluebutbar = stuff("Barette du papillon bleu","hef",0,1,negativeShield=-70,endur
 redbutbar = stuff("Barette du papillon rouge","heg",0,1,negativeDirect=-70,endurance=-10,resistance=-10,magie=-10,strength=-10,negativeIndirect=10,orientation=[LONG_DIST,DPT_MAGIC],position=barrette.position,emoji='<:redbutbar:926946208197509130>')
 purplebutbar = stuff("Barette du papillon violet","heh",0,1,negativeIndirect=-70,endurance=-10,resistance=-10,magie=-10,strength=-10,negativeDirect=10,orientation=[LONG_DIST,DPT_MAGIC],position=barrette.position,emoji='<:purplebutbar:926946220688162938>')
 darkbluebutbar = stuff("Barette du papillon bleu marine","hei",0,1,magie=30,endurance=30,resistance=10,charisma=-10,intelligence=-10,precision=-10,agility=-10,strength=-10,orientation=[TANK,DPT_MAGIC],position=barrette.position,emoji='<:dbbutbar:926946148021858325>')
-whiteFlat = stuff("Ballerines Blanches","hej",2,150,charisma=20,negativeBoost=10,negativeHeal=-10,orientation=[DISTANCE,HEALER])
-purpleFlat = stuff("Ballerines Violettes","hek",2,100,strength=10,magie=10,negativeIndirect=-10,resistance=-10,orientation=[DISTANCE,DPT_PHYS])
+whiteFlat = stuff("Ballerines Blanches","hej",2,150,charisma=20,negativeBoost=10,negativeHeal=-10,orientation=[DISTANCE,HEALER],emoji='<:wflats:929856514376745022>')
+purpleFlat = stuff("Ballerines Violettes","hek",2,100,strength=10,magie=10,negativeIndirect=-10,resistance=-10,orientation=[DISTANCE,DPT_PHYS],emoji='<:pflats:929856528800940182>')
 pinkHeels = stuff("Escarpins Roses","hel",2,150,charisma=20,intelligence=10,negativeBoost=-20,resistance=-10,agility=-10,precision=-10,orientation=[LONG_DIST,BOOSTER],emoji='<:pinkHeels:928340768744157216>')
 prupleHeels = stuff("Escarpins Violets","hem",2,150,magie=20,percing=10,negativeIndirect=-20,resistance=-10,agility=-10,precision=-10,orientation=[LONG_DIST,DPT_MAGIC],emoji='<:purpleHeels:928340756551331860>')
 lightBlueHeels = stuff("Escarpins Azurés","hen",2,150,strength=20,percing=10,precision=20,endurance=-20,resistance=-10,orientation=[LONG_DIST,DPT_PHYS],emoji='<:lightblueHeels:928340710472704043>')
-blueHeels = stuff("Escarpins Bleus","heo",2,150,charisma=10,intelligence=20,negativeShield=-20,resistance=-15,agility=-15,orientation=[LONG_DIST,SHIELDER])
+blueHeels = stuff("Escarpins Bleus","heo",2,150,charisma=10,intelligence=20,negativeShield=-20,resistance=-15,agility=-15,orientation=[LONG_DIST,SHIELDER],emoji='<:blueHeels:928340742190006283>')
 barkblueHeels = stuff("Escarpins Bleus Marines","hep",2,150,magie=20,endurance=20,resistance=10,agility=-15,strength=-15,orientation=[TANK,DPT_MAGIC],emoji='<:darkblueHeels:928340723395330080>')
 darkbutterflysandals = stuff("Sandales du papillon noir","heq",2,1,strength=25,endurance=20,resistance=15,negativeHeal=20,negativeShield=20,orientation=[TANK,DPT_PHYS],emoji='<:sand:928203281359073282>')
 darkbutterflyshirt = stuff("T-shirt du papillon noir","her",1,1,strength=30,endurance=20,resistance=10,negativeShield=20,negativeBoost=20,orientation=[TANK,DPT_PHYS],emoji='<:tshirtBlack:928203207337996328>')
 darkChemVeste = stuff("Veste et robe du papillon noir","hes",1,1,strength=40,endurance=30,resistance=20,magie=-40,negativeHeal=30,orientation=[TANK,DPT_PHYS],emoji='<:vdb:928203164568678443>')
 darkButterFlyBoots = stuff("Bottes du papillon noir","het",2,1,strength=30,agility=20,endurance=20,resistance=20,negativeShield=20,negativeHeal=30,negativeIndirect=20,orientation=[TANK,DPT_PHYS],emoji='<:bb:928203144670883871>')
 darkbutbar = stuff("Barette du papillon noir","heu",0,1,strength=30,endurance=30,resistance=10,charisma=-10,intelligence=-10,precision=-10,agility=-10,magie=-10,emoji='<:barNoire:928201254239350785>',orientation=[TANK,DPT_PHYS],position=barrette.position)
-purpleSnekers = stuff("Tennis Montantes Violettes","hev",2,100,magie=35,negativeIndirect=-35,negativeDirect=30,negativeShield=20,orientation=[DISTANCE,DPT_MAGIC])
-whiteSneakersLong = stuff("Tennis Montantes Blanches","hew",2,300,charisma=35,negativeHeal=-35,endurance=-10,precision=-10,negativeDirect=20,negativeShield=10,orientation=[DISTANCE,HEALER])
-blackBlueSnelers = stuff("Tennis Montantes Blues Marines","hex",2,100,endurance=25,magie=30,resistance=15,strength=-35,negativeBoost=15,orientation=[TANK,DPT_MAGIC])
+purpleSnekers = stuff("Tennis Montantes Violettes","hev",2,100,magie=35,negativeIndirect=-35,negativeDirect=30,negativeShield=20,orientation=[DISTANCE,DPT_MAGIC],emoji='<:ptm:929854378460991559>')
+whiteSneakersLong = stuff("Tennis Montantes Blanches","hew",2,300,charisma=35,negativeHeal=-35,endurance=-10,precision=-10,negativeDirect=20,negativeShield=10,orientation=[DISTANCE,HEALER],emoji='<:wtm:929854357401391215>')
+blackBlueSnelers = stuff("Tennis Montantes Blues Marines","hex",2,100,endurance=25,magie=30,resistance=15,strength=-35,negativeBoost=15,orientation=[TANK,DPT_MAGIC],emoji='<:dbtm:929854396181905409>')
 
 lightBluebutterflysandals = stuff("Sandales du papillon azuré","hey",2,1,strength=35,precision=25,endurance=-20,negativeShield=20,orientation=[LONG_DIST,DPT_PHYS],emoji='<:sand:928203324984016926>')
 lightBluebutterflyshirt = stuff("T-shirt du papillon azuré","hez",1,1,strength=35,precision=25,negativeShield=20,endurance=-20,orientation=[LONG_DIST,DPT_PHYS],emoji="<:tslb:928203232864530474>")
-lightBlueChemVeste = stuff("Veste et robe du papillon azuré","hfa",1,1,strength=45,precision=35,percing=10,magie=-40,resistance=-10,endurance=-20,orientation=[LONG_DIST,DPT_PHYS])
-lightBlueButterFlyBoots = stuff("Bottes du papillon azuré","hfb",2,1,strength=40,precision=35,percing=10,endurance=-20,agility=-25,negativeIndirect=20,orientation=[LONG_DIST,DPT_PHYS])
+lightBlueChemVeste = stuff("Veste et robe du papillon azuré","hfa",1,1,strength=45,precision=35,percing=10,magie=-40,resistance=-10,endurance=-20,orientation=[LONG_DIST,DPT_PHYS],emoji='<:lbdvb:929854411822493736>')
+lightBlueButterFlyBoots = stuff("Bottes du papillon azuré","hfb",2,1,strength=40,precision=35,percing=10,endurance=-20,agility=-25,negativeIndirect=20,orientation=[LONG_DIST,DPT_PHYS],emoji='<:lbbb:929854432303255682>')
 lightBluebutbar = stuff("Barette du papillon azuré","hfc",0,1,strength=30,precision=30,percing=10,resistance=-10,endurance=-20,agility=-10,magie=-10,orientation=[LONG_DIST,DPT_PHYS],emoji='<:barAzur:928201210845098034>',position=barrette.position)
 greenbutterflysandals = stuff("Sandales du papillon vert","hfd",2,1,strength=25,endurance=10,resistance=10,agility=15,negativeHeal=20,negativeShield=20,orientation=[TANK,DPT_PHYS],emoji='<:sandalGreen:928203305052696616>')
 greenbutterflyshirt = stuff("T-shirt du papillon vert","hfe",1,1,strength=25,endurance=15,resistance=10,agility=10,negativeShield=20,negativeBoost=20,orientation=[TANK,DPT_PHYS],emoji='<:tshirtGreen:928203258399457331>')
@@ -351,8 +350,14 @@ chemAndJupedarkblue = stuff("Chemise et jupe bleue marine","hfo",1,1,magie=30,en
 chemAndJupegreen = stuff("Chemise et jupe verte","hfp",1,1,strength=25,endurance=10,resistance=15,agility=20,magie=-25,negativeIndirect=25,orientation=[TANK,DPT_PHYS],emoji='<:vert:928200434278100992>')
 chemAndJupelightBlue = stuff("Chemise et jupe azurée","hfq",1,1,strength=35,precision=25,percing=10,magie=-25,negativeIndirect=25,orientation=[DISTANCE,DPT_PHYS],emoji='<:azur:928200413314973696>')
 
+greenFlat = stuff("Ballerines Vertes","hfr",2,100,strength=10,endurance=5,resistance=5,agility=10,magie=-10,emoji='<:gflats:929857341153738773>',orientation=[TANK,DPT_PHYS])
+greenHeels = stuff("Escarpins Verts","hfs",2,150,strength=15,resistance=10,agility=15,endurance=10,magie=-10,negativeShield=20,emoji='<:greenHeels:928341010994593822>',orientation=[TANK,DPT_MAGIC])
+redFlat = stuff("Ballerines Rouges","jf",2,100,strength=10,magie=10,negativeDirect=-10,resistance=-10,emoji='<:redflat:881209970568364173>',orientation=[DISTANCE,DPT_PHYS])
+redHeels = stuff("Escarpins Rouges","jg",2,150,magie=20,percing=10,negativeDirect=-20,resistance=-10,agility=-10,endurance=-10,emoji='<:heelsRed:881339121795215410>',orientation=[LONG_DIST,DPT_MAGIC])
+
 # Stuff
-stuffs = [chemAndJupePink,chemAndJupeWhite,chemAndJupeBlue,chemAndJupeRed,chemAndJupepurple,chemAndJupeblack,chemAndJupedarkblue,chemAndJupegreen,chemAndJupelightBlue,
+stuffs = [greenFlat,greenHeels,
+    chemAndJupePink,chemAndJupeWhite,chemAndJupeBlue,chemAndJupeRed,chemAndJupepurple,chemAndJupeblack,chemAndJupedarkblue,chemAndJupegreen,chemAndJupelightBlue,
     lightBluebutterflysandals,lightBluebutterflyshirt,lightBlueChemVeste,lightBlueButterFlyBoots,lightBluebutbar,greenbutterflysandals,greenbutterflyshirt,greenChemVeste,greenButterFlyBoots,greenbutbar,
     blueHeels,barkblueHeels,lightBlueHeels,darkbutterflysandals,darkbutterflyshirt,darkChemVeste,darkButterFlyBoots,darkbutbar,purpleSnekers,whiteSneakersLong,blackBlueSnelers,
     prupleHeels,pinkHeels,purpleFlat,whiteFlat,darkbluebutterflysandals,darkbluebutterflyshirt,darkblueChemVeste,darkblueButterFlyBoots,pinkbutbar,whitebutbar,bluebutbar,darkbluebutbar,purplebutbar,redbutbar,

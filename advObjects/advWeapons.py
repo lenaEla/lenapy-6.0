@@ -1,3 +1,4 @@
+from re import I
 from classes import *
 from constantes import *
 
@@ -84,9 +85,16 @@ gravEff = effect("Gravitation","grav",turnInit=-1,unclearable=True,description="
 grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,56,99,1,endurance=10,resistance=5,effect=gravEff,emoji='<:bl:925774629711282196>')
 
 darkbluebutterfly = weapon("Papillon bleu marine",'ct',RANGE_MELEE,AREA_CIRCLE_2,78,66,1,magie=10,endurance=10,resistance=10,use=MAGIE,needRotate=False,emoji='<:dbb:926954332593725511>')
+kardia = effect("Kardia","kardia",type=TYPE_BOOST,power=15,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, soigne l'allié le plus blessé avec une puissance de **15**\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:kar:929860644461740133>',stat=CHARISMA)
+whiteSpiritWings = weapon("Ailes de l'esprit blanc","cu",RANGE_DIST,AREA_CIRCLE_4,int(46*0.8),75,1,charisma=15,effect=kardia,use=CHARISMA,needRotate=False,emoji='<:wws:929847728077406279>',ignoreAutoVerif=True)
+
+diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=15,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag)
+bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,int(46*0.8),75,1,intelligence=15,effect=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True)
+
 
 # Weapon
-weapons = [secretum,ElitherScope,grav,darkbluebutterfly,
+weapons = [secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
     julieWeap,blueButterfly,butterflyRed,luth,krystalFist,musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]
