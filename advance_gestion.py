@@ -18,6 +18,17 @@ timeoutSelect = create_select(
 )
 timeoutSelect = create_actionrow(timeoutSelect)
 
+lvlUpUnlock = {
+    5:"- Emplacement de compétence n°4",
+    10:"- Eléments basiques\n- Compétences ultimes",
+    15:"- Emplacement de compétence n°5",
+    20:"- Eléments spaciaux-temporels",
+    25:"- Emplacement de compétence n°6",
+    30:"- Eléments secondaires",
+    35:"- Emplacement de compétence n°7",
+    55:"- Prestige"
+    }
+
 def remove_accents(input_str : str):
     temp =""
     for a in input_str:
@@ -40,7 +51,7 @@ def remove_accents(input_str : str):
 
     return temp
 
-def visuArea(area : int,wanted,ranged=True) -> list:
+def visuArea(area : int, wanted,ranged=True) -> list:
     tablAllCells=[]
 
     class cell:
@@ -142,7 +153,12 @@ def visuArea(area : int,wanted,ranged=True) -> list:
 
             elif area==AREA_MONO:
                 return [self]
-            
+
+            elif area in [AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5]:
+                for celly in tablAllCells:
+                    if (celly.x == self.x or celly.y == self.y) and self.distance(celly) <= area + 2 - AREA_INLINE_2:
+                        rep.append(celly)
+
             return rep
 
     def findCell(x,y):
@@ -164,12 +180,21 @@ def visuArea(area : int,wanted,ranged=True) -> list:
             isAlly2 = -2
             isAlly3 = -3
         else:
-            isAlly = 0
-            isAlly2 = 1
-            isAlly3 = 2
+            if area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
+                isAlly = -1
+                isAlly2 = 0
+                isAlly3 = 1
+            elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
+                isAlly = -2
+                isAlly2 = -1
+                isAlly3 = 2
+            else:
+                isAlly = 0
+                isAlly2 = 1
+                isAlly3 = 2
 
         base = 3
-        
+
         if area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
             visibleCell = findCell(base+isAlly2,2)
         elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
@@ -178,9 +203,9 @@ def visuArea(area : int,wanted,ranged=True) -> list:
             visibleCell = findCell(base+isAlly,2)
 
     else:
-        if area in [AREA_CIRCLE_4,AREA_CONE_4,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4]:
+        if area in [AREA_CIRCLE_4,AREA_CONE_2,AREA_LINE_4,AREA_DONUT_4,AREA_DIST_4,AREA_INLINE_3]:
             visibleCell = findCell(1,2)
-        elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33]:
+        elif area in [5,6,7,14,15,16,20,21,26,27,28,31,32,33,AREA_CONE_3,AREA_CONE_4,AREA_INLINE_4,AREA_INLINE_5]:
             visibleCell = findCell(0,2)
         else:
             visibleCell = findCell(2,2)
@@ -341,18 +366,7 @@ def infoSkill(skill : skill, user : char,ctx):
         cast += 1
 
     if skill.id == trans.id:
-        if user.aspiration in [BERSERK,POIDS_PLUME]:
-            skil = transMelee
-        elif user.aspiration in [ENCHANTEUR,MAGE]:
-            skil = transCircle  
-        elif user.aspiration in [TETE_BRULE,OBSERVATEUR]:
-            skil = transLine
-        elif user.aspiration in [ALTRUISTE,IDOLE]:
-            skil = transHeal
-        elif user.aspiration == INVOCATEUR:
-            skil = transInvoc
-        elif user.aspiration in [PROTECTEUR, PREVOYANT]:
-            skil = transShield
+        skil = transTabl[user.aspiration]
 
     elif skil.id == mageUlt.id:
         if user.element in [ELEMENT_FIRE,ELEMENT_AIR,ELEMENT_SPACE]:
@@ -514,7 +528,9 @@ def infoSkill(skill : skill, user : char,ctx):
             elif skil.condition[1] == 1:
                 temp += "l'aspiration **"+inspi[skil.condition[2]]+"**"
             elif skil.condition[1] == 2:
-                temp += "l'élément **"+elemNames [skil.condition[2]]+"**"
+                temp += "l'élément principal **"+elemNames [skil.condition[2]]+"**"
+            elif skil.condition[1] == 3:
+                temp += "l'élément secondaire **"+elemNames [skil.condition[2]]+"**"
         elif skil.condition[0] == 1:
             temp += f"nécessite que la statistique **{nameStats[skil.condition[1]]}** du personnage soit à **{skil.condition[2]}**"
         elif skil.condition[0] == 2:
@@ -525,13 +541,34 @@ def infoSkill(skill : skill, user : char,ctx):
             elif skil.condition[1] == 1:
                 reject = findSkill(skil.condition[2])
                 temp += f"la compétence **{reject.name}** ({reject.emoji})"
-    if skil.ultimate:
-        temp += "\nCette compétence est une compétence ultime"
+
     if skil.effPowerPurcent != 100:
         temp+="\nLes effets donnés par cette compétence ont une puissance équivalente à **{0}%** de leur puissance initiale".format(skil.effPowerPurcent)
+    if skil.replay:
+        temp+="\nCette compétence permet de rejouer son tour"
+
+    if skil.maxHpCost > 0:
+        temp += "\nCette compétence consome **{0}%** des PV maximums du lanceur lors de son utilisation".format(skil.maxHpCost)
+    if skil.hpCost > 0:
+        temp += "\nCette compétence consome **{0}%** des PV actuels du lanceur lors de son utilisation".format(skil.hpCost)
+
+    if skil.ultimate:
+        temp += "\nCette compétence est une compétence **ultime**.\n> - Vous ne pouvez équiper qu'une compétence ultime\n> Vous devez être niveau 10 pour équiper une compétence ultime"
+    if skil.group != 0:
+        temp += "\nCette compétence est une compétence **{0}**.\n> - Vous ne pouvez pas équiper de compétence divines et démoniques en même temps".format(skillGroupNames[skil.group])
+
+    temp2 =""
+    if skil.tpCac:
+        temp2+="\n__Téléportation :__\nCette compétence téléporte le lanceur au corps à corps de la cible\n> - Si aucune case n'est libre, le lanceur subit des dégâts indirects Harmonie\n"
 
     if skil.knockback > 0 and skil.become == None:
-        temp+="\n\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}".format(skil.knockback,["","s"][int(skil.knockback > 1)])
+        temp2+="\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}\n> - Si la cible percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.knockback,["","s"][int(skil.knockback > 1)])
+    if skil.jumpBack:
+        temp2+="\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack,["","s"][int(skil.jumpBack > 1)])
+
+    
+    if temp2!="":
+        temp+="\n"+temp2
 
     if skil.become != None:
         allreadyAdd = False
@@ -645,13 +682,8 @@ def infoSkill(skill : skill, user : char,ctx):
 def infoWeapon(weap : weapon, user : char ,ctx):
     repEmb = discord.Embed(title = unhyperlink(weap.name),color = user.color, description = f"Icone : {weap.emoji}")
     repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
-    portee = weap.range
-    if portee == 0:
-        portee = "Mêlée"
-    elif portee == 1:
-        portee = "Distance"
-    else:
-        portee = "Longue distance"
+
+    portee = ["Mêlée","Dist.","L. Dist."][weap.range]
     
     info = "\n__Cible :__ "
     if weap.target == ALLIES:
@@ -679,8 +711,8 @@ def infoWeapon(weap : weapon, user : char ,ctx):
     else:
         nbShot = ""
 
-    repEmb.add_field(name = "__Informations Principales :__",value = f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision par défaut :__ {weap.sussess}%\n<:empty:866459463568850954>")
-    repEmb.add_field(name="__Statistiques secondaires :__",value=f'{element}{info}\n<:empty:866459463568850954>',inline=True)
+    repEmb.add_field(name = "__Informations Principales :__",value = f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision par défaut :__ {weap.sussess}%\n<:empty:866459463568850954>",inline=False)
+    repEmb.add_field(name="__Statistiques secondaires :__",value=f'{element}{info}\n<:empty:866459463568850954>',inline=False)
     bonus,malus = "",""
     stats = weap.allStats()+[weap.resistance,weap.percing,weap.critical]
     names = nameStats+nameStats2
@@ -777,6 +809,9 @@ def infoOther(other : other, user : char):
     repEmb = discord.Embed(title = weap.name,color = user.color, description = f"Icone : { weap. emoji}")
     repEmb.add_field(name="Description :",value = weap.description)
 
+    if other in changeIconForm:
+        repEmb.set_image(url=previewDict[other.id])
+
     return repEmb
 
 def userMajStats(user : char, tabl : list):
@@ -836,6 +871,11 @@ async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Messag
 
         level, ballerine = str(user.level+1) + ["","<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars>0], await getUserIcon(bot,user)
         lvlEmbed = discord.Embed(title = f"__Montée de niveau__",color = user.color,description = f"{ballerine} {user.name} est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande /points\.")
+
+        for lvl, txt in lvlUpUnlock.items():
+            if user.level+1 == lvl:
+                lvlEmbed.add_field(name="__<:empty:866459463568850954>\nContenu débloqué :__",value=txt,inline=False)
+                break
 
         if (user.level+1) % 5 == 0:
             unlock = ""
@@ -1007,7 +1047,7 @@ async def downloadAllIconPng(bot : discord.Client):
         for b in range(0,len(listEmojiHead[a])):
             emojiObject = getEmojiInfo(listEmojiHead[a][b])
             if emojiObject[0] + ".png" not in listDir:
-                guildStuff = [862320563590529056,615257372218097691,810212019608485918]
+                guildStuff = [862320563590529056,615257372218097691,810212019608485918,894528703185424425]
 
                 emoji_2 = None
                 for c in guildStuff:
@@ -1033,32 +1073,140 @@ async def downloadAllIconPng(bot : discord.Client):
 
 async def makeCustomIcon(bot : discord.Client, user : char):
     accessoire = Image.open("./data/images/headgears/"+customIconDB.getAccFile(user))
+
     # Paramètres de l'accessoire ----------------------------------
     if user.apparaAcc == None:
         pos = user.stuff[0].position
     else:
         pos = user.apparaAcc.position
-    position = []
 
     if (user.apparaAcc == None and user.stuff[0].id == lentille.id) or (user.apparaAcc != None and user.apparaAcc.id == lentille.id):
         accessoire.close()
         accessoire = Image.new("RGBA",(1,1),(0,0,0,0))
 
-    position = []
-
     # Récupération de l'icone de base -----------------------------
-    tabl = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/baseIka.png"],["./data/images/char_icons/empty_octo.png","./data/images/char_icons/baseTako.png"]]
-    if user.iconForm == 0:
-        background = Image.open(tabl[user.species-1][1])
-    elif user.iconForm == 1:
-        background = Image.open(["./data/images/char_icons/ikaCatBody.png","./data/images/char_icons/takoCatBody.png"][user.species-1])
+    tablBase = [["./data/images/char_icons/baseIka.png","./data/images/char_icons/baseTako.png"],["./data/images/char_icons/ikaCatBody.png","./data/images/char_icons/takoCatBody.png"],["./data/images/char_icons/komoriBody.png","./data/images/char_icons/komoriBody.png"],["./data/images/char_icons/birdColor.png","./data/images/char_icons/birdColor.png"],["./data/images/char_icons/skeletonColor.png","./data/images/char_icons/skeletonColor.png"]][user.iconForm]
+    tablLine = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/empty_octo.png"],["./data/images/char_icons/ikaCatLine.png","./data/images/char_icons/takoCatLine.png"],["./data/images/char_icons/komoriLine.png","./data/images/char_icons/komoriLine.png"],["./data/images/char_icons/birdLine.png","./data/images/char_icons/birdLine.png"],["./data/images/char_icons/skeletonLine.png","./data/images/char_icons/skeletonLine.png"]][user.iconForm]
+    background = Image.open(tablBase[user.species-1])
     background2 = None
+
+    resizeByPos = [
+        [   # IconForm 0
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])],          # 0
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 1
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 2
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 3
+            [None],                                                             # 4
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 5
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]           # 6
+        ],
+        [   # IconForm 1
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])],    # 0
+            [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.7))],    # 1
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 2
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 3
+            [None],    # 4
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 5
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]     # 6
+        ],
+        [   # IconForm 2
+            [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.6))],    # 0
+            [(round(accessoire.size[0]*0.35),round(accessoire.size[1]*0.35))],    # 1
+            [(round(accessoire.size[0]*0.4),round(accessoire.size[1]*0.3))],    # 2
+            [(round(accessoire.size[0]*0.5),round(accessoire.size[1]*0.5))],    # 3
+            [None],    # 4
+            [(round(accessoire.size[0]*0.6),round(accessoire.size[1]*0.4))],    # 5
+            [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.6))]     # 6
+        ],
+        [   # IconForm 3
+            [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.6))],    # 0
+            [(round(accessoire.size[0]*0.35),round(accessoire.size[1]*0.35))],    # 1
+            [(round(accessoire.size[0]*0.4),round(accessoire.size[1]*0.3))],    # 2
+            [(round(accessoire.size[0]*0.5),round(accessoire.size[1]*0.5))],    # 3
+            [None],    # 4
+            [(round(accessoire.size[0]*0.6),round(accessoire.size[1]*0.4))],    # 5
+            [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.6))]     # 6
+        ],
+        [   # IconForm 5
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])],          # 0
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 1
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 2
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 3
+            [None],                                                             # 4
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 5
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]           # 6
+        ],
+    ]
+
+    if len(resizeByPos[user.iconForm][pos]) > 1:
+        if resizeByPos[user.iconForm][pos][user.species-1] != None:
+            accessoire = accessoire.resize(resizeByPos[user.iconForm][pos][user.species-1])
+    else:
+        if resizeByPos[user.iconForm][pos][0] != None:
+            accessoire = accessoire.resize(resizeByPos[user.iconForm][pos][0])
+
+    tablPosByPos = [
+        [   # IconForm 0
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)],                               # 0
+            [(0,round(background.size[1]/2)-5),(3,round(background.size[1]/2)-5)],                  # 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))],    # 2
+            [(round(background.size[0]*0.25-accessoire.size[0]/2+8),13),(round(background.size[0]*0.25-accessoire.size[0]/2+3),7)],    # 3
+            [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                             # 4
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
+        ],
+        [   # IconForm 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)],                               # 0
+            [(5,round(background.size[1]*0.1)),(3,round(background.size[1]*0.1))],                  # 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))],    # 2
+            [(round(background.size[0]*0.25-accessoire.size[0]/2+8),13),(round(background.size[0]*0.25-accessoire.size[0]/2+3),7)],    # 3
+            [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                             # 4
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
+        ],
+        [   # IconForm 2
+            [(round(background.size[0]/2-accessoire.size[0]/2),0)],                                     # 0
+            [(round(background.size[0]*0.25),21)],                                  # 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+2))],      # 2
+            [(round(background.size[0]*0.25),15)],                                  # 3
+            [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                                 # 4
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2-18))],     # 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),0)]                                      # 6
+        ],
+        [   # IconForm 3
+            [(round(background.size[0]/2-accessoire.size[0]/2),0)],                                     # 0
+            [(round(background.size[0]*0.25),21)],                                  # 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+2))],      # 2
+            [(round(background.size[0]*0.25),15)],                                  # 3
+            [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                                 # 4
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2-18))],     # 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),0)]                                      # 6
+        ],
+        [   # IconForm 0
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)],                               # 0
+            [(0,round(background.size[1]/2)-5),(3,round(background.size[1]/2)-5)],                  # 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))],    # 2
+            [(round(background.size[0]*0.25-accessoire.size[0]/2+8),13),(round(background.size[0]*0.25-accessoire.size[0]/2+3),7)],    # 3
+            [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                             # 4
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
+        ],
+    ]
 
     if pos == 6:                                 # Behind
         background2 = Image.new("RGBA",background.size,(0,0,0,0))
-        if user.species == 2:
-            accessoire = accessoire.resize((round(accessoire.size[0]*1.3),accessoire.size[1]))
-        position = (round(background.size[0]/2-accessoire.size[0]/2),-10)
+
+        if len(tablPosByPos[user.iconForm][pos]) > 1:
+            if tablPosByPos[user.iconForm][pos][user.species-1] != None:
+                position = (tablPosByPos[user.iconForm][pos][user.species-1])
+            else:
+                position = (0,0)
+        else:
+            if tablPosByPos[user.iconForm][pos][0] != None:
+                position = (tablPosByPos[user.iconForm][pos][0])
+            else:
+                position = (0,0)
+
         background2.paste(accessoire,position,accessoire)
         accessoire.close()
 
@@ -1074,10 +1222,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             cmpt += 1
 
     pixel = background.load()
-    if user.iconForm == 0:
-        layer = Image.open(tabl[user.species-1][0])
-    elif user.iconForm == 1:
-        layer = Image.open(["./data/images/char_icons/ikaCatLine.png","./data/images/char_icons/takoCatLine.png"][user.species-1])
+    layer = Image.open(tablLine[user.species-1])
 
     colorToUse = user.colorHex.replace("0x","#")
     if colorToUse == "None":
@@ -1105,31 +1250,20 @@ async def makeCustomIcon(bot : discord.Client, user : char):
         background = background2
 
     # Récupération de l'icone de l'accessoire
-    if pos == 0:                                            # Casques
-        if user.species == 2:
-            accessoire = accessoire.resize((round(accessoire.size[0]*1.3),accessoire.size[1]))
-        position = (round(background.size[0]/2-accessoire.size[0]/2),-10)
-    elif pos == 1:                                          # Boucles d'oreilles
-        accessoire = accessoire.resize((round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8)))
-        if user.species==1:
-            position = (0,round(background.size[1]/2)-5)
-        else:
-            position = (3,round(background.size[1]/2)-5)
-    elif pos == 2:                                          # Colliers
-        accessoire = accessoire.resize((round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7)))
-        position = (round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))
-    elif pos == 3:                                          # Barettes
-        accessoire = accessoire.resize((round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8)))
+    if pos == 3:                                          # Barettes
         accessoire = accessoire.rotate(30)
-        if user.species==1:
-            position = (round(background.size[0]*0.25-accessoire.size[0]/2+8),13)
+
+    if pos != 6:
+        if len(tablPosByPos[user.iconForm][pos]) > 1:
+            if tablPosByPos[user.iconForm][pos][user.species-1] != None:
+                position = (tablPosByPos[user.iconForm][pos][user.species-1])
+            else:
+                position = (0,0)
         else:
-            position = (round(background.size[0]*0.25-accessoire.size[0]/2+3),7)
-    elif pos == 4:                                          # Boucliers
-        position = (round(background.size[0]*0.20-accessoire.size[0]/2),75)
-    elif pos == 5:                                          # Masques
-        accessoire = accessoire.resize((round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7)))
-        position = (round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))
+            if tablPosByPos[user.iconForm][pos][0] != None:
+                position = (tablPosByPos[user.iconForm][pos][0])
+            else:
+                position = (0,0)
 
     # Collage de l'accessoire
     if pos != 6:
@@ -1176,6 +1310,12 @@ async def makeCustomIcon(bot : discord.Client, user : char):
     weapon.close()
 
     # Collage de l'élément
+    if user.level >= 30:
+        element = Image.open("./data/images/elemIcon/"+getEmojiObject(elemEmojis[user.secElement])["name"]+".png")
+        element = element.resize((int(element.size[0]*0.7),int(element.size[1]*0.7)))
+        background.paste(element,(30,110),element)
+        element.close()
+
     element = Image.open("./data/images/elemIcon/"+getEmojiObject(elemEmojis[user.element])["name"]+".png")
     background.paste(element,(0,90),element)
     element.close()
@@ -1260,7 +1400,7 @@ def infoAllie(allie : tmpAllie):
     var = ""
     if allie.variant:
         var = "Cet allié temporaire est une variante d'un autre allié temporaire\n\n"
-    rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]}\n__Description :__\n{allie.description}"
+    rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]} ({elemEmojis[allie.secElement]} {elemNames[allie.secElement]})\n__Description :__\n{allie.description}"
     allMaxStats, accStats, dressStats, flatsStats = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie],allie.stuff[0].allStats(),allie.stuff[1].allStats(),allie.stuff[2].allStats()
     stats = ""
     for a in range(0,len(allMaxStats)):

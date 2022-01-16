@@ -143,21 +143,6 @@ def randRep(liste : list):
     choose command"""
     return liste[random.randint(0,len(liste)-1)]
 
-def saveGuildSettings(path : str, server : server):
-    """Save the server settings in the file in Path"""
-    try:
-        saved = ""
-        for a in [server.prefixe,server.patchnote,server.bot]:
-            saved += str(a)+";"
-        saved += "\n"
-        for a in [int(server.colorRole.enable),server.colorRole.red,server.colorRole.orange,server.colorRole.yellow,server.colorRole.green,server.colorRole.lightBlue,server.colorRole.blue,server.colorRole.purple,server.colorRole.pink]:
-            saved += str(a)+";"
-        
-        rewriteFile(path,saved)
-        return True
-    except:
-        return False
-
 def saveCharFile(path : str = None, user : char = None):
     if user == None:
         raise Exception("Attribut Error : No user gave")
@@ -165,7 +150,7 @@ def saveCharFile(path : str = None, user : char = None):
         path = './userProfile/{0}.prof'.format(user.owner)
     #try:
     saved = ""
-    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars,user.iconForm]:
+    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars,user.iconForm,user.secElement]:
         saved += str(a)+";"
     saved += "\n"
     for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
@@ -218,8 +203,6 @@ def saveCharFile(path : str = None, user : char = None):
 
     rewriteFile(path,saved)
     return True
-    #except:
-        #return False
 
 def loadCharFile(path : str = None, user:char = None) -> char:
     """
@@ -262,6 +245,10 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         rep.iconForm = int(file[0][11])
     except:
         rep.iconForm = 0
+    try:
+        rep.secElement = int(file[0][12])
+    except:
+        rep.secElement = ELEMENT_NEUTRAL
     
     # Stats
     rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
@@ -306,9 +293,12 @@ def loadCharFile(path : str = None, user:char = None) -> char:
             else:
                 temp += ["0"]
             cmpt += 1
+        while cmpt < 7:
+            temp += ["0"]
+            cmpt += 1
         rep.skills = temp
     except:
-        rep.skills = ["0","0","0","0","0"]
+        rep.skills = ["0","0","0","0","0","0","0"]
 
     try:                                                   # Skill Inventory
         cmpt,temp = 0,[]
@@ -481,6 +471,42 @@ def loadCharFile(path : str = None, user:char = None) -> char:
                 temp = temp[1:]
             if temp != "":
                 rep.says.redLoose = temp
+    except:
+        pass
+    try:
+        if file[24] != "\n":
+            temp = file[24][0]
+            while temp.startswith("\n") or temp.startswith(" "):
+                temp = temp[1:]
+            if temp != "":
+                rep.says.blockBigAttack = temp
+    except:
+        pass
+    try:
+        if file[25] != "\n":
+            temp = file[25][0]
+            while temp.startswith("\n") or temp.startswith(" "):
+                temp = temp[1:]
+            if temp != "":
+                rep.says.reactBigRaiseAllie = temp
+    except:
+        pass
+    try:
+        if file[26] != "\n":
+            temp = file[26][0]
+            while temp.startswith("\n") or temp.startswith(" "):
+                temp = temp[1:]
+            if temp != "":
+                rep.says.reactBigRaiseEnnemy = temp
+    except:
+        pass
+    try:
+        if file[27] != "\n":
+            temp = file[27][0]
+            while temp.startswith("\n") or temp.startswith(" "):
+                temp = temp[1:]
+            if temp != "":
+                rep.says.bigRaise = temp
     except:
         pass
 
