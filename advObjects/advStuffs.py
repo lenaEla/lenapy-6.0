@@ -258,18 +258,6 @@ icealiaManteau = stuff("Manteau polaire","hab",1,1,intelligence=40,negativeShiel
 icealiaBoots = stuff("Bottes polaires","hac",2,1,intelligence=40,negativeShield=-40,endurance=20,negativeHeal=30,negativeDirect=30,strength=-10,magie=-10,orientation=[DISTANCE,SHIELDER],emoji='<:iceBoots:922061812994822194>')
 foulard = stuff("Foulard rouge","had",0,1,strength=10,agility=10,position=blueCharpe.position,emoji='<:foulard:920978522279915530>',orientation=[TANK,DPT_PHYS])
 summonerMalus = effect("Mal de l'invocation","summonerMalus",description="Empêche l'utilisation de toutes armes et compétences hors compétence d'invocation",turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:noneWeap:917311409585537075>'))
-summonerFoulard50 = stuff("Foulard du créateur d'obstacles","haf",0,1,strength=40,magie=40,charisma=40,intelligence=40,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn50H:922687630947258378>')
-summonerMenteau50 = stuff("Veste du créateur d'obstacles","hag",1,1,strength=40,precision=40,agility=40,magie=40,effect=summonerMalus,orientation="Invocateur",emoji='<:smn50B:922687735515455528>')
-summonerShoes50 = stuff("Bottes du créateur d'obstacles","hah",2,1,strength=40,endurance=40,charisma=10,intelligence=10,precision=10,agility=10,magie=40,effect=summonerMalus,orientation="Invocateur",emoji='<:smn50S:922687796613894204>')
-summonerFoulard50.minLvl = summonerMenteau50.minLvl = summonerShoes50.minLvl = 50
-summonerFoulard30 = stuff("Foulard du procrastinateur","hai",0,1,strength=30,magie=30,charisma=30,intelligence=30,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn30H:922687611703812116>')
-summonerMenteau30 = stuff("Veste du procrastinateur","haj",1,1,strength=30,precision=30,agility=30,magie=30,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30B:922687718406905906>')
-summonerShoes30 = stuff("Bottes du procrastinateur","hak",2,1,strength=30,endurance=30,charisma=15,intelligence=15,magie=30,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30S:922687772643450921>')
-summonerFoulard30.minLvl = summonerMenteau30.minLvl = summonerShoes30.minLvl = 30
-summonerFoulard10 = stuff("Foulard de l'invocateur","hal",0,1,strength=20,magie=20,charisma=20,intelligence=20,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn10H:922687584377925633>')
-summonerMenteau10 = stuff("Veste du l'invocateur","ham",1,1,strength=20,precision=20,agility=20,magie=20,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')
-summonerShoes10 = stuff("Bottes du l'invocateur","han",2,1,strength=20,endurance=20,magie=20,agility=10,precision=10,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10S:922687758772867103>')
-summonerFoulard10.minLvl = summonerMenteau10.minLvl = summonerShoes10.minLvl = 10
 berserkHelmet = stuff("Foulard de la berserkeur","hao",0,1,strength=45,endurance=45,resistance=20,precision=10,agility=-40,magie=-30,charisma=-30,position=foulard.position,emoji='<:ailFoul:922693091612323860>',orientation=[TANK,DPT_PHYS])
 berserkTorso = stuff("T-shirt de la berserkeur","hap",1,1,strength=45,endurance=45,resistance=20,precision=10,agility=-40,magie=-30,charisma=-30,emoji='<:ailShirt:922693074482778192>',orientation=[TANK,DPT_PHYS])
 berserkBoots = stuff("Bottines de la berserkeur","haq",2,1,strength=45,endurance=45,resistance=20,precision=10,agility=-40,magie=-30,charisma=-30,emoji='<:ailBoots:922693059681083493>',orientation=[TANK,DPT_PHYS])
@@ -355,8 +343,31 @@ greenHeels = stuff("Escarpins Verts","hfs",2,150,strength=15,resistance=10,agili
 redFlat = stuff("Ballerines Rouges","jf",2,100,strength=10,magie=10,negativeDirect=-10,resistance=-10,emoji='<:redflat:881209970568364173>',orientation=[DISTANCE,DPT_PHYS])
 redHeels = stuff("Escarpins Rouges","jg",2,150,magie=20,percing=10,negativeDirect=-20,resistance=-10,agility=-10,endurance=-10,emoji='<:heelsRed:881339121795215410>',orientation=[LONG_DIST,DPT_MAGIC])
 
+summonerFoulard50 = stuff("Foulard du saboteur d'équipe","haf",0,1,strength=70,magie=70,charisma=70,intelligence=70,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn50H:922687630947258378>')
+summonerMenteau50 = stuff("Veste du saboteur d'équipe","hag",1,1,strength=70,precision=70,agility=70,magie=70,effect=summonerMalus,orientation="Invocateur",emoji='<:smn50B:922687735515455528>')
+summonerShoes50 = stuff("Bottes du saboteur d'équipe","hah",2,1,strength=70,endurance=70,charisma=20,intelligence=20,precision=20,agility=10,magie=70,effect=summonerMalus,orientation="Invocateur",emoji='<:smn50S:922687796613894204>')
+summonerFoulard50.minLvl = summonerMenteau50.minLvl = summonerShoes50.minLvl = 50
+summonerFoulard40 = stuff("Foulard du créateur d'obstacles","hft",0,1,strength=60,magie=60,charisma=60,intelligence=60,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn30H:922687611703812116>')
+summonerMenteau40 = stuff("Veste du créateur d'obstacles","hfu",1,1,strength=60,precision=60,agility=60,magie=60,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30B:922687718406905906>')
+summonerShoes40 = stuff("Bottes du créateur d'obstacles","hfv",2,1,strength=60,endurance=60,charisma=30,intelligence=30,magie=60,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30S:922687772643450921>')
+summonerFoulard40.minLvl = summonerMenteau40.minLvl = summonerShoes40.minLvl = 40
+summonerFoulard30 = stuff("Foulard du procrastinateur","hai",0,1,strength=50,magie=50,charisma=50,intelligence=50,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn30H:922687611703812116>')
+summonerMenteau30 = stuff("Veste du procrastinateur","haj",1,1,strength=50,precision=50,agility=50,magie=50,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30B:922687718406905906>')
+summonerShoes30 = stuff("Bottes du procrastinateur","hak",2,1,strength=50,endurance=50,charisma=25,intelligence=25,magie=50,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30S:922687772643450921>')
+summonerFoulard30.minLvl = summonerMenteau30.minLvl = summonerShoes30.minLvl = 30
+summonerFoulard20 = stuff("Foulard du paresseu","hfx",0,1,strength=40,magie=40,charisma=40,intelligence=40,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn10H:922687584377925633>')
+summonerMenteau20 = stuff("Veste du paresseu","hfy",1,1,strength=40,precision=40,agility=40,magie=40,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')
+summonerShoes20 = stuff("Bottes du paresseu","hfz",2,1,strength=40,endurance=40,magie=40,agility=20,precision=20,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10S:922687758772867103>')
+summonerFoulard20.minLvl = summonerMenteau20.minLvl = summonerShoes20.minLvl = 20
+summonerFoulard10 = stuff("Foulard de l'invocateur","hal",0,1,strength=30,magie=30,charisma=30,intelligence=30,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn10H:922687584377925633>')
+summonerMenteau10 = stuff("Veste de l'invocateur","ham",1,1,strength=30,precision=30,agility=30,magie=30,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')
+summonerShoes10 = stuff("Bottes de l'invocateur","han",2,1,strength=30,endurance=30,magie=30,agility=15,precision=15,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10S:922687758772867103>')
+summonerFoulard10.minLvl = summonerMenteau10.minLvl = summonerShoes10.minLvl = 10
+
+looseHat = stuff("Casquette verte","hga",0,0,strength=10,agility=10,emoji='<:luigiHat:931511385052028928>')
+
 # Stuff
-stuffs = [greenFlat,greenHeels,
+stuffs = [greenFlat,greenHeels,summonerFoulard40,summonerShoes40,summonerMenteau40,summonerFoulard20,summonerMenteau20,summonerShoes20,looseHat,
     chemAndJupePink,chemAndJupeWhite,chemAndJupeBlue,chemAndJupeRed,chemAndJupepurple,chemAndJupeblack,chemAndJupedarkblue,chemAndJupegreen,chemAndJupelightBlue,
     lightBluebutterflysandals,lightBluebutterflyshirt,lightBlueChemVeste,lightBlueButterFlyBoots,lightBluebutbar,greenbutterflysandals,greenbutterflyshirt,greenChemVeste,greenButterFlyBoots,greenbutbar,
     blueHeels,barkblueHeels,lightBlueHeels,darkbutterflysandals,darkbutterflyshirt,darkChemVeste,darkButterFlyBoots,darkbutbar,purpleSnekers,whiteSneakersLong,blackBlueSnelers,

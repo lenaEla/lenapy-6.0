@@ -5,6 +5,7 @@ from adv import findAllie, tmpAllie
 from gestion import *
 from classes import char, statTabl
 from typing import Union, List
+from traceback import format_exc
 
 # Creating the database file...
 if not(os.path.exists("./data/database/aliceStats.db")):
@@ -556,5 +557,19 @@ class aliceStatsdbEndler:
 
         cursor.execute("UPDATE enemyStats SET {0} WHERE Name = ?".format(varExect),(nameEnemy,))
         self.con.commit()
+
+    def resetRecords(self):
+        cursory = self.con.cursor()
+        try:
+            cursory.execute("UPDATE records SET owner = 0, value = 0;")
+            temp = ""
+            for a in tablAdd:
+                temp += "max{0} = 0".format(a)
+                if a != tablAdd[-1]:
+                    temp += ", "
+            cursory.execute("UPDATE userStats SET {0};".format(temp))
+            return "Opération réussie"
+        except:
+            return format_exc()
 
 aliceStatsDb = aliceStatsdbEndler()

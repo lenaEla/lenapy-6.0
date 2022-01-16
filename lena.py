@@ -166,8 +166,8 @@ async def inventoryVerif(bot,toVerif:Union[char,str]):
     ballerine = "Une ou plusieurs compétences ont été déséquipés de votre personnage :\n"
     babie = "Un ou plusieurs équipements ont été retiré de votre inventaire :\n"
 
-    for a in range(0,5):
-        if user.skills[a] != None and user.skills[a] != "0":
+    for a in range(0,7):
+        if type(user.skills[a]) == skill:
             if user.skills[a] in allReadySee:
                 ballerine += f"\n__{user.skills[a].name}__ (Doublon)"
                 modifSkill += 1
@@ -175,18 +175,22 @@ async def inventoryVerif(bot,toVerif:Union[char,str]):
             else:
                 allReadySee+=[user.skills[a]]
 
-        if user.skills[a] != "0" and user.skills[a] != None:
-            if not(user.skills[a].havConds(user=user)):
+            if user.skills[a] != "0" and not(user.skills[a].havConds(user=user)):
                 ballerine += f"\n__{user.skills[a].name}__ (Conditions non respectées)"
                 modifSkill += 1
                 user.skills[a] = "0"
 
-        if user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate and haveUltimate:
-            ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
-            modifSkill += 1
-            user.skills[a] = "0"
-        elif user.skills[a] != "0" and user.skills[a]!=None and user.skills[a].ultimate:
-            haveUltimate = True
+            if user.skills[a] != "0" and user.skills[a].ultimate and haveUltimate:
+                ballerine += f"\n__{user.skills[a].name}__ (Plus de 1 compétence ultime équipée)"
+                modifSkill += 1
+                user.skills[a] = "0"
+            elif user.skills[a] != "0" and user.skills[a].ultimate:
+                haveUltimate = True
+
+            if user.skills[a] != "0" and lvlToUnlockSkill[a] > user.level:
+                ballerine += f"\n__{user.skills[a].name}__ (Emplacement non débloqué)"
+                modifSkill += 1
+                user.skills[a] = "0"
 
     tablInventory = [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory]
     for y in tablInventory:
@@ -486,7 +490,11 @@ async def hourClock():
             except:
                 print("{0} n'a pas pu être supprimé".format("./data/fightLogs/"+log))
 
-    if tick.hour == 4:
+        if tick.day == 19:
+            chan = await bot.fetch_channel(912137828614426707)
+            await chan.send(embed=discord.Embed(title="__Reset des records__",color=light_blue,description=aliceStatsDb.resetRecords()))
+
+    elif tick.hour == 4:
         chan = await bot.fetch_channel(912137828614426707)
         await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=create_backup()))
         temp = delete_old_backups()
@@ -510,34 +518,6 @@ async def on_ready():
 
         await msg.edit(embed=discord.Embed(title="Redémarrage en cours...",description="Phase d'initalisation..."))
         globalVar.changeFightEnabled(True)
-
-    # Load the guild's settings files
-    if os.path.exists("./guildSettings/"):
-        listGuildSet = os.listdir(absPath + "/guildSettings/")
-        guilds = list(range(0,len(listGuildSet)))
-        cmpt = 0
-        lastTime = datetime.datetime.now().second
-        lenGuild = len(listGuildSet)
-        print("Starting guild's settings loading... 0%")
-        while cmpt < lenGuild:
-            guildSettings = readSaveFiles(absPath + "/guildSettings/"+listGuildSet[cmpt])
-            guilds[cmpt] = server(int(listGuildSet[cmpt][0:-4]),guildSettings[0][0],int(guildSettings[0][1]),int(guildSettings[0][2]))
-            guilds[cmpt].colorRole.enable, guilds[cmpt].colorRole.red, guilds[cmpt].colorRole.orange, guilds[cmpt].colorRole.yellow, guilds[cmpt].colorRole.green, guilds[cmpt].colorRole.lightBlue, guilds[cmpt].colorRole.blue, guilds[cmpt].colorRole.purple, guilds[cmpt].colorRole.pink = bool(int(guildSettings[1][0][1:])),int(guildSettings[1][1]),int(guildSettings[1][2]),int(guildSettings[1][3]),int(guildSettings[1][4]),int(guildSettings[1][5]),int(guildSettings[1][6]),int(guildSettings[1][7]),int(guildSettings[1][8])
-
-            guild = await bot.fetch_guild(guilds[cmpt].id)
-            guilds[cmpt].name = guild.name
-            globalVar.setGuildBotChannel(guilds[cmpt].id,guilds[cmpt].bot)
-            os.remove(absPath + "/guildSettings/"+listGuildSet[cmpt])
-
-            now = datetime.datetime.now().second
-            if now >= lastTime + 2 or (now <= 2 and now >= lastTime + 2 - 60):
-                print("Loading guild's settings... {0}%".format(round((cmpt/lenGuild)*100)))
-                lastTime = now
-
-            cmpt += 1
-
-        print("All guild's settings are loaded !\n")
-        os.rmdir("./guildSettings/")
 
     # Shop reload and status change
     if bidule != False:
@@ -582,10 +562,15 @@ async def on_ready():
 # -------------------------------------------- ON MESSAGE --------------------------------------------
 @bot.event
 async def on_message(ctx : discord.message.Message):
-    if ctx.content.startswith("l!test") and ctx.author.bot == 213027252953284609:
-        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+    if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
+        user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
         await makeCustomIcon(bot,user)
         await ctx.add_reaction('<:littleStar:925860806602682369>')
+
+        embed = discord.Embed(title="__Icone de personnage__",color=user.color)
+        embed.set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"]))
+
+        await ctx.channel.send(embed=embed)
 
     else:
         pathUserProfile = "./userProfile/{0}.prof".format(ctx.author.id)
@@ -667,10 +652,10 @@ async def normal(ctx):
             else:
                 temp+=letter
 
-        msg = await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
+        await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
         return 0
     elif timing > 0:
-        msg = await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60,["","s"][timing//60 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
+        await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60,["","s"][timing//60 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
         return 0
 
     team1 = []
@@ -685,8 +670,9 @@ async def normal(ctx):
     fun = random.randint(0,99)
 
     if fun < 0:                 # For testing purposes
-        team1.append(findAllie("Alice"))
-        await fight(bot,team1,[],ctx,False)
+        temp = copy.deepcopy(findAllie("Lena"))
+        temp.changeLevel(50)
+        await fight(bot,[temp],[],ctx,False,procurFight=True)
 
     elif fun < 1:               # But nobody came
         teamIcon = ""
@@ -763,7 +749,8 @@ async def normal(ctx):
 
         await fight(bot,team1,team2,ctx,False)
 
-    elif fun < 10:             # Raid
+    elif fun < 9:             # Raid
+        msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
         tablAllTeams = os.listdir("./userTeams/")
         random.shuffle(tablAllTeams)
 
@@ -774,7 +761,7 @@ async def normal(ctx):
         moyTeam = moyTeam/len(team1)
 
         for tempTeamPath in tablAllTeams:
-            if int(tempTeamPath.replace(".team","")) != user.team and not(teamWinDB.isFightingBool(int(tempTeamPath.replace(".team","")))[0]):
+            if int(tempTeamPath.replace(".team","")) != user.team:
                 tempTeam, moyTempTeam = [], 0
                 file = readSaveFiles(absPath + "/userTeams/" + tempTeamPath)
                 for a in file[0]:
@@ -796,8 +783,25 @@ async def normal(ctx):
         alea.changeLevel(maxLvl)
         team2.append(alea)
 
-        await fight(bot,team1,team2,ctx,False,bigMap=True)
+        try:
+            await fight(bot,team1,team2,ctx,False,bigMap=True,msg=msg)
+        except:
+            await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
+            teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
 
+    elif fun < 11:              # Clem Procu Fight
+        ent = copy.deepcopy(findAllie("Clémence Exaltée"))
+        team1.sort(key=lambda clemency: clemency.level, reverse=True)
+        level = team1[0].level+65+random.randint(0,10)
+        ent.changeLevel(level)
+
+        miniStuff = stuff("Rune",'clemRune',0,0,endurance=level,charisma=0,agility=level//2,precision=int(level*0.3),intelligence=level//10,magie=level*2,resistance=min(level//5,35),emoji=clemEarRings.emoji)
+        ent.stuff = [miniStuff, miniStuff, miniStuff]
+        try:
+            await fight(bot,[ent],[],ctx,False,procurFight=True)
+        except:
+            await ctx.send(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
+            teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
     else:
         await fight(bot,team1,[],ctx,False)
 
@@ -862,6 +866,7 @@ async def comQuickFight(ctx):
     fun = random.randint(0,99)
 
     if fun < 5:             # Raid
+        msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
         tablAllTeams = os.listdir("./userTeams/")
         random.shuffle(tablAllTeams)
 
@@ -872,7 +877,7 @@ async def comQuickFight(ctx):
         moyTeam = moyTeam/len(team1)
 
         for tempTeamPath in tablAllTeams:
-            if int(tempTeamPath.replace(".team","")) != user.team and not(teamWinDB.isFightingBool(int(tempTeamPath.replace(".team","")))[0]):
+            if int(tempTeamPath.replace(".team","")) != user.team:
                 tempTeam, moyTempTeam = [], 0
                 file = readSaveFiles(absPath + "/userTeams/" + tempTeamPath)
                 for a in file[0]:
@@ -894,7 +899,11 @@ async def comQuickFight(ctx):
         alea.changeLevel(maxLvl)
         team2.append(alea)
 
-        await fight(bot,team1,team2,ctx,bigMap=True)
+        try:
+            await fight(bot,team1,team2,ctx,bigMap=True,msg=msg)
+        except:
+            await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
+            teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
     else:
         await fight(bot,team1,[],ctx)
 
@@ -984,6 +993,12 @@ async def cooldowns(ctx):
             fqsaccord = "s"
 
         fightingStatus = teamWinDB.isFightingBool(int(user.team))
+        if not(globalVar.fightEnabled()):
+            notFight = "**<:noneWeap:917311409585537075> __Les combats sont actuellement désactivées !__**\n\n"
+            color = red
+        else:
+            notFight = ""
+            color = user.color
 
         if fightingStatus[0]:
             channel = await bot.fetch_channel(fightingStatus[2])
@@ -1004,9 +1019,9 @@ async def cooldowns(ctx):
                 else:
                     temp+=letter
 
-            msg = await ctx.send(embed = discord.Embed(title="__/cooldowns__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
+            await ctx.send(embed = discord.Embed(title="__/cooldowns__",color=color,description=notFight+fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
         else:
-            await ctx.send(embed= discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",description=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
+            await ctx.send(embed = discord.Embed(title="__Cooldowns des commandes Fight l'équipe :__",color=color,description=notFight+f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}"),delete_after=10)
 
 # -------------------------------------------- PATCHNOTE --------------------------------------------
 @slash.slash(name="patchnote",description="Renvoie le dernier patchnote du bot")
@@ -1168,38 +1183,27 @@ async def teamView(ctx,joueur=None):
                 await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "{0} pas d'équipe pour le moment".format(user.name)))
         else:
             file = readSaveFiles(pathTeam)
-            if len(file[0]) == 1:
-                if int(user.owner) == int(ctx.author.id):
-                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "Vous êtes seul dans votre équipe pour le moment"))
-                else:
-                    await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "{0} est seul dans son équipe pour le moment".format(user.name)))
+            temp = ""
+            for a in file[0]:
+                temp2 = loadCharFile(absPath + "/userProfile/" + a + ".prof")
+                level = str(temp2.level) + ["","<:ls:925860806602682369>{0}".format(temp2.stars)][temp2.stars>0]
+                ballerine = f'{aspiEmoji[temp2.aspiration]}|{temp2.weapon.emoji}|{temp2.stuff[0].emoji}{temp2.stuff[1].emoji}{temp2.stuff[2].emoji}|'
+                for b in temp2.skills:
+                    if type(b)==skill:
+                        ballerine+=b.emoji
+                ballerine+="\n\n"
+                
+                icon = await getUserIcon(bot,temp2)
+                points = ""
+                if temp2.points > 0:
+                    points = " *(+)*"
+                temp += f"__{icon} **{temp2.name}** ({level})__{points}\n{ballerine}"
+            if int(user.owner) == int(ctx.author.id):
+                embed = discord.Embed(title = "/team view",color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp)
             else:
-                temp = ""
-                for a in file[0]:
-                    temp2 = loadCharFile(absPath + "/userProfile/" + a + ".prof")
-                    level = str(temp2.level) + ["","<:littleStar:925860806602682369>{0}".format(temp2.stars)][temp2.stars>0]
-
-                    ballerine = f'{aspiEmoji[temp2.aspiration]} | {elemEmojis[temp2.element]} | {temp2.weapon.emoji} | {temp2.stuff[0].emoji} {temp2.stuff[1].emoji} {temp2.stuff[2].emoji} | '
-                    for b in temp2.skills:
-                        if type(b)==skill:
-                            ballerine+=b.emoji
-                    ballerine+="\n\n"
-
-                    icon = await getUserIcon(bot,temp2)
-
-                    points = ""
-                    if temp2.points > 0:
-                        points = " *(+)*"
-                    temp += f"__{icon} **{temp2.name}** ({level})__{points}\n{ballerine}"
-
-                if int(user.owner) == int(ctx.author.id):
-                    embed = discord.Embed(title = "/team view",color = user.color,description = "__Votre équipe se compose de :__\n\n"+temp)
-                else:
-                    embed = discord.Embed(title = "/team view",color = user.color,description = "__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp)
-
-                embed.add_field(name="<:empty:866459463568850954>\n__Résultats des derniers combats :__",value=teamWinDB.getVictoryStreakStr(user))
-
-                await msg.edit(embed = embed)
+                embed = discord.Embed(title = "/team view",color = user.color,description = "__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp)
+            embed.add_field(name="<:empty:866459463568850954>\n__Résultats des derniers combats :__",value=teamWinDB.getVictoryStreakStr(user))
+            await msg.edit(embed = embed)
 
 # team add
 @slash.subcommand(base="team",name="add",description="Permet de rajouter un joueur dans son équipe",options=[
@@ -1361,12 +1365,11 @@ async def statsCmd(ctx,joueur=None):
 
         level = str(user.level)+['',"<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars > 0]
         exp = [str(user.level*50-20),"MAX"][user.level == 55]
-        rep = discord.Embed(title = f"__Page de statistique de {user.name} {userIcon}__",color = user.color,description = f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]}\n<:empty:866459463568850954>")
+        rep = discord.Embed(title = f"__Page de statistique de {user.name} {userIcon}__",color = user.color,description = f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]} ({elemEmojis[user.secElement]} {elemNames[user.secElement]})\n<:empty:866459463568850954>")
 
         rep.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
         rep.add_field(name = "__Aspiration :__",value = aspiEmoji[user.aspiration] + " " + inspi[user.aspiration],inline = False)
 
-        print(user.majorPoints)
         sumStatsBonus = [user.majorPoints[0],user.majorPoints[1],user.majorPoints[2],user.majorPoints[3],user.majorPoints[4],user.majorPoints[5],user.majorPoints[6],user.majorPoints[7],user.majorPoints[8],user.majorPoints[9],user.majorPoints[10],user.majorPoints[11],user.majorPoints[12],user.majorPoints[13],user.majorPoints[14]]
 
         for a in [user.weapon,user.stuff[0],user.stuff[1],user.stuff[2]]:
@@ -1390,19 +1393,25 @@ async def statsCmd(ctx,joueur=None):
             if sumStatsBonus[a] > 0:
                 sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
 
-        rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques principaux :__",value = f"Force : {user.strength} ({sumStatsBonus[0]})\nEndurance : {user.endurance} ({sumStatsBonus[1]})\nCharisme : {user.charisma} ({sumStatsBonus[2]})\nAgilité : {user.agility} ({sumStatsBonus[3]})\nPrécision : {user.precision} ({sumStatsBonus[4]})\nIntelligence : {user.intelligence} ({sumStatsBonus[5]})\nMagie : {user.magie} ({sumStatsBonus[6]})",inline= True)
-        rep.add_field(name = "<:empty:866459463568850954>\n__Statistiques secondaires :__",value = f"Résistance : {user.resistance} ({sumStatsBonus[7]})\nPénétration d'Armure : {user.percing} ({sumStatsBonus[8]})\nCritique : {user.critical} ({sumStatsBonus[9]})\n\nSoins : {sumStatsBonus[10]}\nBoost et Malus : {sumStatsBonus[11]}\nArmures et Mitigation : {sumStatsBonus[12]}\nDégâts directs : {sumStatsBonus[13]}\nDégâts indirects : {sumStatsBonus[14]}\n\nLes statistiques d'actions s'ajoutent à vos statistiques quand vous réalisez l'action en question",inline = True)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Stats. principaux :__",value = f"__Force :__ {user.strength} ({sumStatsBonus[0]})\n__Endurance :__ {user.endurance} ({sumStatsBonus[1]})\n__Charisme :__ {user.charisma} ({sumStatsBonus[2]})\n__Agilité :__ {user.agility} ({sumStatsBonus[3]})\n__Précision :__ {user.precision} ({sumStatsBonus[4]})\n__Intelligence :__ {user.intelligence} ({sumStatsBonus[5]})\n__Magie :__ {user.magie} ({sumStatsBonus[6]})",inline= True)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Stats. secondaires :__",value = f"__Résistance :__ {user.resistance} ({sumStatsBonus[7]})\n__Pénétration :__ {user.percing} ({sumStatsBonus[8]})\n__Critique :__ {user.critical} ({sumStatsBonus[9]})",inline = True)
+        rep.add_field(name= "<:empty:866459463568850954>\n__Stats. d'actions :__", value= f"__Soins :__ 0 ({sumStatsBonus[10]})\n__Boost et Malus :__ 0 ({sumStatsBonus[11]})\n__Armures :__ 0 ({sumStatsBonus[12]})\n__Dégâts directs :__ 0 ({sumStatsBonus[13]})\n__Dégâts indirects :__ 0 ({sumStatsBonus[14]})", inline = True)
         tempStuff,tempSkill = "",""
         for a in [0,1,2]:
             tempStuff += f"{ user.stuff[a].emoji} {user.stuff[a].name}\n"
 
-        for a in [0,1,2,3,4]:
+        for a in [0,1,2,3,4,5,6]:
             try:
-                tempSkill += f"{ user.skills[a].emoji} {user.skills[a].name}\n"
+                tempSkill += f"{user.skills[a].emoji} {user.skills[a].name}\n"
             except:
-                tempSkill += f"Slot [{a+1}] : Pas de compétence équipée\n"
+                if user.level >= lvlToUnlockSkill[a]:
+                    tempSkill += " -\n"
+                else:
+                    tempSkill += " 🔒\n"
 
-        rep.add_field(name = "<:empty:866459463568850954>\n__Equipement :__",value = f"__Arme :__\n{ user.weapon.emoji} {user.weapon.name}\n\n__Vêtements :__\n{tempStuff}\n__Compétences :__\n{tempSkill}",inline = False)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Arme et équipements :__",value = user.weapon.emoji+" "+user.weapon.name+"\n\n"+tempStuff, inline = True)
+        rep.add_field(name = "<:empty:866459463568850954>\n__Compétences :__",value = tempSkill, inline = True)
+
         await msg.edit(embed = rep)
 
     else:
@@ -1724,6 +1733,30 @@ async def adminBackup(ctx):
         await ctx.send(embed=discord.Embed(title="__Admin : Backups__",color=light_blue,description=temp))
     except:
         await ctx.channel.send(embed=discord.Embed(title="__Admin : Backups__",color=light_blue,description=temp))
+
+@slash.subcommand(base="admin",subcommand_group="stat",name="silentRestatAll",description="silentRestat all users",guild_ids=adminServ)
+async def silentRestatForEveryone(ctx):
+    msg = await ctx.send(embed=discord.Embed(title="__/admin stat silentRestallAll__",color=light_blue,description="Restats en cours..."))
+    try:
+        for fileName in os.listdir("./userProfile/"):
+            user = loadCharFile("./userProfile/"+fileName)
+            user = silentRestats(user)
+            saveCharFile(user=user)
+        await msg.edit(embed=discord.Embed(title="__/admin stat silentRestallAll__",color=light_blue,description="Tous les utilisateurs ont été restats 👍"))
+    except:
+        await msg.edit(embed=discord.Embed(title="__/admin stat silentRestallAll__",description="Une erreur est survenue :\n"+format_exc()))
+
+@slash.subcommand(base="admin",subcommand_group="shop",name="forceNewShop",description="silentRestat all users",guild_ids=adminServ)
+async def forceShop(ctx):
+    try:
+        await shopping.newShop()
+        await ctx.send("Succès")
+    except:
+        await ctx.send("Echec")
+
+@slash.subcommand(base="admin",subcommand_group="stat",name="reset_records",guild_ids=adminServ)
+async def resetRecord(ctx):
+    await ctx.send(embed=discord.Embed(title="__Reset des records__",color=light_blue,description=aliceStatsDb.resetRecords()))
 
 if isLenapy:
     tabl=[912137828614426704,405331357112205326]

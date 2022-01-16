@@ -169,6 +169,9 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
                             shopField[a] += icon
 
+                    if shopField[a] == "":
+                        shopField[a] = "???"
+
                     shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
 
             fcooldown,fseconds,fqcooldown,fqseconds,faccord,fqaccord,fsaccord,fqsaccord = teamWinDB.getFightCooldown(user.team)//60,teamWinDB.getFightCooldown(user.team)%60,teamWinDB.getFightCooldown(user.team,True)//60,teamWinDB.getFightCooldown(user.team,True)%60,"","","",""
@@ -209,7 +212,17 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
                 shopEmb.add_field(name="<:em:866459463568850954>\n__/cooldowns__",value=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url))
             else:
-                shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}",inline=False)
+                if fcooldown == fseconds == 0 and not(globalVar.fightEnabled()):
+                    normalFightMsg = '<:noneWeap:917311409585537075>'
+                else:
+                    normalFightMsg = f'{fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}'
+
+                if fqcooldown == fqseconds == 0 and not(globalVar.fightEnabled()):
+                    quickFightMsg = '<:noneWeap:917311409585537075>'
+                else:
+                    quickFightMsg = f'{fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}'
+
+                shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {normalFightMsg}\n__Quick__ : {quickFightMsg}",inline=False)
 
             if userShopPurcent(user) >= 75 and not(user.have(trans)):
                 fullEmb = discord.Embed(title="Vous avez obtenu 75% du magasin",description="Vous recevez la compétence suivante en récompense :\n<:limiteBreak:886657642553032824> Transcendance (identifiant : yt)",color=user.color)

@@ -26,8 +26,21 @@ token = other("Jeton de roulette","None",0,'<:jeton:917793426949435402>',"Ce jet
 mimique = other("Mimikator","qi",500,"<:mimikator:918073466077446164>","Cet emoji vous permet de changer l'apparance de votre arme ou accessoire sur votre icone de personnage.\n\nPour ce faire, appuyez juste sur le bouton correspondant lorsque vous ouvrez une page d'information d'une arme ou accessoire avec /inventory")
 ilianaGrelot = other("Grelot","qj",350,'<:iliGrelot:930385123130609684>',"Vous permet de changer la forme de votre icone de personnage en Inkling Chat ou Octaling Chat")
 grandNouveau = other("Boucles d'oreilles originelle","qk",350,amethystEarRings.emoji,"Vous permet de rénitialiser la forme de votre icone de personnage")
+aliceBatEarRing = other("Amulette chauve-souris","ql",350,invocBat.emoji,"Vous permet de changer la forme de votre icone de personnage en Chauve-Souris")
+birdup = other("Pigeon de compagnie","qm",350,'<:birdUp:930906195999473684>',"Vous permet de changer la forme de votre icone de personnage en Aviaire")
+Megalovania = other("Musique qui rentre dans la tête","qn",350,'<:lazyBones:930949502133747762>',"Vous permet de changer la forme de votre icone de personnage en Crâne")
 
-others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau]
+others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania]
+
+previewDict = {
+    ilianaGrelot.id:'https://cdn.discordapp.com/emojis/930806243461857301.png',
+    grandNouveau.id:'https://cdn.discordapp.com/emojis/930807241064480828.png',
+    aliceBatEarRing.id:'https://cdn.discordapp.com/emojis/930807423483129876.png',
+    birdup.id:'https://cdn.discordapp.com/emojis/930908758773743616.png',
+    Megalovania.id:'https://cdn.discordapp.com/emojis/930911733307027536.png'
+}
+
+changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania]
 
 # Specials skills ================================================================================
 # Total Kboum
@@ -215,7 +228,7 @@ if not(isLenapy):
             for a in stat:
                 summ += a
 
-            awaited = int((230+110*3)*0.9)
+            awaited = int((280+110*3)*1)
             if summ < awaited*0.9 or summ > awaited*1.1:
                 print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
 

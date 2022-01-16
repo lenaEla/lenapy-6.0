@@ -9,32 +9,6 @@ from typing import List, Union
 
 absPath = str(pathlib.Path(__file__).parent.resolve())
 
-class autoColor:
-    """A class for the "autocolor" command of the bot.
-    Maybe I should delete it all, no body will ever use it, me included"""
-    def __init__(self,enable,redId = 0,orangeId = 0,yellowId = 0,greenId = 0,lightBlueId = 0,blueId = 0,purpleId = 0,pinkId = 0,whiteId = 0,blackId = 0):
-        self.enable = enable
-        self.red = redId
-        self.orange = orangeId
-        self.yellow = yellowId
-        self.green = greenId
-        self.lightBlue = lightBlueId
-        self.blue = blueId
-        self.purple = purpleId
-        self.pink = pinkId
-        self.white = whiteId
-        self.black = blackId
-
-class server:
-    """A class that is use to store the guild's settings"""
-    def __init__(self,id,prefixe="l!",patchnote = 0,bot = 0):
-        self.id = id
-        self.prefixe = prefixe
-        self.patchnote = patchnote
-        self.bot = bot
-        self.name = ""
-        self.colorRole = autoColor(0)
-
 class statTabl:
     """
         A class that is use to store the entity's stats for the post fight medals and inflate their ego\n
@@ -83,6 +57,7 @@ class statTabl:
         self.selfBurn = 0
         self.headnt = False
         self.friendlyfire = 0
+        self.fullskip = True
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -309,13 +284,17 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,secondary = False,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None):
+    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0):
         """rtfm"""
+
         self.name = name                                # Name of the skill
         self.repetition = repetition                    # The number of hits it does
         self.say:Union[str,List[str]] = say                                  # Does the attacker say something when the skill is used ?
         self.id = id                                    # The id of the skill.  Idealy, unique
         self.type = types                               # The type of the skill. See constante.types
+        self.replay = replay
+        self.tpCac:bool = tpCac
+        self.jumpBack:int = jumpBack
         
         if power != AUTO_POWER:
             self.power = power                              # Power of the skill. Use for damage and healing skills
@@ -340,9 +319,10 @@ class skill:
         self.ultimate = ultimate
         self.effect = effect
         self.range = range
-        self.secondary = secondary                      # Not used.
+        self.group = group                      # Not used.
         self.cooldown = cooldown
         self.area = area
+        self.maxHpCost, self.hpCost = maxHpCost, hpCost
         if sussess != 100 or types != TYPE_DAMAGE:
             self.sussess = sussess
         else:
@@ -357,9 +337,10 @@ class skill:
             self.description = description.format(power,power//2)
         else:
             self.description = None
-            
+
         self.initCooldown = initCooldown
         self.shareCooldown = shareCooldown
+
         if use==STRENGTH:
             if types in [TYPE_ARMOR]:
                 self.use = INTELLIGENCE
@@ -391,7 +372,7 @@ class skill:
                 cmpt+=1
 
             if self.condition[0] == 0:
-                listExclu = ["weapon","aspiration","element"]
+                listExclu = ["weapon","aspiration","element","secElem"]
                 cmpt = 0
                 for a in listExclu:
                     if conditionType[1] == a:
@@ -451,12 +432,21 @@ class skill:
                 elif conds[1] == 2: #Conds Elem
                     if user.element != conds[2]:
                         return False
+                elif conds[1] == 3: #Conds Elem
+                    if user.secElement != conds[2]:
+                        return False
 
             elif conds[0] == 1: 
                 userstats = user.allStats()
                 if userstats[conds[1]] < conds[2]:
                     return False
-        return user.level >= 5
+
+        elif self.group != 0:
+            for skilly in user.skills:
+                if type(skilly) == skill and skilly.group not in [0,self.group]:
+                    return False
+
+        return not(user.level < 10 and self.ultimate)
 
 class stuff:
     """The main and only class for all the gears"""
@@ -601,7 +591,7 @@ class char:
         self.majorPointsCount = 0
         self.weapon = splattershotJR
         self.weaponInventory = [splattershotJR,mainLibre]
-        self.skills = ["0","0","0","0","0"]
+        self.skills = ["0","0","0","0","0","0","0"]
         self.skillInventory = []
         self.stuff = [bbandeau,bshirt,bshoes]
         self.stuffInventory = [bbandeau,bshirt,bshoes]
@@ -612,6 +602,7 @@ class char:
         self.icon = None
         self.customColor = False
         self.element = ELEMENT_NEUTRAL
+        self.secElement = ELEMENT_NEUTRAL
         self.deadIcon = None
         self.says = says()
         self.apparaWeap = None
@@ -648,13 +639,16 @@ class invoc:
 
         self.description = description
         
-        while len(skill)<5:
+        while len(skill)<7:
             skill.append("0")
 
         self.skills = skill
         self.icon = icon
         self.customColor = False
-        self.element = element
+        if type(element) != list:
+            element = [element,ELEMENT_NEUTRAL]
+        self.element = element[0]
+        self.secElement = element[1]
         self.says = says()
         
     def allStats(self):
@@ -673,6 +667,16 @@ for num in range(0,10):
     incurTemp.name = "Incurable ({0})".format(10*num)
     incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
+
+partage = effect("Incurable","share",power=100,turnInit=-1,description="",emoji=[["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"]],area=AREA_DONUT_1)
+
+shareTabl = []
+for num in range(0,10):
+    shareTemp = copy.deepcopy(partage)
+    shareTemp.power = 10*num
+    shareTemp.name = "Partage ({0})".format(10*num)
+    shareTemp.description="En revecant des soins monocibles, les alliés dans la zone d'effet en reçoivent **{0}**% bonus.\n\nSi plusieurs effets Partages sont présent sur la même cible, uniquement le plus puissant sont pris en compte".format(10*num)
+    shareTabl.append(shareTemp)
 
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement",turnInit=2)
 
@@ -756,7 +760,7 @@ class octarien:
             weapon:weapon,
             exp:int,
             icon:str,
-            skill:List[Union[skill,str,None]] =["0","0","0","0","0"],
+            skill:List[Union[skill,str,None]] =["0","0","0","0","0","0","0"],
             aspiration:int=INVOCATEUR,
             gender:int=GENDER_OTHER,
             description:str="",
@@ -765,7 +769,7 @@ class octarien:
             say:says=says(),
             baseLvl:int = 1,
             rez:bool=True,
-            element:int = ELEMENT_NEUTRAL,
+            element:List[int] = [ELEMENT_NEUTRAL,ELEMENT_NEUTRAL],
             number:int = 1
         ):
         """
@@ -788,6 +792,7 @@ class octarien:
             .number : The number of times the ennemy appairse in the ennemy list
         """
         self.name = name
+        self.owner = self.team = 0
         self.species = 3
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,maxMagie
         self.resistance,self.percing,self.critical = resistance,percing,critical
@@ -797,7 +802,7 @@ class octarien:
         self.skills = skill
         self.stars = 0
         self.team = -2
-        while len(self.skills) < 5:
+        while len(self.skills) < 7:
             self.skills+=["0"]
 
         self.skillsInventory = []
@@ -809,7 +814,12 @@ class octarien:
         self.icon = icon
         self.gender = gender
         self.description = description
-        self.element = element
+
+        if type(element) != list:
+            element = [element,ELEMENT_NEUTRAL]
+
+        self.element = element[0]
+        self.secElement = element[1]
         self.deadIcon = deadIcon
         self.oneVAll = oneVAll
         self.says = say
@@ -835,14 +845,9 @@ class octarien:
             for a in range(0,len(tempStats)):
                 stats[a] = tempStats[a] + (stats[a]-tempStats[a])//3
 
-        if self.level < 25:
-            self.skills[4] = "0"
-        if self.level < 20:
-            self.skills[3] = "0"
-        if self.level < 15:
-            self.skills[2] = "0"
-        if self.level < 10:
-            self.skills[1] = "0"
+        for cmpt in range(len(lvlToUnlockSkill)):
+            if self.level < lvlToUnlockSkill[cmpt]:
+                self.skills[cmpt] = "0"
 
         if self.level < 10:
             self.element = ELEMENT_NEUTRAL
@@ -871,7 +876,7 @@ class tmpAllie:
         gender:int,
         skill:List[skill]=[],
         description:str="Pas de description",
-        element:int=ELEMENT_NEUTRAL,
+        element:List[int]=[ELEMENT_NEUTRAL,ELEMENT_NEUTRAL],
         variant:bool = False,
         deadIcon: Union[None,str]=None,
         icon: Union[None,str] = None,
@@ -908,15 +913,16 @@ class tmpAllie:
 
         self.name = name
         self.species = species
+        self.owner = self.team = 0
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
         self.resistance,self.percing,self.critical = 0,0,0
         self.aspiration = aspiration
         self.weapon = weapon
         self.stars = 0
         self.team = -1
-        self.skills = ["0","0","0","0","0"]
+        self.skills = ["0","0","0","0","0","0","0"]
         self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
-        for a in range(0,len(skill)):
+        for a in range(len(skill)):
             self.skills[a] = skill[a]
         self.skillsInventory = []
         self.color = color
@@ -928,7 +934,10 @@ class tmpAllie:
         else:
             self.icon = icon
         self.description=description
-        self.element = element
+        if type(element) != list:
+            element = [element,ELEMENT_NEUTRAL]
+        self.element = element[0]
+        self.secElement = element[1]
         self.variant = variant
         self.deadIcon = deadIcon
         self.bonusPoints = bonusPoints
@@ -970,19 +979,17 @@ class tmpAllie:
                                     break
                         haveChanged = True
 
-        if self.level < 25:
-            self.skills[4] = "0"
-        if self.level < 20:
-            self.skills[3] = "0"
-        if self.level < 15:
-            self.skills[2] = "0"
-        if self.level < 10:
-            self.skills[1] = "0"
+        for cmpt in range(len(lvlToUnlockSkill)):
+            if self.level < lvlToUnlockSkill[cmpt]:
+                self.skills[cmpt] = "0"
 
         if self.level < 10:
             self.element = ELEMENT_NEUTRAL
         elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
             self.element = random.randint(0,3)
+        
+        if self.level < 30:
+            self.secElement = ELEMENT_NEUTRAL
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
 
