@@ -5,7 +5,7 @@ from advObjects.advSkills import *
 batWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,70,80,0,emoji='<:griffe:884889931359596664>',use=AGILITY)
 carbunTWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,70,80,0,emoji='<:griffe:884889931359596664>',use=ENDURANCE)
 carbunE = weapon("Coup de vent","aab",RANGE_LONG,AREA_CIRCLE_5,40,70,0,emoji='<:vent:884889843681853460>',area=AREA_CIRCLE_1,use=MAGIE)
-carbunSkill = skill("Rafale","aac",TYPE_DAMAGE,0,100,area=AREA_CIRCLE_2,sussess=55,emoji='<:rafale:884889889445912577>',use=MAGIE,cooldown=4)
+carbunSkill = skill("Eclat Emeraude","aac",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_2,sussess=55,emoji='<:rafale:884889889445912577>',use=MAGIE,cooldown=4)
 carbunTSKill = skill("Eclat de Topaze","aad",TYPE_DAMAGE,0,150,AREA_MONO,area=AREA_CIRCLE_2,sussess=80,cooldown=4,emoji="<:eclattopaze:884889967397056512>",use=ENDURANCE)
 feeWeap = weapon("Embrassement","aae",RANGE_DIST,AREA_CIRCLE_4,20,100,0,type=TYPE_HEAL,use=CHARISMA,emoji="<:feerie:885076995522834442>",target=ALLIES,area=AREA_CIRCLE_1)
 feeEffect = effect("Murmure de l'aurore","aaf",CHARISMA,type=TYPE_INDIRECT_HEAL,power=5,emoji=uniqueEmoji('<:feerie:885076995522834442>'),trigger=TRIGGER_START_OF_TURN,turnInit=2,stackable=True)
@@ -38,7 +38,7 @@ GESRskill = skill("Piétinement Magique","TheGiantEnnemySpiderRigth",TYPE_DAMAGE
 carbOb = weapon("Griffe d'obsidienne","carObWeap",RANGE_MELEE,AREA_CIRCLE_1,33,70,repetition=3,emoji=batWeap.emoji)
 carbObSkill = skill("Eclat d'Obsidenne","carbObsiSkill",TYPE_DAMAGE,0,135,AREA_CIRCLE_2,cooldown=2,emoji='<:carbSkill2:919859568685752350>')
 carbSa = weapon("Tir de glacée","carbSaWeap",RANGE_DIST,AREA_CIRCLE_6,56,80,0)
-carbSaSkill = skill("Eclat de Saphir","carbSaSkill",TYPE_DAMAGE,0,120,cooldown=2,emoji='<:carbSkill2:919859581381926933>')
+carbSaSkill = skill("Eclat de Saphir","carbSaSkill",TYPE_DAMAGE,0,80,cooldown=2,emoji='<:carbSkill2:919859581381926933>')
 
 batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.5],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans temps de rechargement",skill=[batSkill],element=ELEMENT_AIR)
 carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],20,10,[PURCENTAGE,1],MAGE,["<:carbEmR:919858018739437568>",'<:carbEmB:919857996274749451>'],carbunE,[carbunSkill],description="Une invocation utilisant des compétences de zone pour vaincre des groupes d'ennemis de loin",element=ELEMENT_AIR)
@@ -53,7 +53,7 @@ carbunR = invoc("Carbuncle Rubis",strength=[PURCENTAGE,0.5],endurance=[PURCENTAG
 seraf = invoc("Fée protectrice",strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.3],precision=[PURCENTAGE,0.5],intelligence=[PURCENTAGE,0.7],magie=[PURCENTAGE,0.5],resistance=[PURCENTAGE,1],percing=0,critical=0,aspiration=PREVOYANT,icon=['<:seraphB:911078241404608522>','<:seraphR:911078257078706256>'],weapon=serafWeapon,skill=[serafSkill],description="Une fée spécialisée dans les armures\nPeut donner des armures légères avec son arme ou des armures sur les alliés autour d'elle avec Dictame",element=ELEMENT_LIGHT,gender=GENDER_FEMALE)
 TGESL1 = invoc("Patte de The Giant Enemy Spider",[PURCENTAGE,0.5],[PURCENTAGE,0.3],0,[PURCENTAGE,0.7],[PURCENTAGE,0.7],0,0,[PURCENTAGE,0.3],0,0,INVOCATEUR,['<:TGESlegs2:917303003936063538>','<:TGESlegs2:917303003936063538>'],GESLweap,[GESLskill],gender=GENDER_FEMALE)
 TGESL2 = copy.deepcopy(TGESL1)
-TGESL2.strength, TGESL2.magie, TGESL2.icon, TGESL2.skills = 0,TGESL1.strength,['<:TGESlegs1:917302968104144906>','<:TGESlegs1:917302968104144906>'],[GESRskill,"0","0","0","0"]
+TGESL2.strength, TGESL2.magie, TGESL2.icon, TGESL2.skills[0] = 0,TGESL1.strength,['<:TGESlegs1:917302968104144906>','<:TGESlegs1:917302968104144906>'],GESRskill
 
 carbObsi = invoc("Carbuncle Obsidienne",strength=[PURCENTAGE,0.7],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.5],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.3],resistance=[PURCENTAGE,1],percing=[PURCENTAGE,1],critical=[PURCENTAGE,0.5],aspiration=POIDS_PLUME,icon=['<:carbObsiB:919857954029707284>','<:carObsiR:919857975051558954>'],weapon=carbOb,skill=[carbObSkill],element=ELEMENT_DARKNESS)
 carbSaphir = invoc("Carbuncle Saphir",strength=[PURCENTAGE,0.7],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.5],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.3],resistance=[PURCENTAGE,0.5],percing=[PURCENTAGE,1],critical=[PURCENTAGE,1],aspiration=OBSERVATEUR,icon=["<:ce1:884889724114841610>","<:ce2:884889693374775357>"],weapon=carbSa,skill=[carbSaSkill],element=ELEMENT_WATER)

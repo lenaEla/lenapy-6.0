@@ -128,40 +128,47 @@ octaPomWeapon = weapon("PomPom","octaPomPomWeap",RANGE_LONG,AREA_CIRCLE_6,45,50,
 # Cliroptère infirmier
 clirInfWeap = weapon("Sono-Thérapie","clirInfWeap",RANGE_LONG,AREA_CIRCLE_4,45,100,charisma=20,type=TYPE_HEAL,target=ALLIES,use=CHARISMA)
 
+# OctoSus
+octoSusSkill1 = skill("Vent",'octoSusSkill1',TYPE_DAMAGE,0,80,range=AREA_RANDOMENNEMI_1,cooldown=3,emoji='<:Vent:932241554125520957>',tpCac=True)
+octoSusSkill2Eff = effect("Saboté",'octoSusSkill2Eff',INTELLIGENCE,strength=-10,magie=-10,charisma=-10,intelligence=-10,emoji='<:Sabotage:932241553865465946>')
+octoSusSkill2 = skill('Sabotage','octoSusSkill2',TYPE_MALUS,0,effect=octoSusSkill2Eff,area=AREA_CIRCLE_1,range=AREA_MONO,emoji='<:Sabotage:932241553865465946>')
+octoSusWeap = weapon("Kill",'octoSusWeap',range=RANGE_LONG,effectiveRange=AREA_CIRCLE_1,power=77,sussess=90,emoji='<:Kill:932241554050023484>')
+
 # --------------------------------------------------------- Tabl Unique Ennemis ---------------------------------------------------------
 tablUniqueEnnemies = [
-    octarien("Octo Bouclier",50,225,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=PROTECTEUR),
-    octarien("Octo Tireur",150,55,30,95,105,35,0,20,0,20,octoBallWeap,3,'<:octoshooter:880151608791539742>',[chargeShot,ultraShot],description="Un tireur sans plus ni moins",number=3,aspiration=OBSERVATEUR),
-    octarien("Octo Soigneur",30,100,220,35,15,25,50,25,0,0,octoHeal,4,"<:octohealer:880151652710092901>",[lightAura,cure,firstheal],aspiration=ALTRUISTE,description="Un octarien qui se spcésialise dans ~~passer son tour~~ soigner ses alliés",number=3),
-    octarien("Rudinn",150,70,20,55,50,35,35,35,0,15,ruddinweap,6,"<a:rudinn:893246033226760232>",skill=[ultraShot],aspiration=TETE_BRULE,deadIcon='<:defeatrudeen:893246353415757824>',baseLvl=10,number=3),
-    octarien("Rudinn Ranger",150,150,20,30,30,25,25,35,0,15,ruddinweap2,8,"<a:rudinnRanger:893248570742956072>",aspiration=POIDS_PLUME,deadIcon='<:defeatrudeen:893246353415757824>',skill=[octaStrans],baseLvl=10,number=3),
-    octarien("Aéro-benne",150,50,50,60,100,35,20,20,0,0,flyfishweap,5,'<:flyfish:884757237522907236>',description="Un Salmioche qui s'est passionné pour l'aviation",deadIcon='<:salmonnt:894551663950573639>',aspiration=OBSERVATEUR,baseLvl=10,number=2),
-    octarien("Mallus",25,30,20,20,25,150,150,20,0,15,malusWeapon,6,'<:mallus:895824636716130308>',skill=[malusSkill1,malusSkill2,zoneOctoInkRes],aspiration=PREVOYANT,baseLvl=15,number=2),
-    octarien("Kralamour",10,50,175,50,0,120,30,30,0,0,kralamWeap,5,'<:kralamour:895443866189176842>',[kralamSkill,kralamSkill2,zoneOctoInkRes],PREVOYANT,baseLvl=15,number=2),
-    octarien("Temmie",55,100,55,35,35,30,130,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15,number=3),
-    octarien("Bob",55,100,55,35,35,30,130,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=bobSays,baseLvl=15),
-    octarien("Octo Mage",50,50,30,30,30,20,200,20,10,15,octoMageWeap,5,'<:octomage:897910662758543422>',[flame,courant,rock,storm2],MAGE,baseLvl=20,number=3),
-    octarien("Octo Mage II",50,50,30,30,30,20,200,20,10,15,octoMageWeap,5,'<:octoMage2:907712297013751838>',[fireCircle,waterCircle,earthCircle,airCircle],MAGE,baseLvl=20,number=3),
-    octarien("Zombie",150,150,0,50,70,0,0,35,0,10,ironSword,6,'<:armoredZombie:899993449443491860>',[defi,zombieSkill],BERSERK,baseLvl=20,number=2),
-    octarien("Octo Bombardier",175,100,20,10,100,35,0,35,20,0,octobomberWeap,6,'<:octobomber:902013837123919924>',aspiration=OBSERVATEUR,baseLvl=20,number=2,skill=[multiMissiles,booyahBombCast]),
-    octarien("Tentassin",175,90,20,35,30,20,20,35,15,20,tentaWeap,6,'<:octoshoter2:902013858602967052>',aspiration=BERSERK,skill=[octaStrans,ultraShot],baseLvl=15,number=2),
-    octarien("Octo Protecteur",0,100,50,50,30,200,20,20,0,0,octoDef,5,"<:octoProtect:883303222255706142>",[inkarmor,zoneOctoInkRes],aspiration=PREVOYANT,description="Un octarien qui pense que les boucliers sont la meilleure défense",baseLvl=5),
-    octarien("OctoBOUM",120,-30,10,35,20,0,350,-10,0,0,octoBoumWeap,5,'<:octoboom:884810545457418271>',[explosionCast],MAGE,description="Un octarien qui a placé tous ses points dans ses envies pirotechniques",baseLvl=25,rez=False),
-    octarien("Octaling",80,50,50,50,50,50,80,25,0,20,splattershotJR,5,'<:Octaling:866461984018137138>',baseLvl=10,description='Les Octalings ont une arme, aspiration, élément et compétences aléatoire définini au début du combat',number=3),
-    octarien("Octarien Volant",200,45,35,100,50,20,0,25,0,35,octoFly,4,'<:octovolant:880151493171363861>',number=3,aspiration=OBSERVATEUR),
-    octarien("Octo Soigneur Vétéran",0,50,300,35,40,35,0,25,0,0,veterHealWeap,7,'<:octoHealVet:906302110403010581>',[veterHealSkill1,veterHealSkill2,veterHealSkill3,veterHealSkill4,kralamSkill2],ALTRUISTE,baseLvl=30,number=3),
-    octarien("Octo Moine",150,100,30,35,40,25,50,30,0,20,mainLibre,5,'<:octoMonk:907723929882337311>',[airStrike,earthStrike],BERSERK,baseLvl=15,number=2),
-    octarien("Octo Scientifique",10,25,120,35,35,200,10,30,0,0,octoBoostWeap,7,"<:octoScience:915054617933541386>",[octoBoostSkill1,octoBoostSkill2,octoBoostSkill3,octoBoostSkill4,zoneOctoInkRes],IDOLE,number=2),
-    octarien("Octo Sniper",250,30,20,0,120,20,15,15,10,20,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15,skill=[antiArmorShot]),
-    octarien("Liu",30,200,145,10,10,20,0,45,0,0,liuWeap,7,'<:liu:908754674449018890>',[ironWillSkill,liuSkill,inkRes2],PROTECTEUR,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH),
-    octarien("Lia",20,50,150,170,30,30,20,30,0,0,liaWeap,7,'<:lia:908754741226520656>',[ironWillSkill,airCircle,storm2,liaSkill],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays,element=ELEMENT_AIR),
-    octarien("Lio",20,70,200,35,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,lioRez,veterHealSkill2],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays,element=ELEMENT_WATER),
-    octarien("Liz",10,60,120,35,20,35,150,35,20,0,lieWeap,7,'<:lie:908754710121574470>',[pyro,explosionCast,lieSkill],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays,element=ELEMENT_FIRE),
-    octarien("Benjamin Hunter",30,100,50,30,50,200,0,35,20,0,hunterWeap,8,'<a:HunterNo:800841356502237225>',[hunterSkill1,hunterSkill2,hunterSkill3,hunterSkill4],IDOLE,GENDER_MALE,deadIcon='<:AutopsyReport:800839396151656469>',baseLvl=15),
-    octarien("Octo Invocateur",120,70,45,50,50,45,120,25,0,0,octoInvocWeap,7,'<:octoSummoner:919862854683873331>',[invocCarbunR,invocCarbE,invocCarbSaphir,invocCarbObsi,invocCarbT],baseLvl=20),
-    octarien("Citoptère Pal. Cor.",0,135,135,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[ironWillSkill,clirHeal,lightAura2,renisurection],ALTRUISTE,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
-    octarien("Octaling PomPomGirl",10,70,200,100,45,35,10,20,0,0,octaPomWeapon,7,"<:octaPomPom:921910868097257472>",[octoPomSkill1,octoPomSkill2,octoPomSkill3,octoPomSkill4,zoneOctoInkRes],IDOLE,number=2,gender=GENDER_FEMALE),
-    octarien("Citoptère Inf. Cor.",0,50,230,75,75,20,20,20,0,0,clirInfWeap,6,'<:cliroInfirm:921915716435836968>',[lightHeal2,lightBigHealArea,renisurection],ALTRUISTE,baseLvl = 15, deadIcon = '<:cliroOut:921912637103698010>',number=2)
+    octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=PROTECTEUR),
+    octarien("Octo Tireur",150,55,50,95,155,35,0,20,0,20,octoBallWeap,3,'<:octoshooter:880151608791539742>',[chargeShot,ultraShot],description="Un tireur sans plus ni moins",number=3,aspiration=OBSERVATEUR),
+    octarien("Octo Soigneur",30,100,250,35,15,50,50,25,0,0,octoHeal,4,"<:octohealer:880151652710092901>",[lightAura,cure,firstheal],aspiration=ALTRUISTE,description="Un octarien qui se spcésialise dans ~~passer son tour~~ soigner ses alliés",number=3),
+    octarien("Rudinn",175,100,20,55,100,35,35,35,0,15,ruddinweap,6,"<a:rudinn:893246033226760232>",skill=[ultraShot],aspiration=TETE_BRULE,deadIcon='<:defeatrudeen:893246353415757824>',baseLvl=10,number=3),
+    octarien("Rudinn Ranger",175,175,20,30,30,125,25,35,0,15,ruddinweap2,8,"<a:rudinnRanger:893248570742956072>",aspiration=POIDS_PLUME,deadIcon='<:defeatrudeen:893246353415757824>',skill=[octaStrans],baseLvl=10,number=3),
+    octarien("Aéro-benne",200,50,50,60,150,35,20,20,0,0,flyfishweap,5,'<:flyfish:884757237522907236>',description="Un Salmioche qui s'est passionné pour l'aviation",deadIcon='<:salmonnt:894551663950573639>',aspiration=OBSERVATEUR,baseLvl=10,number=2),
+    octarien("Mallus",25,30,20,20,25,200,200,20,0,15,malusWeapon,6,'<:mallus:895824636716130308>',skill=[malusSkill1,malusSkill2,zoneOctoInkRes],aspiration=PREVOYANT,baseLvl=15,number=2),
+    octarien("Kralamour",10,50,250,50,0,200,30,30,0,0,kralamWeap,5,'<:kralamour:895443866189176842>',[kralamSkill,kralamSkill2,zoneOctoInkRes],PREVOYANT,baseLvl=15,number=2),
+    octarien("Temmie",55,100,55,50,35,30,175,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15,number=3),
+    octarien("Bob",55,100,55,50,35,30,200,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=bobSays,baseLvl=15),
+    octarien("Octo Mage",50,100,30,30,30,20,250,20,10,15,octoMageWeap,5,'<:octomage:897910662758543422>',[flame,courant,rock,storm2],MAGE,baseLvl=20,number=3),
+    octarien("Octo Mage II",50,100,30,30,30,20,250,20,10,15,octoMageWeap,5,'<:octoMage2:907712297013751838>',[fireCircle,waterCircle,earthCircle,airCircle],MAGE,baseLvl=20,number=3),
+    octarien("Zombie",175,200,0,50,70,0,0,50,0,10,ironSword,6,'<:armoredZombie:899993449443491860>',[defi,zombieSkill],BERSERK,baseLvl=20,number=2),
+    octarien("Octo Bombardier",225,125,20,10,150,35,0,35,20,0,octobomberWeap,6,'<:octobomber:902013837123919924>',aspiration=OBSERVATEUR,baseLvl=20,number=2,skill=[multiMissiles,booyahBombCast]),
+    octarien("Tentassin",175,125,20,35,30,100,20,45,15,20,tentaWeap,6,'<:octoshoter2:902013858602967052>',aspiration=BERSERK,skill=[octaStrans,ultraShot],baseLvl=15,number=2),
+    octarien("Octo Protecteur",0,100,50,50,30,300,20,20,0,0,octoDef,5,"<:octoProtect:883303222255706142>",[inkarmor,zoneOctoInkRes],aspiration=PREVOYANT,description="Un octarien qui pense que les boucliers sont la meilleure défense",baseLvl=5),
+    octarien("OctoBOUM",120,-30,10,35,20,0,450,-10,0,0,octoBoumWeap,5,'<:octoboom:884810545457418271>',[explosionCast],MAGE,description="Un octarien qui a placé tous ses points dans ses envies pirotechniques",baseLvl=25,rez=False),
+    octarien("Octaling",125,50,75,50,50,75,125,25,0,20,splattershotJR,5,'<:Octaling:866461984018137138>',baseLvl=10,description='Les Octalings ont une arme, aspiration, élément et compétences aléatoire définini au début du combat',number=3),
+    octarien("Octarien Volant",200,45,35,120,75,20,0,25,0,35,octoFly,4,'<:octovolant:880151493171363861>',number=3,aspiration=OBSERVATEUR),
+    octarien("Octo Soigneur Vétéran",50,50,300,35,40,35,0,25,20,0,veterHealWeap,7,'<:octoHealVet:906302110403010581>',[veterHealSkill1,veterHealSkill2,veterHealSkill3,veterHealSkill4,kralamSkill2],ALTRUISTE,baseLvl=30,number=3),
+    octarien("Octo Moine",175,125,30,35,75,75,50,30,0,20,mainLibre,5,'<:octoMonk:907723929882337311>',[airStrike,earthStrike],BERSERK,baseLvl=15,number=2),
+    octarien("Octo Scientifique",10,25,120,75,35,250,10,30,0,0,octoBoostWeap,7,"<:octoScience:915054617933541386>",[octoBoostSkill1,octoBoostSkill2,octoBoostSkill3,octoBoostSkill4,zoneOctoInkRes],IDOLE,number=2),
+    octarien("Octo Sniper",250,30,20,100,120,20,15,15,10,20,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15,skill=[antiArmorShot]),
+    octarien("Liu",30,250,155,0,100,20,0,65,0,0,liuWeap,7,'<:liu:908754674449018890>',[ironWillSkill,liuSkill,inkRes2],PROTECTEUR,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH),
+    octarien("Lia",20,50,150,250,30,30,20,30,0,0,liaWeap,7,'<:lia:908754741226520656>',[ironWillSkill,airCircle,storm2,liaSkill],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays,element=ELEMENT_AIR),
+    octarien("Lio",20,70,250,105,50,35,50,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,lioRez,veterHealSkill2],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays,element=ELEMENT_WATER),
+    octarien("Liz",10,60,135,35,20,35,200,35,20,0,lieWeap,7,'<:lie:908754710121574470>',[pyro,explosionCast,lieSkill],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays,element=ELEMENT_FIRE),
+    octarien("Benjamin Hunter",30,100,100,30,50,250,0,35,20,0,hunterWeap,8,'<a:HunterNo:800841356502237225>',[hunterSkill1,hunterSkill2,hunterSkill3,hunterSkill4],IDOLE,GENDER_MALE,deadIcon='<:AutopsyReport:800839396151656469>',baseLvl=15),
+    octarien("Octo Invocateur",135,80,45,75,75,45,135,25,0,0,octoInvocWeap,7,'<:octoSummoner:919862854683873331>',[invocCarbunR,invocCarbE,invocCarbSaphir,invocCarbObsi,invocCarbT],baseLvl=20),
+    octarien("Citoptère Pal. Cor.",0,200,200,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[ironWillSkill,clirHeal,lightAura2,renisurection],ALTRUISTE,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
+    octarien("Octaling PomPomGirl",10,70,300,100,45,35,10,20,0,0,octaPomWeapon,7,"<:octaPomPom:921910868097257472>",[octoPomSkill1,octoPomSkill2,octoPomSkill3,octoPomSkill4,zoneOctoInkRes],IDOLE,number=2,gender=GENDER_FEMALE),
+    octarien("Citoptère Inf. Cor.",0,50,275,75,100,20,20,35,0,0,clirInfWeap,6,'<:cliroInfirm:921915716435836968>',[lightHeal2,lightBigHealArea,renisurection],ALTRUISTE,baseLvl = 15, deadIcon = '<:cliroOut:921912637103698010>',number=2),
+    octarien("OctoSUS",200,75,0,35,50,200,0,35,20,0,octoSusWeap,5,'<:octoSus:932220811828412456>',[octoSusSkill1,octoSusSkill2],BERSERK,deadIcon='<:dead:932243831104102450>', baseLvl = 15, number=3)
 ]
 
 # --------------------------------------------------------- Tabl All Ennemis ---------------------------------------------------------
@@ -198,7 +205,7 @@ jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,120,AREA_MONO,area
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=-1,unclearable=True,description="Confuse confusing confusion")
 
 # Luna (Oh it's will be funny)
-lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_MELEE,AREA_CIRCLE_1,50,50,strength=20,agility=20,precision=20,repetition=5,emoji='<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True)
+lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_LONG,AREA_CIRCLE_1,50,50,strength=20,agility=20,precision=20,repetition=5,emoji='<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True)
 lunaInfiniteDarknessStun = effect("Lumière Éternelle","ilianaInfiniteLigthEff",None,type=TYPE_MALUS,stun=True,silent=True,emoji=uniqueEmoji("<:iliEff:929705167853604895>"))
 
 lunaVulne = effect("Vulnérabilité ombrale","lunaVulné",STRENGTH,resistance=-3,turnInit=-1,emoji=vulneEmoji,type=TYPE_MALUS)
@@ -211,16 +218,19 @@ lunaSkill = copy.deepcopy(soupledown)
 lunaSkill.power, lunaSkill.onArmor = 180, 1.3
 lunaSkill2 = skill("Frappes des Ténèbres","aaa",TYPE_DAMAGE,0,130,AREA_CIRCLE_2,repetition=3,cooldown=5,initCooldown=2,damageOnArmor=1.3,emoji='<a:lunaTB:899456356036251658>',say="Je pense pas que tu va pouvoir prendre celui-ci sans broncher.")
 lunaSkill4Eff = copy.deepcopy(innerdarknessEff)
-lunaSkill4Eff.stat = STRENGTH
-lunaSkill4Eff.power = 35
+lunaSkill4Eff.stat,lunaSkill4Eff.power , lunaSkill4Eff.id = STRENGTH, 35, "lunaSkill4Eff"
 lunaSkill4EffAlt = copy.deepcopy(lunaSkill4Eff)
-lunaSkill4EffAlt.power, lunaSkill4EffAlt.area = 60,AREA_MONO
-lunaSkill4 = skill("Déchirment","lunaSkill4",TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effect=lunaSkill4Eff,cooldown=3,use=DPT_MAGIC,say="Votre Lumière ne vous protègera pas éternellement !",emoji=innerdarkness.emoji,description="Cette compétence à 50% de change de voir sa zone d'effet modifiée ainsi que la puissance de son effet et sa zone d'effet modifiée")
+lunaSkill4EffAlt.power, lunaSkill4EffAlt.area, lunaSkill4EffAlt.id = 60,AREA_MONO, "lunaSkill4Eff2"
+lunaSkill4 = skill("Convertion","lunaSkill4",TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effect=lunaSkill4Eff,cooldown=3,use=STRENGTH,say="Votre Lumière ne vous protègera pas éternellement !",emoji=innerdarkness.emoji,description="Cette compétence à 50% de change de voir sa zone d'effet modifiée ainsi que la puissance de son effet et sa zone d'effet modifiée")
 lunaSkill5_1 = skill("Reverse roundhouse-kick","lunaSkill5",TYPE_DAMAGE,0,100,AREA_CIRCLE_1,area=AREA_ARC_1,emoji='<:luna4inOne:919260128698589184>',damageOnArmor=2)
 lunaSkill5_2 = skill("Side-kick fouetté","lunaSkill5",TYPE_DAMAGE,0,135,AREA_CIRCLE_1,emoji='<:luna4inOne:919260128698589184>',say="Hmf !",damageOnArmor=3)
 lunaSkill5_3_eff = effect("Destabilisé","lunaSkill5_3Eff",type=TYPE_MALUS,emoji=stuned.emoji,stun=True)
 lunaSkill5_3 = skill("Sweeping into Backflip","lunaSkill5",TYPE_DAMAGE,0,80,AREA_CIRCLE_1,repetition=2,effect=lunaSkill5_3_eff,knockback=1,emoji='<:luna4inOne:919260128698589184>',say="C'est que tu es colant toi !")
-lunaSkill5_4 = skill("Double High roundhouse-kick into Side-kick","lunaSkill5",TYPE_DAMAGE,0,35,AREA_CIRCLE_1,repetition=3,knockback=3,emoji='<:luna4inOne:919260128698589184>',say="Hé vous derrière ! Cadeau !",damageOnArmor=2)
+lunaSkill5_4 = skill("Double High roundhouse-kick into Side-kick","lunaSkill5",TYPE_DAMAGE,0,40,AREA_CIRCLE_1,repetition=3,knockback=3,emoji='<:luna4inOne:919260128698589184>',say="Hé vous derrière ! Cadeau !",damageOnArmor=2)
+lunaSkill6 = skill("Vitesse ombrale","lunaSkill6",TYPE_DAMAGE,0,50,AREA_INLINE_4,emoji='<:lunaDash:932286143884566528>',cooldown=4,replay=True,tpCac=True,sussess=200)
+lunaSkill7 = skill("Ultimawashi","lunaSkill7",TYPE_DAMAGE,0,150,AREA_CIRCLE_1,cooldown=4,knockback=10,sussess=200,emoji='<:ultimawashi:932378739327787078>')
+
+lunaQuickFightEff = effect('Enchaînement',"lunaQuickFight",emoji=uniqueEmoji('<:qqLuna:932318030380302386>'))
 
 lunaSkill5Base = skill("Corps à corps","lunaSkill5",TYPE_DAMAGE,0,0,AREA_CIRCLE_1,description="Cette compétence peut avoir 4 effets différents, sélectionné de manière aléatoire",emoji='<:luna4inOne:919260128698589184>',become=[lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4])
 
@@ -237,8 +247,10 @@ clemUltShield = effect("Bouclier sanguin","clemShield",MAGIE,overhealth=1,emoji=
 clemUltCast = skill("Memento - L'Ange Noir","clemUltCast",TYPE_ARMOR,0,range=AREA_MONO,emoji="<:clemMemento2:902222663806775428>",effect=clemUltShield,say="Très bien.",effectOnSelf=clemultCastEffect,ultimate=True,cooldown=99)
 clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,125,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>')
 clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,180,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>')
+clemSkill5 = skill("Sort - Tempus Fugit",'clemSkill5',TYPE_DAMAGE,0,100,use=MAGIE,cooldown=3,replay=True,say=["J'ai pas le temps pour vos conneries.","On va un peu accélrer la cadence !","On se traine un peu du cul là non ?"],emoji='<:TemposFigit:931703850447024138>')
+clemSkill6 = skill("Lance de sang",'clemSkill6',TYPE_DAMAGE,0,80,AREA_DIST_7,area=AREA_CIRCLE_1,use=MAGIE,cooldown=4,emoji='<:bloodSpear:931703831245488128>')
 
-clemBJcost = {"clemSkill1":35,"clemSkill2":35,"clemUlt":99,"clemSkill3":35,"clemSkill4":35,"aliceSkill1":25,"aliceSkill2":30,"aliceSkill3":32,"aliceSkill4":30,"aliceRez":35,"aliceRez+":150}
+clemBJcost = {"clemSkill1":35,"clemSkill2":35,"clemUlt":99,"clemSkill3":35,"clemSkill4":35,"aliceSkill1":25,"aliceSkill2":30,"aliceSkill3":32,"aliceSkill4":30,"aliceRez":35,"aliceRez+":150,"clemSkill5":15,"clemSkill5":30}
 
 # The Giant Ennemi Spider
 TGESWeap = weapon("noneWeap","TheGiantEnemySpiderWeapon",RANGE_DIST,AREA_CIRCLE_1,0,0,0,resistance=50)
@@ -261,17 +273,37 @@ kikuTerraFerrum.id = kikuAquaFerrum.id = kikuIgnisFerrum.id = kikuAerFerrum.id =
 kikuTerraFerrum.cooldown = kikuAquaFerrum.cooldown = kikuIgnisFerrum.cooldown = kikuAerFerrum.cooldown = 2
 kikuUltimaFerrum = skill('UltimaFerrum',"kikuUltimaFerrum",TYPE_DAMAGE,0,0,use=MAGIE,become=[kikuTerraFerrum, kikuAquaFerrum, kikuIgnisFerrum, kikuAerFerrum],emoji='<:kikuEtFerrum:922065497460203570>')
 
+# Akira H.
+akikiSkillRageBonus = [1,3,0.5,5]
+akikiWeap = weapon("Faux Haineuse","akikiWeap",range=RANGE_DIST,effectiveRange=AREA_CIRCLE_2,power=155,sussess=70,strength=25,endurance=25,emoji=fauc.emoji,area=AREA_ARC_1,ignoreAutoVerif=True)
+akikiSkill1 = skill("Fauchage","akikiSkill1",TYPE_DAMAGE,0,75,range=AREA_RANDOMENNEMI_3,area=AREA_ARC_1,sussess=80,cooldown=3)
+akikiSkill2 = skill("Rancoeur","akikiSkill2",TYPE_DAMAGE,0,200,range=AREA_CIRCLE_3,cooldown=4,description="La puissance de cette compétence augmente de **{0}%** par pourcent de PVs manquants".format(akikiSkillRageBonus[0]))
+akikiSkill3 = skill("Massacre","akikiSkill3",TYPE_DAMAGE,0,power=50,range=AREA_MONO,area=AREA_ALL_ENEMIES,sussess=80,cooldown=5,description="La puissance de cette compétence augmente de **{0}%** par pourcent de PVs manquants".format(akikiSkillRageBonus[1]))
+akikiSkill4 = skill("Intolérance","akikiSkill4",TYPE_DAMAGE,0,power=80,range=AREA_CIRCLE_3,area=AREA_LINE_2,description="La puissance de cette compétence augmente de **{0}%** par pourcent de PVs manquants".format(akikiSkillRageBonus[2]))
+
+akikiEnrageLaunch = skill("Rage","akikiEnrageLaunch",TYPE_DAMAGE,0,500,range=AREA_MONO,ultimate=True,area=AREA_ALL_ENEMIES,sussess=500,description="La puissance de cette compétence augmente de **{0}%** par pourcent de PVs manquants.\nCette compétence est forcément utilisée lorsque les PVs restants sont inférieurs à **20%** des PVmax".format(akikiSkillRageBonus[3]),initCooldown=99,cooldown=99)
+akikiEnrageRepEff1 = effect("Cast - Rage (1 tour !)","akikiEnrageRepEff1",turnInit=2,silent=True,replique=akikiEnrageLaunch)
+akikiEnrageCast1 = copy.deepcopy(akikiEnrageLaunch)
+akikiEnrageCast1.id, akikiEnrageCast1.power, akikiEnrageCast1.effectOnSelf = "akikiEnrageCast1", 0, akikiEnrageRepEff1
+akikiEnrageRepEff2 = copy.deepcopy(akikiEnrageRepEff1)
+akikiEnrageRepEff2.name, akikiEnrageRepEff2.id, akikiEnrageRepEff2.replica = "Cast - Rage (2 tours)", "akikiEnrageRepEff2", akikiEnrageCast1
+akikiEnrageCastInit = copy.deepcopy(akikiEnrageLaunch)
+akikiEnrageCastInit.id, akikiEnrageCastInit.power, akikiEnrageCastInit.effectOnSelf = "akikiEnrageCastInit", 0, akikiEnrageRepEff2
+
+akikiSkillRageList = [akikiSkill2.id,akikiSkill3.id,akikiSkill4.id,akikiEnrageCastInit.id]
+
 # Tabl Boss ----------------------------------------------------
 tablBoss = [
     octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",500,250,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays,element=ELEMENT_DARKNESS),
     octarien("Jevil",550,230,100,60,75,120,120,10,25,15,jevilWeap,50,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays,element=ELEMENT_DARKNESS),
     octarien("Séréna",50,220,-50,70,50,50,330,25,0,15,armilame,10,'<:serena:897912402354511894>',[poisonus,serenaSkill,serenaSpe,serenaSkill2,serenaFocal],ENCHANTEUR,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
-    octarien("Luna prê.",475,100,80,180,50,80,0,25,35,0,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
+    octarien("Luna prê.",500,85,80,185,75,80,0,25,35,0,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4,lunaSkill6,lunaSkill7],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
     octarien("Octo Tour",0,350,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés"),
-    octarien("Clémence pos.",100,160,50,50,80,150,350,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
-    octarien("The Giant Enemy Spider",300,300,0,80,100,50,300,70,10,20,TGESWeap,50,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True),
+    octarien("Clémence pos.",100,175,50,50,80,150,425,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4,clemSkill5,clemSkill6],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
+    octarien("The Giant Enemy Spider",300,350,0,80,100,50,300,70,10,20,TGESWeap,50,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True),
     octarien("Matt",450,120,100,100,100,100,0,35,20,0,mattWeapon,50,'<:matt:922064304793059340>',[mattSkill1,mattSkill2,mattSkill3,mattSkill4],BERSERK,GENDER_MALE,"L'ultime adversaire. Dans les jeux Wii Sports en tous cas",'<:matt:922064304793059340>',True),
-    octarien("Kiku",0,135,50,120,100,5,350,25,35,0,kikuBossWeap,10,'<:kiku:921704515332358174>',[kikuBossRes,kikuUltimaFerrum],gender=GENDER_FEMALE,deadIcon ='<:kikuOut:921709153892831294>',baseLvl=15,rez=False,element=ELEMENT_EARTH)
+    octarien("Kiku",0,135,50,120,100,5,350,25,35,0,kikuBossWeap,10,'<:kiku:921704515332358174>',[kikuBossRes,kikuUltimaFerrum],gender=GENDER_FEMALE,deadIcon ='<:kikuOut:921709153892831294>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
+    octarien("Akira H.",420,120,80,50,50,80,100,20,35,0,akikiWeap,50,'<:akira:909048455828238347>',[akikiSkill1,akikiSkill2,akikiSkill3,akikiSkill4,akikiEnrageCastInit],BERSERK,GENDER_MALE,description="Tu te souviens que tu devait me donner une description pour Akira Flora ?\nTu m'en doit deux maintenant",deadIcon='<:spTako:866465864399323167>',oneVAll=True,baseLvl=15,element=ELEMENT_DARKNESS)
 ]
 
 # ====================================== Raid Boss ======================================

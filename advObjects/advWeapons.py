@@ -85,22 +85,41 @@ gravEff = effect("Gravitation","grav",turnInit=-1,unclearable=True,description="
 grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,56,99,1,endurance=10,resistance=5,effect=gravEff,emoji='<:bl:925774629711282196>')
 
 darkbluebutterfly = weapon("Papillon bleu marine",'ct',RANGE_MELEE,AREA_CIRCLE_2,78,66,1,magie=10,endurance=10,resistance=10,use=MAGIE,needRotate=False,emoji='<:dbb:926954332593725511>')
-kardia = effect("Kardia","kardia",type=TYPE_BOOST,power=15,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, soigne l'allié le plus blessé avec une puissance de **15**\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:kar:929860644461740133>',stat=CHARISMA)
-whiteSpiritWings = weapon("Ailes de l'esprit blanc","cu",RANGE_DIST,AREA_CIRCLE_4,int(46*0.8),75,1,charisma=15,effect=kardia,use=CHARISMA,needRotate=False,emoji='<:wws:929847728077406279>',ignoreAutoVerif=True)
+kardia = effect("Kardia","kardia",type=TYPE_BOOST,power=25,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, soigne l'allié le plus blessé avec une puissance de **15**\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:kar:929860644461740133>',stat=CHARISMA)
+whiteSpiritWings = weapon("Ailes de l'esprit blanc","cu",RANGE_DIST,AREA_CIRCLE_4,46,75,1,charisma=15,effect=kardia,use=CHARISMA,needRotate=False,emoji='<:wws:929847728077406279>',ignoreAutoVerif=True)
 
-diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=15,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=25,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag)
-bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,int(46*0.8),75,1,intelligence=15,effect=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True)
+bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=15,effect=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True)
 
+cardsDeck = effect("Deck de cartes","astro",CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration :\n\n__Ber. :__ Force +3, Rési +3\n__Obs. :__ Force +3, Préci +3\n__P. Plume :__ Force +3, Agi +3\n__T. Brûlée :__ Force +3, Magie +3\n__Mage :__ Magie +3, Préci +3\n__Enc. :__ Magie +3, Rési +3\n__Idole :__ Charisme +3, Intel +3\n__Proc. :__ Intel +3, Rési +3\n__Alt. :__ Charisme +5\n__Prév. :__ Intel +5\n__Invoc. :__ Force +2, Magie +2, Charisme +2, Intel +2\n\n__Empêche l'utilisation de l'arme principale__")
+cardBer = effect("La balance berserk",'BerCard',CHARISMA,strength=3,resistance=3,emoji='<:balance:932399888422043739>')
+cardPlume = effect("La balance agile",'PoiCard',CHARISMA,strength=3,agility=3,emoji='<:balance:932399888422043739>')
+cardObs = effect("La flèche précise",'ObsCard',CHARISMA,strength=3,precision=3,emoji='<:fleche:932399905807433738>')
+cardTet = effect("La flèche bornée",'TetCard',CHARISMA,strength=3,magie=3,emoji='<:fleche:932399905807433738>')
+cardMag = effect("La tour magique",'MagCard',CHARISMA,magie=3,precision=3,emoji='<:tour:932399958936657921>')
+cardEnch = effect("La tour enchantée",'EncCard',CHARISMA,magie=3,resistance=3,emoji='<:tour:932399958936657921>')
+cardAlt = effect("Le tronc revifiant",'AltCard',CHARISMA,charisma=5,emoji='<:tronc:932399933724700763>')
+cardPre = effect("Le tronc résistant",'PreCard',CHARISMA,intelligence=5,emoji='<:tronc:932399933724700763>')
+cardIdo = effect("L'aiguilère attentionée",'IdoCard',CHARISMA,charisma=3,intelligence=3,emoji='<:aiguilere:932399946659921990>')
+cardPro = effect("L'aiguilère ponctuelle",'ProCard',CHARISMA,resistance=3,intelligence=3,emoji='<:aiguilere:932399946659921990>')
+cardInv = effect("L'épieu versatil",'InvCard',CHARISMA,charisma=2,intelligence=2,strength=2,magie=2,emoji='<:epieu:932399920873357382>')
+
+cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardInv,cardEnch,cardPro]
+
+astroGlobe = weapon("Globe céleste",'cy',RANGE_LONG,AREA_CIRCLE_5,40,80,1,charisma=7,intelligence=7,endurance=1,effect=cardsDeck,use=CHARISMA,emoji='<:globe:932399865110093884>')
+
+infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,strength=5,agility=10,effect=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
+infLightSword = weapon("Épée de la Lueur Éternelle","cx",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,resistance=5,charisma=10,effect=shareTabl[2],use=CHARISMA,emoji='<:lumSword:926874664175816735>')
 
 # Weapon
-weapons = [secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,
+weapons = [secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,infDarkSword,infLightSword,astroGlobe,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
     julieWeap,blueButterfly,butterflyRed,luth,krystalFist,musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]
 
 # Can't use weapon
-cannotUseMainWeapon = [secretum.id,ElitherScope.id,grav.id]
+cannotUseMainWeapon = [secretum.id,ElitherScope.id,grav.id,astroGlobe.id]
 
 # Find Weapon
 def findWeapon(WeaponId) -> weapon:
