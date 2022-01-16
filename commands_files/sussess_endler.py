@@ -80,7 +80,19 @@ maj16="""
         fullDarkHave      BOOLEAN DEFAULT (0),
         fullDarkCount     INTEGER DEFAULT (0),
         fratereHave      BOOLEAN DEFAULT (0),
-        fratereCount     INTEGER DEFAULT (0)
+        fratereCount     INTEGER DEFAULT (0),
+        lightHave     INTEGER DEFAULT (0),
+        lightCount     INTEGER DEFAULT (0),
+        dangerousHave     INTEGER DEFAULT (0),
+        dangerousCount     INTEGER DEFAULT (0),
+        looseHave     INTEGER DEFAULT (0),
+        looseCount     INTEGER DEFAULT (0),
+        stillHave     INTEGER DEFAULT (0),
+        stillCount     INTEGER DEFAULT (0),
+        dirtyHave     INTEGER DEFAULT (0),
+        dirtyCount     INTEGER DEFAULT (0),
+        delegationHave     INTEGER DEFAULT (0),
+        delegationCount     INTEGER DEFAULT (0)
     );
 
     INSERT INTO achivements (
@@ -152,7 +164,13 @@ maj16="""
                                 fullDarkHave,
                                 fullDarkCount,
                                 fratereHave,
-                                fratereCount
+                                fratereCount,
+                                lightHave,
+                                lightCount,
+                                dangerousHave,
+                                dangerousCount,
+                                looseHave,
+                                looseCount
                             )
                             SELECT id,
                                 aliceCount,
@@ -222,7 +240,13 @@ maj16="""
                                 fullDarkHave,
                                 fullDarkCount,
                                 fratereHave,
-                                fratereCount
+                                fratereCount,
+                                lightHave,
+                                lightCount,
+                                dangerousHave,
+                                dangerousCount,
+                                looseHave,
+                                looseCount
                             FROM sqlitestudio_temp_table;
 
     DROP TABLE sqlitestudio_temp_table;
@@ -289,12 +313,18 @@ class successTabl:
         self.liz = success("Hi no ai",10,"liz",description="Combattez Liz {0} fois",emoji='<:fireKitsune:917670925904785408>',recompense='zyz')
         self.head = success("À en perdre la tête",1,"ailill",description="???",emoji='<:blocked:897631107602841600>')
         self.lightNShadow = success("L'Ombre et la Lumière",1,"lightNShadow",description="Affrontez ou faites équipe avec simultanément Iliana et Luna (ou Shihu)",emoji="<:Iliana:926425844056985640><:luna:909047362868105227>")
-        self.fullDarkness = success("Ténèbres Eternels",1,"fullDark",description="Affrontez ou faites équipe avec simultanément Luna et Shihu",emoji='<:luna:909047362868105227><:shihu:909047672541945927>')
+        self.fullDarkness = success("Ténèbres Éternels",1,"fullDark",description="Affrontez ou faites équipe avec simultanément Luna et Shihu",emoji='<:luna:909047362868105227><:shihu:909047672541945927>',recompense="cw")
         self.fraticide = success("Feu allié",1,"fratere",description="???",emoji='<a:meeting2:760186427119501312><a:meeting1:760186398401232916>')
+        self.fullLight = success("Lumière Éternelle",25,"light",description="Faite équipe ou combattez Iliana {0} fois",emoji='<:Iliana:926425844056985640>',recompense='cx')
+        self.dangerousFight = success("Jeu dangereux",1,"dangerous",description="Gagner un combat en ayant 80% de résistance soins ou plus",emoji='<:healnt:903595333949464607>')
+        self.loosing = success("Toucher le fond",1,"loose",description="Perdre un combat avec le plus faible taux de danger possible")
+        self.still = success("You win by doing absolutly nothing",1,"still",description="Gagner un combat en passant tous vos tours",recompense='hga')
+        self.dirty = success("Main propre",5,"dirty",description="Gagner {0} combats en étant dans les 3 meilleurs DPT sans infliger de dégâts directs")
+        self.delegation = success("Laisser le sale boulot aux autres",1,"delegation",description="Terminer un combat en atant meilleur DPT mais en ayant réalisé aucune élimination")
 
     def tablAllSuccess(self):
         """Renvoie un tableau avec tous les objets success"""
-        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide]
+        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation  ]
 
     def where(self,where : str):
         alls = self.tablAllSuccess()
@@ -385,30 +415,18 @@ class succesDb:
         cursor = self.con.cursor()
 
         try:
-            cursor.execute("SELECT lightNShadowHave FROM achivements;")
+            cursor.execute("SELECT delegationCount FROM achivements;")
         except:
             temp = ""
-            try:
-                for a in maj16:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
+            for a in maj16:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
 
-                self.con.commit()
-                print("maj16 réalisée")
-            except:
-                temp = ""
-                for a in back:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
-
-                self.con.commit()
-                print("Sussess restauré")
+            self.con.commit()
+            print("maj16 réalisée")
 
         # Fin des majs
         cursor.close()
