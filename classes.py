@@ -3,6 +3,7 @@ base classes module
 Here are grouped up the bases classes of the bot, and some very basic functions
 """
 
+from tkinter import N
 import emoji,pathlib,copy,random
 from constantes import *
 from typing import List, Union
@@ -284,7 +285,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0):
+    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None):
         """rtfm"""
 
         self.name = name                                # Name of the skill
@@ -351,6 +352,8 @@ class skill:
         self.invocation = invocation
         self.message = message
 
+        self.useActionStats = useActionStats
+        
         if types==TYPE_PASSIVE:
             self.area=AREA_MONO
             self.range=AREA_MONO

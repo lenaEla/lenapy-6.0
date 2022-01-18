@@ -49,7 +49,6 @@ legendaryBoots = stuff("Bottes de Légende","jb",2,300,endurance=10,resistance=1
 purpleBasket = stuff("Baskets Violettes","jc",2,50,10,10,emoji='<:BasketViolette:871880746535620618>',orientation=[TANK,DPT_PHYS])
 camoHat = stuff("Casquette Camouflage","jd",0,50,15,precision=25,resistance=-10,magie=-10,emoji='<:camohat:878721916570058754>',orientation=[LONG_DIST,DPT_PHYS])
 blueFlat = stuff("Ballerines Bleues Marines","je",2,100,magie=10,resistance=10,endurance=10,strength=-10,emoji='<:blueflat:881209954902638602>',orientation=[DISTANCE,DPT_MAGIC])
-
 whiteHeels = stuff("Escarpins Blancs","jh",2,150,charisma=20,intelligence=10,negativeHeal=-20,resistance=-10,agility=-10,precision=-10,emoji='<:heelsWhite:881339137410609162>',orientation=[LONG_DIST,HEALER])
 blackHeels = stuff("Escarpins Noirs","ji",2,150,strength=20,percing=10,endurance=10,resistance=10,agility=-20,magie=-10,emoji='<:heelsBlack:881339167357935616>',orientation=[TANK,DPT_PHYS])
 heroHead = stuff("Casque Héroïque","jj",0,250,20,-10,percing=10,emoji='<:heroicheadset:881326928802496562>',orientation=[DISTANCE,DPT_PHYS])
@@ -317,7 +316,6 @@ darkbutbar = stuff("Barette du papillon noir","heu",0,1,strength=30,endurance=30
 purpleSnekers = stuff("Tennis Montantes Violettes","hev",2,100,magie=35,negativeIndirect=-35,negativeDirect=30,negativeShield=20,orientation=[DISTANCE,DPT_MAGIC],emoji='<:ptm:929854378460991559>')
 whiteSneakersLong = stuff("Tennis Montantes Blanches","hew",2,300,charisma=35,negativeHeal=-35,endurance=-10,precision=-10,negativeDirect=20,negativeShield=10,orientation=[DISTANCE,HEALER],emoji='<:wtm:929854357401391215>')
 blackBlueSnelers = stuff("Tennis Montantes Blues Marines","hex",2,100,endurance=25,magie=30,resistance=15,strength=-35,negativeBoost=15,orientation=[TANK,DPT_MAGIC],emoji='<:dbtm:929854396181905409>')
-
 lightBluebutterflysandals = stuff("Sandales du papillon azuré","hey",2,1,strength=35,precision=25,endurance=-20,negativeShield=20,orientation=[LONG_DIST,DPT_PHYS],emoji='<:sand:928203324984016926>')
 lightBluebutterflyshirt = stuff("T-shirt du papillon azuré","hez",1,1,strength=35,precision=25,negativeShield=20,endurance=-20,orientation=[LONG_DIST,DPT_PHYS],emoji="<:tslb:928203232864530474>")
 lightBlueChemVeste = stuff("Veste et robe du papillon azuré","hfa",1,1,strength=45,precision=35,percing=10,magie=-40,resistance=-10,endurance=-20,orientation=[LONG_DIST,DPT_PHYS],emoji='<:lbdvb:929854411822493736>')
@@ -337,12 +335,10 @@ chemAndJupeblack = stuff("Chemise et jupe noire","hfn",1,1,strength=30,endurance
 chemAndJupedarkblue = stuff("Chemise et jupe bleue marine","hfo",1,1,magie=30,endurance=20,resistance=20,strength=-25,negativeIndirect=25,orientation=[TANK,DPT_MAGIC],emoji="<:marine:928200543195758612>")
 chemAndJupegreen = stuff("Chemise et jupe verte","hfp",1,1,strength=25,endurance=10,resistance=15,agility=20,magie=-25,negativeIndirect=25,orientation=[TANK,DPT_PHYS],emoji='<:vert:928200434278100992>')
 chemAndJupelightBlue = stuff("Chemise et jupe azurée","hfq",1,1,strength=35,precision=25,percing=10,magie=-25,negativeIndirect=25,orientation=[DISTANCE,DPT_PHYS],emoji='<:azur:928200413314973696>')
-
 greenFlat = stuff("Ballerines Vertes","hfr",2,100,strength=10,endurance=5,resistance=5,agility=10,magie=-10,emoji='<:gflats:929857341153738773>',orientation=[TANK,DPT_PHYS])
 greenHeels = stuff("Escarpins Verts","hfs",2,150,strength=15,resistance=10,agility=15,endurance=10,magie=-10,negativeShield=20,emoji='<:greenHeels:928341010994593822>',orientation=[TANK,DPT_MAGIC])
 redFlat = stuff("Ballerines Rouges","jf",2,100,strength=10,magie=10,negativeDirect=-10,resistance=-10,emoji='<:redflat:881209970568364173>',orientation=[DISTANCE,DPT_PHYS])
 redHeels = stuff("Escarpins Rouges","jg",2,150,magie=20,percing=10,negativeDirect=-20,resistance=-10,agility=-10,endurance=-10,emoji='<:heelsRed:881339121795215410>',orientation=[LONG_DIST,DPT_MAGIC])
-
 summonerFoulard50 = stuff("Foulard du saboteur d'équipe","haf",0,1,strength=70,magie=70,charisma=70,intelligence=70,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn50H:922687630947258378>')
 summonerMenteau50 = stuff("Veste du saboteur d'équipe","hag",1,1,strength=70,precision=70,agility=70,magie=70,effect=summonerMalus,orientation="Invocateur",emoji='<:smn50B:922687735515455528>')
 summonerShoes50 = stuff("Bottes du saboteur d'équipe","hah",2,1,strength=70,endurance=70,charisma=20,intelligence=20,precision=20,agility=10,magie=70,effect=summonerMalus,orientation="Invocateur",emoji='<:smn50S:922687796613894204>')
@@ -355,9 +351,9 @@ summonerFoulard30 = stuff("Foulard du procrastinateur","hai",0,1,strength=50,mag
 summonerMenteau30 = stuff("Veste du procrastinateur","haj",1,1,strength=50,precision=50,agility=50,magie=50,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30B:922687718406905906>')
 summonerShoes30 = stuff("Bottes du procrastinateur","hak",2,1,strength=50,endurance=50,charisma=25,intelligence=25,magie=50,effect=summonerMalus,orientation="Invocateur",emoji='<:smn30S:922687772643450921>')
 summonerFoulard30.minLvl = summonerMenteau30.minLvl = summonerShoes30.minLvl = 30
-summonerFoulard20 = stuff("Foulard du paresseu","hfx",0,1,strength=40,magie=40,charisma=40,intelligence=40,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn10H:922687584377925633>')
-summonerMenteau20 = stuff("Veste du paresseu","hfy",1,1,strength=40,precision=40,agility=40,magie=40,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')
-summonerShoes20 = stuff("Bottes du paresseu","hfz",2,1,strength=40,endurance=40,magie=40,agility=20,precision=20,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10S:922687758772867103>')
+summonerFoulard20 = stuff("Foulard du flemmard","hfx",0,1,strength=40,magie=40,charisma=40,intelligence=40,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn10H:922687584377925633>')
+summonerMenteau20 = stuff("Veste du flemmard","hfy",1,1,strength=40,precision=40,agility=40,magie=40,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')
+summonerShoes20 = stuff("Bottes du flemmard","hfz",2,1,strength=40,endurance=40,magie=40,agility=20,precision=20,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10S:922687758772867103>')
 summonerFoulard20.minLvl = summonerMenteau20.minLvl = summonerShoes20.minLvl = 20
 summonerFoulard10 = stuff("Foulard de l'invocateur","hal",0,1,strength=30,magie=30,charisma=30,intelligence=30,effect=summonerMalus,orientation="Invocateur",position=foulard.position,emoji='<:smn10H:922687584377925633>')
 summonerMenteau10 = stuff("Veste de l'invocateur","ham",1,1,strength=30,precision=30,agility=30,magie=30,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')

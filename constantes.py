@@ -105,6 +105,13 @@ CRITICAL = 9
 PURCENTAGE = 11
 FIXE = 12
 HARMONIE = 13
+
+ACT_HEAL = 0
+ACT_BOOST = 1
+ACT_SHIELD = 2
+ACT_DIRECT = 3
+ACT_INDIRECT = 4
+
 AUTO_POWER = "autoPower"
 nameStats,nameStats2 = ["Force","Endurance","Charisme","Agilité","Précision","Intelligence","Magie"],["Résistance","Pénétration","Critique"]
 allStatsNames = nameStats+nameStats2
@@ -252,6 +259,7 @@ ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
 
 elemEmojis = ["<:neutral:921127224596385802>","<:fire:918212781168275456>","<:water:918212797320536124>","<:air:918592529480446002>","<:earth:918212824805801984>","<:light:918212861757653053>","<:darkness:918212877419175946>",'<:space:918212897967075329>','<:time:918212912408051814>']
+secElemEmojis = ["<:empty:866459463568850954>","<:secFeu:932941340612894760>","<:secEau:932941360858820618>","<:secAir:932941299559063573>","<:secTerre:932941317804273734>","<:secLum:932941251597201438>","<:secTen:932941234501222410>","<:secTempo:932941280785338389>","<:secAst:932941221331075092>"]
 elemDesc = [
     "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(elemEmojis[0]),
     "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\n__Passif Élément principal :__\nPénétration : + 5\nDégâts zones et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nSoins donnés et reçus : +5%\nArmures données et reçues : -5%".format(elemEmojis[1]),
@@ -341,7 +349,8 @@ shopRandomMsg = [
     "{lena} : \"Maintenant que j'y pense, vous avez pas vraiment été gaté en terme d'évolution vous autre\"\nDe la part de quelqu'un qui a un corps tellement fragile qu'elle ne peut pas survivre dans l'eau c'est plutôt ironique\n{lena} : \"Tu sais très bien ce que je veux dire\"",
     "{iliana} : \"Cl-Clméence... ? Hum... tu sais pourquoi ta soeur m'évite toi... ?\"\n{clemence} : \"Si tu parles d'Alice, elle a eu quelques porblèmes avec un chat quand elle était plus jeune donc elle en est un peu traumatisée\"\n{iliana} : \"Oh... la pauvre...\"",
     "{iliana} : \"Je... C'est ton droit de me détester mais... Je pourrais au moins savoir pourquoi... ?\"\n{iliana} : \"Lena... qu'est-ce que j'ai mal fait... ?\"\n{iliana} : \"L-Lena... m'ignore pas s'il te plaît...\"\n{iliana}  : \"... Désolée...\"",
-    "{sixtine} : \"Par curiosité Alice... tu as quoi comme info sur Iliana ?\"\n{alice} : \"Hum... Laisse moi voir... Tiens voilà\"\n\n[Feuille de papier froisée](https://docs.google.com/document/d/1SUVmdch_lQ-Ub_zoTJKOtxTkwZMqyLD8xrbCq8CTcDQ/edit?usp=drivesdk)\n\n{sixtine} : \"Même sur ça tu as fais d'efforts... ?\"\n{alice} : S-Sixtine ! Tu sais bien que je peux juste... pas..."
+    "{sixtine} : \"Par curiosité Alice... tu as quoi comme info sur Iliana ?\"\n{alice} : \"Hum... Laisse moi voir... Tiens voilà\"\n\n[Feuille de papier froisée](https://docs.google.com/document/d/1SUVmdch_lQ-Ub_zoTJKOtxTkwZMqyLD8xrbCq8CTcDQ/edit?usp=drivesdk)\n\n{sixtine} : \"Même sur ça tu as fais d'efforts... ?\"\n{alice} : S-Sixtine ! Tu sais bien que je peux juste... pas...",
+    "{luna} : \"Hum... Iliana ? Je peux te demander pourquoi tu restes toujours avec moi enfaite... ? Enfin... On représente chacune des éléments totalement opposés, j'ai détruit ta dimension native et passe mon temps à te rabaisser. Tu as toutes les raisons du monde pour me détester...\"\n{iliana} : `Saute des genoux de Luna en reprenant sa forme humaine puis se tourne face à elle` \"Il est vrai que je pourrais totalement te détester comme ton alter ego me déteste, mais honnements je crois que je suis trop stupide pour ça ^^ Et puis va pas me dire que tu me déteste aussi, sinon ça ferai un moment que je me serais prise des murs quand je monte sur tes genoux et tu me carresserais pas la tête quand je le fais. Et toi, pourquoi tu me déteste pas ?\"\n{luna} : \"Je heu... Bonne question...\""
 ]
 
 shopEventEndYears = [
@@ -654,7 +663,8 @@ sixtineSays = says(
 randomMaxDmg = [
     "Apparament, {icon} __{name}__ aurait réussi à infligé **{value}** dégâts en un seul combat, ce mois-ci ╮(︶▽︶)╭",
     "Hé tu sais quoi {icon} __{name}__ ? Ton record de dégâts mensuel en un seul combat est de **{value}**",
-    "Hum... le record de dégâts de {icon} __{name}__ est que de **{value}** ce mois-ci ? Pas ouf"
+    "Hum... le record de dégâts de {icon} __{name}__ est que de **{value}** ce mois-ci ? Pas ouf",
+    "Voyons voir... Ce mois-ci, {icon} __{name}__ a fait au maximum **{value}** en un combat"
 ]
 
 randomTotalDmg = [
@@ -740,6 +750,17 @@ randomMaxSupp = [
     "Taper c'est bien beau, mais sans {icon} __{name}__, vous n'auriez pas tapé énormément. Son record de Soutien mensuel est de **{value}**"
 ]
 
+aliceStatsNothingToShow = [
+    ["Hum... Il semblerait que personna dans ton équipe a fait de dégâts jusqu'à présent ?"],
+    ["Hé bah, ça vole pas haut niveau élimiation chez vous..."],
+    ["On a qu'une seule vie comme on dit. Enfin particulièrement chez vous, où personne a réanimé personne","Conseil d'amie : Vous feriez mieux d'avoir quelqu'un qui puisse réanimer dans votre équipe, et pas toujours vous reposer sur nous pour vous sauver le postérieur"],
+    ["Vous avez vraiment réussi à subir aucuns dégâts jusqu'à là ?"],
+    ["Faut croire que vous aimer vous faire maraver la figure, personne a soigné personne dans votre équipe"],
+    ["Vous savez qu'avoir un peu d'armure peu pas vous faire de mal, hein ?"],
+    ["Je sais que le role de Support n'est pas particulièrement attractif, mais bon il reste quand même utile d'en avoir un"]
+]
+
+
 clemPosSays = says(
     start = "Encore des chasseurs de vamires ? J'en ai ma claque des gens de votre genre.",
     onKill = "Un de plus, un de moins. Quelle importance",
@@ -765,3 +786,18 @@ def createTmpChangeDict(level : int, changeWhat : int, change : list, to : list,
         raise AttributeError("Proba < 1")
 
     return {"level":level,"changeWhat":changeWhat,"change":change,"to":to,"proba":proba}
+
+# ["Berserkeur","Observateur","Poids plume","Idole","Prévoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
+limitBeakGif = [
+    'https://cdn.discordapp.com/attachments/927195778517184534/932778559150391366/20220118_002840.gif', # Ber
+    'https://cdn.discordapp.com/attachments/927195778517184534/932775385043709952/20220118_001608.gif', # Obs
+    'https://cdn.discordapp.com/attachments/927195778517184534/932774912391782490/20220118_001411.gif', # PPlu
+    'https://cdn.discordapp.com/attachments/927195778517184534/932776578058965102/20220118_002049.gif', # Ido
+    'https://cdn.discordapp.com/attachments/927195778517184534/932778559502700594/20220118_002719.gif', # Pré
+    'https://cdn.discordapp.com/attachments/927195778517184534/932777330605178920/20220118_002344.gif', # TBru
+    'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif', # Mage
+    'https://cdn.discordapp.com/attachments/927195778517184534/932773655342104606/20220118_000858.gif', # Alt
+    'https://cdn.discordapp.com/attachments/927195778517184534/932704180731265054/20220117_193200.gif', # Inv
+    'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif', # Enc
+    'https://cdn.discordapp.com/attachments/927195778517184534/932777330978488391/20220118_002225.gif'  # Pro
+]

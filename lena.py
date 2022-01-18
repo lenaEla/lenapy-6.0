@@ -789,14 +789,35 @@ async def normal(ctx):
             await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
             teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
 
-    elif fun < 11:              # Clem Procu Fight
-        ent = copy.deepcopy(findAllie("Clémence Exaltée"))
-        team1.sort(key=lambda clemency: clemency.level, reverse=True)
-        level = team1[0].level+65+random.randint(0,10)
-        ent.changeLevel(level)
+    elif fun < 14:              # Clem Procu Fight
+        if random.randint(0,99) < 50:
+            ent = copy.deepcopy(findAllie("Clémence Exaltée"))
+            team1.sort(key=lambda clemency: clemency.level, reverse=True)
+            level = team1[0].level+65+random.randint(0,10)
+            ent.changeLevel(level)
 
-        miniStuff = stuff("Rune",'clemRune',0,0,endurance=level,charisma=0,agility=level//2,precision=int(level*0.3),intelligence=level//10,magie=level*2,resistance=min(level//5,35),emoji=clemEarRings.emoji)
-        ent.stuff = [miniStuff, miniStuff, miniStuff]
+            miniStuff = stuff("Rune",'clemRune',0,0,endurance=level,charisma=0,agility=level//2,precision=int(level*0.3),intelligence=level//10,magie=level*2,resistance=min(level//5,35),emoji=clemEarRings.emoji)
+            ent.stuff = [miniStuff, miniStuff, miniStuff]
+        else:
+            ent = copy.deepcopy(findEnnemi("Luna prê."))
+            team1.sort(key=lambda clemency: clemency.level, reverse=True)
+            level = team1[0].level+100+random.randint(0,20)
+
+            miniStuffHead = stuff("Boucle d'oreille ombrale",'lunaDarkPendant',0,0,endurance=int(level*0.3),agility=level,precision=int(level*0.3),strength=level*2,resistance=min(level//5,30),percing=10,emoji=darkMaidPendants.emoji)
+            miniStuffDress = stuff("Robe de soubrette ombrale ombrale",'lunaDarkMaidDress',0,0,endurance=int(level*0.7),agility=level,precision=int(level*0.5),strength=int(level*2.5),percing=15,resistance=min(level//5,40),emoji=darkMaidDress.emoji)
+            miniStuffFlats = stuff("Ballerines ombrales",'lunaDarkFlats',0,0,endurance=int(level*0.3),agility=int(level*1.3),precision=int(level*0.3),strength=level*2,resistance=min(level//5,30),percing=10,emoji=darkMaidFlats.emoji)
+
+            ent = tmpAllie(ent.name,1,black,ent.aspiration,ent.weapon,[miniStuffHead,miniStuffDress,miniStuffFlats],GENDER_FEMALE,ent.skills,element=ent.element,icon=ent.icon,deadIcon=ent.deadIcon,bonusPoints=[STRENGTH,AGILITY])
+            ent.changeLevel(level)
+
+            ent.says = says(
+                start = "C'est votre dernière chance de prendre la poudre d'escampette.",
+                onKill = "Quoi tu es surpris ? C'est pas faute d'avoir prévenu pourtant.",
+                blueWinAlive = "Pas la peine de revenir me faire chier, le résulta sera le même",
+                reactBigRaiseEnnemy= "Vous me faites une fleur vous savez, que vais pouvoir vous maraver la gueule une seconde fois sans ménagement",
+                blockBigAttack = "Chaton, c'est pas à toi de le faire d'habitude ?"
+            )
+
         try:
             await fight(bot,[ent],[],ctx,False,procurFight=True)
         except:
@@ -1308,28 +1329,32 @@ async def teamFact(ctx):
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
         pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
+    
+    teamUser = []
 
-    if user.team != "0":
+    if user.team != 0:
         team = readSaveFiles(pathTeam)
-        teamUser = []
         for a in team[0]:
             teamUser.append(loadCharFile(absPath + "/userProfile/" + str(a) + ".prof"))
 
-        button = create_actionrow(create_button(ButtonStyle.grey,"Autre fact","🔄","🔄"))
-        msg = None
+    else:
+        teamUser.append(user)
+    
+    button = create_actionrow(create_button(ButtonStyle.grey,"Autre fact","🔄","🔄"))
+    msg = None
 
-        while 1:
-            embed = await getRandomStatsEmbed(bot,teamUser,"/team fact")
-            if msg == None:
-                msg = await ctx.send(embed= embed,components=[button])
-            else:
-                await msg.edit(embed= embed,components=[button])
+    while 1:
+        embed = await getRandomStatsEmbed(bot,teamUser,"/team fact")
+        if msg == None:
+            msg = await ctx.send(embed= embed,components=[button])
+        else:
+            await msg.edit(embed= embed,components=[button])
 
-            try:
-                await wait_for_component(bot,msg,timeout=60)
-            except:
-                await msg.edit(embed= embed,components=[])
-                break
+        try:
+            await wait_for_component(bot,msg,timeout=60)
+        except:
+            await msg.edit(embed= embed,components=[])
+            break
 
 # -------------------------------------------- HELP --------------------------------------------
 @slash.slash(name="help",description="Ouvre la page d'aide du bot")

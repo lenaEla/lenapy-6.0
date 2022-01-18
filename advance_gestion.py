@@ -246,12 +246,9 @@ def visuArea(area : int, wanted,ranged=True) -> list:
 
     return temp
 
-def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False) -> discord.Embed:
+def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False, txt:str = "") -> discord.Embed:
     effTmp,boucle,iteration,fieldname ="",True,False,"__Effet :__"
     eff = findEffect(effId)
-
-    if eff.id == lunaSkill5_3_eff.id:
-        fieldname = "**__Effet sur la cible :__** ({0})".format(lunaSkill5_3.name)
 
     while boucle:
         eff = findEffect(effId)
@@ -273,8 +270,6 @@ def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False) 
         Powa = ""
         if eff.power > 0:
             Powa = "\n__Puissance :__ "+str(max(eff.power,eff.overhealth))
-        if eff.id == lunaSkill4Eff.id:
-            Powa += "\n__Puissance alternative :__ "+str(lunaSkill4EffAlt.power)
 
         cumu = ""
         if eff.stackable:
@@ -336,7 +331,7 @@ def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False) 
             break
         else:
             if not(self):
-                embed.add_field(name = fieldname,value = effTmp,inline = False)
+                embed.add_field(name = "<:empty:866459463568850954>\n" + fieldname + txt,value = effTmp,inline = False)
             else:
                 embed.add_field(name = "<:empty:866459463568850954>\n**__Effet sur soi :__**",value = effTmp,inline = False)
 
@@ -348,8 +343,6 @@ def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False) 
                 elif eff.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]:
                     embed.add_field(name = "__Zone d'effet :__",value=visuArea(eff.area,wanted=ENNEMIS,ranged=False))
 
-                if eff.id == lunaSkill4Eff.id:
-                    embed.add_field(name = "__Zone d'effet alternative :__",value=visuArea(AREA_MONO,wanted=ENNEMIS,ranged=False))
             break
 
     return embed
@@ -464,7 +457,7 @@ def infoSkill(skill : skill, user : char,ctx):
 
 
         if skil.use not in [None,HARMONIE]:
-            temp += f"\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
+            temp += f"\n\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
         elif skil.use == None:
             temp += f"\nCette compétence inflige un montant **fixe** de dégâts"
         elif skil.use == HARMONIE:
@@ -476,7 +469,7 @@ def infoSkill(skill : skill, user : char,ctx):
         if skil.description != None:
             temp += "\n\n__Description :__\n"+skil.description+"\n"
 
-        temp+="\n__Zone d'effet :__ {0}\n".format(areaNames[skil.area])
+        temp+="\n__Zone d'effet :__ {0}".format(areaNames[skil.area])
 
         if skil.id.startswith("clem") or skil.id.startswith("alice"):
             for skillID, cost in clemBJcost.items():
@@ -486,7 +479,7 @@ def infoSkill(skill : skill, user : char,ctx):
         if skil.type in [TYPE_HEAL,TYPE_RESURECTION]:
             temp+="\n__Puissance :__ {0}".format(skil.power)
             if skil.use not in [None,HARMONIE]:
-                temp += f"\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
+                temp += f"\n\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
             elif skil.use == None:
                 temp += f"\nCette compétence soigne d'un montant **fixe** de PV"
             elif skil.use == HARMONIE:
@@ -519,6 +512,8 @@ def infoSkill(skill : skill, user : char,ctx):
     if skil.initCooldown > 1 and skil.type != TYPE_PASSIVE:
         temp+=f"\nCette compétence ne peut pas être utilisée avant le tour {skil.initCooldown}"
 
+    if skil.useActionStats != None:
+        temp += "\nCette compétence utilise la statistiques d'action **{0}**".format(["Soins","Bonus et Malus","Armures et Mitigeation",'Dégâts Directs',"Dégâts Indirects"][skil.useActionStats])
     if skil.condition != []:
         temp += "\nCette compétence "
         if skil.condition[0] == 0:
@@ -579,7 +574,7 @@ def infoSkill(skill : skill, user : char,ctx):
                     allreadyAdd = True
                 temp+="\n__{1}__ repousse la cible de **{0}** case{2}".format(becomeName.knockback,becomeName.name,["","s"][becomeName.knockback > 1])
 
-    repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n__Statistiques :__\n"+temp)
+    repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n\n__Statistiques :__\n"+temp)
     if skil.emoji[1] == "a":
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
     else:
@@ -587,55 +582,23 @@ def infoSkill(skill : skill, user : char,ctx):
 
     if skil.become == None:
         if skil.range not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
-            ballerine, babie = [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
-            for a in ballerine:
-                if a == skil.type:
-                    repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ALLIES))
-                    break
+            repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=[ALLIES,ENNEMIS][skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]))
 
-            for a in babie:
-                if a == skil.type:
-                    repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=ENNEMIS))
-                    break
-
-        if skil.area not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
-            if skil.type in [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL]:
-                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ALLIES,ranged=False))
-
-            elif skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]:
-                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=ENNEMIS,ranged=False))
-
-            if skil.id == lunaSkill4.id:
-                repEmb.add_field(name = "__Zone d'effet alternative :__",value=visuArea(AREA_CIRCLE_2,wanted=ENNEMIS,ranged=False))
+        elif skil.area not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
+            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=[ALLIES,ENNEMIS][skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
 
     else:
-        listArea,listName = [],[]
+        listRange,listRangeName,listArea,listName = [],[],[],[]
         for become in skil.become:
-            if become.range not in listArea:
-                listArea.append(become.range)
-                listName.append([become.name])
+            if become.range not in listRange:
+                listRange.append(become.range)
+                listRangeName.append([become.name])
             else:
-                for cmpt in range(len(listArea)):
-                    if listArea[cmpt] == become.range:
-                        listName[cmpt].append(become.name)
+                for cmpt in range(len(listRange)):
+                    if listRange[cmpt] == become.range:
+                        listRangeName[cmpt].append(become.name)
                         break
-        
-        if len(listArea) == 1:
-            repEmb.add_field(name = "__Portée :__",value=visuArea(listArea[0],wanted=ENNEMIS))
-        else:
-            for cmpt in range(len(listArea)):
-                temporis = "__Portée :__\n("
-                for name in range(len(listName[cmpt])):
-                    temporis += listName[cmpt][name]
-                    if name != len(listName[cmpt]) - 1:
-                        temporis += ",\n"
-                    else:
-                        temporis += ")"
 
-                repEmb.add_field(name = temporis,value=visuArea(listArea[cmpt],wanted=ENNEMIS))
-
-        listArea,listName = [],[]
-        for become in skil.become:
             if become.area not in listArea:
                 listArea.append(become.area)
                 listName.append([become.name])
@@ -644,9 +607,23 @@ def infoSkill(skill : skill, user : char,ctx):
                     if listArea[cmpt] == become.area:
                         listName[cmpt].append(become.name)
                         break
-        
+
+        if len(listRange) == 1:
+            repEmb.add_field(name = "__Portée :__",value=visuArea(listRange[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]),inline= len(listRange) == len(listArea) == 0 or len(listRange) > 1)
+        else:
+            for cmpt in range(len(listRange)):
+                temporis = "__Portée :__\n("
+                for name in range(len(listRangeName[cmpt])):
+                    temporis += listRangeName[cmpt][name]
+                    if name != len(listRangeName[cmpt]) - 1:
+                        temporis += ",\n"
+                    else:
+                        temporis += ")"
+
+                repEmb.add_field(name = temporis,value=visuArea(listRange[cmpt],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]))
+
         if len(listArea) == 1:
-            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0],wanted=ENNEMIS,ranged=False))
+            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
         elif len(listArea) != 0:
             for cmpt in range(len(listArea)):
                 if listArea[cmpt] != AREA_MONO:
@@ -658,11 +635,29 @@ def infoSkill(skill : skill, user : char,ctx):
                         else:
                             temporis += ")"
 
-                    repEmb.add_field(name = temporis,value=visuArea(listArea[cmpt],wanted=ENNEMIS,ranged=False))
+                    repEmb.add_field(name = temporis,value=visuArea(listArea[cmpt],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
 
     if skil.effect != [None]:
+        allReadySeen, effToSee = [], []
         for a in skil.effect:
-            repEmb = infoEffect(a,user,repEmb,ctx)
+            eff = findEffect(a)
+            if eff not in allReadySeen:
+                allReadySeen.append(eff)
+                effToSee.append(1)
+            else:
+                for cmpt in range(len(effToSee)):
+                    if allReadySeen[cmpt].id == eff.id:
+                        effToSee[cmpt] += 1
+
+        for a in range(len(allReadySeen)):
+            txt = [""," x{0}".format(effToSee[a])][effToSee[a]>1]
+            repEmb = infoEffect(allReadySeen[a],user,repEmb,ctx,txt=txt)
+
+    if skil.become != None:
+        for skilly in skil.become:
+            if skilly.effect != [None]:
+                for eff in skilly.effect:
+                    repEmb = infoEffect(findEffect(eff),user,repEmb,ctx,txt=" ({0})".format(skilly.name))
 
     if skil.effectOnSelf != None:
         repEmb = infoEffect(skil.effectOnSelf,user,repEmb,ctx,True)
@@ -1311,9 +1306,8 @@ async def makeCustomIcon(bot : discord.Client, user : char):
 
     # Collage de l'élément
     if user.level >= 30:
-        element = Image.open("./data/images/elemIcon/"+getEmojiObject(elemEmojis[user.secElement])["name"]+".png")
-        element = element.resize((int(element.size[0]*0.7),int(element.size[1]*0.7)))
-        background.paste(element,(30,110),element)
+        element = Image.open("./data/images/elemIcon/"+getEmojiObject(secElemEmojis[user.secElement])["name"]+".png")
+        background.paste(element,(0,90),element)
         element.close()
 
     element = Image.open("./data/images/elemIcon/"+getEmojiObject(elemEmojis[user.element])["name"]+".png")
@@ -1574,12 +1568,12 @@ def getAutoStuff(object: stuff, user: char):
             return [bbandeau,bshirt,bshoes][object.type]
 
 async def downloadElementIcon(bot : discord.Client):
-    listEmojiHead = elemEmojis
+    listEmojiHead = elemEmojis+secElemEmojis
     listDir = os.listdir("./data/images/elemIcon/")
     for b in range(len(listEmojiHead)):
         emojiObject = getEmojiInfo(listEmojiHead[b])
         if emojiObject[0] + ".png" not in listDir:
-            guildStuff = [615257372218097691]
+            guildStuff = [615257372218097691,932941135276560455,862320563590529056]
 
             emoji_2 = None
             for c in guildStuff:
@@ -1601,7 +1595,7 @@ async def downloadElementIcon(bot : discord.Client):
                 print(emojiObject[0] + " non trouvé")
 
 async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], text = "Chargement..."):
-    desc = ""
+    desc = "<:alice:908902054959939664> :\n\""
     whatRandomStat = random.randint(0,len(tablAdd)-1)
     randomStat = tablAdd[whatRandomStat]
     rdm2 = ["max","total"][random.randint(0,1)]
@@ -1625,9 +1619,9 @@ async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], te
             msgMax = [randomTotalDmg,randomTotalKill,randomTotalRes,randomTotalTank,randomTotalHeal,randomTotalArmor,randomTotalSupp]
         
         try:
-            desc = msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=separeUnit(int(choisen["value"])),name=choisen["name"])
+            desc += msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=separeUnit(int(choisen["value"])),name=choisen["name"])
         except:
-            desc = "placeholder.error.unknow"
+            desc += "placeholder.error.unknow"
 
         biggest = random.randint(0,4)
         if biggest < 2:
@@ -1649,5 +1643,6 @@ async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], te
                 desc += "\n\n"+randomPurcenMsg[random.randint(0,len(randomPurcenMsg)-1)].format(purcent=int(choisen["value"]/summation*100))
 
     else:
-        desc = "placeholder.error.nothingtoshow.{0}".format(randomStat)
-    return discord.Embed(title="__{0}__\n<:alice:908902054959939664> :".format(text),color=aliceColor,description="\""+desc+"\"")
+        rand = [0,len(aliceStatsNothingToShow[whatRandomStat])-1][len(aliceStatsNothingToShow[whatRandomStat])>1]
+        desc += aliceStatsNothingToShow[whatRandomStat][rand]
+    return discord.Embed(title="__{0}__".format(text),color=aliceColor,description=desc+"\"")
