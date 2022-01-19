@@ -3,7 +3,6 @@ base classes module
 Here are grouped up the bases classes of the bot, and some very basic functions
 """
 
-from tkinter import N
 import emoji,pathlib,copy,random
 from constantes import *
 from typing import List, Union
@@ -839,9 +838,15 @@ class octarien:
         """Change the level of the ennmy and adjust his stats and skills in consequence\n
         It's very recommanded to do than on a copy of the ennemy"""
         self.level = level
-        stats = copy.deepcopy(self.allStats())
+        stats, cmpt = copy.deepcopy(self.allStats()),0
+        for a in lvlToUnlockSkill:
+            if self.level <= a:
+                cmpt += 1
+
+        skillCountMul = 0.5 + (0.5*(cmpt/7))
+
         for a in range(0,len(stats)):
-            stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50)
+            stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50*skillCountMul)
 
         if level > 50:
             tempStats = copy.deepcopy(self.allStats())

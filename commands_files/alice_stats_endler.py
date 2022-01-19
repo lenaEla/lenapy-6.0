@@ -568,8 +568,11 @@ class aliceStatsdbEndler:
                 if a != tablAdd[-1]:
                     temp += ", "
             cursory.execute("UPDATE userStats SET {0};".format(temp))
+            self.con.commit()
+            cursory.close()
             return "Opération réussie"
         except:
+            cursory.close()
             return format_exc()
 
 aliceStatsDb = aliceStatsdbEndler()

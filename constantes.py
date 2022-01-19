@@ -366,7 +366,10 @@ shopEventEndYears = [
 shopEventLenaBday = [
     "{shushi} : \"Joyeux naniversaire Miman !\" `Lui donne un joli dessin fait avec Sixtine`\n{lena} : \"Oh ^^ Merci Shu'\"",
     "{lena} : \"Hé Léna ! J'ai le droit à un jour de congé pour mon anniversaire ?\"\nC'est pas comme si tu étais un OC super occupée...",
-    "{feli} : \"Joyeux anniversaire Maraine ^°^\"\n{lena} : \"Merci Féli ^^\""
+    "{feli} : \"Joyeux anniversaire Maraine ^°^\"\n{lena} : \"Merci Féli ^^\"",
+    "{lena} : \"Le temps passe mine de rien... Et c'est pas parceque je n'ai pas de forme physique que je ne le ressent pas\"\nSi je peux me permettre, tu as quand même grandit depuis ton premier chara-desing\n{lena} : \"Tu me fais toujours de la même taille qu'Alice par contre.\"",
+    "{lena} : `Regarde Shushi courir après des ballons de baudruche` \"Parfois je me demande à quoi ressemble une vraie enfance...\"\nTu n'en a pas eu une super désagréable pourtant\n{lena} : `Soupir` \"Tu sais très bien que la seule enfance que j'ai ce sont les souvenirs que tu m'en a donné\"",
+    "{lena} : \"J'aurais pensé que tu te ferais plus présente aujourd'hui tout de même. Techniquement, c'est ton anniversaie aussi\"\n{luna} : \"Je comprend pas vraiment ce délire des \"anniversaires\"\""
 ]
 
 shopEventPaques = [
@@ -415,7 +418,7 @@ randChooseMsg = [
 
 class says:
     """A class for storing the says message from a entity"""
-    def __init__(self,start=None,ultimate=None,limiteBreak=None,onKill=None,onDeath=None,onResurect=None,blueWinAlive=None,blueWinDead=None,blueLoose=None,redWinAlive=None,redWinDead=None,redLoose=None,blockBigAttack=None,reactBigRaiseAllie=None,reactBigRaiseEnnemy=None,bigRaise=None):
+    def __init__(self,start=None,ultimate=None,limiteBreak=None,onKill=None,onDeath=None,onResurect=None,blueWinAlive=None,blueWinDead=None,blueLoose=None,redWinAlive=None,redWinDead=None,redLoose=None,blockBigAttack=None,reactBigRaiseAllie=None,reactBigRaiseEnnemy=None,bigRaise=None,reactEnnemyKilled=None,reactAllyKilled=None):
         self.start = start
         self.ultimate = ultimate
         self.limiteBreak = limiteBreak
@@ -432,6 +435,8 @@ class says:
         self.reactBigRaiseAllie = reactBigRaiseAllie
         self.reactBigRaiseEnnemy = reactBigRaiseEnnemy
         self.bigRaise = bigRaise
+        self.reactEnnemyKilled = reactEnnemyKilled
+        self.reactAllyKilled = reactAllyKilled
 
     def tabl(self):
         return [
@@ -450,7 +455,9 @@ class says:
             self.blockBigAttack,
             self.reactBigRaiseAllie,
             self.reactBigRaiseEnnemy,
-            self.bigRaise
+            self.bigRaise,
+            self.reactEnnemyKilled,
+            self.reactAllyKilled
             ]
 
     def fromTabl(self,tabl : list):
@@ -470,21 +477,26 @@ class says:
         self.reactBigRaiseAllie = tabl[13]
         self.reactBigRaiseEnnemy = tabl[14]
         self.bigRaise = tabl[15]
+        self.reactEnnemyKilled = tabl[16]
+        self.reactAllyKilled = tabl[17]
 
         return self
 
 lenaSays = says(
-    start= "Ok, voyons voir ce que vous avez dans le ventre",
-    ultimate= "Qu'est-ce que tu dis de ça, {target} ?",
+    start= "Lena, parée à faire feu.",
+    ultimate= "Hey {target} ! J'ai un {skill} avec ton nom dessus !",
     limiteBreak= "It's now or never ! {skill} !",
     onDeath= "Tps.",
-    onResurect= "J'te revaudrais ça",
+    onResurect= "J'te revaudrais ça {caster}",
     blueWinAlive= "Une victoire en bonne uniforme",
     redWinAlive= "Vous avez encore des progrès à faire",
     redWinDead="Pas mal. Mais pas suffisant",
-    redLoose="Vous commencez à bien vous débrouiller",
+    redLoose="Ahah, pas trop mal cette fois-ci. Mais ce n'était qu'un entrainement",
     reactBigRaiseAllie="Bien joué {caster}",
-    reactBigRaiseEnnemy="Je dois avouer qu'il était pas mal celui-là"
+    reactBigRaiseEnnemy="Je dois avouer qu'il était pas mal celui-là. Je suppose que j'ai qu'à donner le meilleur de moi-même de nouveau",
+    reactEnnemyKilled="Pas trop mal {killer}",
+    reactAllyKilled="T'en fais pas {downed}, je m'en charge.",
+    blockBigAttack="Hé Luna ! Un brisage de l'Espace Temps ça te dis ?\"*\n<:luna:909047362868105227> : \*\"C'est pas déjà ce que l'on était en train de faire ?"
 )
 
 aliceSays = says(

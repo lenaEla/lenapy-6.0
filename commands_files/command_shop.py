@@ -40,14 +40,14 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
         dateNow = datetime.datetime.now()
         years = dateNow.year
 
-        if dateNow > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
+        if dateNow > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
             shopTotalRandom += shopEventEndYears + shopEventEndYears
-        elif dateNow > datetime.datetime.strptime("19/1/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("20/1/{0}".format(years),"%d/%m/%Y"):
-            shopTotalRandom += shopEventLenaBday + shopEventLenaBday
-        elif dateNow > datetime.datetime.strptime("17/4/{0}".format(years),"%d/%m/%Y") and datetime.datetime.now() < datetime.datetime.strptime("18/4/{0}".format(years),"%d/%m/%Y"):
-            shopTotalRandom += shopEventPaques + shopEventPaques
+        elif (dateNow.day,dateNow.month) == (19,1):
+            shopTotalRandom = shopEventLenaBday
+        elif dateNow > datetime.datetime.strptime("17/4/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.datetime.strptime("18/4/{0}".format(years),"%d/%m/%Y"):
+            shopTotalRandom = shopEventPaques
 
-        if dateNow.month <= 2 or dateNow.month == 12:
+        elif dateNow.month <= 2 or dateNow.month == 12:
             shopTotalRandom += shopSeasonWinter
 
         shopRdMsg = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)].format(
@@ -68,19 +68,18 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
         initMsg = msg
 
         if user.team != 0:
-            teamList = readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")[0]
-            buttonGift = create_button(3,"Offrir",emoji='🎁',custom_id="1")
-            buttonAllGift = create_button(3,"Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2")
-
+            teamList = userTeamDb.getTeamMember(user.team)
         else:
-            buttonGift = create_button(3,"Offrir",emoji='🎁',custom_id="1",disabled=True)
-            buttonAllGift = create_button(3,"Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2",disabled=True)
-        
+            teamList = [user.owner]
+
+        buttonGift = create_button(3,"Offrir",emoji='🎁',custom_id="1",disabled=len(teamList) > 1)
+        buttonAllGift = create_button(3,"Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2",disabled=len(teamList) > 1)
+
         allButtons = create_actionrow(buttonReturn,buttonBuy,buttonGift,buttonAllGift)
         buttonsWithoutBuy = create_actionrow(buttonReturn,buttonGift,buttonAllGift)
         while 1: 
             # Loading the user's team
-            if user.team != 0:
+            if len(teamList) > 1:
                 teamMember = []
                 for a in teamList:
                     if a != int(ctx.author.id):
@@ -120,7 +119,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             listNotHave.append(b)
                             totalCost += b.price
                         
-                        if user.team != 0:
+                        if len(teamList) > 1:
                             allTeamHave = True
                             for c in teamMember:
                                 if not(c.have(b)):
@@ -157,7 +156,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             if user.have(b):
                                 icon = " (☑️)"
 
-                            if user.team != 0:
+                            if len(teamList) > 1:
                                 allTeamHave = True
                                 for c in teamMember:
                                     if not(c.have(b)):
@@ -239,7 +238,9 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             elif user.currencies >= totalCost:
                 temp1 = allBuyButton
 
-            if user.team == 0 or totalTeamCost > user.currencies:
+            if len(teamList) <= 1:
+                temp2 = create_button(ButtonStyle.gray,"Vous n'avez pas d'amis",getEmojiObject('<:teamBought:906621631143743538>'),"buy'n'send all",disabled=True)
+            elif totalTeamCost > user.currencies:
                 temp2 = allGiveButtonButPoor
             elif totalTeamCost == 0:
                 temp2 = [allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF,allGiveButtonButAllreadyHaveM][user.gender]

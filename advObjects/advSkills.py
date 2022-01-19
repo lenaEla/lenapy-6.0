@@ -361,7 +361,7 @@ calestJump = skill("Plongeon Céleste",'sva',TYPE_DAMAGE,750,75,range=AREA_DIST_
 lohicaUltLauch = skill("Brûme empoisonée","suz",TYPE_INDIRECT_DAMAGE,750,area=AREA_CIRCLE_2,use=MAGIE,tpCac=True,effect="me",effPowerPurcent=85,cooldown=7,ultimate=True,emoji='<:brume:931908895083991100>')
 lohicaUltCastEff = effect("Cast - Brûme empoisnée","lohicaUltCastEff",turnInit=2,silent=True,replique=lohicaUltLauch,emoji=uniqueEmoji('<a:lohicaUltCast:932823354841399296>'))
 lohicaUltCast = copy.deepcopy(lohicaUltLauch)
-lohicaUltCast.effectOnSelf, lohicaUltCast.effect = lohicaUltCastEff, []
+lohicaUltCast.effectOnSelf, lohicaUltCast.effect, lohicaUltCast.tpCac = lohicaUltCastEff, [None], False
 fairyFligth = skill("Envolée féérique",'suy',TYPE_DAMAGE,500,65,range=AREA_CIRCLE_1,jumpBack=2,knockback=1,cooldown=5)
 
 aliceDanceEff = effect("En rythme !",'aliceDanceEff',CHARISMA,strength=7,magie=7,description="\"Tous avec moi !\"",emoji=sameSpeciesEmoji('<:dyB:932618243280085062>','<:dyR:932618257960161331>'))
@@ -377,8 +377,8 @@ auroreEff = effect("Aurore",'auroreEff',CHARISMA,strength=5,magie=5,turnInit=3)
 aurore = skill('Aurore','sux',TYPE_BOOST,500,effect=auroreEff,use=CHARISMA,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","element",ELEMENT_LIGHT])
 crepEff = effect("Crépuscule",'crepEff',INTELLIGENCE,strength=-5,magie=-5,turnInit=3)
 crep = skill('Crépuscule','suw',TYPE_MALUS,500,effect=crepEff,use=INTELLIGENCE,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","secElem",ELEMENT_DARKNESS])
-toMelee = skill('Corps à corps','suv',TYPE_DAMAGE,350,25,tpCac=True,cooldown=3,emoji='<:cac:932765903102291999>',replay=True)
-toDistance = skill('Déplacement','suu',TYPE_DAMAGE,350,25,AREA_CIRCLE_2,cooldown=3,jumpBack=2,emoji='<:dep:932765889017839636>',replay=True)
+toMelee = skill('Corps à corps','suv',TYPE_DAMAGE,350,25,tpCac=True,cooldown=3,emoji='<:cac:932765903102291999>',replay=True,range=AREA_CIRCLE_3)
+toDistance = skill('Déplacement','suu',TYPE_DAMAGE,350,25,AREA_INLINE_2,cooldown=3,jumpBack=2,emoji='<:dep:932765889017839636>',replay=True)
 
 # Skill
 skills = [toMelee,toDistance,

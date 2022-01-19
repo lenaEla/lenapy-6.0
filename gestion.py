@@ -1,4 +1,5 @@
 import os,discord,random,sqlite3
+from traceback import print_exc
 from typing import Union
 import discord_slash
 from classes import *
@@ -8,6 +9,265 @@ from adv import findWeapon,findOther,findSkill,findStuff
 """
 Main functions module
 """
+
+initTm = """
+    CREATE TABLE userTeams (
+        teamId      INTEGER PRIMARY KEY
+                            NOT NULL
+                            UNIQUE,
+        teamMember0 INTEGER DEFAULT 0,
+        teamMember1 INTEGER DEFAULT 0,
+        teamMember2 INTEGER DEFAULT 0,
+        teamMember3 INTEGER DEFAULT 0,
+        teamMember4 INTEGER DEFAULT 0,
+        teamMember5 INTEGER DEFAULT 0,
+        teamMember6 INTEGER DEFAULT 0,
+        teamMember7 INTEGER DEFAULT 0
+    );"""
+
+userSettingsInterCatNames = ["start","ultimate","limiteBreak","onKill","onDeath","onResurect","blueWinAlive","blueWinDead","blueLoose","redWinAlive","redWinDead","redLoose","blockBigAttack","reactBigRaiseAllie","reactBigRaiseEnnemy","bigRaise","reactEnnemyKilled","reactAllyKilled"]
+
+initUsrSettings = """
+    CREATE TABLE userSettings (
+        userId      INTEGER PRIMARY KEY
+                            NOT NULL
+                            UNIQUE,"""
+
+for a in userSettingsInterCatNames:
+    initUsrSettings += "\n      {0},".format(a)
+
+initUsrSettings += """
+        hand INTEGER DEFAULT 0,
+        affElem BOOLEAN DEFAULT 1,
+        affAcc BOOLEAN DEFAULT 1
+    );"""
+
+class userTeamDbEndler:
+    """A database who store some user's info like their team"""
+    def __init__(self):
+        self.con = sqlite3.connect(f"./data/database/aliceStats.db")
+        self.con.row_factory = sqlite3.Row
+        self.database = "aliceStats.db"
+
+        cursor = self.con.cursor()
+
+        try:
+            cursor.execute("SELECT * FROM userTeams;")
+        except:
+            temp = ""
+            for a in initTm:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            self.con.commit()
+            print("Table userTeams créé")
+
+        cursor = self.con.cursor()
+
+    def updateTeam(self,team:int,members:Union[List[int],List[char]]):
+        cursory, listToAdd, listToAdd2 = self.con.cursor(), "" , ""
+        
+        # Allready Exist ?
+        cursory.execute("SELECT teamMember0 FROM userTeams WHERE teamId = {0};".format(team))
+        result = cursory.fetchone()
+
+        if result == None:
+            for a in range(len(members)):
+                if type(members[a]) in [int,str]:
+                    listToAdd += "{0}".format(members[a])
+                elif type(members[a]) == char:
+                    listToAdd += "{0}".format(members[a].owner)
+                else:
+                    raise Exception("Unknow type ({0})".format(type(members[a])))
+
+                listToAdd2 += "teamMember{0}".format(a)
+                if a < len(members)-1:
+                    listToAdd += ","
+                    listToAdd2 += ","
+
+            cursory.execute('INSERT INTO userTeams (teamId,{2}) VALUES ({0},{1});'.format(team,listToAdd,listToAdd2))
+            self.con.commit()
+            cursory.close()
+
+            print("The team number {0} have been added into the database".format(team))
+        else:
+            while len(members) < 8:
+                members.append(None)
+            cursory.execute('UPDATE userTeams SET teamMember0 = ?, teamMember1 = ?, teamMember2 = ?, teamMember3 = ?, teamMember4 = ?, teamMember5 = ?, teamMember6 = ?, teamMember7 = ? WHERE teamId = ?;',(members[0],members[1],members[2],members[3],members[4],members[5],members[6],members[7],team))
+            self.con.commit()
+            cursory.close()
+
+    def getTeamMember(self,team:int) -> List[int]:
+        cursory = self.con.cursor()
+        cursory.execute('SELECT teamMember0, teamMember1, teamMember2, teamMember3, teamMember4, teamMember5, teamMember6, teamMember7 FROM userTeams WHERE teamId = {0};'.format(team))
+        result = cursory.fetchone()
+
+        if result == None:
+            return None
+
+        toReturn = []
+        for a in result:
+            if a not in [0,None]:
+                toReturn.append(a)
+
+        return toReturn
+
+    def getAllTeamIds(self) -> List[int]:
+        cursory, toReturn = self.con.cursor(), []
+        cursory.execute("SELECT teamId FROM userTeams;")
+        result = cursory.fetchall()
+
+        for a in result:
+            toReturn.append(a["teamId"])
+        
+        return toReturn
+
+    def doesTeamExist(self,team:int):
+        cursory = self.con.cursor()
+        cursory.execute("SELECT teamMember0 FROM userTeams WHERE teamId = {0};".format(team))
+        result = cursory.fetchone()
+        return not(result == None)
+
+class userSettingsDbEndler:
+    def __init__(self):
+        self.con = sqlite3.connect(f"./data/database/aliceStats.db")
+        self.con.row_factory = sqlite3.Row
+        self.database = "aliceStats.db"
+
+        cursor = self.con.cursor()
+
+        try:
+            cursor.execute("SELECT * FROM userSettings;")
+        except:
+            temp = ""
+            for a in initUsrSettings:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            self.con.commit()
+            print("Table userSettings créé")
+
+        cursor = self.con.cursor()
+
+    def updateUserSays(self,user:char):
+        cursory = self.con.cursor()
+
+        cursory.execute("SELECT userId FROM userSettings WHERE userId = {0};".format(user.owner))
+        result = cursory.fetchone()
+
+        if result == None:
+            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
+            for a in range(len(blabla)):
+                if blabla[a] != None:
+                    toAddCat.append(userSettingsInterCatNames[a])
+                    toAddValue.append(blabla[a])
+        
+            toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
+            for a in [0,1]:
+                for cmpt in range(len(tempTabl[a])):
+                    if a == 1:
+                        toAdd = "'"
+                        for b in tempTabl[a][cmpt]:
+                            if b in ["'"]:
+                                toAdd += "''"
+                            else:
+                                toAdd += b
+                        toAdd += "'"
+                    else:
+                        toAdd = tempTabl[a][cmpt]
+
+                    toAddStr[a]+=toAdd
+                    if cmpt < len(tempTabl[a])-1:
+                        toAddStr[a]+=","
+
+            cursory.execute("INSERT INTO userSettings (userId,{0}) VALUES ({1},{2});".format(toAddStr[0],user.owner,toAddStr[1]))
+            self.con.commit()
+            print("{0} a été rajouté dans la base de donnée".format(user.name))
+        else:
+            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
+            for a in range(len(blabla)):
+                if blabla[a] != None:
+                    toAddCat.append(userSettingsInterCatNames[a])
+                    toAddValue.append(blabla[a])
+
+            toAddStr, tempTabl = "", [toAddCat,toAddValue]
+            for cmpt in range(len(tempTabl[0])):
+                toAdd = ""
+                for b in tempTabl[1][cmpt]:
+                    if b == "'":
+                        toAdd += "''"
+                    else:
+                        toAdd += b
+                toAdd += ""
+
+                toAddStr+= "{0}='{1}'".format(tempTabl[0][cmpt],toAdd)
+                if cmpt < len(tempTabl[0])-1:
+                    toAddStr+=","
+
+            if toAddStr != "":
+                cursory.execute("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
+                self.con.commit()
+        cursory.close()
+
+    def getUserSays(self,user:char):
+        cursory = self.con.cursor()
+
+        toStr = ""
+        for a in range(len(userSettingsInterCatNames)):
+            toStr += userSettingsInterCatNames[a]
+            if a < len(userSettingsInterCatNames)-1:
+                toStr+=","
+
+        cursory.execute("SELECT {1} FROM userSettings WHERE userId = {0};".format(user.owner,toStr))
+        result = cursory.fetchone()
+
+        if result == None:
+            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
+            for a in range(len(blabla)):
+                if blabla[a] != None:
+                    toAddCat.append(userSettingsInterCatNames[a])
+                    toAddValue.append(blabla[a])
+        
+            toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
+            for a in [0,1]:
+                for cmpt in range(len(tempTabl[a])):
+                    if a == 1:
+                        toAdd = "'"
+                        for b in tempTabl[a][cmpt]:
+                            if b in ["'"]:
+                                toAdd += "''"
+                            else:
+                                toAdd += b
+                        toAdd += "'"
+                    else:
+                        toAdd = tempTabl[a][cmpt]
+
+                    toAddStr[a]+=toAdd
+                    if cmpt < len(tempTabl[a])-1:
+                        toAddStr[a]+=","
+
+            cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
+
+            self.con.commit()
+            print("{0} a été rajouté dans la base de donnée".format(user.name))
+            return says()
+        else:
+            tablTemp = []
+            for a in result:
+                tablTemp.append(a)
+            
+            temp = says()
+
+            return temp.fromTabl(tablTemp)
+
+userTeamDb = userTeamDbEndler()
+userSettingsDb = userSettingsDbEndler()
 
 def lecFile(path : str):
     "Renvoie sous forme de liste toutes les lignes d'un fichier en retirant le retour chariot\n\nParamètre : fichier (str)\n\nRetourne :\nlist"
@@ -195,12 +455,7 @@ def saveCharFile(path : str = None, user : char = None):
 
     saved += str(user.element) +";\n"
 
-    for mes in user.says.tabl():
-        if mes == None:
-            saved += ";\n"
-        else:
-            saved += mes + ";\n"
-
+    userSettingsDb.updateUserSays(user)
     rewriteFile(path,saved)
     return True
 
@@ -333,25 +588,23 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     except:
         rep.apparaAcc = None
 
-    try:                        # Stuff inventory
-        cmpt,temp = 0,[]
-        while cmpt < len(file[8]):
-            temp += [findStuff(file[8][cmpt].replace("/n",""))]
-            cmpt += 1
-        rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
-    except:
-        rep.stuffInventory = [bbandeau,bshirt,bshoes]
+    # Stuff inventory
+    cmpt,temp = 0,[]
+    while cmpt < len(file[8]):
+        temp += [findStuff(file[8][cmpt].replace("/n",""))]
+        cmpt += 1
+    rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
 
-    try:
-        cmpt,temp = 0,[]
-        while cmpt < len(file[9]):
 
-            file[9][cmpt] = file[9][cmpt].replace("\n","")
-            temp += [findOther(file[9][cmpt])]
-            cmpt += 1
-        rep.otherInventory = temp
-    except:
-        rep.otherInventory = []
+
+    cmpt,temp = 0,[]
+    while cmpt < len(file[9]):
+
+        file[9][cmpt] = file[9][cmpt].replace("\n","")
+        temp += [findOther(file[9][cmpt])]
+        cmpt += 1
+    rep.otherInventory = temp
+
 
     try:
         rep.procuration = [int(rep.owner)]
@@ -365,151 +618,8 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     except:
         rep.element = ELEMENT_NEUTRAL
 
-    try:
-        if file[12] != "\n":
-            temp = file[12][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.start = temp
-    except:
-        pass
-    try:
-        if file[13] != "\n":
-            temp = file[13][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.ultimate = temp
-    except:
-        pass
-    try:
-        if file[14] != "\n":
-            temp = file[14][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.limiteBreak = temp
-    except:
-        pass
-    try:
-        if file[15] != "\n":
-            temp = file[15][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.onKill = temp
-    except:
-        pass
-    try:
-        if file[16] != "\n":
-            temp = file[16][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.onDeath = temp
-    except:
-        pass
-    try:
-        if file[17] != "\n":
-            temp = file[17][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.onResurect = temp
-    except:
-        pass
-    try:
-        if file[18] != "\n":
-            temp = file[18][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.blueWinAlive = temp
-    except:
-        pass
-    try:
-        if file[19] != "\n":
-            temp = file[19][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.blueWinDead = temp
-    except:
-        pass
-    try:
-        if file[20] != "\n":
-            temp = file[20][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.blueLoose = temp
-    except:
-        pass
-    try:
-        if file[21] != "\n":
-            temp = file[21][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.redWinAlive = temp
-    except:
-        pass
-    try:
-        if file[22] != "\n":
-            temp = file[22][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.redWinDead = temp
-    except:
-        pass
-    try:
-        if file[23] != "\n":
-            temp = file[23][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.redLoose = temp
-    except:
-        pass
-    try:
-        if file[24] != "\n":
-            temp = file[24][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.blockBigAttack = temp
-    except:
-        pass
-    try:
-        if file[25] != "\n":
-            temp = file[25][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.reactBigRaiseAllie = temp
-    except:
-        pass
-    try:
-        if file[26] != "\n":
-            temp = file[26][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.reactBigRaiseEnnemy = temp
-    except:
-        pass
-    try:
-        if file[27] != "\n":
-            temp = file[27][0]
-            while temp.startswith("\n") or temp.startswith(" "):
-                temp = temp[1:]
-            if temp != "":
-                rep.says.bigRaise = temp
-    except:
-        pass
-
+    rep.says = userSettingsDb.getUserSays(rep)
+    
     return rep
 
 def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):

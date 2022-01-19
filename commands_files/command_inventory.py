@@ -804,9 +804,8 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
         listUserProcure = []
         if user.team != 0:
-            file = readSaveFiles("./userTeams/{0}.team".format(user.team))
-            for a in file[0]:
-                temp = loadCharFile("./userProfile/" + a + ".prof")
+            for a in userTeamDb.getTeamMember(user.team):
+                temp = loadCharFile("./userProfile/{0}.prof".format(a))
                 if ctx.author_id in temp.procuration:
                     listUserProcure.append(temp)
 
@@ -1018,6 +1017,8 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                     affinity = elemEmojis[a.condition[2]]
                                 elif a.condition[:2] == [0, 1]:
                                     affinity = aspiEmoji[a.condition[2]]
+                                elif a.condition[:2] == [0, 3]:
+                                    affinity = secElemEmojis[a.condition[2]]
                             if affinity != "":
                                 affinity = " - "+affinity
 

@@ -40,7 +40,6 @@ bot = commands.Bot(command_prefix = "l!", description= "LenaPy par LenaicU",inte
 slash = SlashCommand(bot, sync_commands=True)
 
 existDir(absPath + "/userProfile/")
-existDir(absPath + "/userTeams/")
 existDir(absPath + "/data/images/")
 existDir(absPath + "/data/database/")
 existDir(absPath + "/data/images/headgears/")
@@ -325,10 +324,10 @@ async def restart_program(bot : discord.Client, ctx=None):
     firstIt = True
     while fighting:
         fighting = False
-        for team in os.listdir("./userTeams/"):
-            if teamWinDB.isFightingBool(int(team[:-5]))[0]:
+        for team in userTeamDb.getAllTeamIds():
+            if teamWinDB.isFightingBool(team)[0]:
                 if firstIt:
-                    teamTemp = readSaveFiles("./userTeams/"+team)[0]
+                    teamTemp = userTeamDb.getTeamMember(team)
                     us = await bot.fetch_user(teamTemp[0])
                     await msg.edit(embed = discord.Embed(title="Redémarrage en attente...",description="Un combat est encore en cours <a:loading:862459118912667678> ({0})".format(us.mention)))
                     firstIt = False
@@ -482,20 +481,18 @@ async def hourClock():
         while not(temp):
             temp = await shopping.newShop()
 
-    if tick.hour==0:
+    elif tick.hour == 4:
+        chan = await bot.fetch_channel(912137828614426707)
+        if tick.day == 19:
+            chan = await bot.fetch_channel(912137828614426707)
+            await chan.send(embed=discord.Embed(title="__Reset des records__",color=light_blue,description=aliceStatsDb.resetRecords()))
         for log in os.listdir("./data/fightLogs/"):
             try:
                 os.remove("./data/fightLogs/"+log)
                 print("{0} supprimé".format("./data/fightLogs/"+log))
             except:
                 print("{0} n'a pas pu être supprimé".format("./data/fightLogs/"+log))
-
-        if tick.day == 19:
-            chan = await bot.fetch_channel(912137828614426707)
-            await chan.send(embed=discord.Embed(title="__Reset des records__",color=light_blue,description=aliceStatsDb.resetRecords()))
-
-    elif tick.hour == 4:
-        chan = await bot.fetch_channel(912137828614426707)
+        await chan.send(embed=discord.Embed(title="__Suppression des logs__",color=light_blue,description="Les logs de combats ont été supprimés"))
         await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=create_backup()))
         temp = delete_old_backups()
         if temp != "":
@@ -506,6 +503,9 @@ async def hourClock():
     # Skill Verif
     for filename in os.listdir("./userProfile/"):
         await inventoryVerif(bot,filename)
+
+user = loadCharFile("./userProfile/213027252953284609.prof")
+userSettingsDb.updateUserSays(user)
 
 # -------------------------------------------- ON READY --------------------------------------------
 @bot.event
@@ -541,9 +541,16 @@ async def on_ready():
     await downloadAllIconPng(bot)
     await downloadElementIcon(bot)
     print("Download complete\nVerefying the characters inventorys...")
-    
+
     for filename in os.listdir("./userProfile/"):
         await inventoryVerif(bot,filename)
+
+    if os.path.exists("./userTeams/"):
+        for teamPath in os.listdir("./userTeams/"):
+            team = readSaveFiles("./userTeams/"+teamPath)[0]
+            userTeamDb.updateTeam(int(teamPath.replace(".team","")),team)
+            os.remove("./userTeams/"+teamPath)
+        os.rmdir("./userTeams/")
 
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
@@ -660,9 +667,8 @@ async def normal(ctx):
 
     team1 = []
     if user.team != 0:
-        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-        for a in file[0]:
-            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        for a in userTeamDb.getTeamMember(user.team):
+            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
@@ -751,39 +757,39 @@ async def normal(ctx):
 
     elif fun < 9:             # Raid
         msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
-        tablAllTeams = os.listdir("./userTeams/")
-        random.shuffle(tablAllTeams)
-
-        moyTeam = 0
-        for a in team1:
-            moyTeam += a.level
-
-        moyTeam = moyTeam/len(team1)
-
-        for tempTeamPath in tablAllTeams:
-            if int(tempTeamPath.replace(".team","")) != user.team:
-                tempTeam, moyTempTeam = [], 0
-                file = readSaveFiles(absPath + "/userTeams/" + tempTeamPath)
-                for a in file[0]:
-                    tempUser = loadCharFile(absPath + "/userProfile/" + a + ".prof")
-                    moyTempTeam += tempUser.level
-                    tempTeam += [tempUser]
-
-                moyTempTeam = moyTempTeam/max(1,len(tempTeam))
-                if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
-                    team1 += tempTeam
-                    break
-
-        temp = team1
-        temp.sort(key=lambda overheal: overheal.level,reverse=True)
-        maxLvl = temp[0].level
-        team2 = []
-        alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
-
-        alea.changeLevel(maxLvl)
-        team2.append(alea)
-
         try:
+            tablAllTeams = userTeamDb.getAllTeamIds
+            random.shuffle(tablAllTeams)
+
+            moyTeam = 0
+            for a in team1:
+                moyTeam += a.level
+
+            moyTeam = moyTeam/len(team1)
+
+            for tempTeamId in tablAllTeams:
+                if tempTeamId != user.team:
+                    tempTeam, moyTempTeam = [], 0
+                    for a in userTeamDb.getTeamMember(user.team):
+                        tempUser = loadCharFile("./userProfile/{0}.prof".format(a))
+                        moyTempTeam += tempUser.level
+                        tempTeam += [tempUser]
+
+                    moyTempTeam = moyTempTeam/max(1,len(tempTeam))
+                    if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                        team1 += tempTeam
+                        break
+
+            temp = team1
+            temp.sort(key=lambda overheal: overheal.level,reverse=True)
+            maxLvl = temp[0].level
+            team2 = []
+            alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
+
+            alea.changeLevel(maxLvl)
+            team2.append(alea)
+
+            
             await fight(bot,team1,team2,ctx,False,bigMap=True,msg=msg)
         except:
             await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
@@ -878,9 +884,8 @@ async def comQuickFight(ctx):
 
     team1 = []
     if user.team != 0:
-        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-        for a in file[0]:
-            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        for a in userTeamDb.getTeamMember(user.team):
+            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
@@ -888,43 +893,44 @@ async def comQuickFight(ctx):
 
     if fun < 5:             # Raid
         msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
-        tablAllTeams = os.listdir("./userTeams/")
-        random.shuffle(tablAllTeams)
-
-        moyTeam = 0
-        for a in team1:
-            moyTeam += a.level
-
-        moyTeam = moyTeam/len(team1)
-
-        for tempTeamPath in tablAllTeams:
-            if int(tempTeamPath.replace(".team","")) != user.team:
-                tempTeam, moyTempTeam = [], 0
-                file = readSaveFiles(absPath + "/userTeams/" + tempTeamPath)
-                for a in file[0]:
-                    tempUser = loadCharFile(absPath + "/userProfile/" + a + ".prof")
-                    moyTempTeam += tempUser.level
-                    tempTeam += [tempUser]
-
-                moyTempTeam = moyTempTeam/max(1,len(tempTeam))
-                if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
-                    team1 += tempTeam
-                    break
-
-        temp = team1
-        temp.sort(key=lambda overheal: overheal.level,reverse=True)
-        maxLvl = temp[0].level
-        team2 = []
-        alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
-
-        alea.changeLevel(maxLvl)
-        team2.append(alea)
-
         try:
-            await fight(bot,team1,team2,ctx,bigMap=True,msg=msg)
+            tablAllTeams = userTeamDb.getAllTeamIds
+            random.shuffle(tablAllTeams)
+
+            moyTeam = 0
+            for a in team1:
+                moyTeam += a.level
+
+            moyTeam = moyTeam/len(team1)
+
+            for tempTeamId in tablAllTeams:
+                if tempTeamId != user.team:
+                    tempTeam, moyTempTeam = [], 0
+                    for a in userTeamDb.getTeamMember(user.team):
+                        tempUser = loadCharFile("./userProfile/{0}.prof".format(a))
+                        moyTempTeam += tempUser.level
+                        tempTeam += [tempUser]
+
+                    moyTempTeam = moyTempTeam/max(1,len(tempTeam))
+                    if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                        team1 += tempTeam
+                        break
+
+            temp = team1
+            temp.sort(key=lambda overheal: overheal.level,reverse=True)
+            maxLvl = temp[0].level
+            team2 = []
+            alea = copy.deepcopy(tablRaidBoss[random.randint(0,len(tablRaidBoss)-1)])
+
+            alea.changeLevel(maxLvl)
+            team2.append(alea)
+
+            
+            await fight(bot,team1,team2,ctx,True,bigMap=True,msg=msg)
         except:
             await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
             teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
+
     else:
         await fight(bot,team1,[],ctx)
 
@@ -966,9 +972,8 @@ async def teamFight(ctx,versus):
     user = loadCharFile(pathUserProfile)
     team1 = []
     if user.team != 0:
-        file = readSaveFiles(absPath + "/userTeams/" + str(user.team) + ".team")
-        for a in file[0]:
-            team1 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+        for a in userTeamDb.getTeamMember(user.team):
+            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
@@ -981,9 +986,8 @@ async def teamFight(ctx,versus):
     if versus.id not in [623211750832996354,769999212422234122]:
         octogoned = loadCharFile(pathOctogonedProfile,ctx)
         if octogoned.team != 0:
-            file = readSaveFiles(absPath + "/userTeams/" + str(octogoned.team) + ".team")
-            for a in file[0]:
-                team2 += [loadCharFile(absPath + "/userProfile/" + a + ".prof")]
+            for a in userTeamDb.getTeamMember(user.team):
+                team2 += [loadCharFile("./userProfile/{0}.prof".format(a))]
         else:
             team2 = [octogoned]
     else:
@@ -1195,7 +1199,6 @@ async def teamView(ctx,joueur=None):
 
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
-        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
         msg = await loadingSlashEmbed(ctx)
         if user.team == 0:
             if int(user.owner) == int(ctx.author.id):
@@ -1203,10 +1206,9 @@ async def teamView(ctx,joueur=None):
             else:
                 await msg.edit(embed = discord.Embed(title = "/team view",color = user.color,description = "{0} pas d'équipe pour le moment".format(user.name)))
         else:
-            file = readSaveFiles(pathTeam)
             temp = ""
-            for a in file[0]:
-                temp2 = loadCharFile(absPath + "/userProfile/" + a + ".prof")
+            for a in userTeamDb.getTeamMember(user.team):
+                temp2 = loadCharFile("./userProfile/{0}.prof".format(a))
                 level = str(temp2.level) + ["","<:ls:925860806602682369>{0}".format(temp2.stars)][temp2.stars>0]
                 ballerine = f'{aspiEmoji[temp2.aspiration]}|{temp2.weapon.emoji}|{temp2.stuff[0].emoji}{temp2.stuff[1].emoji}{temp2.stuff[2].emoji}|'
                 for b in temp2.skills:
@@ -1237,19 +1239,19 @@ async def teamAdd(ctx,joueur):
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
 
-        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
         msg = await loadingSlashEmbed(ctx)
 
-        if not(os.path.exists(pathTeam) and user.team != 0):
-            rdm = str(random.randint(1,10000))
-            pathTeam = absPath + "/userTeams/" + rdm +".team"
-            rewriteFile(pathTeam,f"{str(user.owner)};")
+        if user.team == 0:
+            rdm = str(random.randint(1,999999999))
+            while rdm in userTeamDb.getAllTeamIds:
+                rdm = str(random.randint(1,999999999))
+            userTeamDb.updateTeam(rdm,[user])
             user.team = rdm
             saveCharFile(pathUserProfile,user)
 
-        noneCap,selfAdd,temp = True,False,readSaveFiles(absPath + "/userTeams/" + str(user.team) +".team")
+        noneCap,selfAdd,temp = True,False,userTeamDb.getTeamMember(user.team)
 
-        if len(temp[0]) >= 8:
+        if len(temp) >= 8:
             noneCap = False
 
         if ctx.author == joueur:
@@ -1281,9 +1283,9 @@ async def teamAdd(ctx,joueur):
                     if str(reaction[0]) == emoji.check:
                         mate.team = user.team
                         saveCharFile(absPath + "/userProfile/" + str(mention.id) + ".prof",mate)
-                        file = readSaveFiles(pathTeam)
-                        file[0] += [str(mention.id)]
-                        saveSaveFiles(pathTeam,file)
+                        team = userTeamDb.getTeamMember(user.team)
+                        team.append(mention.id)
+                        userTeamDb.updateTeam(user.team,team)
                         await msg.clear_reactions()
                         await msg.edit(embed = discord.Embed(title="/team add "+joueur.name,color = user.color,description = "Vous faites dorénavent parti de la même équipe"))
                 
@@ -1307,14 +1309,14 @@ async def teamQuit(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
-        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
+
 
     if user.team != 0:
-        team = readSaveFiles(pathTeam)
-        team[0].remove(str(ctx.author.id))
+        team = userTeamDb.getTeamMember(user.team)
+        team.remove(ctx.author.id)
         user.team = 0
 
-        saveSaveFiles(pathTeam,team)
+        userTeamDb.updateTeam(user.team,team)
         await ctx.send(embed = discord.Embed(title = "/team quit",color = user.color, description = "Vous avez bien quitté votre équipe"))
         saveCharFile(pathUserProfile,user)
     else:
@@ -1328,13 +1330,11 @@ async def teamFact(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
         user = loadCharFile(pathUserProfile)
-        pathTeam = absPath + "/userTeams/" + str(user.team) +".team"
-    
+
     teamUser = []
 
     if user.team != 0:
-        team = readSaveFiles(pathTeam)
-        for a in team[0]:
+        for a in userTeamDb.getTeamMember(user.team):
             teamUser.append(loadCharFile(absPath + "/userProfile/" + str(a) + ".prof"))
 
     else:
@@ -1968,48 +1968,40 @@ async def setChannel(ctx:discord_slash.SlashContext, salon:discord.TextChannel):
 
 @slash.slash(name="verif_team",guild_ids=adminServ)
 async def verifTeams(ctx):
-    toSend, allReadySeenn, msg, userTeam = "", [], None, []
+    toSend, allReadySeen, msg, userTeam = "", [], None, []
 
     def getUserMainTeam(user:char):
         for look in userTeam:
             if look[0] == user.owner:
                 return int(look[1])
 
-    for team in os.listdir("./userTeams/"):
-        temp = "__Team **{0}** :__".format(team.replace(".team",""))
-        teamMembers = readSaveFiles("./userTeams/"+team)[0]
-        if len(teamMembers) == 0:
-            os.remove("./userTeams/"+team)
-            temp += "\n`Equipe vide. Fichier supprimé`"
-        else:
-            tmpTeamMembers = teamMembers[:]
-            for ids in teamMembers:
-                user = loadCharFile(path="./userProfile/{0}.prof".format(ids))
-                if user.owner in allReadySeen:
-                    warn = "~~"
-                    if getUserMainTeam(user) != int(team.replace(".team","")):
-                        tmpTeamMembers.remove(str(user.owner))
-                else:
-                    warn = ""
-                    allReadySeen.append(user.owner)
-                    userTeam.append([user.owner,int(team.replace(".team",""))])
+    for team in userTeamDb.getAllTeamIds():
+        temp = "__Team **{0}** :__".format(team)
+        teamMembers = userTeamDb.getTeamMember(team)
 
-                if int(user.team) != int(team.replace(".team","")):
-                    user.team = int(team.replace(".team",""))
-                    saveCharFile(user=user)
-                    redacted = " 📎"
-                else:
-                    redacted = ""
-
-                temp += "\n{2}{0} {1}{2}{3}".format(await getUserIcon(bot, user), user.name, warn, redacted)
-
-
-            if len(tmpTeamMembers) > 0:
-                saveSaveFiles("./userTeams/"+team,[tmpTeamMembers])
+        tmpTeamMembers = teamMembers[:]
+        for ids in teamMembers:
+            user = loadCharFile(path="./userProfile/{0}.prof".format(ids))
+            if user.owner in allReadySeen:
+                warn = "~~"
+                if getUserMainTeam(user) != team:
+                    tmpTeamMembers.remove(str(user.owner))
             else:
-                os.remove("./userTeams/"+team)
-                temp += "\n`Equipe vide. Fichier supprimé`"
+                warn = ""
+                allReadySeen.append(user.owner)
+                userTeam.append([user.owner,team])
 
+            if int(user.team) != team:
+                user.team = team
+                saveCharFile(user=user)
+                redacted = " 📎"
+            else:
+                redacted = ""
+
+            temp += "\n{2}{0} {1}{2}{3}".format(await getUserIcon(bot, user), user.name, warn, redacted)
+
+        if len(tmpTeamMembers) > 0:
+            userTeamDb.updateTeam(team,tmpTeamMembers)
 
         temp+="\n"
         if len(toSend+temp) > 4000:

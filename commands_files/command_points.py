@@ -13,9 +13,8 @@ async def points(bot : discord.client, ctx : discord.message, args : List[str], 
     listUserProcure = []
     mainUser = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
     if mainUser.team != 0:
-        file = readSaveFiles("./userTeams/{0}.team".format(mainUser.team))
-        for a in file[0]:
-            temp = loadCharFile("./userProfile/" + a + ".prof")
+        for a in userTeamDb.getTeamMember(mainUser.team):
+            temp = loadCharFile("./userProfile/{0}.prof".format(a))
             if ctx.author_id in temp.procuration:
                 listUserProcure.append(temp)
 

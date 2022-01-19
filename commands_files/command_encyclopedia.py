@@ -228,6 +228,8 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                                 affinity = elemEmojis[a.condition[2]]
                             elif a.condition[:2] == [0, 1]:
                                 affinity = aspiEmoji[a.condition[2]]
+                            elif a.condition[:2] == [0, 3]:
+                                affinity = secElemEmojis[a.condition[2]]
                         if affinity != "":
                             affinity = " - "+affinity
                         mess += f"*{babie}{ballerine} - {sandale}{affinity}*\n"
@@ -261,7 +263,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
                             if a.effect != None:
                                 temp += " *{0}*".format(findEffect(a.effect).name)
-                
+
                     # Création de l'option
                     mess += temp+"\n"
                     firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
