@@ -14,7 +14,7 @@ titWeap = weapon("Magical Bonk","aah",RANGE_MELEE,AREA_CIRCLE_3,28,50,0,0,0,0,0,
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',use=CHARISMA,type=TYPE_HEAL,target=ALLIES,message="{0} encourage doucement {1} :")
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,50,emoji='<:defHeal:885899034563313684>',cooldown=4)
 batSkill = skill("Cru-aile","aak",TYPE_DAMAGE,0,100,AREA_CIRCLE_2,emoji='<:defDamage:885899060488339456>',use=AGILITY)
-autoWeap = weapon("NoneWeap","aal",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:empty:866459463568850954>")
+autoWeap = weapon("NoneWeap","aal",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:noneWeap:917311409585537075>")
 autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus,silent=True)
 autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,300,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff,sussess=200)
 cutyBatSkill1Eff = effect("Motivé Bis","batMotivEff",stat=CHARISMA,strength=7,magie=7,charisma=7,intelligence=7)
@@ -39,6 +39,10 @@ carbOb = weapon("Griffe d'obsidienne","carObWeap",RANGE_MELEE,AREA_CIRCLE_1,33,7
 carbObSkill = skill("Eclat d'Obsidenne","carbObsiSkill",TYPE_DAMAGE,0,135,AREA_CIRCLE_2,cooldown=2,emoji='<:carbSkill2:919859568685752350>')
 carbSa = weapon("Tir de glacée","carbSaWeap",RANGE_DIST,AREA_CIRCLE_6,56,80,0)
 carbSaSkill = skill("Eclat de Saphir","carbSaSkill",TYPE_DAMAGE,0,80,cooldown=2,emoji='<:carbSkill2:919859581381926933>')
+seekerSkill = skill("Traque",'seekerSkill',TYPE_DAMAGE,0,150,AREA_RANDOMENNEMI_1,area=AREA_CIRCLE_1,tpCac=True,effectOnSelf=autoEff)
+killerWailWeap = copy.deepcopy(autoWeap)
+killerWailWeap.use, killerWailWeap.range = MAGIE, RANGE_LONG
+killerWailSkill = skill("Rayon sonique","killerWail5.1SumSkill",TYPE_DAMAGE,0,45,AREA_MONO,area=AREA_LINE_6,effectOnSelf=autoEff,use=MAGIE,setAoEDamge=True,emoji='<:kwShot:933510363398418432>')
 
 batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.5],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans temps de rechargement",skill=[batSkill],element=ELEMENT_AIR)
 carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],20,10,[PURCENTAGE,1],MAGE,["<:carbEmR:919858018739437568>",'<:carbEmB:919857996274749451>'],carbunE,[carbunSkill],description="Une invocation utilisant des compétences de zone pour vaincre des groupes d'ennemis de loin",element=ELEMENT_AIR)
@@ -54,13 +58,14 @@ seraf = invoc("Fée protectrice",strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE
 TGESL1 = invoc("Patte de The Giant Enemy Spider",[PURCENTAGE,0.5],[PURCENTAGE,0.3],0,[PURCENTAGE,0.7],[PURCENTAGE,0.7],0,0,[PURCENTAGE,0.3],0,0,INVOCATEUR,['<:TGESlegs2:917303003936063538>','<:TGESlegs2:917303003936063538>'],GESLweap,[GESLskill],gender=GENDER_FEMALE)
 TGESL2 = copy.deepcopy(TGESL1)
 TGESL2.strength, TGESL2.magie, TGESL2.icon, TGESL2.skills[0] = 0,TGESL1.strength,['<:TGESlegs1:917302968104144906>','<:TGESlegs1:917302968104144906>'],GESRskill
+seeker = invoc("Traqueur",[PURCENTAGE,0.7],[PURCENTAGE,0.1],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.7],[PURCENTAGE,0.3],[PURCENTAGE,0.3],0,[PURCENTAGE,1],[PURCENTAGE,1],BERSERK,['<:seekerB:933508361863954432>','<:seekerR:933508377584234606>'],autoBomb.weapon,[seekerSkill],description="Une machine qui se téléporte sur une cible aléatoire puis explose (Puissance : {0}, Zone : Cercle de 1)".format(seekerSkill.power))
+killerWailSum = invoc("Haut-Perceur 5.1",[PURCENTAGE,0.3],[PURCENTAGE,0.1],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.3],[PURCENTAGE,0.7],0,[PURCENTAGE,1],[PURCENTAGE,1],OBSERVATEUR,['<:kwB:933510332733882378>','<:kwR:933510345488736346>'],killerWailWeap,[killerWailSkill],description="Une machine qui tire un laser sonique sur toute sa ligne, infligeant des dégâts aux ennemis s'y trouveant, puis s'auto-détruit (Puissance : {0}, non affecté par la réduction de dégâts de zone)".format(killerWailSkill.power),canMove=False)
 
 carbObsi = invoc("Carbuncle Obsidienne",strength=[PURCENTAGE,0.7],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.5],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.3],resistance=[PURCENTAGE,1],percing=[PURCENTAGE,1],critical=[PURCENTAGE,0.5],aspiration=POIDS_PLUME,icon=['<:carbObsiB:919857954029707284>','<:carObsiR:919857975051558954>'],weapon=carbOb,skill=[carbObSkill],element=ELEMENT_DARKNESS)
 carbSaphir = invoc("Carbuncle Saphir",strength=[PURCENTAGE,0.7],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.5],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.3],resistance=[PURCENTAGE,0.5],percing=[PURCENTAGE,1],critical=[PURCENTAGE,1],aspiration=OBSERVATEUR,icon=["<:ce1:884889724114841610>","<:ce2:884889693374775357>"],weapon=carbSa,skill=[carbSaSkill],element=ELEMENT_WATER)
 
 # Invocations
-invocTabl = [seraf,carbObsi,carbSaphir,
-    darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
+invocTabl = [seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR
 ]
 
 def findSummon(name) -> invoc:

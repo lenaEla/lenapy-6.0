@@ -381,7 +381,11 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
                             await msg.edit(embed = repEmb,components=[allButtons])
 
-                        rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift,buttonAllGift],check=check,timeout=60)
+                        try:
+                            rep = await wait_for_component(bot,messages=msg,check=check,timeout=60)
+                        except:
+                            await msg.delete()
+                            return 0
 
                         if rep.custom_id == "0":
                             try:
@@ -451,7 +455,8 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             try:
                                 respond = await wait_for_component(bot,messages=msg,timeout = 60)
                             except:
-                                break
+                                await msg.delete()
+                                return 0
 
                             if respond.custom_id == "buy":
                                 await msg.edit(embed = discord.Embed(title="__/shop {0}__".format(arm.name),color = user.color,description = f"Envoie de vos cadeaux... <a:loading:862459118912667678>"),components = [])
@@ -491,7 +496,11 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
                             await msg.edit(embed = repEmb,components=[allButtons])
 
-                        rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift,buttonAllGift],check=check,timeout=60)
+                        try:
+                            rep = await wait_for_component(bot,messages=msg,check=check,timeout=60)
+                        except:
+                            await msg.delete()
+                            return 0
 
                         if rep.custom_id == "0": # Buyed
                             try:
@@ -598,7 +607,11 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
                             await msg.edit(embed = repEmb,components=[allButtons])
 
-                        rep = await wait_for_component(bot,components=[buttonReturn,buttonBuy,buttonGift,buttonAllGift],check=check,timeout=60)
+                        try:
+                            rep = await wait_for_component(bot,messages=msg,check=check,timeout=60)
+                        except:
+                            await msg.delete()
+                            return 0
 
                         if rep.custom_id == "0":
                             try:
@@ -706,7 +719,11 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                             repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet !")
                             await msg.edit(embed = repEmb,components=[allButtons])
 
-                            rep = await wait_for_component(bot,messages=msg,check=check,timeout=60)
+                            try:
+                                rep = await wait_for_component(bot,messages=msg,check=check,timeout=60)
+                            except:
+                                await msg.delete()
+                                return 0
 
                             if rep.custom_id == "0":
                                 try:

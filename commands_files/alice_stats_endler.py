@@ -461,7 +461,7 @@ class aliceStatsdbEndler:
     def updateJetonsCount(self,user:char,count:int):
         actJeton = self.getUserJetons(user)
 
-        actJeton += count
+        actJeton = int(actJeton+count)
         cursor = self.con.cursor()
         cursor.execute("UPDATE userStats SET jetonOws = ? WHERE id = ?",(actJeton,int(user.owner),))
         self.con.commit()

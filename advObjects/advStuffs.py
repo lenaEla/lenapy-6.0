@@ -1,3 +1,4 @@
+import re
 from classes import *
 from constantes import *
  
@@ -165,8 +166,8 @@ armyArmor = stuff("Uniforme de l'EEv3",'nm',1,1,strength=35,endurance=15,precisi
 hinaAcc = stuff("Protège-Bras aviaire","nn",0,1,emoji='<:hinaAcc:908454872515502091>',position=fecaShield.position,strength=30,endurance=10,precision=30,agility=15,percing=5,negativeDirect=-5,critical=-10,negativeBoost=30,negativeHeal=15,negativeShield=15,negativeIndirect=5,orientation=[DISTANCE,DPT_PHYS])
 hinaBody = stuff("Tenue aviaire","no",1,1,emoji='<:hinaBody:908454912009060432>',strength=30,endurance=10,precision=20,agility=15,percing=5,negativeDirect=-15,negativeIndirect=35,negativeHeal=20,negativeShield=20,orientation=[DISTANCE,DPT_PHYS])
 hinaShoes = stuff("Ballerines aviaires","np",2,1,emoji='<:HinaFlats:908454891255631882>',strength=20,endurance=10,precision=30,agility=25,percing=5,negativeDirect=-5,negativeBoost=30,negativeHeal=20,negativeShield=20,negativeIndirect=5,orientation=[DISTANCE,DPT_PHYS])
-pinkChemVeste = stuff("Veste et robe du papillon rose","nq",1,1,emoji='<:djpR:908553229539868674>',negativeBoost=-40,endurance=10,charisma=20,intelligence=20,negativeHeal=35,negativeShield=35,orientation=[DISTANCE,BOOSTER])
-whiteChemVeste = stuff("Veste et robe du papillon blanc","nr",1,1,emoji='<:djpB:908553258497355876>',effect="mk",negativeHeal=-30,charisma=20,intelligence=20,negativeBoost=30,negativeShield=30,orientation=[DISTANCE,HEALER])
+pinkChemVeste = stuff("Veste et robe du papillon rose","nq",1,1,emoji='<:djpR:908553229539868674>',negativeBoost=-40,endurance=10,charisma=30,intelligence=10,negativeHeal=35,negativeShield=35,orientation=[DISTANCE,BOOSTER])
+whiteChemVeste = stuff("Veste et robe du papillon blanc","nr",1,1,emoji='<:djpB:908553258497355876>',effect="mk",negativeHeal=-30,charisma=30,intelligence=10,negativeBoost=30,negativeShield=30,orientation=[DISTANCE,HEALER])
 blueCharpe = stuff("Écharpe bleue","ns",0,1,emoji='<:bluecharpe:908549607133421578>',negativeShield=-30,intelligence=30,endurance=10,charisma=20,negativeDirect=20,negativeIndirect=20,magie=-10,strength=-10,precision=-10,orientation=[DISTANCE,SHIELDER],position=intemCharpe.position)
 bandNoir = stuff("Bandana Noir","nt",0,1,emoji='<:nbn:908554373796343908>',strength=25,agility=25,endurance=20,resistance=10,negativeDirect=-10,precision=-10,magie=-25,critical=-10,negativeIndirect=25,orientation=[TANK,DPT_PHYS])
 blueVC = stuff("Veste et chemise bleu","nu",1,1,emoji='<:bsj:908551535796035644>',intelligence=30,negativeShield=-30,endurance=10,charisma=20,negativeHeal=20,negativeIndirect=30,resistance=-10,percing=-10,orientation=[DISTANCE,SHIELDER])
@@ -189,7 +190,7 @@ pinkButterFlyBoots = stuff("Bottes du papillon rose","ol",2,1,charisma=30,negati
 purpleButterFlyBoots = stuff("Bottes du papillon violet","om",2,1,magie=30,negativeIndirect=-30,endurance=10,intelligence=20,negativeShield=20,negativeHeal=30,negativeDirect=20,emoji='<:purpleButterflyBoots:911245717715161098>',orientation=[DISTANCE,DPT_MAGIC])
 purpleChemVeste = stuff("Veste et robe du papillon violet","on",1,1,emoji='<:purpleButterflyDress:910582874263146496>',negativeIndirect=-40,endurance=10,magie=40,negativeDirect=70,orientation=[DISTANCE,DPT_MAGIC])
 blueButterFlyBoots = stuff("Bottes du papillon bleu","oo",2,1,intelligence=30,negativeShield=-30,endurance=10,charisma=20,negativeHeal=20,negativeBoost=30,negativeDirect=20,emoji='<:blueButterflyBoots:911245699377676308>',orientation=[DISTANCE,SHIELDER])
-blueChemVeste = stuff("Veste et robe du papillon bleu","op",1,1,emoji='<:blueButterflyDress:910582894253182976>',negativeShield=-40,endurance=10,charisma=20,intelligence=20,negativeHeal=35,negativeBoost=35,orientation=[DISTANCE,SHIELDER])
+blueChemVeste = stuff("Veste et robe du papillon bleu","op",1,1,emoji='<:blueButterflyDress:910582894253182976>',negativeShield=-40,endurance=10,charisma=10,intelligence=30,negativeHeal=35,negativeBoost=35,orientation=[DISTANCE,SHIELDER])
 lunaPandan = stuff("Obsidienne en pendantif","oq",0,0,strength=40,agility=40,endurance=20,resistance=15,charisma=-30,negativeIndirect=40,negativeHeal=25,emoji='<:obsiPendan:911086215409848341>',position=batPendant.position,orientation=[TANK,DPT_PHYS])
 lunaDress = stuff("Robe et veste noire","or",1,0,strength=35,agility=35,endurance=25,resistance=20,intelligence=-30,negativeBoost=40,negativeIndirect=25,emoji='<:blackDress:911086257831039016>',orientation=[TANK,DPT_PHYS])
 lunaBoots = stuff("Cuissardes noires","os",2,0,strength=40,agility=40,endurance=20,resistance=15,magie=-30,negativeHeal=40,negativeBoost=25,emoji='<:blackBoots:911086872900546560>',orientation=[TANK,DPT_PHYS])
@@ -326,15 +327,15 @@ greenbutterflyshirt = stuff("T-shirt du papillon vert","hfe",1,1,strength=25,end
 greenChemVeste = stuff("Veste et robe du papillon vert","hff",1,1,strength=35,endurance=20,resistance=15,agility=20,magie=-40,negativeHeal=30,orientation=[TANK,DPT_PHYS],emoji='<:vestegreen:928203105609326613>')
 greenButterFlyBoots = stuff("Bottes du papillon vert","hfg",2,1,strength=25,agility=30,endurance=20,resistance=15,negativeShield=20,negativeHeal=30,negativeIndirect=20,orientation=[TANK,DPT_PHYS],emoji='<:bottesgreen:928203125008007179>')
 greenbutbar = stuff("Barette du papillon vert","hfh",0,1,strength=25,endurance=20,agility=15,resistance=10,charisma=-15,intelligence=-10,precision=-10,magie=-15,emoji='<:barVert:928201234882646047>',orientation=[TANK,DPT_PHYS],position=barrette.position)
-chemAndJupePink = stuff("Chemise et jupe rose","hfi",1,1,charisma=35,negativeBoost=-25,intelligence=10,negativeDirect=25,negativeIndirect=25,orientation=[DISTANCE,BOOSTER],emoji='<:rose:928200391278071808>')
-chemAndJupeWhite = stuff("Chemise et jupe blanche","hfj",1,1,charisma=35,negativeHeal=-25,intelligence=10,negativeDirect=25,negativeIndirect=25,orientation=[DISTANCE,HEALER],emoji='<:blanc:928200485742186506>')
-chemAndJupeBlue = stuff("Chemise et jupe bleu","hfk",1,1,intelligence=35,negativeShield=-25,charisma=10,negativeDirect=25,negativeIndirect=25,orientation=[DISTANCE,SHIELDER],emoji='<:bleu:928200530176671745>')
+chemAndJupePink = stuff("Chemise et jupe rose","hfi",1,1,charisma=35,negativeBoost=-35,negativeDirect=25,negativeIndirect=25,orientation=[DISTANCE,BOOSTER],emoji='<:rose:928200391278071808>')
+chemAndJupeWhite = stuff("Chemise et jupe blanche","hfj",1,1,charisma=35,negativeHeal=-35,negativeDirect=25,negativeIndirect=25,orientation=[DISTANCE,HEALER],emoji='<:blanc:928200485742186506>')
+chemAndJupeBlue = stuff("Chemise et jupe bleu","hfk",1,1,intelligence=35,negativeShield=-35,negativeDirect=25,negativeIndirect=25,orientation=[DISTANCE,SHIELDER],emoji='<:bleu:928200530176671745>')
 chemAndJupeRed = stuff("Chemise et jupe rouge","hfl",1,1,magie=35,negativeDirect=-25,precision=10,strength=-25,negativeIndirect=25,orientation=[DISTANCE,DPT_MAGIC],emoji='<:rouge:928200471317975060>')
-chemAndJupepurple = stuff("Chemise et jupe violet","hfm",1,1,magie=35,negativeIndirect=-25,intelligence=10,strength=-25,negativeDirect=25,orientation=[DISTANCE,DPT_MAGIC],emoji='<:violet:928200454649815081>')
+chemAndJupepurple = stuff("Chemise et jupe violet","hfm",1,1,magie=40,negativeIndirect=-30,strength=-25,negativeDirect=25,orientation=[DISTANCE,DPT_MAGIC],emoji='<:violet:928200454649815081>')
 chemAndJupeblack = stuff("Chemise et jupe noire","hfn",1,1,strength=30,endurance=20,resistance=20,magie=-25,negativeIndirect=25,orientation=[TANK,DPT_PHYS],emoji='<:noir:928200504348139570>')
 chemAndJupedarkblue = stuff("Chemise et jupe bleue marine","hfo",1,1,magie=30,endurance=20,resistance=20,strength=-25,negativeIndirect=25,orientation=[TANK,DPT_MAGIC],emoji="<:marine:928200543195758612>")
 chemAndJupegreen = stuff("Chemise et jupe verte","hfp",1,1,strength=25,endurance=10,resistance=15,agility=20,magie=-25,negativeIndirect=25,orientation=[TANK,DPT_PHYS],emoji='<:vert:928200434278100992>')
-chemAndJupelightBlue = stuff("Chemise et jupe azurée","hfq",1,1,strength=35,precision=25,percing=10,magie=-25,negativeIndirect=25,orientation=[DISTANCE,DPT_PHYS],emoji='<:azur:928200413314973696>')
+chemAndJupelightBlue = stuff("Chemise et jupe azurée","hfq",1,1,strength=35,precision=30,percing=5,magie=-25,negativeIndirect=25,orientation=[DISTANCE,DPT_PHYS],emoji='<:azur:928200413314973696>')
 greenFlat = stuff("Ballerines Vertes","hfr",2,100,strength=10,endurance=5,resistance=5,agility=10,magie=-10,emoji='<:gflats:929857341153738773>',orientation=[TANK,DPT_PHYS])
 greenHeels = stuff("Escarpins Verts","hfs",2,150,strength=15,resistance=10,agility=15,endurance=10,magie=-10,negativeShield=20,emoji='<:greenHeels:928341010994593822>',orientation=[TANK,DPT_MAGIC])
 redFlat = stuff("Ballerines Rouges","jf",2,100,strength=10,magie=10,negativeDirect=-10,resistance=-10,emoji='<:redflat:881209970568364173>',orientation=[DISTANCE,DPT_PHYS])
@@ -359,11 +360,46 @@ summonerFoulard10 = stuff("Foulard de l'invocateur","hal",0,1,strength=30,magie=
 summonerMenteau10 = stuff("Veste de l'invocateur","ham",1,1,strength=30,precision=30,agility=30,magie=30,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10B:922687701164109874>')
 summonerShoes10 = stuff("Bottes de l'invocateur","han",2,1,strength=30,endurance=30,magie=30,agility=15,precision=15,effect=summonerMalus,orientation="Invocateur",emoji='<:smn10S:922687758772867103>')
 summonerFoulard10.minLvl = summonerMenteau10.minLvl = summonerShoes10.minLvl = 10
-
 looseHat = stuff("Casquette verte","hga",0,0,strength=10,agility=10,emoji='<:luigiHat:931511385052028928>')
+lunarshirt = stuff("T-shirt étoilé",'hgb',1,1,intelligence=30,negativeShield=-25,endurance=10,resistance=10,negativeHeal=25,strength=-30,emoji='<:tshirt:933667475046944798>')
+skullShirt = stuff("T-shirt crâne à strass",'hgc',1,1,magie=35,negativeIndirect=-35,percing=5,strength=-25,charisma=-30,emoji='<:tshirtCrane:933669926135271454>')
+clowdyShirt = stuff("T-shirt Ciel Couvert",'hgd',1,1,negativeHeal=-40,charisma=35,endurance=5,strength=-30,magie=-30,emoji='<:tshirt:933671880953565246>')
+matDress = stuff("Robe de matelot à ruban",'hge',1,1,magie=40,endurance=20,resistance=15,strength=-25,intelligence=-15,charisma=-15,emoji='<:dressy:933665768627920957>')
+jeanVest2 = stuff("Veste en jean délavée",'hgf',1,1,strength=40,endurance=20,resistance=15,magie=-25,intelligence=-15,charisma=-15,emoji='<:veste:933666632830701638>')
+linDress = stuff("Robe en lin turquoise",'hgg',1,1,strength=30,endurance=15,agility=15,resistance=15,magie=-35,negativeIndirect=20,emoji='<:dressy:933665827796975656>')
+
+butterflyEarRingsPink = stuff("Boucles d'oreilles du papillon rose","hgh",0,1,charisma=40,negativeBoost=-40,intelligence=20,endurance=10,strength=-40,magie=-40,agility=-10,emoji='<:pink:933728188754980904>',position=batEarRings.position)
+butterflyEarRingsWhite = stuff("Boucles d'oreilles du papillon blanc","hgi",0,1,charisma=40,negativeHeal=-40,intelligence=20,endurance=10,strength=-40,magie=-40,agility=-10,emoji='<:white:933785500257513472>',position=batEarRings.position)
+butterflyEarRingsBlue = stuff("Boucles d'oreilles du papillon bleu","hgj",0,1,charisma=20,negativeShield=-40,intelligence=40,endurance=10,strength=-40,magie=-40,agility=-10,emoji='<:blue:933728247995305994>',position=batEarRings.position)
+butterflyEarRingsRed = stuff("Boucles d'oreilles du papillon rouge","hgk",0,1,precision=20,negativeDirect=-40,magie=40,endurance=10,strength=-40,agility=-20,negativeIndirect=30,emoji='<:red:933728281289715782>',position=batEarRings.position)
+butterflyEarRingsPurple = stuff("Boucles d'oreilles du papillon violet","hgl",0,1,agility=20,negativeIndirect=-40,magie=40,endurance=10,strength=-40,precision=-20,negativeDirect=30,emoji='<:purple:933728226533056532>',position=batEarRings.position)
+butterflyEarRingsLightBlue = stuff("Boucles d'oreilles du papillon azuré","hgm",0,1,precision=20,negativeDirect=-40,strength=40,endurance=10,magie=-40,agility=-20,negativeIndirect=30,emoji='<:lightBlue:933728207453163590>',position=batEarRings.position)
+butterflyEarRingsDarkBlue = stuff("Boucles d'oreilles du papillon bleu marine","hgn",0,1,endurance=25,magie=55,resistance=20,intelligence=10,strength=-40,charisma=-40,negativeHeal=10,emoji='<:darkblue:933728323455045672>',position=batEarRings.position)
+butterflyEarRingsDark = stuff("Boucles d'oreilles du papillon noir","hgo",0,1,endurance=25,strength=55,resistance=20,charisma=10,magie=-40,intelligence=-40,negativeShield=10,emoji='<:black:933728357152096277>',position=batEarRings.position)
+butterflyEarRingsGreen = stuff("Boucles d'oreilles du papillon vert","hgp",0,1,endurance=20,strength=50,resistance=15,agility=25,magie=-40,intelligence=-40,negativeShield=10,emoji='<:green:933728304945590302>',position=batEarRings.position)
+
+butterflyPendantPink = stuff("Pendantif du papillon rose","hgq",0,1,charisma=40,negativeBoost=-30,intelligence=10,endurance=10,strength=-30,magie=-30,agility=-10,emoji='<:pink:933734447386329139>',position=batPendant.position)
+butterflyPendantWhite = stuff("Pendantif du papillon blanc","hgr",0,1,charisma=40,negativeHeal=-30,intelligence=10,endurance=10,strength=-30,magie=-30,agility=-10,emoji='<:white:933734600738484224>',position=batPendant.position)
+butterflyPendantBlue = stuff("Pendantif du papillon bleu","hgs",0,1,charisma=10,negativeShield=-30,intelligence=40,endurance=10,strength=-30,magie=-30,agility=-10,emoji='<:blue:933734548716539984>',position=batPendant.position)
+butterflyPendantRed = stuff("Pendantif du papillon rouge","hgt",0,1,precision=15,negativeDirect=-40,magie=30,strength=-35,agility=-10,negativeIndirect=20,emoji='<:red:933734489497145404>',position=batPendant.position)
+butterflyPendantPurple = stuff("Pendantif du papillon violet","hgu",0,1,agility=15,negativeIndirect=-40,magie=30,strength=-35,precision=-10,negativeDirect=20,emoji='<:purple:933734530324520970>',position=batPendant.position)
+butterflyPendantLightBlue = stuff("Pendantif du papillon azuré","hgv",0,1,precision=20,negativeDirect=-40,strength=30,magie=-40,agility=-10,negativeIndirect=20,emoji='<:lightblue:933734471444873276>',position=batPendant.position)
+butterflyPendantDarkBlue = stuff("Pendantif du papillon bleu marine","hgx",0,1,endurance=25,magie=50,resistance=15,strength=-40,charisma=-30,emoji='<:darkblue:933734568152940616>',position=batPendant.position)
+butterflyPendantDark = stuff("Pendantif du papillon noir","hgy",0,1,endurance=20,strength=50,resistance=20,magie=-40,intelligence=-30,emoji='<:dark:933734582044475453>',position=batPendant.position)
+butterflyPendantGreen = stuff("Pendantif du papillon vert","hgz",0,1,endurance=10,strength=40,resistance=15,agility=25,magie=-40,intelligence=-30,emoji='<:green:933734508317003846>',position=batPendant.position)
+
+highIlianaBoots = stuff("Bottes fourées",'hha',2,1,endurance=20,charisma=20,resistance=20,negativeHeal=-20,strength=-20,magie=-20,negativeBoost=20,emoji='<:hightBoots:933788931571482775>')
+LittleIlianaBoots = stuff("Bottines fourées",'hhb',2,1,endurance=20,intelligence=20,resistance=20,negativeShield=-20,strength=-20,magie=-20,negativeBoost=20,emoji='<:littleBoots:933788947409170462>')
+goldenArmoreBoots = stuff("Bottes en or",'hhc',2,1,endurance=25,resistance=15,negativeBoost=-20,negativeShield=-20,strength=-30,magie=-30,emoji='<:goldBoots:933788985153716305>')
+silverArmoreBoots = stuff("Bottes en bronze",'hhd',2,1,endurance=20,resistance=10,strength=35,agility=15,charisma=-30,intelligence=-30,emoji='<:bronzeBoots:933789000337088513>')
+bronzeArmoreBoots = stuff("Bottes en argent",'hhe',2,1,endurance=20,resistance=10,magie=35,precision=15,charisma=-30,intelligence=-30,emoji='<:silverBoots:933788966640054323>')
 
 # Stuff
-stuffs = [greenFlat,greenHeels,summonerFoulard40,summonerShoes40,summonerMenteau40,summonerFoulard20,summonerMenteau20,summonerShoes20,looseHat,
+stuffs = [butterflyPendantPink,butterflyPendantWhite,butterflyPendantBlue,butterflyPendantRed,butterflyPendantPurple,butterflyPendantLightBlue,butterflyPendantDarkBlue,butterflyPendantDark,
+    butterflyPendantGreen,highIlianaBoots,LittleIlianaBoots,goldenArmoreBoots,silverArmoreBoots,bronzeArmoreBoots,
+    butterflyEarRingsPink,butterflyEarRingsWhite,butterflyEarRingsBlue,butterflyEarRingsRed,butterflyEarRingsPurple,butterflyEarRingsLightBlue,butterflyEarRingsDarkBlue,butterflyEarRingsGreen,
+    lunarshirt,skullShirt,clowdyShirt,matDress,jeanVest2,linDress,
+    greenFlat,greenHeels,summonerFoulard40,summonerShoes40,summonerMenteau40,summonerFoulard20,summonerMenteau20,summonerShoes20,looseHat,
     chemAndJupePink,chemAndJupeWhite,chemAndJupeBlue,chemAndJupeRed,chemAndJupepurple,chemAndJupeblack,chemAndJupedarkblue,chemAndJupegreen,chemAndJupelightBlue,
     lightBluebutterflysandals,lightBluebutterflyshirt,lightBlueChemVeste,lightBlueButterFlyBoots,lightBluebutbar,greenbutterflysandals,greenbutterflyshirt,greenChemVeste,greenButterFlyBoots,greenbutbar,
     blueHeels,barkblueHeels,lightBlueHeels,darkbutterflysandals,darkbutterflyshirt,darkChemVeste,darkButterFlyBoots,darkbutbar,purpleSnekers,whiteSneakersLong,blackBlueSnelers,
