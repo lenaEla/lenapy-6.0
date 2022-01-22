@@ -46,6 +46,8 @@ def remove_accents(input_str : str):
             temp += "E"
         elif a == " ":
             pass
+        elif a in ["?","!",";",",","."]:
+            temp+="_"
         else:
             temp+=a
 
@@ -551,6 +553,8 @@ def infoSkill(skill : skill, user : char,ctx):
         temp += "\nCette compétence est une compétence **ultime**.\n> - Vous ne pouvez équiper qu'une compétence ultime\n> Vous devez être niveau 10 pour équiper une compétence ultime"
     if skil.group != 0:
         temp += "\nCette compétence est une compétence **{0}**.\n> - Vous ne pouvez pas équiper de compétence divines et démoniques en même temps".format(skillGroupNames[skil.group])
+    if skil.setAoEDamage:
+        temp += "\nLes dégâts de cette compétence ne sont pas affectés par la réduction de dégâts de zone"
 
     temp2 =""
     if skil.tpCac:
@@ -561,7 +565,6 @@ def infoSkill(skill : skill, user : char,ctx):
     if skil.jumpBack:
         temp2+="\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack,["","s"][int(skil.jumpBack > 1)])
 
-    
     if temp2!="":
         temp+="\n"+temp2
 
@@ -1504,7 +1507,7 @@ def getAutoStuff(object: stuff, user: char):
         return object
     else:
         tablAllStats = object.allStats()+[object.resistance,object.percing,object.critical]+[object.negativeHeal*-1,object.negativeBoost*-1,object.negativeShield*-1,object.negativeDirect*-1,object.negativeIndirect*-1]
-        
+
         for comp in user.skills:
             if type(comp) == skill and comp.use not in [None,HARMONIE]:
                 tablAllStats[comp.use] += 1
@@ -1525,9 +1528,8 @@ def getAutoStuff(object: stuff, user: char):
         elif type(user) == tmpAllie:
             tablToSee = copy.deepcopy(stuffs)
 
-
         def getSortValue(obj:stuff,statsMaxPlace=statsMaxPlace,aff=False):
-            if obj.effect != None and findEffect(obj.effect).id == summonerMalus.id:
+            if obj.effect != None and findEffect(obj.effect).id == summonerMalus.id and (object.effect == None or findEffect(object.effect).id != summonerMalus.id):
                 return -maxsize
             objStats = obj.allStats()+[obj.resistance,obj.percing,obj.critical]+[obj.negativeHeal*-1,obj.negativeBoost*-1,obj.negativeShield*-1,obj.negativeDirect*-1,obj.negativeIndirect*-1]
             value = []
@@ -1595,54 +1597,57 @@ async def downloadElementIcon(bot : discord.Client):
                 print(emojiObject[0] + " non trouvé")
 
 async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], text = "Chargement..."):
-    desc = "<:alice:908902054959939664> :\n\""
-    whatRandomStat = random.randint(0,len(tablAdd)-1)
-    randomStat = tablAdd[whatRandomStat]
-    rdm2 = ["max","total"][random.randint(0,1)]
+    if random.randint(0,99) < 50:
+        desc = "<:alice:908902054959939664> :\n\""
+        whatRandomStat = random.randint(0,len(tablAdd)-1)
+        randomStat = tablAdd[whatRandomStat]
+        rdm2 = ["max","total"][random.randint(0,1)]
 
-    listDict = []
-    for perso in team:
-        if type(perso) == char:
-            value = aliceStatsDb.getUserStats(perso,rdm2+randomStat)
-            if value > 0:
-                listDict.append({"name" : perso.name,"value" : value,"char" : perso})
+        listDict = []
+        for perso in team:
+            if type(perso) == char:
+                value = aliceStatsDb.getUserStats(perso,rdm2+randomStat)
+                if value > 0:
+                    listDict.append({"name" : perso.name,"value" : value,"char" : perso})
 
-    if len(listDict) > 0:
-        if len(listDict) == 1:
-            choisen = listDict[0]
-        else:
-            choisen = listDict[random.randint(0,len(listDict)-1)]
-
-        if rdm2 == "max":
-            msgMax = [randomMaxDmg,randomMaxKill,randomMaxRes,randomMaxTank,randomMaxHeal,randomMaxArmor,randomMaxSupp]
-        else:
-            msgMax = [randomTotalDmg,randomTotalKill,randomTotalRes,randomTotalTank,randomTotalHeal,randomTotalArmor,randomTotalSupp]
-        
-        try:
-            desc += msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=separeUnit(int(choisen["value"])),name=choisen["name"])
-        except:
-            desc += "placeholder.error.unknow"
-
-        biggest = random.randint(0,4)
-        if biggest < 2:
-            if rdm2 == "max":
-                records = aliceStatsDb.getRecord("max{0}".format(randomStat))
-                if int(records["owner"]) == int(choisen["char"].owner):
-                    desc += "\n\nC'est d'ailleurs le record tiens"
-                else:
-                    try:
-                        recorder = loadCharFile(absPath + "/userProfile/" + str(records["owner"]) + ".prof")
-                        desc += "\n\n"+randomRecordMsg[random.randint(0,len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot,recorder),value=separeUnit(int(records["value"])),name=recorder.name)
-                    except:
-                        desc += "\n\nJ'ai pas pu trouver qui avait le record, par contre"
+        if len(listDict) > 0:
+            if len(listDict) == 1:
+                choisen = listDict[0]
             else:
-                summation = 0
-                for di in listDict:
-                    summation += int(di["value"])
+                choisen = listDict[random.randint(0,len(listDict)-1)]
 
-                desc += "\n\n"+randomPurcenMsg[random.randint(0,len(randomPurcenMsg)-1)].format(purcent=int(choisen["value"]/summation*100))
+            if rdm2 == "max":
+                msgMax = [randomMaxDmg,randomMaxKill,randomMaxRes,randomMaxTank,randomMaxHeal,randomMaxArmor,randomMaxSupp]
+            else:
+                msgMax = [randomTotalDmg,randomTotalKill,randomTotalRes,randomTotalTank,randomTotalHeal,randomTotalArmor,randomTotalSupp]
+            
+            try:
+                desc += msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=separeUnit(int(choisen["value"])),name=choisen["name"],il=["il","elle"][choisen["char"].gender==GENDER_FEMALE],e=["","e"][choisen["char"].gender==GENDER_FEMALE])
+            except:
+                desc += "placeholder.error.unknow"
 
+            biggest = random.randint(0,4)
+            if biggest < 2:
+                if rdm2 == "max":
+                    records = aliceStatsDb.getRecord("max{0}".format(randomStat))
+                    if int(records["owner"]) == int(choisen["char"].owner):
+                        desc += "\n\nC'est d'ailleurs le record tiens"
+                    else:
+                        try:
+                            recorder = loadCharFile(absPath + "/userProfile/" + str(records["owner"]) + ".prof")
+                            desc += "\n\n"+randomRecordMsg[random.randint(0,len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot,recorder),value=separeUnit(int(records["value"])),name=recorder.name,il=["il","elle"][recorder.gender==GENDER_FEMALE],e=["","e"][recorder.gender==GENDER_FEMALE])
+                        except:
+                            desc += "\n\nJ'ai pas pu trouver qui avait le record, par contre"
+                else:
+                    summation = 0
+                    for di in listDict:
+                        summation += int(di["value"])
+
+                    desc += "\n\n"+randomPurcenMsg[random.randint(0,len(randomPurcenMsg)-1)].format(purcent=int(choisen["value"]/summation*100))
+
+        else:
+            rand = [0,len(aliceStatsNothingToShow[whatRandomStat])-1][len(aliceStatsNothingToShow[whatRandomStat])>1]
+            desc += aliceStatsNothingToShow[whatRandomStat][rand]
+        return discord.Embed(title="__{0}__".format(text),color=aliceColor,description=desc+"\"")
     else:
-        rand = [0,len(aliceStatsNothingToShow[whatRandomStat])-1][len(aliceStatsNothingToShow[whatRandomStat])>1]
-        desc += aliceStatsNothingToShow[whatRandomStat][rand]
-    return discord.Embed(title="__{0}__".format(text),color=aliceColor,description=desc+"\"")
+        return discord.Embed(title="__{0}__".format(text),color=light_blue,description="<:lena:909047343876288552> :\n\""+lenaTipsMsgTabl[random.randint(0,len(lenaTipsMsgTabl)-1)]+"\"")

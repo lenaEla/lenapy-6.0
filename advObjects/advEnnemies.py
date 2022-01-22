@@ -136,6 +136,21 @@ octoSusSkill2Eff = effect("Saboté",'octoSusSkill2Eff',INTELLIGENCE,strength=-10
 octoSusSkill2 = skill('Sabotage','octoSusSkill2',TYPE_MALUS,0,effect=octoSusSkill2Eff,area=AREA_CIRCLE_1,range=AREA_MONO,emoji='<:Sabotage:932241553865465946>')
 octoSusWeap = weapon("Kill",'octoSusWeap',range=RANGE_LONG,effectiveRange=AREA_CIRCLE_1,power=77,sussess=90,emoji='<:Kill:932241554050023484>')
 
+# Unform Light A
+unformLightAWeapon = weapon("Lumière destructrice",'informLightAWeap',RANGE_MELEE,AREA_CIRCLE_2,108,60,strength=20,magie=20)
+unformLightASkill1 = skill("Corruption",'unformLightASkill1',TYPE_DAMAGE,power=50,range=AREA_CIRCLE_3,effect=vulneTabl[2],cooldown=5)
+unformLightASkill2Eff = effect('Annéantissement','unformLightASkill2Eff',MAGIE,type=TYPE_INDIRECT_DAMAGE,power=30,turnInit=3,lvl=3,trigger=TRIGGER_START_OF_TURN,stackable=True)
+unformLightASkill2 = skill("Anéantissement de l'esprit",'unformLightASkill2',TYPE_INDIRECT_DAMAGE,range=AREA_RANDOMENNEMI_2,area=AREA_CIRCLE_1,effect=unformLightASkill2Eff,cooldown=3)
+unformLightASkill3Eff = effect('Lueur mauvaise','unformLightASkill3Eff',MAGIE,magie=10,strength=5,turnInit=3)
+unformLightASkill3 = skill("Lueur mauvaise",'unformLightASkill3',TYPE_BOOST,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=5,effect=unformLightASkill3Eff)
+
+unformDarknessDot = effect('Anéantissement','unformDarknessMainDoT',MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,power=15,turnInit=8,lvl=8,stackable=True)
+unformDarknessAWeapon = weapon("Noirceur destructrice",'unformDarknessAWeap',RANGE_MELEE,AREA_CIRCLE_2,41,99,strength=20,magie=20,use=MAGIE,effectOnUse=unformDarknessDot)
+unformDarknessASkill1 = skill('Fissure','unformDarkASkill1',TYPE_INDIRECT_DAMAGE,range=AREA_CIRCLE_1,cooldown=5,effect=[unformDarknessDot,unformDarknessDot,unformDarknessDot,unformDarknessDot,unformDarknessDot])
+unformDarknessASkill2 = skill('Ombre aveuglante','unformDarknessASkill2',TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=3)
+unformDarknessASkill3Eff = effect('Ténèbres consummants','unformDarknessASkill3Eff',MAGIE,type=TYPE_MALUS,resistance=-5,endurance=-10,turnInit=3)
+unformDarknessASkill3 = skill("Ombre mauvaise",'unformDarknessASkill3',TYPE_MALUS,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=5,effect=unformDarknessASkill3Eff)
+
 # --------------------------------------------------------- Tabl Unique Ennemis ---------------------------------------------------------
 tablUniqueEnnemies = [
     octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=PROTECTEUR),
@@ -170,7 +185,9 @@ tablUniqueEnnemies = [
     octarien("Citoptère Pal. Cor.",0,200,200,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[ironWillSkill,clirHeal,lightAura2,renisurection],ALTRUISTE,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
     octarien("Octaling PomPomGirl",10,70,300,100,45,35,10,20,0,0,octaPomWeapon,7,"<:octaPomPom:921910868097257472>",[octoPomSkill1,octoPomSkill2,octoPomSkill3,octoPomSkill4,zoneOctoInkRes],IDOLE,number=2,gender=GENDER_FEMALE),
     octarien("Citoptère Inf. Cor.",0,50,275,75,100,20,20,35,0,0,clirInfWeap,6,'<:cliroInfirm:921915716435836968>',[lightHeal2,lightBigHealArea,renisurection],ALTRUISTE,baseLvl = 15, deadIcon = '<:cliroOut:921912637103698010>',number=2),
-    octarien("OctoSUS",200,75,0,35,50,200,0,35,20,0,octoSusWeap,5,'<:octoSus:932220811828412456>',[octoSusSkill1,octoSusSkill2],BERSERK,deadIcon='<:dead:932243831104102450>', baseLvl = 15, number=3)
+    octarien("OctoSUS",200,75,0,35,50,200,0,35,20,0,octoSusWeap,5,'<:octoSus:932220811828412456>',[octoSusSkill1,octoSusSkill2],BERSERK,deadIcon='<:dead:932243831104102450>', baseLvl = 15, number=3),
+    octarien("Lueur informe A",200,80,20,20,50,25,200,50,20,0,unformLightAWeapon,10,'<:aformLight:931881464302284871>',[unformLightASkill1,unformLightASkill2,unformLightASkill3],PROTECTEUR,description="Une lueur instable qui cherche à éliminer tous les éléments autre que Lumière de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],baseLvl=30),
+    octarien("Ombre informe A",200,80,20,20,50,25,200,50,20,0,unformDarknessAWeapon,10,'<:aformDark:931881448619798568>',[unformDarknessASkill1,unformDarknessASkill2,unformDarknessASkill3],PROTECTEUR,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30)
 ]
 
 # --------------------------------------------------------- Tabl All Ennemis ---------------------------------------------------------
@@ -321,9 +338,9 @@ ailillWeap = copy.deepcopy(depha)
 ailillEffBleeding = copy.deepcopy(bleeding)
 ailillEffBleeding.power = 50
 ailillWeap.effectOnUse, ailillWeap.power, ailillWeap.range, ailillWeap.endurance = ailillEffBleeding, ailillWeap.power + 45, RANGE_DIST, 35
-ailillSKill2 = skill("Course déphasée","ailillSkill2",TYPE_DAMAGE,0,150,area=AREA_RANDOMENNEMI_5,cooldown=4,setAoEDamge=True)
-ailillSKill3 = skill("Saignement déphasé","ailillSkill3",TYPE_INDIRECT_DAMAGE,0,area=AREA_RANDOMENNEMI_5,cooldown=3,effect=ailillEffBleeding)
-ailillSkill4 = skill("Frappe Sonique",'ailillSkill4',TYPE_DAMAGE,0,0,AREA_RANDOMENNEMI_1,area=AREA_CIRCLE_2,setAoEDamge=True,cooldown=3)
+ailillSKill2 = skill("Course déphasée","ailillSkill2",TYPE_DAMAGE,0,150,area=AREA_RANDOMENNEMI_5,cooldown=4,setAoEDamge=True,tpCac=True)
+ailillSKill3 = skill("Saignement déphasé","ailillSkill3",TYPE_INDIRECT_DAMAGE,0,area=AREA_RANDOMENNEMI_5,cooldown=3,effect=ailillEffBleeding,tpCac=True)
+ailillSkill4 = skill("Frappe Sonique",'ailillSkill4',TYPE_DAMAGE,0,0,AREA_RANDOMENNEMI_1,area=AREA_CIRCLE_2,setAoEDamge=True,cooldown=3,tpCac=True)
 
 tablRaidBoss = [
     octarien("Tom Nook",350,400,100,20,50,250,0,35,10,0,nookWeapon,70,'<:nook:927252158141849670>',[nookSkill1,nookSkill2,nookSkill3,nookSkill4],oneVAll=True,baseLvl=25),

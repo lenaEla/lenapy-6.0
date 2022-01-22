@@ -844,16 +844,22 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     create_select_option("Magie","10",'🧙',default=10==tri),
                     create_select_option("Résistance","11",'🛡️',default=11==tri),
                     create_select_option("Pénétration","12",'🗡️',default=12==tri),
-                    create_select_option("Critique","13",'🎲',default=13==tri)]
+                    create_select_option("Critique","13",'🎲',default=13==tri),
+                    create_select_option("Soins","14",getEmojiObject('<:cure:925190515845132341>'),default=14==tri),
+                    create_select_option("Boost","15",getEmojiObject('<:dyna:932618114892439613>'),default=15==tri),
+                    create_select_option("Armures","16",getEmojiObject('<:inkArmor:866829950463246346>'),default=16==tri),
+                    create_select_option("Directs","17",getEmojiObject('<:splatbomb:873527088286687272>'),default=17==tri),
+                    create_select_option("Indirects","18",getEmojiObject('<:estabistia:883123793730609172>'),default=18==tri)]
 
             elif destination == 2:
                 options+=[
                     create_select_option("Dégâts","14",getEmojiObject('<:defDamage:885899060488339456>'),default=14==tri),
-                    create_select_option("Dégâts indirects","15",getEmojiObject('<:defDamage:885899060488339456>'),default=15==tri),
-                    create_select_option("Soins","16",getEmojiObject('<:defHeal:885899034563313684>'),default=16==tri),
-                    create_select_option("Armure","17",getEmojiObject('<:defarmor:895446300848427049>'),default=17==tri),
-                    create_select_option("Boost",'18',getEmojiObject('<:defSupp:885899082453880934>'),default=18==tri),
-                    create_select_option("Malus","19",getEmojiObject('<:defMalus:895448159675904001>'),default=19==tri)
+                    create_select_option("Dégâts indirects","15",getEmojiObject('<:tentamissile:884757344397951026>'),default=15==tri),
+                    create_select_option("Soins","16",getEmojiObject('<:AdL:873548073769533470>'),default=16==tri),
+                    create_select_option("Armure","17",getEmojiObject('<:orbeDef:873725544427053076>'),default=17==tri),
+                    create_select_option("Boost",'18',getEmojiObject('<:bpotion:867165268911849522>'),default=18==tri),
+                    create_select_option("Malus","19",getEmojiObject('<:nostalgia:867162802783649802>'),default=19==tri),
+                    create_select_option("Invocation","20",getEmojiObject('<:sprink1:887747751339757599>'),default=20==tri)
                 ]
 
             sortOptions = create_select(options)
@@ -874,7 +880,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 elif destination == 2:
                     tablToSee = user.skillInventory
                     if tri >= 14:
-                        typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS]
+                        typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON]
                         see = typeTabl[tri-14]
                         if type(see) != list:
                             for ski in tablToSee[:]:
@@ -919,6 +925,16 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
                     elif tri == 13:
                         tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+                    elif tri == 14:
+                        tablToSee.sort(key=lambda ballerine:-ballerine.negativeHeal + ballerine.charisma, reverse=True)
+                    elif tri == 15:
+                        tablToSee.sort(key=lambda ballerine:-ballerine.negativeBoost + max(ballerine.charisma,ballerine.intelligence), reverse=True)
+                    elif tri == 16:
+                        tablToSee.sort(key=lambda ballerine:-ballerine.negativeShield + ballerine.intelligence, reverse=True)
+                    elif tri == 17:
+                        tablToSee.sort(key=lambda ballerine:-ballerine.negativeDirect + max(ballerine.magie,ballerine.strength), reverse=True)
+                    elif tri == 18:
+                        tablToSee.sort(key=lambda ballerine:-ballerine.negativeIndirect + max(ballerine.magie,ballerine.strength), reverse=True)
 
                 elif destination == 2 and tri in [14,16]:
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
@@ -926,6 +942,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
                 elif destination == 2 and tri in [17]:
                     tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+
                 else:
                     tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
 

@@ -284,7 +284,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None):
         """rtfm"""
 
         self.name = name                                # Name of the skill
@@ -295,6 +295,7 @@ class skill:
         self.replay = replay
         self.tpCac:bool = tpCac
         self.jumpBack:int = jumpBack
+        self.setAoEDamage:bool = setAoEDamge
         
         if power != AUTO_POWER:
             self.power = power                              # Power of the skill. Use for damage and healing skills
@@ -306,9 +307,10 @@ class skill:
                 power = power * 1.2
             self.power = int(power)
 
-        self.knockback = knockback
-        self.effPowerPurcent = effPowerPurcent
-        self.become = become
+        self.knockback:int = knockback
+        self.effPowerPurcent:int = effPowerPurcent
+        self.become:List = become
+        self.url:str = url
 
         if range == AREA_MONO and area != AREA_MONO and types == TYPE_DAMAGE:
             self.power = int(power * (1+AOEDAMAGEREDUCTION))
@@ -590,6 +592,7 @@ class char:
         self.resistance,self.percing,self.critical = 0,0,0
         self.aspiration = -1
         self.points = 0
+        self.canMove = True
         self.majorPointsCount = 0
         self.weapon = splattershotJR
         self.weaponInventory = [splattershotJR,mainLibre]
@@ -625,7 +628,7 @@ class char:
 
 class invoc:
     """The main class for summons. Similar the "char" class, but with only the fight's necessery attributs"""
-    def __init__(self,name,strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,aspiration,icon,weapon,skill=[],gender=GENDER_OTHER,description="Pas de description",element=ELEMENT_NEUTRAL):
+    def __init__(self,name,strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical,aspiration,icon,weapon,skill=[],gender=GENDER_OTHER,description="Pas de description",element=ELEMENT_NEUTRAL,canMove=True):
         self.name = name
         self.level = 0
         self.team = 0
@@ -633,6 +636,7 @@ class invoc:
         self.color = 0
         self.species = 1
         self.stars = 0
+        self.canMove = canMove
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
@@ -660,7 +664,7 @@ class invoc:
     def isNpc(self,name : str):
         return False
 
-incurable = effect("Incurable","incur",power=100,description="Diminue les soins reçus par la cible de **(puissance)**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent",emoji=[['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>']])
+incurable = effect("Incurable","incur",type=TYPE_MALUS,power=100,description="Diminue les soins reçus par la cible de **(puissance)**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent",emoji=[['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>']])
 
 incur = []
 for num in range(0,10):
@@ -670,7 +674,17 @@ for num in range(0,10):
     incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
 
-partage = effect("Incurable","share",power=100,turnInit=-1,description="",emoji=[["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"]],area=AREA_DONUT_1)
+vulne = effect("Dégâts augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:vulneB:933804144832184401>","<a:vulneR:933804163161260052>"),type=TYPE_MALUS)
+
+vulneTabl = []
+for num in range(0,10):
+    vulneTemp = copy.deepcopy(vulne)
+    vulneTemp.power = 10*num
+    vulneTemp.name += " ({0})".format(10*num)
+    vulneTemp.description="Augmente les dégâts subis par le porteur de **{0}%**\n\nSi plusieurs effets Dégâts augmentés sont présent sur la même cible, uniquement le plus puissant sont pris en compte".format(10*num)
+    vulneTabl.append(vulneTemp)
+
+partage = effect("Partage","share",type=TYPE_MALUS,power=100,turnInit=-1,description="",emoji=[["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"]],area=AREA_DONUT_1)
 
 shareTabl = []
 for num in range(0,10):
@@ -772,7 +786,8 @@ class octarien:
             baseLvl:int = 1,
             rez:bool=True,
             element:List[int] = [ELEMENT_NEUTRAL,ELEMENT_NEUTRAL],
-            number:int = 1
+            number:int = 1,
+            canMove=True
         ):
         """
             .name : The name of the ennemy
@@ -804,6 +819,7 @@ class octarien:
         self.skills = skill
         self.stars = 0
         self.team = -2
+        self.canMove = canMove
         while len(self.skills) < 7:
             self.skills+=["0"]
 
@@ -833,17 +849,17 @@ class octarien:
         """Return a ``list`` with the mains stats of the ennemi\n
         Those stats are the Lvl 50 stats"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
-    
+
     def changeLevel(self,level=1):
         """Change the level of the ennmy and adjust his stats and skills in consequence\n
         It's very recommanded to do than on a copy of the ennemy"""
         self.level = level
         stats, cmpt = copy.deepcopy(self.allStats()),0
         for a in lvlToUnlockSkill:
-            if self.level <= a:
+            if self.level >= a:
                 cmpt += 1
 
-        skillCountMul = 0.5 + (0.5*(cmpt/7))
+        skillCountMul = 0.65 + (0.35*(cmpt/7))
 
         for a in range(0,len(stats)):
             stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50*skillCountMul)
@@ -928,6 +944,7 @@ class tmpAllie:
         self.weapon = weapon
         self.stars = 0
         self.team = -1
+        self.canMove = True
         self.skills = ["0","0","0","0","0","0","0"]
         self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         for a in range(len(skill)):

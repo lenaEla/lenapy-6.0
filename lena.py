@@ -498,6 +498,10 @@ async def hourClock():
         if temp != "":
             await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=temp))
         await remakeEmojis()
+
+        for userPath in os.listdir("./userProfile/"):
+            user = loadCharFile('./userProfile/{0}'.format(userPath))
+            aliceStatsDb.updateJetonsCount(user,10-(userShopPurcent(user)//10))
         await restart_program(bot)
 
     # Skill Verif
@@ -570,14 +574,9 @@ async def on_ready():
 @bot.event
 async def on_message(ctx : discord.message.Message):
     if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
-        user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
-        await makeCustomIcon(bot,user)
-        await ctx.add_reaction('<:littleStar:925860806602682369>')
-
-        embed = discord.Embed(title="__Icone de personnage__",color=user.color)
-        embed.set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"]))
-
-        await ctx.channel.send(embed=embed)
+        for userPath in os.listdir("./userProfile/"):
+            user = loadCharFile('./userProfile/{0}'.format(userPath))
+            aliceStatsDb.updateJetonsCount(user,10-(userShopPurcent(user)//10))
 
     else:
         pathUserProfile = "./userProfile/{0}.prof".format(ctx.author.id)
@@ -618,6 +617,7 @@ async def comEncyclopedia(ctx,destination):
 # normal fight
 @slash.subcommand(base="fight",name="normal",description="Permet de lancer un combat normal")
 async def normal(ctx):
+    msg = None
     if not(await botChannelVerif(bot,ctx)):
         return 0
     if not(globalVar.fightEnabled()):
@@ -638,8 +638,34 @@ async def normal(ctx):
         ballerine = user.team
 
     timing = teamWinDB.getFightCooldown(ballerine)
-    fightingStatus = teamWinDB.isFightingBool(ballerine)
 
+    if timing > 0:
+        if timing > 60*10:
+            await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60,["","s"][timing//60 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
+            return 0
+        else:
+            while 1:
+                timing = teamWinDB.getFightCooldown(ballerine)
+                if timing > 0:
+                    try:
+                        if msg == None:
+                            msg = await ctx.send(embed = await getRandomStatsEmbed(bot,[user],text="Votre combat a été mis en liste d'attente (Reste {0}:{1})".format(timing//60,timing%60)))
+                        else:
+                            await msg.edit(embed = await getRandomStatsEmbed(bot,[user],text="Votre combat a été mis en liste d'attente (Reste {0}:{1})".format(timing//60,timing%60)))
+                    except:
+                        pass
+                    await asyncio.sleep(10)
+                else:
+                    try:
+                        if msg == None:
+                            msg = await ctx.send(embed = await getRandomStatsEmbed(bot,[user],text="Combat en cour de génération..."))
+                        else:
+                            await msg.edit(embed = await getRandomStatsEmbed(bot,[user],text="Combat en cour de génération..."))
+                    except:
+                        pass
+                    break
+
+    fightingStatus = teamWinDB.isFightingBool(ballerine)
     if fightingStatus[0]:
         channel = await bot.fetch_channel(fightingStatus[2])
         fightingMessage = await channel.fetch_message(fightingStatus[0])
@@ -659,10 +685,10 @@ async def normal(ctx):
             else:
                 temp+=letter
 
-        await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
-        return 0
-    elif timing > 0:
-        await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60,["","s"][timing//60 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
+        if msg == None:
+            await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
+        else:
+            await msg.edit(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
         return 0
 
     team1 = []
@@ -678,7 +704,7 @@ async def normal(ctx):
     if fun < 0:                 # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
         temp.changeLevel(50)
-        await fight(bot,[temp],[],ctx,False,procurFight=True)
+        await fight(bot,[temp],[],ctx,False,procurFight=True,msg=msg)
 
     elif fun < 1:               # But nobody came
         teamIcon = ""
@@ -715,7 +741,7 @@ async def normal(ctx):
             team2.append(alea)
             cmpt += 1
 
-        await fight(bot,team1,team2,ctx,False)
+        await fight(bot,team1,team2,ctx,False,msg=msg)
 
     elif fun < 3:              # All Temmies
         temp = team1
@@ -734,7 +760,7 @@ async def normal(ctx):
             team2.append(alea)
             cmpt += 1
 
-        await fight(bot,team1,team2,ctx,False)
+        await fight(bot,team1,team2,ctx,False,msg=msg)
 
     elif fun < 4:              # BOUM BOUM BOUM BOUM
         temp = team1
@@ -753,12 +779,13 @@ async def normal(ctx):
             team2.append(alea)
             cmpt += 1
 
-        await fight(bot,team1,team2,ctx,False)
+        await fight(bot,team1,team2,ctx,False,msg=msg)
 
-    elif fun < 9:             # Raid
-        msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
+    elif fun < 12:             # Raid
+        if msg == None:
+            msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
         try:
-            tablAllTeams = userTeamDb.getAllTeamIds
+            tablAllTeams = userTeamDb.getAllTeamIds()
             random.shuffle(tablAllTeams)
 
             moyTeam = 0
@@ -770,7 +797,7 @@ async def normal(ctx):
             for tempTeamId in tablAllTeams:
                 if tempTeamId != user.team:
                     tempTeam, moyTempTeam = [], 0
-                    for a in userTeamDb.getTeamMember(user.team):
+                    for a in userTeamDb.getTeamMember(tempTeamId):
                         tempUser = loadCharFile("./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
@@ -795,25 +822,29 @@ async def normal(ctx):
             await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
             teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
 
-    elif fun < 14:              # Clem Procu Fight
+    elif fun < 20:              # Procu Fight
+        level = team1[0].level
+        team1, team2 = [], []
         if random.randint(0,99) < 50:
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             team1.sort(key=lambda clemency: clemency.level, reverse=True)
-            level = team1[0].level+65+random.randint(0,10)
+            level += 65+random.randint(0,10)
             ent.changeLevel(level)
 
             miniStuff = stuff("Rune",'clemRune',0,0,endurance=level,charisma=0,agility=level//2,precision=int(level*0.3),intelligence=level//10,magie=level*2,resistance=min(level//5,35),emoji=clemEarRings.emoji)
             ent.stuff = [miniStuff, miniStuff, miniStuff]
+            team1.append(ent)
+
         else:
             ent = copy.deepcopy(findEnnemi("Luna prê."))
             team1.sort(key=lambda clemency: clemency.level, reverse=True)
-            level = team1[0].level+100+random.randint(0,20)
+            level += 100+random.randint(0,20)
 
             miniStuffHead = stuff("Boucle d'oreille ombrale",'lunaDarkPendant',0,0,endurance=int(level*0.3),agility=level,precision=int(level*0.3),strength=level*2,resistance=min(level//5,30),percing=10,emoji=darkMaidPendants.emoji)
             miniStuffDress = stuff("Robe de soubrette ombrale ombrale",'lunaDarkMaidDress',0,0,endurance=int(level*0.7),agility=level,precision=int(level*0.5),strength=int(level*2.5),percing=15,resistance=min(level//5,40),emoji=darkMaidDress.emoji)
             miniStuffFlats = stuff("Ballerines ombrales",'lunaDarkFlats',0,0,endurance=int(level*0.3),agility=int(level*1.3),precision=int(level*0.3),strength=level*2,resistance=min(level//5,30),percing=10,emoji=darkMaidFlats.emoji)
 
-            ent = tmpAllie(ent.name,1,black,ent.aspiration,ent.weapon,[miniStuffHead,miniStuffDress,miniStuffFlats],GENDER_FEMALE,ent.skills,element=ent.element,icon=ent.icon,deadIcon=ent.deadIcon,bonusPoints=[STRENGTH,AGILITY])
+            ent = tmpAllie(ent.name,1,black,ent.aspiration,ent.weapon,[miniStuffHead,miniStuffDress,miniStuffFlats],GENDER_FEMALE,ent.skills,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],icon=ent.icon,deadIcon=ent.deadIcon,bonusPoints=[STRENGTH,AGILITY])
             ent.changeLevel(level)
 
             ent.says = says(
@@ -824,13 +855,35 @@ async def normal(ctx):
                 blockBigAttack = "Chaton, c'est pas à toi de le faire d'habitude ?"
             )
 
+            team1.append(ent)
+            if random.randint(0,99) < 50:
+                ent2 = findAllie('Iliana prê.')
+
+                miniStuffHead = stuff("Casque de la neko de la lueur ultime",'ilianaPreHead',0,0,endurance=int(level*0.5),agility=int(level*0.3),precision=int(level*0.3),charisma=level,magie=level,resistance=min(level//5,50),percing=10,emoji=darkMaidPendants.emoji)
+                miniStuffDress = stuff("Armure de la neko de la lueur ultime",'ilianaPreArmor',0,0,endurance=int(level*1.5),agility=int(level*0.3),precision=int(level*0.5),charisma=level,magie=level,percing=15,resistance=min(level//5,50),emoji=darkMaidDress.emoji)
+                miniStuffFlats = stuff("Sorolets de la neko de la lueur ultime",'ilianaPreBoots',0,0,endurance=int(level*5),agility=int(level*0.3),precision=int(level*0.3),charisma=level,magie=level,resistance=min(level//5,50),percing=10,emoji=darkMaidFlats.emoji)
+
+                ent2.stuff = [miniStuffHead,miniStuffDress,miniStuffFlats]
+                team1.append(ent2)
+
+                team2, listDangerous, cmpt = [], [findEnnemi('Lueur informe A'),findEnnemi('Ombre informe A')], 0
+                while cmpt < 8:
+                    temp = copy.deepcopy(listDangerous[random.randint(0,len(listDangerous)-1)])
+                    temp.changeLevel(level + random.randint(50,100))
+                    team2.append(temp)
+                    cmpt +=1
+
         try:
-            await fight(bot,[ent],[],ctx,False,procurFight=True)
+            await fight(bot,team1,team2,ctx,False,procurFight=True,msg=msg)
         except:
-            await ctx.send(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
+            if msg == None:
+                await ctx.send(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
+            else:
+                await msg.edit(embed=discord.Embed(title="__Unknow error during fight__",description=format_exc()))
             teamWinDB.changeFighting(team1[0].team,value=False,channel=0)
+
     else:
-        await fight(bot,team1,[],ctx,False)
+        await fight(bot,team1,[],ctx,False,msg=msg)
 
 # quick fight
 @slash.subcommand(base="fight",name="quick",description="Vous permet de faire un combat en sautant directement à la fin")
@@ -894,7 +947,7 @@ async def comQuickFight(ctx):
     if fun < 5:             # Raid
         msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
         try:
-            tablAllTeams = userTeamDb.getAllTeamIds
+            tablAllTeams = userTeamDb.getAllTeamIds()
             random.shuffle(tablAllTeams)
 
             moyTeam = 0
@@ -1138,8 +1191,8 @@ async def invent2(ctx,destination="Equipement",procuration=None,nom=None):
                         select = create_select(options,placeholder="Sélectionnez un objet :")
                     else:
                         await ctx.send(embed=discord.Embed(title="/inventory",description="L'objet spécifié n'a pas été trouvé, et le nom donné est trop vague\nVeuillez réessayer avec un paramètre Nom plus précis"),delete_after=10)
-                        to = True
-                        break
+                        return 0
+
                     msg = await ctx.send(embed=discord.Embed(title="/inventory",color=light_blue,description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc),components=[create_actionrow(select)])
 
                     def check(m):
@@ -1243,7 +1296,7 @@ async def teamAdd(ctx,joueur):
 
         if user.team == 0:
             rdm = str(random.randint(1,999999999))
-            while rdm in userTeamDb.getAllTeamIds:
+            while rdm in userTeamDb.getAllTeamIds():
                 rdm = str(random.randint(1,999999999))
             userTeamDb.updateTeam(rdm,[user])
             user.team = rdm
@@ -1965,7 +2018,6 @@ async def setChannel(ctx:discord_slash.SlashContext, salon:discord.TextChannel):
     globalVar.setGuildBotChannel(ctx.guild_id,salon.id)
     await ctx.send(embed = discord.Embed(title="__/set_bot_channel__",color=light_blue,description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
 
-
 @slash.slash(name="verif_team",guild_ids=adminServ)
 async def verifTeams(ctx):
     toSend, allReadySeen, msg, userTeam = "", [], None, []
@@ -1991,7 +2043,7 @@ async def verifTeams(ctx):
                 allReadySeen.append(user.owner)
                 userTeam.append([user.owner,team])
 
-            if int(user.team) != team:
+            if user.team != team:
                 user.team = team
                 saveCharFile(user=user)
                 redacted = " 📎"

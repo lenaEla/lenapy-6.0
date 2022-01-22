@@ -4,7 +4,7 @@ from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from commands_files.alice_stats_endler import aliceStatsdbEndler, aliceStatsDb
+from commands_files.alice_stats_endler import aliceStatsDb
 from asyncio import sleep
 
 async def procuration(ctx : discord.message,toProcur:discord.User):
@@ -49,7 +49,6 @@ async def roulette(bot: discord.Client, ctx: discord.message, user: char):
     msg = await ctx.send(embed=embed,components=[create_actionrow(button)]+allButon)
 
     def check(m):
-        print(int(m.author_id) == int(ctx.author_id))
         return int(m.author_id) == int(ctx.author_id)
 
     try:
@@ -61,17 +60,16 @@ async def roulette(bot: discord.Client, ctx: discord.message, user: char):
     if react.custom_id == "go":
         aliceStatsDb.updateJetonsCount(user,-1)
         gettenShop = userShopPurcent(user)
-        if gettenShop == 100:
-            toGet = [False,False,False,False,False]
-        elif gettenShop < 100:
-            toGet = [False,False,False,False,True]
-        elif gettenShop < 75:
-            toGet = [False,False,False,True,True]
+        if gettenShop < 25:
+            toGet = [False,True,True,True,True]
         elif gettenShop < 50:
             toGet = [False,False,True,True,True]
-        elif gettenShop < 25:
-            toGet = [False,True,True,True,True]
-
+        elif gettenShop < 75:
+            toGet = [False,False,False,True,True]
+        elif gettenShop < 100:
+            toGet = [False,False,False,False,True]
+        else:
+            toGet = [False,False,False,False,False]
         noneAllreadyGet = []
         for b in listAllBuyableShop:
             if not(user.have(obj=b)):
@@ -144,16 +142,16 @@ async def roulette(bot: discord.Client, ctx: discord.message, user: char):
             user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
             aliceStatsDb.updateJetonsCount(user,-1)
             gettenShop = userShopPurcent(user)
-            if gettenShop == 100:
-                toGet = [False,False,False,False,False]
-            elif gettenShop < 100:
-                toGet = [False,False,False,False,True]
-            elif gettenShop < 75:
-                toGet = [False,False,False,True,True]
+            if gettenShop < 25:
+                toGet = [False,True,True,True,True]
             elif gettenShop < 50:
                 toGet = [False,False,True,True,True]
-            elif gettenShop < 25:
-                toGet = [False,True,True,True,True]
+            elif gettenShop < 75:
+                toGet = [False,False,False,True,True]
+            elif gettenShop < 100:
+                toGet = [False,False,False,False,True]
+            else:
+                toGet = [False,False,False,False,False]
 
             noneAllreadyGet = []
             for b in listAllBuyableShop:

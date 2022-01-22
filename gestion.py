@@ -186,7 +186,7 @@ class userSettingsDbEndler:
                     if cmpt < len(tempTabl[a])-1:
                         toAddStr[a]+=","
 
-            cursory.execute("INSERT INTO userSettings (userId,{0}) VALUES ({1},{2});".format(toAddStr[0],user.owner,toAddStr[1]))
+            cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
             self.con.commit()
             print("{0} a été rajouté dans la base de donnée".format(user.name))
         else:

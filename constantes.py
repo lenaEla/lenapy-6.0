@@ -290,7 +290,7 @@ untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218,881633183425253396]
 
-stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667,914608569284964392,922684334010433547,928202839136825344]
+stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667,914608569284964392,922684334010433547,928202839136825344,933783830341484624]
 weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261,916120008948600872,911731670972002374]
 
 # For some time related stuff. Time from server != time from France
@@ -504,20 +504,24 @@ aliceSays = says(
     onDeath="Kya ☆⌒(>。<) !",
     redWinAlive="Viii (≧▽≦) !",
     redWinDead="｡･ﾟ(ﾟ><ﾟ)ﾟ･｡",
+    ultimate="Aller tous avec moi ! {skill} !",
     blueWinAlive="Alors, vous en avez dit quoi (≧▽≦) ?",
     onKill = "J'aime pas la méthode direct (〃▽〃)...",
     onResurect= "Prête pour le rappel ☆⌒(ゝ。∂)!",
-    reactBigRaiseEnnemy= "Pas de quoi s'en venter...",
-    bigRaise="Alors alors (〃▽〃)?"
+    reactBigRaiseEnnemy= "Je peux le faire aussi {caster}... Pas de quoi s'en venter...",
+    bigRaise="Alors alors (〃▽〃)?",
+    reactEnnemyKilled="En voilà un qui sera pas là pour mon final",
+    reactAllyKilled="T'en fais pas {downed} !"
 )
 
 clemSays = says(
-    start = "Parée !",
-    ultimate = "Ok, c'est parti !",
+    start = "`Ferme son livre` Ok allons-y",
+    ultimate = "J'espère que tu es prêt pour vous prendre ma {skill} dans la face, {target} !",
     onDeath = "Je t'ai sous estimé manifestement...",
-    onResurect = "Merci du coup de main !",
+    onResurect = "Merci du coup de main",
     redWinAlive = "Et bah alors, on abandonne déjà ?",
-    blueWinAlive = "Simple. Basique."
+    blueWinAlive = "Simple. Basique.",
+    reactEnnemyKilled= "Pas mal celle-là {killer}"
 )
 
 ailillSays = says(
@@ -645,7 +649,8 @@ lioSays = says(
     onDeath= "Humf ! J'aurais du rester dans la forêt...",
     redWinAlive= "Le monde des humains est... perturbant...",
     bigRaise="On lache rien...",
-    reactBigRaiseEnnemy="Je peux faire ça aussi, tu sais..."
+    reactBigRaiseEnnemy="Je peux faire ça aussi, tu sais...",
+    reactAllyKilled="Vous commencez à me taper sur les nerfs..."
 )
 
 lizSays = says(
@@ -676,25 +681,29 @@ randomMaxDmg = [
     "Apparament, {icon} __{name}__ aurait réussi à infligé **{value}** dégâts en un seul combat, ce mois-ci ╮(︶▽︶)╭",
     "Hé tu sais quoi {icon} __{name}__ ? Ton record de dégâts mensuel en un seul combat est de **{value}**",
     "Hum... le record de dégâts de {icon} __{name}__ est que de **{value}** ce mois-ci ? Pas ouf",
-    "Voyons voir... Ce mois-ci, {icon} __{name}__ a fait au maximum **{value}** en un combat"
+    "Voyons voir... Ce mois-ci, {icon} __{name}__ a fait au maximum **{value}** en un combat",
+    "Une à droite et une à gauche ! {icon} __{name}__ a réussi à faire **{value}** dégâts avec des beignes bien placées ce mois-ci !"
 ]
 
 randomTotalDmg = [
     "Hé {icon} __{name}__ ! Tu veux savoir combien de dégâts tu as fait au total ? **{value}**",
-    "Aufaite Lena, tu voulais savoir combien de dégâts a fait {icon} __{name}__ au total ? **{value}**",
-    "Tu veux savoir combien de dégâts tu as fait {icon} __{name}__ ? Hum... **{value}** ╮(︶▽︶)╭"
+    "Aufaite, tu voulais savoir combien de dégâts tu a fait {icon} __{name}__ au total ? **{value}**",
+    "Tu veux savoir combien de dégâts tu as fait {icon} __{name}__ ? Hum... **{value}** ╮(︶▽︶)╭",
+    "Pour {icon} __{name}__, j'ai ressencé **{value}** dégâts infligés jusqu'à présent"
 ]
 
 randomMaxHeal = [
     "Alors voyons voir si {icon} __{name}__ est un bon healer... Son record de soins est de **{value}**, ce mois-ci",
     "Au maximum, tu as soigné **{value}** PV en un combat {icon} __{name}__ ce mois-ci",
-    "Apparament, le record personnel de soins mensuel de {icon} __{name}__ est de **{value}**, ni plus ni moins ╮(︶▽︶)╭"
+    "Apparament, le record personnel de soins mensuel de {icon} __{name}__ est de **{value}**, ni plus ni moins ╮(︶▽︶)╭",
+    "Savoir s'adapter à toutes les situations est crucial. Et {icon} __{name}__ a du avoir de bon réflexe pour avoir soigné **{value}** points de vie ce mois-ci"
 ]
 
 randomTotalHeal = [
     "Au total, tu as soigné **{value}** PV {icon} __{name}__",
     "Tu as réussi à annuler **{value}** dégâts subis par tes alliés {icon} __{name}__, c'est pas trop mal (〃▽〃)! ",
-    "Si j'en crois mes observations, {icon} __{name}__ aurait soigné un total de **{value}** PV... J'ai du mal regarder (ᓀ ᓀ)"
+    "Si j'en crois mes observations, {icon} __{name}__ aurait soigné un total de **{value}** PV... J'ai du mal regarder (ᓀ ᓀ)",
+    "Tu n'aimes pas les barres de vies qui frittent avec le 0, n'est-ce pas {icon} __{name}__ ? Tu en est à **{value}** PV soignés, actuellement"
 ]
 
 randomMaxRes = [
@@ -704,46 +713,53 @@ randomMaxRes = [
 
 randomTotalRes = [
     "La mort c'est juste une mauvaise grippe ☆⌒(ゝ。∂). Que {icon} __{name}__ a soigné **{value}** fois",
-    "(－.－)…zzz {icon} __{name}__... résu... **{value}** fois..."
+    "(－.－)…zzz {icon} __{name}__... résu... **{value}** fois...",
+    "{icon} __{name}__ à l'air de bien maitriser les gestes de premiers secours, {il} a réanimé **{value}** fois un allié"
 ]
 
 randomMaxTank = [
     "Hé bah ! {icon} __{name}__ a subis un maximum de **{value}** dégâts en un combat ce mois-ci ? J'espère que ses supports ont suivi (〃▽〃)",
-    "Hé bah ! {icon} __{name}__ a subis un maximum de **{value}** dégâts en un combat ce mois-ci ? Ça doit être son kiff je présume (¯.¯;) ..."
+    "{icon} __{name}__ préfère voir les ennemis dans le blanc des yeux apparament. En tous cas, c'est pas ses **{value}** dégâts subis en un combat qui le contesteront",
+    "Je me demande ce qu'il y a dans la tête de {icon} __{name}__ pour s'être exposé à **{value}** dégâts ce mois-ci... A-t-{il} encore sa tête au moins ?"
 ]
 
 randomTotalTank = [
-    "Tiens donc ? {icon} __{name}__ aurait subi un total de **{value}** ? Ça fait pas mal quand même, je plaind ses soutiens (￣ ￣|||)",
+    "Tiens donc ? {icon} __{name}__ aurait subi un total de **{value}** ? Ça fait pas mal quand même, je compatis pour ses soigneurs (￣ ￣|||)",
     "{icon} __{name}__, tu serais pas un peu mazo par hasard (￣ ￣|||) ? Tu es quand même à **{value}** dégâts totaux subis là..."
 ]
 
 randomMaxArmor = [
     "L'important c'est de savoir quand utiliser ses capacités ☆⌒(ゝ。∂).\nRegardez {icon} __{name}__ : Son record d'armure donnée mensuel est à **{value}**",
-    "Je suis plus partisante du \"Ils peuvent pas nous taper si ils sont morts\", mais bon au cas où je pourrais compter sur {icon} __{name}__.\nSon record d'armure donnée ce mois-ci est à **{value}** ╮(︶▽︶)╭"
+    "Je suis plus partisante du \"Ils peuvent pas nous taper si ils sont morts\", mais bon au cas où je pourrais compter sur {icon} __{name}__.\nSon record d'armure donnée ce mois-ci est à **{value}** ╮(︶▽︶)╭",
+    "{icon} __{name}__ n'aime pas vous voir subir des dégâts il faut croire. Ce mois-ci, {il} a donné au maximum **{value}** points d'armure en un combat"
 ]
 
 randomTotalArmor = [
     "Il semblerais que {icon} __{name}__ préfère prévenir que guérir... Son total d'armure donné s'élève à **{value}**",
     "Le total d'armure donnée par {icon} __{name}__ s'élève à **{value}**, sans plus ni moins ╮(︶▽︶)╭",
-    "Hé bah ! On peut dire que {icon} __{name}__ s'y connais en armure. Il en a donné **{value}** points jusqu'à présent"
+    "Hé bah ! On peut dire que {icon} __{name}__ s'y connais en armure, {il} en a donné **{value}** points jusqu'à présent"
 ]
 
 randomMaxKill = [
     "{icon} __{name}__ est une veritable terreur avec son record mensuel de **{value}** éliminations en un combat (･_├┬┴┬┴",
-    "Va falloir que je me souvienne d'être particulirement prudente avec {icon} __{name}__ ( . .)φ...\nSon record d'élimination est de **{value}**..."
+    "Va falloir que je me souvienne d'être particulirement prudente avec {icon} __{name}__ ( . .)φ...\nSon record d'élimination est de **{value}**...",
+    "Toujours droit au but n'est-ce pas {icon} __{name}__ ? Tu as éliminé au maximum **{value}** ennemis ce mois-ci"
 ]
 
 randomTotalKill = [
     "Le nombre de victimes de {icon} __{name}__ est de **{value}**.\n\nNon j'ai pas de commentaire à faire (＃￣0￣)",
     "Le nombre de victimes de {icon} __{name}__ est de **{value}**.",
-    "Si j'ai bien compté, le nombre total d'élimiation par {icon} __{name}__ est à **{value}** (ᓀ ᓀ)\nFaites ce que vous voulez de cette information"
+    "Si j'ai bien compté, le nombre total d'élimiation par {icon} __{name}__ est à **{value}** (ᓀ ᓀ)\nFaites ce que vous voulez de cette information",
+    "{icon} __{name}__ a éliminé au total **{value}** adversaires. J'espère qu'{il} garde en tête qu'{il} n'y est pas arrivé seul{e}"
 ]
 
 randomRecordMsg = [
     "C'est cependant loin du record mensuel qui est de **{value}**, détenu par {icon} __{name}__",
     "Va falloir mieux faire si tu veux dépasser {icon} __{name}__, le sien est à **{value}** ☆⌒(ゝ。∂)",
     "Allez courage ! {icon} __{name}__ n'est qu'à **{value}** (^.~)☆",
-    "Si tu veux viser les étoiles, sache que {icon} __{name}__ est à **{value}** ┐( ˘ ､ ˘ )┌"
+    "Si tu veux viser les étoiles, sache que {icon} __{name}__ est à **{value}** ┐( ˘ ､ ˘ )┌",
+    "Tu veux pas essayer de prendre le record ? Pour le moment c'est {icon} __{name}__ qui le détient avec **{value}**",
+    "La concurence est dure par contre. Si tu cherches le haut du podium, il va falloir faire mieux que {icon} __{name}__ et ses **{value}**"
 ]
 
 randomPurcenMsg = [
@@ -771,7 +787,6 @@ aliceStatsNothingToShow = [
     ["Vous savez qu'avoir un peu d'armure peu pas vous faire de mal, hein ?"],
     ["Je sais que le role de Support n'est pas particulièrement attractif, mais bon il reste quand même utile d'en avoir un"]
 ]
-
 
 clemPosSays = says(
     start = "Encore des chasseurs de vamires ? J'en ai ma claque des gens de votre genre.",
@@ -813,3 +828,54 @@ limitBeakGif = [
     'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif', # Enc
     'https://cdn.discordapp.com/attachments/927195778517184534/932777330978488391/20220118_002225.gif'  # Pro
 ]
+
+lenaTipsMsgTabl = [
+    "Est-ce que quelqu'un lit vraiment ça ?",
+    "Si vous réalisez la commande /fight normal alors qu'il vous reste moins de 10 minutes de repos, votre combat sera mis en file d'attente et se lancera automatiquement une fois le décompte écoulé",
+    "Une fois le tour 20 atteint en combat, il est plus possible de réanimer un combattant et tout le monde subis des dégâts en fonction de ses PVs Maximums",
+    "Hé vous voulez un conseil de chargement inutile que tout le monde ne lit qu'une fois puis oubli leur existance ? En voilà un",
+    "En fin de combat, vous gagnez de l'expérience en fonction des ennemis vaincu. Si un ennemi a été réanimé mais n'a pas été vaincu une seconde fois, il ne donne que la moitié de l'expérience qu'il devait donner",
+    "En général, les combattants de dernière ligne font plus de dégâts que leurs camarades en mêlée, mais sont bien plus fragile",
+    "Si une entité repoussée rencontre un obstacle, elle subit des dégâts Harmonie d'une puissance de 10 multipliée par le nombre de cases qu'il lui restait à parcourir",
+    "Si une entité ne peux pas se téléporter parceque toutes les cases adjacantes à la cible sont occupées, elle s'inflige des dégâts Harmonie d'une puissance de 20",
+    "L'Harmonie est une statistique spéciale qui est juste un beau mot pour dire \"Statistique la plus élevée\"",
+    "L'Harmonie ne prend pas en compte les statistiques d'actions, mais ceux-ci sont cependant bien rajouté à la statistique d'Harmonie après sa définition",
+    "Les Trancendances prennent en compte la statistique principale la plus élevée du lanceur, mais également sa meilleur statistique d'action, indépendamant de l'action en question",
+    "Les compétences de réanimations prennent en compte la statistique d'action la plus élevée parmis les Soins, Armures ou Bonus",
+    "Chaque réanimation accorde une armure absolue équivalente à 20% des PVs maximums du réanimé à ce dernier",
+    "Les armures absolues protègent de tous types de dégâts à l'exeption de la Mort Subite et des coûts en PV des compétences démoniques",
+    "Les armures absolues et normales absorbent des dégâts supplémentaires lorsqu'elles sont détruites. Par défaut, cette valeur est égale à votre niveau, mais certaines compétences peuvent influer dessus",
+    "Donner une armure normale ou légère à un combattant qui possède déjà une armure normale ou absolue réduit la valeur de cette nouvelle armure. Par défaut, la réduction est de 50%, mais certaines compétences peuvent influer dessus",
+    "Kiku commence tous ses combats avec le status \"Réanimée\"",
+    "Certains ennemis comme l'OctoBOOM ne peuvent pas être réanimés",
+    "Les Berserkeur ont besoin de pouvoir infliger des dégâts pour être des tanks efficace. Par conséquent leur donner un autre second role que DPT est pas vraiment une bonne idée",
+    "Les statistiques des Idoles leur permettent de pouvoir se spécialiser dans tous les roles de support, de soins ou de protection, sauf Tank",
+    "Les statistiques des Altruistes ainsi que leurs compétences propres en fond de très bon soigneur, mais avec les bons équipements ils peuvent aussi être de bon booster d'équipe",
+    "Les Mages bénificent principalement de l'utilisation de compétence ultime, mais comme leur bonus dure 2 tours, ils peuvent le cumuler avec les compétences avec un tour de chargement",
+    "Les Poids Plumes ont naturellement une endurance et une force relativement faible, mais cela est compensé par leur grande agilité qui leur permet d'esquiver ou d'infliger des coups critiques plus souvent que ses concurants de mêlée\nDe plus, à l'instar des Observateurs, leurs coups critiques infligent plus de dégâts",
+    "Le taux d'esquive est calculé en fonction de la différence entre la précision de l'attaquant et l'agilité de l'attaqué.\nSi l'attaqué est plus agile, le taux de réussite de l'attaque est diminuée jusqu'au maximum la moitié de sa valeur\nÀ contratio, une précision plus élevée de l'attaquant peut lui donner jusqu'à deux fois plus de chances de toucher",
+    "Le 19 de chaques mois, les records mensuels sont rénitialisés",
+    "Il se peut que vous obtenez une récompense si vous possédez un certain pourcentage des objets obtenables dans le magasin ou en butin",
+    "Ailill impose une icone mortuaire aux cibles qu'elle élimine, qu'importe la manière. Mais subir sa compétence signature donne un succès...",
+    "Lors d'un raid, vous êtes associé à une équipe dont le niveau moyen est similaire à celle de la votre. Cependant, cette équipe tierce n'obtient aucune récompense"]
+
+ilianaSaysNormal = says(
+    start = "Puisse ce combat être miawtastique !",
+    ultimate = "Nynme de la Lumière Infinie !",
+    limiteBreak = "Que la Lumière nous protège !",
+    onKill = "Nyan. Désolée",
+    onDeath = "Miaw !!",
+    reactAllyKilled= "Nyan !",
+    reactBigRaiseAllie= "Miawtastique"
+)
+
+ilianaSaysVsLuna = says(
+    start = "Tu nous fais encore une crise ?",
+    ultimate = "Courraw tout le monde !",
+    onKill= "T'enw fait pas Luna !",
+    onDeath= "Miaw...",
+    onResurect= "Miawzi bien",
+    blueWinAlive= "`S'assoit à côté de Luna, qui est trop fatiguée pour bouger, lui met la tête sur ses genoux puis caresse cette dernière en ronronnant`\"\n<:luna:909047362868105227> : \"Ili'...\"\n<:Iliana:926425844056985640> : \"Niow Niow. Tu ferais la même chose si c'était moiw, et tu t'es faite battre à plate couture, tu ees paw en droit de contester\"\n<:luna:909047362868105227> : \"... `Ferme les yeux et s'endort peut de temps après`",
+    blockBigAttack= "Si tu crois que tu va m'awvoir avec ça !",
+    reactBigRaiseAllie= "Je m'owcupe des Ténèbres qui paralyse votre âme, et on y retourwn !"
+)
