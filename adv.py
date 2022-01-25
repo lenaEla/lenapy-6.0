@@ -29,18 +29,20 @@ grandNouveau = other("Boucles d'oreilles originelle","qk",350,amethystEarRings.e
 aliceBatEarRing = other("Amulette chauve-souris","ql",350,invocBat.emoji,"Vous permet de changer la forme de votre icone de personnage en Chauve-Souris")
 birdup = other("Pigeon de compagnie","qm",350,'<:birdUp:930906195999473684>',"Vous permet de changer la forme de votre icone de personnage en Aviaire")
 Megalovania = other("Musique qui rentre dans la tête","qn",350,'<:lazyBones:930949502133747762>',"Vous permet de changer la forme de votre icone de personnage en Crâne")
+amary = other("Amaryllis",'qo',350,'<:amaryllis:935337538426642483>','Vous permet de changer la forme de votre icone en icone Féérique')
 
-others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania]
+others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary]
 
 previewDict = {
     ilianaGrelot.id:'https://cdn.discordapp.com/emojis/930806243461857301.png',
     grandNouveau.id:'https://cdn.discordapp.com/emojis/930807241064480828.png',
     aliceBatEarRing.id:'https://cdn.discordapp.com/emojis/930807423483129876.png',
     birdup.id:'https://cdn.discordapp.com/emojis/930908758773743616.png',
-    Megalovania.id:'https://cdn.discordapp.com/emojis/930911733307027536.png'
+    Megalovania.id:'https://cdn.discordapp.com/emojis/930911733307027536.png',
+    amary.id:'https://cdn.discordapp.com/emojis/935340408723112047.png'
 }
 
-changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania]
+changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania,amary]
 
 # Specials skills ================================================================================
 # Total Kboum

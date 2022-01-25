@@ -405,9 +405,9 @@ def infoSkill(skill : skill, user : char,ctx):
 
     if skil.type == TYPE_DAMAGE:
         temp+="Dégats\n"
-        
+
         if skil.description != None:
-            temp += "\n__Description :__\n"+skil.description+"\n\n"
+            temp += "\n__Description :__\n"+skil.description+"\n"
         
         # Power, Success and Damage Type
         if skil.become == None:
@@ -587,7 +587,7 @@ def infoSkill(skill : skill, user : char,ctx):
         if skil.range not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
             repEmb.add_field(name = "__Portée :__",value=visuArea(skil.range,wanted=[ALLIES,ENNEMIS][skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]))
 
-        elif skil.area not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
+        if skil.area not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
             repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(skil.area,wanted=[ALLIES,ENNEMIS][skil.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
 
     else:
@@ -667,7 +667,7 @@ def infoSkill(skill : skill, user : char,ctx):
 
     if skil.invocation != None:
         repEmb = infoInvoc(findSummon(skil.invocation),repEmb)
-    
+
     if repEmb.__len__() > 6000:
         repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n__Statistiques :__\n"+temp+"\n\nCertaines infromations n'ont pas pu être affichées.")
         if skil.emoji[1] == "a":
@@ -675,6 +675,8 @@ def infoSkill(skill : skill, user : char,ctx):
         else:
             repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
 
+    if skil.url != None:
+        repEmb.set_image(url=skil.url)
     return repEmb
 
 def infoWeapon(weap : weapon, user : char ,ctx):
@@ -840,9 +842,8 @@ def silentRestats(user : char):
 
     return userMajStats(user,stats)
 
-async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Message,discord_slash.SlashContext],exp = 3,coins = 0):
+async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Message,discord_slash.SlashContext],exp = 3,coins = 0,send=True):
     user = loadCharFile(path)
-    guild = ctx.channel.id
 
     if user.level < 55:
         user.exp = user.exp + exp
@@ -852,7 +853,7 @@ async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Messag
 
     upLvl = (user.level-1)*50+30
 
-    if user.exp >= upLvl:
+    while user.exp >= upLvl:
         user.points = user.points + 1
 
         temp = user.allStats()
@@ -866,13 +867,12 @@ async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Messag
 
         user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
 
-
         level, ballerine = str(user.level+1) + ["","<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars>0], await getUserIcon(bot,user)
         lvlEmbed = discord.Embed(title = f"__Montée de niveau__",color = user.color,description = f"{ballerine} {user.name} est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande /points\.")
 
-        for lvl, txt in lvlUpUnlock.items():
+        for lvl in lvlUpUnlock:
             if user.level+1 == lvl:
-                lvlEmbed.add_field(name="__<:empty:866459463568850954>\nContenu débloqué :__",value=txt,inline=False)
+                lvlEmbed.add_field(name="__<:empty:866459463568850954>\nContenu débloqué :__",value=lvlUpUnlock[lvl],inline=False)
                 break
 
         if (user.level+1) % 5 == 0:
@@ -893,13 +893,15 @@ async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Messag
             if unlock != "":
                 lvlEmbed.add_field(name="<:empty:866459463568850954>\n__Vous pouvez désormais équiper les objets de votre inventaire suivants :__",value=unlock)
 
-        if globalVar.getGuildBotChannel(guild) != 0:
-            await bot.get_guild(guild).get_channel(globalVar.getGuildBotChannel(guild)).send(embed = lvlEmbed)
-        else:
-            await ctx.channel.send(embed = lvlEmbed)
+        if send:
+            if globalVar.getGuildBotChannel(ctx.guild.id) not in [0,None]:
+                await ctx.guild.get_channel(globalVar.getGuildBotChannel(ctx.guild.id)).send(embed = lvlEmbed)
+            else:
+                await ctx.channel.send(embed = lvlEmbed)
 
-        user.exp = user.exp - (user.level)*50+30
+        user.exp = user.exp - upLvl
         user.level = user.level + 1
+        upLvl = (user.level-1)*50+30
 
     saveCharFile(user=user)
     return user
@@ -1083,8 +1085,8 @@ async def makeCustomIcon(bot : discord.Client, user : char):
         accessoire = Image.new("RGBA",(1,1),(0,0,0,0))
 
     # Récupération de l'icone de base -----------------------------
-    tablBase = [["./data/images/char_icons/baseIka.png","./data/images/char_icons/baseTako.png"],["./data/images/char_icons/ikaCatBody.png","./data/images/char_icons/takoCatBody.png"],["./data/images/char_icons/komoriBody.png","./data/images/char_icons/komoriBody.png"],["./data/images/char_icons/birdColor.png","./data/images/char_icons/birdColor.png"],["./data/images/char_icons/skeletonColor.png","./data/images/char_icons/skeletonColor.png"]][user.iconForm]
-    tablLine = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/empty_octo.png"],["./data/images/char_icons/ikaCatLine.png","./data/images/char_icons/takoCatLine.png"],["./data/images/char_icons/komoriLine.png","./data/images/char_icons/komoriLine.png"],["./data/images/char_icons/birdLine.png","./data/images/char_icons/birdLine.png"],["./data/images/char_icons/skeletonLine.png","./data/images/char_icons/skeletonLine.png"]][user.iconForm]
+    tablBase = [["./data/images/char_icons/baseIka.png","./data/images/char_icons/baseTako.png"],["./data/images/char_icons/ikaCatBody.png","./data/images/char_icons/takoCatBody.png"],["./data/images/char_icons/komoriBody.png","./data/images/char_icons/komoriBody.png"],["./data/images/char_icons/birdColor.png","./data/images/char_icons/birdColor.png"],["./data/images/char_icons/skeletonColor.png","./data/images/char_icons/skeletonColor.png"],['./data/images/char_icons/fairyColor.png','./data/images/char_icons/fairy2Color.png']][user.iconForm]
+    tablLine = [["./data/images/char_icons/empty_squid.png","./data/images/char_icons/empty_octo.png"],["./data/images/char_icons/ikaCatLine.png","./data/images/char_icons/takoCatLine.png"],["./data/images/char_icons/komoriLine.png","./data/images/char_icons/komoriLine.png"],["./data/images/char_icons/birdLine.png","./data/images/char_icons/birdLine.png"],["./data/images/char_icons/skeletonLine.png","./data/images/char_icons/skeletonLine.png"],["./data/images/char_icons/fairyLine.png","./data/images/char_icons/fairy2Line.png"]][user.iconForm]
     background = Image.open(tablBase[user.species-1])
     background2 = None
 
@@ -1125,7 +1127,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             [(round(accessoire.size[0]*0.6),round(accessoire.size[1]*0.4))],    # 5
             [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.6))]     # 6
         ],
-        [   # IconForm 5
+        [   # IconForm 4
             [None,(round(accessoire.size[0]*1.3),accessoire.size[1])],          # 0
             [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 1
             [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 2
@@ -1134,6 +1136,15 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 5
             [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]           # 6
         ],
+        [   # IconForm 5
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])],          # 0
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 1
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 2
+            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 3
+            [None],                                                             # 4
+            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 5
+            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]           # 6
+        ]
     ]
 
     if len(resizeByPos[user.iconForm][pos]) > 1:
@@ -1180,7 +1191,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2-18))],     # 5
             [(round(background.size[0]/2-accessoire.size[0]/2),0)]                                      # 6
         ],
-        [   # IconForm 0
+        [   # IconForm 4
             [(round(background.size[0]/2-accessoire.size[0]/2),-10)],                               # 0
             [(0,round(background.size[1]/2)-5),(3,round(background.size[1]/2)-5)],                  # 1
             [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))],    # 2
@@ -1189,6 +1200,15 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
             [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
         ],
+        [   # IconForm 6
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)],                               # 0
+            [(0,round(background.size[1]/2)-5),(3,round(background.size[1]/2)-5)],                  # 1
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))],    # 2
+            [(round(background.size[0]*0.25-accessoire.size[0]/2+8),13),(round(background.size[0]*0.25-accessoire.size[0]/2+3),7)],    # 3
+            [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                             # 4
+            [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
+        ]
     ]
 
     if pos == 6:                                 # Behind
@@ -1238,7 +1258,7 @@ async def makeCustomIcon(bot : discord.Client, user : char):
                     color[cmpt] = color[cmpt]-121
                     baseTemp[cmpt] = min(baseUserColor[cmpt] + color[cmpt],255)
 
-                background.putpixel([x,y],tuple(baseTemp))
+                background.putpixel([x,y],tuple(baseTemp+[pixel[x,y][3]]))
 
     background.paste(layer,[0,0],layer)
     background.paste(layer,[0,0],layer)
@@ -1367,6 +1387,7 @@ async def getUserIcon(bot : discord.Client,user : char):
         if customIconDB.haveCustomIcon(user):
             return customIconDB.getCustomIcon(user)
     except:
+        print_exc()
         return "<:LenaWhat:760884455727955978>"
 
 def infoInvoc(invoc : invoc, embed : discord.Embed):
@@ -1620,7 +1641,7 @@ async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], te
                 msgMax = [randomMaxDmg,randomMaxKill,randomMaxRes,randomMaxTank,randomMaxHeal,randomMaxArmor,randomMaxSupp]
             else:
                 msgMax = [randomTotalDmg,randomTotalKill,randomTotalRes,randomTotalTank,randomTotalHeal,randomTotalArmor,randomTotalSupp]
-            
+
             try:
                 desc += msgMax[whatRandomStat][random.randint(0,len(msgMax[whatRandomStat])-1)].format(icon=await getUserIcon(bot,choisen["char"]),value=separeUnit(int(choisen["value"])),name=choisen["name"],il=["il","elle"][choisen["char"].gender==GENDER_FEMALE],e=["","e"][choisen["char"].gender==GENDER_FEMALE])
             except:
@@ -1638,7 +1659,7 @@ async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], te
                             desc += "\n\n"+randomRecordMsg[random.randint(0,len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot,recorder),value=separeUnit(int(records["value"])),name=recorder.name,il=["il","elle"][recorder.gender==GENDER_FEMALE],e=["","e"][recorder.gender==GENDER_FEMALE])
                         except:
                             desc += "\n\nJ'ai pas pu trouver qui avait le record, par contre"
-                else:
+                elif len(team) > 1:
                     summation = 0
                     for di in listDict:
                         summation += int(di["value"])

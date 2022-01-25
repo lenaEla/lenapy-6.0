@@ -63,8 +63,8 @@ transInvoc = copy.deepcopy(trans)
 transInvoc.type, transInvoc.invocation, transInvoc.name  = TYPE_SUMMON,"Titania", transInvoc.name + " - La lumière brille brille brille"
 transPre = copy.deepcopy(trans)
 transPro = copy.deepcopy(trans)
-effTransPre = effect("Armure Transcendique","transArm",HARMONIE,strength=10,magie=10,overhealth=100,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),description="Donne une grosse armure et augmente les statistiques des alliés tant que celle-ci est active")
-effTransPro = effect("Armure Transcendique","transArm",HARMONIE,resistance=5,overhealth=100,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),description="Donne une grosse armure et augmente la résistance des alliés tant que celle-ci est active")
+effTransPre = effect("Armure Transcendique","transArm",HARMONIE,strength=10,magie=10,overhealth=250,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),description="Donne une grosse armure et augmente les statistiques des alliés tant que celle-ci est active")
+effTransPro = effect("Armure Transcendique","transArm",HARMONIE,resistance=5,overhealth=250,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=sameSpeciesEmoji("<a:transArmorB:900037831257358378>","<a:transArmorR:900037817449717800>"),description="Donne une grosse armure et augmente la résistance des alliés tant que celle-ci est active")
 transPre.type,transPre.area,transPre.range,transPre.effect,transPre.name, transPre.cooldown = TYPE_ARMOR,AREA_ALL_ALLIES,AREA_MONO,[effTransPre],transPre.name + " - Armure Transcendique",7
 transPro.type,transPro.area,transPro.range,transPro.effect,transPro.name, transPro.cooldown = TYPE_ARMOR,AREA_ALL_ALLIES,AREA_MONO,[effTransPro],transPro.name + " - Armure Transcendique",7
 transTabl = [transBerserk, transObs, transPoidsPlume, transIdo, transPre, transTetBrule, transMage, transAlt, transInvoc, transEnch, transPro]
@@ -373,17 +373,17 @@ aliceDanceGuideEff2 = copy.deepcopy(aliceDanceGuideEff1)
 aliceDanceGuideEff2.replica = aliceDanceGuide1
 aliceDance = copy.deepcopy(aliceDanceGuide1)
 aliceDance.effectOnSelf, aliceDance.message = aliceDanceGuideEff2, "{0} commence un {1} !"
-auroreEff = effect("Aurore",'auroreEff',CHARISMA,strength=5,magie=5,turnInit=3)
-aurore = skill('Aurore','sux',TYPE_BOOST,500,effect=auroreEff,use=CHARISMA,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","element",ELEMENT_LIGHT])
-crepEff = effect("Crépuscule",'crepEff',INTELLIGENCE,strength=-5,magie=-5,turnInit=3)
-crep = skill('Crépuscule','suw',TYPE_MALUS,500,effect=crepEff,use=INTELLIGENCE,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","secElem",ELEMENT_DARKNESS])
+auroreEff = effect("Aurore",'auroreEff',CHARISMA,strength=5,magie=5,turnInit=3,emoji=sameSpeciesEmoji("<:aurB:934675375689170995>","<:aurR:934675360946212914>"))
+aurore = skill('Aurore','sux',TYPE_BOOST,500,effect=auroreEff,use=CHARISMA,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","element",ELEMENT_LIGHT],emoji='<:aurore:934675235268087858>')
+crepEff = effect("Crépuscule",'crepEff',INTELLIGENCE,strength=-5,magie=-5,turnInit=3,emoji=sameSpeciesEmoji('<:crepB:934675391145201664>','<:crepR:934675411995074560>'))
+crep = skill('Crépuscule','suw',TYPE_MALUS,500,effect=crepEff,use=INTELLIGENCE,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","secElem",ELEMENT_DARKNESS],emoji='<:crepuscule:934675249541292033>')
 toMelee = skill('Corps à corps','suv',TYPE_DAMAGE,350,25,tpCac=True,cooldown=3,emoji='<:cac:932765903102291999>',replay=True,range=AREA_CIRCLE_3)
 toDistance = skill('Déplacement','suu',TYPE_DAMAGE,350,25,AREA_INLINE_2,cooldown=3,jumpBack=2,emoji='<:dep:932765889017839636>',replay=True)
 autoBombRush = skill("Lance-Bombe Robot",'sut',TYPE_SUMMON,750,0,AREA_CIRCLE_4,["exclusive","aspiration",INVOCATEUR],True,emoji='<:brAuto:933508393036029992>',invocation="Bombe Robot",cooldown=7,description="Invoque 3 Bombes Robots\nSeule la première Bombe Robot est soumise à la limitation d'invocation par équipe",shareCooldown=True)
 killerWailUltimate = skill("Haut Perceur 5.1",'sus',TYPE_SUMMON,750,conditionType=["exclusive","aspiration",INVOCATEUR],ultimate=True,cooldown=10,use=MAGIE,invocation='Haut-Perceur 5.1',emoji='<:killerWail:933516496196497439>',description='Invoque 5 Haut-Perceur 5.1.\nSeul le premier est soumis à la limitation d\'invocation par équipe',shareCooldown=True)
 invocSeaker = skill("Invocation - Traqueur",'sur',TYPE_SUMMON,350,range=AREA_CIRCLE_3,cooldown=5,shareCooldown=True,invocation='Traqueur',emoji='<:seeker:933508405463777351>')
 
-darkBoom = skill("Explosion Sombre",'darkBoom',TYPE_DAMAGE,500,int(explosion.power*0.35),cooldown=explosion.cooldown,area=AREA_CIRCLE_2,effectOnSelf=explosion.effectOnSelf,sussess=explosion.sussess,setAoEDamge=True,repetition=2,use=MAGIE,emoji='<a:db2:933676696899551273>',hpCost=30,group=SKILL_GROUP_DEMON)
+darkBoom = skill("Explosion Sombre",'darkBoom',TYPE_DAMAGE,500,int(explosion.power*0.35),cooldown=explosion.cooldown,area=AREA_CIRCLE_2,effectOnSelf=explosion.effectOnSelf,sussess=explosion.sussess,setAoEDamge=True,repetition=2,ultimate=True,use=MAGIE,emoji='<a:db2:933676696899551273>',hpCost=30,group=SKILL_GROUP_DEMON)
 darkBoomCastEff = effect("Cast - Explosion Sombre",'castDarkBoom',turnInit=2,replique=darkBoom,emoji=sameSpeciesEmoji('<a:boomCastB:916382499704275005>','<a:boomCastR:916382515135144008>'),silent=True)
 darkBoomCast = copy.deepcopy(darkBoom)
 darkBoomCast.id, darkBoomCast.power, darkBoomCast.effectOnSelf, darkBoomCast.hpCost = 'suq', 0, darkBoomCastEff, 0
@@ -396,8 +396,30 @@ tempShare30.turnInit = 3
 shareSkill = skill("Partage divin",'sul',TYPE_HEAL,500,50,use=CHARISMA,maxHpCost=10,cooldown=6,effect=tempShare30,description="Soigne la cible puis lui donne l'effet Partage (30) pendant 3 tours")
 extraMedica = skill("Extra-Medica",'suk',TYPE_HEAL,750,35,AREA_MONO,area=AREA_CIRCLE_2,use=CHARISMA,effect=infraMedica.effect,cooldown=infraMedica.cooldown,group=SKILL_GROUP_HOLY,conditionType=["exclusive",'aspiration',ALTRUISTE],description="Soigne les alliés proches et leur donne l'effet __Infra Médica__ pendant 3 tours",maxHpCost=10,emoji=infraMedica.emoji)
 
+foulleeEff = effect("Foulée légère",'ppUniquePassifEff',turnInit=-1,unclearable=True,power=20,description="Augmente de **{0}%** votre probabilité d'esquiver des attaques")
+foullee = skill("Foulée Légère",'suj',TYPE_PASSIVE,350,conditionType=["exclusive","aspiration",POIDS_PLUME],use=None,effectOnSelf=foulleeEff,emoji='<:quicky:934832147511017482>')
+
+lifePulseFinal = skill("Pulsion de vie",'sui',TYPE_HEAL,1000,120,range=AREA_MONO,ultimate=True,cooldown=10,initCooldown=3,area=AREA_CIRCLE_5,use=CHARISMA,emoji='<a:lifePulse:934968172107403324>',group=SKILL_GROUP_HOLY,maxHpCost=13,description="Après __1 tour de chargement__, guide Pulsion de vie pendant __3 tours__, soignant les alliés dans la zone avec une puissance de **{0}** à chaque tour\n\nLes deux premiers tours de guide consomment **10% de vos PV Max**\nL'utilisation de cette compétence diminue vos PV max d'envrion **30% au total**",url='https://cdn.discordapp.com/attachments/927195778517184534/934968488550871140/20220124_012750.gif')
+lifePulseGuide1Eff = effect("Guide - Pulsion de vie",'guildeLifePulse1',silent=True,replique=lifePulseFinal,emoji=uniqueEmoji('<a:lifePulseGuide:934972237327523901>'),turnInit=2)
+lifePulseGuide1 = copy.deepcopy(lifePulseFinal)
+lifePulseGuide1.effectOnSelf, lifePulseGuide1.maxHpCost = lifePulseGuide1Eff, 10
+lifePulseGuide2Eff = copy.deepcopy(lifePulseGuide1Eff)
+lifePulseGuide2Eff.replica, lifePulseGuide2Eff.id = lifePulseGuide1, 'guildeLifePulse2'
+lifePulseGuide2 = copy.deepcopy(lifePulseGuide1)
+lifePulseGuide2.effectOnSelf = lifePulseGuide2Eff
+lifePulseCastEff = effect("Cast - Pulsion de vie",'lifePulseCast',replique=lifePulseGuide2,silent=True,turnInit=2,emoji='<a:lifePulseCast:934968316882219068>')
+lifePulseCast = copy.deepcopy(lifePulseFinal)
+lifePulseCast.power, lifePulseCast.effectOnSelf, lifePulseCast.url, lifePulseCast.maxHpCost = 0, lifePulseCastEff, None, 0
+
+crimsomLotus = skill("Lotus Cramoisi",'suh',TYPE_DAMAGE,750,transObs.power,emoji='<a:crimsomLotus:934980446176047104>',area=AREA_LINE_6,use=CHARISMA,useActionStats=ACT_BOOST,description="Après un tour de chargement, effectue une attaque en ligne\nCette compétence utilise la statistique d'action Boost",cooldown=7,ultimate=True,url='https://cdn.discordapp.com/attachments/927195778517184534/934981029649874974/20220124_021239.gif',conditionType=["exclusive","aspiration",IDOLE])
+crimsomLotusCastEff = effect("Cast - Lotus Cramoisi",'crimstomLotusCastEff',turnInit=2,replique=crimsomLotus,silent=True,emoji=uniqueEmoji('<a:emoji_52:934980282577203210>'))
+crimsomLotusCast = copy.deepcopy(crimsomLotus)
+crimsomLotusCast.power, crimsomLotusCast.effectOnSelf, crimsomLotusCast.url = 0, crimsomLotusCastEff, None
+
+abnegation = skill("Abnégation",'sug',TYPE_HEAL,750,int(memAlice.power * 1.1),range=AREA_MONO,area=AREA_CIRCLE_5,group=SKILL_GROUP_DEMON,hpCost=90,ultimate=True,cooldown=7,use=CHARISMA,description="Consomme la quasi-totalité de vos PV actuels pour soigner tous vos équipiers à portée\nLes alliés en attante de réanimation sont relevé avec un pourcentage de puissance variable en fonction du niveau")
+
 # Skill
-skills = [toMelee,toDistance,autoBombRush,killerWailUltimate,invocSeaker,darkBoomCast,mageSkill,doubleShot,harmShot,benitWater,shareSkill,extraMedica,
+skills = [toMelee,toDistance,autoBombRush,killerWailUltimate,invocSeaker,darkBoomCast,mageSkill,doubleShot,harmShot,benitWater,shareSkill,extraMedica,foullee,lifePulseCast,crimsomLotusCast,abnegation,
     foyer,sweetHeat,darkSweetHeat,shell,nacreHit,holyShot,demonStrike,purify,benediction,transfert,blackDarkMagic,fisure,seisme,abime,extermination,darkHeal,calestJump,lohicaUltCast,fairyFligth,aliceDance,aurore,crep,
     quickCast,pepsis,darkShield,rencCel,valse,finalTech,dissi,intelRaise,ultRedirect,clemency,liuSkillSus,liaSkillSus,lioSkillSus,lizSKillSus,neutralMono1,neutralZone1,neutralMono2,neutralZone2,neutralMono3,neutralZone3,reconst,medicamentum,ultMonoArmor,inkRes,inkRes2,booyahBombCast,propag,invocCarbSaphir,invocCarbObsi,supprZone,cosmicPower,requiem,magicRuneStrike,infinitDark,preciseShot,troublon,haimaSkill,physicRune,magicRune,lightBigHealArea,focus,poisonusPuit,bleedingPuit,idoOS,proOS,preOS,geoConCast,kikuRes,memClemCastSkill,roses,krysUlt,chaosArmor,firelame,airlame,waterlame,mudlame,shadowLame,timeLame,lightLame,astralLame,idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWillCast,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosionCast,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]

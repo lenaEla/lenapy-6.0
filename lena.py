@@ -585,6 +585,7 @@ async def on_message(ctx : discord.message.Message):
                 await addExpUser(bot,pathUserProfile,ctx,3,3)
             except:
                 print("Erreur dans la gestion du message de {0}".format(ctx.author.name))
+                print_exc()
 
 # -------------------------------------------- ENCYCLOPEDIA --------------------------------------------
 @slash.slash(name="encyclopedia",description="Vous permet de consulter l'encyclopédie", options=[
@@ -932,7 +933,7 @@ async def comQuickFight(ctx):
         await ctx.send(embed = discord.Embed(title="__/fight__",color=user.color,description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name,fightingMessage.jump_url)),delete_after=15)
         return 0
     elif timing > 0:
-        await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats rapide que dans {0} minute{1} et {2} seconde{3}".format(timing//180,["","s"][timing//180 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
+        await ctx.send(embed = errorEmbed("Cooldown","Votre équipe ne pourra faire de combats rapide que dans {0} minute{1} et {2} seconde{3}".format(timing//60,["","s"][timing//60 > 1],timing%60,["","s"][timing%60 > 1])),delete_after=10)
         return 0
 
     team1 = []
@@ -1349,10 +1350,10 @@ async def teamAdd(ctx,joueur):
 
             else:
                 await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Cet utilisateur n'a pas commencé l'aventure"))
-        elif noneCap:
-            await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Votre équipe est déjà au complet"))
         elif selfAdd:
             await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Vous voulez faire équipe avec vous-même ?"))
+        else:
+            await msg.edit(embed = errorEmbed("/team add "+joueur.name,"Votre équipe est déjà au complet"))
 
 # team quit
 @slash.subcommand(base="team",name="quit",description="Permet de quitter son équipe")
@@ -2017,6 +2018,12 @@ async def setChannel(ctx:discord_slash.SlashContext, salon:discord.TextChannel):
 
     globalVar.setGuildBotChannel(ctx.guild_id,salon.id)
     await ctx.send(embed = discord.Embed(title="__/set_bot_channel__",color=light_blue,description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
+
+# ------------------------------------------- VERIF ------------------------------------------------
+@slash.slash(name="verif_user",description="Permet de voir toutes les informations d'un personnage",guild_ids=adminServ,options=[create_option("identifiant","L'identifiant de l'utilisateur",SlashCommandOptionType.STRING,True)])
+async def verifuser(ctx,identifiant):
+    user = loadCharFile("./userProfile/{0}.prof".format(identifiant))
+    await ctx.send(embed = await seeAllInfo(bot,user))
 
 @slash.slash(name="verif_team",guild_ids=adminServ)
 async def verifTeams(ctx):

@@ -207,3 +207,35 @@ async def roulette(bot: discord.Client, ctx: discord.message, user: char):
                 toSend += "\n {0}".format(tempName)
 
         await msg.edit(embed=discord.Embed(title="__Roulette :__",color=light_blue,description="__Vous avez obtenus :__"+toSend),components=[])
+
+async def seeAllInfo(bot:discord.Client, user:char)-> discord.Embed:
+    desc = ""
+    try:            # User owner
+        owner = await bot.fetch_user(user.owner)
+        desc += "__Compte associé :__ {0}\n".format(owner.mention)
+    except:
+        desc += "`Le compte associé n'a pas pu être récupéré`\n"
+
+    desc += "__Nom :__ {0}, __Niveau :__ {1}<:littleStar:925860806602682369>{2}, __Exp :__ {3}, __Argent :__ {4}\n".format(user.name,user.level,user.stars,user.exp,user.currencies)
+    desc += "__Espèce :__ {0}, __Couleur :__ {1}, __Hexa :__ {2}, __Forme d'icone :__ {3}\n".format(['<:ikaLBlue:866459302319226910>','<:takoLBlue:866459095875190804>'][user.species-1],user.color,user.colorHex,['<:spIka:866465882540605470>','<:komoriOut:930798849969246208>','<:birdOut:930906560811646996>','<:outSkeleton:930910463951249479>'][user.iconForm])
+    embed = discord.Embed(title="Page de {0}".format(user.name),color=user.color,description=desc)
+    embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"]))
+
+    tablSays = user.says.tabl()
+    tempSays = ""
+
+    for cmpt in range(len(tablSays)):
+        tempReplace = {"Réaction":"Réac.","Victoire":"Vic.","Défaite":"Déf.","réanimation":"réa.","élimination":"élim."}
+        tempCatCmpp, tempo = tablCat[cmpt], tablSays[cmpt]
+        for a in tempReplace:
+            tempCatCmpp = tempCatCmpp.replace(a,tempReplace[a])
+
+        if tempo == None:
+            tempo = "-"
+        elif len(tempo) > 30:
+            tempo = tempo[:30]+"(...)"
+
+        tempSays += "{0} : {1}\n".format(tempCatCmpp,tempo)
+    
+    embed.add_field(name="__Blablator :__",value=tempSays)
+    return embed

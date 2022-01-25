@@ -58,6 +58,7 @@ class statTabl:
         self.headnt = False
         self.friendlyfire = 0
         self.fullskip = True
+        self.armoredDamage = 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""

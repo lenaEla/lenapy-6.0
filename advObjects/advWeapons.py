@@ -69,29 +69,22 @@ eternalInkStaff = weapon("Baguette de l'Encre Éternelle","cm",RANGE_DIST,AREA_C
 eternalInkWind = weapon("Éventail de l'Encre Éternelle","cn",RANGE_DIST,AREA_CIRCLE_4,46,75,1,charisma=15,effect=eternalInkEff,use=CHARISMA,emoji='<:inkEtFan:918083360545443870>',needRotate=False)
 eternalInkScience = weapon("Gant de l'Encre Éternelle","co",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=15,effect=eternalInkEff,use=INTELLIGENCE,emoji='<:inkEtGlove:918083419081170954>',needRotate=False)
 eternalInkBow = weapon("Arc de l'Encre Éternelle","cp",RANGE_LONG,AREA_CIRCLE_6,37,75,1,precision=15,effect=eternalInkEff,use=PRECISION,emoji='<:inkEtBow:918083434860146710>',needRotate=False)
-
 eternalInkWeapons = [eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow]
 eternalInkWeaponIds = [eternalInkSword.id,eternalInkStick.id,eternalInkShield.id,eternalInkStaff.id,eternalInkWind.id,eternalInkScience.id,eternalInkBow.id]
 etInkBases = ["<:BaseinkEtSword:918071336994230302>","<:BaseinkEtDague:918169899170426960>","<:BaseinkEtShield:918169963624292392>","<:BaseinkEtStick:918170006649458741>","<:BaseinkEtFan:918170045111226438>","<:BaseinkEtGlove:918170092678815744>","<:BaseinkEtBow:918170130041671720>"]
 etInkLines = ["<:LineinkEtSword:918071323618607144>","<:LineinkEtDague:918169920951418890>","<:LineinkEtShield:918169983152975893>","<:LineinkEtStick:918170024370380841>","<:LineinkEtFan:918170074400055317>","<:LineinkEtGlove:918170114984124426>","<:LineinkEtBow:918170144499466300>"]
-
 purpleSecretEff = effect("Secretum purpureum prædictas","purpleSecrets",turnInit=-1,emoji=uniqueEmoji('<:sdf:919713870858317875>'),area=AREA_DONUT_2,description="Lorsqu'un adversaire meurt, s'il portait au moins 1 effet __Poison d'Estialba__ venant de votre part, une explosion **indirecte magique** dont la puissance dépend de celles de vos effets __Poison d'Estialba__ et de leur durée restante sur le porteur se produit\nTous les ennemis dans la zone d'effet reçoive un effet __Poison d'Estialba__ ayant une puissance équivalente à {0}% de celle de l'effet de base\n\n__Vous empèche d'utiliser votre arme principale !__",reject=['np',"ns","pacteDeSang","pacteD'âme"],power=25)
 secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_3,30,100,750,emoji='<:sdf:919713870858317875>',magie=10,resistance=5,effect=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,ignoreAutoVerif=True)
-
 critBonusEff = effect("Bonus critique","scopeCritBonus",turnInit=-1,unclearable=True,emoji=sameSpeciesEmoji('<:critB:925763298346033193>','<:critR:925763310383677490>'),description="Augmente les dégâts de coup critique de 15% mais __empêche l'utilisation de votre arme principale__")
 ElitherScope = weapon("Extraceur Zoom +","cr",RANGE_LONG,AREA_CIRCLE_7,49,65,1,precision=15,effect=critBonusEff,emoji='<:elitherScope:925762142202921040>')
-
 gravEff = effect("Gravitation","grav",turnInit=-1,unclearable=True,description="Augmente progressivement votre agression au fur et à mesure du combat mais __empêche l'utilisation de votre arme principale__",emoji='<a:ble:925774688641228810>')
 grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,56,99,1,endurance=10,resistance=5,effect=gravEff,emoji='<:bl:925774629711282196>')
-
 darkbluebutterfly = weapon("Papillon bleu marine",'ct',RANGE_MELEE,AREA_CIRCLE_2,78,66,1,magie=10,endurance=10,resistance=10,use=MAGIE,needRotate=False,emoji='<:dbb:926954332593725511>')
 kardia = effect("Kardia","kardia",type=TYPE_BOOST,power=25,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, soigne l'allié le plus blessé avec une puissance de **15**\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:kar:929860644461740133>',stat=CHARISMA)
 whiteSpiritWings = weapon("Ailes de l'esprit blanc","cu",RANGE_DIST,AREA_CIRCLE_4,46,75,1,charisma=15,effect=kardia,use=CHARISMA,needRotate=False,emoji='<:wws:929847728077406279>',ignoreAutoVerif=True)
-
 diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=25,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag)
 bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=15,effect=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True)
-
 cardsDeck = effect("Deck de cartes","astro",CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration :\n\n__Ber. :__ Force +5, Rési +5\n__Obs. :__ Force +5, Préci +5\n__P. Plume :__ Force +5, Agi +5\n__T. Brûlée :__ Force +5, Magie +5\n__Mage :__ Magie +5, Préci +5\n__Enc. :__ Magie +5, Rési +5\n__Idole :__ Charisme +5, Intel +5\n__Proc. :__ Intel +5, Rési +5\n__Alt. :__ Charisme +7\n__Prév. :__ Intel +7\n__Invoc. :__ Force +3, Magie +3, Charisme +3, Intel +3\n\n__Empêche l'utilisation de l'arme principale__")
 cardBer = effect("La balance berserk",'BerCard',CHARISMA,strength=5,resistance=5,emoji='<:balance:932399888422043739>')
 cardPlume = effect("La balance agile",'PoiCard',CHARISMA,strength=5,agility=5,emoji='<:balance:932399888422043739>')
@@ -104,16 +97,21 @@ cardPre = effect("Le tronc résistant",'PreCard',CHARISMA,intelligence=7,emoji='
 cardIdo = effect("L'aiguilère attentionée",'IdoCard',CHARISMA,charisma=5,intelligence=5,emoji='<:aiguilere:932399946659921990>')
 cardPro = effect("L'aiguilère ponctuelle",'ProCard',CHARISMA,resistance=5,intelligence=5,emoji='<:aiguilere:932399946659921990>')
 cardInv = effect("L'épieu versatil",'InvCard',CHARISMA,charisma=3,intelligence=3,strength=3,magie=3,emoji='<:epieu:932399920873357382>')
-
 cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardInv,cardEnch,cardPro]
-
 astroGlobe = weapon("Globe céleste",'cy',RANGE_LONG,AREA_CIRCLE_5,40,80,1,charisma=7,intelligence=7,endurance=1,effect=cardsDeck,use=CHARISMA,emoji='<:globe:932399865110093884>')
-
 infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,strength=5,agility=10,effect=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
 infLightSword = weapon("Épée de la Lueur Éternelle","cx",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,resistance=5,charisma=10,effect=shareTabl[2],use=CHARISMA,emoji='<:lumSword:926874664175816735>')
+magicWood = weapon("Baguette en argent",'dc',RANGE_LONG,AREA_CIRCLE_5,80,50,1,magie=20,precision=10,use=MAGIE,emoji='<:magicWand:934585282907488307>')
+magicMass = weapon("Masse argentée",'cz',RANGE_DIST,AREA_CIRCLE_3,80,60,1,magie=30,use=MAGIE,emoji='<:magicMasse:934585301463072778>')
+magicSwordnShield = weapon("Bouclier runique",'da',RANGE_MELEE,AREA_CIRCLE_1,80,70,1,magie=15,resistance=15,use=MAGIE,emoji='<:magicShield:934585318508736532>',needRotate=False)
+keyblade = weapon("Keyblade",'db',RANGE_MELEE,AREA_CIRCLE_2,81,80,1,agility=10,strength=10,endurance=10,emoji='<:kb:934497052723929108>',ignoreAutoVerif=True)
+fleauHealEff = effect('Cicatrisation','altiWeapHealEff',CHARISMA,stackable=True,power=10,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,description="Soigne légèrement en début de tour",emoji=sameSpeciesEmoji('<:flB:934615447263916103>','<:flR:934615460157198346>'))
+fleauPassifEffect = effect('Bénidiction de la Compréhension','altiWeapPassifEff',callOnTrigger=fleauHealEff,turnInit=-1,unclearable=True,area=AREA_CIRCLE_2,emoji='<:flE:934615479732043776>',description="Lorsque vous attaquez avec votre arme, donne l'effet __Cicatrisation__ à tous vos alliés dans la zone d'effet\n\nAugmente de 50% la probabililté d'utiliser son arme principale en mode automatique")
+fleau = weapon('Fléau de la Compréhension',"de",RANGE_MELEE,AREA_CIRCLE_2,58,50,1,charisma=10,resistance=5,use=CHARISMA,effect=fleauPassifEffect,emoji='<:fleau:934615644622704641>',area=AREA_ARC_1)
 
 # Weapon
-weapons = [secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,infDarkSword,infLightSword,astroGlobe,
+weapons = [magicWood,magicMass,magicSwordnShield,keyblade,fleau,
+    secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,infDarkSword,infLightSword,astroGlobe,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
     julieWeap,blueButterfly,butterflyRed,luth,krystalFist,musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,mic,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework
 ]

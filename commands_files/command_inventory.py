@@ -267,8 +267,6 @@ async def blablaEdit(bot : discord.client, ctx : discord.Message, msg : discord.
     while 1:
         user = loadCharFile(pathUserProfile)
         tablSays = user.says.tabl()
-        tablCat = ["Début du combat","Compétence ultime","Transcendance","En éliminant un ennemi","À la mort","En étant ressucité","Victoire (Bleu) en étant en vie","Victoire (Bleu) en étant mort","Défaite (Bleu)","Victoire (Rouge) en étant en vie","Victoire (Rouge) en étant mort","Défaite (Rouge)","Bloquer une grosse attaque","Réaction à la réanimation de plusieurs alliés","Réaction à la réanimation de plusieurs ennemis","Réanimer plusieurs allier en même temps"]
-
         option = []
         for count in range(len(tablCat)):
             desc = "Aucun message enregistré"
@@ -299,14 +297,19 @@ async def blablaEdit(bot : discord.client, ctx : discord.Message, msg : discord.
             desc = "Le message suivant est enregistré pour cet évémenement :\n\"{0}\"".format(tablSays[repValue])
 
         desc += "\n\nVeuillez renseigner le nouveau message :"
-        if repValue in [1,2,12,13,14]:
+        if repValue in [1,2,12]:
             desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{target} : Nom de la cible\n{caster} : Nom du lanceur\n{skill} : Nom de la compétence"
         elif repValue in [3]:
-            desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{target} : Nom de la cible tuée\n{caster} : Nom du tueur"
+            desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{target} : Nom de la cible éliminée\n{caster} : Nom du tueur"
         elif repValue in [4,5]:
-            desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{target} : Nom du tueur, réanimateur\n{caster} : Nom de la personne tuée, réanimée"
+            desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{target} : Nom du tueur, réanimateur\n{caster} : Nom de la personne éliminée, réanimée"
         elif repValue in [15]:
             desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{skill} : Nom de la compétence"
+        elif repValue in [16,17]:
+            desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{killer} : Nom du tueur\n{downed} : Nom de la personne éliminée"
+        elif repValue in [13,14]:
+            desc += "\n\n__Vous pouvez utiliser les balises suivantes pour cette catégorie :__\n{caster} : Nom du réanimateur\n{skill} : Compétence utilisée"
+
         embed2 = discord.Embed(title = "__/inventory says - {0}__".format(tablCat[repValue]),color=user.color,description=desc)
         reply = await respond.send(embed = embed2)
 
@@ -809,7 +812,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 if ctx.author_id in temp.procuration:
                     listUserProcure.append(temp)
 
-        affAll,stuffAff,statsToAff,stuffToAff = True,True,0,0
+        affAll,stuffAff,statsToAff,stuffToAff = False,False,0,0
         while 1:
             if len(listUserProcure) > 0:
                 procurOptions = []
@@ -824,7 +827,8 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     create_select_option("Equipements","cat_0",getEmojiObject('<:uniform:866830066008981534>'),default=destination==0),
                     create_select_option("Armes","cat_1",getEmojiObject('<:kcharger:870870886939508737>'),default=destination==1),
                     create_select_option("Compétences","cat_2",getEmojiObject('<:stingray:899243721378390036>'),default=destination==2)
-                ]
+                ],
+                placeholder="Changer de catégorie d'objets"
             )
             user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
             userIconThub = getEmojiObject(await getUserIcon(bot,user))["id"]
@@ -853,16 +857,17 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             elif destination == 2:
                 options+=[
-                    create_select_option("Dégâts","14",getEmojiObject('<:defDamage:885899060488339456>'),default=14==tri),
+                    create_select_option("Dégâts","14",getEmojiObject('<:meteor:904164411990749194>'),default=14==tri),
                     create_select_option("Dégâts indirects","15",getEmojiObject('<:tentamissile:884757344397951026>'),default=15==tri),
                     create_select_option("Soins","16",getEmojiObject('<:AdL:873548073769533470>'),default=16==tri),
                     create_select_option("Armure","17",getEmojiObject('<:orbeDef:873725544427053076>'),default=17==tri),
                     create_select_option("Boost",'18',getEmojiObject('<:bpotion:867165268911849522>'),default=18==tri),
                     create_select_option("Malus","19",getEmojiObject('<:nostalgia:867162802783649802>'),default=19==tri),
-                    create_select_option("Invocation","20",getEmojiObject('<:sprink1:887747751339757599>'),default=20==tri)
+                    create_select_option("Invocation","20",getEmojiObject('<:sprink1:887747751339757599>'),default=20==tri),
+                    create_select_option("Passif","21",getEmojiObject('<:IdoOH:909278546172719184>'),default=21==20)
                 ]
 
-            sortOptions = create_select(options)
+            sortOptions = create_select(options,placeholder=["Trier par statistique","Afficher une catégorie en particulier"][destination == 2])
 
             if needRemake:
                 tablToSee = []
@@ -880,7 +885,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 elif destination == 2:
                     tablToSee = user.skillInventory
                     if tri >= 14:
-                        typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON]
+                        typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
                         see = typeTabl[tri-14]
                         if type(see) != list:
                             for ski in tablToSee[:]:
@@ -1118,7 +1123,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             embed = discord.Embed(title="__/inventory__",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
             embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(userIconThub))
 
-            if tri in [14,15]:
+            if destination in [1,2]:
                 if affAll:
                     temp1 = hideNonEquip
                 else:
@@ -1129,8 +1134,8 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     temp2 = onlyMag
                 else:
                     temp2 = allType
-
                 ultimateTemp = [create_actionrow(temp1,temp2)]
+    
             elif destination == 2:
                 if affAll:
                     temp1 = hideNonEquip
@@ -1164,7 +1169,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 except:
                     procurOptions = []
                     for a in listUserProcure:
-                        procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject('<:LenaWhat:760884455727955978>'),default=a.owner == user.owner))
+                        procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner))
                     procurSelect = [create_actionrow(create_select(procurOptions))]
                     await msg.edit(embed=embed,components=procurSelect+[create_actionrow(catSelect),create_actionrow(sortOptions),create_actionrow(firstSelect)]+ultimateTemp)
 
@@ -1226,20 +1231,18 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             elif respond.values[0].startswith("cat_"):
                 destination = int(respond.values[0].replace("cat_",""))
-                needRemake = True
+                needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, False, False, 0, 0
 
             elif respond.values[0].startswith("goto"):
                 page = int(respond.values[0].replace("goto",""))
 
             elif respond.values[0].startswith("user_"):
                 user = loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
-                needRemake = True
+                needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, False, False, 0, 0
 
             elif respond.values[0] in ["hideNoneEquip","affNoneEquip"]:
-                if destination == 2:
-                    affAll = not(affAll)
-                elif destination == 0:
-                    stuffAff = not(stuffAff)
+                affAll = not(affAll)
+                stuffAff = not(stuffAff)
                 needRemake = True
             elif respond.values[0] in ["allDamages","onlyPhys","onlyMag","acc","dress","flats","all"]:
                 if destination == 2:

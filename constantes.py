@@ -416,6 +416,8 @@ randChooseMsg = [
     "D'après les résidus de thé dans ma tasse...",
     ]
 
+tablCat = ["Début du combat","Compétence ultime","Transcendance","En éliminant un ennemi","À la mort","En étant ressucité","Victoire (Bleu) en étant en vie","Victoire (Bleu) en étant mort","Défaite (Bleu)","Victoire (Rouge) en étant en vie","Victoire (Rouge) en étant mort","Défaite (Rouge)","Bloquer une grosse attaque","Réaction à la réanimation de plusieurs alliés","Réaction à la réanimation de plusieurs ennemis","Réanimer plusieurs allier en même temps","Réaction à l'élimination d'un ennemi","Réaction à l'élimination d'un allié"]
+
 class says:
     """A class for storing the says message from a entity"""
     def __init__(self,start=None,ultimate=None,limiteBreak=None,onKill=None,onDeath=None,onResurect=None,blueWinAlive=None,blueWinDead=None,blueLoose=None,redWinAlive=None,redWinDead=None,redLoose=None,blockBigAttack=None,reactBigRaiseAllie=None,reactBigRaiseEnnemy=None,bigRaise=None,reactEnnemyKilled=None,reactAllyKilled=None):

@@ -104,7 +104,7 @@ hunterSkill1 = skill("Preuve à l'appui","hunterSkill1",TYPE_MALUS,0,area=AREA_C
 hunterSkill2 = skill("Poings sur la table","hunterSkill2",TYPE_DAMAGE,0,120,use=INTELLIGENCE,cooldown=3,emoji='<a:HunterSlam:800834288487759923>')
 hunterSkill3Eff = effect("Vérité","hunterSkill3Eff",INTELLIGENCE,strength=10,magie=10,charisma=10,intelligence=10,emoji=uniqueEmoji('<:Eureka:800837165688815636>'))
 hunterSkill3 = skill("Vérité entrevue",'hunterSkill3',TYPE_BOOST,0,area=AREA_CIRCLE_1,effect=hunterSkill3Eff,cooldown=3,emoji='<:Eureka:800837165688815636>')
-hunterSkill4 = skill("Outdated autopsy report","hunterSkill4",TYPE_RESURECTION,0,150,use=INTELLIGENCE,emoji='<:AutopsyReport:800839396151656469>',cooldown=5,message='{0} a mis à jour le rapport d\'autopsy de {2}')
+hunterSkill4 = skill("Outdated autopsy report","hunterSkill4",TYPE_RESURECTION,0,150,use=INTELLIGENCE,emoji='<:AutopsyReport:800839396151656469>',cooldown=5,message='{0} a mis à jour le rapport d\'autopsy de {2}',url='https://cdn.discordapp.com/attachments/927195778517184534/934985362462343218/20220124_023739.gif')
 
 # Bob Hi
 bobSays = copy.deepcopy(temSays)
@@ -220,7 +220,7 @@ jevilSkill1_3 = skill("Coeurs","jevilSkill1",TYPE_DAMAGE,0,150,area=AREA_DIST_4,
 jevilSkill1_4 = skill("Carreau","jevilSkill1",TYPE_DAMAGE,0,100,area=AREA_DIST_3,range=AREA_CIRCLE_2,sussess=100,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=2,damageOnArmor=3)
 jevilSkill1 = skill("Joker !","jevilSkill1",TYPE_DAMAGE,0,become=[jevilSkill1_1,jevilSkill1_2,jevilSkill1_3,jevilSkill1_4],emoji='<a:card:892855854712385637>')
 
-jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,120,AREA_MONO,area=AREA_ALL_ENEMIES,say="KIDDING ! HERE'S MY FINAL CHAOS !",initCooldown=5,cooldown=10,emoji="<:devilknife:892855875600023592>",damageOnArmor=2)
+jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,120,AREA_MONO,area=AREA_ALL_ENEMIES,say="KIDDING ! HERE'S MY FINAL CHAOS !",initCooldown=5,cooldown=4,emoji="<:devilknife:892855875600023592>",damageOnArmor=2)
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=-1,unclearable=True,description="Confuse confusing confusion")
 
 # Luna (Oh it's will be funny)
@@ -254,20 +254,22 @@ lunaSkill7 = skill("Ultimawashi","lunaSkill7",TYPE_DAMAGE,0,150,AREA_CIRCLE_1,co
 lunaQuickFightEff = effect('Enchaînement',"lunaQuickFight",emoji=uniqueEmoji('<:qqLuna:932318030380302386>'))
 lunaSkill5Base = skill("Corps à corps","lunaSkill5",TYPE_DAMAGE,0,0,AREA_CIRCLE_1,description="Cette compétence peut avoir 4 effets différents, sélectionné de manière aléatoire",emoji='<:luna4inOne:919260128698589184>',become=[lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4])
 
+vulneTabl[3]
+
 # Clemence Pos Special skills
 clemBloodJauge = effect("Jauge de sang","clemBloodJauge",turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:clemBJ:914710384299106345>'),lvl=100,description="Clémence possédée tourne autour de sa Jauge de Sang\n\nElle débute le combat avec une jauge à **100** Points de sang, son maximum.\nChacunes de ses compétences ont un coût en Points de Sang, qui sont retiré à la jauge à la fin de leur utilisation\n\nSi la jauge de sang tombe à **0 point**, Clémence est étourdie pendant 2 tours durant lesquels sa résistance est diminuée\nLa jauge de sang récupère **1 point** de sang à chaque fois que Clémence inflige 50 points de dégâts, et **100 points** une fois que Clémence n'est plus étourdie\n\nLa quantité de points de sang dans la jauge de sang est constamant visible\nClémence possède 10% de vol de vie")
-clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_1,150,100,ignoreAutoVerif=True,use=MAGIE,effect=clemBloodJauge,magie=50,endurance=20,emoji='<:clemWeap:915358467773063208>')
-clemStunEffect = effect("Thrombophilie","clemStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS,resistance=-85)
-aliceStunEffect = effect("Hémophilie","aliceStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS,charisma=-50)
-clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=150,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE)
-clemSkill2 = skill("Sort - Chiroptera perniciosius","clemSkill2",TYPE_DAMAGE,0,180,AREA_CIRCLE_2,cooldown=3,emoji='<a:clemSkill4:901150027706142780>',use=MAGIE,say="Tu es trop collant.")
+clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_1,150,100,ignoreAutoVerif=True,use=MAGIE,effect=clemBloodJauge,damageOnArmor=2,magie=50,endurance=20,emoji='<:clemWeap:915358467773063208>')
+clemStunEffect = effect("Thrombophilie","clemStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS)
+aliceStunEffect = effect("Hémophilie","aliceStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS)
+clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=150,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE,damageOnArmor=2)
+clemSkill2 = skill("Sort - Chiroptera perniciosius","clemSkill2",TYPE_DAMAGE,0,180,AREA_CIRCLE_2,cooldown=3,emoji='<a:clemSkill4:901150027706142780>',use=MAGIE,say="Tu es trop collant.",damageOnArmor=5)
 clemUltLauch = skill("Memento - L'Ange noir","clemUlt",TYPE_DAMAGE,0,50,AREA_MONO,area=AREA_CIRCLE_7,emoji='<:clemMemento:902222089472327760>',say="Vous avez suffisamant résisté comme ça !",sussess=666,cooldown=99,ultimate=True,description="Au premier tour, consomme tous les **Points de sang** de la Jauge de Sang, sauf 1, pour obtenir un bouclier absolu, dont la puissance dépend du nombre de points consommés\nAu second tour, si ce bouclier est toujours présent, cette attaque fait des dégâts colosaux. Consomme la jauge de sang",use=MAGIE)
 clemultCastEffect = effect("Cast - Memento - L'Ange noir","clemUltEff",replique=clemUltLauch,turnInit=2,silent=True,emoji=dangerEm)
 clemUltShield = effect("Bouclier sanguin","clemShield",MAGIE,overhealth=1,emoji=uniqueEmoji("<:clemMemento2:902222663806775428>"),turnInit=2,absolutShield=True)
 clemUltCast = skill("Memento - L'Ange Noir","clemUltCast",TYPE_ARMOR,0,range=AREA_MONO,emoji="<:clemMemento2:902222663806775428>",effect=clemUltShield,say="Très bien.",effectOnSelf=clemultCastEffect,ultimate=True,cooldown=99)
-clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,125,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>')
+clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,125,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>',damageOnArmor=3)
 clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,180,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>')
-clemSkill5 = skill("Sort - Tempus Fugit",'clemSkill5',TYPE_DAMAGE,0,100,use=MAGIE,cooldown=3,replay=True,say=["J'ai pas le temps pour vos conneries.","On va un peu accélrer la cadence !","On se traine un peu du cul là non ?"],emoji='<:TemposFigit:931703850447024138>')
+clemSkill5 = skill("Sort - Tempus Fugit",'clemSkill5',TYPE_DAMAGE,0,100,use=MAGIE,cooldown=3,damageOnArmor=10,replay=True,say=["J'ai pas le temps pour vos conneries.","On va un peu accélrer la cadence !","On se traine un peu du cul là non ?"],emoji='<:TemposFigit:931703850447024138>')
 clemSkill6 = skill("Lance de sang",'clemSkill6',TYPE_DAMAGE,0,80,AREA_DIST_7,area=AREA_CIRCLE_1,use=MAGIE,cooldown=4,emoji='<:bloodSpear:931703831245488128>')
 
 clemBJcost = {"clemSkill1":35,"clemSkill2":35,"clemUlt":99,"clemSkill3":35,"clemSkill4":35,"aliceSkill1":25,"aliceSkill2":30,"aliceSkill3":32,"aliceSkill4":30,"aliceRez":35,"aliceRez+":150,"clemSkill5":15,"clemSkill5":30}
