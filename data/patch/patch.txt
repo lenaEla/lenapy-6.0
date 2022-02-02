@@ -1,0 +1,10 @@
+```Mise à jour 3.3.5```
+__Equilibrage :__
+- __La Fin :__
+> - Dégâts contre armures augmentés à 135%
+
+- __Akira :__
+> - Changement d'équipement
+
+- __Sixtine :__
+> - Changement d'arme

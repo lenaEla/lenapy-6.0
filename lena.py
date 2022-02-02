@@ -1,6 +1,7 @@
 ##########################################################
 # Importations :
 import asyncio
+from getpass import getuser
 import discord, random, os, emoji, datetime, sys, shutil
 from discord_slash.model import SlashCommandOptionType,ButtonStyle
 
@@ -25,6 +26,7 @@ from commands_files.command_help import *
 from commands_files.command_patchnote import *
 from commands_files.alice_stats_endler import *
 from commands_files.command_duty import adventureDutySelect
+from commands_files.command_expedition import *
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option, create_choice
@@ -107,9 +109,9 @@ class shopClass:
             shopping = list(range(0,len(self.shopping)))
 
             if globalVar.fightEnabled():
-                babies = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+                babies = datetime.now() + horaire + timedelta(hours=1)
                 while babies.hour%3 != 0:
-                    babies = babies + datetime.timedelta(hours=1)
+                    babies = babies + timedelta(hours=1)
 
                 await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+babies.strftime('%Hh')))
 
@@ -349,7 +351,7 @@ async def restart_program(bot : discord.Client, ctx=None):
 def create_backup():
     """Copy all the characters profiles files into a new directory\n
     Return a ``string`` with the path of the backup directory"""
-    now = datetime.datetime.now()
+    now = datetime.now()
     nowStr = now.strftime("%Y%m%d_%H%M")
     path = "./data/backups/"+nowStr
     try:
@@ -364,11 +366,11 @@ def create_backup():
 
 def delete_old_backups():
     """Remove backups directorys older than 3 days"""
-    now = datetime.datetime.now()
+    now = datetime.now()
     temp = ""
     for name in os.listdir("./data/backups/"):
-        timeBUp = datetime.datetime.strptime(name,"%Y%m%d_%H%M")
-        if now > timeBUp+datetime.timedelta(days=3):
+        timeBUp = datetime.strptime(name,"%Y%m%d_%H%M")
+        if now > timeBUp+timedelta(days=3):
             for files in os.listdir("./data/backups/{0}/".format(name)):
                 os.remove("./data/backups/{0}/{1}".format(name,files))
             try:
@@ -386,7 +388,7 @@ async def remakeEmojis(ctx=None):
         msg = await chan.send(embed = discord.Embed(title="Remake des emojis..."))
 
     await bot.change_presence(status=discord.Status.idle,activity=discord.Game(name="refaire les emojis..."))
-    
+
     async def refresh(text : str):
         await msg.edit(embed = discord.Embed(title="Remake des emojis...",description=text))
 
@@ -409,7 +411,7 @@ async def remakeEmojis(ctx=None):
         allEmojisNum += len(emojiGuild.emojis)
 
     cmpt = 0
-    now = datetime.datetime.now().second
+    now = datetime.now().second
     lastTime = copy.deepcopy(now)
     for a in iconGuildList:
         emojiGuild = await bot.fetch_guild(a)
@@ -420,6 +422,7 @@ async def remakeEmojis(ctx=None):
             except:
                 pass
             await b.delete()
+            await asyncio.sleep(0.5)
             cmpt += 1
 
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
@@ -444,17 +447,56 @@ async def remakeEmojis(ctx=None):
     if ctx != None:
         await ctx.channel.send("Le remake des emojis est terminées !",delete_after=10)
 
-    ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+    ballerine = datetime.now() + horaire + timedelta(hours=1)
     while ballerine.hour%3 != 0:
-        ballerine = ballerine + datetime.timedelta(hours=1)
+        ballerine = ballerine + timedelta(hours=1)
 
     await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
+
+async def verifEmojis(ctx=None):
+    if ctx != None:
+        msg = await ctx.send(embed=discord.Embed(title="Vérification des émojis...",description="__Progression :__ 0%"))
+    else:
+        chan = await bot.fetch_channel(912137828614426707)
+        msg = await chan.send(embed=discord.Embed(title="Vérification des émojis...",description="__Progression :__ 0%"))
+    remaked, lastProgress =  "", 0
+    listAllUsersFiles = os.listdir("./userProfile/")
+    lenAllUser, progress = len(listAllUsersFiles), 0
+    try:
+        for path in listAllUsersFiles:
+            user, haveSucced = loadCharFile("./userProfile/"+path), False
+            userIcon = await getUserIcon(bot,user)
+            haveSucced = False
+            for guildId in [ShushyCustomIcons,LenaCustomIcons][isLenapy]:
+                guild = await bot.fetch_guild(guildId)
+                try:
+                    await guild.fetch_emoji(getEmojiObject(userIcon)["id"])
+                    haveSucced = True
+                    break
+                except:
+                    pass
+            if not(haveSucced):
+                customIconDB.removeUserIcon(user)
+                await makeCustomIcon(bot,user)
+                if await getUserIcon(bot, user) not in ['<:LenaWhat:760884455727955978>','<a:lostSilver:917783593441456198>']:
+                    remaked += "Emoji de {0} refait\n".format(user.name)
+                else:
+                    remaked += "Erreur lors du remake de l'emoji de {0}\n".format(user.name)
+            progress += 1
+
+            if progress/lenAllUser * 100 > lastProgress + 5:
+                await msg.edit(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ {0}%\n".format(round(progress/lenAllUser * 100,2))+remaked))
+                lastProgress = progress/lenAllUser * 100
+
+        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked,color=light_blue))
+    except:
+        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
 
 @tasks.loop(seconds=1)
 async def oneClock():
     """A simple clock who check every second if a minute have passed\n
     If it is the case, start ``minuteClock``"""
-    tick = datetime.datetime.now()
+    tick = datetime.now()
     if tick.second%60 == 0 and not(minuteClock.is_running()):
         minuteClock.start()
 
@@ -467,7 +509,7 @@ async def minuteClock():
     """
     if oneClock.is_running():
         oneClock.stop()
-    tick = datetime.datetime.now()
+    tick = datetime.now()
     if tick.minute%60 == 0 and not(hourClock.is_running()):
         hourClock.start()
 
@@ -475,7 +517,7 @@ async def minuteClock():
 async def hourClock():
     if minuteClock.is_running():
         minuteClock.stop()
-    tick = datetime.datetime.now()+horaire
+    tick = datetime.now()+horaire
     if tick.hour%3==0:
         temp = False
         while not(temp):
@@ -497,7 +539,7 @@ async def hourClock():
         temp = delete_old_backups()
         if temp != "":
             await chan.send(embed=discord.Embed(title="__Auto backup__",color=light_blue,description=temp))
-        await remakeEmojis()
+        await verifEmojis()
 
         for userPath in os.listdir("./userProfile/"):
             user = loadCharFile('./userProfile/{0}'.format(userPath))
@@ -525,9 +567,9 @@ async def on_ready():
 
     # Shop reload and status change
     if bidule != False:
-        ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+        ballerine = datetime.now() + horaire + timedelta(hours=1)
         while ballerine.hour%3 != 0:
-            ballerine = ballerine + datetime.timedelta(hours=1)
+            ballerine = ballerine + timedelta(hours=1)
 
         if not(globalVar.fightEnabled()):
             await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
@@ -558,7 +600,7 @@ async def on_ready():
 
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
-        print(datetime.datetime.now().strftime('%H:%M'))
+        print(datetime.now().strftime('%H:%M'))
 
     if startMsg != 0:
         await msg.edit(embed=discord.Embed(title="Redémarrage en cours...",color=light_blue,description="Le bot a bien été redémarré"))
@@ -571,12 +613,32 @@ async def on_ready():
 # ====================================================================================================
 
 # -------------------------------------------- ON MESSAGE --------------------------------------------
+
 @bot.event
 async def on_message(ctx : discord.message.Message):
     if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
-        for userPath in os.listdir("./userProfile/"):
-            user = loadCharFile('./userProfile/{0}'.format(userPath))
-            aliceStatsDb.updateJetonsCount(user,10-(userShopPurcent(user)//10))
+        user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
+        await makeCustomIcon(bot,user)
+        await ctx.reply(embed=discord.Embed(title="__Icone de personnage__",color=user.color).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])))
+
+    elif ctx.content.startswith("l!emoji") and ctx.author.id == 213027252953284609:
+        try:
+            user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
+            user.apparaAcc = user.apparaWeap = None
+            tablStuff, user.showAcc = [ironHelmet,batEarRings,batPendant,fecaShield,anakiMask,catEars], True
+            for handed in [0,1]:
+                user.handed = handed
+                for stuffy in tablStuff:
+                    user.stuff[0] = stuffy
+                    imageFile = await makeCustomIcon(bot,user,True)
+                    filing = open("./data/images/temp.png","wb")
+                    filing.write(imageFile)
+                    filing.close()
+                    filing = open("./data/images/temp.png","rb")
+                    await ctx.channel.send(content="Position : {0}".format(stuffy.position),file=discord.File(fp=filing))
+                    filing.close()
+        except:
+            await ctx.channel.send(content=format_exc())
 
     else:
         pathUserProfile = "./userProfile/{0}.prof".format(ctx.author.id)
@@ -773,7 +835,7 @@ async def normal(ctx):
         cmpt = 0
 
         alea = copy.deepcopy(findEnnemi("OctoBOUM"))
-        alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCastSkill0,None,None,None,None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
+        alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCastSkill0,None,None,None,None,None,None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
         alea.changeLevel(maxLvl)
 
         while cmpt < lenBoucle:
@@ -786,27 +848,29 @@ async def normal(ctx):
         if msg == None:
             msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
         try:
-            tablAllTeams = userTeamDb.getAllTeamIds()
+            tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
+            tablAllTeams.remove(user.team)
             random.shuffle(tablAllTeams)
 
             moyTeam = 0
             for a in team1:
                 moyTeam += a.level
+                allReadySeen.append(a.owner)
 
             moyTeam = moyTeam/len(team1)
 
             for tempTeamId in tablAllTeams:
-                if tempTeamId != user.team:
-                    tempTeam, moyTempTeam = [], 0
-                    for a in userTeamDb.getTeamMember(tempTeamId):
+                tempTeam, moyTempTeam = [], 0
+                for a in userTeamDb.getTeamMember(tempTeamId):
+                    if a not in allReadySeen:
                         tempUser = loadCharFile("./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
 
-                    moyTempTeam = moyTempTeam/max(1,len(tempTeam))
-                    if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
-                        team1 += tempTeam
-                        break
+                moyTempTeam = moyTempTeam/max(1,len(tempTeam))
+                if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                    team1 += tempTeam
+                    break
 
             temp = team1
             temp.sort(key=lambda overheal: overheal.level,reverse=True)
@@ -948,27 +1012,29 @@ async def comQuickFight(ctx):
     if fun < 5:             # Raid
         msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__",color=light_blue,description="Les équipes sont en cours de génération..."))
         try:
-            tablAllTeams = userTeamDb.getAllTeamIds()
+            tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
+            tablAllTeams.remove(user.team)
             random.shuffle(tablAllTeams)
 
             moyTeam = 0
             for a in team1:
                 moyTeam += a.level
+                allReadySeen.append(a.owner)
 
             moyTeam = moyTeam/len(team1)
 
             for tempTeamId in tablAllTeams:
-                if tempTeamId != user.team:
-                    tempTeam, moyTempTeam = [], 0
-                    for a in userTeamDb.getTeamMember(user.team):
+                tempTeam, moyTempTeam = [], 0
+                for a in userTeamDb.getTeamMember(tempTeamId):
+                    if a not in allReadySeen:
                         tempUser = loadCharFile("./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
 
-                    moyTempTeam = moyTempTeam/max(1,len(tempTeam))
-                    if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
-                        team1 += tempTeam
-                        break
+                moyTempTeam = moyTempTeam/max(1,len(tempTeam))
+                if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                    team1 += tempTeam
+                    break
 
             temp = team1
             temp.sort(key=lambda overheal: overheal.level,reverse=True)
@@ -1696,9 +1762,9 @@ async def addEnableFight(ctx,valeur = None):
     if not(valeur):
         await bot.change_presence(status=discord.Status.dnd,activity=discord.Game(name="Les combats sont actuellements désactivés"))
     else:
-        ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+        ballerine = datetime.now() + horaire + timedelta(hours=1)
         while ballerine.hour%3 != 0:
-            ballerine = ballerine + datetime.timedelta(hours=1)
+            ballerine = ballerine + timedelta(hours=1)
 
         await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
@@ -1745,7 +1811,7 @@ async def resetCustomEmoji(ctx):
         allEmojisNum += len(emojiGuild.emojis)
 
     cmpt = 0
-    now = datetime.datetime.now().second
+    now = datetime.now().second
     lastTime = copy.deepcopy(now)
     for a in iconGuildList:
         emojiGuild = await bot.fetch_guild(a)
@@ -1795,9 +1861,9 @@ async def resetCustomEmoji(ctx):
     await refresh("Fini !")
     await ctx.channel.send("La rénitialisation des emojis est terminées !",delete_after=10)
 
-    ballerine = datetime.datetime.now() + horaire + datetime.timedelta(hours=1)
+    ballerine = datetime.now() + horaire + timedelta(hours=1)
     while ballerine.hour%3 != 0:
-        ballerine = ballerine + datetime.timedelta(hours=1)
+        ballerine = ballerine + timedelta(hours=1)
 
     await bot.change_presence(status=discord.Status.online,activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
@@ -2065,7 +2131,10 @@ async def verifTeams(ctx):
         temp+="\n"
         if len(toSend+temp) > 4000:
             if msg == None:
-                msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+                try:
+                    msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+                except:
+                    msg = await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
             else:
                 await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
             toSend = temp
@@ -2075,9 +2144,59 @@ async def verifTeams(ctx):
 
     if toSend != "":
         if msg == None:
-            msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+            try:
+                msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+            except:
+                msg = await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
         else:
             await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__",color=light_blue,description=toSend))
+
+@slash.slash(name="verif_emoji",guild_ids=adminServ)
+async def emojiVerficition(ctx):
+    msg, remaked, lastProgress = await ctx.send(embed=discord.Embed(title="Vérification des émojis...",description="__Progression :__ 0%")), "", 0
+    listAllUsersFiles = os.listdir("./userProfile/")
+    lenAllUser, progress = len(listAllUsersFiles), 0
+    try:
+        for path in listAllUsersFiles:
+            user, haveSucced = loadCharFile("./userProfile/"+path), False
+            userIcon = await getUserIcon(bot,user)
+            haveSucced = False
+            for guildId in [ShushyCustomIcons,LenaCustomIcons][isLenapy]:
+                guild = await bot.fetch_guild(guildId)
+                try:
+                    await guild.fetch_emoji(getEmojiObject(userIcon)["id"])
+                    haveSucced = True
+                    break
+                except:
+                    pass
+            if not(haveSucced):
+                customIconDB.removeUserIcon(user)
+                await makeCustomIcon(bot,user)
+                if await getUserIcon(bot, user) not in ['<:LenaWhat:760884455727955978>','<a:lostSilver:917783593441456198>']:
+                    remaked += "Emoji de {0} refait\n".format(user.name)
+                else:
+                    remaked += "Erreur lors du remake de l'emoji de {0}\n".format(user.name)
+            progress += 1
+
+            if progress/lenAllUser * 100 > lastProgress + 5:
+                await msg.edit(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ {0}%\n".format(round(progress/lenAllUser * 100,2))+remaked))
+                lastProgress = progress/lenAllUser * 100
+
+        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked,color=light_blue))
+    except:
+        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
+
+@slash.slash(name="char_settings",description="Permet de modifier les paramètres de son icone de personnage")
+async def char_settings(ctx):
+    user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+    await userSettings(bot,user,ctx)
+
+@slash.slash(name="Test",guild_ids=adminServ)
+async def expeditionTest(ctx):
+    user, chan = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id)), ctx.channel
+    listEmbed = await generateExpeditionReport(bot,[user],user,datetime.now(),ctx)
+    for a in listEmbed:
+        await chan.send(embed=a)
 
 ###########################################################
 # Démarrage du bot

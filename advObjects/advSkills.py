@@ -1,11 +1,8 @@
-from calendar import c
 from copy import deepcopy
-from ctypes.wintypes import CHAR
-from lib2to3.pgen2.token import COLONEQUAL
 from classes import *
 from constantes import *
 
-soupledown = skill("Choc Ténébreux","zz",TYPE_DAMAGE,500,150,range = AREA_CIRCLE_1,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=150,ultimate=True,cooldown=6,emoji='<:lunadown:932444767504203847>',use=STRENGTH)
+soupledown = skill("Choc Ténébreux","zz",TYPE_DAMAGE,500,150,range = AREA_INLINE_3,conditionType=["exclusive","aspiration",POIDS_PLUME],area = AREA_CIRCLE_2,sussess=150,tpCac=True,ultimate=True,cooldown=6,emoji='<:lunadown:932444767504203847>',use=STRENGTH)
 inkarmor = skill("Armure d'Encre","zy",TYPE_ARMOR,250,ultimate=True,effect="la",emoji = '<:inkArmor:866829950463246346>',area=AREA_CIRCLE_2,cooldown=7,range=AREA_CIRCLE_5)
 coffeeSkill = skill("Suprématie du café","zx",TYPE_BOOST,500,effect=["lb","mc"],use=CHARISMA,conditionType=["reject","skill","zw"],area=AREA_ALL_ALLIES,emoji='<:coffee:867538582846963753>',cooldown=4,message="{0} prend le café avec ses alliés :")
 theSkill = skill("Liberté du thé","zw",TYPE_BOOST,500,effect=["lc","mc"],use=CHARISMA,conditionType=["reject","skill","zx"],area=AREA_ALL_ALLIES,emoji='<:the:867538602644602931>',cooldown=4,message="{0} prend le thé avec ses alliés :")
@@ -30,9 +27,9 @@ explosionCast = skill("Explosion","zf",TYPE_DAMAGE,1000,0,ultimate=True,cooldown
 protect = skill("Orbe défensif","ze",TYPE_ARMOR,200,emoji='<:orbeDef:873725544427053076>',effect="md",cooldown=3)
 poisonus = skill("Vent empoisonné","zd",TYPE_INDIRECT_DAMAGE,500,emoji='<:estabistia:883123793730609172>',effect="me",cooldown=3,area=AREA_CIRCLE_1,use=MAGIE,message="{0} propage un {1} autour de {2} :",effPowerPurcent=40)
 invocBat = skill("Invocation - Chauve-souris","zc",TYPE_SUMMON,500,invocation="Chauve-Souris",emoji="<:cutybat:884899538685530163>",shareCooldown=True,use=AGILITY)
-multiMissiles = skill("Multi-Missiles","zb",TYPE_INDIRECT_DAMAGE,750,range=AREA_MONO,ultimate=True,emoji='<:tentamissile:884757344397951026>',effect="mf",cooldown=4,area=AREA_ALL_ENEMIES)
+multiMissiles = skill("Multi-Missiles","zb",TYPE_INDIRECT_DAMAGE,750,range=AREA_MONO,ultimate=True,emoji='<:tentamissile:884757344397951026>',effect="mf",cooldown=4,area=AREA_RANDOMENNEMI_5,url='https://cdn.discordapp.com/attachments/935769576808013837/935781565663948850/20220126_071157.gif')
 monoMissiles = skill("Mono-Missiles","za",TYPE_INDIRECT_DAMAGE,250,range=AREA_CIRCLE_7,emoji='<:monomissile:884757360193708052>',effect="mf",cooldown=4)
-splashdown = skill("Choc Chromatique","yz",TYPE_DAMAGE,500,150,AREA_MONO,ultimate=True,emoji='<:splashdown:884803808402735164>',cooldown=8,area=AREA_CIRCLE_2,damageOnArmor=3)
+classicSplashdown = skill("Choc Chromatique Classique","yz",TYPE_DAMAGE,500,150,AREA_MONO,ultimate=True,emoji='<:splashdown:884803808402735164>',cooldown=5,area=AREA_CIRCLE_2,damageOnArmor=3,url="https://cdn.discordapp.com/attachments/935769576808013837/935781564661526578/20220126_071756.gif")
 invocCarbE = skill("Invocation - Carbuncle Emeraude","yy",TYPE_SUMMON,500,invocation="Carbuncle Emeraude",emoji="<:invoncEm:919857931158171659>",cooldown=3,range=AREA_CIRCLE_3,shareCooldown=True,use=MAGIE)
 invocCarbT = skill("Invocation - Carbuncle Topaze","yx",TYPE_SUMMON,500,invocation="Carbuncle Topaze",emoji="<:invocTopaz:919859538943946793>",cooldown=3,range=AREA_CIRCLE_3,shareCooldown=True,use=ENDURANCE)
 invocFee = skill("Invocation - Fée Soignante","yw",TYPE_SUMMON,500,0,AREA_CIRCLE_3,cooldown=4,invocation="Fée soignante",emoji="<:selene:885077160862318602>",shareCooldown=True,use=CHARISMA)
@@ -111,8 +108,8 @@ tornado = skill("Tornade","wh",TYPE_DAMAGE,500,126,use=MAGIE,conditionType=["exc
 stone = skill("Caillou","wg",TYPE_DAMAGE,100,60,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],emoji='<:rock1:897846015552532531>')
 rock = skill("Rocher","wf",TYPE_DAMAGE,250,120,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],cooldown=3,emoji="<:rock2:897846028512944138>")
 mont = skill("Montagne","we",TYPE_DAMAGE,500,160,use=MAGIE,conditionType=["exclusive","element",ELEMENT_EARTH],cooldown=5,emoji='<:rock3:897846042576420874>')
-stingray2 = skill("Pigmalance","wd",TYPE_DAMAGE,500,120,AREA_CIRCLE_7,ultimate=True,emoji='<:stingray:899243721378390036>',cooldown=5,area=AREA_LINE_6,sussess=110,description="Cette compétence dure **2** tours",damageOnArmor=0.66)
-stingray = skill("Pigmalance","wc",TYPE_DAMAGE,500,100,AREA_CIRCLE_7,ultimate=True,emoji='<:stingray:899243721378390036>',cooldown=5,area=AREA_LINE_6,sussess=80,effectOnSelf="nb",damageOnArmor=0.66)
+stingray2 = skill("Pigmalance","wd",TYPE_DAMAGE,500,120,AREA_CIRCLE_7,ultimate=True,emoji='<:stingray:899243721378390036>',cooldown=5,area=AREA_LINE_6,sussess=120,description="Inflige des dégâts pendant deux tours.\nPuissance au premier tour : 100",damageOnArmor=0.7,url="https://cdn.discordapp.com/attachments/935769576808013837/935781565936590898/20220126_070809.gif")
+stingray = skill("Pigmalance","wc",TYPE_DAMAGE,500,100,AREA_CIRCLE_7,ultimate=True,emoji='<:stingray:899243721378390036>',cooldown=5,area=AREA_LINE_6,sussess=100,effectOnSelf="nb",damageOnArmor=0.7,url="https://cdn.discordapp.com/attachments/935769576808013837/935781565072547850/20220126_071411.gif")
 dark1 = skill("Cécité","wb",TYPE_DAMAGE,100,60,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],emoji='<:dark1:899599162566410280>')
 dark2 = skill("Obscurité","wa",TYPE_DAMAGE,250,120,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],cooldown=3,emoji='<:dark2:899599147399807006>')
 dark3 = skill("Pénombre","vz",TYPE_DAMAGE,500,160,use=MAGIE,conditionType=["exclusive","element",ELEMENT_DARKNESS],cooldown=5,emoji='<:dark3:899598969930399765>')
@@ -139,7 +136,7 @@ eting = skill("Marque Eting","ve",TYPE_INDIRECT_HEAL,350,effect="nw",emoji='<:et
 renforce = skill("Renforcement","vd",TYPE_BOOST,500,range=AREA_DONUT_5,effect="nx",cooldown=5,description="Une compétence qui augmente la résistance d'un allié. L'effet diminue avec les tours qui passent",use=INTELLIGENCE,emoji='<:renfor:921760752065454142>')
 steroide = skill("Stéroïdes","vc",TYPE_BOOST,500,range=AREA_DONUT_5,effect="oa",cooldown=3,area=AREA_CIRCLE_1,use=INTELLIGENCE)
 renisurection = skill("Résurrection","vb",TYPE_RESURECTION,500,100,emoji='<:respls:906314646007468062>',cooldown=4,shareCooldown=True,description="Permet de ressuciter un allié",use=CHARISMA)
-demolish = skill("Démolition","va",TYPE_DAMAGE,650,150,AREA_CIRCLE_2,ultimate=True,cooldown=7,effect=incur[5],damageOnArmor=1.2,emoji='<:destruc:905051623108280330>')
+demolish = skill("Démolition","va",TYPE_DAMAGE,750,180,AREA_CIRCLE_2,ultimate=True,cooldown=7,effect=incur[5],damageOnArmor=1.2,emoji='<:destruc:905051623108280330>')
 contrainte = skill("Contrainte","uz",TYPE_MALUS,500,range=AREA_CIRCLE_6,effect=[incur[3],"oc"],cooldown=3,use=INTELLIGENCE)
 trouble = skill("Trouble","uy",TYPE_MALUS,500,range=AREA_CIRCLE_6,effect=[incur[3],"od"],use=CHARISMA,emoji='<:trouble:904164471109468200>',cooldown=3)
 epidemic = skill("Infirmitée","ux",TYPE_MALUS,500,area=AREA_CIRCLE_5,effect=incur[2],cooldown=3,use=None,emoji='<:infirm:904164428545683457>')
@@ -199,7 +196,10 @@ strengthOfWill = skill("Force de volonté","feliUltLaunch",TYPE_DAMAGE,0,power=2
 strengthOfWillCastEff = effect("Cast - Force de volonté","castFeliEff",turnInit=2,silent=True,emoji=uniqueEmoji('<a:feliSlashCast:932819458186158160>'),replique=strengthOfWill)
 strengthOfWillCast = copy.deepcopy(strengthOfWill)
 strengthOfWillCast.id, strengthOfWillCast.power, strengthOfWillCast.effectOnSelf,strengthOfWillCast.message, strengthOfWillCast.tpCac = "tl",0,strengthOfWillCastEff,"{0} rassemble toute sa Détermination dans son arme", False
-sixtineUlt = skill("Douce nuit","tk",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENEMIES,use=INTELLIGENCE,effect='sixtineUltEff',ultimate=True,cooldown=5,emoji='<:night:911735172901273620>')
+
+sixtineGoodNight = copy.deepcopy(dmgDown)
+sixtineGoodNight.power, sixtineGoodNight.stat, sixtineGoodNight.description = 8, INTELLIGENCE, "Réduit les dégâts infligés par le porteur de l'effet de **8%** affectés par les statistiques\nSi plusieurs effets de réduction de dégâts infligés sont présents sur une même cible, seul l'effet le plus puissant est pris en compte"
+sixtineUlt = skill("Douce nuit","tk",TYPE_MALUS,0,range=AREA_MONO,area=AREA_ALL_ENEMIES,use=INTELLIGENCE,effect=sixtineGoodNight,ultimate=True,cooldown=7,emoji='<:night:911735172901273620>')
 hinaUlt = skill("Déluge de plume","tj",TYPE_DAMAGE,0,28,sussess=40,area=AREA_CONE_2,repetition=5,cooldown=7,emoji='<:featherStorm:909932475457884191>')
 julieUltEff = effect("Prolongation","JulieUltEff",CHARISMA,power=15,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,stackable=True,emoji=uniqueEmoji('<:plg:911734437597835316>'),description="Un effet de soin sur la durée qui se déclanche en début de tour")
 julieUlt = skill("Prolongation","ti",TYPE_INDIRECT_HEAL,0,area=AREA_CIRCLE_3,range=AREA_MONO,emoji='<:plg:911734437597835316>',effect=julieUltEff,cooldown=7,use=CHARISMA)
@@ -240,8 +240,8 @@ rosesMagic = skill("Pétales","su",TYPE_BOOST,500,effect=rosesMagicEff,use=CHARI
 roses = skill("Roses","su",TYPE_BOOST,500,use=CHARISMA,become=[rosesPhysi,rosesMagic],emoji='<:roses:932612186130493450>')
 
 krysUlt = skill("Réassemblage","st",TYPE_DAMAGE,0,80,cooldown=5,description="En plus d'infliger des dégâts, cette compétence vole **50%** de l'armure normale et légère de la cible (avant d'infliger les dégâts)",emoji='<:reconvert:916121466423091240>')
-chaosArmorEff = effect("Armure du Chaos","chaosArmor",INTELLIGENCE,overhealth=1,description="Une armure chaotique dont la puissance de base est aléatoire",type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,turnInit=3)
-chaosArmor = skill("Armure du Chaos","ss",TYPE_ARMOR,range=AREA_MONO,area=AREA_ALL_ALLIES,price=500,effect=chaosArmorEff,cooldown=5,use=INTELLIGENCE)
+chaosArmorEff = effect("Armure du Chaos","chaosArmor",INTELLIGENCE,overhealth=1,emoji=sameSpeciesEmoji('<a:caB:938375004792426496>','<a:caR:938375020261023825>'),description="Une armure chaotique dont la puissance de base est aléatoire",type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,turnInit=3)
+chaosArmor = skill("Armure du Chaos","ss",TYPE_ARMOR,emoji='<a:chaosArmor:938374846843342869>',range=AREA_MONO,area=AREA_ALL_ALLIES,price=500,effect=chaosArmorEff,cooldown=5,use=INTELLIGENCE)
 firelame = skill("Ignis ferrum","sr",TYPE_DAMAGE,500,38,range=AREA_DIST_5,conditionType=["exclusive","element",ELEMENT_FIRE],cooldown=6,area=AREA_ARC_1,repetition=3,emoji='<:fireLame:916130324197543986>',damageOnArmor=1.1)
 airlame = skill("Aer ferrum","sq",TYPE_DAMAGE,500,38,range=AREA_CIRCLE_3,conditionType=["exclusive","element",ELEMENT_AIR],cooldown=6,area=AREA_ARC_1,repetition=3,emoji='<:airLame:916130609095655454>',damageOnArmor=1.1)
 waterlame = skill("Aqua ferrum","sp",TYPE_DAMAGE,500,55,range=AREA_DIST_5,conditionType=["exclusive","element",ELEMENT_WATER],cooldown=6,repetition=3,emoji='<:aquaLame:916130446125977602>',damageOnArmor=1.1)
@@ -284,10 +284,10 @@ inkResEff2.stat, inkResEff2.name, inkResEff2.emoji = ENDURANCE, "Collectivement 
 inkRes = skill("Pied au sec","zzr",TYPE_BOOST,500,effect=inkResEff,cooldown=4,area=AREA_CIRCLE_1,use=INTELLIGENCE)
 inkRes2 = skill("Inconscient collectif","zzq",TYPE_BOOST,500,range=AREA_MONO,area=AREA_CIRCLE_2,effect=inkResEff2,cooldown=4,use=ENDURANCE,emoji='<:incCol:921545816940875817>')
 
-booyahBombLauch = skill("Jolizator","zzp",TYPE_DAMAGE,750,213,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,emoji='<:bobomb:921710328771932192>')
+booyahBombLauch = skill("Jolizator","zzp",TYPE_DAMAGE,750,213,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,emoji='<:bobomb:921710328771932192>',url="https://cdn.discordapp.com/attachments/935769576808013837/935783888159125544/20220126_072826.gif")
 booyahBombEff = effect("Cast - Jolizator","supercalifragilisticexpialiodocieux",turnInit=2,silent=True,emoji=sameSpeciesEmoji("<:booyahB:925796592240455701>","<:booyahR:925796570509766716>"),replique=booyahBombLauch)
 booyahBombCast = copy.deepcopy(booyahBombLauch)
-booyahBombCast.id, booyahBombCast.effectOnSelf, booyahBombCast.power = "zzp",booyahBombEff,0
+booyahBombCast.id, booyahBombCast.effectOnSelf, booyahBombCast.power, booyahBombCast.url = "zzp",booyahBombEff,0,"https://cdn.discordapp.com/attachments/935769576808013837/935783887748079666/20220126_073038.gif"
 
 reconst = skill("Reconstitution","zzo",TYPE_HEAL,750,130,ultimate=True,use=CHARISMA,cooldown=7,emoji='<:mudh:922914512712138802>',description="Une puissante compétence de soins monocibles")
 medicamentumEff = effect("Medicamentum","bigmonoindirect",CHARISMA,type=TYPE_INDIRECT_HEAL,turnInit=3,power=55,description="Un puissant effect soignant",emoji=sameSpeciesEmoji('<:mihB:922914323037306890>','<:mihR:922914344428240937>'))
@@ -344,7 +344,7 @@ nacreHit = skill("Frappe nacrée",'syn',TYPE_DAMAGE,500,80,range=AREA_CIRCLE_3,e
 holyShot = skill("Flèche sacrée",'sym',TYPE_DAMAGE,500,130,cooldown=7,group=SKILL_GROUP_HOLY,maxHpCost=10,emoji='<:hollyArrow:931713039789588550>')
 demonStrike = skill("Frappe démoniaque",'syl',TYPE_DAMAGE,500,35,cooldown=7,group=SKILL_GROUP_DEMON,area=AREA_CIRCLE_1,repetition=3,hpCost=15,emoji='<:demonStrike:933504978599952404>')
 purify = skill("Purification","syk",TYPE_HEAL,250,50,use=CHARISMA,cooldown=5,group=SKILL_GROUP_HOLY,maxHpCost=5,emoji='<:holyHeal1:931703505268408341>')
-benediction = skill("Bénédiction","syj",TYPE_HEAL,750,100,use=CHARISMA,cooldown=8,group=SKILL_GROUP_HOLY,maxHpCost=10,emoji='<:benediction:931703487258046464>')
+benediction = skill("Bénédiction II","syj",TYPE_HEAL,750,100,use=CHARISMA,cooldown=8,group=SKILL_GROUP_HOLY,maxHpCost=10,emoji='<:benediction:931703487258046464>')
 transfert = skill("Transfert",'svi',TYPE_HEAL,350,55,use=CHARISMA,hpCost=10,group=SKILL_GROUP_DEMON,cooldown=5,emoji='<:transfert:931709644542451734>')
 blackDarkMagic = skill("Magie interdite",'svh',TYPE_HEAL,350,100,use=CHARISMA,hpCost=35,group=SKILL_GROUP_DEMON,cooldown=8,emoji='<:darkMagic:931707457020002346>')
 fisure = skill("Fissure",'svg',TYPE_DAMAGE,500,70,conditionType=["exclusive","secElem",ELEMENT_EARTH],cooldown=5,damageOnArmor=3,emoji='<:break:931703557420367873>')
@@ -358,7 +358,7 @@ darkHeal.name, darkHeal.id, darkHeal.emoji, darkHeal.condition = "Assombrissemen
 matriceEff = effect("Matrice emplificatrice","matrice",description="Augmente la puissance de la prochaine compétence ou de votre arme principale de **{0}%**",power=35,emoji=sameSpeciesEmoji('<:matriceB:931883502247510057>','<:matriceR:931883516243902485>'),turnInit=2)
 matriceEmpli = skill("Matrice emplificatrice",'svb',TYPE_BOOST,500,range=AREA_MONO,effect=matriceEff,use=None,cooldown=7)
 calestJump = skill("Plongeon Céleste",'sva',TYPE_DAMAGE,750,75,range=AREA_DIST_3,area=AREA_CIRCLE_1,tpCac=True,cooldown=7,emoji='<:ceslestJump:931899235270545469>')
-lohicaUltLauch = skill("Brûme empoisonée","suz",TYPE_INDIRECT_DAMAGE,750,area=AREA_CIRCLE_2,use=MAGIE,tpCac=True,effect="me",cooldown=7,ultimate=True,emoji='<:brume:931908895083991100>')
+lohicaUltLauch = skill("Brûme empoisonée","suz",TYPE_INDIRECT_DAMAGE,750,area=AREA_CIRCLE_2,use=MAGIE,tpCac=True,effect="me",cooldown=7,ultimate=True,emoji='<:brume:931908895083991100>',areaOnSelf=True)
 lohicaUltCastEff = effect("Cast - Brûme empoisonée","lohicaUltCastEff",turnInit=2,silent=True,replique=lohicaUltLauch,emoji=uniqueEmoji('<a:lohicaUltCast:932823354841399296>'))
 lohicaUltCast = copy.deepcopy(lohicaUltLauch)
 lohicaUltCast.effectOnSelf, lohicaUltCast.effect, lohicaUltCast.tpCac = lohicaUltCastEff, [None], False
@@ -372,7 +372,7 @@ aliceDanceGuide1.effectOnSelf, aliceDanceGuide1.message = aliceDanceGuideEff1, "
 aliceDanceGuideEff2 = copy.deepcopy(aliceDanceGuideEff1)
 aliceDanceGuideEff2.replica = aliceDanceGuide1
 aliceDance = copy.deepcopy(aliceDanceGuide1)
-aliceDance.effectOnSelf, aliceDance.message = aliceDanceGuideEff2, "{0} commence un {1} !"
+aliceDance.effectOnSelf, aliceDance.message = aliceDanceGuideEff2, "{0} commence une {1} !"
 auroreEff = effect("Aurore",'auroreEff',CHARISMA,strength=5,magie=5,turnInit=3,emoji=sameSpeciesEmoji("<:aurB:934675375689170995>","<:aurR:934675360946212914>"))
 aurore = skill('Aurore','sux',TYPE_BOOST,500,effect=auroreEff,use=CHARISMA,cooldown=7,area=AREA_CIRCLE_1,conditionType=["exclusive","element",ELEMENT_LIGHT],emoji='<:aurore:934675235268087858>')
 crepEff = effect("Crépuscule",'crepEff',INTELLIGENCE,strength=-5,magie=-5,turnInit=3,emoji=sameSpeciesEmoji('<:crepB:934675391145201664>','<:crepR:934675411995074560>'))
@@ -399,14 +399,14 @@ extraMedica = skill("Extra-Medica",'suk',TYPE_HEAL,750,35,AREA_MONO,area=AREA_CI
 foulleeEff = effect("Foulée légère",'ppUniquePassifEff',turnInit=-1,unclearable=True,power=20,description="Augmente de **{0}%** votre probabilité d'esquiver des attaques")
 foullee = skill("Foulée Légère",'suj',TYPE_PASSIVE,350,conditionType=["exclusive","aspiration",POIDS_PLUME],use=None,effectOnSelf=foulleeEff,emoji='<:quicky:934832147511017482>')
 
-lifePulseFinal = skill("Pulsion de vie",'sui',TYPE_HEAL,1000,120,range=AREA_MONO,ultimate=True,cooldown=10,initCooldown=3,area=AREA_CIRCLE_5,use=CHARISMA,emoji='<a:lifePulse:934968172107403324>',group=SKILL_GROUP_HOLY,maxHpCost=13,description="Après __1 tour de chargement__, guide Pulsion de vie pendant __3 tours__, soignant les alliés dans la zone avec une puissance de **{0}** à chaque tour\n\nLes deux premiers tours de guide consomment **10% de vos PV Max**\nL'utilisation de cette compétence diminue vos PV max d'envrion **30% au total**",url='https://cdn.discordapp.com/attachments/927195778517184534/934968488550871140/20220124_012750.gif')
+lifePulseFinal = skill("Pulsion de vie",'sui',TYPE_HEAL,1000,80,range=AREA_MONO,ultimate=True,cooldown=10,initCooldown=3,area=AREA_CIRCLE_5,use=CHARISMA,emoji='<a:lifePulse:934968172107403324>',group=SKILL_GROUP_HOLY,maxHpCost=13,description="Après __1 tour de chargement__, guide Pulsion de vie pendant __3 tours__, soignant les alliés dans la zone avec une puissance allant de **120** à **{0}** à chaque tour\n\nLes deux premiers tours de guide consomment **10% de vos PV Max**\nL'utilisation de cette compétence diminue vos PV max d'envrion **30% au total**",url='https://cdn.discordapp.com/attachments/927195778517184534/934968488550871140/20220124_012750.gif')
 lifePulseGuide1Eff = effect("Guide - Pulsion de vie",'guildeLifePulse1',silent=True,replique=lifePulseFinal,emoji=uniqueEmoji('<a:lifePulseGuide:934972237327523901>'),turnInit=2)
 lifePulseGuide1 = copy.deepcopy(lifePulseFinal)
-lifePulseGuide1.effectOnSelf, lifePulseGuide1.maxHpCost = lifePulseGuide1Eff, 10
+lifePulseGuide1.effectOnSelf, lifePulseGuide1.maxHpCost, lifePulseGuide1.power = lifePulseGuide1Eff, 10, 100
 lifePulseGuide2Eff = copy.deepcopy(lifePulseGuide1Eff)
 lifePulseGuide2Eff.replica, lifePulseGuide2Eff.id = lifePulseGuide1, 'guildeLifePulse2'
 lifePulseGuide2 = copy.deepcopy(lifePulseGuide1)
-lifePulseGuide2.effectOnSelf = lifePulseGuide2Eff
+lifePulseGuide2.effectOnSelf, lifePulseGuide2.power = lifePulseGuide2Eff, 120
 lifePulseCastEff = effect("Cast - Pulsion de vie",'lifePulseCast',replique=lifePulseGuide2,silent=True,turnInit=2,emoji='<a:lifePulseCast:934968316882219068>')
 lifePulseCast = copy.deepcopy(lifePulseFinal)
 lifePulseCast.power, lifePulseCast.effectOnSelf, lifePulseCast.url, lifePulseCast.maxHpCost = 0, lifePulseCastEff, None, 0
@@ -416,10 +416,69 @@ crimsomLotusCastEff = effect("Cast - Lotus Cramoisi",'crimstomLotusCastEff',turn
 crimsomLotusCast = copy.deepcopy(crimsomLotus)
 crimsomLotusCast.power, crimsomLotusCast.effectOnSelf, crimsomLotusCast.url = 0, crimsomLotusCastEff, None
 
-abnegation = skill("Abnégation",'sug',TYPE_HEAL,750,int(memAlice.power * 1.1),range=AREA_MONO,area=AREA_CIRCLE_5,group=SKILL_GROUP_DEMON,hpCost=90,ultimate=True,cooldown=7,use=CHARISMA,description="Consomme la quasi-totalité de vos PV actuels pour soigner tous vos équipiers à portée\nLes alliés en attante de réanimation sont relevé avec un pourcentage de puissance variable en fonction du niveau")
+abnegation = skill("Abnégation",'sug',TYPE_HEAL,750,int(memAlice.power * 1.1),emoji='<:abnegation:935538856286109726>',range=AREA_MONO,area=AREA_CIRCLE_5,group=SKILL_GROUP_DEMON,hpCost=90,ultimate=True,cooldown=7,use=CHARISMA,description="Consomme la quasi-totalité de vos PV actuels pour soigner tous vos équipiers à portée\nLes alliés en attante de réanimation sont relevé avec un pourcentage de puissance variable en fonction du niveau")
+
+jumpedSplashDownLanding = copy.deepcopy(classicSplashdown)
+jumpedSplashDownLanding.name, jumpedSplashDownLanding.range, jumpedSplashDownLanding.tpCac, jumpedSplashDownLanding.areaOnSelf, jumpedSplashDownLanding.url, jumpedSplashDownLanding.cooldown = "Choc Chromatique Sauté", AREA_DIST_5, True, True, "https://cdn.discordapp.com/attachments/935769576808013837/935781564145623131/20220126_072054.gif", 7
+jsdJumEff = effect("Cast - Choc Chromatique Sauté", 'JumpingSlashDownEff',turnInit=2,silent=True,emoji=classicSplashdown.emoji,invisible=True,immunity=True,replique=jumpedSplashDownLanding)
+jumpedSplashDown = copy.deepcopy(jumpedSplashDownLanding)
+jumpedSplashDown.power, jumpedSplashDown.tpCac, jumpedSplashDown.url, jumpedSplashDown.effectOnSelf = 0, False, None, jsdJumEff
+
+splashdown = skill("Choc Chromatique",classicSplashdown.id,TYPE_DAMAGE,750,0,ultimate=True,emoji=classicSplashdown.emoji,become=[classicSplashdown,jumpedSplashDown])
+pneumaArmor = effect("Pneuma",'pneumaArmor',INTELLIGENCE,overhealth=50,type=TYPE_ARMOR,trigger=TRIGGER_START_OF_TURN)
+pneuma = skill("Pneuma",'suf',TYPE_DAMAGE,750,125,conditionType=["exclusive","aspiration",PREVOYANT],ultimate=True,emoji='<:pneuma:936515231562219581>',cooldown=7,area=AREA_LINE_3,sussess=110,use=INTELLIGENCE,useActionStats=ACT_SHIELD,effectAroundCaster=[TYPE_ARMOR,AREA_CIRCLE_2,pneumaArmor])
+
+absorbingStrike = skill("Frappe Convertissante",'sue',TYPE_DAMAGE,500,50,AREA_CIRCLE_2,cooldown=3,emoji='<:healStrike:936470624921075733>',lifeSteal=35)
+absorbingArrow = skill("Flèche Convertissante",'sud',TYPE_DAMAGE,500,50,AREA_DIST_6,cooldown=3,emoji='<:healShot:936470641450815538>',lifeSteal=35)
+absorbingStrike2 = skill("Frappe Convertissante II",'suc',TYPE_DAMAGE,750,120,AREA_CIRCLE_2,cooldown=7,emoji='<:killStrike:936470659389849622>',lifeSteal=50)
+absorbingArrow2 = skill("Flèche Convertissante II",'sub',TYPE_DAMAGE,750,120,AREA_DIST_6,cooldown=7,emoji='<:killShot:936470681015709716>',lifeSteal=50)
+magiaHeal = skill("Sort Vampirique","sua",TYPE_DAMAGE,500,80,use=MAGIE,lifeSteal=40,cooldown=5)
+
+aff2Eff1 = copy.deepcopy(vulne)
+aff2Eff1.power, aff2Eff1.stat, aff2Eff1.description = 3, INTELLIGENCE, "Augmente les dégâts subis par le porteur de **3%**, affecté par les statistiques"
+aff2Eff2 = copy.deepcopy(dmgDown)
+aff2Eff2.power, aff2Eff2.stat, aff2Eff2.description = 3, INTELLIGENCE, "Réduit les dégâts infligés par le porteur de **3%**, affecté par les statistiques"
+
+bloodPactEff = effect("Pacte de sang",'bloodyPact',power=75,turnInit=-1,emoji='<:bloodpact:937361536043843595>',unclearable=True,description="Augmente de **{0}%** le taux de vol de vie des Berskers mais réduit de **15%** les soins reçus par n'importe quelle autre source")
+bloodPact = skill("Pacte de sang",'sty',TYPE_PASSIVE,500,use=None,conditionType=["exclusive","aspiration",BERSERK],effectOnSelf=bloodPactEff,emoji='<:bloodpact:937361536043843595>')
+aff2 = skill("Affaiblissement II",'stz',TYPE_MALUS,500,area=AREA_CIRCLE_1,use=INTELLIGENCE,effect=[aff2Eff1,aff2Eff2],cooldown=5,emoji=affaiblissement.emoji)
+
+expediantDefenseUp = copy.deepcopy(defenseUp)
+expediantDefenseUp.power, expediantDefenseUp.stat, expediantDefenseUp.description = 7, INTELLIGENCE, "Réduit de **7%** les dégâts subis par le porteur, affectés par les statistiques"
+expediantSpeedBoost = effect("Thèse des rafales hurlantes",'expediantSpeedBooost',INTELLIGENCE,agility=10,emoji='<:expediant:937370418363367495>')
+expediant = skill("Thèse fluidiques",'stx',TYPE_BOOST,750,range=AREA_MONO,area=AREA_CIRCLE_3,use=INTELLIGENCE,cooldown=7,effect=[expediantDefenseUp,expediantSpeedBoost],emoji='<:expediant:937370418363367495>')
+dinationEff = copy.deepcopy(dmgUp)
+dinationEff.power, dinationEff.stat, dinationEff.description, dinationEff.turnInit = 3, INTELLIGENCE, "Augmente de **3%** les dégâts infligés par le porteur, affecté par les statistiques", 3
+divination = skill("Divination",'stw',TYPE_BOOST,500,range=AREA_MONO,area=AREA_CIRCLE_3,use=INTELLIGENCE,cooldown=7,effect=dinationEff,emoji='<:divination:937370483777748993>')
+macroCosmosEff = copy.deepcopy(dmgUp)
+macroCosmosEff.power = 5
+macroCosmos = skill("Macro-cosmos",'stv',TYPE_DAMAGE,500,130,area=AREA_CIRCLE_1,effectAroundCaster=[TYPE_BOOST,AREA_CIRCLE_2,macroCosmosEff],cooldown=5,ultimate=True,use=INTELLIGENCE,useActionStats=ACT_BOOST,description="Inflige des dégâts aux ennemis dans la zone d'effet, puis augmente les dégâts infligés par les alliés de **5%** (fixe) autour du lanceur",emoji='<:macroCosmos:937370437573287997>')
+tintabuleEff = effect("Tintinnabule",'tintabule',CHARISMA,power=12,turnInit=3,lvl=5,type=TYPE_INDIRECT_HEAL,area=AREA_CIRCLE_2,emoji='<:tintabulbe:937370359257255976>',trigger=TRIGGER_AFTER_DAMAGE,description="Lors des 5 prochaines attaques subie par le porteur, soigne ce dernier et ses alliés dans la zone d'effet")
+tintabule = skill("Tintinnabule",'stu',TYPE_INDIRECT_HEAL,500,effect=tintabuleEff,cooldown=5,emoji='<:tintabulbe:937370359257255976>')
+
+verEarthEff = effect("VerTerre préparé",'verEarthReady',turnInit=5,emoji='<:verTerre:937807119934160917>')
+verMiracleEff = effect("VerMiracle préparé",'verMiracleReady',turnInit=5,emoji='<:verMiracle:937807083447943288>')
+verFire = skill("VerFeu",'stt',TYPE_DAMAGE,power=70,emoji='<:verFeu:937807102209060894>',use=MAGIE,effectOnSelf=verEarthEff,rejectEffect=[verEarthEff,verMiracleEff])
+verEarth = skill("VerTerre",'stt',TYPE_DAMAGE,power=90,emoji='<:verTerre:937807119934160917>',use=MAGIE,needEffect=verEarthEff,effectOnSelf=verMiracleEff,cooldown=2)
+verMiracle = skill("VerMiracle",'stt',TYPE_DAMAGE,power=145,emoji='<:verMiracle:937807083447943288>',use=MAGIE,needEffect=verMiracleEff,cooldown=5)
+comboVerMiracle = skill("Combo VerMiracle",'stt',TYPE_DAMAGE,500,verMiracle.power,emoji=verMiracle.emoji,become=[verFire,verEarth,verMiracle],use=MAGIE,description="Cette compétence permet d'effectuer l'enchaînement \"VerFeu\",\"VerTerre\" et \"VerMiracle\".\nIl est impossible d'utiliser \"VerMiracle\" sans avoir utilisé \"VerTerre\" précédament, lui-même necessitant d'avoir utlisé \"VerFeu\" au paravant")
+
+faucheCroixEff = effect('Fauchage croisé préparé','faucheCroixReady',turnInit=6,emoji='<:faucheCroix:937807152058343474>')
+faucheNean = skill("Fauchage du néan",'sts',TYPE_DAMAGE,power=100,range=AREA_CIRCLE_2,area=AREA_ARC_1,cooldown=3,emoji='<:faucheNean:937807137306976337>',rejectEffect=faucheCroixEff,effectOnSelf=faucheCroixEff)
+faucheCroix = skill("Fauchage croisé",'sts',TYPE_DAMAGE,power=135,range=AREA_CIRCLE_2,needEffect=faucheCroixEff,cooldown=5,area=AREA_ARC_2,emoji='<:faucheCroix:937807152058343474>')
+comboFaucheCroix = skill("Combo Fauchage croisé",'sts',TYPE_DAMAGE,price=500,power=faucheCroix.power,emoji=faucheCroix.emoji,become=[faucheNean,faucheCroix],description="Permet d'effectuer l'enchaînement \"Fauchage du néan\" et \"Fauchage croisé\".\nIl est nécessaire d'avoir préalablement utilisé \"Fauchage du néan\" pour pouvoir utiliser \"Fauchage croisé\"")
+
+reaperEff = effect("Dessins de la Camarade", "that'sALongName", power=35, turnInit=4, type=TYPE_MALUS, emoji="<:longName:938167649106538556>",description="Augmente de **10%** les dégâts infligés par l'entité à l'origine de cet effect sur le porteur.\nSi le porteur est vaincu en ayant toujours l'effet sur lui (que ce soit de la main de l'initiateur de l'effet ou d'un autre), l'initiateur de l'effet se soigne de **{0}%** de ses PV maximums")
+deathShadow = skill("Ombre de la Mort","str",TYPE_DAMAGE,750,50,range=AREA_CIRCLE_2,emoji='<:deathShadow:937370374788755516>',cooldown=7,effect=reaperEff)
+theEnd = skill("La Fin","stq",TYPE_DAMAGE,750,200,AREA_CIRCLE_3,cooldown=5,tpCac=True,ultimate=True,emoji='<a:lbReaper:938175619504689193>',damageOnArmor=1.35,description="Après un tour de chargement, délivre une puissante attaque à l'ennemi ciblé.\nSi cette dernière est sous un effet <:longName:938167649106538556> __Dessins de la Camarade__ dont vous êtes l'initiateur, la puissance de cette attaque augmente de **20%**",lifeSteal=25,url='https://cdn.discordapp.com/attachments/935769576808013837/938175773137862756/20220201_214401.gif')
+theEndCastEff = effect("Cast - La Fin","reaperLbCast",turnInit=2,silent=True,replique=theEnd,emoji='<a:lbReaperCast:938175259964747816>')
+theEndCast = copy.deepcopy(theEnd)
+theEndCast.power, theEndCast.url, theEndCast.effectOnSelf, theEndCast.tpCac = 0, None, theEndCastEff, False
 
 # Skill
-skills = [toMelee,toDistance,autoBombRush,killerWailUltimate,invocSeaker,darkBoomCast,mageSkill,doubleShot,harmShot,benitWater,shareSkill,extraMedica,foullee,lifePulseCast,crimsomLotusCast,abnegation,
+skills = [deathShadow,comboVerMiracle,comboFaucheCroix,theEndCast,
+    pneuma,absorbingStrike,absorbingArrow,absorbingStrike2,absorbingArrow2,magiaHeal,aff2,bloodPact,expediant,divination,macroCosmos,tintabule,
+    toMelee,toDistance,autoBombRush,killerWailUltimate,invocSeaker,darkBoomCast,mageSkill,doubleShot,harmShot,benitWater,shareSkill,extraMedica,foullee,lifePulseCast,crimsomLotusCast,abnegation,
     foyer,sweetHeat,darkSweetHeat,shell,nacreHit,holyShot,demonStrike,purify,benediction,transfert,blackDarkMagic,fisure,seisme,abime,extermination,darkHeal,calestJump,lohicaUltCast,fairyFligth,aliceDance,aurore,crep,
     quickCast,pepsis,darkShield,rencCel,valse,finalTech,dissi,intelRaise,ultRedirect,clemency,liuSkillSus,liaSkillSus,lioSkillSus,lizSKillSus,neutralMono1,neutralZone1,neutralMono2,neutralZone2,neutralMono3,neutralZone3,reconst,medicamentum,ultMonoArmor,inkRes,inkRes2,booyahBombCast,propag,invocCarbSaphir,invocCarbObsi,supprZone,cosmicPower,requiem,magicRuneStrike,infinitDark,preciseShot,troublon,haimaSkill,physicRune,magicRune,lightBigHealArea,focus,poisonusPuit,bleedingPuit,idoOS,proOS,preOS,geoConCast,kikuRes,memClemCastSkill,roses,krysUlt,chaosArmor,firelame,airlame,waterlame,mudlame,shadowLame,timeLame,lightLame,astralLame,idoOH,proOH,altOH,lightAura2,tripleMissiles,lightHeal2,extraEtingSkill,strengthOfWillCast,sixtineUlt,hinaUlt,julieUlt,invocSeraf,mageUlt,soulagement,bloodyStrike,infraMedica,magAchSkill,flambeSkill,fireCircle,waterCircle,airCircle,earthCircle,fireShot,waterShot,airStrike,earthStrike,space1,space2,space3,spaceSp,time1,time2,time3,timeSp,renisurection,demolish,contrainte,trouble,epidemic,croissance,destruction2,infectFiole,bigLaser2,bigMonoLaser2,invocBat2,invocCarbunR,concen,memAlice2,blackHole,blackHole2,renforce,steroide,focal,suppr,revitalisation,onde,eting,stingray,dark1,dark2,dark3,light1,light2,light3,derobade,ferocite,ironWillSkill,royaleGardeSkill,defi,dissimulation,bleedingTrap,convert,vampirisme,heriteEstialba,heriteLesath,flameche,flame,pyro,ecume,courant,torant,brise,storm2,tornado,stone,rock,mont,bleedingArrow,bleedingDague,swordDance,shot,percingArrow,percingLance,highkick,multishot,rocklance,infinitFire,storm,innerdarkness,divineLight,icelance,onstage,kiss,secondSun,oneforall,uppercut,stalactic,linx,bombRobot,isolement,secondWind,blindage,adrenaline,lapSkill,burst,trans,descart,thinkSkill,invocFee,invocCarbT,invocCarbE,splashdown,multiMissiles,monoMissiles,invocBat,poisonus,protect,explosionCast,splatbomb,lightAura,cure,firstheal,balayette,contrecoup,boom,chaos,unHolly,soupledown,inkarmor,coffeeSkill,theSkill,gpotion,bpotion,zelian,courage,nostalgia,draw25,siropMenthe
 ]

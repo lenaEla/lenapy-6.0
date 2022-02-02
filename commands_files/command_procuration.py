@@ -6,6 +6,7 @@ from gestion import *
 from advance_gestion import *
 from commands_files.alice_stats_endler import aliceStatsDb
 from asyncio import sleep
+from discord_slash import *
 
 async def procuration(ctx : discord.message,toProcur:discord.User):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
@@ -239,3 +240,40 @@ async def seeAllInfo(bot:discord.Client, user:char)-> discord.Embed:
     
     embed.add_field(name="__Blablator :__",value=tempSays)
     return embed
+
+async def userSettings(bot:discord.Client, user:char, ctx:SlashContext):
+    msg = None
+    while 1:
+        loadCharFile(user=user)
+        desc = "__Main dominante :__ {0}\n__Aff. élément :__ {1}\n__Aff. arme :__ {2}\n__Aff. accessoire :__ {3}".format(["Gauche","Droite"][user.handed],["Non","Oui"][user.showElement],["Non","Oui"][user.showWeapon],["Non","Oui"][user.showAcc])
+
+        boutonHand = create_button(ButtonStyle.grey,["Main droite","Main gauche"][user.handed],custom_id="hand")
+        boutonElem = create_button([ButtonStyle.blue,ButtonStyle.grey][user.showElement],["Afficher l'élément","Cacher l'élément"][user.showElement],custom_id="elem")
+        boutonArme = create_button([ButtonStyle.blue,ButtonStyle.grey][user.showWeapon],["Afficher l'arme","Cacher l'arme"][user.showWeapon],custom_id="weap")
+        boutonAcc = create_button([ButtonStyle.blue,ButtonStyle.grey][user.showAcc],["Afficher l'accessoire","Cacher l'accessoire"][user.showAcc],custom_id="acc")
+        actionRow = [create_actionrow(boutonHand,boutonElem,boutonArme,boutonAcc)]
+
+        if msg == None:
+            msg = await ctx.send(embed=discord.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])),components=actionRow)
+        else:
+            await msg.edit(embed=discord.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])),components=actionRow)
+
+        def check(m):
+            return int(m.author_id) == int(ctx.author_id)
+
+        try:
+            react = await wait_for_component(bot,messages=msg,check=check,timeout=30)
+        except:
+            await msg.edit(embed=discord.Embed(title="__Icone de personnage__",color=user.color).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])),components=[])
+            return 0
+
+        await msg.edit(embed=discord.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])),components=[create_actionrow(create_button(ButtonStyle.grey,"Chargment...",getEmojiObject('<a:loading:862459118912667678>'),"loading",disabled=True))])
+        tablTemp, tablTempId = [user.handed,user.showElement,user.showWeapon,user.showAcc], ["hand","elem","weap","acc"]
+        for cmpt in range(4):
+            if react.custom_id == tablTempId[cmpt]:
+                tablTemp[cmpt] = [not(tablTemp[cmpt]),int(not(bool(tablTemp[cmpt])))][cmpt == 0]
+
+        user.handed,user.showElement,user.showWeapon,user.showAcc = tablTemp[0],tablTemp[1],tablTemp[2],tablTemp[3]
+
+        saveCharFile(user=user)
+        await makeCustomIcon(bot,user)

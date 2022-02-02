@@ -1,4 +1,4 @@
-import  sqlite3, classes, datetime, adv
+import sqlite3, classes, datetime, adv, discord
 from typing import List, Union
 
 majTeamVic2 = """
@@ -209,6 +209,49 @@ majTeamVic3 = """
 
     PRAGMA foreign_keys = 1;
 """
+majUserIcon1 = """
+PRAGMA foreign_keys = 0;
+
+CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                          FROM custom_icon;
+
+DROP TABLE custom_icon;
+
+CREATE TABLE custom_icon (
+    owner_id    PRIMARY KEY
+                UNIQUE
+                NOT NULL,
+    espece      DEFAULT (1),
+    couleur     DEFAULT (0),
+    accessoire  DEFAULT ('ha'),
+    arme        DEFAULT ('af'),
+    emoji       DEFAULT ('<:LenaWhat:760884455727955978>'),
+    iconForm    DEFAULT (0),
+    appaWeap    DEFAULT (NULL),
+    appaAcc     DEFAULT (NULL)
+);
+
+INSERT INTO custom_icon (
+                            owner_id,
+                            espece,
+                            couleur,
+                            accessoire,
+                            arme,
+                            emoji
+                        )
+                        SELECT owner_id,
+                               espece,
+                               couleur,
+                               accessoire,
+                               arme,
+                               emoji
+                          FROM sqlitestudio_temp_table;
+
+DROP TABLE sqlitestudio_temp_table;
+
+PRAGMA foreign_keys = 1;
+"""
+
 class dbHandler():
     def __init__(self, database : str):
         self.con = sqlite3.connect(f"./data/database/{database}")
@@ -219,6 +262,7 @@ class dbHandler():
             cursor = self.con.cursor()
 
             # MajTeamVic1
+        
             try:
                 cursor.execute("SELECT totalWin FROM teamVictory;")
             except:
@@ -263,66 +307,24 @@ class dbHandler():
                 cursor.execute("UPDATE teamVictory SET fightingChannel = ?;",(0,))
                 self.con.commit()
                 print("majTeamVic3 réalisée")                
-        
-    def getAllHeadGear(self):
-        """cursor = self.con.cursor()
-        query = "SELECT emoji FROM gear WHERE type = 0;"
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        for a in range(0,len(result)):
-            result[a] = result[a]["emoji"]"""
 
-        result = []
-        for gear in adv.stuffs:
-            if gear.type == 0:
-                result.append(gear.emoji)
-        return result
-
-    def getAllWeap(self):
-        """cursor = self.con.cursor()
-        query = "SELECT emoji FROM weapon"
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        for a in range(0,len(result)):
-            result[a] = result[a]["emoji"]
-        return result"""
-
-        result = []
-        for weapon in adv.weapons:
-            result.append(weapon.emoji)
-        return result
-
-    def addHeadGearImageFiles(self,headgearId,headgearFile):
-        cursor = self.con.cursor()
-        params = (headgearId,headgearFile)
-        query = "INSERT INTO head_has_png VALUES (?,?);"
-        try:
-            cursor.execute(query,params)
-        except:
+        elif database=="custom_icon.db":
+            cursor = self.con.cursor()
             try:
-                cursor.execute("UPDATE head_has_png SET fichier = ? WHERE accessoire = ?",(headgearFile,headgearId))
+                cursor.execute("SELECT iconForm FROM custom_icon;")
             except:
-                pass
-        cursor.close()
-        self.con.commit()
+                temp = ""
+                for a in majUserIcon1:
+                    if a != ";":
+                        temp+=a
+                    else:
+                        cursor.execute(temp)
+                        temp = ""
 
-    def addWeapImageFiles(self,weapId,weapFile):
-        cursor = self.con.cursor()
-        params = (weapId,weapFile)
-        query = "INSERT INTO weap_has_png VALUES (?,?);"
-        try:
-            cursor.execute(query,params)
-        except:
-            try:
-                cursor.execute("UPDATE weap_has_png SET file = ? WHERE weapon = ?",(weapFile,weapId))
-            except:
-                pass
-        cursor.close()
-        self.con.commit()
+                self.con.commit()
+                print("majUserIcon1 réalisée")
 
-    def addIconFiles(self,species,color,file):
+    def addIconFiles(self,species:int,color:int,file):
         cursor = self.con.cursor()
         params = (species,color,file)
         query = "INSERT INTO color_icon VALUES (?,?,?);"
@@ -346,46 +348,28 @@ class dbHandler():
         cursor.close()
         return len(result) > 0
 
-    def editCustomIcon(self,user,emoji):
+    def editCustomIcon(self,user:classes.char,emoji:discord.Emoji):
         cursor = self.con.cursor()
+        if user.apparaAcc != None:
+            blbl1 = user.apparaAcc.id
+        else:
+            blbl1 = None
+        if user.apparaWeap != None:
+            blbl2 = user.apparaWeap.id
+        else:
+            blbl2 = None
         if self.haveCustomIcon(user):
-            params = (user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), user.owner)
-            query = "UPDATE custom_icon SET espece = ?, couleur = ?, accessoire = ?, arme = ?, emoji = ? WHERE owner_id = ?;"
+            params = (user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm, user.owner)
+            query = "UPDATE custom_icon SET espece = ?, couleur = ?, accessoire = ?, arme = ?, emoji = ?, appaWeap = ?, appaAcc = ?, iconForm = ? WHERE owner_id = ?;"
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
         else:
-            params = (user.owner,user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji))
-            query = "INSERT INTO custom_icon VALUES (?,?,?,?,?,?)"
+            params = (user.owner,user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm)
+            query = "INSERT INTO custom_icon VALUES (?,?,?,?,?,?,?,?,?)"
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
-
-    def getWeaponFile(self,user : classes.char):
-        cursor = self.con.cursor()
-        if user.apparaWeap == None:
-            where = user.weapon.id
-        else:
-            where = user.apparaWeap.id
-        query = f"SELECT file FROM weap_has_png WHERE weapon = '{where}';"
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        return result[0]["file"]
-
-    def getAccFile(self,user : classes.char):
-        cursor = self.con.cursor()
-        if user.apparaAcc == None:
-            where = user.stuff[0].id
-        else:
-            where = user.apparaAcc.id
-        query = f"SELECT fichier FROM head_has_png WHERE accessoire = '{where}';"
-        cursor.execute(query)
-        result = cursor.fetchall()
-        cursor.close()
-        if len(result) == 0:
-            return "defHead.png"
-        return result[0]["fichier"]
 
     def getCustomIcon(self,user):
         cursor = self.con.cursor()
@@ -398,14 +382,14 @@ class dbHandler():
         except:
             return '<:LenaWhat:760884455727955978>'
 
-    def isDifferent(self,user):
+    def isDifferent(self,user:classes.char):
         query = f"SELECT * FROM custom_icon WHERE owner_id = ?;"
         cursor = self.con.cursor()
         cursor.execute(query,(user.owner,))
-        result = cursor.fetchall()
+        result = cursor.fetchone()
         cursor.close()
-        if len(result)>0:
-            return not(result[0]["espece"] == user.species and result[0]["accessoire"]==user.stuff[0].id and result[0]["arme"]==user.weapon.id and result[0]["couleur"]==user.color)
+        if result != None:
+            return not(result["espece"] == user.species and result["couleur"]==user.color and ((user.apparaAcc==None and result["accessoire"]==user.stuff[0].id) or (user.apparaAcc!=None and user.apparaAcc.id == result["appaAcc"])) and ((user.apparaWeap == None and result["arme"]==user.weapon.id) or (user.apparaWeap!=None and user.apparaWeap.id == result["appaWeap"])) and result["couleur"]==user.color and user.iconForm == result["iconForm"])
         else:
             return True
 
@@ -552,7 +536,7 @@ class dbHandler():
             return rep
         else:
             return False
-    
+
     def isFightingBool(self,team : int):
         cursor = self.con.cursor()
         cursor.execute("SELECT isFighting, fightingInfo, fightingChannel FROM teamVictory WHERE id = ?;",(team,))
@@ -563,7 +547,7 @@ class dbHandler():
             return result["isFighting"], result["fightingInfo"], result["fightingChannel"]
         else:
             return 0,";",0
-        
+
     def changeFighting(self,team : int,value:int, channel:int = 0, ennemis:List[Union[classes.char,classes.tmpAllie,classes.octarien]] = []):
         cursor = self.con.cursor()
         ennemiNames = ""
@@ -627,6 +611,12 @@ class dbHandler():
         cursor = self.con.cursor()
         cursor.execute("DROP TABLE custom_icon;")
         self.con.commit()
-        cursor.execute("CREATE TABLE custom_icon (\n    owner_id    PRIMARY KEY\n                UNIQUE\n                NOT NULL,\n    espece,\n    couleur,\n    accessoire,\n    arme,\n    emoji       UNIQUE\n);")
+        cursor.execute("""CREATE TABLE custom_icon(                owner_id    PRIMARY KEY                UNIQUE                NOT NULL,                espece      DEFAULT(1),                couleur     DEFAULT(0),                accessoire  DEFAULT('ha'),                arme        DEFAULT('af'),                emoji       DEFAULT('<:LenaWhat:760884455727955978>'),                iconForm    DEFAULT(0),                appaWeap    DEFAULT(NULL),                appaAcc     DEFAULT(NULL)            );""")
+        self.con.commit()
+        cursor.close()
+
+    def removeUserIcon(self,user:classes.char):
+        cursor = self.con.cursor()
+        cursor.execute("DELETE FROM custom_icon WHERE owner_id = {0};".format(user.owner))
         self.con.commit()
         cursor.close()

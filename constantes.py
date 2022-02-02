@@ -6,43 +6,43 @@ from datetime import timedelta
 import os
 from index import *
 
-#Constantes :
+# Constantes :
 # Area of effects
-AREA_MONO = 0 # Caster only
-AREA_CIRCLE_1 = 1 # Circles (target include)
+AREA_MONO = 0  # Caster only
+AREA_CIRCLE_1 = 1  # Circles (target include)
 AREA_CIRCLE_2 = 2
 AREA_CIRCLE_3 = 3
 AREA_CIRCLE_4 = 4
 AREA_CIRCLE_5 = 5
 AREA_CIRCLE_6 = 6
 AREA_CIRCLE_7 = 7
-AREA_ALL_ALLIES = 8 # All allies
-AREA_ALL_ENEMIES = 9 # All ennemies
-AREA_ALL_ENTITES = 10 # All
-AREA_CONE_2 = 11 # Cones
+AREA_ALL_ALLIES = 8  # All allies
+AREA_ALL_ENEMIES = 9  # All ennemies
+AREA_ALL_ENTITES = 10  # All
+AREA_CONE_2 = 11  # Cones
 AREA_CONE_3 = 12
 AREA_CONE_4 = 13
 AREA_CONE_5 = 14
 AREA_CONE_6 = 15
 AREA_CONE_7 = 16
-AREA_LINE_2 = 17 # Lines from target
+AREA_LINE_2 = 17  # Lines from target
 AREA_LINE_3 = 18
 AREA_LINE_4 = 19
 AREA_LINE_5 = 20
 AREA_LINE_6 = 21
-AREA_DONUT_1 = 22 # Circles (target exclude)
+AREA_DONUT_1 = 22  # Circles (target exclude)
 AREA_DONUT_2 = 23
 AREA_DONUT_3 = 24
 AREA_DONUT_4 = 25
 AREA_DONUT_5 = 26
 AREA_DONUT_6 = 27
 AREA_DONUT_7 = 28
-AREA_DIST_3 = 29 # Circles (Must be > 2)
+AREA_DIST_3 = 29  # Circles (Must be > 2)
 AREA_DIST_4 = 30
 AREA_DIST_5 = 31
 AREA_DIST_6 = 32
 AREA_DIST_7 = 33
-AREA_ARC_1 = 34 # Arc
+AREA_ARC_1 = 34  # Arc
 AREA_ARC_2 = 35
 AREA_ARC_3 = 36
 AREA_RANDOMENNEMI_1 = 37
@@ -55,7 +55,9 @@ AREA_INLINE_3 = 43
 AREA_INLINE_4 = 44
 AREA_INLINE_5 = 45
 
-areaNames = ["Monocible","Cercle de rayon 1","Cercle de rayon 2","Cercle de rayon 3","Cercle de rayon 4","Cercle de rayon 5","Cercle de rayon 6","Cercle de rayon 7","Tous les alliés","Tous les ennemis","Tous les combattants","Cone simple","Cone Large","Cone Large","Cone Large","Cone Large","Cone Large","Ligne de 2 de longueur","Ligne de 3 de longueur","Ligne de 4 de longueur","Ligne de 5 de longueur","Ligne de 6 de longueur","Donut de 1 de rayon","Donut de 2 de rayon","Donut de 3 de rayon","Donut de 4 de rayon","Donut de 5 de rayon","Donut de 6 de rayon","Donut de 7 de rayon","Anneau Distance de 1 de largeur","Anneau Distance de 2 de largeur","Anneau Distance de 3 de largeur","Anneau Distance de 4 de largeur","Anneau Distance de 5 de largeur","Arc de Cercle de 1 de rayon","Arc de Cercle de 2 de rayon","Arc de Cercle de 3 de rayon","1 ennemi aléatoire","2 ennemis aléatoires","3 ennemis aléatoires","4 ennemis aléatoires","5 ennemis aléatoires","Croix de 2 cases","Croix de 3 cases","Croix de 4 cases","Crois de 5 cases"]
+areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon",
+             "Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases"]
+allArea = range(0, 46)
 
 # Weapon's range
 RANGE_MELEE = 0
@@ -73,7 +75,8 @@ TRIGGER_START_OF_TURN = 6
 TRIGGER_ON_REMOVE = 7
 TRIGGER_AFTER_DAMAGE = 8
 
-allTriggers = [TRIGGER_PASSIVE,TRIGGER_DAMAGE,TRIGGER_END_OF_TURN,TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE,TRIGGER_INSTANT,TRIGGER_START_OF_TURN,TRIGGER_ON_REMOVE,TRIGGER_AFTER_DAMAGE]
+allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,
+               TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE]
 
 # Skills and effects types
 TYPE_ARMOR = 0
@@ -89,7 +92,9 @@ TYPE_UNIQUE = 9
 TYPE_SUMMON = 10
 TYPE_PASSIVE = 11
 
-tablTypeStr = ["Armure","Dégâts indirects","Soins Indirects","Résurection indirecte","Boost","Resurection","Dégâts","Malus","Soins","Unique","Invocation","Passif"]
+tablTypeStr = ["Armure", "Dégâts indirects", "Soins Indirects", "Résurection indirecte",
+               "Boost", "Resurection", "Dégâts", "Malus", "Soins", "Unique", "Invocation", "Passif"]
+allTypes = range(0, 12)
 
 # Stats
 STRENGTH = 0
@@ -113,139 +118,147 @@ ACT_DIRECT = 3
 ACT_INDIRECT = 4
 
 AUTO_POWER = "autoPower"
-nameStats,nameStats2 = ["Force","Endurance","Charisme","Agilité","Précision","Intelligence","Magie"],["Résistance","Pénétration","Critique"]
+nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité",
+                         "Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
 allStatsNames = nameStats+nameStats2
 
 # Status for entities
-STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED,STATUS_TRUE_DEATH = 0,1,2,3
+STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED, STATUS_TRUE_DEATH = 0, 1, 2, 3
 
 # Aspirations
-BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0,1,2,3,4,5,6,7,8,9,10
-inspi = ["Berserkeur","Observateur","Poids plume","Idole","Prévoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
-aspiEmoji = ['<:berk:915376153580167209>','<:obs:903136012975357952>','<:poi:909548928045842462>','<:ido:909549029027880992>','<:pre:910185501535903775>','<:tet:903136049834889317>','<:mag:909549699160219659>','<:alt:909549006680653824>','<:inv:903136277380087850>','<:enc:903136097553506314>','<:pro:909549059059122176>']
+BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant",
+         "Tête brulée", "Mage", "Altruiste", "Invocateur", "Enchanteur", "Protecteur"]
+aspiEmoji = ['<:berk:915376153580167209>', '<:obs:903136012975357952>', '<:poi:909548928045842462>', '<:ido:909549029027880992>', '<:pre:910185501535903775>',
+             '<:tet:903136049834889317>', '<:mag:909549699160219659>', '<:alt:909549006680653824>', '<:inv:903136277380087850>', '<:enc:903136097553506314>', '<:pro:909549059059122176>']
+
+BERS_LIFE_STEAL = 20
 
 # "Target" values
-ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0,1,2,3,4
+ALL, TEAM1, TEAM2, ALLIES, ENNEMIS = 0, 1, 2, 3, 4
 
 # Selected options for fight
-OPTION_WEAPON,OPTION_SKILL,OPTION_MOVE,OPTION_SKIP = 0,1,2,3
+OPTION_WEAPON, OPTION_SKILL, OPTION_MOVE, OPTION_SKIP = 0, 1, 2, 3
 
 # Genders. 2 for default
-GENDER_MALE, GENDER_FEMALE, GENDER_OTHER = 0,1,2
+GENDER_MALE, GENDER_FEMALE, GENDER_OTHER = 0, 1, 2
 
 # Color constants
-red,light_blue,yellow,green,blue,purple,pink,orange,white,black,aliceColor = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB,0xEF7C00,0xffffff,0x000000,0xffc3ff
-colorId = [red,orange,yellow,green,light_blue,blue,purple,pink,white,black]
-colorChoice = ["Rouge","Orange","Jaune","Vert","Bleu Clair","Bleu","Violet","Rose","Blanc","Noir"]
+red, light_blue, yellow, green, blue, purple, pink, orange, white, black, aliceColor = 0xED0000, 0x94d4e4, 0xFCED12, 0x1ED311, 0x0035E4, 0x6100E4, 0xFB2DDB, 0xEF7C00, 0xffffff, 0x000000, 0xffc3ff
+colorId = [red, orange, yellow, green,
+           light_blue, blue, purple, pink, white, black]
+colorChoice = ["Rouge", "Orange", "Jaune", "Vert",
+               "Bleu Clair", "Bleu", "Violet", "Rose", "Blanc", "Noir"]
 
 # Aspiration's max stats
 # Refert to Aspiration's constants value
 maxStrength = [
-    70, # Ber
-    70, # Obs
-    50, # Poi
-    15, # Ido
-    25, # Eru
-    55, # Tet
-    25, # Mag
-    15, # Alt
-    50, # Ave
-    25, # Enc
+    70,  # Ber
+    70,  # Obs
+    50,  # Poi
+    15,  # Ido
+    25,  # Eru
+    55,  # Tet
+    25,  # Mag
+    15,  # Alt
+    50,  # Ave
+    25,  # Enc
     15  # Pro
 ]
 maxEndur = [
-    40, # Ber
-    10, # Obs
-    40, # Poi
-    15, # Ido
-    35, # Eru
-    45, # Tet
-    15, # Mag
-    40, # Alt
-    20, # Ave
-    60, # Enc
+    40,  # Ber
+    10,  # Obs
+    40,  # Poi
+    15,  # Ido
+    35,  # Eru
+    45,  # Tet
+    15,  # Mag
+    40,  # Alt
+    20,  # Ave
+    60,  # Enc
     60  # Pro
 ]
 maxChar = [
-    30, # Ber
-    45, # Obs
-    25, # Poi
-    70, # Ido
-    35, # Eru
-    25, # Tet
-    40, # Mag
-    85, # Alt
-    50, # Ave
-    30, # Enc
+    30,  # Ber
+    45,  # Obs
+    25,  # Poi
+    70,  # Ido
+    35,  # Eru
+    25,  # Tet
+    40,  # Mag
+    85,  # Alt
+    50,  # Ave
+    30,  # Enc
     60  # Pro
 ]
 maxAgi = [
-    45, # Ber
-    35, # Obs
-    75, # Poi
-    40, # Ido
-    35, # Eru
-    35, # Tet
-    20, # Mag
-    45, # Alt
-    25, # Ave
-    50, # Enc
+    45,  # Ber
+    35,  # Obs
+    75,  # Poi
+    40,  # Ido
+    35,  # Eru
+    35,  # Tet
+    20,  # Mag
+    45,  # Alt
+    25,  # Ave
+    50,  # Enc
     35  # Pro
 ]
 maxPreci = [
-    45, # Ber
-    60, # Obs
-    35, # Poi
-    35, # Ido
-    35, # Eru
-    25, # Tet
-    50, # Mag
-    20, # Alt
-    30, # Ave
-    25, # Enc
+    45,  # Ber
+    60,  # Obs
+    35,  # Poi
+    35,  # Ido
+    35,  # Eru
+    25,  # Tet
+    50,  # Mag
+    20,  # Alt
+    30,  # Ave
+    25,  # Enc
     15  # Pro
 ]
 maxIntel = [
-    25, # Ber
-    20, # Obs
-    10, # Poi
-    70, # Ido
-    75, # Eru
-    35, # Tet
-    40, # Mag
-    45, # Alt
-    50, # Ave
-    10, # Enc
+    25,  # Ber
+    20,  # Obs
+    10,  # Poi
+    70,  # Ido
+    75,  # Eru
+    35,  # Tet
+    40,  # Mag
+    45,  # Alt
+    50,  # Ave
+    10,  # Enc
     60  # Pro
 ]
 maxMagie = [
-    20, # Ber
-    35, # Obs
-    40, # Poi
-    30, # Ido
-    35, # Eru
-    55, # Tet
-    85, # Mag
-    25, # Alt
-    50, # Ave
-    75, # Enc
+    20,  # Ber
+    35,  # Obs
+    40,  # Poi
+    30,  # Ido
+    35,  # Eru
+    55,  # Tet
+    85,  # Mag
+    25,  # Alt
+    50,  # Ave
+    75,  # Enc
     30  # Pro
 ]
 
-for a in range(0,len(inspi)):                           # Aspi base stats verification
+for a in range(0, len(inspi)):                           # Aspi base stats verification
     summation = 0
-    for b in (maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie):
+    for b in (maxStrength, maxEndur, maxChar, maxAgi, maxPreci, maxIntel, maxMagie):
         try:
             summation += b[a]
         except:
             pass
 
     if summation != 275:
-        print("{0} n'a pas le bon cumul de stats : {1}".format(inspi[a],summation))
+        print("{0} n'a pas le bon cumul de stats : {1}".format(
+            inspi[a], summation))
 
 # Constants for "orientation" field for skills
-TANK,DISTANCE,LONG_DIST = "Tank","Distance","Longue Distance"
-DPT_PHYS,HEALER,BOOSTER,DPT_MAGIC,SHIELDER = "Bers, Obs, P.Plu, T.Bru","Ido, Pro, Alt","Ido, Pro","Enc, Mag","Ido, Pro, Pre"
+TANK, DISTANCE, LONG_DIST = "Tank", "Distance", "Longue Distance"
+DPT_PHYS, HEALER, BOOSTER, DPT_MAGIC, SHIELDER = "Bers, Obs, P.Plu, T.Bru", "Ido, Pro, Alt", "Ido, Pro", "Enc, Mag", "Ido, Pro, Pre"
 
 # Elementals
 ELEMENT_NEUTRAL = 0
@@ -257,41 +270,60 @@ ELEMENT_LIGHT = 5
 ELEMENT_DARKNESS = 6
 ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
+ELEMENT_UNIVERSALIS_PREMO = 9
 
-elemEmojis = ["<:neutral:921127224596385802>","<:fire:918212781168275456>","<:water:918212797320536124>","<:air:918592529480446002>","<:earth:918212824805801984>","<:light:918212861757653053>","<:darkness:918212877419175946>",'<:space:918212897967075329>','<:time:918212912408051814>']
-secElemEmojis = ["<:empty:866459463568850954>","<:secFeu:932941340612894760>","<:secEau:932941360858820618>","<:secAir:932941299559063573>","<:secTerre:932941317804273734>","<:secLum:932941251597201438>","<:secTen:932941234501222410>","<:secTempo:932941280785338389>","<:secAst:932941221331075092>"]
+elemEmojis = ["<:neutral:921127224596385802>", "<:fire:918212781168275456>", "<:water:918212797320536124>", "<:air:918592529480446002>", "<:earth:918212824805801984>",
+              "<:light:918212861757653053>", "<:darkness:918212877419175946>", '<:space:918212897967075329>', '<:time:918212912408051814>', "<:univ:936302039456165898>"]
+secElemEmojis = ["<:empty:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>",
+                 "<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
 elemDesc = [
-    "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(elemEmojis[0]),
-    "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\n__Passif Élément principal :__\nPénétration : + 5\nDégâts zones et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nSoins donnés et reçus : +5%\nArmures données et reçues : -5%".format(elemEmojis[1]),
-    "L'élément Eau ({0}) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.\n\n__Passif Élément principal :__\nPrécision : + 10\nDégâts monocible et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nArmures données et reçues : +5%\nSoins données et reçus : -5%".format(elemEmojis[2]),
-    "L'élément Air ({0}) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.\n\n__Passif Élément principal :__\nAgilité : + 10\nDégâts zones et mêlée simultanément : +10%\n\n__Passif Élément Secondaire :__\nPuissance des bonus et malus données et reçus : +5%".format(elemEmojis[3]),
-    "L'élément Terre ({0}) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.\n\n__Passif Élément principal :__\nRésistance : + 5\nDégâts monocible et mêlée simultanément : +10%\n\n__Passif Élément secondaire :__\nDégâts sur Armure infligés et reçus : +5%".format(elemEmojis[4]),
-    "L'élément Lumière ({0}) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.\n\n__Passif Élément principal :__\nSoins et armures : +10%\n\n__Passif Élément secondaire :__\nDégâts directs infligés et reçus : +5%".format(elemEmojis[5]),
-    "L'élément Ténèbre ({0}) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.\n\n__Passif Élément principal :__\nDégâts indirects : + 10%\n\n__Passif Élément secondaire :__\nDégâts directs infligés et reçus : -5%".format(elemEmojis[6]),
-    "L'élément Astral ({0}) utilise la puissance cosmique à son aventage. Car rien ne se perd, rien ne se créait, tout se transforme\n\n__Passif Élément principal :__\n15% des dégâts reçu sont reconverties en <:astralShield:907467906483367936> Armure Astrale (après les dégâts)\n\n__Passif Élément secondaire :__\nDégâts directs de zone infligées et reçus : +5%".format(elemEmojis[7]),
-    "L'élément Temporel ({0}) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue\n\n__Passif Élément principal :__\nAugmente la durée des effets de soins indirects et armure de 1 tour\n\n__Passif Élément secondaire :__\nDégâts directs monocibles infligés et reçus : +5%".format(elemEmojis[8])
+    "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(
+        elemEmojis[0]),
+    "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\n__Passif Élément principal :__\nPénétration : + 5\nDégâts zones et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nSoins donnés et reçus : +5%\nArmures données et reçues : -5%".format(
+        elemEmojis[1]),
+    "L'élément Eau ({0}) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.\n\n__Passif Élément principal :__\nPrécision : + 10\nDégâts monocible et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nArmures données et reçues : +5%\nSoins données et reçus : -5%".format(
+        elemEmojis[2]),
+    "L'élément Air ({0}) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.\n\n__Passif Élément principal :__\nAgilité : + 10\nDégâts zones et mêlée simultanément : +10%\n\n__Passif Élément Secondaire :__\nPuissance des bonus et malus données et reçus : +5%".format(
+        elemEmojis[3]),
+    "L'élément Terre ({0}) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.\n\n__Passif Élément principal :__\nRésistance : + 5\nDégâts monocible et mêlée simultanément : +10%\n\n__Passif Élément secondaire :__\nDégâts sur Armure infligés et reçus : +5%".format(
+        elemEmojis[4]),
+    "L'élément Lumière ({0}) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.\n\n__Passif Élément principal :__\nSoins et armures : +10%\n\n__Passif Élément secondaire :__\nDégâts directs infligés et reçus : +5%".format(
+        elemEmojis[5]),
+    "L'élément Ténèbre ({0}) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.\n\n__Passif Élément principal :__\nDégâts indirects : + 10%\n\n__Passif Élément secondaire :__\nDégâts directs infligés et reçus : -5%".format(
+        elemEmojis[6]),
+    "L'élément Astral ({0}) utilise la puissance cosmique à son aventage. Car rien ne se perd, rien ne se créait, tout se transforme\n\n__Passif Élément principal :__\n15% des dégâts reçu sont reconverties en <:astralShield:907467906483367936> Armure Astrale (après les dégâts)\n\n__Passif Élément secondaire :__\nDégâts directs de zone infligées et reçus : +5%".format(
+        elemEmojis[7]),
+    "L'élément Temporel ({0}) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue\n\n__Passif Élément principal :__\nAugmente la durée des effets de soins indirects et armure de 1 tour\n\n__Passif Élément secondaire :__\nDégâts directs monocibles infligés et reçus : +5%".format(
+        elemEmojis[8])
 ]
-elemNames = ["Neutre","Feu","Eau","Air","Terre","Lumière","Ténèbre","Astral","Temporel"]
+elemNames = ["Neutre", "Feu", "Eau", "Air", "Terre", "Lumière",
+             "Ténèbre", "Astral", "Temporel", "Universalis Premera"]
 
 # AoE stuff
 AOEDAMAGEREDUCTION = 0.35
 AOEMINDAMAGE = 0.2
 
+
 def uniqueEmoji(emoji):
-    return [[emoji,emoji],[emoji,emoji],[emoji,emoji]]
+    return [[emoji, emoji], [emoji, emoji], [emoji, emoji]]
 
-def sameSpeciesEmoji(team1,team2):
-    return [[team1,team2],[team1,team2],[team1,team2]]
 
-dangerEm = sameSpeciesEmoji('<a:dangerB:898372745023336448>','<a:dangerR:898372723150041139>')
+def sameSpeciesEmoji(team1, team2):
+    return [[team1, team2], [team1, team2], [team1, team2]]
+
+
+dangerEm = sameSpeciesEmoji(
+    '<a:dangerB:898372745023336448>', '<a:dangerR:898372723150041139>')
 untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
 
 # List of guild ids for the bots
 ShushyCustomIcons = [881900244487516180]
-LenaCustomIcons = [881632520830087218,881633183425253396]
+LenaCustomIcons = [881632520830087218, 881633183425253396]
 
-stuffIconGuilds = [866782432997015613,878720670006132787,887756868787769434,887846876114739261,904164080204513331,908551466988486667,914608569284964392,922684334010433547,928202839136825344,933783830341484624]
-weaponIconGuilds = [866363139931242506,878720670006132787,887756868787769434,887846876114739261,916120008948600872,911731670972002374]
+stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,
+                   908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624]
+weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434,
+                    887846876114739261, 916120008948600872, 911731670972002374]
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):
@@ -303,10 +335,10 @@ else:
 isLenapy = not(os.path.exists("../Kawi"))
 
 # Level to unlock skill slot
-lvlToUnlockSkill = [0,0,0,5,15,25,35]
+lvlToUnlockSkill = [0, 0, 0, 5, 15, 25, 35]
 
-SKILL_GROUP_NEUTRAL, SKILL_GROUP_HOLY, SKILL_GROUP_DEMON = 0,1,2
-skillGroupNames = ["neutre","divine","démoniaque"]
+SKILL_GROUP_NEUTRAL, SKILL_GROUP_HOLY, SKILL_GROUP_DEMON = 0, 1, 2
+skillGroupNames = ["neutre", "divine", "démoniaque"]
 
 # Tabl of random messages for the shop
 shopRandomMsg = [
@@ -394,10 +426,11 @@ shopSeasonSpring = [
     "{lena} : \"Surtout tu oublie pas ton parapluie !\"\n{shushi} : \"Mi il fait grand soleil !\"\n{lena} : \"Il peut très rapidement se mettre à pleuvoir à cette saison, Shu'\""
 ]
 
-shopRepatition = [4,5,8,3]                 # Shop's item category length
+shopRepatition = [4, 5, 8, 3]                 # Shop's item category length
 
 # Same, but for the roll command
-rollMessage = ["Selon toute vraisemblance ce sera un **{0}**","Puisse la chance être avec toi... **{0}** !","Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**","Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
+rollMessage = ["Selon toute vraisemblance ce sera un **{0}**", "Puisse la chance être avec toi... **{0}** !", "Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors",
+               "Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**", "Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
 
 randomEmojiFight = [
     '<:ffsad:896113677550366740>',
@@ -414,13 +447,16 @@ randChooseMsg = [
     "Je doute que tu tiennes compte de mon avis mais j'ai choisi",
     "Selon l'allignement des étoiles, tu va devoir prendre",
     "D'après les résidus de thé dans ma tasse...",
-    ]
+]
 
-tablCat = ["Début du combat","Compétence ultime","Transcendance","En éliminant un ennemi","À la mort","En étant ressucité","Victoire (Bleu) en étant en vie","Victoire (Bleu) en étant mort","Défaite (Bleu)","Victoire (Rouge) en étant en vie","Victoire (Rouge) en étant mort","Défaite (Rouge)","Bloquer une grosse attaque","Réaction à la réanimation de plusieurs alliés","Réaction à la réanimation de plusieurs ennemis","Réanimer plusieurs allier en même temps","Réaction à l'élimination d'un ennemi","Réaction à l'élimination d'un allié"]
+tablCat = ["Début du combat", "Compétence ultime", "Transcendance", "En éliminant un ennemi", "À la mort", "En étant ressucité", "Victoire (Bleu) en étant en vie", "Victoire (Bleu) en étant mort", "Défaite (Bleu)", "Victoire (Rouge) en étant en vie", "Victoire (Rouge) en étant mort",
+           "Défaite (Rouge)", "Bloquer une grosse attaque", "Réaction à la réanimation de plusieurs alliés", "Réaction à la réanimation de plusieurs ennemis", "Réanimer plusieurs allier en même temps", "Réaction à l'élimination d'un ennemi", "Réaction à l'élimination d'un allié"]
+
 
 class says:
     """A class for storing the says message from a entity"""
-    def __init__(self,start=None,ultimate=None,limiteBreak=None,onKill=None,onDeath=None,onResurect=None,blueWinAlive=None,blueWinDead=None,blueLoose=None,redWinAlive=None,redWinDead=None,redLoose=None,blockBigAttack=None,reactBigRaiseAllie=None,reactBigRaiseEnnemy=None,bigRaise=None,reactEnnemyKilled=None,reactAllyKilled=None):
+
+    def __init__(self, start=None, ultimate=None, limiteBreak=None, onKill=None, onDeath=None, onResurect=None, blueWinAlive=None, blueWinDead=None, blueLoose=None, redWinAlive=None, redWinDead=None, redLoose=None, blockBigAttack=None, reactBigRaiseAllie=None, reactBigRaiseEnnemy=None, bigRaise=None, reactEnnemyKilled=None, reactAllyKilled=None):
         self.start = start
         self.ultimate = ultimate
         self.limiteBreak = limiteBreak
@@ -460,9 +496,9 @@ class says:
             self.bigRaise,
             self.reactEnnemyKilled,
             self.reactAllyKilled
-            ]
+        ]
 
-    def fromTabl(self,tabl : list):
+    def fromTabl(self, tabl: list):
         self.start = tabl[0]
         self.ultimate = tabl[1]
         self.limiteBreak = tabl[2]
@@ -484,14 +520,15 @@ class says:
 
         return self
 
+
 lenaSays = says(
-    start= "Lena, parée à faire feu.",
-    ultimate= "Hey {target} ! J'ai un {skill} avec ton nom dessus !",
-    limiteBreak= "It's now or never ! {skill} !",
-    onDeath= "Tps.",
-    onResurect= "J'te revaudrais ça {caster}",
-    blueWinAlive= "Une victoire en bonne uniforme",
-    redWinAlive= "Vous avez encore des progrès à faire",
+    start="Lena, parée à faire feu.",
+    ultimate="Hey {target} ! J'ai un {skill} avec ton nom dessus !",
+    limiteBreak="It's now or never ! {skill} !",
+    onDeath="Tps.",
+    onResurect="J'te revaudrais ça {caster}",
+    blueWinAlive="Une victoire en bonne uniforme",
+    redWinAlive="Vous avez encore des progrès à faire",
     redWinDead="Pas mal. Mais pas suffisant",
     redLoose="Ahah, pas trop mal cette fois-ci. Mais ce n'était qu'un entrainement",
     reactBigRaiseAllie="Bien joué {caster}",
@@ -502,28 +539,28 @@ lenaSays = says(
 )
 
 aliceSays = says(
-    start= "Ok, je vais faire de mon mieux, vous allez voir ☆⌒(ゝ。∂) !",
+    start="Ok, je vais faire de mon mieux, vous allez voir ☆⌒(ゝ。∂) !",
     onDeath="Kya ☆⌒(>。<) !",
     redWinAlive="Viii (≧▽≦) !",
     redWinDead="｡･ﾟ(ﾟ><ﾟ)ﾟ･｡",
     ultimate="Aller tous avec moi ! {skill} !",
     blueWinAlive="Alors, vous en avez dit quoi (≧▽≦) ?",
-    onKill = "J'aime pas la méthode direct (〃▽〃)...",
-    onResurect= "Prête pour le rappel ☆⌒(ゝ。∂)!",
-    reactBigRaiseEnnemy= "Je peux le faire aussi {caster}... Pas de quoi s'en venter...",
+    onKill="J'aime pas la méthode direct (〃▽〃)...",
+    onResurect="Prête pour le rappel ☆⌒(ゝ。∂)!",
+    reactBigRaiseEnnemy="Je peux le faire aussi {caster}... Pas de quoi s'en venter...",
     bigRaise="Alors alors (〃▽〃)?",
     reactEnnemyKilled="En voilà un qui sera pas là pour mon final",
     reactAllyKilled="T'en fais pas {downed} !"
 )
 
 clemSays = says(
-    start = "`Ferme son livre` Ok allons-y",
-    ultimate = "J'espère que tu es prêt pour vous prendre ma {skill} dans la face, {target} !",
-    onDeath = "Je t'ai sous estimé manifestement...",
-    onResurect = "Merci du coup de main",
-    redWinAlive = "Et bah alors, on abandonne déjà ?",
-    blueWinAlive = "Simple. Basique.",
-    reactEnnemyKilled= "Pas mal celle-là {killer}"
+    start="`Ferme son livre` Ok allons-y",
+    ultimate="J'espère que tu es prêt pour te prendre un {skill} dans la face, {target} !",
+    onDeath="Je t'ai sous estimé manifestement...",
+    onResurect="Merci du coup de main",
+    redWinAlive="Et bah alors, on abandonne déjà ?",
+    blueWinAlive="Simple. Basique.",
+    reactEnnemyKilled="Pas mal celle-là {killer}"
 )
 
 ailillSays = says(
@@ -550,7 +587,7 @@ lunaBossSays = says(
     reactBigRaiseEnnemy="Vous devez en venir à là ? Soit !"
 )
 
-lunaDesc ="""Luna est la conscience qu'ont aquis les Ténèbres injectés dans Lena par Gaster, dans leur dimension origielle (à Gaster et Luna, pas à Lena vu qu'elle vient d'ailleurs)
+lunaDesc = """Luna est la conscience qu'ont aquis les Ténèbres injectés dans Lena par Gaster, dans leur dimension origielle (à Gaster et Luna, pas à Lena vu qu'elle vient d'ailleurs)
 
 Dans cette dimension, les rapports entre la Lumière et les Ténèbres étaient inversés. C'était ces derniers qui permettaient aux habitants de voir et vitre, tandis que la Lumière représentait ce que nous apellons \"Obscurité\"
 Luna a hérité du désir de destruction du monde corrompu qu'était le leur de Gaster lorsque celui-ci a utilisée Lena comme moyen de sortir de cette boucle génocidaire engagée par Chara, et le moins qu'on puisse dire c'est qu'elle y ai parvenu
@@ -626,41 +663,41 @@ randomWaitingMsg = [
 ]
 
 johnSays = says(
-    start = "(Courage John. Montre lui que tu as appris à devenir un combattant.)"
+    start="(Courage John. Montre lui que tu as appris à devenir un combattant.)"
 )
 
 liaSays = says(
     start="Ça vous dirait de danser avec moi ?",
-    onKill = "Oh déjà... ?",
-    onDeath = "Hii ! Compris compris !",
-    redWinAlive = "C'était marrant !",
-    redLoose = "Vous savez pas rire..."
+    onKill="Oh déjà... ?",
+    onDeath="Hii ! Compris compris !",
+    redWinAlive="C'était marrant !",
+    redLoose="Vous savez pas rire..."
 )
 
 liuSays = says(
-    start = "Hé ! Une course d'endurance vous en pensez quoi ?",
-    onKill = "Va falloir mieux gérer ta fatigue la prochaine fois",
-    onResurect = "Une seconde course ?",
-    redLoose = "Hé bah... Finalement c'est moi qui ai mordu la poussière"
+    start="Hé ! Une course d'endurance vous en pensez quoi ?",
+    onKill="Va falloir mieux gérer ta fatigue la prochaine fois",
+    onResurect="Une seconde course ?",
+    redLoose="Hé bah... Finalement c'est moi qui ai mordu la poussière"
 )
 
 lioSays = says(
-    start = "Oh... Heu... Bonjour...",
-    onKill = "J- J'y suis allé trop fort ?",
-    onResurect = "Merci...",
-    onDeath= "Humf ! J'aurais du rester dans la forêt...",
-    redWinAlive= "Le monde des humains est... perturbant...",
+    start="Oh... Heu... Bonjour...",
+    onKill="J- J'y suis allé trop fort ?",
+    onResurect="Merci...",
+    onDeath="Humf ! J'aurais du rester dans la forêt...",
+    redWinAlive="Le monde des humains est... perturbant...",
     bigRaise="On lache rien...",
     reactBigRaiseEnnemy="Je peux faire ça aussi, tu sais...",
     reactAllyKilled="Vous commencez à me taper sur les nerfs..."
 )
 
 lizSays = says(
-    start = "Tiens donc, des nouvelles braises",
-    ultimate = "Allez quoi, déclarez moi votre flamme !",
-    onKill = "Woops, j'y suis allé trop fort manifestement",
-    onDeath = "Pff, vous êtes pas drôle",
-    redLoose = "Waw, je me suis jamais faite autant refroidir rapidement..."
+    start="Tiens donc, des nouvelles braises",
+    ultimate="Allez quoi, déclarez moi votre flamme !",
+    onKill="Woops, j'y suis allé trop fort manifestement",
+    onDeath="Pff, vous êtes pas drôle",
+    redLoose="Waw, je me suis jamais faite autant refroidir rapidement..."
 )
 
 julieSays = says(
@@ -673,9 +710,9 @@ julieSays = says(
 )
 
 sixtineSays = says(
-    start = "`Baille en s'étirant`",
-    ultimate = "Laissez moi tranquille...",
-    redWinAlive = "Je retourne dessiner maintenant...",
+    start="`Baille en s'étirant`",
+    ultimate="Laissez moi tranquille...",
+    redWinAlive="Je retourne dessiner maintenant...",
     redLoose="Zzz..."
 )
 
@@ -783,7 +820,8 @@ randomMaxSupp = [
 aliceStatsNothingToShow = [
     ["Hum... Il semblerait que personna dans ton équipe a fait de dégâts jusqu'à présent ?"],
     ["Hé bah, ça vole pas haut niveau élimiation chez vous..."],
-    ["On a qu'une seule vie comme on dit. Enfin particulièrement chez vous, où personne a réanimé personne","Conseil d'amie : Vous feriez mieux d'avoir quelqu'un qui puisse réanimer dans votre équipe, et pas toujours vous reposer sur nous pour vous sauver le postérieur"],
+    ["On a qu'une seule vie comme on dit. Enfin particulièrement chez vous, où personne a réanimé personne",
+        "Conseil d'amie : Vous feriez mieux d'avoir quelqu'un qui puisse réanimer dans votre équipe, et pas toujours vous reposer sur nous pour vous sauver le postérieur"],
     ["Vous avez vraiment réussi à subir aucuns dégâts jusqu'à là ?"],
     ["Faut croire que vous aimer vous faire maraver la figure, personne a soigné personne dans votre équipe"],
     ["Vous savez qu'avoir un peu d'armure peu pas vous faire de mal, hein ?"],
@@ -791,43 +829,46 @@ aliceStatsNothingToShow = [
 ]
 
 clemPosSays = says(
-    start = "Encore des chasseurs de vamires ? J'en ai ma claque des gens de votre genre.",
-    onKill = "Un de plus, un de moins. Quelle importance",
-    redWinAlive = "Restez à votre place.",
-    redLoose = "Que..."
+    start="Encore des chasseurs de vamires ? J'en ai ma claque des gens de votre genre.",
+    onKill="Un de plus, un de moins. Quelle importance",
+    redWinAlive="Restez à votre place.",
+    redLoose="Que..."
 )
 
 aliceExSays = says(
-    start = "Clémence...",
-    onKill = "...",
-    onResurect= "Merci...",
-    blueWinAlive= "ça... ça va mieux ?",
+    start="Clémence...",
+    onKill="...",
+    onResurect="Merci...",
+    blueWinAlive="ça... ça va mieux ?",
     bigRaise="Je y arriver probablement pas... S'il vous plaît..."
 )
 
-def createTmpChangeDict(level : int, changeWhat : int, change : list, to : list, proba = 100):
+
+def createTmpChangeDict(level: int, changeWhat: int, change: list, to: list, proba=100):
     """ChangeWhat : 0 == skills"""
     if len(change) != len(to):
-        raise AttributeError("Change list and To list don't have the same length")
+        raise AttributeError(
+            "Change list and To list don't have the same length")
     if proba > 100:
         raise AttributeError("Proba > 100")
     elif proba < 1:
         raise AttributeError("Proba < 1")
 
-    return {"level":level,"changeWhat":changeWhat,"change":change,"to":to,"proba":proba}
+    return {"level": level, "changeWhat": changeWhat, "change": change, "to": to, "proba": proba}
+
 
 # ["Berserkeur","Observateur","Poids plume","Idole","Prévoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
 limitBeakGif = [
-    'https://cdn.discordapp.com/attachments/927195778517184534/932778559150391366/20220118_002840.gif', # Ber
-    'https://cdn.discordapp.com/attachments/927195778517184534/932775385043709952/20220118_001608.gif', # Obs
-    'https://cdn.discordapp.com/attachments/927195778517184534/932774912391782490/20220118_001411.gif', # PPlu
-    'https://cdn.discordapp.com/attachments/927195778517184534/932776578058965102/20220118_002049.gif', # Ido
-    'https://cdn.discordapp.com/attachments/927195778517184534/932778559502700594/20220118_002719.gif', # Pré
-    'https://cdn.discordapp.com/attachments/927195778517184534/932777330605178920/20220118_002344.gif', # TBru
-    'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif', # Mage
-    'https://cdn.discordapp.com/attachments/927195778517184534/932773655342104606/20220118_000858.gif', # Alt
-    'https://cdn.discordapp.com/attachments/927195778517184534/932704180731265054/20220117_193200.gif', # Inv
-    'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif', # Enc
+    'https://cdn.discordapp.com/attachments/927195778517184534/932778559150391366/20220118_002840.gif',  # Ber
+    'https://cdn.discordapp.com/attachments/927195778517184534/932775385043709952/20220118_001608.gif',  # Obs
+    'https://cdn.discordapp.com/attachments/927195778517184534/932774912391782490/20220118_001411.gif',  # PPlu
+    'https://cdn.discordapp.com/attachments/927195778517184534/932776578058965102/20220118_002049.gif',  # Ido
+    'https://cdn.discordapp.com/attachments/927195778517184534/932778559502700594/20220118_002719.gif',  # Pré
+    'https://cdn.discordapp.com/attachments/927195778517184534/932777330605178920/20220118_002344.gif',  # TBru
+    'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif',  # Mage
+    'https://cdn.discordapp.com/attachments/927195778517184534/932773655342104606/20220118_000858.gif',  # Alt
+    'https://cdn.discordapp.com/attachments/927195778517184534/932704180731265054/20220117_193200.gif',  # Inv
+    'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif',  # Enc
     'https://cdn.discordapp.com/attachments/927195778517184534/932777330978488391/20220118_002225.gif'  # Pro
 ]
 
@@ -859,25 +900,35 @@ lenaTipsMsgTabl = [
     "Le 19 de chaques mois, les records mensuels sont rénitialisés",
     "Il se peut que vous obtenez une récompense si vous possédez un certain pourcentage des objets obtenables dans le magasin ou en butin",
     "Ailill impose une icone mortuaire aux cibles qu'elle élimine, qu'importe la manière. Mais subir sa compétence signature donne un succès...",
-    "Lors d'un raid, vous êtes associé à une équipe dont le niveau moyen est similaire à celle de la votre. Cependant, cette équipe tierce n'obtient aucune récompense"]
+    "Lors d'un raid, vous êtes associé à une équipe dont le niveau moyen est similaire à celle de la votre. Cependant, cette équipe tierce n'obtient aucune récompense",
+    "Vous vous souvenez de l'aspiration \"Stratège\" ? Ouais moi non plus",
+    "Funfact : Tout à commencé sur une aire d'autoroute pendant que Lénaïc s'ennuyait à attendre que sa famille revienne de sa pause pipi",
+]
 
 ilianaSaysNormal = says(
-    start = "Puisse ce combat être miawtastique !",
-    ultimate = "Nynme de la Lumière Infinie !",
-    limiteBreak = "Que la Lumière nous protège !",
-    onKill = "Nyan. Désolée",
-    onDeath = "Miaw !!",
-    reactAllyKilled= "Nyan !",
-    reactBigRaiseAllie= "Miawtastique"
+    start="Puisse ce combat être miawtastique !",
+    ultimate="Nynme de la Lumière Infinie !",
+    limiteBreak="Que la Lumière nous protège !",
+    onKill="Nyan. Désolée",
+    onDeath="Miaw !!",
+    reactAllyKilled="Nyan !",
+    reactBigRaiseAllie="Miawtastique"
 )
 
 ilianaSaysVsLuna = says(
-    start = "Tu nous fais encore une crise ?",
-    ultimate = "Courraw tout le monde !",
-    onKill= "T'enw fait pas Luna !",
-    onDeath= "Miaw...",
-    onResurect= "Miawzi bien",
-    blueWinAlive= "`S'assoit à côté de Luna, qui est trop fatiguée pour bouger, lui met la tête sur ses genoux puis caresse cette dernière en ronronnant`\"\n<:luna:909047362868105227> : \"Ili'...\"\n<:Iliana:926425844056985640> : \"Niow Niow. Tu ferais la même chose si c'était moiw, et tu t'es faite battre à plate couture, tu ees paw en droit de contester\"\n<:luna:909047362868105227> : \"... `Ferme les yeux et s'endort peut de temps après`",
-    blockBigAttack= "Si tu crois que tu va m'awvoir avec ça !",
-    reactBigRaiseAllie= "Je m'owcupe des Ténèbres qui paralyse votre âme, et on y retourwn !"
+    start="Tu nous fais encore une crise ?",
+    ultimate="Courraw tout le monde !",
+    onKill="T'enw fait pas Luna !",
+    onDeath="Miaw...",
+    onResurect="Miawzi bien",
+    blueWinAlive="`S'assoit à côté de Luna, qui est trop fatiguée pour bouger, lui met la tête sur ses genoux puis caresse cette dernière en ronronnant`\"\n<:luna:909047362868105227> : \"Ili'...\"\n<:Iliana:926425844056985640> : \"Niow Niow. Tu ferais la même chose si c'était moiw, et tu t'es faite battre à plate couture, tu ees paw en droit de contester\"\n<:luna:909047362868105227> : \"... `Ferme les yeux et s'endort peut de temps après`",
+    blockBigAttack="Si tu crois que tu va m'awvoir avec ça !",
+    reactBigRaiseAllie="Je m'owcupe des Ténèbres qui paralyse votre âme, et on y retourwn !"
+)
+
+kitsuneSays = says(
+    start="Mais c'est que vous êtes bien nombreux dites donc ^^",
+    onKill="Je suppose que s'en était trop pour toi",
+    redWinAlive="C'était amusant, vous trouvez pas ?",
+    reactBigRaiseEnnemy="Vos âmes m'appartiennent déjà, pourquoi résister ?"
 )

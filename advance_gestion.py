@@ -1,11 +1,12 @@
 import os,discord,emoji,copy,requests,io
+from async_timeout import asyncio
 from typing import List
 from classes import *
 from gestion import *
 from adv import *
 from discord_slash.utils.manage_components import *
 from commands_files.alice_stats_endler import *
-from PIL import Image, ImageColor
+from PIL import Image, ImageColor, ImageOps
 from data.database import *
 from sys import maxsize
 
@@ -555,6 +556,8 @@ def infoSkill(skill : skill, user : char,ctx):
         temp += "\nCette compétence est une compétence **{0}**.\n> - Vous ne pouvez pas équiper de compétence divines et démoniques en même temps".format(skillGroupNames[skil.group])
     if skil.setAoEDamage:
         temp += "\nLes dégâts de cette compétence ne sont pas affectés par la réduction de dégâts de zone"
+    if skil.lifeSteal > 0:
+        temp += "\nCette compétence soigne son lanceur de l'équivalent de **{0}%** des dégâts infligés".format(skil.lifeSteal)
 
     temp2 =""
     if skil.tpCac:
@@ -576,6 +579,13 @@ def infoSkill(skill : skill, user : char,ctx):
                     temp += "\n\n**__Repoussement :__**"
                     allreadyAdd = True
                 temp+="\n__{1}__ repousse la cible de **{0}** case{2}".format(becomeName.knockback,becomeName.name,["","s"][becomeName.knockback > 1])
+
+    if skil.effectAroundCaster != None:
+        if type(skil.effectAroundCaster[2]) == effect:
+            toAdd = "__Effet :__ {0} ({1})".format(skil.effectAroundCaster[2].name,tablTypeStr[skil.effectAroundCaster[2].type])
+        else:
+            toAdd = "__Puissance :__ {0}".format(skil.effectAroundCaster[2])
+        temp += "\n\n__Effet supplémentaire autour du lanceur :__\n__Type :__ {0}\n__Zone d'effet :__ {1}\n{2}".format(tablTypeStr[skil.effectAroundCaster[0]],areaNames[skil.effectAroundCaster[1]],toAdd)
 
     repEmb = discord.Embed(title = skil.name,color = user.color, description = desc+"\n\n__Statistiques :__\n"+temp)
     if skil.emoji[1] == "a":
@@ -612,24 +622,27 @@ def infoSkill(skill : skill, user : char,ctx):
                         break
 
         if len(listRange) == 1:
-            repEmb.add_field(name = "__Portée :__",value=visuArea(listRange[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]),inline= len(listRange) == len(listArea) == 0 or len(listRange) > 1)
+            if listRange[0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+                repEmb.add_field(name = "__Portée :__",value=visuArea(listRange[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]),inline= len(listRange) == len(listArea) == 0 or len(listRange) > 1)
         else:
             for cmpt in range(len(listRange)):
-                temporis = "__Portée :__\n("
-                for name in range(len(listRangeName[cmpt])):
-                    temporis += listRangeName[cmpt][name]
-                    if name != len(listRangeName[cmpt]) - 1:
-                        temporis += ",\n"
-                    else:
-                        temporis += ")"
+                if listRangeName[cmpt] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+                    temporis = "__Portée :__\n("
+                    for name in range(len(listRangeName[cmpt])):
+                        temporis += listRangeName[cmpt][name]
+                        if name != len(listRangeName[cmpt]) - 1:
+                            temporis += ",\n"
+                        else:
+                            temporis += ")"
 
-                repEmb.add_field(name = temporis,value=visuArea(listRange[cmpt],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]))
+                    repEmb.add_field(name = temporis,value=visuArea(listRange[cmpt],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]))
 
         if len(listArea) == 1:
-            repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
+            if listArea[0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
+                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
         elif len(listArea) != 0:
             for cmpt in range(len(listArea)):
-                if listArea[cmpt] != AREA_MONO:
+                if listArea[cmpt] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
                     temporis = "__Zone d'effet :__\n("
                     for name in range(len(listName[cmpt])):
                         temporis += listName[cmpt][name]
@@ -918,7 +931,10 @@ def getChoisenSelect(select : dict, value : str):
     return temp
 
 async def downloadAllHeadGearPng(bot : discord.Client, msg = None, lastTime = None):
-    listEmojiHead = stuffDB.getAllHeadGear()
+    listEmojiHead = []
+    for stuffy in stuffs:
+        if stuffy.type == 0:
+            listEmojiHead.append(stuffy.emoji)
     listDir = os.listdir("./data/images/headgears/")
     num,cmpt = len(listEmojiHead),0
     for a in listEmojiHead:
@@ -941,10 +957,9 @@ async def downloadAllHeadGearPng(bot : discord.Client, msg = None, lastTime = No
                 image = Image.open(f"./data/images/headgears/{emojiObject[0]}.png")
                 image = image.resize((70,70))
                 image.save(f"./data/images/headgears/{emojiObject[0]}.png")
-                customIconDB.addHeadGearImageFiles(stuffDB.getIdFromEmoji(a,"gear"),f"{emojiObject[0]}.png")
-                print(emojiObject[0] + " téléchargé")
+                print(emojiObject[0] + " downloaded")
             else:
-                print(emojiObject[0] + " non trouvé")
+                print(emojiObject[0] + " not found")
 
         if msg != None:
             cmpt += 1
@@ -954,10 +969,12 @@ async def downloadAllHeadGearPng(bot : discord.Client, msg = None, lastTime = No
                 await msg.edit(embed = discord.Embed(title="l!admin resetCustomEmoji",description="Téléchargement des images d'accessoires ({0}%)".format(round(cmpt/num*100,1))))
 
 async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
-    listEmojiHead = stuffDB.getAllWeap()
+    listEmojiWeapon = []
+    for weap in weapons:
+        listEmojiWeapon.append(weap.emoji)
     listDir = os.listdir("./data/images/weapons/")
-    num,cmpt = len(listEmojiHead+etInkBases+etInkLines),0
-    for a in listEmojiHead:
+    num,cmpt = len(listEmojiWeapon+etInkBases+etInkLines),0
+    for a in listEmojiWeapon:
         emojiObject = getEmojiInfo(a)
         if emojiObject[0] + ".png" not in listDir:
             guildStuff = weaponIconGuilds
@@ -978,13 +995,12 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
                 background = Image.new("RGBA",(120,120),(0,0,0,0))
                 image = image.resize((100,100))
                 background.paste(image,(10,10))
-                background = background.rotate(30)
 
                 background.save(f"./data/images/weapons/{emojiObject[0]}.png")
                 customIconDB.addWeapImageFiles(stuffDB.getIdFromEmoji(a,"weapon"),f"{emojiObject[0]}.png")
-                print(emojiObject[0] + " téléchargé")
+                print(emojiObject[0] + " downlowded")
             else:
-                print(emojiObject[0] + " non trouvé")
+                print(emojiObject[0] + " not found")
 
         if msg != None:
             cmpt += 1
@@ -1015,11 +1031,10 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
                 image = image.resize((100,100))
                 background.paste(image,(10,10))
                 background = background.rotate(30)
-
                 background.save(f"./data/images/weapons/{emojiObject[0]}.png")
-                print(emojiObject[0] + " téléchargé")
+                print(emojiObject[0] + " downlowded")
             else:
-                print(emojiObject[0] + " non trouvé")
+                print(emojiObject[0] + " not found")
 
         if msg != None:
             cmpt += 1
@@ -1027,7 +1042,7 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
                 await msg.edit(embed = discord.Embed(title="l!admin resetCustomEmoji",description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100,1))))
-    
+
     if not(os.path.exists("./data/images/weapons/akifaux.png")):
         image = requests.get("https://cdn.discordapp.com/emojis/887334842595942410.png?v=1",stream=True)
         image.raw.decode_content=True
@@ -1038,7 +1053,7 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
         background.paste(image,(10,10))
         background = background.rotate(30)
         background.save(f"./data/images/weapons/akifaux.png")
-        print("akifaux téléchargé")
+        print("akifaux downlowded")
 
 async def downloadAllIconPng(bot : discord.Client):
     listEmojiHead = emoji.icon
@@ -1067,22 +1082,17 @@ async def downloadAllIconPng(bot : discord.Client):
                     background.paste(image,((145-128)//2,(145-128)//2))
                     background.save(f"./data/images/char_icons/{emojiObject[0]}.png")
                     customIconDB.addIconFiles(a,b,f"{emojiObject[0]}.png")
-                    print(emojiObject[0] + " téléchargé")
+                    print(emojiObject[0] + " downlowded")
                 else:
-                    print(emojiObject[0] + " non trouvé")
+                    print(emojiObject[0] + " not found")
 
-async def makeCustomIcon(bot : discord.Client, user : char):
-    accessoire = Image.open("./data/images/headgears/"+customIconDB.getAccFile(user))
-
+async def makeCustomIcon(bot : discord.Client, user : char, returnImage:bool=False):
     # Paramètres de l'accessoire ----------------------------------
     if user.apparaAcc == None:
-        pos = user.stuff[0].position
-    else:
-        pos = user.apparaAcc.position
+        accessoire, pos = Image.open("./data/images/headgears/{0}.png".format(getEmojiObject(user.stuff[0].emoji)["name"])), user.stuff[0].position
 
-    if (user.apparaAcc == None and user.stuff[0].id == lentille.id) or (user.apparaAcc != None and user.apparaAcc.id == lentille.id):
-        accessoire.close()
-        accessoire = Image.new("RGBA",(1,1),(0,0,0,0))
+    else:
+        accessoire, pos = Image.open("./data/images/headgears/{0}.png".format(getEmojiObject(user.apparaAcc.emoji)["name"])), user.apparaAcc.position
 
     # Récupération de l'icone de base -----------------------------
     tablBase = [["./data/images/char_icons/baseIka.png","./data/images/char_icons/baseTako.png"],["./data/images/char_icons/ikaCatBody.png","./data/images/char_icons/takoCatBody.png"],["./data/images/char_icons/komoriBody.png","./data/images/char_icons/komoriBody.png"],["./data/images/char_icons/birdColor.png","./data/images/char_icons/birdColor.png"],["./data/images/char_icons/skeletonColor.png","./data/images/char_icons/skeletonColor.png"],['./data/images/char_icons/fairyColor.png','./data/images/char_icons/fairy2Color.png']][user.iconForm]
@@ -1137,12 +1147,12 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]           # 6
         ],
         [   # IconForm 5
-            [None,(round(accessoire.size[0]*1.3),accessoire.size[1])],          # 0
-            [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 1
-            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 2
+            [(round(accessoire.size[0]*1),round(accessoire.size[1]*0.8)),(round(accessoire.size[0]*1.3),accessoire.size[1])],          # 0
+            [(round(accessoire.size[0]*0.7),round(accessoire.size[1]*0.7))],    # 1
+            [(round(accessoire.size[0]*1.1),round(accessoire.size[1]*0.6))],    # 2
             [(round(accessoire.size[0]*0.8),round(accessoire.size[1]*0.8))],    # 3
             [None],                                                             # 4
-            [(round(accessoire.size[0]*1.2),round(accessoire.size[1]*0.7))],    # 5
+            [(round(accessoire.size[0]*1.0),round(accessoire.size[1]*0.7))],    # 5
             [None,(round(accessoire.size[0]*1.3),accessoire.size[1])]           # 6
         ]
     ]
@@ -1200,18 +1210,18 @@ async def makeCustomIcon(bot : discord.Client, user : char):
             [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
             [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
         ],
-        [   # IconForm 6
-            [(round(background.size[0]/2-accessoire.size[0]/2),-10)],                               # 0
+        [   # IconForm 5
+            [(round(background.size[0]/2-accessoire.size[0]/2),0)],                               # 0
             [(0,round(background.size[1]/2)-5),(3,round(background.size[1]/2)-5)],                  # 1
             [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+20))],    # 2
             [(round(background.size[0]*0.25-accessoire.size[0]/2+8),13),(round(background.size[0]*0.25-accessoire.size[0]/2+3),7)],    # 3
             [(round(background.size[0]*0.20-accessoire.size[0]/2),75)],                             # 4
             [(round(background.size[0]/2-accessoire.size[0]/2),round(background.size[1]/2+10))],    # 5
-            [(round(background.size[0]/2-accessoire.size[0]/2),-10)]                                # 6
+            [(round(background.size[0]/2-accessoire.size[0]/2),0)]                                # 6
         ]
     ]
 
-    if pos == 6:                                 # Behind
+    if pos == 6 and user.showAcc:                                 # Behind
         background2 = Image.new("RGBA",background.size,(0,0,0,0))
 
         if len(tablPosByPos[user.iconForm][pos]) > 1:
@@ -1268,78 +1278,94 @@ async def makeCustomIcon(bot : discord.Client, user : char):
         background = background2
 
     # Récupération de l'icone de l'accessoire
-    if pos == 3:                                          # Barettes
-        accessoire = accessoire.rotate(30)
-
-    if pos != 6:
-        if len(tablPosByPos[user.iconForm][pos]) > 1:
-            if tablPosByPos[user.iconForm][pos][user.species-1] != None:
-                position = (tablPosByPos[user.iconForm][pos][user.species-1])
+    if user.showAcc:
+        if pos == 3:                                          # Barettes
+            accessoire = accessoire.rotate(30)
+        if pos != 6:
+            if len(tablPosByPos[user.iconForm][pos]) > 1:
+                if tablPosByPos[user.iconForm][pos][user.species-1] != None:
+                    position = (tablPosByPos[user.iconForm][pos][user.species-1])
+                else:
+                    position = (0,0)
             else:
-                position = (0,0)
-        else:
-            if tablPosByPos[user.iconForm][pos][0] != None:
-                position = (tablPosByPos[user.iconForm][pos][0])
-            else:
-                position = (0,0)
+                if tablPosByPos[user.iconForm][pos][0] != None:
+                    position = (tablPosByPos[user.iconForm][pos][0])
+                else:
+                    position = (0,0)
+            if pos in [1,4] and user.handed:
+                position = (background.size[0]-position[0]-accessoire.size[0],position[1])
+                accessoire = ImageOps.mirror(accessoire)
 
-    # Collage de l'accessoire
-    if pos != 6:
-        background.paste(accessoire,position,accessoire)
-        accessoire.close()
-
+            # Collage de l'accessoire
+            background.paste(accessoire,position,accessoire)
+            accessoire.close()
 
     # Récupération de l'icone de l'arme
-    if (user.apparaWeap != None and user.apparaWeap.id in eternalInkWeaponIds) or (user.apparaWeap == None and user.weapon.id in eternalInkWeaponIds):
-
+    if user.showWeapon:
+        weapEmName, weapToSee = getEmojiObject(user.weapon.emoji)["name"], user.weapon
         if user.apparaWeap != None:
-            toBase = getEmojiObject(user.apparaWeap.emoji)["name"]
+            weapEmName, weapToSee = getEmojiObject(user.apparaWeap.emoji)["name"], user.apparaWeap
+
+        if (user.apparaWeap != None and user.apparaWeap.id in eternalInkWeaponIds) or (user.apparaWeap == None and user.weapon.id in eternalInkWeaponIds):
+            if user.apparaWeap != None:
+                toBase = getEmojiObject(user.apparaWeap.emoji)["name"]
+            else:
+                toBase = getEmojiObject(user.weapon.emoji)["name"]
+            line = Image.open("./data/images/weapons/Line{0}.png".format(toBase))
+            base = Image.open("./data/images/weapons/Base{0}.png".format(toBase))
+
+            pixel = base.load()
+            baseTemp = [baseUserColor[0],baseUserColor[1],baseUserColor[2]]
+            for x in range(0,base.size[0]):
+                for y in range(0,base.size[1]):
+                    if pixel[x,y] != (0,0,0,0):
+                        color = list(pixel[x,y])
+                        for cmpt in (0,1,2):
+                            color[cmpt] = color[cmpt]-143
+                            baseTemp[cmpt] = min(baseUserColor[cmpt] + color[cmpt],255)
+                        base.putpixel([x,y],tuple(baseTemp))
+            base.paste(line,[0,0],line)
+            weapon = base
+        elif "./data/images/weapons/{0}.png".format(weapEmName) != "./data/images/weapons/akifauxgif.png":
+            weapon = Image.open("./data/images/weapons/{0}.png".format(weapEmName))
         else:
-            toBase = getEmojiObject(user.weapon.emoji)["name"]
-        line = Image.open("./data/images/weapons/Line{0}.png".format(toBase))
-        base = Image.open("./data/images/weapons/Base{0}.png".format(toBase))
+            weapon = Image.open("./data/images/weapons/akifaux.png")
 
-        pixel = base.load()
-        baseTemp = [baseUserColor[0],baseUserColor[1],baseUserColor[2]]
-        for x in range(0,base.size[0]):
-            for y in range(0,base.size[1]):
-                if pixel[x,y] != (0,0,0,0):
-                    color = list(pixel[x,y])
-                    for cmpt in (0,1,2):
-                        color[cmpt] = color[cmpt]-143
-                        baseTemp[cmpt] = min(baseUserColor[cmpt] + color[cmpt],255)
-                    base.putpixel([x,y],tuple(baseTemp))
-        base.paste(line,[0,0],line)
-        weapon = base
-    elif (user.apparaWeap == None and user.weapon.id == mainLibre.id) or (user.apparaWeap != None and user.apparaWeap.id == mainLibre.id):
-        weapon = Image.new("RGBA",(1,1),(0,0,0,0))
+        if weapToSee.taille == 0:
+            weapon = weapon.resize([int(weapon.size[0]*0.8),int(weapon.size[0]*0.8)])
+        elif weapToSee.taille == 2:
+            weapon = weapon.resize([int(weapon.size[0]*1.2),int(weapon.size[0]*1.2)])
 
-    elif "./data/images/weapons/"+customIconDB.getWeaponFile(user) != "./data/images/weapons/akifauxgif.png":
-        weapon = Image.open("./data/images/weapons/"+customIconDB.getWeaponFile(user))
-    else:
-        weapon = Image.open("./data/images/weapons/akifaux.png")
-    weapon = weapon.resize((120,120))
+        if user.handed == 1:
+            weapon = ImageOps.mirror(weapon)
+        if (user.apparaWeap == None and user.weapon.needRotate) or (user.apparaWeap != None and user.apparaWeap.needRotate):
+            if user.handed == 1:
+                weapon = weapon.rotate(-30)
+            else:
+                weapon = weapon.rotate(30)
 
-    if (user.apparaWeap == None and user.weapon.needRotate == False) or (user.apparaWeap != None and user.apparaWeap.needRotate == False):
-        weapon = weapon.rotate(-30)
-
-    # Collage de l'arme
-    background.paste(weapon,(55,40),weapon)
-    weapon.close()
+        # Collage de l'arme
+        background.paste(weapon,[(int(background.size[0]-weapon.size[0]*0.7)-10*int(weapToSee.taille == 0),40+15*int(weapToSee.taille == 0)),(int(0-weapon.size[0]*0.3)+10*int(weapToSee.taille == 0),40+15*int(weapToSee.taille == 0))][user.handed],weapon)
+        weapon.close()
 
     # Collage de l'élément
-    if user.level >= 30:
-        element = Image.open("./data/images/elemIcon/"+getEmojiObject(secElemEmojis[user.secElement])["name"]+".png")
-        background.paste(element,(0,90),element)
+    if user.showElement:
+        if user.level >= 30:
+            element = Image.open("./data/images/elemIcon/"+getEmojiObject(secElemEmojis[user.secElement])["name"]+".png")
+            background.paste(element,[(0,90),(background.size[0]-element.size[0],90)][user.handed],element)
+            element.close()
+
+        element = Image.open("./data/images/elemIcon/"+getEmojiObject(elemEmojis[user.element])["name"]+".png")
+        background.paste(element,[(0,90),(background.size[0]-element.size[0],90)][user.handed],element)
         element.close()
 
-    element = Image.open("./data/images/elemIcon/"+getEmojiObject(elemEmojis[user.element])["name"]+".png")
-    background.paste(element,(0,90),element)
-    element.close()
-
+    # Updating the new emote and the database
     imgByteArr = io.BytesIO()
     background.save(imgByteArr, format="png")
     background = imgByteArr.getvalue()
+
+    if returnImage:
+        return background
 
     iconGuildList = []
     if os.path.exists("../Kawi/"):
@@ -1349,13 +1375,18 @@ async def makeCustomIcon(bot : discord.Client, user : char):
 
     if not(customIconDB.haveCustomIcon(user)):
         for icGuild in iconGuildList:
-            icGuild = await bot.fetch_guild(icGuild)
-
-            if len(icGuild.emojis) < 50:
-                new_icon = await icGuild.create_custom_emoji(name=remove_accents(user.name),image=background)
-                customIconDB.editCustomIcon(user,new_icon)
-                print(f"Icone de {user.name} bien crée !")
-                break
+            try:
+                icGuild = await bot.fetch_guild(icGuild)
+                if len(icGuild.emojis) < 50:
+                    try:
+                        new_icon = await asyncio.wait_for(icGuild.create_custom_emoji(name=remove_accents(user.name),image=background),timeout=1)
+                        customIconDB.editCustomIcon(user,new_icon)
+                        print(f"{user.name}'s new emoji uploaded")
+                    except asyncio.TimeoutError:
+                        print("{0}'s emoji took to long to upload".format(user.name))
+                    break
+            except:
+                print_exc()
 
     else:
         customId = getEmojiObject(customIconDB.getCustomIcon(user))["id"]
@@ -1368,27 +1399,36 @@ async def makeCustomIcon(bot : discord.Client, user : char):
                 pass
 
             if custom != None:
-                await custom.delete()
-                new_icon = await icGuild.create_custom_emoji(name=remove_accents(user.name),image=background)
-                customIconDB.editCustomIcon(user,new_icon)
-                print(f"Icone de {user.name} bien mis à jour !")
+                try:
+                    new_icon = await asyncio.wait_for(icGuild.create_custom_emoji(name=remove_accents(user.name),image=background),timeout=1)
+                    customIconDB.editCustomIcon(user,new_icon)
+                    print(f"{user.name}'s emoji updated")
+                    await custom.delete()
+                except asyncio.TimeoutError:
+                    print("{0}'s emoji took to long to upload".format(user.name))
                 break
 
 async def getUserIcon(bot : discord.Client,user : char):
     """Function for get the user custom icon\nIf a (re)make is needed, remake the icon"""
-    fun = random.randint(0,9999)
+    fun, toReturn = random.randint(0,9999), None
     if fun == 666:
-        return "<a:lostSilver:917783593441456198>"
-
+        toReturn = "<a:lostSilver:917783593441456198>"
     try:
         if customIconDB.isDifferent(user):
             await makeCustomIcon(bot,user)
-        
+
         if customIconDB.haveCustomIcon(user):
-            return customIconDB.getCustomIcon(user)
+            if customIconDB.getCustomIcon(user) not in [None,"None"]:
+                toReturn = customIconDB.getCustomIcon(user)
+            else:
+                toReturn = "<:LenaWhat:760884455727955978>"
     except:
         print_exc()
+        toReturn = "<:LenaWhat:760884455727955978>"
+    if toReturn == None:
         return "<:LenaWhat:760884455727955978>"
+    else:
+        return toReturn
 
 def infoInvoc(invoc : invoc, embed : discord.Embed):
     rep = f"__Aspiration de l'invocation :__ {aspiEmoji[invoc.aspiration]} {inspi[invoc.aspiration]}\n__Elément de l'invocation :__ {elemEmojis[invoc.element]} {elemNames[invoc.element]}\n__Description :__\n{invoc.description}\n\n__Statistique principale :__ **{nameStats[invoc.weapon.use]}**\n\n**__Statistiques :__**\n*\"Invoc\" est un raccourci pour \"Statistique de l'Invocateur\"*\n"
@@ -1613,9 +1653,9 @@ async def downloadElementIcon(bot : discord.Client):
                 image = Image.open(f"./data/images/elemIcon/{emojiObject[0]}.png")
                 image = image.resize((60,60))
                 image.save(f"./data/images/elemIcon/{emojiObject[0]}.png")
-                print(emojiObject[0] + " téléchargé")
+                print(emojiObject[0] + " downlowded")
             else:
-                print(emojiObject[0] + " non trouvé")
+                print(emojiObject[0] + " not found")
 
 async def getRandomStatsEmbed(bot : discord.Client,team : List[classes.char], text = "Chargement..."):
     if random.randint(0,99) < 50:

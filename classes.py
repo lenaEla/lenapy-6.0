@@ -2,7 +2,6 @@
 base classes module
 Here are grouped up the bases classes of the bot, and some very basic functions
 """
-
 import emoji,pathlib,copy,random
 from constantes import *
 from typing import List, Union
@@ -170,7 +169,7 @@ class effect:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect:Union[None,effect]=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect:Union[None,effect]=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False,taille=1):
         """rtfm"""
         self.name:str = name
         self.say:Union[str,List[str]] = say
@@ -208,6 +207,7 @@ class weapon:
         self.negativeDirect = negativeDirect
         self.negativeIndirect = negativeIndirect
         self.negativeBoost = negativeBoost
+        self.taille = taille
 
         if (self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]) and self.use == STRENGTH:
             self.use = CHARISMA
@@ -285,7 +285,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None):
         """rtfm"""
 
         self.name = name                                # Name of the skill
@@ -297,6 +297,25 @@ class skill:
         self.tpCac:bool = tpCac
         self.jumpBack:int = jumpBack
         self.setAoEDamage:bool = setAoEDamge
+        self.areaOnSelf = areaOnSelf
+        self.lifeSteal:int = lifeSteal
+        self.effectAroundCaster: Union[None,List[int]] = effectAroundCaster
+        if needEffect == None or type(needEffect) == list:
+            self.needEffect=needEffect
+        else:
+            self.needEffect=[needEffect]
+
+        if rejectEffect == None or type(rejectEffect) == list:
+            self.rejectEffect=rejectEffect
+        else:
+            self.rejectEffect=[rejectEffect]
+
+
+        if effectAroundCaster != None:
+            if effectAroundCaster[0] not in allTypes:
+                raise Exception("EffectAroudCaster[0] not a type")
+            elif effectAroundCaster[0] not in allArea:
+                raise Exception("EffectAroudCaster[1] not a area")
         
         if power != AUTO_POWER:
             self.power = power                              # Power of the skill. Use for damage and healing skills
@@ -611,10 +630,14 @@ class char:
         self.secElement = ELEMENT_NEUTRAL
         self.deadIcon = None
         self.says = says()
-        self.apparaWeap = None
-        self.apparaAcc = None
+        self.apparaWeap:weapon = None
+        self.apparaAcc:stuff = None
         self.colorHex = None
         self.iconForm = 0
+        self.showElement = True
+        self.showWeapon = True
+        self.showAcc = True
+        self.handed = 1
 
     def have(self,obj):
         """Verify if the character have the object Obj"""
@@ -675,15 +698,28 @@ for num in range(0,10):
     incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
 
-vulne = effect("Dégâts augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:vulneB:933804144832184401>","<a:vulneR:933804163161260052>"),type=TYPE_MALUS)
+vulne = effect("Dégâts subis augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:vulneB:933804144832184401>","<a:vulneR:933804163161260052>"),type=TYPE_MALUS,stackable=True)
+defenseUp = effect("Dégâts subis réduits","defenseUp",stackable=True,emoji=sameSpeciesEmoji('<a:defenseUpR:937849438045601904>','<a:defenseUpR:937849417275408454>'))
+dmgUp = effect("Dégâts infligés augmentés","dmgUp",stackable=True,emoji=sameSpeciesEmoji('<a:dmgUpB:937849381523177572>','<a:dmgUpR:937849400292692038>'))
 
 vulneTabl = []
 for num in range(0,10):
     vulneTemp = copy.deepcopy(vulne)
     vulneTemp.power = 10*num
     vulneTemp.name += " ({0})".format(10*num)
-    vulneTemp.description="Augmente les dégâts subis par le porteur de **{0}%**\n\nSi plusieurs effets Dégâts augmentés sont présent sur la même cible, uniquement le plus puissant sont pris en compte".format(10*num)
+    vulneTemp.description="Augmente les dégâts subis par le porteur de **{0}%**\n\nSi plusieurs effets Dégâts subis augmentés sont présent sur la même cible, uniquement le plus puissant est pris en compte".format(10*num)
     vulneTabl.append(vulneTemp)
+
+dmgDown = effect("Dégâts infligés réduits","dmgDown",power=100,emoji=sameSpeciesEmoji("<a:dmgDownB:936785566085816431>","<a:dmgDownR:936785585534812211>"),type=TYPE_MALUS,stackable=True)
+
+dmgDownTabl = []
+for num in range(0,10):
+    dmgDownTemp = copy.deepcopy(dmgDown)
+    dmgDownTemp.power = 10*num
+    dmgDownTemp.name += " ({0})".format(10*num)
+    dmgDownTemp.description="Réduits les dégâts infligés par le porteur de **{0}%**\n\nSi plusieurs effets Dégâts infligés réduits sont présent sur la même cible, uniquement le plus puissant est pris en compte".format(10*num)
+    dmgDownTabl.append(dmgDownTemp)
+
 
 partage = effect("Partage","share",type=TYPE_MALUS,power=100,turnInit=-1,description="",emoji=[["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"]],area=AREA_DONUT_1)
 

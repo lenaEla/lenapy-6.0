@@ -4,43 +4,101 @@ from typing import Union
 import discord_slash
 from classes import *
 from adv import findWeapon,findOther,findSkill,findStuff
-
-
 """
 Main functions module
 """
 
-initTm = """
-    CREATE TABLE userTeams (
-        teamId      INTEGER PRIMARY KEY
-                            NOT NULL
-                            UNIQUE,
-        teamMember0 INTEGER DEFAULT 0,
-        teamMember1 INTEGER DEFAULT 0,
-        teamMember2 INTEGER DEFAULT 0,
-        teamMember3 INTEGER DEFAULT 0,
-        teamMember4 INTEGER DEFAULT 0,
-        teamMember5 INTEGER DEFAULT 0,
-        teamMember6 INTEGER DEFAULT 0,
-        teamMember7 INTEGER DEFAULT 0
-    );"""
-
 userSettingsInterCatNames = ["start","ultimate","limiteBreak","onKill","onDeath","onResurect","blueWinAlive","blueWinDead","blueLoose","redWinAlive","redWinDead","redLoose","blockBigAttack","reactBigRaiseAllie","reactBigRaiseEnnemy","bigRaise","reactEnnemyKilled","reactAllyKilled"]
 
-initUsrSettings = """
+majUserSettings1 = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM userSettings;
+
+    DROP TABLE userSettings;
+
     CREATE TABLE userSettings (
-        userId      INTEGER PRIMARY KEY
-                            NOT NULL
-                            UNIQUE,"""
+        userId              INTEGER PRIMARY KEY
+                                    NOT NULL
+                                    UNIQUE,
+        start,
+        ultimate,
+        limiteBreak,
+        onKill,
+        onDeath,
+        onResurect,
+        blueWinAlive,
+        blueWinDead,
+        blueLoose,
+        redWinAlive,
+        redWinDead,
+        redLoose,
+        blockBigAttack,
+        reactBigRaiseAllie,
+        reactBigRaiseEnnemy,
+        bigRaise,
+        reactEnnemyKilled,
+        reactAllyKilled,
+        hand                INTEGER DEFAULT 1,
+        affElem             BOOLEAN DEFAULT 1,
+        affAcc              BOOLEAN DEFAULT 1,
+        affWeap             BOOLEAN DEFAULT (1),
+        lastDay             STRING  DEFAULT ('0000') 
+    );
 
-for a in userSettingsInterCatNames:
-    initUsrSettings += "\n      {0},".format(a)
+    INSERT INTO userSettings (
+                                userId,
+                                start,
+                                ultimate,
+                                limiteBreak,
+                                onKill,
+                                onDeath,
+                                onResurect,
+                                blueWinAlive,
+                                blueWinDead,
+                                blueLoose,
+                                redWinAlive,
+                                redWinDead,
+                                redLoose,
+                                blockBigAttack,
+                                reactBigRaiseAllie,
+                                reactBigRaiseEnnemy,
+                                bigRaise,
+                                reactEnnemyKilled,
+                                reactAllyKilled,
+                                hand,
+                                affElem,
+                                affAcc
+                            )
+                            SELECT userId,
+                                    start,
+                                    ultimate,
+                                    limiteBreak,
+                                    onKill,
+                                    onDeath,
+                                    onResurect,
+                                    blueWinAlive,
+                                    blueWinDead,
+                                    blueLoose,
+                                    redWinAlive,
+                                    redWinDead,
+                                    redLoose,
+                                    blockBigAttack,
+                                    reactBigRaiseAllie,
+                                    reactBigRaiseEnnemy,
+                                    bigRaise,
+                                    reactEnnemyKilled,
+                                    reactAllyKilled,
+                                    hand,
+                                    affElem,
+                                    affAcc
+                            FROM sqlitestudio_temp_table;
 
-initUsrSettings += """
-        hand INTEGER DEFAULT 0,
-        affElem BOOLEAN DEFAULT 1,
-        affAcc BOOLEAN DEFAULT 1
-    );"""
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;
+"""
 
 class userTeamDbEndler:
     """A database who store some user's info like their team"""
@@ -48,24 +106,6 @@ class userTeamDbEndler:
         self.con = sqlite3.connect(f"./data/database/aliceStats.db")
         self.con.row_factory = sqlite3.Row
         self.database = "aliceStats.db"
-
-        cursor = self.con.cursor()
-
-        try:
-            cursor.execute("SELECT * FROM userTeams;")
-        except:
-            temp = ""
-            for a in initTm:
-                if a != ";":
-                    temp+=a
-                else:
-                    cursor.execute(temp)
-                    temp = ""
-
-            self.con.commit()
-            print("Table userTeams créé")
-
-        cursor = self.con.cursor()
 
     def updateTeam(self,team:int,members:Union[List[int],List[char]]):
         cursory, listToAdd, listToAdd2 = self.con.cursor(), "" , ""
@@ -140,18 +180,20 @@ class userSettingsDbEndler:
         cursor = self.con.cursor()
 
         try:
-            cursor.execute("SELECT * FROM userSettings;")
+            cursor.execute("SELECT affWeap FROM userSettings;")
         except:
             temp = ""
-            for a in initUsrSettings:
+            for a in majUserSettings1:
                 if a != ";":
                     temp+=a
                 else:
                     cursor.execute(temp)
                     temp = ""
 
+            cursor.execute(temp)
+            cursor.execute("UPDATE userSettings SET hand = 1;")
             self.con.commit()
-            print("Table userSettings créé")
+            print("maj1 done")
 
         cursor = self.con.cursor()
 
@@ -265,6 +307,54 @@ class userSettingsDbEndler:
             temp = says()
 
             return temp.fromTabl(tablTemp)
+
+    def getUserIconSettings(self,user:char):
+        cursory = self.con.cursor()
+
+        cursory.execute("SELECT hand, affElem, affAcc, affWeap FROM userSettings WHERE userId = {0};".format(user.owner))
+        result = cursory.fetchone()
+        user.handed, user.showAcc, user.showElement, user.showWeapon = result["hand"], bool(result["affAcc"]), bool(result["affElem"]), bool(result["affWeap"])
+        return user
+
+    def updateUserIconSettings(self,user:char):
+        cursory = self.con.cursor()
+
+        cursory.execute("SELECT userId FROM userSettings WHERE userId = {0};".format(user.owner))
+        result = cursory.fetchone()
+
+        if result == None:
+            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
+            for a in range(len(blabla)):
+                if blabla[a] != None:
+                    toAddCat.append(userSettingsInterCatNames[a])
+                    toAddValue.append(blabla[a])
+        
+            toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
+            for a in [0,1]:
+                for cmpt in range(len(tempTabl[a])):
+                    if a == 1:
+                        toAdd = "'"
+                        for b in tempTabl[a][cmpt]:
+                            if b in ["'"]:
+                                toAdd += "''"
+                            else:
+                                toAdd += b
+                        toAdd += "'"
+                    else:
+                        toAdd = tempTabl[a][cmpt]
+
+                    toAddStr[a]+=toAdd
+                    if cmpt < len(tempTabl[a])-1:
+                        toAddStr[a]+=","
+
+            cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
+            self.con.commit()
+            print("{0} a été rajouté dans la base de donnée".format(user.name))
+
+        else:
+            cursory.execute("UPDATE userSettings SET hand = ?, affElem = ?, affAcc = ?, affWeap = ? WHERE userId = {0};".format(user.owner),(user.handed,user.showElement,user.showAcc,user.showWeapon))
+            self.con.commit()
+            cursory.close()
 
 userTeamDb = userTeamDbEndler()
 userSettingsDb = userSettingsDbEndler()
@@ -456,6 +546,7 @@ def saveCharFile(path : str = None, user : char = None):
     saved += str(user.element) +";\n"
 
     userSettingsDb.updateUserSays(user)
+    userSettingsDb.updateUserIconSettings(user)
     rewriteFile(path,saved)
     return True
 
@@ -595,8 +686,6 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         cmpt += 1
     rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
 
-
-
     cmpt,temp = 0,[]
     while cmpt < len(file[9]):
 
@@ -604,7 +693,6 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         temp += [findOther(file[9][cmpt])]
         cmpt += 1
     rep.otherInventory = temp
-
 
     try:
         rep.procuration = [int(rep.owner)]
@@ -619,7 +707,8 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         rep.element = ELEMENT_NEUTRAL
 
     rep.says = userSettingsDb.getUserSays(rep)
-    
+    rep = userSettingsDb.getUserIconSettings(rep)
+
     return rep
 
 def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):

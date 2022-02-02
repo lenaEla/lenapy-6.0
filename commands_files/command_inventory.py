@@ -107,7 +107,6 @@ async def mimikThat(bot : discord.client, ctx : ComponentContext, msg : discord.
         saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
 
         await msg.edit(embed=discord.Embed(title="__Mimikator :__ {0} {1}".format(toChange.emoji,toChange.name),color=user.color,description="Votre mimikator a bien été utilisé"),components=[])
-        await makeCustomIcon(bot,user)
         return True
 
 async def compare(bot : discord.client, ctx : ComponentContext, user : char, see : Union[weapon,stuff]):
@@ -241,7 +240,6 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
                     user.otherInventory.remove(dimentioCristal)
                 saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
                 await secondMsg.edit(embed = discord.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément principal a bien été modifié",color=user.color),components=[],delete_after=3)
-                await makeCustomIcon(bot,user)
 
             elif respond.custom_id == "change2":
                 user.secElement = resp
@@ -251,7 +249,7 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
                     user.otherInventory.remove(dimentioCristal)
                 saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
                 await secondMsg.edit(embed = discord.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément secondaire a bien été modifié",color=user.color),components=[],delete_after=3)
-                await makeCustomIcon(bot,user)
+
             else:
                 await secondMsg.delete()
 
@@ -473,7 +471,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                     return 0
 
                 if rep.custom_id == "confirm":
-                    for a in range(0,5):
+                    for a in range(0,7):
                         if user.skills[a] == invSkill:
                             user.skills[a] = "0"
                             break
@@ -783,7 +781,6 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                                 user.iconForm = cmpt
                                 user.otherInventory.remove(obj)
                                 saveCharFile(user=user)
-                                await makeCustomIcon(bot,user)
                                 await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Votre {0} a bien été utilisé".format(obj.name)).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user))["id"])))
                             else:
                                 await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
@@ -831,6 +828,11 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 placeholder="Changer de catégorie d'objets"
             )
             user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
+            for a in range(len(listUserProcure)):
+                if listUserProcure[a].owner == user.owner:
+                    listUserProcure[a] = user
+                    break
+
             userIconThub = getEmojiObject(await getUserIcon(bot,user))["id"]
             options = [
                 create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and destination > 3 and destination != 9)),
@@ -1010,7 +1012,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                 ballerine += " - {0}".format(a.power)
                             elif eff != None and eff.power > 0:
                                 ballerine += " - {0}".format(eff.power)
-                            elif a.effectOnSelf != None and findEffect(a.effectOnSelf).replica != None:
+                            elif type(a)==skill and a.effectOnSelf != None and findEffect(a.effectOnSelf).replica != None:
                                 finalSkill = a
                                 while (finalSkill.effectOnSelf != None and findEffect(finalSkill.effectOnSelf).replica != None):
                                     finalSkill = findSkill(findEffect(finalSkill.effectOnSelf).replica)
