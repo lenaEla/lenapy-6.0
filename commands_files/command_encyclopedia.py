@@ -413,37 +413,50 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             elif value == 4:
                 await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
             elif value == 5:
-                options = []
-                ally = findAllie(respond)
-                cmpt = 0
-                for stuffy in [ally.weapon]+ally.skills+ally.stuff:
-                    if type(stuffy) in [skill,weapon,stuff]:
-                        options.append(create_select_option(stuffy.name,str(cmpt),getEmojiObject(stuffy.emoji)))
-                    cmpt+=1
-                returnButton = create_button(1,"Retour",custom_id="return")
-                select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
-
-                embed = infoAllie(ally)
-
-                tempMachin = await inter.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select)])
+                lvl, tempMachin = 50, None
                 while 1:
+                    ally = copy.deepcopy(findAllie(respond))
+                    ally.changeLevel(lvl)
+                    ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
+                    options, cmpt = [], 0
+                    for stuffy in [ally.weapon]+ally.skills+ally.stuff:
+                        if type(stuffy) in [skill,weapon,stuff]:
+                            options.append(create_select_option(stuffy.name,str(cmpt),getEmojiObject(stuffy.emoji)))
+                        cmpt+=1
+                    returnButton = create_button(1,"Retour",custom_id="return")
+                    select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
+                    lvlSelectOption = []
+                    for a in range(1,12):
+                        lvlSelectOption.append(
+                            create_select_option("Niveau {0}".format(5*a),"lvl_{0}".format(5*a),default=lvl==5*a)
+                            )
+                    lvlSelect = create_actionrow(create_select(options=lvlSelectOption,placeholder="Choisir un niveau"))
+                    embed = infoAllie(ally)
+                    if tempMachin == None:
+                        tempMachin = await inter.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
+                    else:
+                        await tempMachin.edit(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
                     try:
                         resp2 = await wait_for_component(bot,messages=tempMachin,timeout=60)
                     except:
                         await tempMachin.edit(embed=embed,components=[])
                         break
                     try:
-                        resp3 = int(resp2.values[0])
-                        tablStuff = [ally.weapon]+ally.skills+ally.stuff
-                        try:
-                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
-                        except:
+                        if not(resp2.values[0].startswith("lvl_")):
+                            resp3 = int(resp2.values[0])
+                            tablStuff = [ally.weapon]+ally.skills+ally.stuff
                             try:
-                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
+                                await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
                             except:
-                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                                try:
+                                    await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
+                                except:
+                                    await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                        else:
+                            lvl = int(resp2.values[0][4:])
                     except:
                         await tempMachin.delete()
+                        print_exc()
                         break
 
             elif value in [6,7]:

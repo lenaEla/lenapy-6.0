@@ -16,12 +16,15 @@ aspirationMenu = create_select(
         create_select_option("Poids Plume",value="2",emoji=getEmojiObject(aspiEmoji[2]),description="Mêlée - Coups critiques - Esquives"),
         create_select_option("Idole",value="3",emoji=getEmojiObject(aspiEmoji[3]),description="Distance - Support"),
         create_select_option("Prévoyant",value="4",emoji=getEmojiObject(aspiEmoji[4]),description="Distance - Armure"),
-        create_select_option("Tête Brulée",value="5",emoji=getEmojiObject(aspiEmoji[5]),description="Neutre - Dégâts"),
-        create_select_option("Mage",value="6",emoji=getEmojiObject(aspiEmoji[6]),description="Distance - Compétences à chargements"),
+        create_select_option("Tête Brulée",value="5",emoji=getEmojiObject(aspiEmoji[5]),description="Mêlée - Réduction de la vitalité"),
+        create_select_option("Mage",value="6",emoji=getEmojiObject(aspiEmoji[6]),description="Distance - Ultimes"),
         create_select_option("Altruiste",value="7",emoji=getEmojiObject(aspiEmoji[7]),description="Distance - Soins"),
-        create_select_option("Invocateur",value="8",emoji=getEmojiObject(aspiEmoji[8]),description="Neutre - Versatilité"),
-        create_select_option("Enchanteur",value="9",emoji=getEmojiObject(aspiEmoji[9]),description="Mêlée - Dégâts - Boost sur dégâts reçus"),
-        create_select_option("Protecteur",value="10",emoji=getEmojiObject(aspiEmoji[10]),description="Mêlée - Support - Entrave sur dégâts reçus"),
+        create_select_option("Enchanteur",value="8",emoji=getEmojiObject(aspiEmoji[8]),description="Mêlée - Dégâts Magiques"),
+        create_select_option("Protecteur",value="9",emoji=getEmojiObject(aspiEmoji[9]),description="Mêlée - Armures"),
+        create_select_option("Vigilant",value="10",emoji=getEmojiObject(aspiEmoji[10]),description="Mêlée - Soins"),
+        create_select_option("Sorcier",value="11",emoji=getEmojiObject(aspiEmoji[11]),description="Distance - Dégâts indirects"),
+        create_select_option("Innovateur",value="12",emoji=getEmojiObject(aspiEmoji[12]),description="Distance - Support"),
+        create_select_option("Attentif",value="13",emoji=getEmojiObject(aspiEmoji[13]),description="Distance - Dégâts"),
         ],
     placeholder="Sélectionnez une aspiration pour avoir plus d'informations dessus"
     )
@@ -45,7 +48,7 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
     while not(choosed):
         action = create_actionrow(aspirationMenu)
         await msg.clear_reactions()
-        await msg.edit(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
+        await msg.edit(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Enchanteur\n- Protecteur\n- Vigilant\n- Sorcier\n- Innovateur\n- Attentif\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
 
         def check(m):
             return m.author_id == ctx.author.id and m.origin_message.id == msg.id
@@ -60,7 +63,7 @@ async def chooseAspiration(bot : discord.client, msg : discord.message,ctx : dis
         if haveReaction:
             action = create_actionrow(aspirationMenuD)
             await msg.edit(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : Aspiration",color = user.color,description = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les 11 aspirations qui sont :\n\n- Berserkeur\n- Observateur\n- Poids Plume\n- Idole\n- Prévoyant\n- Tête Brulée\n- Mage\n- Altruiste\n- Invocateur\n- Enchanteur\n- Protecteur\n\nL'aspiration déterminera les statistiques de départ et leurs maximums de votre personnage."),components = [action])
-            inspiDesc = [manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],manPage14[1],manPage15[1],manPage16[1],manPage17[1],manPage18[1],manPage19[1]]
+            inspiDesc = [manPage9[1],manPage10[1],manPage11[1],manPage12[1],manPage13[1],manPage14[1],manPage15[1],manPage16[1],manPage18[1],manPage19[1],manPage25[1],manPage26[1],manPage27[1],manPage28[1]]
 
             msg2 = await respond.send(embed = discord.Embed(title = "__Changement d'Aspiration__" + " : "+inspi[int(respond.values[0])],color = user.color,description = f"{inspiDesc[int(respond.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"))
 

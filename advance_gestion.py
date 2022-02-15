@@ -1,14 +1,21 @@
-import os,discord,emoji,copy,requests,io
-from async_timeout import asyncio
-from typing import List
-from classes import *
-from gestion import *
-from adv import *
-from discord_slash.utils.manage_components import *
-from commands_files.alice_stats_endler import *
-from PIL import Image, ImageColor, ImageOps
-from data.database import *
+import copy
+import io
+import os
 from sys import maxsize
+from typing import List
+
+import discord
+from discord_slash.utils.manage_components import create_actionrow, create_select, create_select_option, create_button
+import requests
+from async_timeout import asyncio
+from PIL import Image, ImageColor, ImageOps
+
+import emoji
+from adv import *
+from classes import *
+from commands_files.alice_stats_endler import *
+from data.database import *
+from gestion import *
 
 stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
@@ -558,7 +565,8 @@ def infoSkill(skill : skill, user : char,ctx):
         temp += "\nLes dégâts de cette compétence ne sont pas affectés par la réduction de dégâts de zone"
     if skil.lifeSteal > 0:
         temp += "\nCette compétence soigne son lanceur de l'équivalent de **{0}%** des dégâts infligés".format(skil.lifeSteal)
-
+    if skil.erosion != 0:
+        temp += "\nCette compétence réduit les PV maximums de la cible de l'équivalent de **{0}%** des dégâts infligés".format(skil.erosion)
     temp2 =""
     if skil.tpCac:
         temp2+="\n__Téléportation :__\nCette compétence téléporte le lanceur au corps à corps de la cible\n> - Si aucune case n'est libre, le lanceur subit des dégâts indirects Harmonie\n"
@@ -835,9 +843,8 @@ def userMajStats(user : char, tabl : list):
 def restats(user : char):
     """Function for restat a user"""
     stats = user.allStats()
-    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
     for a in range(0,len(stats)):
-        stats[a] = round(allMax[a][user.aspiration]*0.1+allMax[a][user.aspiration]*0.9*user.level/50)
+        stats[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*user.level/50)
 
     user.points = user.level
     user.majorPointsCount = user.stars
@@ -849,9 +856,8 @@ def restats(user : char):
 def silentRestats(user : char):
     """Function for restat a user without reset the bonus points"""
     stats = user.allStats()
-    allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
     for a in range(0,len(stats)):
-        stats[a] = round(allMax[a][user.aspiration]*0.1+allMax[a][user.aspiration]*0.9*user.level/50)+user.bonusPoints[a]
+        stats[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*user.level/50)+user.bonusPoints[a]
 
     return userMajStats(user,stats)
 
@@ -871,11 +877,10 @@ async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Messag
 
         temp = user.allStats()
         up = [0,0,0,0,0,0,0]
-        tabl = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
         stats = user.allStats()
         for a in range(0,len(stats)):
-            stats[a] = round(tabl[a][user.aspiration]*0.1+tabl[a][user.aspiration]*0.9*user.level/50+user.bonusPoints[a])
-            temp[a] = round(tabl[a][user.aspiration]*0.1+tabl[a][user.aspiration]*0.9*(user.level+1)/50+user.bonusPoints[a])
+            stats[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*user.level/50+user.bonusPoints[a])
+            temp[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*(user.level+1)/50+user.bonusPoints[a])
             up[a] = temp[a]-stats[a]
 
         user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
@@ -963,7 +968,7 @@ async def downloadAllHeadGearPng(bot : discord.Client, msg = None, lastTime = No
 
         if msg != None:
             cmpt += 1
-            now = datetime.datetime.now().second
+            now = datetime.now().second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
                 await msg.edit(embed = discord.Embed(title="l!admin resetCustomEmoji",description="Téléchargement des images d'accessoires ({0}%)".format(round(cmpt/num*100,1))))
@@ -1004,7 +1009,7 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
 
         if msg != None:
             cmpt += 1
-            now = datetime.datetime.now().second
+            now = datetime.now().second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
                 await msg.edit(embed = discord.Embed(title="l!admin resetCustomEmoji",description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100,1))))
@@ -1038,7 +1043,7 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
 
         if msg != None:
             cmpt += 1
-            now = datetime.datetime.now().second
+            now = datetime.now().second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
                 await msg.edit(embed = discord.Embed(title="l!admin resetCustomEmoji",description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100,1))))
@@ -1459,24 +1464,24 @@ def infoAllie(allie : tmpAllie):
     if allie.variant:
         var = "Cet allié temporaire est une variante d'un autre allié temporaire\n\n"
     rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]} ({elemEmojis[allie.secElement]} {elemNames[allie.secElement]})\n__Description :__\n{allie.description}"
-    allMaxStats, accStats, dressStats, flatsStats = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie],allie.stuff[0].allStats(),allie.stuff[1].allStats(),allie.stuff[2].allStats()
+    allMaxStats, accStats, dressStats, flatsStats, statsWeapon = allie.allStats(),allie.stuff[0].allStats(),allie.stuff[1].allStats(),allie.stuff[2].allStats(), allie.weapon.allStats()
     stats = ""
     for a in range(0,len(allMaxStats)):
-        temp,tempi = allMaxStats[a][allie.aspiration],accStats[a]+dressStats[a]+flatsStats[a]
-        stats += f"__{nameStats[a]}__ : {temp} ({tempi})\n"
+        tempi = accStats[a]+dressStats[a]+flatsStats[a]+statsWeapon[a]
+        stats += f"__{nameStats[a]}__ : {allMaxStats[a]} ({tempi})\n"
 
     stats2 = ""
     accStats = [allie.stuff[0].resistance,allie.stuff[0].percing,allie.stuff[0].critical]
     dressStats = [allie.stuff[1].resistance,allie.stuff[1].percing,allie.stuff[1].critical]
     flatsStats = [allie.stuff[2].resistance,allie.stuff[2].percing,allie.stuff[2].critical]
+    weaponStats = [allie.weapon.resistance,allie.weapon.percing,allie.weapon.critical]
     statsPlusName = nameStats2
     for num in range(3):
-        summation = accStats[num] + dressStats[num] + flatsStats[num]
+        summation = accStats[num] + dressStats[num] + flatsStats[num] + weaponStats[num]
         if summation > 0:
             stats2 += f"__{statsPlusName[num]}__ : +{summation}\n"
         else:
             stats2 += f"__{statsPlusName[num]}__ : {summation}\n"
-
 
     accStats = [allie.stuff[0].negativeHeal,allie.stuff[0].negativeBoost,allie.stuff[0].negativeShield,allie.stuff[0].negativeDirect,allie.stuff[0].negativeIndirect]
     dressStats = [allie.stuff[1].negativeHeal,allie.stuff[1].negativeBoost,allie.stuff[1].negativeShield,allie.stuff[1].negativeDirect,allie.stuff[1].negativeIndirect]
@@ -1499,7 +1504,7 @@ def infoAllie(allie : tmpAllie):
     rep += f"\n\n__**Equipement :**__\n__Accessoire__ : {allie.stuff[0].emoji} {allie.stuff[0].name}\n__Vêtements__ : {allie.stuff[1].emoji} {allie.stuff[1].name}\n__Chaussures__ : {allie.stuff[2].emoji} {allie.stuff[2].name}"
 
     embed = discord.Embed(title="__Allié temporaire : "+allie.name+"__",color=allie.color,description=rep+"\n<:empty:866459463568850954>")
-    embed.add_field(name="__**Statistiques au niveau 50 :**__",value=stats)
+    embed.add_field(name="__**Statistiques au niveau {0} :**__".format(allie.level),value=stats)
     embed.add_field(name="__**Statistiques secondaires :**__",value=stats2)
     if allie.icon[1] == "a":
         embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(allie.icon)["id"]))
@@ -1527,20 +1532,6 @@ def infoAllie(allie : tmpAllie):
                 ses,s = "ses","s"
             temp += "À partir du niveau {3}, cet allié temporaire a {0}% de chance de voir {4} compétence{5} suivante{5} :\n{1}\nremplacé{5} par :\n{2}\n".format(changeDictCell["proba"],changeSkill,toSkill,changeDictCell["level"],ses,s)
         embed.add_field(name="<:empty:866459463568850954>\n__Variations aléatoires :__",value=temp,inline=False)
-
-    if allie.unlock == None:
-        embed.add_field(name = "<:empty:866459463568850954>\n__Aventure : Condition d'utilisation__",value="Vous pouvez rajouter cet allié temporaire à votre escouade dès le début")
-    elif allie.unlock != False:
-        tempTabl, temp = [], ""
-        for letter in allie.unlock+"|":
-            if letter == "|":
-                tempTabl.append(temp)
-                temp = ""
-            else:
-                temp.append(letter)
-        embed.add_field(name = "<:empty:866459463568850954>\n__Aventure : Condition d'utilisation__",value="Cet allié temporaire ne peut être ajouté à votre escouade qu'après la mission \"{0} - {1}\"".format(tempTabl[0],tempTabl[1]))
-    else:
-        embed.add_field(name = "<:empty:866459463568850954>\n__Aventure : Condition d'utilisation__",value="Cet allié temporaire ne peut être ajouté à votre escouade")
 
     return embed
 

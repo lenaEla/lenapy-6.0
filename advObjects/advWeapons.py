@@ -95,7 +95,8 @@ cardPre = effect("Le tronc résistant",'PreCard',CHARISMA,intelligence=10,emoji=
 cardIdo = effect("L'aiguilère attentionée",'IdoCard',CHARISMA,charisma=7,intelligence=7,emoji='<:aiguilere:932399946659921990>')
 cardPro = effect("L'aiguilère ponctuelle",'ProCard',CHARISMA,resistance=7,intelligence=7,emoji='<:aiguilere:932399946659921990>')
 cardInv = effect("L'épieu versatil",'InvCard',CHARISMA,charisma=3,intelligence=3,strength=3,magie=3,emoji='<:epieu:932399920873357382>')
-cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardInv,cardEnch,cardPro]
+cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardEnch,cardPro,cardInv,cardInv,cardInv,cardInv]
+
 astroGlobe = weapon("Globe céleste",'cy',RANGE_LONG,AREA_CIRCLE_5,40,80,1,charisma=7,intelligence=7,endurance=1,effect=cardsDeck,use=CHARISMA,emoji='<:globe:932399865110093884>')
 infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,strength=5,agility=10,effect=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
 infLightSword = weapon("Épée de la Lueur Éternelle","cx",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,resistance=5,charisma=10,effect=shareTabl[2],use=CHARISMA,emoji='<:lumSword:926874664175816735>')
@@ -125,7 +126,7 @@ miltrilPlanisftEffBuff.power, miltrilPlanisftEffBuff.stat = 3.5, INTELLIGENCE
 miltrilPlanisftEffDebuff = copy.deepcopy(dmgDown)
 miltrilPlanisftEffDebuff.power, miltrilPlanisftEffDebuff.stat = 3.5, INTELLIGENCE
 miltrilPlanisftEff = effect("Deck de cartes II","mitrilPlanisphereEff",INTELLIGENCE,turnInit=-1,unclearable=True,emoji='<:deck:932400761176981605>',description="À chaque début de tour, augmente les dégâts infligés d'un allié ou diminue ceux d'un ennemi de  **3,5%**, affecté par les statistiques\n\n__Empêhce l'utilisation de l'arme principale")
-miltrilPlanisphere = weapon("Planisphère en mitril", 'dk', RANGE_LONG, AREA_CIRCLE_5, 40, 80, 1, charisma=7, intelligence=7,endurance=1, effect=miltrilPlanisftEff, use=INTELLIGENCE, emoji='<:planisMitrill:938379244856291388>')
+miltrilPlanisphere = weapon("Planisphère en mithril", 'dk', RANGE_LONG, AREA_CIRCLE_5, 40, 80, 1, charisma=7, intelligence=7,endurance=1, effect=miltrilPlanisftEff, use=INTELLIGENCE, emoji='<:planisMitrill:938379244856291388>')
 
 # Weapon
 weapons = [magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,

@@ -176,9 +176,9 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
     else:
         while 1:
             elemEmbed = discord.Embed(title="__Éléments__",color=user.color,description="Les éléments renforcent la spécialisation d'un personnage en augmentant les dégâts qu'il fait suivant certaines conditions définie par l'élément choisi\nLes équipements peuvent également avoir des éléments. Avoir des équipements du même élément que soit accroie un peu leurs statistiques\n")
-            elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément principal actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.element],elemEmojis[user.element]),value=elemDesc[user.element].replace("Passif Élément principal :","**Passif Élément principal :**").replace('Passif Élément secondaire :','`Passif Élément secondaire :`'), inline=False)
+            elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément principal actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.element],elemEmojis[user.element]),value=elemDesc[user.element]+"\n\n**__Passif principal :__\n"+elemMainPassifDesc[user.element]+"**", inline=False)
             if user.level >= 30:
-                elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément secondaire actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.secElement],elemEmojis[user.secElement]),value=elemDesc[user.secElement].replace("Passif Élément secondaire :","**Passif Élément secondaire :**").replace('Passif Élément principal :','`Passif Élément principal :`'), inline=False)
+                elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément secondaire actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.secElement],elemEmojis[user.secElement]),value=elemDesc[user.secElement]+"\n\n**__Passif secondaire :__\n"+elemMainPassifDesc[user.secElement]+"**", inline=False)
             else:
                 elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément secondaire actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.secElement],elemEmojis[user.secElement]),value="Vous pourrez changer d'élément secondaire une fois le __niveau 30__ atteint", inline=False)
 
@@ -191,7 +191,7 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
                 break
 
             resp = int(respond.values[0])
-            respEmb = discord.Embed(title = "__Élément : {0}__".format(elemNames[resp]),description = elemDesc[resp],color=user.color)
+            respEmb = discord.Embed(title = "__Élément : {0}__".format(elemNames[resp]),description = elemDesc[resp]+"\n\n__Passif principal :__\n"+elemMainPassifDesc[resp]+"\n\n__Passif secondaire__\n"+elemSecPassifDesc[resp],color=user.color)
 
             if resp not in [ELEMENT_LIGHT,ELEMENT_DARKNESS,ELEMENT_SPACE,ELEMENT_TIME]:
                 if user.have(elementalCristal) and user.level >= 10:
@@ -814,7 +814,8 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             if len(listUserProcure) > 0:
                 procurOptions = []
                 for a in listUserProcure:
-                    procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner))
+                    ilevel = (a.stuff[0].minLvl + a.stuff[1].minLvl + a.stuff[2].minLvl)//3
+                    procurOptions.append(create_select_option(a.name,"user_{0}".format(a.owner),getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner,description="Niveau {0}, Niv. Equip. {1}".format(a.level, ilevel)))
                 procurSelect = [create_actionrow(create_select(procurOptions))]
             else:
                 procurSelect = []

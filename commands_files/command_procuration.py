@@ -134,12 +134,12 @@ async def roulette(bot: discord.Client, ctx: discord.message, user: char):
         await msg.edit(embed=discord.Embed(title="__Roulette :__",color=light_blue,description=possibleGainList+"\n\n"+"__Découvrez ce que vous avez gagné :__\n"+hidden.replace("||","")),components=[])
     else:
         await msg.edit(embed= await getRandomStatsEmbed(bot,[user],text="Utilisation de tous vos jetons... (Reste encore {0} jetons)".format(aliceStatsDb.getUserJetons(user))),components=[])
-        now = datetime.datetime.now()
+        now = datetime.now()
         allGains, coinGain = [], 0
         while aliceStatsDb.getUserJetons(user) > 0:
-            if datetime.datetime.now() > now + datetime.timedelta(seconds=3):
+            if datetime.now() > now + timedelta(seconds=3):
                 await msg.edit(embed= await getRandomStatsEmbed(bot,[user],text="Utilisation de tous vos jetons... (Reste encore {0} jetons)".format(aliceStatsDb.getUserJetons(user))),components=[])
-                now = datetime.datetime.now()
+                now = datetime.now()
             user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
             aliceStatsDb.updateJetonsCount(user,-1)
             gettenShop = userShopPurcent(user)

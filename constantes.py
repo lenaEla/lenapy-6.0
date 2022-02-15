@@ -2,9 +2,10 @@
 Constants module.
 Here stand the first brick of the bot
 """
-from datetime import timedelta
+from datetime import timedelta, datetime
 import os
 from index import *
+from discord_slash.utils.manage_components import *
 
 # Constantes :
 # Area of effects
@@ -118,19 +119,19 @@ ACT_DIRECT = 3
 ACT_INDIRECT = 4
 
 AUTO_POWER = "autoPower"
-nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité",
-                         "Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
+nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité","Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
 allStatsNames = nameStats+nameStats2
 
 # Status for entities
 STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED, STATUS_TRUE_DEATH = 0, 1, 2, 3
 
 # Aspirations
-BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, INVOCATEUR, ENCHANTEUR, PROTECTEUR = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant",
-         "Tête brulée", "Mage", "Altruiste", "Invocateur", "Enchanteur", "Protecteur"]
-aspiEmoji = ['<:berk:915376153580167209>', '<:obs:903136012975357952>', '<:poi:909548928045842462>', '<:ido:909549029027880992>', '<:pre:910185501535903775>',
-             '<:tet:903136049834889317>', '<:mag:909549699160219659>', '<:alt:909549006680653824>', '<:inv:903136277380087850>', '<:enc:903136097553506314>', '<:pro:909549059059122176>']
+BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, ENCHANTEUR, PROTECTEUR, VIGILANT, SORCELER, INOVATEUR, ATTENTIF, ASPI_NEUTRAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant","Tête brulée", "Mage", "Altruiste", "Enchanteur", "Protecteur","Vigilant","Sorcier","Inovateur","Attentif", "Neutre"]
+aspiEmoji = ['<:berk:915376153580167209>', '<:obs:903136012975357952>', '<:poi:909548928045842462>', '<:ido:909549029027880992>', '<:pre:910185501535903775>','<:tet:903136049834889317>', '<:mag:909549699160219659>', '<:alt:909549006680653824>', '<:enc:903136097553506314>', '<:pro:909549059059122176>','<:vigil:939209910019829810>','<:sorc:939209891510378598>']
+
+while len(aspiEmoji) < len(inspi):
+    aspiEmoji.append('<a:menacing:917007335220711434>')
 
 BERS_LIFE_STEAL = 20
 
@@ -152,103 +153,45 @@ colorChoice = ["Rouge", "Orange", "Jaune", "Vert",
 
 # Aspiration's max stats
 # Refert to Aspiration's constants value
-maxStrength = [
-    70,  # Ber
-    70,  # Obs
-    50,  # Poi
-    15,  # Ido
-    25,  # Eru
-    55,  # Tet
-    25,  # Mag
-    15,  # Alt
-    50,  # Ave
-    25,  # Enc
-    15  # Pro
-]
-maxEndur = [
-    40,  # Ber
-    10,  # Obs
-    40,  # Poi
-    15,  # Ido
-    35,  # Eru
-    45,  # Tet
-    15,  # Mag
-    40,  # Alt
-    20,  # Ave
-    60,  # Enc
-    60  # Pro
-]
-maxChar = [
-    30,  # Ber
-    45,  # Obs
-    25,  # Poi
-    70,  # Ido
-    35,  # Eru
-    25,  # Tet
-    40,  # Mag
-    85,  # Alt
-    50,  # Ave
-    30,  # Enc
-    60  # Pro
-]
-maxAgi = [
-    45,  # Ber
-    35,  # Obs
-    75,  # Poi
-    40,  # Ido
-    35,  # Eru
-    35,  # Tet
-    20,  # Mag
-    45,  # Alt
-    25,  # Ave
-    50,  # Enc
-    35  # Pro
-]
-maxPreci = [
-    45,  # Ber
-    60,  # Obs
-    35,  # Poi
-    35,  # Ido
-    35,  # Eru
-    25,  # Tet
-    50,  # Mag
-    20,  # Alt
-    30,  # Ave
-    25,  # Enc
-    15  # Pro
-]
-maxIntel = [
-    25,  # Ber
-    20,  # Obs
-    10,  # Poi
-    70,  # Ido
-    75,  # Eru
-    35,  # Tet
-    40,  # Mag
-    45,  # Alt
-    50,  # Ave
-    10,  # Enc
-    60  # Pro
-]
-maxMagie = [
-    20,  # Ber
-    35,  # Obs
-    40,  # Poi
-    30,  # Ido
-    35,  # Eru
-    55,  # Tet
-    85,  # Mag
-    25,  # Alt
-    50,  # Ave
-    75,  # Enc
-    30  # Pro
+
+aspiStats = [
+    # Berserk
+    [70,60,30,35,35,25,20],
+    # Observateur
+    [70,10,45,35,60,20,35],
+    # Poids Plume
+    [50,40,25,75,35,10,40],
+    # Idole
+    [25,25,70,40,35,40,40],
+    # Prévoyant
+    [25,35,35,35,35,75,35],
+    #Tête Brulée
+    [55,45,25,35,25,35,55],
+    # Mage
+    [25,15,40,20,50,40,85],
+    # Altruise
+    [15,40,85,45,20,45,25],
+    # Enchanteur
+    [25,60,30,50,25,10,75],
+    # Protecteur
+    [15,60,45,35,15,75,30],
+    # Vigilant
+    [15,60,70,35,35,35,25],
+    # Sorcier
+    [20,35,35,35,20,50,80],
+    # Inovateur
+    [20,35,40,35,35,70,40],
+    # Attentif
+    [60,25,30,25,60,40,35],
+    # Neutre
+    [40,39,39,39,39,40,39]
 ]
 
 for a in range(0, len(inspi)):                           # Aspi base stats verification
     summation = 0
-    for b in (maxStrength, maxEndur, maxChar, maxAgi, maxPreci, maxIntel, maxMagie):
+    for b in range(7):
         try:
-            summation += b[a]
+            summation += aspiStats[a][b]
         except:
             pass
 
@@ -272,32 +215,42 @@ ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
 ELEMENT_UNIVERSALIS_PREMO = 9
 
-elemEmojis = ["<:neutral:921127224596385802>", "<:fire:918212781168275456>", "<:water:918212797320536124>", "<:air:918592529480446002>", "<:earth:918212824805801984>",
-              "<:light:918212861757653053>", "<:darkness:918212877419175946>", '<:space:918212897967075329>', '<:time:918212912408051814>', "<:univ:936302039456165898>"]
-secElemEmojis = ["<:empty:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>",
-                 "<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
+elemEmojis = ["<:neutral:921127224596385802>", "<:fire:918212781168275456>", "<:water:918212797320536124>", "<:air:918592529480446002>", "<:earth:918212824805801984>","<:light:918212861757653053>", "<:darkness:918212877419175946>", '<:space:918212897967075329>', '<:time:918212912408051814>', "<:univ:936302039456165898>"]
+secElemEmojis = ["<:empty:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>","<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
 elemDesc = [
-    "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(
-        elemEmojis[0]),
-    "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.\n\n__Passif Élément principal :__\nPénétration : + 5\nDégâts zones et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nSoins donnés et reçus : +5%\nArmures données et reçues : -5%".format(
-        elemEmojis[1]),
-    "L'élément Eau ({0}) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.\n\n__Passif Élément principal :__\nPrécision : + 10\nDégâts monocible et distance simultanément : +10%\n\n__Passif Élément Secondaire :__\nArmures données et reçues : +5%\nSoins données et reçus : -5%".format(
-        elemEmojis[2]),
-    "L'élément Air ({0}) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.\n\n__Passif Élément principal :__\nAgilité : + 10\nDégâts zones et mêlée simultanément : +10%\n\n__Passif Élément Secondaire :__\nPuissance des bonus et malus données et reçus : +5%".format(
-        elemEmojis[3]),
-    "L'élément Terre ({0}) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.\n\n__Passif Élément principal :__\nRésistance : + 5\nDégâts monocible et mêlée simultanément : +10%\n\n__Passif Élément secondaire :__\nDégâts sur Armure infligés et reçus : +5%".format(
-        elemEmojis[4]),
-    "L'élément Lumière ({0}) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.\n\n__Passif Élément principal :__\nSoins et armures : +10%\n\n__Passif Élément secondaire :__\nDégâts directs infligés et reçus : +5%".format(
-        elemEmojis[5]),
-    "L'élément Ténèbre ({0}) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.\n\n__Passif Élément principal :__\nDégâts indirects : + 10%\n\n__Passif Élément secondaire :__\nDégâts directs infligés et reçus : -5%".format(
-        elemEmojis[6]),
-    "L'élément Astral ({0}) utilise la puissance cosmique à son aventage. Car rien ne se perd, rien ne se créait, tout se transforme\n\n__Passif Élément principal :__\n15% des dégâts reçu sont reconverties en <:astralShield:907467906483367936> Armure Astrale (après les dégâts)\n\n__Passif Élément secondaire :__\nDégâts directs de zone infligées et reçus : +5%".format(
-        elemEmojis[7]),
-    "L'élément Temporel ({0}) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue\n\n__Passif Élément principal :__\nAugmente la durée des effets de soins indirects et armure de 1 tour\n\n__Passif Élément secondaire :__\nDégâts directs monocibles infligés et reçus : +5%".format(
-        elemEmojis[8])
+    "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(elemEmojis[0]),
+    "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.".format(elemEmojis[1]),
+    "L'élément Eau ({0}) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.".format(elemEmojis[2]),
+    "L'élément Air ({0}) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.".format(elemEmojis[3]),
+    "L'élément Terre ({0}) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.".format(elemEmojis[4]),
+    "L'élément Lumière ({0}) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.".format(elemEmojis[5]),
+    "L'élément Ténèbre ({0}) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.".format(elemEmojis[6]),
+    "L'élément Astral ({0}) utilise la puissance cosmique à son aventage. Car rien ne se perd, rien ne se créait, tout se transforme.".format(elemEmojis[7]),
+    "L'élément Temporel ({0}) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue.".format(elemEmojis[8])
 ]
-elemNames = ["Neutre", "Feu", "Eau", "Air", "Terre", "Lumière",
-             "Ténèbre", "Astral", "Temporel", "Universalis Premera"]
+elemNames = ["Neutre", "Feu", "Eau", "Air", "Terre", "Lumière","Ténèbre", "Astral", "Temporel", "Universalis Premera"]
+
+elemMainPassifDesc = [
+    "Pénétration : + 5\nDégâts zones et distance simultanément : +10%",
+    "Précision : + 10\nDégâts monocible et distance simultanément : +10%",
+    "Agilité : + 10\nDégâts zones et mêlée simultanément : +10%",
+    "Résistance : + 5\nDégâts monocible et mêlée simultanément : +10%",
+    "Soins et armures : +10%",
+    "Dégâts indirects : + 10%",
+    "Puissance des boosts et malus donnés : +10%\nPuissance des boost reçu d'autrui : +5%\nPuissance des malus reçus d'autrui : -5%",
+    "Puissance des effets de soins indirects : +20%"
+]
+
+elemSecPassifDesc = [
+    "Soins donnés et reçus : +5%\nArmures données et reçues : -5%",
+    "Armures données et reçues : +5%\nSoins données et reçus : -5%",
+    "Puissance des bonus et malus données et reçus : +5%",
+    "Dégâts sur Armure infligés et reçus : +5%",
+    "Dégâts directs infligés et reçus : +5%",
+    "Dégâts directs infligés et reçus : -5%",
+    "Dégâts directs de zone infligées et reçus : +5%",
+    "Dégâts directs monocibles infligés et reçus : +5%"
+]
 
 # AoE stuff
 AOEDAMAGEREDUCTION = 0.35
@@ -307,10 +260,8 @@ AOEMINDAMAGE = 0.2
 def uniqueEmoji(emoji):
     return [[emoji, emoji], [emoji, emoji], [emoji, emoji]]
 
-
 def sameSpeciesEmoji(team1, team2):
     return [[team1, team2], [team1, team2], [team1, team2]]
-
 
 dangerEm = sameSpeciesEmoji(
     '<a:dangerB:898372745023336448>', '<a:dangerR:898372723150041139>')
@@ -320,10 +271,8 @@ untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218, 881633183425253396]
 
-stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,
-                   908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624]
-weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434,
-                    887846876114739261, 916120008948600872, 911731670972002374]
+stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624]
+weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434,938379180851212310,887846876114739261, 916120008948600872, 911731670972002374]
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):
@@ -392,23 +341,37 @@ shopEventEndYears = [
     "{shihu} : \"Mmg pourquoi il y a tout qui brille en ce moment... j'y vois rien...\"",
     "{icelia} : \"Vous avez prévu un truc pour cette fin d'année, vous ?\"\n{shehisa} : \"Oh on comptait juste aller voir nos parents, ça fais un moment qu'on n'est pas allé leur faire un coucou",
     "{sixtine} : \"Mais puisque je te dis que ce pull me va très bien...\"\n{alice} : \"Alleeeeez :<\"",
-    "{alice} : `Regarde les babies roses à ruban que lui a offert Iliana` ...\n{sixtine} : \"Elle veut juste devenir ton amie... tu sais..."
+    "{alice} : `Regarde les babies roses à ruban que lui a offert Iliana` ...\n{sixtine} : \"Elle veut juste devenir ton amie... tu sais...",
 ]
 
-shopEventLenaBday = [
-    "{shushi} : \"Joyeux naniversaire Miman !\" `Lui donne un joli dessin fait avec Sixtine`\n{lena} : \"Oh ^^ Merci Shu'\"",
-    "{lena} : \"Hé Léna ! J'ai le droit à un jour de congé pour mon anniversaire ?\"\nC'est pas comme si tu étais un OC super occupée...",
-    "{feli} : \"Joyeux anniversaire Maraine ^°^\"\n{lena} : \"Merci Féli ^^\"",
-    "{lena} : \"Le temps passe mine de rien... Et c'est pas parceque je n'ai pas de forme physique que je ne le ressent pas\"\nSi je peux me permettre, tu as quand même grandit depuis ton premier chara-desing\n{lena} : \"Tu me fais toujours de la même taille qu'Alice par contre.\"",
-    "{lena} : `Regarde Shushi courir après des ballons de baudruche` \"Parfois je me demande à quoi ressemble une vraie enfance...\"\nTu n'en a pas eu une super désagréable pourtant\n{lena} : `Soupir` \"Tu sais très bien que la seule enfance que j'ai ce sont les souvenirs que tu m'en a donné\"",
-    "{lena} : \"J'aurais pensé que tu te ferais plus présente aujourd'hui tout de même. Techniquement, c'est ton anniversaie aussi\"\n{luna} : \"Je comprend pas vraiment ce délire des \"anniversaires\"\""
+shopEventOneDay = [
+    {"date":(19,1),
+    "tabl":[
+        "{shushi} : \"Joyeux naniversaire Miman !\" `Lui donne un joli dessin fait avec Sixtine`\n{lena} : \"Oh ^^ Merci Shu'\"",
+        "{lena} : \"Hé Léna ! J'ai le droit à un jour de congé pour mon anniversaire ?\"\nC'est pas comme si tu étais un OC super occupée...",
+        "{feli} : \"Joyeux anniversaire Maraine ^°^\"\n{lena} : \"Merci Féli ^^\"",
+        "{lena} : \"Le temps passe mine de rien... Et c'est pas parceque je n'ai pas de forme physique que je ne le ressent pas\"\nSi je peux me permettre, tu as quand même grandit depuis ton premier chara-desing\n{lena} : \"Tu me fais toujours de la même taille qu'Alice par contre.\"",
+        "{lena} : `Regarde Shushi courir après des ballons de baudruche` \"Parfois je me demande à quoi ressemble une vraie enfance...\"\nTu n'en a pas eu une super désagréable pourtant\n{lena} : `Soupir` \"Tu sais très bien que la seule enfance que j'ai ce sont les souvenirs que tu m'en a donné\"",
+        "{lena} : \"J'aurais pensé que tu te ferais plus présente aujourd'hui tout de même. Techniquement, c'est ton anniversaie aussi\"\n{luna} : \"Je comprend pas vraiment ce délire des \"anniversaires\"\""
+    ]
+    },
+    {"date":(14,2),
+    "tabl":[
+        "{lena} : `Soupir` \"Je dirais pas non à un petit chocolat chaud aujourd'hui...\"",
+        "{clemence} : \"Alors Alice, prête à être la boureau des coeurs du colège ?\"\n{alice} : \"Si tu crois que ça m'amuse...\"",
+        "{lena} : `Regarde Ly dormir sous un arbre à l'aurée de la forêt` Je sais pas pourquoi je l'aurais pensé plus active aujourd'hui...",
+        "<:john:908887592756449311> : \"Hum... Clémence ? J'ai... des chocolats pour toi...\"\n{clemence} : \"Hum, désolée, mais je dirgère pas trop les chocolats ^^'\"\n{alice} : `Facepalm derrière le dos de la vampire`"
+    ]
+    },
+    {"date":(17,4),
+    "tabl":[
+        "{alice} : \"Hé Clémence :D Regarde tous les oeufs que j'ai trouvés !\"\n{clemence} : \"Effectivement c'est beaucoup\"",
+        "{sixtine} : \"Clémence... ? Hum... Tu veux partager un oeuf en chocolat... ?\"\n{clemence} : \"Désolée Sixtine... tu sais bien que je digère pas le chocolat...\"",
+        "{lena} : \"J'ai jamais compris pourquoi les gens cachent des oeufs en chocolat pour Pâques\"\n{luna} : \"Ça ne t'empêches pas de le faire quand même\"\n{lena} : \"En même temps, même toi tu ne peux pas être insensibles à toutes leurs bouilles heureuses\"\n{luna} : \"Évite de parler en mon nom s'il te plaît\""
+    ]
+    }
 ]
 
-shopEventPaques = [
-    "{alice} : \"Hé Clémence :D Regarde tous les oeufs que j'ai trouvés !\"\n{clemence} : \"Effectivement c'est beaucoup\"",
-    "{sixtine} : \"Clémence... ? Hum... Tu veux partager un oeuf en chocolat... ?\"\n{clemence} : \"Désolée Sixtine... tu sais bien que je digère pas le chocolat...\"",
-    "{lena} : \"J'ai jamais compris pourquoi les gens cachent des oeufs en chocolat pour Pâques\"\n{luna} : \"Ça ne t'empêches pas de le faire quand même\"\n{lena} : \"En même temps, même toi tu ne peux pas être insensibles à toutes leurs bouilles heureuses\"\n{luna} : \"Évite de parler en mon nom s'il te plaît\""
-]
 
 shopSeasonWinter = [
     "{clemence} : `Lit un grimoire en étant assise sur un fauteuil devant la cheminée`",
@@ -843,7 +806,6 @@ aliceExSays = says(
     bigRaise="Je y arriver probablement pas... S'il vous plaît..."
 )
 
-
 def createTmpChangeDict(level: int, changeWhat: int, change: list, to: list, proba=100):
     """ChangeWhat : 0 == skills"""
     if len(change) != len(to):
@@ -867,7 +829,6 @@ limitBeakGif = [
     'https://cdn.discordapp.com/attachments/927195778517184534/932777330605178920/20220118_002344.gif',  # TBru
     'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif',  # Mage
     'https://cdn.discordapp.com/attachments/927195778517184534/932773655342104606/20220118_000858.gif',  # Alt
-    'https://cdn.discordapp.com/attachments/927195778517184534/932704180731265054/20220117_193200.gif',  # Inv
     'https://cdn.discordapp.com/attachments/927195778517184534/932773655732158525/20220118_000607.gif',  # Enc
     'https://cdn.discordapp.com/attachments/927195778517184534/932777330978488391/20220118_002225.gif'  # Pro
 ]

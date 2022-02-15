@@ -285,7 +285,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0):
         """rtfm"""
 
         self.name = name                                # Name of the skill
@@ -299,6 +299,7 @@ class skill:
         self.setAoEDamage:bool = setAoEDamge
         self.areaOnSelf = areaOnSelf
         self.lifeSteal:int = lifeSteal
+        self.erosion = erosion
         self.effectAroundCaster: Union[None,List[int]] = effectAroundCaster
         if needEffect == None or type(needEffect) == list:
             self.needEffect=needEffect
@@ -428,10 +429,39 @@ class skill:
             self.range = AREA_MONO
 
         if emoji == None:
-            if self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
-                self.emoji='<:defDamage:885899060488339456>'
+            if self.type in [TYPE_DAMAGE]:
+                if area == AREA_MONO:
+                    if use in [STRENGTH,PRECISION,AGILITY]:
+                        if cooldown >= 7 or ultimate:
+                            self.emoji='<:dUPM:943279319994728539>'
+                        else:
+                            self.emoji='<:dM:943275508492292138>'
+                    else:
+                        if cooldown >= 7 or ultimate:
+                            self.emoji='<:dUMM:943279280002060309>'
+                        else:
+                            self.emoji='<:dD:885899060488339456>'
+                else:
+                    if use in [STRENGTH,PRECISION,AGILITY]:
+                        if cooldown >= 7 or ultimate:
+                            self.emoji='<:dUZ:943279239573143612>'
+                        else:
+                            self.emoji='<:dZ:943275494802079804>'
+                    else:
+                        if cooldown >= 7 or ultimate:
+                            self.emoji='<:dUMZ:943279254991409232>'
+                        else:
+                            self.emoji="<:dZ:943266058024943656>"
+            elif self.type in [TYPE_INDIRECT_DAMAGE]:
+                self.emoji = '<:defIndi:943266043558768640>'
             elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
-                self.emoji='<:defHeal:885899034563313684>'
+                if area == AREA_MONO:
+                    if cooldown >= 7 or ultimate:
+                        self.emoji='<:defUltHeal:943279333869486110>'
+                    else:
+                        self.emoji='<:defHeal:885899034563313684>'
+                else:
+                    self.emoji="<:defHealZone:943266024155922433>"
             elif self.type in [TYPE_BOOST,TYPE_SUMMON]:
                 self.emoji='<:defSupp:885899082453880934>'
             elif self.type in [TYPE_ARMOR]:
@@ -699,8 +729,8 @@ for num in range(0,10):
     incur.append(incurTemp)
 
 vulne = effect("Dégâts subis augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:vulneB:933804144832184401>","<a:vulneR:933804163161260052>"),type=TYPE_MALUS,stackable=True)
-defenseUp = effect("Dégâts subis réduits","defenseUp",stackable=True,emoji=sameSpeciesEmoji('<a:defenseUpR:937849438045601904>','<a:defenseUpR:937849417275408454>'))
-dmgUp = effect("Dégâts infligés augmentés","dmgUp",stackable=True,emoji=sameSpeciesEmoji('<a:dmgUpB:937849381523177572>','<a:dmgUpR:937849400292692038>'))
+defenseUp = effect("Dégâts subis réduits","defenseUp",stackable=True,emoji=sameSpeciesEmoji('<a:defenseUpR:937849438045601904>','<a:defenseUpR:937849417275408454>'),description="Réduit les dégâts reçus d'une valeur égalant la puissance de l'effet\n\nSi plusieurs effets de réductions de dégâts reçus sont présents sur une même cible, seul le plus puissant est pris en compte")
+dmgUp = effect("Dégâts infligés augmentés","dmgUp",stackable=True,emoji=sameSpeciesEmoji('<a:dmgUpB:937849381523177572>','<a:dmgUpR:937849400292692038>'),description="Augmente les dégâts infligés d'une valeur égalant la puissance de l'effet\n\nSi plusieurs effets d'augmentation de dégâts infligés sont présents sur une même cible, seul le plus puissant est pris en compte")
 
 vulneTabl = []
 for num in range(0,10):
@@ -814,7 +844,7 @@ class octarien:
             exp:int,
             icon:str,
             skill:List[Union[skill,str,None]] =["0","0","0","0","0","0","0"],
-            aspiration:int=INVOCATEUR,
+            aspiration:int=ASPI_NEUTRAL,
             gender:int=GENDER_OTHER,
             description:str="",
             deadIcon:Union[str,None]=None,
@@ -1017,9 +1047,9 @@ class tmpAllie:
     def changeLevel(self,level=1):
         self.level = level
         stats = self.allStats()
-        allMax = [maxStrength,maxEndur,maxChar,maxAgi,maxPreci,maxIntel,maxMagie]
+
         for a in range(0,len(stats)):
-            stats[a] = round(allMax[a][self.aspiration]*0.1+allMax[a][self.aspiration]*0.9*self.level/50)
+            stats[a] = round(aspiStats[self.aspiration][a]*0.1+aspiStats[self.aspiration][a]*0.9*self.level/50)
 
         bPoints = level
         for a in self.bonusPoints:
@@ -1049,7 +1079,7 @@ class tmpAllie:
             self.element = ELEMENT_NEUTRAL
         elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
             self.element = random.randint(0,3)
-        
+
         if self.level < 30:
             self.secElement = ELEMENT_NEUTRAL
 

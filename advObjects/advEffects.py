@@ -111,7 +111,7 @@ extraEting.name, extraEting.id, extraEting.power, extraEting.emoji = "Marque Eti
 sixtineUltEff = effect("Douce nuit","sixtineUltEff",INTELLIGENCE,-10,-10,-10,-10,-10,-10,-10,-3,-3,-3,description="Le monde des rêves vous appelle...",type=TYPE_MALUS,reject=["mq"],emoji=sameSpeciesEmoji('<:snB:911735287351246929>','<:snR:911735275284230145>'))
 
 enchant = effect("Enchanté","enchantBuffEff",None,turnInit=-1,silent=True,type=TYPE_UNIQUE,unclearable=True,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji(aspiEmoji[ENCHANTEUR]))
-proMalus = effect("Protecteur - Malus","nb",HARMONIE,strength=-5,magie=-5,type=TYPE_MALUS,silent=True,emoji=uniqueEmoji('<:proMalus:903137298001047573>'),turnInit=2,stackable=False)
+proMalus = effect("Protecteur - Malus","nb",HARMONIE,strength=-5,magie=-5,type=TYPE_MALUS,silent=True,emoji=uniqueEmoji('<:proMalus:903137298001047573>'),stackable=False)
 astralShield = effect("Armure Astrale","astShield",type=TYPE_ARMOR,turnInit=99,emoji=uniqueEmoji('<:astralShield:907467906483367936>'),trigger=TRIGGER_DAMAGE,lightShield=True)
 timeShield = effect("Armure Temporelle","timeShield",type=TYPE_ARMOR,turnInit=99,emoji=uniqueEmoji('<:tempoShield:907467936975945758>'),trigger=TRIGGER_DAMAGE,lightShield=True)
 idoOHArmor = effect("Apothéose","idoOHArmor",overhealth=1,type=TYPE_ARMOR,turnInit=3,trigger=TRIGGER_DAMAGE,lightShield=True,emoji='<:idoOHArmor:909278702783836170>')

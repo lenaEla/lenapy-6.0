@@ -1,36 +1,40 @@
 ##########################################################
 # Importations :
 import asyncio
-from getpass import getuser
-import discord, random, os, emoji, datetime, sys, shutil
-from discord_slash.model import SlashCommandOptionType,ButtonStyle
+import datetime
+import os
+import random
+import shutil
+import sys
 
-from data.database import *
-from classes import *
+import discord
+from discord.ext import commands, tasks
+from discord_slash import *
+from discord_slash import SlashCommand
+from discord_slash.utils.manage_commands import create_choice, create_option
 
+import emoji
 from adv import *
-from donnes import *
-from gestion import *
 from advance_gestion import *
-
-from commands_files.command_encyclopedia import *
-from commands_files.command_fight import *
-from commands_files.command_inventory import *
-from commands_files.command_start import *
-from commands_files.command_procuration import *
-from commands_files.command_points import *
-from commands_files.command_shop import *
-from commands_files.sussess_endler import *
-from commands_files.command_patchnote import *
-from commands_files.command_help import *
-from commands_files.command_patchnote import *
+from classes import *
 from commands_files.alice_stats_endler import *
 from commands_files.command_duty import adventureDutySelect
+from commands_files.command_encyclopedia import *
 from commands_files.command_expedition import *
-from discord.ext import commands, tasks
-from discord_slash import SlashCommand
-from discord_slash.utils.manage_commands import create_option, create_choice
+from commands_files.command_fight import *
+from commands_files.command_help import *
+from commands_files.command_inventory import *
+from commands_files.command_patchnote import *
+from commands_files.command_points import *
+from commands_files.command_procuration import *
+from commands_files.command_shop import *
+from commands_files.command_start import *
+from commands_files.sussess_endler import *
 from data.bot_tokens import lenapy, shushipy
+from data.database import *
+from donnes import *
+from gestion import *
+from datetime import datetime
 
 ###########################################################
 # Initialisations des variables de bases :
@@ -54,6 +58,7 @@ existDir(absPath + "/data/backups/")
 
 if not(os.path.exists("./data/advScriptTxt/")):
     raise Exception("Missing folder error : advScriptTxt do not exist")
+
 for verif in allActs:
     if not(os.path.exists("./data/advScriptTxt/"+verif[0])):
         raise Exception("Missing folder error : {0} do not exist".format(verif[0]))
@@ -73,7 +78,7 @@ class shopClass:
     """The class who endle the shop\n
     Maybe I should shearch how it's writed...
     """
-    def __init__(self,shopList : list):
+    def __init__(self,shopList : list = []):
         """When inited, look for a existing shop data in the database and load it"""
         self.shopping = []
         summation = 0
@@ -308,7 +313,11 @@ async def inventoryVerif(bot,toVerif:Union[char,str]):
             pass
 
 bidule = stuffDB.getShop()
-shopping = shopClass(bidule["ShopListe"])
+if bidule != False:
+    shopping = shopClass(bidule["ShopListe"])
+else:
+    shopping = shopClass(False)
+    shopping.newShop()
 
 async def restart_program(bot : discord.Client, ctx=None):
     """If no teams are into a fight, restart the bot\n
@@ -549,9 +558,6 @@ async def hourClock():
     # Skill Verif
     for filename in os.listdir("./userProfile/"):
         await inventoryVerif(bot,filename)
-
-user = loadCharFile("./userProfile/213027252953284609.prof")
-userSettingsDb.updateUserSays(user)
 
 # -------------------------------------------- ON READY --------------------------------------------
 @bot.event
@@ -1269,7 +1275,7 @@ async def invent2(ctx,destination="Equipement",procuration=None,nom=None):
                         respond = await wait_for_component(bot,components=select,check=check,timeout=60)
                     except:
                         await msg.delete()
-                        to = True
+                        return 0
                         break
 
                     nom = respond.values[0]

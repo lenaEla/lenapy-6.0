@@ -35,19 +35,20 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             msg = await loadingSlashEmbed(ctx)
 
         shopTotalRandom = shopRandomMsg
-        
-        dateNow = datetime.datetime.now()
+
+        dateNow = datetime.now()
         years = dateNow.year
 
-        if dateNow > datetime.datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
+        if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
             shopTotalRandom += shopEventEndYears + shopEventEndYears
-        elif (dateNow.day,dateNow.month) == (19,1):
-            shopTotalRandom = shopEventLenaBday
-        elif dateNow > datetime.datetime.strptime("17/4/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.datetime.strptime("18/4/{0}".format(years),"%d/%m/%Y"):
-            shopTotalRandom = shopEventPaques
 
-        elif dateNow.month <= 2 or dateNow.month == 12:
+        if dateNow.month <= 2 or dateNow.month == 12:
             shopTotalRandom += shopSeasonWinter
+
+        for shopDict in shopEventOneDay:
+            if shopDict["date"] == (dateNow.day,dateNow.month):
+                shopTotalRandom = shopDict["tabl"]
+                break
 
         shopRdMsg = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)].format(
             ctx.author.name,
