@@ -44,6 +44,8 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
         if dateNow.month <= 2 or dateNow.month == 12:
             shopTotalRandom += shopSeasonWinter
+        elif dateNow.month <= 3:
+            shopTotalRandom += shopSeasonSpring
 
         for shopDict in shopEventOneDay:
             if shopDict["date"] == (dateNow.day,dateNow.month):

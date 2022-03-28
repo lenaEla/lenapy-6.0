@@ -30,8 +30,9 @@ aliceBatEarRing = other("Amulette chauve-souris","ql",350,invocBat.emoji,"Vous p
 birdup = other("Pigeon de compagnie","qm",350,'<:birdUp:930906195999473684>',"Vous permet de changer la forme de votre icone de personnage en Aviaire")
 Megalovania = other("Musique qui rentre dans la tête","qn",350,'<:lazyBones:930949502133747762>',"Vous permet de changer la forme de votre icone de personnage en Crâne")
 amary = other("Amaryllis",'qo',350,'<:amaryllis:935337538426642483>','Vous permet de changer la forme de votre icone en icone Féérique')
+autoPoint = other("Pair de Nheur'o'Nes",'qp',3500,description="Une fois cette object activé, chaque point bonus obtenus en montant de niveau est automatiquement attribué selon les statistiques recommandés pour votre aspiration\n\nNecessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
 
-others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary]
+others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint]
 
 previewDict = {
     ilianaGrelot.id:'https://cdn.discordapp.com/emojis/930806243461857301.png',
@@ -277,8 +278,8 @@ for obj in stuffs+weapons+skills+others:
                 what += whaty.name + ", "
         raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("Pendantif du papillon"))
-#print(seeAllStuffAtMinLvl(25))
+#print(seeSimilarStuffNameMinLvl("Armurier"))
+#print(seeAllStuffAtMinLvl(0))
 
 """for stuffy in stuffs:
     if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:

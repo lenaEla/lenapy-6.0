@@ -1,5 +1,6 @@
 from classes import *
 from constantes import *
+from advObjects.advSkills import tablElemEff
 
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
 roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,70,70,340,strength=10,endurance=10,resistance=10,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2,damageOnArmor=0.8)
@@ -26,7 +27,7 @@ legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIR
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,77,90,300,strength=20,resistance=10,emoji='<:ailSword:922696057350127697>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,50,80,150,taille=0,charisma=20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
 butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,32,100,250,taille=0,magie=15,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
-dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,65,85,500,strength=10,resistance=5,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL,effectOnUse=incur[2])
+dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,65,85,500,strength=10,resistance=5,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL,effect="lg")
 magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,80,70,200,endurance=10,charisma=10,resistance=10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
 lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,65,85,250,endurance=10,intelligence=10,resistance=10,emoji="<:lunarBonk:887347614448746516>",use=MAGIE,affinity=ELEMENT_LIGHT)
 rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,63,60,0,magie=5,strength=5,percing=5,use=MAGIE,emoji='<:clemWeap:915358467773063208>',effectOnUse="mx")
@@ -71,7 +72,7 @@ eternalInkWeapons = [eternalInkSword,eternalInkStick,eternalInkShield,eternalInk
 eternalInkWeaponIds = [eternalInkSword.id,eternalInkStick.id,eternalInkShield.id,eternalInkStaff.id,eternalInkWind.id,eternalInkScience.id,eternalInkBow.id]
 etInkBases = ["<:BaseinkEtSword:918071336994230302>","<:BaseinkEtDague:918169899170426960>","<:BaseinkEtShield:918169963624292392>","<:BaseinkEtStick:918170006649458741>","<:BaseinkEtFan:918170045111226438>","<:BaseinkEtGlove:918170092678815744>","<:BaseinkEtBow:918170130041671720>"]
 etInkLines = ["<:LineinkEtSword:918071323618607144>","<:LineinkEtDague:918169920951418890>","<:LineinkEtShield:918169983152975893>","<:LineinkEtStick:918170024370380841>","<:LineinkEtFan:918170074400055317>","<:LineinkEtGlove:918170114984124426>","<:LineinkEtBow:918170144499466300>"]
-purpleSecretEff = effect("Secretum purpureum prædictas","purpleSecrets",turnInit=-1,emoji=uniqueEmoji('<:sdf:919713870858317875>'),area=AREA_DONUT_2,description="Lorsqu'un adversaire meurt, s'il portait au moins 1 effet __Poison d'Estialba__ venant de votre part, une explosion **indirecte magique** dont la puissance dépend de celles de vos effets __Poison d'Estialba__ et de leur durée restante sur le porteur se produit\nTous les ennemis dans la zone d'effet reçoive un effet __Poison d'Estialba__ ayant une puissance équivalente à {0}% de celle de l'effet de base\n\n__Vous empèche d'utiliser votre arme principale !__",reject=['np',"ns","pacteDeSang","pacteD'âme"],power=25)
+purpleSecretEff = effect("Sec. pur. prædi.","purpleSecrets",turnInit=-1,emoji=uniqueEmoji('<:sdf:919713870858317875>'),area=AREA_DONUT_2,description="Lorsqu'un adversaire meurt, s'il portait au moins 1 effet __Poison d'Estialba__ venant de votre part, une explosion **indirecte magique** dont la puissance dépend de celles de vos effets __Poison d'Estialba__ et de leur durée restante sur le porteur se produit\nTous les ennemis dans la zone d'effet reçoive un effet __Poison d'Estialba__ ayant une puissance équivalente à {0}% de celle de l'effet de base\n\n__Vous empèche d'utiliser votre arme principale !__",reject=['np',"ns","pacteDeSang","pacteD'âme"],power=25)
 secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_3,30,100,750,emoji='<:sdf:919713870858317875>',magie=10,resistance=5,effect=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,ignoreAutoVerif=True)
 critBonusEff = effect("Bonus critique","scopeCritBonus",turnInit=-1,unclearable=True,emoji=sameSpeciesEmoji('<:critB:925763298346033193>','<:critR:925763310383677490>'),description="Augmente les dégâts de coup critique de 15% mais __empêche l'utilisation de votre arme principale__")
 ElitherScope = weapon("Extraceur Zoom +","cr",RANGE_LONG,AREA_CIRCLE_7,49,65,1,precision=15,effect=critBonusEff,emoji='<:elitherScope:925762142202921040>')
@@ -84,18 +85,19 @@ diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=25,emoji=sameSpec
 eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag)
 bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=15,effect=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True)
 cardsDeck = effect("Deck de cartes","astro",CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration :\n\n__Ber. :__ Force +5, Rési +5\n__Obs. :__ Force +5, Préci +5\n__P. Plume :__ Force +5, Agi +5\n__T. Brûlée :__ Force +5, Magie +5\n__Mage :__ Magie +5, Préci +5\n__Enc. :__ Magie +5, Rési +5\n__Idole :__ Charisme +5, Intel +5\n__Proc. :__ Intel +5, Rési +5\n__Alt. :__ Charisme +7\n__Prév. :__ Intel +7\n__Invoc. :__ Force +3, Magie +3, Charisme +3, Intel +3\n\n__Empêche l'utilisation de l'arme principale__")
-cardBer = effect("La balance berserk",'BerCard',CHARISMA,strength=7,resistance=7,emoji='<:balance:932399888422043739>')
+cardBer = effect("La balance berserk",'BerCard',CHARISMA,strength=7,resistance=5,emoji='<:balance:932399888422043739>')
 cardPlume = effect("La balance agile",'PoiCard',CHARISMA,strength=7,agility=7,emoji='<:balance:932399888422043739>')
 cardObs = effect("La flèche précise",'ObsCard',CHARISMA,strength=7,precision=7,emoji='<:fleche:932399905807433738>')
 cardTet = effect("La flèche bornée",'TetCard',CHARISMA,strength=7,magie=7,emoji='<:fleche:932399905807433738>')
-cardMag = effect("La tour magique",'MagCard',CHARISMA,magie=7,precision=7,emoji='<:tour:932399958936657921>')
-cardEnch = effect("La tour enchantée",'EncCard',CHARISMA,magie=7,resistance=7,emoji='<:tour:932399958936657921>')
+cardMag = effect("La tour magique",'MagCard',CHARISMA,magie=7,precision=5,emoji='<:tour:932399958936657921>')
+cardEnch = effect("La tour enchantée",'EncCard',CHARISMA,magie=7,resistance=5,emoji='<:tour:932399958936657921>')
 cardAlt = effect("Le tronc revifiant",'AltCard',CHARISMA,charisma=10,emoji='<:tronc:932399933724700763>')
 cardPre = effect("Le tronc résistant",'PreCard',CHARISMA,intelligence=10,emoji='<:tronc:932399933724700763>')
 cardIdo = effect("L'aiguilère attentionée",'IdoCard',CHARISMA,charisma=7,intelligence=7,emoji='<:aiguilere:932399946659921990>')
 cardPro = effect("L'aiguilère ponctuelle",'ProCard',CHARISMA,resistance=7,intelligence=7,emoji='<:aiguilere:932399946659921990>')
+cardVig = effect('Le tronc solide',"vigiCard",CHARISMA,charisma=7,resistance=5,emoji='<:tronc:932399933724700763>')
 cardInv = effect("L'épieu versatil",'InvCard',CHARISMA,charisma=3,intelligence=3,strength=3,magie=3,emoji='<:epieu:932399920873357382>')
-cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardEnch,cardPro,cardInv,cardInv,cardInv,cardInv]
+cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardEnch,cardPro,cardVig,cardMag,cardIdo,cardObs,cardInv]
 
 astroGlobe = weapon("Globe céleste",'cy',RANGE_LONG,AREA_CIRCLE_5,40,80,1,charisma=7,intelligence=7,endurance=1,effect=cardsDeck,use=CHARISMA,emoji='<:globe:932399865110093884>')
 infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,strength=5,agility=10,effect=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
@@ -128,8 +130,31 @@ miltrilPlanisftEffDebuff.power, miltrilPlanisftEffDebuff.stat = 3.5, INTELLIGENC
 miltrilPlanisftEff = effect("Deck de cartes II","mitrilPlanisphereEff",INTELLIGENCE,turnInit=-1,unclearable=True,emoji='<:deck:932400761176981605>',description="À chaque début de tour, augmente les dégâts infligés d'un allié ou diminue ceux d'un ennemi de  **3,5%**, affecté par les statistiques\n\n__Empêhce l'utilisation de l'arme principale")
 miltrilPlanisphere = weapon("Planisphère en mithril", 'dk', RANGE_LONG, AREA_CIRCLE_5, 40, 80, 1, charisma=7, intelligence=7,endurance=1, effect=miltrilPlanisftEff, use=INTELLIGENCE, emoji='<:planisMitrill:938379244856291388>')
 
+weapExpElemNames, tablWeapExp, weapExpElemEmojis = ["des flammes","des torrants","des tempettes","des roches","de la lueur","de l'ombre","dimensionnelle","temporelle"], [], ["<:fire:957763345681875015>","<:water:957763434030710824>","<:air:957763387566219265>","<:earth:957763463395049514>","<:light:957763573877211146>","<:darkness:957763497272414228>","<:space:957763551060189245>","<:time:957763517300240394>"]
+for cmpt in range(8):
+    tablWeapExp.append(effect("Maitrisse {0}".format(weapExpElemNames[cmpt]),"weaponElemMet",turnInit=-1,unclearable=True,description="Vous octroie **20%** de chance d'obtenir l'effet {0} __{1}__ en fin de tour.\nCette probabilité passe à **100%** si la dernière action réalisée pendant votre tour est une attaque à l'arme".format(tablElemEff[cmpt+1].emoji[0][0],tablElemEff[cmpt+1].name),emoji=weapExpElemEmojis[cmpt],callOnTrigger=tablElemEff[cmpt+1]))
+
+fireMetRuneLong = weapon("Rune allongée des flammes","dl",RANGE_LONG,AREA_CIRCLE_6,33,60,1,magie=10,percing=5,area=AREA_CIRCLE_1,effect=tablWeapExp[0],use=MAGIE,emoji='<:fireLong:957759716484849754>',affinity=ELEMENT_FIRE,taille=0)
+fireMetRuneMel = weapon("Rune de proximité des flammes","dm",RANGE_MELEE,AREA_CIRCLE_2,48,60,1,magie=10,resistance=5,area=AREA_CIRCLE_1,effect=tablWeapExp[0],use=MAGIE,emoji='<:fireMele:957759749716336640>',affinity=ELEMENT_FIRE,taille=0)
+waterMetRuneLong = weapon("Rune allongée des courants","dn",RANGE_LONG,AREA_CIRCLE_6,46,60,1,magie=10,percing=5,effect=tablWeapExp[1],use=MAGIE,emoji='<:aqualong:957759791697125447>',affinity=ELEMENT_WATER,taille=0)
+waterMetRuneMel = weapon("Rune de proximité des courants","do",RANGE_MELEE,AREA_CIRCLE_2,68,60,1,magie=10,resistance=5,effect=tablWeapExp[1],use=MAGIE,emoji='<:aquaMel:957759818393870336>',affinity=ELEMENT_WATER,taille=0)
+airMetRuneMid = weapon("Rune étendue des vents","dp",RANGE_DIST,AREA_CIRCLE_4,40,60,1,magie=10,critical=5,area=AREA_CIRCLE_1,effect=tablWeapExp[2],use=MAGIE,emoji='<:airMid:957759962799562752>',affinity=ELEMENT_AIR,taille=0)
+airMetRuneMel = weapon("Rune de proximité des vents","dq",RANGE_MELEE,AREA_CIRCLE_2,48,60,1,magie=10,resistance=5,area=AREA_CIRCLE_1,effect=tablWeapExp[2],use=MAGIE,emoji='<:airMel:957759933359751239>',affinity=ELEMENT_AIR,taille=0)
+earthMetRuneMid = weapon("Rune étendue des sédiments","dr",RANGE_LONG,AREA_CIRCLE_4,58,60,1,magie=10,critical=5,effect=tablWeapExp[3],use=MAGIE,emoji='<:earthMid:957762288998305814>',affinity=ELEMENT_EARTH,taille=0)
+earthMetRuneMel = weapon("Rune de proximité des sédiments","ds",RANGE_MELEE,AREA_CIRCLE_2,68,60,1,magie=10,resistance=5,effect=tablWeapExp[3],use=MAGIE,emoji='<:earthMel:957759999227097118>',affinity=ELEMENT_EARTH,taille=0)
+
+lightMetRuneMid = weapon("Rune étendue des lueurs","dt",RANGE_DIST,AREA_CIRCLE_4,40,60,1,magie=10,percing=5,area=AREA_CIRCLE_1,effect=tablWeapExp[4],use=MAGIE,emoji='<:lightMid:957762377561014292>',affinity=ELEMENT_LIGHT,taille=0)
+lightMetRuneLong = weapon("Rune allongée des lueurs","du",RANGE_LONG,AREA_CIRCLE_6,33,60,1,magie=10,critical=5,area=AREA_CIRCLE_1,effect=tablWeapExp[4],use=MAGIE,emoji='<:lightLong:957762401963474994>',affinity=ELEMENT_LIGHT,taille=0)
+darkMetRuneMid = weapon("Rune étendue des ombres","dv",RANGE_DIST,AREA_CIRCLE_4,58,60,1,magie=10,critical=5,effect=tablWeapExp[5],use=MAGIE,emoji='<:darkMid:957762321709662339>',affinity=ELEMENT_DARKNESS,taille=0)
+darkMetRuneLong = weapon("Rune allongée des ombres","dw",RANGE_LONG,AREA_CIRCLE_6,46,60,1,magie=10,percing=5,effect=tablWeapExp[5],use=MAGIE,emoji='<:darkMel:957762348876169257>',affinity=ELEMENT_DARKNESS,taille=0)
+spaceMetRuneMid = weapon("Rune de proximité dimensionnelle","dx",RANGE_MELEE,AREA_CIRCLE_2,48,60,1,magie=10,resistance=5,area=AREA_CIRCLE_1,effect=tablWeapExp[6],use=MAGIE,emoji='<:spaceMel:957762429289369662>',affinity=ELEMENT_SPACE,taille=0)
+spaceMetRuneLong = weapon("Rune allongée dimensionnelle","dy",RANGE_LONG,AREA_CIRCLE_6,33,60,1,magie=10,percing=5,area=AREA_CIRCLE_1,effect=tablWeapExp[6],use=MAGIE,emoji='<:spaceLong:957762451515011112>',affinity=ELEMENT_SPACE,taille=0)
+timeMetRuneMid = weapon("Rune étendue temporelle","dz",RANGE_DIST,AREA_CIRCLE_4,58,60,1,magie=10,critical=5,effect=tablWeapExp[7],use=MAGIE,emoji='<:timeMid:957762503629226064>',affinity=ELEMENT_TIME,taille=0)
+timeMetRuneLong = weapon("Rune allongée temporelle","ea",RANGE_LONG,AREA_CIRCLE_6,46,60,1,magie=10,percing=5,effect=tablWeapExp[7],use=MAGIE,emoji='<:timeLong:957762475351244810>',affinity=ELEMENT_TIME,taille=0)
+
 # Weapon
-weapons = [magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
+weapons = [fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
+    magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
     secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,infDarkSword,infLightSword,astroGlobe,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
     julieWeap,blueButterfly,butterflyRed,luth,krystalFist,musical,gwenCoupe,inkbrella2,concentraceurZoom,klikliSword,darkSpellBook,lightSpellBook,ironSword,machinist,shehisa,armilame,airsword,waterspell,earthspell,airspell,nemefaux,bigshot,serringue,fauc,rapiere,lunarBonk,magicSword,dtsword,butterflyP,butterflyR,depha,legendarySword,spellBook,micPink,butterfly,dualJetSkelcher,squiffer,flexi,splatling,dualies,clashBlaster,hourglass1Weap,plume,mainLibre,splattershotJR,splattershot,roller,splatcharger,miniBrush,inkbrella,blaster,jetSkelcher,kcharger,HunterRiffle,firework

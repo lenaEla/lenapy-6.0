@@ -38,15 +38,27 @@ changeElemDisabled4 = create_button(1,"Utiliser comme élément secondaire",getE
 
 confirmButton = create_button(ButtonStyle.green,"Équiper",check,"confirm")
 useMimikator = create_button(ButtonStyle.gray,"Utiliser votre Mimikator",getEmojiObject(mimique.emoji),"mimikator")
-hideNonEquip = create_button(ButtonStyle.blue,"Cacher Non équipables",custom_id="hideNoneEquip",emoji=getEmojiObject('<:invisible:899788326691823656>'))
-affNonEquip = create_button(ButtonStyle.green,"Aff. Non équipables",custom_id="affNoneEquip",emoji=getEmojiObject("<:noeuil:887743235131322398>"))
+hideNonEquip = create_button(ButtonStyle.blue,"Cacher Non équip.",custom_id="hideNoneEquip",emoji=getEmojiObject('<:invisible:899788326691823656>'))
+affNonEquip = create_button(ButtonStyle.green,"Aff. Non équip.",custom_id="affNoneEquip",emoji=getEmojiObject("<:noeuil:887743235131322398>"))
 allType = create_button(ButtonStyle.gray,"Aff. Tout",custom_id="allDamages",emoji=getEmojiObject('<:targeted:912415337088159744>'))
-onlyPhys = create_button(ButtonStyle.success,"Aff. Phy./Corp. uniquement",custom_id="onlyPhys",emoji=getEmojiObject("<:berkSlash:916210295867850782>"))
-onlyMag = create_button(ButtonStyle.blurple,"Aff Mag./Psy. uniquement",custom_id="onlyMag",emoji=getEmojiObject('<:lizDirectSkill:917202291042435142>'))
+onlyPhys = create_button(ButtonStyle.success,"Aff. Phy./Corp. un.",custom_id="onlyPhys",emoji=getEmojiObject("<:berkSlash:916210295867850782>"))
+onlyMag = create_button(ButtonStyle.blurple,"Aff Mag./Psy. un.",custom_id="onlyMag",emoji=getEmojiObject('<:lizDirectSkill:917202291042435142>'))
 affAcc = create_button(ButtonStyle.success,"Aff. Accessoire",getEmojiObject('<:defHead:896928743967301703>'),"acc")
 affBody = create_button(ButtonStyle.green,"Aff. Tenue",getEmojiObject('<:defMid:896928729673109535>'),"dress")
 affShoes = create_button(ButtonStyle.blue,"Aff. Chaussures",getEmojiObject('<:defShoes:896928709330731018>'),"flats")
 affAllStuff = create_button(ButtonStyle.grey,"Aff. Tout",getEmojiObject('<:dualMagie:899628510463803393>'),"all")
+
+
+skillult, skillnonult, skillMono, skillAoe = [], [], [], []
+for skilly in skills:
+    if skilly.ultimate:
+        skillult.append(skilly)
+    else:
+        skillnonult.append(skilly)
+    if skilly.area == AREA_MONO:
+        skillMono.append(skilly)
+    else:
+        skillAoe.append(skilly)
 
 returnAndConfirmActionRow = create_actionrow(returnButton,confirmButton)
 
@@ -178,7 +190,7 @@ async def elements(bot : discord.client, ctx : discord.Message, msg : discord.Me
             elemEmbed = discord.Embed(title="__Éléments__",color=user.color,description="Les éléments renforcent la spécialisation d'un personnage en augmentant les dégâts qu'il fait suivant certaines conditions définie par l'élément choisi\nLes équipements peuvent également avoir des éléments. Avoir des équipements du même élément que soit accroie un peu leurs statistiques\n")
             elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément principal actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.element],elemEmojis[user.element]),value=elemDesc[user.element]+"\n\n**__Passif principal :__\n"+elemMainPassifDesc[user.element]+"**", inline=False)
             if user.level >= 30:
-                elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément secondaire actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.secElement],elemEmojis[user.secElement]),value=elemDesc[user.secElement]+"\n\n**__Passif secondaire :__\n"+elemMainPassifDesc[user.secElement]+"**", inline=False)
+                elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément secondaire actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.secElement],elemEmojis[user.secElement]),value=elemDesc[user.secElement]+"\n\n**__Passif secondaire :__\n"+elemSecPassifDesc[user.secElement]+"**", inline=False)
             else:
                 elemEmbed.add_field(name="<:em:866459463568850954>\n__Votre élément secondaire actuel est l'élément **{0}** ({1}) :__".format(elemNames[user.secElement],elemEmojis[user.secElement]),value="Vous pourrez changer d'élément secondaire une fois le __niveau 30__ atteint", inline=False)
 
@@ -785,7 +797,19 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                             else:
                                 await oldMsg.edit(embed=discord.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
                             break
-
+                elif obj==autoPoint:
+                    if user.autoPoint:
+                        user.autoPoint = False
+                        user.otherInventory.remove(obj)
+                        saveCharFile(user=user)
+                        await oldMsg.edit(embed=discord.Embed(title="__Pair de Nheur'o'Nes :__",color=user.color,description="Votre Pair de Nheur'o'Nes a été désactivé"))
+                    elif user.stars > 0:
+                        user.autoPoint = True
+                        user.otherInventory.remove(obj)
+                        saveCharFile(user=user)
+                        await oldMsg.edit(embed=discord.Embed(title="__Pair de Nheur'o'Nes :__",color=user.color,description="Votre Pair de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivants :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
+                    else:
+                        await oldMsg.edit(embed=discord.Embed(title="__Pair de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
                 await oldMsg.clear_reactions()
 
 async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,destination : int ,user : classes.char):
@@ -800,7 +824,16 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         msg = None
         opValues=["equipement","armes","competences","autre"]
         tri = 0
-        needRemake = True
+        needRemake, stuffStatus, hideUlt, affMono, stuffMenuStatus = True, 0, 0, 0, 0
+
+        affult = create_button(ButtonStyle.green,"Aff. tout type",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"aff_ult")
+        hideult = create_button(ButtonStyle.blue,"Cacher Ultimes",getEmojiObject(skillnonult[random.randint(0,len(skillnonult)-1)].emoji),"hide_ult")
+        affonlyult = create_button(ButtonStyle.grey,"Aff. seulement Ult.",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"affonly_ult")
+        tablShowUltButton = [affult,hideult,affonlyult]
+        affmono = create_button(ButtonStyle.green,"Aff. comp. monocibles",getEmojiObject(skillMono[random.randint(0,len(skillMono)-1)].emoji),"mono_area")
+        affaoe = create_button(ButtonStyle.blue,"Aff. comp. Zone",getEmojiObject(skillAoe[random.randint(0,len(skillAoe)-1)].emoji),"aoe_area")
+        affallarea = create_button(ButtonStyle.grey,"Aff. toutes zones",getEmojiObject(skills[random.randint(0,len(skills)-1)].emoji),"all_area")
+        tablSkillArea = [affmono,affaoe,affallarea]
 
         listUserProcure = []
         if user.team != 0:
@@ -842,21 +875,39 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             if destination in [0,1]:
                 options+=[
-                    create_select_option("Force","4",'💪',default=4==tri),
-                    create_select_option("Endurance","5",'🏃',default=5==tri),
-                    create_select_option("Charisme",'6','💃',default=6==tri),
-                    create_select_option("Agilité","7",'🤸',default=7==tri),
-                    create_select_option("Précision","8",'🏹',default=8==tri),
-                    create_select_option("Intelligence","9",'🎓',default=9==tri),
-                    create_select_option("Magie","10",'🧙',default=10==tri),
-                    create_select_option("Résistance","11",'🛡️',default=11==tri),
-                    create_select_option("Pénétration","12",'🗡️',default=12==tri),
-                    create_select_option("Critique","13",'🎲',default=13==tri),
-                    create_select_option("Soins","14",getEmojiObject('<:cure:925190515845132341>'),default=14==tri),
-                    create_select_option("Boost","15",getEmojiObject('<:dyna:932618114892439613>'),default=15==tri),
-                    create_select_option("Armures","16",getEmojiObject('<:inkArmor:866829950463246346>'),default=16==tri),
-                    create_select_option("Directs","17",getEmojiObject('<:splatbomb:873527088286687272>'),default=17==tri),
-                    create_select_option("Indirects","18",getEmojiObject('<:estabistia:883123793730609172>'),default=18==tri)]
+                    [
+                        create_select_option("Force","4",'💪',default=4==tri),
+                        create_select_option("Endurance","5",'🏃',default=5==tri),
+                        create_select_option("Charisme",'6','💃',default=6==tri),
+                        create_select_option("Agilité","7",'🤸',default=7==tri),
+                        create_select_option("Précision","8",'🏹',default=8==tri),
+                        create_select_option("Intelligence","9",'🎓',default=9==tri),
+                        create_select_option("Magie","10",'🧙',default=10==tri),
+                        create_select_option("Résistance","11",'🛡️',default=11==tri),
+                        create_select_option("Pénétration","12",'🗡️',default=12==tri),
+                        create_select_option("Critique","13",'🎲',default=13==tri),
+                        create_select_option("Soins","14",getEmojiObject('<:cure:925190515845132341>'),default=14==tri),
+                        create_select_option("Boost","15",getEmojiObject('<:dyna:932618114892439613>'),default=15==tri),
+                        create_select_option("Armures","16",getEmojiObject('<:inkArmor:866829950463246346>'),default=16==tri),
+                        create_select_option("Directs","17",getEmojiObject('<:splatbomb:873527088286687272>'),default=17==tri),
+                        create_select_option("Indirects","18",getEmojiObject('<:estabistia:883123793730609172>'),default=18==tri),
+                        create_select_option("Autre cat.","autCat_1","➡️")
+                    ],
+                    [
+                        create_select_option("Cat. classiques","autCat_0","⬅️"),
+                        create_select_option("For. - Pré.","22",getEmojiObject('<:lightBlue:933728207453163590>'),default=22==tri),
+                        create_select_option("For. - Agi.","23",getEmojiObject('<:green:933734508317003846>'),default=23==tri),
+                        create_select_option("Endur. - For.","24",getEmojiObject('<:black:933728357152096277>'),default=24==tri),
+                        create_select_option("Endur. - Mag.","25",getEmojiObject('<:orangeBatEarRing:938496708554416168>'),default=25==tri),
+                        create_select_option("Endur. - Soins / Char.","26",getEmojiObject('<:apGreenBatEar:938496729718849546>'),default=26==tri),
+                        create_select_option("Endur. - Intel. / Arm.","27",getEmojiObject('<:darkblue:933728323455045672>'),default=27==tri),
+                        create_select_option("Char. - Soins","28",getEmojiObject('<:white:933785500257513472>'),default=28==tri),
+                        create_select_option("Char. - Boost","29",getEmojiObject('<:pink:933728188754980904>'),default=29==tri),
+                        create_select_option("Intel. - Arm.","30",getEmojiObject('<:blue:933728247995305994>'),default=30==tri),
+                        create_select_option("Intel. - Boost","31",getEmojiObject('<:yellowBatER:937740799150555148>'),default=31==tri),
+                        create_select_option("Mag. - Préc.","32",getEmojiObject('<:red:933728281289715782> '),default=32==tri),
+                    ]
+                ][stuffMenuStatus]
 
             elif destination == 2:
                 options+=[
@@ -894,8 +945,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             for ski in tablToSee[:]:
                                 if ski.type != see:
                                     tablToSee.remove(ski)
-                                elif tri in [14,15] and statsToAff > 0 and ski.use not in [[STRENGTH,AGILITY,PRECISION],[MAGIE,CHARISMA,INTELLIGENCE]][statsToAff-1]:
-                                    tablToSee.remove(ski)
+
                         else:
                             for ski in tablToSee[:]:
                                 if ski.type not in see:
@@ -905,6 +955,34 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         for a in tablToSee[:]:
                             if not(a.havConds(user)):
                                 tablToSee.remove(a)
+
+                    if statsToAff > 0:
+                        for skilly in tablToSee[:]:
+                            if skilly.use not in [[STRENGTH,AGILITY,PRECISION],[MAGIE,CHARISMA,INTELLIGENCE]][statsToAff-1]:
+                                tablToSee.remove(skilly)
+                    if hideUlt == 1:
+                        for skilly in tablToSee[:]:
+                            if skilly.ultimate:
+                                tablToSee.remove(skilly)
+                    elif hideUlt == 2:
+                        for skilly in tablToSee[:]:
+                            if not skilly.ultimate:
+                                tablToSee.remove(skilly)
+                    if affMono == 1:
+                        for skilly in tablToSee[:]:
+                            if skilly.area != AREA_MONO:
+                                tablToSee.remove(skilly)
+                    elif affMono == 2:
+                        for skilly in tablToSee[:]:
+                            if skilly.area == AREA_MONO:
+                                tablToSee.remove(skilly)
+
+                    if tri in [14,16]:
+                        tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                    elif tri in [15]:
+                        tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                    elif tri in [17]:
+                        tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
 
                 elif destination == 3:
                     tablToSee = user.otherInventory
@@ -943,15 +1021,29 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         tablToSee.sort(key=lambda ballerine:-ballerine.negativeDirect + max(ballerine.magie,ballerine.strength), reverse=True)
                     elif tri == 18:
                         tablToSee.sort(key=lambda ballerine:-ballerine.negativeIndirect + max(ballerine.magie,ballerine.strength), reverse=True)
-
-                elif destination == 2 and tri in [14,16]:
-                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-                elif destination == 2 and tri in [15]:
-                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-                elif destination == 2 and tri in [17]:
-                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-
-                else:
+                    elif tri == 22:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1, reverse=True)
+                    elif tri == 23:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength + ballerine.agility + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1, reverse=True)
+                    elif tri == 24:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength + ballerine.endurance + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1, reverse=True)
+                    elif tri == 25:
+                        tablToSee.sort(key=lambda ballerine:ballerine.endurance + ballerine.magie + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1, reverse=True)
+                    elif tri == 26:
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + ballerine.endurance + ballerine.negativeHeal*-1, reverse=True)
+                    elif tri == 27:
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + ballerine.endurance + ballerine.negativeShield*-1, reverse=True)
+                    elif tri == 28:
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + ballerine.negativeHeal*-1, reverse=True)
+                    elif tri == 29:
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + ballerine.negativeBoost*-1, reverse=True)
+                    elif tri == 30:
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + ballerine.negativeShield*-1, reverse=True)
+                    elif tri == 31:
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + ballerine.negativeBoost*-1, reverse=True)
+                    elif tri == 32:
+                        tablToSee.sort(key=lambda ballerine:ballerine.magie + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1, reverse=True)
+                elif destination != 2:
                     tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
 
                 lenTabl = len(tablToSee)
@@ -1137,14 +1229,13 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     temp2 = onlyMag
                 else:
                     temp2 = allType
-                ultimateTemp = [create_actionrow(temp1,temp2)]
-    
-            elif destination == 2:
-                if affAll:
-                    temp1 = hideNonEquip
+
+                if destination == 1:
+                    ultimateTemp = [create_actionrow(temp1,temp2)]
                 else:
-                    temp1 = affNonEquip
-                ultimateTemp = [create_actionrow(temp1)]
+                    temp3 = tablShowUltButton[[hideUlt+1,0][hideUlt==2]]
+                    temp4 = tablSkillArea[affMono]
+                    ultimateTemp = [create_actionrow(temp1,temp2,temp3,temp4)]
 
             elif destination == 0:
                 if affAll:
@@ -1253,6 +1344,15 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 elif destination == 0:
                     stuffToAff = (stuffToAff+1)%4
                 needRemake = True
+            elif respond.values[0].endswith("_ult"):
+                hideUlt = (hideUlt+1)%3
+                needRemake = True
+            elif respond.values[0].endswith("_area"):
+                affMono = (affMono+1)%3
+                needRemake = True
+            elif respond.values[0].startswith("autCat_"):
+                stuffMenuStatus, needRemake = int(respond.values[0][-1]), True
+                tri = [0,22][stuffMenuStatus]
             else:
                 inter = respond
                 respond = respond.values[0]

@@ -63,7 +63,6 @@ def remove_accents(input_str : str):
 
 def visuArea(area : int, wanted,ranged=True) -> list:
     tablAllCells=[]
-
     class cell:
         def __init__(self,x,y,id):
             self.x = x
@@ -295,9 +294,9 @@ def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False, 
             effTmp +="\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(eff.redirection)
 
         if eff.immunity:
-            effTmp+="Tant que le porteur possède cet effet, il est **Invulnérable aux dégâts**\n"
+            effTmp+="\nCet effect rend le porteur **invulnérable aux dégâts**\n"
 
-        effTmp += f'\n\n__Description :__\n{eff.description}\n'
+        effTmp += f'\n__Description :__\n{eff.description}\n'
         for a in range(len(stats)):
             if stats[a] > 0:
                 bonus += f"{names[a]} : +{stats[a]}\n"
@@ -342,6 +341,8 @@ def infoEffect(effId : str, user : char, embed : discord.Embed,ctx ,self=False, 
         else:
             if not(self):
                 embed.add_field(name = "<:empty:866459463568850954>\n" + fieldname + txt,value = effTmp,inline = False)
+            elif eff.callOnTrigger == None:
+                embed.add_field(name = "<:empty:866459463568850954>\n**__Effet déclanché :__**",value = effTmp,inline = False)
             else:
                 embed.add_field(name = "<:empty:866459463568850954>\n**__Effet sur soi :__**",value = effTmp,inline = False)
 
@@ -368,7 +369,7 @@ def infoSkill(skill : skill, user : char,ctx):
             break
         cast += 1
 
-    if skill.id == trans.id:
+    if [skill.id, skill.name] == [trans.id,trans.name]:
         skil = transTabl[user.aspiration]
 
     elif skil.id == mageUlt.id:
@@ -380,25 +381,31 @@ def infoSkill(skill : skill, user : char,ctx):
             skil = mageUlt
 
     if skil.become != None:
-        desc = "Cette compétence peut devenir les compétences :\n"
+        desc, listConds = "Cette compétence permet d'utiliser :\n", []
         for cmpt in range(len(skil.become)):
-            desc += "__{1} {0}__".format(skil.become[cmpt].name,skil.become[cmpt].emoji)
+            desc += "{1} __{0}__".format(skil.become[cmpt].name,skil.become[cmpt].emoji)
             if cmpt < len(skil.become)-2:
-                desc += ",\n"
+                desc += ", "
             elif cmpt == len(skil.become)-2:
-                desc += " et\n"
-        desc += " si les conditions sont réunies.\nLeurs temps de rechargement sont syncronisés"
+                desc += " et "
+            if skil.become[cmpt].needEffect != None:
+                temp2 = "\n{1} __{0}__ : ".format(skil.become[cmpt].name,skil.become[cmpt].emoji)
+                for temp in skil.become[cmpt].needEffect:
+                    temp2 += "{0} {1}".format(temp.emoji[0][0],temp.name)
+                listConds.append(temp2)
+
+        desc += "\nLorsque leurs conditions sont réunies. Leurs temps de rechargement sont syncronisés"
     else:
         desc = ""
     # Cooldown ---------------------------
     if skil.type != TYPE_PASSIVE:
         if skil.become != None:
-            desc += "\n\n__Temps de rechargements :__\n"
+            desc += "\n\n__Temps de rechargements :__"
             for cmpt in range(len(skil.become)):
                 s = ""
                 if skil.become[cmpt].cooldown > 1:
                     s = "s"
-                desc += "{0} tour{2} ({1})\n".format(skil.become[cmpt].cooldown, skil.become[cmpt].name, s)
+                desc += "\n{0} tour{2} ({1})".format(skil.become[cmpt].cooldown, skil.become[cmpt].name, s)
 
         else:
             s = ""
@@ -476,17 +483,24 @@ def infoSkill(skill : skill, user : char,ctx):
     else:
         temp+=tablTypeStr[skil.type]
 
+        if skil.become != None:
+            for skilly in skil.become:
+                temp += "\n__Type ({0}) :__ {1}".format(skilly.name,tablTypeStr[skilly.type])
+                if skilly.type in [TYPE_DAMAGE,TYPE_HEAL]:
+                    temp += "\n> Puissance : **{0}**, {1}".format(skilly.power,nameStats[skilly.use])
+
         if skil.description != None:
             temp += "\n\n__Description :__\n"+skil.description+"\n"
 
-        temp+="\n__Zone d'effet :__ {0}".format(areaNames[skil.area])
+        if skil.type != TYPE_PASSIVE:
+            temp+="\n__Zone d'effet :__ {0}".format(areaNames[skil.area])
 
         if skil.id.startswith("clem") or skil.id.startswith("alice"):
             for skillID, cost in clemBJcost.items():
                 if skil.id == skillID:
                     temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
 
-        if skil.type in [TYPE_HEAL,TYPE_RESURECTION]:
+        if skil.type in [TYPE_HEAL,TYPE_RESURECTION] and skil.become == None:
             temp+="\n__Puissance :__ {0}".format(skil.power)
             if skil.use not in [None,HARMONIE]:
                 temp += f"\n\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
@@ -558,9 +572,9 @@ def infoSkill(skill : skill, user : char,ctx):
         temp += "\nCette compétence consome **{0}%** des PV actuels du lanceur lors de son utilisation".format(skil.hpCost)
 
     if skil.ultimate:
-        temp += "\nCette compétence est une compétence **ultime**.\n> - Vous ne pouvez équiper qu'une compétence ultime\n> Vous devez être niveau 10 pour équiper une compétence ultime"
+        temp += "\nCette compétence est une compétence **ultime**."
     if skil.group != 0:
-        temp += "\nCette compétence est une compétence **{0}**.\n> - Vous ne pouvez pas équiper de compétence divines et démoniques en même temps".format(skillGroupNames[skil.group])
+        temp += "\nCette compétence est une compétence **{0}**.".format(skillGroupNames[skil.group])
     if skil.setAoEDamage:
         temp += "\nLes dégâts de cette compétence ne sont pas affectés par la réduction de dégâts de zone"
     if skil.lifeSteal > 0:
@@ -611,31 +625,32 @@ def infoSkill(skill : skill, user : char,ctx):
     else:
         listRange,listRangeName,listArea,listName = [],[],[],[]
         for become in skil.become:
-            if become.range not in listRange:
-                listRange.append(become.range)
+            wantedTarget = [ALLIES,ENNEMIS][become.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,TYPE_MALUS]]
+            if [become.range,wantedTarget] not in listRange:
+                listRange.append([become.range,wantedTarget])
                 listRangeName.append([become.name])
             else:
                 for cmpt in range(len(listRange)):
-                    if listRange[cmpt] == become.range:
+                    if listRange[cmpt][0] == become.range:
                         listRangeName[cmpt].append(become.name)
                         break
 
-            if become.area not in listArea:
-                listArea.append(become.area)
+            if [become.area,wantedTarget] not in listArea:
+                listArea.append([become.area,wantedTarget])
                 listName.append([become.name])
             else:
                 for cmpt in range(len(listArea)):
-                    if listArea[cmpt] == become.area:
+                    if listArea[cmpt][0] == become.area:
                         listName[cmpt].append(become.name)
                         break
 
         if len(listRange) == 1:
-            if listRange[0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
-                repEmb.add_field(name = "__Portée :__",value=visuArea(listRange[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]),inline= len(listRange) == len(listArea) == 0 or len(listRange) > 1)
+            if listRange[0][0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+                repEmb.add_field(name = "__Portée :__",value=visuArea(listRange[0][0],wanted=listRange[0][1]),inline= len(listRange) == len(listArea) == 0 or len(listRange) > 1)
         else:
             for cmpt in range(len(listRange)):
-                if listRangeName[cmpt] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
-                    temporis = "__Portée :__\n("
+                if listRange[cmpt][0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+                    temporis = "("
                     for name in range(len(listRangeName[cmpt])):
                         temporis += listRangeName[cmpt][name]
                         if name != len(listRangeName[cmpt]) - 1:
@@ -643,15 +658,16 @@ def infoSkill(skill : skill, user : char,ctx):
                         else:
                             temporis += ")"
 
-                    repEmb.add_field(name = temporis,value=visuArea(listRange[cmpt],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]]))
+                    repEmb.add_field(name = "__Portée :__",value=temporis+"\n"+visuArea(listRange[cmpt][0],wanted=listRange[cmpt][1]))
+
 
         if len(listArea) == 1:
-            if listArea[0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
-                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
+            if listArea[0][0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
+                repEmb.add_field(name = "__Zone d'effet :__",value=visuArea(listArea[0][0],wanted=listArea[0][1],ranged=False))
         elif len(listArea) != 0:
             for cmpt in range(len(listArea)):
-                if listArea[cmpt] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
-                    temporis = "__Zone d'effet :__\n("
+                if listArea[cmpt][0] not in [AREA_MONO,AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
+                    temporis = "("
                     for name in range(len(listName[cmpt])):
                         temporis += listName[cmpt][name]
                         if name != len(listName[cmpt]) - 1:
@@ -659,7 +675,7 @@ def infoSkill(skill : skill, user : char,ctx):
                         else:
                             temporis += ")"
 
-                    repEmb.add_field(name = temporis,value=visuArea(listArea[cmpt],wanted=[ALLIES,ENNEMIS][skil.become[0].type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]],ranged=False))
+                    repEmb.add_field(name = "__Zone d'effet :__",value=temporis+"\n"+visuArea(listArea[cmpt][0],wanted=listArea[cmpt][1],ranged=False))
 
     if skil.effect != [None]:
         allReadySeen, effToSee = [], []
@@ -684,7 +700,10 @@ def infoSkill(skill : skill, user : char,ctx):
                     repEmb = infoEffect(findEffect(eff),user,repEmb,ctx,txt=" ({0})".format(skilly.name))
 
     if skil.effectOnSelf != None:
-        repEmb = infoEffect(skil.effectOnSelf,user,repEmb,ctx,True)
+        if skil.type != TYPE_PASSIVE:
+            repEmb = infoEffect(skil.effectOnSelf,user,repEmb,ctx,True)
+        else:
+            repEmb = infoEffect(skil.effectOnSelf,user,repEmb,ctx," (passif)")
 
     if skil.invocation != None:
         repEmb = infoInvoc(findSummon(skil.invocation),repEmb)
@@ -698,6 +717,22 @@ def infoSkill(skill : skill, user : char,ctx):
 
     if skil.url != None:
         repEmb.set_image(url=skil.url)
+
+    if skil.become != None:         # Effect on self list
+        listEffSelf = ""
+        for skilly in skil.become:
+            if skilly.effectOnSelf != None:
+                listEffSelf += "\n{3} __{0}__ : {1} {2}".format(skilly.name,skilly.effectOnSelf.emoji[0][0],skilly.effectOnSelf.name,skilly.emoji)
+
+        if len(listConds) > 0:
+            condsDesc = ""
+            for conds in listConds:
+                condsDesc += conds
+            
+            repEmb.add_field(name="__Conditions des compétences :__",value=condsDesc,inline=False)
+
+        if len(listEffSelf) > 0:
+            repEmb.add_field(name="__Effets sur soi des compétences :__",value=listEffSelf,inline=False)
     return repEmb
 
 def infoWeapon(weap : weapon, user : char ,ctx):
@@ -872,8 +907,15 @@ async def addExpUser(bot : discord.Client, path : str, ctx: Union[discord.Messag
 
     upLvl = (user.level-1)*50+30
 
-    while user.exp >= upLvl:
+    while user.exp >= upLvl and user.level < 55:
         user.points = user.points + 1
+
+        if user.autoPoint:
+            while user.points > 0:
+                for recStat in recommandedStat[user.aspiration]:
+                    if user.bonusPoints[recStat] < 30 and user.points > 0:
+                        user.bonusPoints[recStat] += 1
+                        user.points -= 1
 
         temp = user.allStats()
         up = [0,0,0,0,0,0,0]
@@ -1002,7 +1044,6 @@ async def downloadAllWeapPng(bot : discord.Client, msg=None, lastTime=None):
                 background.paste(image,(10,10))
 
                 background.save(f"./data/images/weapons/{emojiObject[0]}.png")
-                customIconDB.addWeapImageFiles(stuffDB.getIdFromEmoji(a,"weapon"),f"{emojiObject[0]}.png")
                 print(emojiObject[0] + " downlowded")
             else:
                 print(emojiObject[0] + " not found")
@@ -1449,14 +1490,19 @@ def infoInvoc(invoc : invoc, embed : discord.Embed):
         else:
             rep += f"\n__{names[a]} :__ {stats[a]}"
 
+    embed.add_field(name="<:empty:866459463568850954>\n__"+invoc.name+"__",value=rep,inline = False)
+    rep = ""
     ranged = ["Mêlée","Distance","Longue Distance"][invoc.weapon.range]
-    rep += f"\n\n__Arme et compétences :__\n\n{invoc.weapon.emoji} {invoc.weapon.name} ({ranged})"
+    rep += f"{invoc.weapon.emoji} {invoc.weapon.name} ({ranged})"
     for a in invoc.skills:
         if type(a) == skill:
-            ranged=["Monocible","Zone"][int(a.area != AREA_MONO)]
-            rep += f"\n{a.emoji} {a.name} ({tablTypeStr[a.type]}, {ranged})"
+            if a.description == None:
+                ranged=["Monocible","Zone"][int(a.area != AREA_MONO)]
+                rep += f"\n{a.emoji} {a.name} ({tablTypeStr[a.type]}, {ranged})"
+            else:
+                rep += f"\n{a.emoji} __{a.name} :__\n> " + a.description.replace("\n","\n> ") + "\n"
 
-    embed.add_field(name="<:empty:866459463568850954>\n__"+invoc.name+"__",value=rep,inline = False)
+    embed.add_field(name="<:empty:866459463568850954>\n__Armes et compétences :__",value=rep,inline = False)
     return embed
 
 def infoAllie(allie : tmpAllie):
@@ -1513,25 +1559,23 @@ def infoAllie(allie : tmpAllie):
 
     if allie.changeDict != None:
         temp = ""
-        changeSkill = ""
-        toSkill = ""
+        msgChangeDict = ""
         for changeDictCell in allie.changeDict:
             if changeDictCell["changeWhat"] == 0:               # Change Skills
                 for num in range(len(changeDictCell["to"])):
                     for skillNum in range(len(allie.skills)):
-                        if allie.skills[skillNum].id == changeDictCell["change"][num].id:
-                            toSkill += changeDictCell["to"][num].emoji+" __"+changeDictCell["to"][num].name+"__"
-                            changeSkill += allie.skills[skillNum].emoji+" __"+allie.skills[skillNum].name+"__"
-                            if num != len(changeDictCell["to"])-1:
-                                changeSkill+= ", "
-                                toSkill += ", "
-                            break
-            
-            ses,s = "sa",""
-            if len(changeDictCell["change"]) > 1:
-                ses,s = "ses","s"
-            temp += "À partir du niveau {3}, cet allié temporaire a {0}% de chance de voir {4} compétence{5} suivante{5} :\n{1}\nremplacé{5} par :\n{2}\n".format(changeDictCell["proba"],changeSkill,toSkill,changeDictCell["level"],ses,s)
-        embed.add_field(name="<:empty:866459463568850954>\n__Variations aléatoires :__",value=temp,inline=False)
+                        try:
+                            if allie.skills[skillNum].id == changeDictCell["change"][num].id:
+                                msgChangeDict += allie.skills[skillNum].emoji+" __"+allie.skills[skillNum].name+"__ → "+changeDictCell["to"][num].emoji+" __"+changeDictCell["to"][num].name + "__\n"
+                                if num != len(changeDictCell["to"])-1:
+                                    changeSkill+= ", "
+                                    toSkill += ", "
+                                break
+                        except:
+                            pass
+
+            temp += "À partir du __niveau {1}__, cet allié temporaire a **{0}%** de chance d'avoir un build alternatif :\n{2}".format(changeDictCell["proba"],changeDictCell["level"],msgChangeDict)
+        embed.add_field(name="<:empty:866459463568850954>\n__Build alternatif :__",value=temp,inline=False)
 
     return embed
 

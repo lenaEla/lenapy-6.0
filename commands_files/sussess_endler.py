@@ -313,7 +313,7 @@ class successTabl:
         self.liz = success("Hi no ai",10,"liz",description="Combattez Liz {0} fois",emoji='<:fireKitsune:917670925904785408>',recompense='zyz')
         self.head = success("À en perdre la tête",1,"ailill",description="???",emoji='<:blocked:897631107602841600>')
         self.lightNShadow = success("L'Ombre et la Lumière",1,"lightNShadow",description="Affrontez ou faites équipe avec simultanément Iliana et Luna (ou Shihu)",emoji="<:Iliana:926425844056985640><:luna:909047362868105227>")
-        self.fullDarkness = success("Ténèbres Éternels",1,"fullDark",description="Affrontez ou faites équipe avec simultanément Luna et Shihu",emoji='<:luna:909047362868105227><:shihu:909047672541945927>',recompense="cw")
+        self.fullDarkness = success("Ténèbres Éternels",5,"fullDark",description="Affrontez ou faites équipe Luna ou Shihu {0} fois",emoji='<:luna:909047362868105227><:shihu:909047672541945927>',recompense="cw")
         self.fraticide = success("Feu allié",1,"fratere",description="???",emoji='<a:meeting2:760186427119501312><a:meeting1:760186398401232916>')
         self.fullLight = success("Lumière Éternelle",25,"light",description="Faite équipe ou combattez Iliana {0} fois",emoji='<:Iliana:926425844056985640>',recompense='cx')
         self.dangerousFight = success("Jeu dangereux",1,"dangerous",description="Gagner un combat en ayant 80% de résistance soins ou plus",emoji='<:healnt:903595333949464607>')

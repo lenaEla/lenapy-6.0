@@ -416,7 +416,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 lvl, tempMachin = 50, None
                 while 1:
                     ally = copy.deepcopy(findAllie(respond))
-                    ally.changeLevel(lvl)
+                    ally.changeLevel(lvl,changeDict=False)
                     ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
                     options, cmpt = [], 0
                     for stuffy in [ally.weapon]+ally.skills+ally.stuff:
@@ -456,7 +456,6 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                             lvl = int(resp2.values[0][4:])
                     except:
                         await tempMachin.delete()
-                        print_exc()
                         break
 
             elif value in [6,7]:

@@ -230,8 +230,14 @@ async def inventoryVerif(bot,toVerif:Union[char,str]):
         print(f"Le profil de {user.name} a été mise à jour")
 
     temp = ""
+
     for equip in user.stuff:
-        if not(equip.havConds(user)):
+        if equip == None:
+            for a in (0,1,2):
+                if user.stuff[a] == None:
+                    user.stuff[a] = [bbandeau,bshirt,bshoes][a]
+                    temp += "<:LenaWhat:760884455727955978> __Objet non trouvé__ -> {0} {1}\n".format([bbandeau,bshirt,bshoes][a].emoji,[bbandeau,bshirt,bshoes][a].name)
+        elif not(equip.havConds(user)):
             change = getAutoStuff(equip,user)
             user.stuff[equip.type] = change
 
@@ -770,12 +776,12 @@ async def normal(ctx):
     # Random event
     fun = random.randint(0,99)
 
-    if fun < 0:                 # For testing purposes
+    if fun < 0:                # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
         temp.changeLevel(50)
         await fight(bot,[temp],[],ctx,False,procurFight=True,msg=msg)
 
-    elif fun < 1:               # But nobody came
+    elif fun < 1:              # But nobody came
         teamIcon = ""
         for wonderfullIdea in team1:
             teamIcon += "{0} {1}\n".format(await getUserIcon(bot,wonderfullIdea),wonderfullIdea.name)
@@ -792,7 +798,7 @@ async def normal(ctx):
         maxLvl = temp[0].level
 
         team2 = []
-        lenBoucle = max(4,len(team1))
+        lenBoucle = 8
         cmpt = 0
 
         octoHealVet = findEnnemi("Octo Soigneur Vétéran")
@@ -818,7 +824,7 @@ async def normal(ctx):
         maxLvl = temp[0].level
 
         team2 = []
-        lenBoucle = max(4,len(team1))
+        lenBoucle = 8
         cmpt = 0
 
         alea = copy.deepcopy(findEnnemi("Temmie"))
@@ -837,7 +843,7 @@ async def normal(ctx):
         maxLvl = temp[0].level
 
         team2 = []
-        lenBoucle = max(4,len(team1))
+        lenBoucle = 8
         cmpt = 0
 
         alea = copy.deepcopy(findEnnemi("OctoBOUM"))
@@ -895,8 +901,8 @@ async def normal(ctx):
 
     elif fun < 20:              # Procu Fight
         level = team1[0].level
-        team1, team2 = [], []
-        if random.randint(0,99) < 50:
+        team1, team2, randomRoll = [], [], random.randint(0,99)
+        if randomRoll < 50:                   # ClemClem
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             team1.sort(key=lambda clemency: clemency.level, reverse=True)
             level += 65+random.randint(0,10)
@@ -906,7 +912,7 @@ async def normal(ctx):
             ent.stuff = [miniStuff, miniStuff, miniStuff]
             team1.append(ent)
 
-        else:
+        elif randomRoll < 100:                                           # Luna
             ent = copy.deepcopy(findEnnemi("Luna prê."))
             team1.sort(key=lambda clemency: clemency.level, reverse=True)
             level += 100+random.randint(0,20)
@@ -927,22 +933,38 @@ async def normal(ctx):
             )
 
             team1.append(ent)
-            if random.randint(0,99) < 50:
+            if random.randint(0,99) < 50:               # Eclipse Eternelle
                 ent2 = findAllie('Iliana prê.')
+                ent2.changeLevel(level)
 
-                miniStuffHead = stuff("Casque de la neko de la lueur ultime",'ilianaPreHead',0,0,endurance=int(level*0.5),agility=int(level*0.3),precision=int(level*0.3),charisma=level,magie=level,resistance=min(level//5,50),percing=10,emoji=darkMaidPendants.emoji)
-                miniStuffDress = stuff("Armure de la neko de la lueur ultime",'ilianaPreArmor',0,0,endurance=int(level*1.5),agility=int(level*0.3),precision=int(level*0.5),charisma=level,magie=level,percing=15,resistance=min(level//5,50),emoji=darkMaidDress.emoji)
-                miniStuffFlats = stuff("Sorolets de la neko de la lueur ultime",'ilianaPreBoots',0,0,endurance=int(level*5),agility=int(level*0.3),precision=int(level*0.3),charisma=level,magie=level,resistance=min(level//5,50),percing=10,emoji=darkMaidFlats.emoji)
+                miniStuffHead = stuff("Casque de la neko de la lueur ultime",'ilianaPreHead',0,0,endurance=int(level*1.35),agility=int(level*0.3),precision=int(level*0.3),charisma=level,magie=level,resistance=min(level//5,50),percing=10,emoji=zenithHat.emoji)
+                miniStuffDress = stuff("Armure de la neko de la lueur ultime",'ilianaPreArmor',0,0,endurance=int(level*1.85),agility=int(level*0.3),precision=int(level*0.5),charisma=level,magie=level,percing=15,resistance=min(level//5,50),emoji=zenithArmor.emoji)
+                miniStuffFlats = stuff("Sorolets de la neko de la lueur ultime",'ilianaPreBoots',0,0,endurance=int(level*1.35),agility=int(level*0.3),precision=int(level*0.3),charisma=level,magie=level,resistance=min(level//5,50),percing=10,emoji=zenithBoots.emoji)
 
                 ent2.stuff = [miniStuffHead,miniStuffDress,miniStuffFlats]
+                ent2.says = says(
+                    start = "J'espère que tu es en forme Luna...\n<:luna:909047362868105227> : Je suis toujours prête pour ce genre de trucs",
+                    ultimate = "Nous nous laisserons pas faire ainsi ! {skill} !",
+                    reactEnnemyKilled= "On a pas encore fini",
+                    blueWinAlive = "`S'étire` Ce genre d'informités deviens de plus en plus récurant...\n<:luna:909047362868105227> : Ca ne présage rien de bon..."
+                )
                 team1.append(ent2)
 
-                team2, listDangerous, cmpt = [], [findEnnemi('Lueur informe A'),findEnnemi('Ombre informe A')], 0
+                if user.aspiration in [ALTRUISTE,IDOLE,INOVATEUR,PREVOYANT,VIGILANT,PROTECTEUR]:
+                    team1 = [ent2,ent]
+
+                boss = copy.deepcopy(unformBoss)
+                boss.changeLevel(level + random.randint(201,250))
+                team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur informe A'),findEnnemi('Ombre informe A'),findEnnemi('Ombre informe B')], 1
                 while cmpt < 8:
                     temp = copy.deepcopy(listDangerous[random.randint(0,len(listDangerous)-1)])
-                    temp.changeLevel(level + random.randint(50,100))
+                    temp.changeLevel(level + random.randint(150,200))
                     team2.append(temp)
                     cmpt +=1
+
+        else:
+            procurShushiWeapEff = effect("Ténèbres déphasés","procurShushiWeapEff",MAGIE,power=50,area=AREA_CIRCLE_1,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_END_OF_TURN)
+            procurShushiWeap = weapon("Rapière magique","procurShushiWeap",RANGE_MELEE,AREA_CIRCLE_3,50,80,magie=20,endurance=20,resistance=20,area=AREA_ARC_2,effectOnUse=procurShushiWeapEff)
 
         try:
             await fight(bot,team1,team2,ctx,False,procurFight=True,msg=msg)
@@ -1078,7 +1100,7 @@ async def octogone(ctx,versus):
     elif versus.id in [623211750832996354,769999212422234122]:
         temp = loadCharFile(pathUserProfile)
         tempi = tablAllAllies[0]
-        tempi.changeLevel(temp.level)
+        tempi.changeLevel(50)
         await fight(bot,[temp],[tempi],ctx,auto=False,octogone=True)
     
     else:

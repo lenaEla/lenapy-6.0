@@ -543,7 +543,7 @@ def saveCharFile(path : str = None, user : char = None):
             saved += str(a)+";"
     saved += "\n"
 
-    saved += str(user.element) +";\n"
+    saved += str(user.element) +";"+str(int(user.autoPoint))+";\n"
 
     userSettingsDb.updateUserSays(user)
     userSettingsDb.updateUserIconSettings(user)
@@ -621,9 +621,11 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         while len(temp) < 15:
             temp.append(0)
         rep.majorPoints = temp
+
     except:
         rep.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         print("No major point")
+
 
     rep.weapon = findWeapon(file[3][0])                     # Weapon
     cmpt,temp = 0,[]
@@ -649,7 +651,9 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     try:                                                   # Skill Inventory
         cmpt,temp = 0,[]
         while cmpt < len(file[6]):
-            temp += [findSkill(file[6][cmpt].replace("\n",""))]
+            tempFind = findSkill(file[6][cmpt].replace("\n",""))
+            if tempFind != None:
+                temp += [tempFind]
             cmpt += 1
         rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
     except:
@@ -682,7 +686,9 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     # Stuff inventory
     cmpt,temp = 0,[]
     while cmpt < len(file[8]):
-        temp += [findStuff(file[8][cmpt].replace("/n",""))]
+        tempFind = findStuff(file[8][cmpt].replace("/n",""))
+        if tempFind != None:
+            temp += [tempFind]
         cmpt += 1
     rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
 
@@ -705,6 +711,11 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         rep.element = int(file[11][0])
     except:
         rep.element = ELEMENT_NEUTRAL
+    
+    try:
+        rep.autoPoint = bool(int(file[11][1]))
+    except:
+        rep.autoPoint = False
 
     rep.says = userSettingsDb.getUserSays(rep)
     rep = userSettingsDb.getUserIconSettings(rep)

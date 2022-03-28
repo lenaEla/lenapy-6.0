@@ -4,6 +4,7 @@ Here stand the first brick of the bot
 """
 from datetime import timedelta, datetime
 import os
+from sre_constants import IN
 from index import *
 from discord_slash.utils.manage_components import *
 
@@ -127,8 +128,27 @@ STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED, STATUS_TRUE_DEATH = 0, 1, 2, 3
 
 # Aspirations
 BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, ENCHANTEUR, PROTECTEUR, VIGILANT, SORCELER, INOVATEUR, ATTENTIF, ASPI_NEUTRAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
-inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant","Tête brulée", "Mage", "Altruiste", "Enchanteur", "Protecteur","Vigilant","Sorcier","Inovateur","Attentif", "Neutre"]
-aspiEmoji = ['<:berk:915376153580167209>', '<:obs:903136012975357952>', '<:poi:909548928045842462>', '<:ido:909549029027880992>', '<:pre:910185501535903775>','<:tet:903136049834889317>', '<:mag:909549699160219659>', '<:alt:909549006680653824>', '<:enc:903136097553506314>', '<:pro:909549059059122176>','<:vigil:939209910019829810>','<:sorc:939209891510378598>']
+inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant", "Tête brulée", "Mage","Altruiste", "Enchanteur", "Protecteur", "Vigilant", "Sorcier", "Inovateur", "Attentif", "Neutre"]
+aspiEmoji = ['<:berk:915376153580167209>', '<:obs:903136012975357952>', '<:poi:909548928045842462>', '<:ido:909549029027880992>', '<:pre:910185501535903775>', '<:tet:903136049834889317>','<:mag:909549699160219659>', '<:alt:909549006680653824>', '<:enc:903136097553506314>', '<:pro:909549059059122176>', '<:vigil:939209910019829810>', '<:sorc:939209891510378598>']
+lbNames = ["Lames de l'Ombre","Laser Ultra-Nucléïque","Poussé du Mystral Gagnat","Apothéose planétaire","Armure Galactique","Fracture Dimentionnelle","Colère de Nacialisla","Don de Vie","Zone Magiconucléïque","Pousée d'Espoir","Résiliance Infernale","Cataclysme Céleste","Avenir Prometeur","Tir Ultime"]
+lbDesc = ["Inflige des dégâts à l'ennemi ciblé et vous soigne d'une partie des dégâts infligés","Inflige des dégâts monocibles en direction de l'ennemi ciblé et augmente temporairement vos statistiques","Inflige des dégâts à l'ennemi ciblé et le repousse violament","Augmente les statistiques des alliés pendant un certain temps et réanime ceux qui sont vaincus","Donne un grand montant d'armure aux alliés à portée et augmente temporairement leurs statistiques offensives","Inflige des dégâts à l'ennemi ciblé et réduit ses PV max d'une partie des dégâts infligés","Inflige d'importants dégâts dans une large zone autour de l'ennemi ciblé","Soigne les alliés à portée et leur donne un effet de régénération tout en réanimant ceux qui étaient vaincus","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et vous octroit une armure","Donne une importante armure aux alliés à portée et augmente temporairement leurs statistiques défensives","Soigne les alliés à portée et réanime puissament les alliés vaincus qu'importe leur position","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et lui octroit un effet de dégâts indirects multi-cibles supplémentaire","Augmente les statistiques des alliés à portée durant un certain temps et réduit leurs dégâts subis pendant la même durée","Inflige des dégâts en ligne droite sur l'ennemi ciblé et augmente temporairement vos statistiques"]
+recommandedStat = [
+    [STRENGTH, ENDURANCE],
+    [STRENGTH, PRECISION],
+    [AGILITY, STRENGTH],
+    [CHARISMA, INTELLIGENCE],
+    [INTELLIGENCE, PRECISION],
+    [STRENGTH, PRECISION],
+    [MAGIE, PRECISION],
+    [CHARISMA, PRECISION],
+    [MAGIE, ENDURANCE],
+    [INTELLIGENCE, ENDURANCE],
+    [CHARISMA, ENDURANCE],
+    [MAGIE, INTELLIGENCE],
+    [INTELLIGENCE, CHARISMA],
+    [STRENGTH, PRECISION],
+    [STRENGTH, MAGIE]
+]
 
 while len(aspiEmoji) < len(inspi):
     aspiEmoji.append('<a:menacing:917007335220711434>')
@@ -156,35 +176,35 @@ colorChoice = ["Rouge", "Orange", "Jaune", "Vert",
 
 aspiStats = [
     # Berserk
-    [70,60,30,35,35,25,20],
+    [70, 60, 30, 35, 35, 25, 20],
     # Observateur
-    [70,10,45,35,60,20,35],
+    [70, 10, 45, 35, 60, 20, 35],
     # Poids Plume
-    [50,40,25,75,35,10,40],
+    [50, 40, 25, 75, 35, 10, 40],
     # Idole
-    [25,25,70,40,35,40,40],
+    [25, 25, 70, 40, 35, 40, 40],
     # Prévoyant
-    [25,35,35,35,35,75,35],
-    #Tête Brulée
-    [55,45,25,35,25,35,55],
+    [25, 35, 35, 35, 35, 75, 35],
+    # Tête Brulée
+    [55, 45, 25, 35, 25, 35, 55],
     # Mage
-    [25,15,40,20,50,40,85],
+    [25, 15, 40, 20, 50, 40, 85],
     # Altruise
-    [15,40,85,45,20,45,25],
+    [15, 40, 85, 45, 20, 45, 25],
     # Enchanteur
-    [25,60,30,50,25,10,75],
+    [25, 60, 30, 50, 25, 10, 75],
     # Protecteur
-    [15,60,45,35,15,75,30],
+    [15, 60, 45, 35, 15, 75, 30],
     # Vigilant
-    [15,60,70,35,35,35,25],
+    [15, 60, 70, 35, 35, 35, 25],
     # Sorcier
-    [20,35,35,35,20,50,80],
+    [20, 35, 35, 35, 20, 50, 80],
     # Inovateur
-    [20,35,40,35,35,70,40],
+    [20, 35, 40, 35, 35, 70, 40],
     # Attentif
-    [60,25,30,25,60,40,35],
+    [60, 25, 30, 25, 60, 40, 35],
     # Neutre
-    [40,39,39,39,39,40,39]
+    [40, 39, 39, 39, 39, 40, 39]
 ]
 
 for a in range(0, len(inspi)):                           # Aspi base stats verification
@@ -215,22 +235,35 @@ ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
 ELEMENT_UNIVERSALIS_PREMO = 9
 
-elemEmojis = ["<:neutral:921127224596385802>", "<:fire:918212781168275456>", "<:water:918212797320536124>", "<:air:918592529480446002>", "<:earth:918212824805801984>","<:light:918212861757653053>", "<:darkness:918212877419175946>", '<:space:918212897967075329>', '<:time:918212912408051814>', "<:univ:936302039456165898>"]
-secElemEmojis = ["<:empty:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>","<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
+elemEmojis = ["<:neutral:921127224596385802>", "<:fire:918212781168275456>", "<:water:918212797320536124>", "<:air:918592529480446002>", "<:earth:918212824805801984>",
+              "<:light:918212861757653053>", "<:darkness:918212877419175946>", '<:space:918212897967075329>', '<:time:918212912408051814>', "<:univ:936302039456165898>"]
+secElemEmojis = ["<:empty:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>",
+                 "<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
 elemDesc = [
-    "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(elemEmojis[0]),
-    "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.".format(elemEmojis[1]),
-    "L'élément Eau ({0}) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.".format(elemEmojis[2]),
-    "L'élément Air ({0}) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.".format(elemEmojis[3]),
-    "L'élément Terre ({0}) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.".format(elemEmojis[4]),
-    "L'élément Lumière ({0}) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.".format(elemEmojis[5]),
-    "L'élément Ténèbre ({0}) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.".format(elemEmojis[6]),
-    "L'élément Astral ({0}) utilise la puissance cosmique à son aventage. Car rien ne se perd, rien ne se créait, tout se transforme.".format(elemEmojis[7]),
-    "L'élément Temporel ({0}) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue.".format(elemEmojis[8])
+    "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(
+        elemEmojis[0]),
+    "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.".format(
+        elemEmojis[1]),
+    "L'élément Eau ({0}) est plus propice à la concentration et la sérénité.\nLes adeptes de cet élément inflige plus de dégâts avec les armes ou capacités monocible à distance.".format(
+        elemEmojis[2]),
+    "L'élément Air ({0}) a pour réputation d'être assez capricieu et imprévisible.\nC'est pour cela que ses partisants filent tel le vent pour frapper plusieurs ennemis simultanément.".format(
+        elemEmojis[3]),
+    "L'élément Terre ({0}) permet de ressentir la puissance des courants d'énergie télurique et d'en tirer le meilleur parti.\nLes habitués de cet élément infligent des dégâts monocibles en mêlée plus conséquents.".format(
+        elemEmojis[4]),
+    "L'élément Lumière ({0}) permet d'entrevoir l'espoir là où les autres ne voit que les ombres.\nLes soins et armures de ces illuminés sont plus conséquents que ceux de leurs congénaires.".format(
+        elemEmojis[5]),
+    "L'élément Ténèbre ({0}) n'a pas son pareil pour exploiter les zones d'ombres de leurs adversaires.\nLes dégâts indirects de ces individues sont plus conséquents que ceux de leurs congénères.".format(
+        elemEmojis[6]),
+    "L'élément Astral ({0}) utilise la puissance cosmique à son aventage. Car rien ne se perd, rien ne se créait, tout se transforme.".format(
+        elemEmojis[7]),
+    "L'élément Temporel ({0}) permet de prévoire les coups, car avoir une longueur d'avance est toujours bienvenue.".format(
+        elemEmojis[8])
 ]
-elemNames = ["Neutre", "Feu", "Eau", "Air", "Terre", "Lumière","Ténèbre", "Astral", "Temporel", "Universalis Premera"]
+elemNames = ["Neutre", "Feu", "Eau", "Air", "Terre", "Lumière",
+             "Ténèbre", "Astral", "Temporel", "Universalis Premera"]
 
 elemMainPassifDesc = [
+    "Aucun passif principal",
     "Pénétration : + 5\nDégâts zones et distance simultanément : +10%",
     "Précision : + 10\nDégâts monocible et distance simultanément : +10%",
     "Agilité : + 10\nDégâts zones et mêlée simultanément : +10%",
@@ -242,6 +275,7 @@ elemMainPassifDesc = [
 ]
 
 elemSecPassifDesc = [
+    "Aucun passif secondaire",
     "Soins donnés et reçus : +5%\nArmures données et reçues : -5%",
     "Armures données et reçues : +5%\nSoins données et reçus : -5%",
     "Puissance des bonus et malus données et reçus : +5%",
@@ -271,12 +305,14 @@ untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218, 881633183425253396]
 
-stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624]
-weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434,938379180851212310,887846876114739261, 916120008948600872, 911731670972002374]
+stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,
+                   908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624, 953212496930562098]
+weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434,
+                    938379180851212310, 887846876114739261, 916120008948600872, 911731670972002374]
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):
-    horaire = timedelta(hours=1)
+    horaire = timedelta(hours=2)
 else:
     horaire = timedelta(hours=0)
 
@@ -296,25 +332,21 @@ shopRandomMsg = [
     "<:ikaPink:866459344173137930> : \"Flum POWA !\"\n{clemence} : \"Les coquelicots c'est mieux je trouve\"\n{alice} : \"N'importe quoi ! Ce sont les roses les plus jolies !\"\n{lena} : \"Vous trois, vous pourriez arrêter de débattre dans mon shop, s'il vous plait ?\"",
     "{lena} : \"Tiens, Clémence, j'ai trouvé un drôle de livre ces derniers temps et vu que tu t'y connais un peu en runes et magie, je me demandais si tu pouvais essayer de m'apprendre un peu comment m'en servir...\"\n{clemence} : \"Heu... ok\"",
     "{clemence} : \"Ah, Lena. J'ai jeté un coup d'œil à ton livre et heu... Tu as au moins une idée de ce qu'est un Carbuncle ?\"\n{lena} : \"Absolument pas\"\n{clemence} : \"... Ça va être long...\"",
-    '{lena} : "Si quelqu\'un vois Ly, vous pourrez lui dire que ma proposition tiens toujours ?"',
     '{clemence} : "Hum... j\'ai trouvé des trucs qui pourrait t\'interresser lors de ma dernière escapade dans les ruines d\'Elidyn, Lena"\n{lena} : "Ow ? Montre pour voir ?"',
     '{shihu} : "Ti miman a un pobem"\n{shushi} : "Gomment za ?"\n{shihu} : "Mi miman commenze a en awoir marre de fire la zentille fifille"\n{shushi} : "..."',
     '{alice} : "Mooow tu sais que tu es trop mignone toi ?"\n{shushi} : "Heu... gwa ?"',
     '{clemence} : "Je me doute déjà de la réponse mais... Alice, pourquoi tu es quasiment toujours là où se trouve Hélène en ce moment ?"\n{alice} : "... Pour rien ^^"\n{clemence} : "Je suis pas vraiment convaincue..."',
-    '{shihu} : "Ti en penze gwa de zette coupe de tentacule ?"\n{shushi} : "Hum... Pas viment convaincue..."\n{shihu} : "Oh..."\n{shushi} : "Mi apès, ze peux touzour en fire un queue de zeval regawde !\n{shihu} : :0',
+    '{shihu} : "Ti en penze gwa de zette coupe de cheveux ?"\n{shushi} : "Hum... Pas viment convaincue..."\n{shihu} : "Oh..."\n{shushi} : "Mi apès, ze peux touzour en fire un queue de zeval regawde !\n{shihu} : :0',
     '{feli} : "Hé Clémence ! Je peux t\'accompagner pour ta prochaine aventure ? Je te promet que je te gênerais pas !"\n{clemence} : "Alala... Soit"\n{feli} : :D',
     '<:akira:909048455828238347> : ...\n{shihu} : ...\n<:akira:909048455828238347> {shihu} : ^^\n\n{lena} : <:LenaWhat:760884455727955978>',
     '{lena} : "\"Fini de jouer\" ? Tu as pas mieux comme phrase d\'accroche ?"\n{luna} : "Est-ce que je critique tes \"It\'s now or never\" moi ?"\n{lena} : "Roh, je suis sûre que tu l\'aime bien aussi cette chanson"\n{luna} : "Tss. Uniquement l\'originale."',
     '<:helene:906303162854543390> : "Tu es au courant que mourir par hémorragie est tout sauf une mort agréable hein ?"\n{shehisa} : "Je vois pas où est la différence avec les infections que tu donnes à tes adversaires. Je suis peut-être pas une soigneuse, mais Papa m\'a suffisament initiée pour savoir que les maladies que tu leur refile sont tous sauf agréable"',
     '{shehisa} : "Tu me reproche d\'avoir suivi la voie de Maman, mais tu devrais voir comment tu te comporte face à un ennemi quand tu veux lui faire avaler la pilule"\n<:helene:906303162854543390> : "Qu\'est-ce que tu insinue par là ?"\n{shehisa} : "Que je suis pas la seule à avoir héritée des talents de Maman"',
     '{shehisa} : "Toujours rassurant de te savoir dans les parages, Icealia"\n{icelia} : "Et moi je suis toujours rasurée de te savoir dans mon camp..."',
-    '<:determination:867894180851482644> : "Laisse tomber Lena. De toutes façons il me considre même pas comme un de ses OCs"\n{lena} : "Tu vas pas rester dans le retrait et dans l\'oublie quand même ! Tu es presque aussi vielle que moi !"\n<:determination:867894180851482644> : "Undertale est plus vieux que toi"\n{lena} : "Si tu veux jouer à qui a la plus grosse je pense que je t\'explose"\n<:determination:867894180851482644> : "Oh ça dépend de la catégorie. En combat, tu m\'as jamais vaincue"\n{luna} : "Mais moi si"',
-    'Les anges c\'est surc-\n{lena} : .',
     '<:determination:867894180851482644> : "Alors Féli, tu as fais des progrès sur ta maitrise de la Détermination ?"\n{feli} : "Ouais :D ! Regarde ça !"',
     '<:takoRed:866459004439756810> : "Clémence, ça va mieux avec ta cicatrice en ce moment ?"\n{clemence} : "À part qu\'elle me brûle quand j\'utilise trop mes pouvoirs vampiriques ou quand il y a un Alpha dans le coin, rien à déclarer"\n<:takoRed:866459004439756810> : "Tss. Ces loups garoux..."\n{clemence} : "Pas la peine de prendre ce regard assassin Madame Ruby. J\'ai appris à faire avec maintenant"',
     '`Alice surgit au coins du couloir en courant et vous rentre dedans, ne vous ayant pas vu`\n\n{alice} : "Dé-désolée !"\n\n`Elle ramasse rapidement les cahiers qu\'elle portait dans ses bras et repart aussi vite qu\'elle est venue.\nVous constatez qu\'elle a oublié une feuille, qui a du se retrouver sous elle quand elle est tombée`\n\n📄 [Devoir d\'astronomie sur les trous noirs](https://bit.ly/3kh8xP3)',
     '{alice} : "Maraiiiiiiiiine ?"\n{lena} : "Il y a un peu trop de "i" pour moi..."\n{alice} : "C\'est quoi ça."\n\n`Elle sortie son téléphone et le mit directement devant le visage de Lena`\n\n📱 [Photographie d\'une feuille de papier](https://bit.ly/3o74aal)\n\n{lena} : "... Merde. Et comment ça, tu es allé fouiller dans ma chambre !?"',
-    '{alice} : "Altyyy ?"\n<:alty:906303048542990347> : "Hum ^^ ?"\n{alice} : "Tu peux m\'apprend à faire des begnets de calamars (ᵔ◡ᵔ) ?"\n<:alty:906303048542990347> : "Heu... ok mais seulement si c\'est moi qui apporte le calamar ^^\'"\n{alice} : "Bah pourquoi tu dis ça (o^ ^o) ?"\n{shushi} : "Quiqu\'un awais vu Miman ?"',
     '{lena} : "Tu sais que tu va finir par traumatiser des gens avec tes \"Boum boum\" toi ?"\n{shihu} : "Mi z\'est drole les Boum Boum..."',
     '{clemence} : "Hé Powehi, je me suis retrouvée avec plein de Rotten Flesh lors de ma dernière expédition, tu veux que je te les passes ?"\n<:powehi:909048473666596905> : "Oh que oui !"',
     '<:gweny:906303014665617478> : "Toujours à regarder les étoiles ?"\n<:powehi:909048473666596905> : "J\'ai une question Gwendoline... Tu réagirais comment si tu étais bloquée dans ce monde après ta mort et ne pouvais que regarder les autres être vivant te fuir dès que tu t\'approches trop d\'eux ?"\n<:gweny:906303014665617478> : "Oh heu... Je sais pas vraiment désolée. Compliqué de se mettre à ta place, j\'en ai bien peur"\n<:powehi:909048473666596905> : "C\'est pas grave, merci quand même..."',
@@ -324,14 +356,23 @@ shopRandomMsg = [
     "<:gweny:906303014665617478> : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
     "<:lia:908754741226520656> : \"Hé Alice ! Tu penses quoi de ces fleurs là ?\"\n{alice} : \"Hum... un peu trop jaune à mon goût...\"",
     "{shushi} : \"Hé hé Midame des neizes ! Z'est touvé za part terre, y a maqué quoi dezu ?\"\n{icelia} : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)",
-    "{lena} : \"...\"\n{luna} : \"Tu commencerais pas à nous faire une crise de jalousie toi ?\"\n{lena} : \"Je vois pas de quoi tu parles.\"\n{luna} : \"J'en pris, je suis mieux placée que qui-conque pour voir comment tu regardes Clémence depuis qu'elle a sa version boss\"\n{lena} : \"...\"\n{luna} : \"En même temps tu passes ton temps à lui montrer que tu peux te débrouiller toute seule, tu vas pas lui reprocher de s'occuper de ses autres OCs de temps en temps, si ?\"\n{lena} : \"Non évidament...\"",
     "{lena} : \"La vache c'est bien plus compliqué que je le pensais de lancer ces plumes enfaites...\"\n<:hina:908820821185810454> : \"C'est qu'une question d'habitude ^^ Hônnetement... J'arriverai même pas à tenir un de tes fusils donc bon ^^'\"",
     "{sixtine} : \"...\"\n<:krys:916118008991215726> : ?\"\n{sixtine} : \"...\"\n<:krys:916118008991215726> : \"?.? Je peux t'aider ?\"\n{sixtine} : \"Oh heu... Je me demandais juste si tu avais un coeur de pierre...\"\n<:krys:916118008991215726> : \"??.??\"",
-    "{lena} : \"Maintenant que j'y pense, vous avez pas vraiment été gaté en terme d'évolution vous autre\"\nDe la part de quelqu'un qui a un corps tellement fragile qu'elle ne peut pas survivre dans l'eau c'est plutôt ironique\n{lena} : \"Tu sais très bien ce que je veux dire\"",
     "{iliana} : \"Cl-Clméence... ? Hum... tu sais pourquoi ta soeur m'évite toi... ?\"\n{clemence} : \"Si tu parles d'Alice, elle a eu quelques porblèmes avec un chat quand elle était plus jeune donc elle en est un peu traumatisée\"\n{iliana} : \"Oh... la pauvre...\"",
     "{iliana} : \"Je... C'est ton droit de me détester mais... Je pourrais au moins savoir pourquoi... ?\"\n{iliana} : \"Lena... qu'est-ce que j'ai mal fait... ?\"\n{iliana} : \"L-Lena... m'ignore pas s'il te plaît...\"\n{iliana}  : \"... Désolée...\"",
     "{sixtine} : \"Par curiosité Alice... tu as quoi comme info sur Iliana ?\"\n{alice} : \"Hum... Laisse moi voir... Tiens voilà\"\n\n[Feuille de papier froisée](https://docs.google.com/document/d/1SUVmdch_lQ-Ub_zoTJKOtxTkwZMqyLD8xrbCq8CTcDQ/edit?usp=drivesdk)\n\n{sixtine} : \"Même sur ça tu as fais d'efforts... ?\"\n{alice} : S-Sixtine ! Tu sais bien que je peux juste... pas...",
-    "{luna} : \"Hum... Iliana ? Je peux te demander pourquoi tu restes toujours avec moi enfaite... ? Enfin... On représente chacune des éléments totalement opposés, j'ai détruit ta dimension native et passe mon temps à te rabaisser. Tu as toutes les raisons du monde pour me détester...\"\n{iliana} : `Saute des genoux de Luna en reprenant sa forme humaine puis se tourne face à elle` \"Il est vrai que je pourrais totalement te détester comme ton alter ego me déteste, mais honnements je crois que je suis trop stupide pour ça ^^ Et puis va pas me dire que tu me déteste aussi, sinon ça ferai un moment que je me serais prise des murs quand je monte sur tes genoux et tu me carresserais pas la tête quand je le fais. Et toi, pourquoi tu me déteste pas ?\"\n{luna} : \"Je heu... Bonne question...\""
+    "{luna} : \"Hum... Iliana ? Je peux te demander pourquoi tu restes toujours avec moi enfaite... ? Enfin... On représente chacune des éléments totalement opposés, j'ai détruit ta dimension native et passe mon temps à te rabaisser. Tu as toutes les raisons du monde pour me détester...\"\n{iliana} : `Saute des genoux de Luna en reprenant sa forme humaine puis se tourne face à elle` \"Il est vrai que je pourrais totalement te détester comme ton alter ego me déteste, mais honnements je crois que je suis trop stupide pour ça ^^ Et puis va pas me dire que tu me déteste aussi, sinon ça ferai un moment que je me serais prise des murs quand je monte sur tes genoux et tu me carresserais pas la tête quand je le fais. Et toi, pourquoi tu me déteste pas ?\"\n{luna} : \"Je heu... Bonne question...\"",
+    "`Gwen descendit dans le séjour pour aller préparer le petit déjeuné quand elle vit Lena en train de dormir sur le canapé. Sur la table se trouve plusieurs pièces de ce qu'elle devina être un nouveau fusil longue portée et en déduit que l'inkling a encore veillé jusqu'à point d'heure pour mettre au point un nouveau joujou\nEn approchant, elle vit Shushi assise à côté de sa mère en train d'essayer de résoudre un Rubik's cube silencieusement. En la voyant arriver, celle-ci mit doucement un doigt sur ses lèvres. Gwen lui sourit gentiment puis alla dans la cuisine`",
+    "{clemence} : `Attend le trio de soeur en lisant assise (à l'ombre) à la terrasse d'un café tout en discutant avec Gwen, quand elle vit Sixitine venir seule` \"Comment ça tu es toute seule Sixtine ? Où sont Féli et Alice ?\"\n{sixtine} : \"Féli a dit qu'elle voulait aller voir la dernière expédition sur les dieux de la Grèce Antique et Alice a... dit un truc à propos de l'Eglise je crois...\"\n{clemence} : \"... Gweny, tu veux bien t'occuper d'aller chercher Alice et je me charge de Féli ?\"\n<:gweny:906303014665617478> : \"Je suis pas vraiment la bienvenue dans les églises catholiques aussi tu sais ?\"\n{clemence} : \"Déjà moins que moi...\"\n{sixtine} : \"Je peux y aller moi si vous voulez... Je suis qu'humaine...\"",
+    "{sixtine} : `Regarde le crusifix et le livre religieux à côté du lit d'Alice` \"Comment tu arrives à dormir à côté de ça... Clémence ne supporte même pas d'être à proximité d'une croix...\"\n{alice} : `Fait une petite moue`\" C'est elle qui s'est définie en temps qu'ennemi du divin souss prétexte que c'est sa nature. Mais ce genre de discipline tiens sa puissance en la Foi. Tant que tu l'as, qu'importe que ce tu es",
+    "{clemence} : \"... Je sais que tu as la manie de dormir partout Sixtine... Mais dans mon cercueil tout en étant claustrophobe ?\"\n{sixtine} : `Dort à point fermé`",
+    "{lena} : \"Contente que tu ai changé d'avis\"\n<:ly:943444713212641310> : \"J'avais besoin de changer d'horison\"",
+    "<:edelweiss:918451422939451412> : \"... Je peux t'aider ? On le dirait pas comme ça mais je me débrouille plutôt bien en soins\"\n<:lohica:919863918166417448> : \"Tu me rappelle juste quelqu'un, c'est tout... Et ton truc c'est pas plutôt la protection ?\"\n<:edelweiss:918451422939451412> : `Hausse les épaules` \"Je le fais parcequ'il y a déjà pas mal de personnes qui soignent ici, c'est tout\"",
+    "{sixtine} : `Regarde les étoiles dans une prairie, puis remarque qu'elle n'est pas seule` \"... toi aussi tu brillais autant à l'époque où tu étais une étoile aussi... ?\"\n<:powehi:909048473666596905> : \"Et comment ! J'étais la plus grande, la plus chaude et la plus brillante de ma région...\"\n{sixtine} : \"Tu avais un système planétaire aussi ?\"\n<:powehi:909048473666596905> : \"Trois. Elles étaient plutôt sympatiques, et l'une d'entre elle abritait même la vie mais... `Soupir` Elles...\"\n{sixtine} : \"... Au moins je suis sûre qu'elles ont bien aimée ta supernova...\"\n<:powehi:909048473666596905> : \"Je... je pense... Leurs représentations se tenaient les mains sans vraiment avoir l'air effrayées...\"",
+    "{feli} : \"Dit Maraine, tu peux jouer ça au violon ?\"\n{lena} : \"Hum laisse moi voir ? Si Do# Mi Fa# Mi Ré# Do# Si Fa#... Oh. Je vois où tu veux en venir\"",
+    "{lena} : \"Merci du coup de main Lio. Bon maintenant Shihu. Qu'est-ce que j'ai dit à propos de l'utilisation de la magie à la maison ?\"\n{shihu} : \"De... Pas utiliser la magie à la maison...\"\n{lena} : \"Et donc pourquoi on a du s'y mettre à trois pour éteindre les flammes noires dans votre chambre ?\"\n{shihu} : \"Mais il y avait un moustique...\"\n{lena} : \"Et tu penses sérieusement que risquer de réduire la maison en cendre pour un moustique est une bonne idée ?\"\n{shihu} : \"... au moins je l'ai eu...\"\n{lena} : \"... Vous êtes toutes les deux privées de dessins animés et de dessert pour une semaine.\"\n{shushi} : \"Mais j'ai rien fait moi !\"\n{lena} : \"Justement.\"",
+    "{shihu} : \"Lena ne va pas du tout être contente quand elle vera que tu as pris un de ses pistolets d'airsoft...\"\n{shushi} : \"Elle n'en saura rien !\"\n{shushi} : \"Tu as même pas pris de protections..\"\n\n`Shushi visa une canette vide et tira, sans grand succès. La bille rebondit cependant sur le mur derrière et explosa contre un bouclier lumineux qui s'était formée devant la petite fille avant qu'elle n'ai eu le temps de bouger. Cette dernière regarda un peu confuse autour d'elle puis elle remarqua la chatte blanche assise à côté d'elle qui la regardait fixement`\n\n{shushi} : \"... s'il te plait le dis pas à Miman...\"\n{iliana} : \"Si tu ranges ça, peut-être\"\n{shihu} : \"(Pff, elle fait juste ça pour pas que Lena la tienne responsable également)\"",
+    "{alice} : `Carresse très lentement Iliana en étant relativement tendue`\n{iliana} : `Se contente de ronronner sans bouger pour éviter de l'effrayer. Et puis elle aime bien les caresses`\n{alice} : `Se met à lui caresser le ventre en voyant qu'elle s'est mise sur le dos\n{iliana} : `Essaye le plus possible d'ignorer son instinct de félin qui lui hurle d'essayer de mordiller cette main qui se balade sur son ventre, parcequ'elle n'a pas envie que cette même main la projette contre un mur dans un mouvement brusque avec toute la force d'une jeune vampire paniquée. Quelque chose lui dit que plusieurs de ses os ne l'appréciraient pas trop`"
 ]
 
 shopEventEndYears = [
@@ -345,8 +386,8 @@ shopEventEndYears = [
 ]
 
 shopEventOneDay = [
-    {"date":(19,1),
-    "tabl":[
+    {"date": (19, 1),
+     "tabl": [
         "{shushi} : \"Joyeux naniversaire Miman !\" `Lui donne un joli dessin fait avec Sixtine`\n{lena} : \"Oh ^^ Merci Shu'\"",
         "{lena} : \"Hé Léna ! J'ai le droit à un jour de congé pour mon anniversaire ?\"\nC'est pas comme si tu étais un OC super occupée...",
         "{feli} : \"Joyeux anniversaire Maraine ^°^\"\n{lena} : \"Merci Féli ^^\"",
@@ -355,16 +396,16 @@ shopEventOneDay = [
         "{lena} : \"J'aurais pensé que tu te ferais plus présente aujourd'hui tout de même. Techniquement, c'est ton anniversaie aussi\"\n{luna} : \"Je comprend pas vraiment ce délire des \"anniversaires\"\""
     ]
     },
-    {"date":(14,2),
-    "tabl":[
+    {"date": (14, 2),
+     "tabl": [
         "{lena} : `Soupir` \"Je dirais pas non à un petit chocolat chaud aujourd'hui...\"",
         "{clemence} : \"Alors Alice, prête à être la boureau des coeurs du colège ?\"\n{alice} : \"Si tu crois que ça m'amuse...\"",
         "{lena} : `Regarde Ly dormir sous un arbre à l'aurée de la forêt` Je sais pas pourquoi je l'aurais pensé plus active aujourd'hui...",
         "<:john:908887592756449311> : \"Hum... Clémence ? J'ai... des chocolats pour toi...\"\n{clemence} : \"Hum, désolée, mais je dirgère pas trop les chocolats ^^'\"\n{alice} : `Facepalm derrière le dos de la vampire`"
     ]
     },
-    {"date":(17,4),
-    "tabl":[
+    {"date": (17, 4),
+     "tabl": [
         "{alice} : \"Hé Clémence :D Regarde tous les oeufs que j'ai trouvés !\"\n{clemence} : \"Effectivement c'est beaucoup\"",
         "{sixtine} : \"Clémence... ? Hum... Tu veux partager un oeuf en chocolat... ?\"\n{clemence} : \"Désolée Sixtine... tu sais bien que je digère pas le chocolat...\"",
         "{lena} : \"J'ai jamais compris pourquoi les gens cachent des oeufs en chocolat pour Pâques\"\n{luna} : \"Ça ne t'empêches pas de le faire quand même\"\n{lena} : \"En même temps, même toi tu ne peux pas être insensibles à toutes leurs bouilles heureuses\"\n{luna} : \"Évite de parler en mon nom s'il te plaît\""
@@ -372,11 +413,9 @@ shopEventOneDay = [
     }
 ]
 
-
 shopSeasonWinter = [
     "{clemence} : `Lit un grimoire en étant assise sur un fauteuil devant la cheminée`",
     "{lena} : \"Féli, si tu pouvais arrêter de dormir dans le feu ça m'arrangerais pas mal\"\n{feli} : \"Bah pourquoi :< ?\"\n{lena} : \"Parceque après tes soeurs et Shushi veulent faire la même chose. Et elles, elles ne sont pas fireproof.\"\n{feli} : \"Oh\"",
-    "{shushi} : \"Miman pourquoi j'ai pas le droit de rester près du feu moi :< ?\"\n{lena} : \"Parceque ta membrane extérieure est trop jeune et tout ton corps va sécher si tu restes trop près du feu, voilà pourquoi\"",
     "{alice} : `Boit un chocolat chaud en étant assise sur un fauteuil devant la cheminée`\n{sixtine} : `Arrive dans le salon avec sa couette sur les épaules et monte dans le fauteuil pour se blottir contre Alice`\n{alice} : \"ça va pas ?\"\n{sixtine} : \"Juste un cauchemar...\"\n{alice} : `patpat`",
     "{clemence} : `Regarde Félicité de haut en bas` \"Toi tu as encore dormi dans la cheminée\"\n{feli} : \"D: Non c'est faux !\"\n{clemence} : \"Tu es pleine de cendres, s'il te plaît x)\"",
     "{lena} : `Descend dans le salon à 3h du matin pour prendre un verre d'eau et voit une boule de poils blancs devant la cheminée` \"C'est pour ça qu'on porte des vêtements, Lio\"\n<:lio:908754690769043546> : `Eternue dans son sommeil`\n{lena} : `Soupir, remet une buche dans la cheminée puis pose une couverture sur la grosse boule de poils`"
@@ -386,7 +425,10 @@ shopSeasonSpring = [
     "{alice} : `Est assise sur une commode devant une fênetre et regarde la pluie arroser ses fleurs`",
     "{alice} : `Plante des fleurs dans le jardins tandis que Sixtine regarde les nuages`",
     "{luna} : \"Dans notre ancien chez nous les fleurs mourraient si elles avaient trop de Lumière\"\n{iliana} : \"Vraiment toutes ? Même ici il y a des fleurs qui vivent dans l'ombre\"\n{luna} : \"À quelques exeptions près, effectivement\"",
-    "{lena} : \"Surtout tu oublie pas ton parapluie !\"\n{shushi} : \"Mi il fait grand soleil !\"\n{lena} : \"Il peut très rapidement se mettre à pleuvoir à cette saison, Shu'\""
+    "{lena} : \"Surtout tu oublie pas ton parapluie !\"\n{shushi} : \"Mi il fait grand soleil !\"\n{lena} : \"Il peut très rapidement se mettre à pleuvoir à cette saison, Shu'\"",
+    "{alice} : \"J'ai hate que l'été arrive ! Tu viendras avec nous à la plage Clémence :D ?\"\n{clemence} : \"Hum, tu veux dire sous un soleil de plomb en maillot de bain avec la mer qui fait ses remous juste à côté alors que je déteste l'eau et arrive à me chopper des coups de soleil en hiver et sans reflets sur la neige ?\"\n{alice} : \"... Désolée c'était stupide...\"",
+    "<:anna:943444730430246933> : \"Hé Alice, tu en penses quoi de cet ensemble... ?\"\n{alice} : \"Un peu viellot, mais ça te va bien\"",
+    "{lena} : \"On est surtout, évitez de traîner trop avec Lia s'il vous plaît. Le printemps est sa saison de prédilection\""
 ]
 
 shopRepatition = [4, 5, 8, 3]                 # Shop's item category length
@@ -483,13 +525,12 @@ class says:
 
         return self
 
-
 lenaSays = says(
     start="Lena, parée à faire feu.",
     ultimate="Hey {target} ! J'ai un {skill} avec ton nom dessus !",
     limiteBreak="It's now or never ! {skill} !",
     onDeath="Tps.",
-    onResurect="J'te revaudrais ça {caster}",
+    onResurect="J'te revaudrais ça {target}",
     blueWinAlive="Une victoire en bonne uniforme",
     redWinAlive="Vous avez encore des progrès à faire",
     redWinDead="Pas mal. Mais pas suffisant",
@@ -818,7 +859,6 @@ def createTmpChangeDict(level: int, changeWhat: int, change: list, to: list, pro
 
     return {"level": level, "changeWhat": changeWhat, "change": change, "to": to, "proba": proba}
 
-
 # ["Berserkeur","Observateur","Poids plume","Idole","Prévoyant","Tête brulée","Mage","Altruiste","Invocateur","Enchanteur","Protecteur"]
 limitBeakGif = [
     'https://cdn.discordapp.com/attachments/927195778517184534/932778559150391366/20220118_002840.gif',  # Ber
@@ -864,6 +904,15 @@ lenaTipsMsgTabl = [
     "Lors d'un raid, vous êtes associé à une équipe dont le niveau moyen est similaire à celle de la votre. Cependant, cette équipe tierce n'obtient aucune récompense",
     "Vous vous souvenez de l'aspiration \"Stratège\" ? Ouais moi non plus",
     "Funfact : Tout à commencé sur une aire d'autoroute pendant que Lénaïc s'ennuyait à attendre que sa famille revienne de sa pause pipi",
+    "Les sorciers créent de petites détonnations quand ils éliminent un ennemi. Celles-ci prennent en compte les statistiques de Magie et de Dégâts indirects",
+    "Les Têtes Brulées réduisent petit à petit les PV maximums de leurs cibles, ce qui les rends particulièrement efficaces contre les ennemis qui se soignent beaucoup",
+    "Utiliser des compétences divines vous fait peu à peu perdre votre prise sur la réalité au fil du combat. Cela est représenté par des pertes de PV maximums lors de l'utilisation de ces dernières",
+    "Utiliser des compétences démoniaques requière une quantité d'énergie si importe que vous perdrez une partie de vos PV courrants",
+    "En lançant des combats normaux, vous avez une petite chance de revivre un combat passé qu'à vécu un des alliés temporaires\nCes combats sont appelés \"Combat par procuration\"",
+    "Certaines compétences comme Mort Vivant ou Bolide peuvent rendre leur utilisateur invulnérable ou impossible à vaincre pendant un cours instant, permettant aux soigneurs d'essayer de leur sauver la mise",
+    "Certaines compétences comme quelques transcendance ou Abnégations ont pour effet secondaire de réanimé les alliés vaincus dans la zone d'effet, si ils peuvent encore l'être",
+    "Les Protecteurs, Vigilants et Enchanteurs sont trois aspirations qui tirent partie de leur capacités à attirer (et encaisser) les attaques adverses",
+    "La Résistance Soin progresse plus rapidement si plusieurs soigneurs sont présents dans la même équipe"
 ]
 
 ilianaSaysNormal = says(
@@ -893,3 +942,19 @@ kitsuneSays = says(
     redWinAlive="C'était amusant, vous trouvez pas ?",
     reactBigRaiseEnnemy="Vos âmes m'appartiennent déjà, pourquoi résister ?"
 )
+
+lySays = says(
+    start="Arf, mon truc c'est plutôt les squelettes et les zombies, vous savez ?",
+    ultimate="Prêts pour le feu d'artifice ?",
+    onDeath="Je suis pas assez bien payée pour ce genre de trucs...",
+    onResurect="Je savais que j'aurais du prendre un totem de résurection... Mais merci",
+    blueWinAlive="J'ai le droit de garder le loot ?",
+    redWinAlive="Vous avez un lit qui vous attend",
+    reactBigRaiseAllie="Si on doit en arriver à cette extremité, ça n'a pas vraiment l'air d'être bien parti...",
+    reactBigRaiseEnnemy="Je doute que ça suffira à inverser la tendance !",
+    reactEnnemyKilled="Tu as oublié ton totem de résurrection, {downed} ?"
+)
+
+gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimate="Ok ça suffit là !",limiteBreak="Ok là vous m'avez énervée !",reactAllyKilled="Je suppose que j'ai une nouvelle cible maintenant",reactBigRaiseEnnemy="En quoi c'est juste ça Lena !?\"*\n<:lena:909047343876288552> : \"*Vous pouvez le faire aussi, arrête de te plaindre")
+klikliSays = says(start="Ok. Je vais m'en occuper rapidement",limiteBreak="OK, VOILÀ POUR VOUS !",onKill="Si tu veux revenir, j't'ai pas encore montrer tout ce dont je suis capable.",reactEnnemyKilled="Pff, j'peux le faire toute seule tu sais ?")
+altySays = says(start="'K, je vais faire de mon mieux",onKill="Désolée...",onResurect="Ok, second round !",reactAllyKilled="{killed} !")
