@@ -3681,7 +3681,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
             try:
                 msg = await ctx.send(embed = await getRandomStatsEmbed(bot,team1,text=["Chargement...","Combat rapide en cours de génération..."][int(auto)]))
             except:
-                footerText = "/fight de {0}#{1} ({2}:{3})".format(ctx.author.name,ctx.author.discriminator,now.hour,now.minute,)
+                footerText = "/fight de {0}#{1} ({2}:{3})".format(ctx.author.name,ctx.author.discriminator,["0{0}".format(now.hour),now.hour][now.hour>9],["0{0}".format(now.minute),now.minute][now.minute>9],)
                 msg = await ctx.channel.send(embed = emby.set_footer(text=footerText,icon_url=ctx.author.avatar_url))
 
         else:
@@ -7056,7 +7056,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
 
                 listClassement = [dptClass,healClass,shieldClass,suppClass]
 
-                if not(octogone):
+                if not(octogone):           # Add result to streak
                     teamWinDB.addResultToStreak(mainUser,everyoneDead[1])
                     team = mainUser.team
                     if isLenapy:
@@ -7064,7 +7064,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
 
                 tablSays = []
                 temp= ["",""]
-                for a in [0,1]:
+                for a in [0,1]:             # Result msg character showoff
                     for b in tablEntTeam[a]:
                         if type(b.char) != char:
                             icon = b.char.icon
@@ -7119,7 +7119,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                 nowTemp = duree - now
                 nowTemp = str(nowTemp.seconds//60) + ":" + str(nowTemp.seconds%60)
 
-                if not(octogone):
+                if not(octogone):       # Add the "next fight" field
                     nextFigth = now + timedelta(hours=1+(2*auto)) + horaire
                     nextFightMsg = "\n__Prochain combat {0}__ : {1}".format(["normal","rapide"][auto],nextFigth.strftime("%Hh%M"))
                 else:
@@ -7220,66 +7220,150 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                             if baseGain != effectiveExpGain:
                                 logs += "\n{0} got a {1}% exp boost (total : +{2} exp)".format(a.char.name,int((effectiveExpGain/baseGain-1)*100),effectiveExpGain)
 
-                            sussesfullRoll = random.randint(0,99) < [25,35,55][int(userShopPurcent(a.char)<90)+int(userShopPurcent(a.char)<25)]
-                            #sussesfullRoll = False
-                            if sussesfullRoll and allOcta and not(winners):
-                                logs += "\n{0} have loot :".format(a.char.name)
-                                drop = listAllBuyableShop[:]
-                                temp = drop[:]
+                            userShop = userShopPurcent(a.char)
+                            stuffRoll, skillRoll = constStuffDrop[userShop//10*10], constSkillDrop[userShop//10*10]
+                            if allOcta:             # Loots
+                                if not(winners):
+                                    if random.randint(0,99) < stuffRoll:                   # Drop Stuff
+                                        logs += "\n{0} have loot :".format(a.char.name)
+                                        drop = listAllBuyableShop[:]
+                                        for b in drop[:]:
+                                            if not(type(b) in [classes.weapon,classes.stuff] and not(a.char.have(obj=b))):
+                                                if not(type(b) == classes.weapon or (type(b) == classes.stuff and b.minLvl//5 <= (a.char.level//5)+1)):
+                                                    drop.remove(b)
 
-                                for b in drop:
-                                    if a.char.have(obj=b) or (type(b)==stuff and b.minLvl > a.char.level + 5):
-                                        temp.remove(b)
+                                        if len(drop) > 0:
+                                            rand = drop[random.randint(0,len(drop)-1)]
+                                            newTemp = whatIsThat(rand)
+                                            logs += " {0}".format(rand.name)
 
-                                if len(temp) > 0:
-                                    rand = temp[random.randint(0,len(temp)-1)]
-                                    newTemp = whatIsThat(rand)
-                                    logs += " {0}".format(rand.name)
+                                            if newTemp == 0:
+                                                a.char.weaponInventory += [rand]
+                                            elif newTemp == 2:
+                                                a.char.stuffInventory += [rand]
 
-                                    if newTemp == 0:
-                                        a.char.weaponInventory += [rand]
-                                    elif newTemp == 1:
-                                        a.char.skillInventory += [rand]
-                                    elif newTemp == 2:
-                                        a.char.stuffInventory += [rand]
+                                            saveCharFile(path,a.char)
+                                            usrIcon = await getUserIcon(bot,a.char)
+                                            if usrIcon in gainMsg:
+                                                gainMsg += f", {rand.emoji} {rand.name}"
+                                            else:
+                                                gainMsg += "\n{0} → {1} {2}".format(usrIcon,rand.emoji,rand.name)
 
-                                    saveCharFile(path,a.char)
-                                    usrIcon = await getUserIcon(bot,a.char)
-                                    if usrIcon in gainMsg:
-                                        gainMsg += f", {rand.emoji} {rand.name}"
-                                    else:
-                                        gainMsg += "\n{0} → {1} {2}".format(usrIcon,rand.emoji,rand.name)
+                                        elif len(drop) == 0:
+                                            gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
 
-                                elif len(temp) == 0:
-                                    gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
+                                            for comp in a.char.skills+a.char.stuff:                             # Dans toutes les compétences du personnage + ses équipementd
+                                                if type(comp) == skill and comp.name == "Truc pas catho":       # Si On sais quoi est équipé
+                                                    gainTabl = [69]                                             # Tu peux gagner que 69 pièces
+                                                    break
+                                                elif type(comp) == stuff and comp.name == "Tenue Provocante":   # Sinon, si On sait quoi 2 est équipé
+                                                    gainTabl = [69]                                             # Tu peux gagner que 69 pièces aussi
+                                                    break
 
-                                    for comp in a.char.skills+a.char.stuff:                             # Dans toutes les compétences du personnage + ses équipementd
-                                        if type(comp) == skill and comp.name == "Truc pas catho":       # Si On sais quoi est équipé
-                                            gainTabl = [69]                                             # Tu peux gagner que 69 pièces
-                                            break
-                                        elif type(comp) == stuff and comp.name == "Tenue Provocante":   # Sinon, si On sait quoi 2 est équipé
-                                            gainTabl = [69]                                             # Tu peux gagner que 69 pièces aussi
-                                            break
+                                            gain = gainTabl[random.randint(0,len(gainTabl)-1)]
+                                            logs += " {0} pièces".format(gain)
+                                            a.char.currencies += gain
+                                            saveCharFile(path,a.char)
+                                            if await getUserIcon(bot,a.char) in gainMsg:
+                                                gainMsg += f", {gain} <:coins:862425847523704832>"
+                                            else:
+                                                gainMsg += "\n{0} → {1} <:coins:862425847523704832>".format(await getUserIcon(bot,a.char),gain)
 
-                                    gain = gainTabl[random.randint(0,len(gainTabl)-1)]
-                                    logs += " {0} pièces".format(gain)
-                                    a.char.currencies += gain
-                                    saveCharFile(path,a.char)
-                                    if await getUserIcon(bot,a.char) in gainMsg:
-                                        gainMsg += f", {gain} <:coins:862425847523704832>"
-                                    else:
-                                        gainMsg += "\n{0} → {1} <:coins:862425847523704832>".format(await getUserIcon(bot,a.char),gain)
+                                    if random.randint(0,99) < skillRoll:
+                                        logs += "\n{0} have loot :".format(a.char.name)
+                                        drop = listAllBuyableShop[:]
 
-                            elif not(sussesfullRoll) and mainUser.owner == a.char.owner and allOcta and not(winners):
-                                if random.randint(0,999) < 334:
-                                    aliceStatsDb.updateJetonsCount(mainUser,1)
-                                    logs += "\n{0} a obtenu un jeton de roulette".format(mainUser.name)
-                                    usrIcon = await getUserIcon(bot,a.char)
-                                    if usrIcon in gainMsg:
-                                        gainMsg += f", <:jeton:917793426949435402> Jeton de roulette"
-                                    else:
-                                        gainMsg += "\n{0} → <:jeton:917793426949435402> Jeton de roulette".format(usrIcon,rand.emoji,rand.name)
+                                        for b in drop[:]:
+                                            if type(b) != classes.skill:
+                                                drop.remove(b)
 
+                                        if len(drop) > 0:
+                                            rand = drop[random.randint(0,len(drop)-1)]
+                                            a.char.skillInventory += [rand]
+
+                                            saveCharFile(path,a.char)
+                                            usrIcon = await getUserIcon(bot,a.char)
+                                            if usrIcon in gainMsg:
+                                                gainMsg += f", {rand.emoji} {rand.name}"
+                                            else:
+                                                gainMsg += "\n{0} → {1} {2}".format(usrIcon,rand.emoji,rand.name)
+
+                                        elif len(drop) == 0:
+                                            gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
+
+                                            for comp in a.char.skills+a.char.stuff:                             # Dans toutes les compétences du personnage + ses équipementd
+                                                if type(comp) == skill and comp.name == "Truc pas catho":       # Si On sais quoi est équipé
+                                                    gainTabl = [69]                                             # Tu peux gagner que 69 pièces
+                                                    break
+                                                elif type(comp) == stuff and comp.name == "Tenue Provocante":   # Sinon, si On sait quoi 2 est équipé
+                                                    gainTabl = [69]                                             # Tu peux gagner que 69 pièces aussi
+                                                    break
+
+                                            gain = gainTabl[random.randint(0,len(gainTabl)-1)]
+                                            logs += " {0} pièces".format(gain)
+                                            a.char.currencies += gain
+                                            saveCharFile(path,a.char)
+                                            if await getUserIcon(bot,a.char) in gainMsg:
+                                                gainMsg += f", {gain} <:coins:862425847523704832>"
+                                            else:
+                                                gainMsg += "\n{0} → {1} <:coins:862425847523704832>".format(await getUserIcon(bot,a.char),gain)
+
+                                    elif mainUser.owner == a.char.owner:
+                                        if random.randint(0,999) < 334:
+                                            aliceStatsDb.updateJetonsCount(mainUser,1)
+                                            logs += "\n{0} a obtenu un jeton de roulette".format(mainUser.name)
+                                            usrIcon = await getUserIcon(bot,a.char)
+                                            if usrIcon in gainMsg:
+                                                gainMsg += f", <:jeton:917793426949435402> Jeton de roulette"
+                                            else:
+                                                gainMsg += "\n{0} → <:jeton:917793426949435402> Jeton de roulette".format(usrIcon,rand.emoji,rand.name)
+                                elif userShop < 35:
+                                    if random.randint(0,99) < constLooseStuffDrop[int(userShop//10)]:
+                                        logs += "\n{0} have loot :".format(a.char.name)
+                                        drop = listAllBuyableShop[:]
+                                        for b in drop[:]:
+                                            if not(type(b) in [classes.weapon,classes.stuff,classes.skill] and not(a.char.have(obj=b))):
+                                                if not(type(b) in [classes.weapon,classes.skill] or (type(b) == classes.stuff and b.minLvl < a.char.level)):
+                                                    drop.remove(b)
+
+                                        if len(drop) > 0:
+                                            rand = drop[random.randint(0,len(drop)-1)]
+                                            newTemp = whatIsThat(rand)
+                                            logs += " {0}".format(rand.name)
+
+                                            if newTemp == 0:
+                                                a.char.weaponInventory += [rand]
+                                            elif newTemp == 1:
+                                                a.char.stuffInventory += [rand]                                            
+                                            elif newTemp == 2:
+                                                a.char.stuffInventory += [rand]
+
+                                            saveCharFile(path,a.char)
+                                            usrIcon = await getUserIcon(bot,a.char)
+                                            if usrIcon in gainMsg:
+                                                gainMsg += f", {rand.emoji} {rand.name}"
+                                            else:
+                                                gainMsg += "\n{0} → {1} {2}".format(usrIcon,rand.emoji,rand.name)
+
+                                        elif len(drop) == 0:
+                                            gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
+
+                                            for comp in a.char.skills+a.char.stuff:                             # Dans toutes les compétences du personnage + ses équipementd
+                                                if type(comp) == skill and comp.name == "Truc pas catho":       # Si On sais quoi est équipé
+                                                    gainTabl = [69]                                             # Tu peux gagner que 69 pièces
+                                                    break
+                                                elif type(comp) == stuff and comp.name == "Tenue Provocante":   # Sinon, si On sait quoi 2 est équipé
+                                                    gainTabl = [69]                                             # Tu peux gagner que 69 pièces aussi
+                                                    break
+
+                                            gain = gainTabl[random.randint(0,len(gainTabl)-1)]
+                                            logs += " {0} pièces".format(gain)
+                                            a.char.currencies += gain
+                                            saveCharFile(path,a.char)
+                                            if await getUserIcon(bot,a.char) in gainMsg:
+                                                gainMsg += f", {gain} <:coins:862425847523704832>"
+                                            else:
+                                                gainMsg += "\n{0} → {1} <:coins:862425847523704832>".format(await getUserIcon(bot,a.char),gain)
 
                     for ent in tablEntTeam[1]:
                         if type(ent.char) != char:

@@ -243,6 +243,12 @@ for a in range(0, len(inspi)):                           # Aspi base stats verif
         print("{0} n'a pas le bon cumul de stats : {1}".format(
             inspi[a], summation))
 
+# Const Stuff Drop
+constStuffDrop = {0:80,10:80,20:70,30:60,40:50,50:45,60:40,70:35,80:30,90:20,100:0}
+constLooseStuffDrop = [50,35,15,5]
+# Const Skill Drop
+constSkillDrop = {0:100,10:90,20:80,30:70,40:60,50:50,60:40,70:35,80:30,90:20,100:0}
+
 # Constants for "orientation" field for skills
 TANK, DISTANCE, LONG_DIST = "Tank", "Distance", "Longue Distance"
 DPT_PHYS, HEALER, BOOSTER, DPT_MAGIC, SHIELDER = "Bers, Obs, P.Plu, T.Bru", "Ido, Pro, Alt", "Ido, Pro", "Enc, Mag", "Ido, Pro, Pre"
