@@ -175,9 +175,36 @@ lizBoomCast = copy.deepcopy(explosionCast)
 lizBoomCast.effectOnSelf = lizBoomEff
 
 liuLBEff = copy.deepcopy(defenseUp)
-liuLBEff.stat, liuLBEff.power = ENDURANCE, 20
+liuLBEff.stat, liuLBEff.power = ENDURANCE, 22
 liuLB = skill("Mur Tectonique",trans.id,TYPE_ARMOR,range=AREA_MONO,area=AREA_ALL_ALLIES,cooldown=7,shareCooldown=True,effect=liuLBEff,initCooldown=3,emoji=trans.emoji,url="https://cdn.discordapp.com/attachments/912137828614426707/957181011555397642/20220326_083047.gif")
 
+stellaAuraEff = copy.deepcopy(dmgUp)
+stellaAuraEff.power, stellaAuraEff.stat = 2, MAGIE
+stellaAura = effect("Aura solaire","stellaAura",MAGIE,trigger=TRIGGER_END_OF_TURN,callOnTrigger=stellaAuraEff,area=AREA_DONUT_2,turnInit=-1,unclearable=True,description="En fin de tour, augmente légèrement les dégâts infligés par les alliés alentours")
+stellaWeap = weapon("Pulsion électro-magnetique","stellaWeap",RANGE_DIST,AREA_CIRCLE_5,53,75,magie=10,endurance=10,resistance=10,effect=stellaAura)
+stellaSkill1Eff = copy.deepcopy(dmgUp)
+stellaSkill1Eff.power, stellaSkill1Eff.stat = stellaAuraEff.power*4, MAGIE
+stellaSkill1 = skill("Galvanisation stellaire","stellaSkill1",TYPE_BOOST,range=AREA_MONO,area=AREA_CIRCLE_3,effect=stellaSkill1Eff,cooldown=5,description="Augmente les dégâts infligés par les alliés alentours")
+stellaSkill2Eff = copy.deepcopy(defenseUp)
+stellaSkill2Eff.power, stellaSkill2Eff.stat = 5, MAGIE
+stellaSkill2 = skill("Diffraction stellaire","stellaSkill2",TYPE_BOOST,effect=stellaSkill2Eff,area=AREA_CIRCLE_2,range=AREA_MONO,cooldown=5,description="Réduit les dégâts subis par les alliés alentours")
+stellaSkill3Eff1, stellaSkill3Eff2 = copy.deepcopy(dmgUp), copy.deepcopy(defenseUp)
+stellaSkill3Eff1.stat = stellaSkill3Eff2.stat = MAGIE
+stellaSkill3Eff1.power = stellaSkill3Eff2.power = 10
+stellaSkill3 = skill("Focalisation galactique","stellaSkill3",TYPE_BOOST,effect=[stellaSkill3Eff1, stellaSkill3Eff2],cooldown=5,description="Augmente les dégâts infligés par un allié tout en réduisant les dégâts qu'il subit")
+stellaSkill4Eff = copy.deepcopy(vulne)
+stellaSkill4Eff.power, stellaSkill4Eff.stat, stellaSkill4Eff.turnInit = 5, MAGIE, 2
+stellaSkill4 = skill("Affaiblissement stellaire","stellaSkill4",TYPE_MALUS,effect=stellaSkill4Eff,cooldown=5)
+stellaLBEff = copy.deepcopy(defenseUp)
+stellaLBEff.power, stellaLBEff.stat = 20, MAGIE
+stellaLBFinal = skill("Final stellaire","stellaLB",TYPE_ARMOR,range=AREA_MONO,area=AREA_CIRCLE_4,effect=stellaLBEff,effPowerPurcent=60,initCooldown=3,cooldown=10,url="https://media.discordapp.net/attachments/927195778517184534/960234772498620426/20220403_194942.gif",description="Durant 3 tours, les dégâts reçu par les alliés sont réduit. À chaque tour, l'effet est donné avec 20% de puissance en moins",emoji=trans.emoji)
+stellaLBGuide = effect("Guide - {0}".format(stellaLBFinal.name),"stellaLBGuide",turnInit=2,silent=True,replique=stellaLBFinal)
+stellaLB2 = copy.deepcopy(stellaLBFinal)
+stellaLB2.effPowerPurcent, stellaLB2.effectOnSelf = 80, stellaLBGuide
+stellaLBGuide2 = copy.deepcopy(stellaLBGuide)
+stellaLBGuide2.replica = stellaLB2
+stellaLB = copy.deepcopy(stellaLBFinal)
+stellaLB.id, stellaLB.effPowerPurcent, stellaLB.url, stellaLB.effectOnSelf = trans.id, 100, "https://media.discordapp.net/attachments/927195778517184534/960234772926455908/20220403_194702.gif",stellaLBGuide2
 # --------------------------------------------------------- Tabl Unique Ennemis ---------------------------------------------------------
 tablUniqueEnnemies = [
     octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=PROTECTEUR),
@@ -215,7 +242,8 @@ tablUniqueEnnemies = [
     octarien("OctoSUS",200,75,0,35,50,200,0,35,20,0,octoSusWeap,5,'<:octoSus:932220811828412456>',[octoSusSkill1,octoSusSkill2],BERSERK,deadIcon='<:dead:932243831104102450>', baseLvl = 15, number=3),
     octarien("Lueur informe A",135,150,20,20,50,25,200,50,20,0,unformLightAWeapon,10,'<:aformLight:931881464302284871>',[unformLightASkill1,unformLightASkill2,unformLightASkill3],PROTECTEUR,description="Une lueur instable qui cherche à éliminer tous les éléments autre que Lumière de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],baseLvl=30),
     octarien("Ombre informe A",135,150,20,20,50,25,200,50,20,0,unformDarknessAWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessASkill1,unformDarknessASkill2,unformDarknessASkill3],PROTECTEUR,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
-    octarien("Ombre informe B",100,80,35,35,50,35,250,20,15,15,unformDarknessBWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessBSkill1,unformDarknessBSkill2,unformDarknessBSkill3],SORCELER,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30)
+    octarien("Ombre informe B",100,80,35,35,50,35,250,20,15,15,unformDarknessBWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessBSkill1,unformDarknessBSkill2,unformDarknessBSkill3],SORCELER,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
+    octarien("Stella",0,50,70,80,50,50,250,20,20,20,stellaWeap,7,'<:stella:958786101940736061>',[stellaSkill1,stellaSkill2,stellaSkill3,stellaSkill4,stellaLB],IDOLE,GENDER_FEMALE,"Représentation astrale du Soleil, Stella aime pas qu'on lui fasse de l'ombre et a un léger complexe de supporiorité\nSa seule présence suffit à réchauffer l'ambiance et fait gagner quelques degrés de luminosité",'<:spIka:866465882540605470>',baseLvl=25,element=[ELEMENT_SPACE,ELEMENT_LIGHT])
 ]
 
 # --------------------------------------------------------- Tabl All Ennemis ---------------------------------------------------------
@@ -229,8 +257,8 @@ for ennemi in tablUniqueEnnemies:
 # --------------------------------------------------------- Bosses ---------------------------------------------------------
 # Boss spells -------------------
 # Spamton
-spamSkill1 = skill("A Call For You","spamtomSkill1",TYPE_DAMAGE,0,150,area=AREA_CONE_3,sussess=50,emoji='<:call:892757436203671572>',cooldown=3,message="HOT {0} IN YOUR AREA HAVE A [[Message](https://fr.wikipedia.org/wiki/Message)] FOR [{2}] :")
-spamSkill2 = skill("BIG SHOT","spamtomSkill2",TYPE_DAMAGE,0,200,area=AREA_LINE_5,sussess=70,ultimate=True,cooldown=5,message="[[Press F1](https://forums.commentcamarche.net/forum/affich-19023080-press-f1-to-continue-del-to-enter-setup)] FOR HELP :",emoji='<:bigshot:892757453442277417>')
+spamSkill1 = skill("A Call For You","spamtomSkill1",TYPE_DAMAGE,0,135,area=AREA_CONE_3,sussess=50,emoji='<:call:892757436203671572>',cooldown=3,message="HOT {0} IN YOUR AREA HAVE A [[Message](https://fr.wikipedia.org/wiki/Message)] FOR [{2}] :")
+spamSkill2 = skill("BIG SHOT","spamtomSkill2",TYPE_DAMAGE,0,185,area=AREA_LINE_5,sussess=70,ultimate=True,cooldown=5,message="[[Press F1](https://forums.commentcamarche.net/forum/affich-19023080-press-f1-to-continue-del-to-enter-setup)] FOR HELP :",emoji='<:bigshot:892757453442277417>')
 
 # Serena
 serenaSpe = skill("Libération","SerenaLibe",TYPE_UNIQUE,0,35,AREA_MONO,ultimate=True,cooldown=5,area=AREA_ALL_ENEMIES,description="Séréna fait imploser toutes les poudres de fées d'Estialba, infligeant des dégâts en fonction du nombre d'effets \"Poison d'Estialba\" et de leurs durées restantes",emoji=estal.emoji[0][0])
@@ -242,13 +270,13 @@ serenaSkill2 = skill("Purgation","serenaSkill2",TYPE_INDIRECT_DAMAGE,0,range=ARE
 # Jevil
 jevilPassifEffect = effect("I can do anything !","jevilPassiveEffect",silent=True,turnInit=-1,description="Rien n'est plus amusant que le chaos !\n\nLorsque Jevil est dans le combat, tous les combattants recoivent l'effet \"__Confusion__\" qui occulte l'icones des effets dans la liste de ces derniers jusqu'à la fin du combat\n\nÀ chaque début de tour, Jevil donne l'effet \"__Boîte à malice__\" à un certain nombre de cible. Cet effet inflige des dégâts indirect avec une puissance et une zone d'effet aléatoire au début du tour du porteur\nLe nombre d'effets donnés et de cible augmente au fur et à mesure que les PVs de Jevil descendent")
 jevilWeap = weapon("Projectiles","jevilWeap",RANGE_DIST,AREA_CIRCLE_4,60,50,area=AREA_CONE_2,say="CHAOS, CHAOS, CATCH ME IF YOU CAN!",emoji='<:chaos:892857755143127090>',damageOnArmor=1.5,effect=jevilPassifEffect)
-jevilSkill1_1 = skill("Pics","jevilSkill1",TYPE_DAMAGE,0,120,area=AREA_LINE_2,sussess=60,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=1,damageOnArmor=1.5)
+jevilSkill1_1 = skill("Pics","jevilSkill1",TYPE_DAMAGE,0,85,area=AREA_LINE_2,sussess=60,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=1,damageOnArmor=1.5)
 jevilSkill1_2 = skill("Trèfles","jevilSkill1",TYPE_DAMAGE,0,100,area=AREA_CONE_2,sussess=70,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=1,damageOnArmor=0.8)
-jevilSkill1_3 = skill("Coeurs","jevilSkill1",TYPE_DAMAGE,0,150,area=AREA_DIST_4,range=AREA_MONO,sussess=60,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=2,)
-jevilSkill1_4 = skill("Carreau","jevilSkill1",TYPE_DAMAGE,0,100,area=AREA_DIST_3,range=AREA_CIRCLE_2,sussess=100,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=2,damageOnArmor=3)
+jevilSkill1_3 = skill("Coeurs","jevilSkill1",TYPE_DAMAGE,0,40,setAoEDamge=True,area=AREA_DIST_4,range=AREA_MONO,sussess=60,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=2,)
+jevilSkill1_4 = skill("Carreau","jevilSkill1",TYPE_DAMAGE,0,75,area=AREA_DIST_3,range=AREA_CIRCLE_2,sussess=100,emoji='<a:card:892855854712385637>',say="I CAN DO ANYTHING !",cooldown=2,damageOnArmor=3)
 jevilSkill1 = skill("Joker !","jevilSkill1",TYPE_DAMAGE,0,become=[jevilSkill1_1,jevilSkill1_2,jevilSkill1_3,jevilSkill1_4],emoji='<a:card:892855854712385637>')
 
-jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,120,AREA_MONO,area=AREA_ALL_ENEMIES,say="KIDDING ! HERE'S MY FINAL CHAOS !",initCooldown=5,cooldown=4,emoji="<:devilknife:892855875600023592>",damageOnArmor=2)
+jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,60,AREA_MONO,setAoEDamge=True,area=AREA_ALL_ENEMIES,percing=100,say="KIDDING ! HERE'S MY FINAL CHAOS !",initCooldown=5,cooldown=4,emoji="<:devilknife:892855875600023592>",damageOnArmor=2)
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=-1,unclearable=True,description="Confuse confusing confusion")
 
 # Luna (Oh it's will be funny)
@@ -289,14 +317,14 @@ clemBloodJauge = effect("Jauge de sang","clemBloodJauge",turnInit=-1,unclearable
 clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_2,135,100,ignoreAutoVerif=True,use=MAGIE,effect=clemBloodJauge,damageOnArmor=2,magie=50,endurance=20,emoji='<:clemWeap:915358467773063208>')
 clemStunEffect = effect("Thrombophilie","clemStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS)
 aliceStunEffect = effect("Hémophilie","aliceStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS)
-clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=140,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE,damageOnArmor=2)
+clemSkill1 = skill("Rune - Lune de Sang","clemSkill1",TYPE_DAMAGE,0,power=130,range=AREA_MONO,area=AREA_CIRCLE_3,emoji='<a:clemSkill1:901147227588812890>',cooldown=2,initCooldown=2,use=MAGIE,damageOnArmor=2)
 clemSkill2 = skill("Sort - Chiroptera perniciosius","clemSkill2",TYPE_DAMAGE,0,175,AREA_CIRCLE_2,cooldown=4,emoji='<a:clemSkill4:901150027706142780>',use=MAGIE,say="Tu es trop collant.",damageOnArmor=5)
-clemUltLauch = skill("Memento - L'Ange noir","clemUlt",TYPE_DAMAGE,0,50,AREA_MONO,area=AREA_CIRCLE_7,emoji='<:clemMemento:902222089472327760>',say="Vous avez suffisamant résisté comme ça !",sussess=666,cooldown=99,ultimate=True,description="Au premier tour, consomme tous les **Points de sang** de la Jauge de Sang, sauf 1, pour obtenir un bouclier absolu, dont la puissance dépend du nombre de points consommés\nAu second tour, si ce bouclier est toujours présent, cette attaque fait des dégâts colosaux. Consomme la jauge de sang",use=MAGIE)
-clemultCastEffect = effect("Cast - Memento - L'Ange noir","clemUltEff",replique=clemUltLauch,turnInit=2,silent=True,emoji=dangerEm)
+clemUltLauch = skill("Ultima Sanguinis Flurry","clemUlt",TYPE_DAMAGE,0,50,AREA_MONO,area=AREA_CIRCLE_7,emoji='<:clemMemento:902222089472327760>',say="Vous avez suffisamant résisté comme ça !",sussess=666,cooldown=99,ultimate=True,description="Au premier tour, consomme tous les **Points de sang** de la Jauge de Sang, sauf 1, pour obtenir un bouclier absolu, dont la puissance dépend du nombre de points consommés\nAu second tour, si ce bouclier est toujours présent, cette attaque fait des dégâts colosaux. Consomme la jauge de sang",use=MAGIE)
+clemultCastEffect = effect("Cast - Ultima Sanguinis Flurry","clemUltEff",replique=clemUltLauch,turnInit=2,silent=True,emoji=dangerEm)
 clemUltShield = effect("Bouclier sanguin","clemShield",MAGIE,overhealth=1,emoji=uniqueEmoji("<:clemMemento2:902222663806775428>"),turnInit=2,absolutShield=True)
-clemUltCast = skill("Memento - L'Ange Noir","clemUltCast",TYPE_ARMOR,0,range=AREA_MONO,emoji="<:clemMemento2:902222663806775428>",effect=clemUltShield,say="Très bien.",effectOnSelf=clemultCastEffect,ultimate=True,cooldown=99)
-clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,125,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>',damageOnArmor=3)
-clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,50,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>',setAoEDamge=True,effectAroundCaster=[TYPE_DAMAGE,AREA_CIRCLE_1,100],ultimate=True)
+clemUltCast = skill("Ultima Sanguinis Flurry","clemUltCast",TYPE_ARMOR,0,range=AREA_MONO,emoji="<:clemMemento2:902222663806775428>",effect=clemUltShield,say="Très bien.",effectOnSelf=clemultCastEffect,ultimate=True,cooldown=99)
+clemSkill3 = skill("Rune - Demi-Lune","clemSkill3",TYPE_DAMAGE,0,110,AREA_CIRCLE_3,area=AREA_ARC_2,cooldown=2,use=MAGIE,emoji='<a:clemSkill3:914759077551308844>',damageOnArmor=3)
+clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,45,AREA_MONO,area=AREA_DIST_7,cooldown=4,use=MAGIE,say="Vous pensez que vous êtes à l'abri là bas ?",emoji='<a:clemSkill4:914756335860596737>',setAoEDamge=True,effectAroundCaster=[TYPE_DAMAGE,AREA_CIRCLE_1,100],ultimate=True)
 clemSkill5 = skill("Sort - Tempus Fugit",'clemSkill5',TYPE_DAMAGE,0,35,use=MAGIE,cooldown=3,damageOnArmor=10,replay=True,say=["J'ai pas le temps pour vos conneries.","On va un peu accélrer la cadence !","On se traine un peu du cul là non ?"],emoji='<:TemposFigit:931703850447024138>')
 clemSkill6 = skill("Lance de sang",'clemSkill6',TYPE_DAMAGE,0,65,AREA_DIST_7,area=AREA_CIRCLE_1,use=MAGIE,cooldown=4,emoji='<:bloodSpear:931703831245488128>',setAoEDamge=True)
 
@@ -369,10 +397,10 @@ tablBoss = [
 
 # ====================================== Raid Boss ======================================
 nookWeapon = weapon("Dettes","nookWeapon",RANGE_DIST,AREA_CIRCLE_1,120,65,area=AREA_ARC_1,ignoreAutoVerif=True)
-nookSkill1 = skill("Fissure temporelle","nookSkill1",TYPE_DAMAGE,0,150,range=AREA_MONO,area=AREA_ALL_ENEMIES,sussess=80,initCooldown=2,cooldown=5)
+nookSkill1 = skill("Fissure temporelle","nookSkill1",TYPE_DAMAGE,0,135,range=AREA_MONO,area=AREA_ALL_ENEMIES,sussess=80,initCooldown=2,cooldown=5)
 nookSkill2 = skill("Stonks","nookSkill2",TYPE_DAMAGE,0,250,range=AREA_CIRCLE_1,area=AREA_CIRCLE_1,repetition=3,cooldown=6,initCooldown=2)
-nookSkill3 = skill("Habitat naturel","nookSkill3",TYPE_DAMAGE,0,200,area=AREA_CIRCLE_2,range=AREA_MONO,cooldown=5,initCooldown=2)
-nookSkill4 = skill("Déluge insulaire","nookSkill4",TYPE_DAMAGE,0,50,AREA_MONO,area=AREA_DIST_7,cooldown=6,setAoEDamge=True,initCooldown=3)
+nookSkill3 = skill("Habitat naturel","nookSkill3",TYPE_DAMAGE,0,150,area=AREA_CIRCLE_2,range=AREA_MONO,cooldown=5,initCooldown=2)
+nookSkill4 = skill("Déluge insulaire","nookSkill4",TYPE_DAMAGE,0,40,AREA_MONO,area=AREA_DIST_7,cooldown=6,setAoEDamge=True,initCooldown=3)
 
 ailillSkill = skill("Décapitage","headnt",TYPE_DAMAGE,0,5000,AREA_RANDOMENNEMI_1,tpCac=True,ultimate=True,cooldown=3,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
 ailillWeap = copy.deepcopy(depha)

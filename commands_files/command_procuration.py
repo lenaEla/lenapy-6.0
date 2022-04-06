@@ -9,19 +9,21 @@ from asyncio import sleep
 from discord_slash import *
 
 async def procuration(ctx : discord.message,toProcur:discord.User):
-    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-
-    if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile)
+    if os.path.exists("./userProfile/" + str(ctx.author.id) + ".prof"):
+        user = loadCharFile("./userProfile/" + str(ctx.author.id) + ".prof")
         user.procuration.append(toProcur.id)
+        user2 = loadCharFile("./userProfile/" + str(toProcur.id) + ".prof")
+        user2.haveProcurOn	.append(user.owner)
 
-        if saveCharFile(pathUserProfile,user):
+        try:
+            saveCharFile(user=user)
+            saveCharFile(user=user2)
             await ctx.send(f"{toProcur.name} à bien été rajouté à la liste des personnes ayant procuration sur votre inventaire")
-        else:
+        except:
             await ctx.send(embed = errorEmbed("Procuration","Une erreure est survenue"))
 
     else:
-            await ctx.send(embed = errorEmbed("Procuration","Vous n'avez pas commencé l'aventure"))
+        await ctx.send(embed = errorEmbed("Procuration","Vous n'avez pas commencé l'aventure"))
 
 noneSuffisantJetonButton = create_button(ButtonStyle.gray,"Vous ne possédez pas de jetons",getEmojiObject('<:jeton:917793426949435402>'),disabled=True)
 randomRouletteMsg = [

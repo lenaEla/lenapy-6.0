@@ -543,7 +543,11 @@ def saveCharFile(path : str = None, user : char = None):
             saved += str(a)+";"
     saved += "\n"
 
-    saved += str(user.element) +";"+str(int(user.autoPoint))+";\n"
+    saved += str(user.element) +";"+str(int(user.autoPoint))+";"+str(int(user.autoStuff))+";\n"
+
+    for a in user.haveProcurOn:
+        saved += str(a) + ";"
+    saved += "\n"
 
     userSettingsDb.updateUserSays(user)
     userSettingsDb.updateUserIconSettings(user)
@@ -621,7 +625,6 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         while len(temp) < 15:
             temp.append(0)
         rep.majorPoints = temp
-
     except:
         rep.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         print("No major point")
@@ -716,6 +719,16 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         rep.autoPoint = bool(int(file[11][1]))
     except:
         rep.autoPoint = False
+    try:
+        rep.autoStuff = bool(int(file[11][2]))
+    except:
+        rep.autoStuff = False
+
+    try:
+        for temp in file[12]:
+            rep.haveProcurOn.append(int(temp))
+    except:
+        rep.haveProcurOn = []
 
     rep.says = userSettingsDb.getUserSays(rep)
     rep = userSettingsDb.getUserIconSettings(rep)

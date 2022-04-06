@@ -2,7 +2,7 @@ import discord, sqlite3, os
 from gestion import *
 from advance_gestion import *
 
-maj16="""
+maj17="""
     PRAGMA foreign_keys = 0;
 
     CREATE TABLE sqlitestudio_temp_table AS SELECT *
@@ -92,7 +92,9 @@ maj16="""
         dirtyHave     INTEGER DEFAULT (0),
         dirtyCount     INTEGER DEFAULT (0),
         delegationHave     INTEGER DEFAULT (0),
-        delegationCount     INTEGER DEFAULT (0)
+        delegationCount     INTEGER DEFAULT (0),
+        stellaHave     INTEGER DEFAULT (0),
+        stellaCount     INTEGER DEFAULT (0)
     );
 
     INSERT INTO achivements (
@@ -170,7 +172,13 @@ maj16="""
                                 dangerousHave,
                                 dangerousCount,
                                 looseHave,
-                                looseCount
+                                looseCount,
+                                stillHave,
+                                stillCount,
+                                dirtyHave,
+                                dirtyCount,
+                                delegationHave,
+                                delegationCount
                             )
                             SELECT id,
                                 aliceCount,
@@ -246,7 +254,13 @@ maj16="""
                                 dangerousHave,
                                 dangerousCount,
                                 looseHave,
-                                looseCount
+                                looseCount,
+                                stillHave,
+                                stillCount,
+                                dirtyHave,
+                                dirtyCount,
+                                delegationHave,
+                                delegationCount
                             FROM sqlitestudio_temp_table;
 
     DROP TABLE sqlitestudio_temp_table;
@@ -321,10 +335,11 @@ class successTabl:
         self.still = success("You win by doing absolutly nothing",1,"still",description="Gagner un combat en passant tous vos tours",recompense='hga')
         self.dirty = success("Main propre",5,"dirty",description="Gagner {0} combats en étant dans les 3 meilleurs DPT sans infliger de dégâts directs")
         self.delegation = success("Laisser le sale boulot aux autres",1,"delegation",description="Terminer un combat en atant meilleur DPT mais en ayant réalisé aucune élimination")
+        self.stella = success("Puissance solaire",10,"stella","srb",description="Affronter Stella {0} fois")
 
     def tablAllSuccess(self):
         """Renvoie un tableau avec tous les objets success"""
-        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation  ]
+        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation,self.stella]
 
     def where(self,where : str):
         alls = self.tablAllSuccess()
@@ -415,10 +430,10 @@ class succesDb:
         cursor = self.con.cursor()
 
         try:
-            cursor.execute("SELECT delegationCount FROM achivements;")
+            cursor.execute("SELECT stellaCount FROM achivements;")
         except:
             temp = ""
-            for a in maj16:
+            for a in maj17:
                 if a != ";":
                     temp+=a
                 else:
@@ -426,7 +441,7 @@ class succesDb:
                     temp = ""
 
             self.con.commit()
-            print("maj16 réalisée")
+            print("maj17 réalisée")
 
         # Fin des majs
         cursor.close()

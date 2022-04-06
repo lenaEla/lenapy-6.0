@@ -48,6 +48,7 @@ affBody = create_button(ButtonStyle.green,"Aff. Tenue",getEmojiObject('<:defMid:
 affShoes = create_button(ButtonStyle.blue,"Aff. Chaussures",getEmojiObject('<:defShoes:896928709330731018>'),"flats")
 affAllStuff = create_button(ButtonStyle.grey,"Aff. Tout",getEmojiObject('<:dualMagie:899628510463803393>'),"all")
 
+tablStatsName = nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"]
 
 skillult, skillnonult, skillMono, skillAoe = [], [], [], []
 for skilly in skills:
@@ -662,6 +663,15 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
         elif inv == 3:              # Other
             obj = findOther(identifiant)
             emb = infoOther(obj,user)
+
+            if obj == autoPoint:
+                emb.add_field(name ='<:empty:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoPoint)],inline=False)
+                emb.add_field(name ='<:empty:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]]),inline=False)
+
+            if obj == autoStuff:
+                emb.add_field(name ='<:empty:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
+                emb.add_field(name ='<:empty:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(tablStatsName[recommandedStuffStat[user.aspiration][0]],tablStatsName[recommandedStuffStat[user.aspiration][1]],tablStatsName[recommandedStuffStat[user.aspiration][2]]),inline=False)
+
             trouv = False
             for a in user.otherInventory:
                 if a.id == identifiant or a.name.lower() == identifiant.lower():
@@ -676,7 +686,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                     emb.set_footer(text = "Cliquez sur l'icone de l'objet l'utiliser")
                 else:
                     emb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Élément")
-                
+
                 await oldMsg.edit(embed = emb,components=[])
                 if obj not in [elementalCristal,dimentioCristal,mimique]:
                     await oldMsg.add_reaction(obj.emoji)
@@ -802,14 +812,27 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         user.autoPoint = False
                         user.otherInventory.remove(obj)
                         saveCharFile(user=user)
-                        await oldMsg.edit(embed=discord.Embed(title="__Pair de Nheur'o'Nes :__",color=user.color,description="Votre Pair de Nheur'o'Nes a été désactivé"))
+                        await oldMsg.edit(embed=discord.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a été désactivé"))
                     elif user.stars > 0:
                         user.autoPoint = True
                         user.otherInventory.remove(obj)
                         saveCharFile(user=user)
-                        await oldMsg.edit(embed=discord.Embed(title="__Pair de Nheur'o'Nes :__",color=user.color,description="Votre Pair de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivants :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
+                        await oldMsg.edit(embed=discord.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivantes :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
                     else:
-                        await oldMsg.edit(embed=discord.Embed(title="__Pair de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
+                        await oldMsg.edit(embed=discord.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
+                elif obj==autoStuff:
+                    if user.autoStuff:
+                        user.autoStuff = False
+                        user.otherInventory.remove(obj)
+                        saveCharFile(user=user)
+                        await oldMsg.edit(embed=discord.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a été désactivé"))
+                    elif user.stars > 0:
+                        user.autoStuff = True
+                        user.otherInventory.remove(obj)
+                        saveCharFile(user=user)
+                        await oldMsg.edit(embed=discord.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(tablStatsName[recommandedStuffStat[user.aspiration][0]],tablStatsName[recommandedStuffStat[user.aspiration][1]],tablStatsName[recommandedStuffStat[user.aspiration][2]])))
+                    else:
+                        await oldMsg.edit(embed=discord.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
                 await oldMsg.clear_reactions()
 
 async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,destination : int ,user : classes.char):
@@ -824,7 +847,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         msg = None
         opValues=["equipement","armes","competences","autre"]
         tri = 0
-        needRemake, stuffStatus, hideUlt, affMono, stuffMenuStatus = True, 0, 0, 0, 0
+        needRemake, stuffStatus, hideUlt, affMono, stuffMenuStatus = True, 0, 0, 0, 0, 
 
         affult = create_button(ButtonStyle.green,"Aff. tout type",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"aff_ult")
         hideult = create_button(ButtonStyle.blue,"Cacher Ultimes",getEmojiObject(skillnonult[random.randint(0,len(skillnonult)-1)].emoji),"hide_ult")
@@ -835,12 +858,22 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         affallarea = create_button(ButtonStyle.grey,"Aff. toutes zones",getEmojiObject(skills[random.randint(0,len(skills)-1)].emoji),"all_area")
         tablSkillArea = [affmono,affaoe,affallarea]
 
-        listUserProcure = []
-        if user.team != 0:
-            for a in userTeamDb.getTeamMember(user.team):
-                temp = loadCharFile("./userProfile/{0}.prof".format(a))
-                if ctx.author_id in temp.procuration:
-                    listUserProcure.append(temp)
+        listUserProcure = [user]
+        for a in user.haveProcurOn:
+            listUserProcure.append(loadCharFile("./userProfile/{0}.prof".format(a)))
+        
+        mainUser = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+        def userSortValue(user):
+            if user.owner == mainUser.owner:
+                return 2
+            elif user.team == mainUser.team and user.team != 0:
+                return 1
+            else:
+                return 0
+        listUserProcure.sort(key=lambda ballerine: userSortValue(ballerine),reverse=True)
+
+        if len(listUserProcure) > 24:
+            listUserProcure = listUserProcure[:24]
 
         affAll,stuffAff,statsToAff,stuffToAff = False,False,0,0
         while 1:

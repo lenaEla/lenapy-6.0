@@ -10,13 +10,23 @@ from advance_gestion import *
 from typing import List
 
 async def points(bot : discord.client, ctx : discord.message, args : List[str], procuration = None, slashed = False):
-    listUserProcure = []
     mainUser = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
-    if mainUser.team != 0:
-        for a in userTeamDb.getTeamMember(mainUser.team):
-            temp = loadCharFile("./userProfile/{0}.prof".format(a))
-            if ctx.author_id in temp.procuration:
-                listUserProcure.append(temp)
+    listUserProcure = [mainUser]
+    for a in mainUser.haveProcurOn:
+        listUserProcure.append(loadCharFile("./userProfile/{0}.prof".format(a)))
+    
+    mainUser2 = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+    def userSortValue(user):
+        if user.owner == mainUser2.owner:
+            return 2
+        elif user.team == mainUser2.team and user.team != 0:
+            return 1
+        else:
+            return 0
+    listUserProcure.sort(key=lambda ballerine: userSortValue(ballerine),reverse=True)
+
+    if len(listUserProcure) > 24:
+        listUserProcure = listUserProcure[:24]
 
     if procuration == None:
         pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"

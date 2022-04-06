@@ -678,6 +678,8 @@ class char:
         self.showWeapon = True
         self.showAcc = True
         self.handed = 1
+        self.autoStuff = False
+        self.haveProcurOn = []
 
     def have(self,obj):
         """Verify if the character have the object Obj"""
@@ -738,7 +740,7 @@ for num in range(0,10):
     incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
 
-vulne = effect("Dégâts subis augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:defDebuffB:954544469649285232>","<a:defBuffR:954538558541148190>"),type=TYPE_MALUS,stackable=True)
+vulne = effect("Dégâts subis augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:defDebuffB:954544469649285232>","<a:defDebuffR:954544494110441563>"),type=TYPE_MALUS,stackable=True)
 defenseUp = effect("Dégâts subis réduits","defenseUp",stackable=True,emoji=sameSpeciesEmoji('<a:defBuffB:954537632543682620>','<a:defBuffR:954538558541148190>'),description="Réduit les dégâts reçus d'une valeur égalant la puissance de l'effet")
 dmgUp = effect("Dégâts infligés augmentés","dmgUp",stackable=True,emoji=sameSpeciesEmoji('<a:dmgBuffB:954429227657224272>','<a:dmgBuffR:954429157079654460>'),description="Augmente les dégâts infligés d'une valeur égalant la puissance de l'effet")
 

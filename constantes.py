@@ -109,6 +109,11 @@ MAGIE = 6
 RESISTANCE = 7
 PERCING = 8
 CRITICAL = 9
+ACT_HEAL_FULL = 10
+ACT_BOOST_FULL = 11
+ACT_SHIELD_FULL = 12
+ACT_DIRECT_FULL = 13
+ACT_INDIRECT_FULL = 14
 PURCENTAGE = 11
 FIXE = 12
 HARMONIE = 13
@@ -118,6 +123,7 @@ ACT_BOOST = 1
 ACT_SHIELD = 2
 ACT_DIRECT = 3
 ACT_INDIRECT = 4
+
 
 AUTO_POWER = "autoPower"
 nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité","Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
@@ -149,6 +155,24 @@ recommandedStat = [
     [STRENGTH, PRECISION],
     [STRENGTH, MAGIE]
 ]
+recommandedStuffStat = [
+    [STRENGTH, RESISTANCE, ENDURANCE],
+    [STRENGTH, PRECISION, ACT_DIRECT_FULL],
+    [AGILITY, STRENGTH, RESISTANCE],
+    [CHARISMA, ACT_BOOST_FULL, INTELLIGENCE],
+    [INTELLIGENCE, ACT_SHIELD_FULL, PRECISION],
+    [STRENGTH, PRECISION, CRITICAL],
+    [MAGIE, PRECISION, ACT_DIRECT_FULL],
+    [CHARISMA,ACT_HEAL_FULL, PRECISION],
+    [MAGIE, ENDURANCE, RESISTANCE],
+    [INTELLIGENCE, ENDURANCE, RESISTANCE],
+    [CHARISMA, ENDURANCE, RESISTANCE],
+    [MAGIE, INTELLIGENCE, ACT_INDIRECT_FULL],
+    [INTELLIGENCE, ACT_SHIELD_FULL, CHARISMA],
+    [STRENGTH, PRECISION, CRITICAL],
+    [STRENGTH, MAGIE, ACT_DIRECT_FULL]
+]
+
 
 while len(aspiEmoji) < len(inspi):
     aspiEmoji.append('<a:menacing:917007335220711434>')
@@ -344,7 +368,7 @@ shopRandomMsg = [
     '{shehisa} : "Tu me reproche d\'avoir suivi la voie de Maman, mais tu devrais voir comment tu te comporte face à un ennemi quand tu veux lui faire avaler la pilule"\n<:helene:906303162854543390> : "Qu\'est-ce que tu insinue par là ?"\n{shehisa} : "Que je suis pas la seule à avoir héritée des talents de Maman"',
     '{shehisa} : "Toujours rassurant de te savoir dans les parages, Icealia"\n{icelia} : "Et moi je suis toujours rasurée de te savoir dans mon camp..."',
     '<:determination:867894180851482644> : "Alors Féli, tu as fais des progrès sur ta maitrise de la Détermination ?"\n{feli} : "Ouais :D ! Regarde ça !"',
-    '<:takoRed:866459004439756810> : "Clémence, ça va mieux avec ta cicatrice en ce moment ?"\n{clemence} : "À part qu\'elle me brûle quand j\'utilise trop mes pouvoirs vampiriques ou quand il y a un Alpha dans le coin, rien à déclarer"\n<:takoRed:866459004439756810> : "Tss. Ces loups garoux..."\n{clemence} : "Pas la peine de prendre ce regard assassin Madame Ruby. J\'ai appris à faire avec maintenant"',
+    '<:ruby:958786374759251988> : "Clémence, ça va mieux avec ta cicatrice en ce moment ?"\n{clemence} : "À part qu\'elle me brûle quand j\'utilise trop mes pouvoirs vampiriques ou quand il y a un Alpha dans le coin, rien à déclarer"\n<:ruby:958786374759251988> : "Tss. Ces loups garoux..."\n{clemence} : "Pas la peine de prendre ce regard assassin Madame Ruby. J\'ai appris à faire avec maintenant"',
     '`Alice surgit au coins du couloir en courant et vous rentre dedans, ne vous ayant pas vu`\n\n{alice} : "Dé-désolée !"\n\n`Elle ramasse rapidement les cahiers qu\'elle portait dans ses bras et repart aussi vite qu\'elle est venue.\nVous constatez qu\'elle a oublié une feuille, qui a du se retrouver sous elle quand elle est tombée`\n\n📄 [Devoir d\'astronomie sur les trous noirs](https://bit.ly/3kh8xP3)',
     '{alice} : "Maraiiiiiiiiine ?"\n{lena} : "Il y a un peu trop de "i" pour moi..."\n{alice} : "C\'est quoi ça."\n\n`Elle sortie son téléphone et le mit directement devant le visage de Lena`\n\n📱 [Photographie d\'une feuille de papier](https://bit.ly/3o74aal)\n\n{lena} : "... Merde. Et comment ça, tu es allé fouiller dans ma chambre !?"',
     '{lena} : "Tu sais que tu va finir par traumatiser des gens avec tes \"Boum boum\" toi ?"\n{shihu} : "Mi z\'est drole les Boum Boum..."',
@@ -371,8 +395,9 @@ shopRandomMsg = [
     "{sixtine} : `Regarde les étoiles dans une prairie, puis remarque qu'elle n'est pas seule` \"... toi aussi tu brillais autant à l'époque où tu étais une étoile aussi... ?\"\n<:powehi:909048473666596905> : \"Et comment ! J'étais la plus grande, la plus chaude et la plus brillante de ma région...\"\n{sixtine} : \"Tu avais un système planétaire aussi ?\"\n<:powehi:909048473666596905> : \"Trois. Elles étaient plutôt sympatiques, et l'une d'entre elle abritait même la vie mais... `Soupir` Elles...\"\n{sixtine} : \"... Au moins je suis sûre qu'elles ont bien aimée ta supernova...\"\n<:powehi:909048473666596905> : \"Je... je pense... Leurs représentations se tenaient les mains sans vraiment avoir l'air effrayées...\"",
     "{feli} : \"Dit Maraine, tu peux jouer ça au violon ?\"\n{lena} : \"Hum laisse moi voir ? Si Do# Mi Fa# Mi Ré# Do# Si Fa#... Oh. Je vois où tu veux en venir\"",
     "{lena} : \"Merci du coup de main Lio. Bon maintenant Shihu. Qu'est-ce que j'ai dit à propos de l'utilisation de la magie à la maison ?\"\n{shihu} : \"De... Pas utiliser la magie à la maison...\"\n{lena} : \"Et donc pourquoi on a du s'y mettre à trois pour éteindre les flammes noires dans votre chambre ?\"\n{shihu} : \"Mais il y avait un moustique...\"\n{lena} : \"Et tu penses sérieusement que risquer de réduire la maison en cendre pour un moustique est une bonne idée ?\"\n{shihu} : \"... au moins je l'ai eu...\"\n{lena} : \"... Vous êtes toutes les deux privées de dessins animés et de dessert pour une semaine.\"\n{shushi} : \"Mais j'ai rien fait moi !\"\n{lena} : \"Justement.\"",
-    "{shihu} : \"Lena ne va pas du tout être contente quand elle vera que tu as pris un de ses pistolets d'airsoft...\"\n{shushi} : \"Elle n'en saura rien !\"\n{shushi} : \"Tu as même pas pris de protections..\"\n\n`Shushi visa une canette vide et tira, sans grand succès. La bille rebondit cependant sur le mur derrière et explosa contre un bouclier lumineux qui s'était formée devant la petite fille avant qu'elle n'ai eu le temps de bouger. Cette dernière regarda un peu confuse autour d'elle puis elle remarqua la chatte blanche assise à côté d'elle qui la regardait fixement`\n\n{shushi} : \"... s'il te plait le dis pas à Miman...\"\n{iliana} : \"Si tu ranges ça, peut-être\"\n{shihu} : \"(Pff, elle fait juste ça pour pas que Lena la tienne responsable également)\"",
-    "{alice} : `Carresse très lentement Iliana en étant relativement tendue`\n{iliana} : `Se contente de ronronner sans bouger pour éviter de l'effrayer. Et puis elle aime bien les caresses`\n{alice} : `Se met à lui caresser le ventre en voyant qu'elle s'est mise sur le dos\n{iliana} : `Essaye le plus possible d'ignorer son instinct de félin qui lui hurle d'essayer de mordiller cette main qui se balade sur son ventre, parcequ'elle n'a pas envie que cette même main la projette contre un mur dans un mouvement brusque avec toute la force d'une jeune vampire paniquée. Quelque chose lui dit que plusieurs de ses os ne l'appréciraient pas trop`"
+    "{shihu} : \"Lena ne va pas du tout être contente quand elle vera que tu as pris un de ses pistolets d'airsoft...\"\n{shushi} : \"Elle n'en saura rien !\"\n{shihu} : \"Tu as même pas pris de protections..\"\n\n`Shushi visa une canette vide et tira, sans grand succès. La bille rebondit cependant sur le mur derrière et explosa contre un bouclier lumineux qui s'était formée devant la petite fille avant qu'elle n'ai eu le temps de bouger. Cette dernière regarda un peu confuse autour d'elle puis elle remarqua la chatte blanche assise à côté d'elle qui la regardait fixement`\n\n{shushi} : \"... s'il te plait le dis pas à Miman...\"\n{iliana} : \"Si tu ranges ça, peut-être\"\n{shihu} : \"(Pff, elle fait juste ça pour pas que Lena la tienne responsable également)\"",
+    "{alice} : `Carresse très lentement Iliana en étant relativement tendue`\n{iliana} : `Se contente de ronronner sans bouger pour éviter de l'effrayer. Et puis elle aime bien les caresses`\n{alice} : `Se met à lui caresser le ventre en voyant qu'elle s'est mise sur le dos`\n{iliana} : `Essaye le plus possible d'ignorer son instinct de félin qui lui hurle d'essayer de mordiller cette main qui se balade sur son ventre, parcequ'elle n'a pas envie que cette même main la projette contre un mur dans un mouvement brusque avec toute la force d'une jeune vampire paniquée. Quelque chose lui dit que plusieurs de ses os ne l'appréciraient pas trop`",
+    "{shushi} : \"Maman tu fais quoi ?\"\n{lena} : \"Hum ? Oh rien d'important\" `Glisse une feuille de papier derrière elle`\n{shushi} : \"Tu peux m'aider pour mes devoirs :< ? J'y arrive pas\"\n{lena} : \"Oh oui bien sûr ^^\"\n\n`Les deux quittèrent la pièce en laissant la dite feuille sur le bureau`\n\n:page_with_curl: [Feuille de papier](https://docs.google.com/spreadsheets/d/1l6csj2GjnaHMPYhPgqaji6Hs7bU68eb4XC_Ss2oxT-4/edit?usp=drivesdk)"
 ]
 
 shopEventEndYears = [
@@ -456,7 +481,6 @@ randChooseMsg = [
 
 tablCat = ["Début du combat", "Compétence ultime", "Transcendance", "En éliminant un ennemi", "À la mort", "En étant ressucité", "Victoire (Bleu) en étant en vie", "Victoire (Bleu) en étant mort", "Défaite (Bleu)", "Victoire (Rouge) en étant en vie", "Victoire (Rouge) en étant mort",
            "Défaite (Rouge)", "Bloquer une grosse attaque", "Réaction à la réanimation de plusieurs alliés", "Réaction à la réanimation de plusieurs ennemis", "Réanimer plusieurs allier en même temps", "Réaction à l'élimination d'un ennemi", "Réaction à l'élimination d'un allié"]
-
 
 class says:
     """A class for storing the says message from a entity"""
@@ -682,7 +706,8 @@ liuSays = says(
     start="Hé ! Une course d'endurance vous en pensez quoi ?",
     onKill="Va falloir mieux gérer ta fatigue la prochaine fois",
     onResurect="Une seconde course ?",
-    redLoose="Hé bah... Finalement c'est moi qui ai mordu la poussière"
+    redLoose="Hé bah... Finalement c'est moi qui ai mordu la poussière",
+    limiteBreak="Pas si vite !"
 )
 
 lioSays = says(
@@ -912,7 +937,14 @@ lenaTipsMsgTabl = [
     "Certaines compétences comme Mort Vivant ou Bolide peuvent rendre leur utilisateur invulnérable ou impossible à vaincre pendant un cours instant, permettant aux soigneurs d'essayer de leur sauver la mise",
     "Certaines compétences comme quelques transcendance ou Abnégations ont pour effet secondaire de réanimé les alliés vaincus dans la zone d'effet, si ils peuvent encore l'être",
     "Les Protecteurs, Vigilants et Enchanteurs sont trois aspirations qui tirent partie de leur capacités à attirer (et encaisser) les attaques adverses",
-    "La Résistance Soin progresse plus rapidement si plusieurs soigneurs sont présents dans la même équipe"
+    "La Résistance Soin progresse plus rapidement si plusieurs soigneurs sont présents dans la même équipe",
+    "Repose en paix, aspiration Invocateur",
+    "Une intelligence élevée permet, en plus de pouvoir donner une bonne quantité d'armure, d'avoir une bonne probabilité d'effectuer des dégâts indirects critiques tout en diminuant la probabilité d'en recevoir",
+    "Les statistiques de Clémence, Félicité, Sixtine et Alice augmente légèrement si plusieurs d'entre elles sont dans le même combat",
+    "Lohica est plutôt mauvaise perdante et infligera __Poison d'Estialba__ à son éliminateur lorsque ses PVs tombent à 0",
+    "Les Sorciers infligent des dégâts indirects critiques plus élevés que les autres aspirations",
+    "Le Charisme de Liu, Lia, Liz et Lio augmente légèrement si au moins deux d'entre elles sont dans le même combat",
+    "Alice n'aime pas vraiment que quelqu'un monte sur scène en sa présence"
 ]
 
 ilianaSaysNormal = says(
@@ -958,3 +990,5 @@ lySays = says(
 gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimate="Ok ça suffit là !",limiteBreak="Ok là vous m'avez énervée !",reactAllyKilled="Je suppose que j'ai une nouvelle cible maintenant",reactBigRaiseEnnemy="En quoi c'est juste ça Lena !?\"*\n<:lena:909047343876288552> : \"*Vous pouvez le faire aussi, arrête de te plaindre")
 klikliSays = says(start="Ok. Je vais m'en occuper rapidement",limiteBreak="OK, VOILÀ POUR VOUS !",onKill="Si tu veux revenir, j't'ai pas encore montrer tout ce dont je suis capable.",reactEnnemyKilled="Pff, j'peux le faire toute seule tu sais ?")
 altySays = says(start="'K, je vais faire de mon mieux",onKill="Désolée...",onResurect="Ok, second round !",reactAllyKilled="{killed} !")
+
+shehisaSays = says(start="Ok, si on suit le plan, tout se passera bien",onKill="Tu aurais pu attendre que je soit partie avant de creuver quand même.",onDeath="Humf, c'était pas prévu ça...",reactAllyKilled="On lache rien !",reactBigRaiseEnnemy="C'était trop beau pour être vrai",blueWinAlive="Tout s'est déroulé comme prévu",redWinAlive="Tout s'est déroulé selon le plan")

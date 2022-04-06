@@ -164,10 +164,10 @@ bigMonoLaser2 = skill(bigMonoLaser.name,"up",bigMonoLaser.type,750,0,area=bigMon
 invocBat2 = skill("Invocation - Chauve-souris II","uo",TYPE_SUMMON,500,invocation="Chauve-Souris II",emoji="<:cuttybat2:904369379762925608>",shareCooldown=True,use=CHARISMA,cooldown=3)
 invocCarbunR = skill("Invocation - Carbuncle Rubis","un",TYPE_SUMMON,500,invocation="Carbuncle Rubis",emoji="<:invocRuby:919857898195128362>",shareCooldown=True,use=MAGIE,cooldown=3)
 concen = skill("Concentration","um",TYPE_BOOST,price=350,effect="oj",range=AREA_MONO,area=AREA_DONUT_2,cooldown=4,use=None,emoji='<:concen:921762263814262804>')
-memAlice = skill("Memento - Voie de l'Ange","memAlice",TYPE_HEAL,1000,int(transIdo.power*1.3),AREA_MONO,maxHpCost=25,shareCooldown=True,area=AREA_DONUT_4,cooldown=8,ultimate=True,group=SKILL_GROUP_HOLY,use=CHARISMA,emoji='<a:memAlice2:908424319900745768>',description="Cette compétence soigne les alliés vivants et recussite les alliés morts pour une certaine valeur des soins initiaux, affectée par le niveau de votre personnage",effectAroundCaster=[TYPE_RESURECTION,AREA_CIRCLE_6,150])
+memAlice = skill("Ultima Sanguis Rosae","memAlice",TYPE_HEAL,1000,int(transIdo.power*1.3),AREA_MONO,maxHpCost=25,shareCooldown=True,area=AREA_DONUT_4,cooldown=8,ultimate=True,group=SKILL_GROUP_HOLY,use=CHARISMA,emoji='<a:memAlice2:908424319900745768>',description="Cette compétence soigne les alliés vivants et recussite les alliés morts pour une certaine valeur des soins initiaux, affectée par le niveau de votre personnage",effectAroundCaster=[TYPE_RESURECTION,AREA_CIRCLE_6,150])
 memAliceCast = effect("Cast - {0}".format(memAlice.name),"aliceMementoCast",replique=memAlice,turnInit=2,silent=True,emoji=uniqueEmoji('<a:memAliceCast:908413832194588723>'))
 memAlice2 = copy.deepcopy(memAlice)
-memAlice2.id, memAlice2.power, memAlice2.effectOnSelf, memAlice2.message, memAlice2.emoji, memAlice2.maxHpCost, memAlice2.effectAroundCaster = "ul",0,memAliceCast,"{0} rassemble ses souvenirs...",'<a:memAliceCast:908413832194588723>', 0, None
+memAlice2.id, memAlice2.power, memAlice2.effectOnSelf, memAlice2.emoji, memAlice2.maxHpCost, memAlice2.effectAroundCaster = "ul",0,memAliceCast,'<a:memAliceCast:908413832194588723>', 0, None
 blackHole = skill("Trou noir","uk",TYPE_PASSIVE,ironWillSkill.price,effectOnSelf="ol",use=None,emoji='<:blackHole:906195944406679612>')
 blackHoleEff2 = copy.deepcopy(defenseUp)
 blackHoleEff2.power, blackHoleEff2.aggro, blackHoleEff2.turnInit = 25, 15, 3
@@ -240,9 +240,9 @@ geoConLaunch = skill("Géo-Controle","geoControleFinal",TYPE_BOOST,1000,range=AR
 geoConCastEff = effect("Cast - {0}".format(geoConLaunch.name),"geoControleCastEff",turnInit=2,silent=True,emoji=dangerEm,replique=geoConLaunch)
 geoConCast = copy.deepcopy(geoConLaunch)
 geoConCast.id, geoConCast.effect, geoConCast.effectOnSelf, geoConCast.message = "sx",[None],geoConCastEff,"{0} rassemble l'énergie cosmique autour de lui..."
-kikuRes = skill("Mors vita est","sw",TYPE_RESURECTION,750,80,AREA_MONO,area=AREA_DONUT_3,emoji='<:mortVitaEst:916279706351968296>',initCooldown=3,shareCooldown=True,description="Utiliser cette compétence empêche l'équipe d'utiliser Memento - Voie de l'Ange, Résurrection ainsi que n'importe quelle Transcendance jusqu'au prochain tour",use=CHARISMA,group=SKILL_GROUP_DEMON,hpCost=10)
-memClemLauchSkill = skill("Memento - L'Ange noir","memClemSkillLauch",TYPE_DAMAGE,0,200,AREA_MONO,setAoEDamge=True,percing=0,sussess=666,area=AREA_CIRCLE_7,ultimate=True,use=MAGIE,cooldown=99,emoji="<:clemMemento:902222089472327760>",description="\n__Effets lors du premier tour de chargement :__\nDéfini vos PVs courants à **1**\nObtenez un bouclier absolu d'une valeur de **50%** des PVs perdus\nDivise votre Résistance Soins de **50%**\nDiminue vos PV maximums de **50%** pour le reste du combat\nDonne l'effet __Incurable (50)__ sur le lanceur pour le reste du combat")
-memClemCastSkillEff = effect("Cast - Memento - L'Ange noir","memClemSkillCast",turnInit=2,silent=True,emoji=dangerEm,replique=memClemLauchSkill)
+kikuRes = skill("Mors vita est","sw",TYPE_RESURECTION,750,80,AREA_MONO,area=AREA_DONUT_3,emoji='<:mortVitaEst:916279706351968296>',initCooldown=3,shareCooldown=True,description="Utiliser cette compétence empêche l'équipe d'utiliser Ultima Sanguis Rosae, Résurrection ainsi que n'importe quelle Transcendance jusqu'au prochain tour",use=CHARISMA,group=SKILL_GROUP_DEMON,hpCost=10)
+memClemLauchSkill = skill("Ultima Sanguis Pluviae","memClemSkillLauch",TYPE_DAMAGE,0,200,AREA_MONO,setAoEDamge=True,percing=0,sussess=666,area=AREA_CIRCLE_7,ultimate=True,use=MAGIE,cooldown=99,emoji="<:clemMemento:902222089472327760>",description="\n__Effets lors du premier tour de chargement :__\nDéfini vos PVs courants à **1**\nObtenez un bouclier absolu d'une valeur de **50%** des PVs perdus\nDivise votre Résistance Soins de **50%**\nDiminue vos PV maximums de **50%** pour le reste du combat\nDonne l'effet __Incurable (50)__ sur le lanceur pour le reste du combat")
+memClemCastSkillEff = effect("Cast - Ultima Sanguis Pluviae","memClemSkillCast",turnInit=2,silent=True,emoji=dangerEm,replique=memClemLauchSkill)
 memClemCastSkill = copy.deepcopy(memClemLauchSkill)
 memClemCastSkill.id, memClemCastSkill.effectOnSelf, memClemCastSkill.power = "sv",memClemCastSkillEff,0
 rosesPhysiEff = effect("Épines","rosesPhysiEff",CHARISMA,endurance=5,resistance=3,power=35,trigger=TRIGGER_AFTER_DAMAGE,lvl=5,description="En plus de légèrement augmenter les statistiques défensives, cet effet inflige des dégâts indirects à chaques fois que le porteur reçois des dégâts **physiques**",onDeclancher=True,emoji=sameSpeciesEmoji("<:epineB:917665759684079626>","<:epineR:917665743649275904>"))
@@ -253,7 +253,7 @@ roses = skill("Roses","su",TYPE_BOOST,500,use=CHARISMA,become=[rosesPhysi,rosesM
 
 krysUlt = skill("Réassemblage","st",TYPE_DAMAGE,0,80,cooldown=5,description="En plus d'infliger des dégâts, cette compétence vole **50%** de l'armure normale et légère de la cible (avant d'infliger les dégâts)",emoji='<:reconvert:916121466423091240>')
 chaosArmorEff = effect("Armure du Chaos","chaosArmor",INTELLIGENCE,overhealth=1,emoji=sameSpeciesEmoji('<a:caB:938375004792426496>','<a:caR:938375020261023825>'),description="Une armure chaotique dont la puissance de base est aléatoire",type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,turnInit=3)
-chaosArmor = skill("Armure du Chaos","ss",TYPE_ARMOR,emoji='<a:chaosArmor:938374846843342869>',range=AREA_MONO,area=AREA_ALL_ALLIES,price=500,effect=chaosArmorEff,cooldown=5,use=INTELLIGENCE)
+chaosArmor = skill("Armure du Chaos","ss",TYPE_ARMOR,emoji='<a:chaosArmor:938374846843342869>',area=AREA_CIRCLE_2,price=500,effect=chaosArmorEff,cooldown=5,use=INTELLIGENCE)
 firelame = skill("Ignis ferrum","sr",TYPE_DAMAGE,500,38,range=AREA_DIST_5,conditionType=["exclusive","element",ELEMENT_FIRE],cooldown=6,area=AREA_ARC_1,repetition=3,emoji='<:fireLame:916130324197543986>',damageOnArmor=1.1)
 airlame = skill("Aer ferrum","sq",TYPE_DAMAGE,500,38,range=AREA_CIRCLE_3,conditionType=["exclusive","element",ELEMENT_AIR],cooldown=6,area=AREA_ARC_1,repetition=3,emoji='<:airLame:916130609095655454>',damageOnArmor=1.1)
 waterlame = skill("Aqua ferrum","sp",TYPE_DAMAGE,500,55,range=AREA_DIST_5,conditionType=["exclusive","element",ELEMENT_WATER],cooldown=6,repetition=3,emoji='<:aquaLame:916130446125977602>',damageOnArmor=1.1)
@@ -377,10 +377,10 @@ lohicaUltCast.effectOnSelf, lohicaUltCast.effect, lohicaUltCast.tpCac = lohicaUl
 fairyFligth = skill("Envolée féérique",'suy',TYPE_DAMAGE,500,65,range=AREA_CIRCLE_1,jumpBack=2,knockback=1,cooldown=5,emoji='<:envolee:941677380181823489>')
 
 aliceDanceEff = effect("En rythme !",'aliceDanceEff',CHARISMA,strength=7,magie=7,description="\"Tous avec moi !\"",emoji=sameSpeciesEmoji('<:dyB:932618243280085062>','<:dyR:932618257960161331>'))
-aliceDanceFinal = skill("Chorégraphie dynamique","sc",TYPE_BOOST,500,range=AREA_MONO,area=AREA_DONUT_3,effect=aliceDanceEff,emoji='<:dyna:932618114892439613>',use=CHARISMA,cooldown=5,message="{0} se donne à fond !",description="Se met à danser pendant 3 tours, durant lesquels les alliés à portée voient leur statistiques offensives augmenter")
+aliceDanceFinal = skill("Chorégraphie Dynamique","corDynFinal",TYPE_BOOST,500,range=AREA_MONO,area=AREA_DONUT_3,effect=aliceDanceEff,emoji='<:dyna:932618114892439613>',use=CHARISMA,cooldown=5,message="{0} se donne à fond !",description="Se met à danser pendant 3 tours, durant lesquels les alliés à portée voient leur statistiques offensives augmenter")
 aliceDanceGuideEff1 = effect("Chrorégraphie dynamique",'aliceDanceCastEff1',turnInit=2,silent=True,replique=aliceDanceFinal,emoji=uniqueEmoji('<:dyna:932618114892439613>'),stackable=True)
 aliceDanceGuide1 = copy.deepcopy(aliceDanceFinal)
-aliceDanceGuide1.effectOnSelf, aliceDanceGuide1.message = aliceDanceGuideEff1, "{0} continue de danser"
+aliceDanceGuide1.effectOnSelf, aliceDanceGuide1.message, aliceDanceGuide1.id = aliceDanceGuideEff1, "{0} continue de danser", "sc"
 aliceDanceGuideEff2 = copy.deepcopy(aliceDanceGuideEff1)
 aliceDanceGuideEff2.replica = aliceDanceGuide1
 aliceDance = copy.deepcopy(aliceDanceGuide1)
@@ -583,7 +583,7 @@ constance2 = skill("Constance Critique","srx",TYPE_PASSIVE,500,effectOnSelf=cons
 revelEff = copy.deepcopy(defenseUp)
 revelEff.power, revelEff.stat, revelEff.turnInit = divination.effect[0].power, INTELLIGENCE, 3
 revelation = skill("Révélation","srw",TYPE_BOOST,divination.price,effect=revelEff,cooldown=divination.cooldown,emoji=divination.emoji,range=AREA_MONO,area=AREA_CIRCLE_2)
-elemEff = effect("Maîtrise élémentaire","elemEff",None,turnInit=3,stackable=True,description="Cet effet devient un effet élémentaire correspondant à votre élément, augmentant de **{0}%** la puissance de vos compétences exclusives à votre élément (Non cumulable)\nCertaines compétences peuvent consommer les effets élémentaires pour obtenir des propriétés supplémentaires",power=5,emoji=elemEmojis[ELEMENT_UNIVERSALIS_PREMO])
+elemEff = effect("Energie multiélémentaire","elemEff",None,turnInit=3,stackable=True,description="Cet effet devient un effet élémentaire correspondant à votre élément, augmentant de **{0}%** la puissance de vos compétences exclusives à votre élément (Non cumulable)\nCertaines compétences peuvent consommer les effets élémentaires pour obtenir des propriétés supplémentaires",power=5,emoji=elemEmojis[ELEMENT_UNIVERSALIS_PREMO])
 elemEffName = ["Neutralité","Flamme intérieur","Courrant interne","Tempête intérieur","Minéralisation","Lueur interne","Ombre interne","Poussière cosmique","Seconde temporelle","Illuminae"]
 mEP = 35
 matriseElemEff = effect("Maîtrise élémentaire","maitriseElemPas",None,turnInit=-1,unclearable=True,description="Vous octroit **{0}%** de chance d'obtenir l'effet {1} __{2}__ lorsque vous utilisez une compétence élémentaire".format(mEP,elemEff.emoji[0][0],elemEff.name),emoji=elemEmojis[ELEMENT_UNIVERSALIS_PREMO],callOnTrigger=elemEff)
@@ -597,21 +597,21 @@ danceFas = skill("Danse de la Lame Fascinatoire","srs",TYPE_DAMAGE,power=125,are
 eventFas = effect("Eventail Fascinatoire","evFac",turnInit=-1,unclearable=True,emoji='<:evFas:951824800488230932>',description="Effet passif donné par Fascination. Voir la description de la compétence",callOnTrigger=danseFasReady)
 fascination = skill("Fascination","srs",TYPE_PASSIVE,price=750,emoji='<:evFas:951824800488230932>',effectOnSelf=eventFas,become=[finalFas,danceFas],description="Posséder cette compétence vous octrois l'effet {0} __{1}__.\nPour chaque coup critique effectué par un alliés, la valeur de l'éventail augmente de **10**. Une fois **100 points** atteints, vous obtenez l'effet {2} __{3}__ et le temps de rechargement de cette compétence ainsi que la valeur de l'éventail sont réduit à 0".format(eventFas.emoji[0][0], eventFas.name, danseFasReady.emoji[0][0], danseFasReady.name),use=CHARISMA)
 corGraEff = effect("Chorégraphie Grâcieuse","chorGra",CHARISMA,charisma=7,intelligence=7,endurance=7,emoji=sameSpeciesEmoji('<:graceB:956700633531043933>','<:graceR:956700653785346149>'),description="Augmente les statistiques de support du porteur")
-corGraFinal = skill("Chorégraphie Grâcieuse","srq",TYPE_BOOST,500,range=AREA_MONO,area=aliceDance.area,effect=corGraEff,cooldown=aliceDance.cooldown,emoji='<:corGra:956700501095899217>',description="Augmente les statistiques de support de vos alliés proches durant 3 tours")
+corGraFinal = skill("Chorégraphie Grâcieuse","corGraceFinal",TYPE_BOOST,500,range=AREA_MONO,area=aliceDance.area,effect=corGraEff,cooldown=aliceDance.cooldown,emoji='<:corGra:956700501095899217>',description="Augmente les statistiques de support de vos alliés proches durant 3 tours")
 corGraGuideEff = effect(corGraFinal.name,"corGraGuideEff",turnInit=2,silent=True,emoji=corGraFinal.emoji,replique=corGraFinal)
 corGraGuide = copy.deepcopy(corGraFinal)
-corGraGuide.effectOnSelf = corGraGuideEff
+corGraGuide.effectOnSelf, corGraGuide.id = corGraGuideEff, "srq"
 corGraGuideEff2 = copy.deepcopy(corGraGuideEff)
 corGraGuideEff2.replica = corGraGuide
 corGraCast = copy.deepcopy(corGraGuide)
 corGraCast.effectOnSelf = corGraGuideEff2
 
-rosePink = effect("Rose rose","finFloRose",turnInit=-1,emoji='<:roseRose:956716583915491378>')
-roseBlue = effect("Rose azurée","finFloBlu",turnInit=-1,emoji='<:roseBlue:956716604333367326>')
-roseGreen = effect("Rose verte","finFloGre",turnInit=-1,emoji='<:roseGreen:956716536742150254>')
-roseRed = effect("Rose rouge","finFloRed",turnInit=-1,emoji='<:roseRed:956716516232032257>')
-roseYellow = effect("Rose jaune","finFloYel",turnInit=-1,emoji='<:roseYellow:956716561136242748>')
-roseDarkBlu = effect("Rose bleue","finFloDBlue",turnInit=-1,emoji='<:roseDBlue:956725613585133598>')
+rosePink = effect("Rose rose","finFloRose",turnInit=-1,emoji='<:roseRose:956716583915491378>',stackable=True)
+roseBlue = effect("Rose azurée","finFloBlu",turnInit=-1,emoji='<:roseBlue:956716604333367326>',stackable=True)
+roseGreen = effect("Rose verte","finFloGre",turnInit=-1,emoji='<:roseGreen:956716536742150254>',stackable=True)
+roseRed = effect("Rose rouge","finFloRed",turnInit=-1,emoji='<:roseRed:956716516232032257>',stackable=True)
+roseYellow = effect("Rose jaune","finFloYel",turnInit=-1,emoji='<:roseYellow:956716561136242748>',stackable=True)
+roseDarkBlu = effect("Rose bleue","finFloDBlue",turnInit=-1,emoji='<:roseDBlue:956725613585133598>',stackable=True)
 
 tablRosesEff,tablRosesSkillsId,tablRosesId = [roseRed,roseDarkBlu,rosePink,roseYellow,roseBlue,roseGreen], [aliceDanceFinal.id,corGraFinal.id,onstage.id,crimsomLotus.id,finalTech.id,valse.id],[roseRed.id,roseDarkBlu.id,rosePink.id,roseYellow.id,roseBlue.id,roseGreen.id]
 
@@ -637,8 +637,8 @@ finalFloral = skill("Final Floral","srr",TYPE_PASSIVE,750,effectOnSelf=finFloEff
 finFloEffList = [copy.deepcopy(dmgUp),copy.deepcopy(defenseUp),effect("Critique Floral",'finFloCrit',CHARISMA,critical=7,emoji=finFloEff.emoji),effect("Aura Florale","finFloHeal",CHARISMA,power=20,turnInit=3,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji=finFloEff.emoji,area=AREA_CIRCLE_2)]
 finFloEffList[0].power, finFloEffList[1].power, finFloEffList[0].stat, finFloEffList[1].stat = 7, 7, CHARISMA, CHARISMA
 
-divineSave = skill("Salut Divin","srp",TYPE_RESURECTION,500,300,group=SKILL_GROUP_HOLY,maxHpCost=35,cooldown=5,shareCooldown=True,use=CHARISMA)
-redemption = skill("Rédemption","sro",TYPE_DAMAGE,500,150,area=AREA_CIRCLE_1,maxHpCost=15,group=SKILL_GROUP_HOLY,ultimate=True,cooldown=5,use=MAGIE)
+divineSave = skill("Salut Divin","srp",TYPE_RESURECTION,500,300,group=SKILL_GROUP_HOLY,maxHpCost=35,cooldown=5,shareCooldown=True,use=CHARISMA, emoji='<:hollyRaise:958065170645655642>')
+redemption = skill("Rédemption","sro",TYPE_DAMAGE,500,150,area=AREA_CIRCLE_1,maxHpCost=15,group=SKILL_GROUP_HOLY,ultimate=True,cooldown=5,use=MAGIE,emoji='<:rdemption:958065152098455673>')
 
 tablElemEff = []
 for cmpt in range(len(elemNames)):
@@ -652,18 +652,32 @@ for cmpt in range(len(transTabl)):
     if cmpt < len(limitBeakGif):
         transTabl[cmpt].url = limitBeakGif[cmpt]
 
-fireElemUse = skill("Cataclysme des braises infernales","srn",TYPE_DAMAGE,500,50,setAoEDamge=True,range=AREA_MONO,area=AREA_DIST_5,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catFire:956599672737243166>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis éloignés de vous\nSi au moins un {0} __{1}__ a été consommé, donne également un effet de dégâts indirects aux ennemis infligeants **33%** de dégâts supplémentaires à la fin de leur tour dont la durée dépend du nombre d'effets consommés".format(tablElemEff[1].emoji[0][0],tablElemEff[1].name),conditionType=["exclusive","element",ELEMENT_FIRE])
+fireElemUse = skill("Cataclysme des braises infernales","srn",TYPE_DAMAGE,500,65,setAoEDamge=True,range=AREA_MONO,area=AREA_DIST_5,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catFire:956599672737243166>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis éloignés de vous\nSi au moins un {0} __{1}__ a été consommé, donne également un effet de dégâts indirects aux ennemis infligeants **33%** de dégâts supplémentaires à la fin de leur tour dont la durée dépend du nombre d'effets consommés".format(tablElemEff[1].emoji[0][0],tablElemEff[1].name),conditionType=["exclusive","element",ELEMENT_FIRE])
 waterElemUse = skill("Cataclysme des stalactites délugiens","srm",TYPE_DAMAGE,500,120,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catWater:956599696594444418>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts à l'ennemi ciblé.\nPour chaque effet {0} __{1}__ consommé, réalise une nouvelle attaque infligeant **15%** de dégâts supplémentaires".format(tablElemEff[2].emoji[0][0],tablElemEff[2].name),conditionType=["exclusive","element",ELEMENT_WATER])
 airElemUse = skill("Cataclysme des tornades","srl",TYPE_DAMAGE,500,70,setAoEDamge=True,range=AREA_MONO,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catAir:956599718522265610>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis autour de vous\nSi au moins un effet {0} __{1}__ a été consommé, vous octrois un effet infligeant des dégâts indirects aux ennemis autour de vous à la fin de votre tour dont la durée dépend du nombre d'effets consommés".format(tablElemEff[3].emoji[0][0],tablElemEff[3].name),conditionType=["exclusive","element",ELEMENT_AIR])
 earthElemUse = skill("Cataclysme des séismes","srk",TYPE_DAMAGE,500,120,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catEarth:956599751002963998>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts à l'ennemi ciblé.\nSi au moins un effet {0} __{1}__ a été consommé, réalise une nouvelle attaque infligeant **20%** de dégâts supplémentaires sur les ennemis autour de vous. La puissance de l'attaque est multipliée par le nombre d'effets consommés".format(tablElemEff[4].emoji[0][0],tablElemEff[4].name),conditionType=["exclusive","element",ELEMENT_EARTH])
 lightElemUseEff = effect("Armure de lumière","lightArmorElemUse",INTELLIGENCE,overhealth=75,turnInit=3,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR)
 lightElemUse = skill("Cataclysme de la lueur diluvienne","srj",TYPE_ARMOR,500,range=AREA_MONO,area=AREA_CIRCLE_4,effect=lightElemUseEff,cooldown=7,ultimate=True,emoji='<:catLight:956599774461722655>',description="Consomme vos effets {0} __{1}__\nDonne une armure à vous et vos alliés alentours.\nSi au moins un effet {0} __{1}__ a été consommé, octroie un effet de soins sur la durée avec une puissance de **30%** de celle de l'armure. La durée de l'effet dépend du nombre d'effets consommés".format(tablElemEff[5].emoji[0][0],tablElemEff[5].name),conditionType=["exclusive","element",ELEMENT_LIGHT],use=INTELLIGENCE)
-darkElemUse = skill("Cataclysme du brasier sombre","sri",TYPE_DAMAGE,500,50,setAoEDamge=True,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catDark:950942244523872256>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis dans la zone d'effet\nSi au moins un {0} __{1}__ a été consommé, donne également un effet de dégâts indirects à l'ennemi ciblé infligeant **50%** de dégâts supplémentaires à la fin de son tour à lui et ses alliés proches dont la durée dépend du nombre d'effets consommés".format(tablElemEff[6].emoji[0][0],tablElemEff[6].name),conditionType=["exclusive","element",ELEMENT_DARKNESS])
-spaceElemUse = skill("Cataclysme du déluge céleste","srh",TYPE_DAMAGE,500,50,setAoEDamge=True,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catSpace:956599795110277150>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis dans la zone d'effet\nPour chaque effet {0} __{1}__ consommé, inflige des dégâts supplémentaires équivalents à **33%** des dégâts de base à un ennemi aléatoire dans la zone d'effet et ses alliés aux corps à corps".format(tablElemEff[7].emoji[0][0],tablElemEff[7].name),conditionType=["exclusive","element",ELEMENT_SPACE])
+darkElemUse = skill("Cataclysme du brasier sombre","sri",TYPE_DAMAGE,500,75,setAoEDamge=True,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catDark:950942244523872256>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis dans la zone d'effet\nSi au moins un {0} __{1}__ a été consommé, donne également un effet de dégâts indirects à l'ennemi ciblé infligeant **50%** de dégâts supplémentaires à la fin de son tour à lui et ses alliés proches dont la durée dépend du nombre d'effets consommés".format(tablElemEff[6].emoji[0][0],tablElemEff[6].name),conditionType=["exclusive","element",ELEMENT_DARKNESS])
+spaceElemUse = skill("Cataclysme du déluge céleste","srh",TYPE_DAMAGE,500,100,setAoEDamge=True,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,use=MAGIE,emoji='<:catSpace:956599795110277150>',description="Consomme vos effets {0} __{1}__\nInflige des dégâts aux ennemis dans la zone d'effet\nPour chaque effet {0} __{1}__ consommé, inflige des dégâts supplémentaires équivalents à **33%** des dégâts de base à un ennemi aléatoire dans la zone d'effet et ses alliés aux corps à corps".format(tablElemEff[7].emoji[0][0],tablElemEff[7].name),conditionType=["exclusive","element",ELEMENT_SPACE])
 timeElemUse = skill("Cataclysme du déphasage temporel","srg",TYPE_HEAL,500,100,area=AREA_CIRCLE_2,ultimate=True,cooldown=7,use=CHARISMA,emoji='<:catTime:956599814898999328>',description="Consomme vos effets {0} __{1}__\nSoigne les alliés dans la zone d'effet.\nSi au moins un effet {0} __{1}__ a été consommé, octroi également une armure aux alliés dans la zone d'effet dont la puissance équivant à **20%** de celle des soins. La puissance est multipliée par le nombre d'effets consommés".format(tablElemEff[8].emoji[0][0],tablElemEff[8].name),conditionType=["exclusive","element",ELEMENT_TIME])
+bleedingConvert = skill("Taillade des veines","srf",TYPE_DAMAGE,500,75,range=AREA_CIRCLE_3,cooldown=7,lifeSteal=50,emoji="<:shiLifeSteal:960007047984857148>",percing=50,description="Inflige des dégâts à la cible et vole une partie des dégâts infligés tout en ignorant une partie de la résistance de la cible\nConsomme tous les effets <:ble:887743186095730708> __Hémorragie__ présents sur la cible pour augmenter la puissance de cette compétence")
+
+elemShieldEff = effect("Armure élémentaire","elemShield",INTELLIGENCE,overhealth=40,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,callOnTrigger=elemEff,area=AREA_DONUT_2,description="Une armure qui protège de quelques dégâts directs\nLorsqu'elle est brisée, donne l'effet {0} __{1}__ aux alliés autour du porteur".format(elemEff.emoji[0][0],elemEff.name),emoji=sameSpeciesEmoji('<:elemShield:960061614739050537>','<:elemShield:960061540164313088>'))
+elemShield = skill("Armure élémentaire","srd",TYPE_ARMOR,500,effect=elemShieldEff,cooldown=7,emoji='<:elemShield:960061614739050537>',description="Octroi une armure à l'allié ciblé. Quand celle-ci est détruite, donne un effet élémentaire aux alliés aux alentours")
+shieldAuraShield = effect("Armure","armorAuraArmor",INTELLIGENCE,overhealth=20,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,description="Protège de quelques dégâts directs")
+shieldAuraEff = effect("Aura armurière","shieldAuraEff",INTELLIGENCE,callOnTrigger=shieldAuraShield,emoji=sameSpeciesEmoji('<:armorAura:960060538119929927>','<:armorAura:960060634517602344>'),lvl=3,area=AREA_CIRCLE_2,trigger=TRIGGER_END_OF_TURN,turnInit=3,description="À la fin du tour du porteur, ocrtoi une armure à celui-ci et ses alliés aux alentours")
+shieldAura = skill("Aura Armurière","src",TYPE_ARMOR,500,cooldown=7,effect=shieldAuraEff,emoji='<:armorAura:960060538119929927>',description="Pose une aura sur l'allié ciblé, qui octroira de l'armure autour de lui quand il terminera son tour pendant 3 tours")
+horoscope = skill("Horoscope","srb",TYPE_BOOST,emoji='<:horoscope:960312586371477524>',description="Consomme tous vos signes astrologiques pour augmenter les statistiques de vos alliés durant 3 tours\nLes statistiques augmentées dépendent des signes astrologiques conssommés\nVous obtenez un signe astrologique aléatoire en fin de tour",cooldown=4,initCooldown=5,conditionType=["exclusive","element",ELEMENT_SPACE],use=INTELLIGENCE,range=AREA_MONO, area=AREA_CIRCLE_5)
+ShiHemophilie = effect("Anti-Coagulant","increaseBlooding",description="Augmente de **{0}%** les dégâts subis par l'effet <:ble:887743186095730708> __Hémorragie__",power=25,emoji='<:hemophillie:960721463772610613>')
+ShiUltimateLauch = skill("Percée ensanglantée","sra",TYPE_DAMAGE,750,150,AREA_CIRCLE_2,effect=["mx",ShiHemophilie],emoji='<:shiUlt:960760921666510908>',description="Après 1 tour de chargement, inflige de lourd dégâts à l'ennemi ciblé, lui applique <:ble:887743186095730708> __Hémorragie__ et augmente les dégâts de <:ble:887743186095730708> __Hémorragie__ durant 1 tour",ultimate=True,cooldown=7)
+ShiUltimateCast = effect("Cast - {0}".format(ShiUltimateLauch.name),"shiUltCast",turnInit=2,silent=True,replique=ShiUltimateLauch,emoji='<a:shiUltCast:960764930217377802>')
+ShiUltimate = copy.deepcopy(ShiUltimateLauch)
+ShiUltimate.effect, ShiUltimate.power, ShiUltimate.effectOnSelf = [None], 0, ShiUltimateCast
 
 # Skill
-skills = [corGraCast,finalFloral,divineSave,redemption,fireElemUse,waterElemUse,airElemUse,earthElemUse,lightElemUse,darkElemUse,spaceElemUse,timeElemUse,
+skills = [elemShield,shieldAura,horoscope,ShiUltimate,
+    corGraCast,finalFloral,divineSave,redemption,fireElemUse,waterElemUse,airElemUse,earthElemUse,lightElemUse,darkElemUse,spaceElemUse,timeElemUse,bleedingConvert,
     revelation,maitriseElementaire,magicEffGiver,physEffGiver,fascination,
     selenomancie,holiomancie,partner,exhibitionnisme,invocTitania,dmonBlood,hollyGround,hollyGround2,burningGround,blueShell,preciChi,ironHealth,windBal,brasier2,earthUlt2,geyser,rouletteSkill,constance,constance2,
     undead,ironStormBundle,bolide,invincible,holmgang,comboVerBrasier,galvanisation,contreDeSixte,
@@ -675,6 +689,21 @@ skills = [corGraCast,finalFloral,divineSave,redemption,fireElemUse,waterElemUse,
 
 importantSkills = [deathShadow.id]
 useElemEffId = [fireElemUse.id,waterElemUse.id,airElemUse.id,earthElemUse.id,lightElemUse.id,darkElemUse.id,spaceElemUse.id,timeElemUse.id]
+
+horoscopeEff = [
+    [effect("Bélier","horBélier",turnInit=-1,emoji='<:belier:960319494167867473>'),[[STRENGTH,1],[ENDURANCE,2]]],
+    [effect("Taureau","horTaureau",turnInit=-1,emoji='<:taureau:960319518004092939>'),[[STRENGTH,2],[ENDURANCE,1]]],
+    [effect("Gémeaux","horGémeaux",turnInit=-1,emoji='<:gemeaux:960319543228649523>'),[[CHARISMA,1],[INTELLIGENCE,1],[MAGIE,1]]],
+    [effect("Cancer","horCancer",turnInit=-1,emoji='<:cancer:960319573003997215>'),[[AGILITY,1],[STRENGTH,1],[MAGIE,1]]],
+    [effect("Lion","horLio",turnInit=-1,emoji='<:lion:960319606050914336>'),[[STRENGTH,3]]],
+    [effect("Vierge","horVierge",turnInit=-1,emoji='<:vierge:960319632982540329>'),[[CHARISMA,3]]],
+    [effect("Balance","horBalance",turnInit=-1,emoji='<:balance:960319658823667762>'),[[INTELLIGENCE,1],[MAGIE,2]]],
+    [effect("Scorpion","horScorpion",turnInit=-1,emoji='<:scorpion:960319682861232211>'),[[STRENGTH,2],[MAGIE,1]]],
+    [effect("Sagittaire","horSagittaire",turnInit=-1,emoji='<:sagittaire:960319710380036146>'),[[MAGIE,3]]],
+    [effect("Capricorne","horCapricorne",turnInit=-1,emoji='<:capricorne:960319731343175781>'),[[MAGIE,2],[ENDURANCE,1]]],
+    [effect("Verseau","horVerseau",turnInit=-1,emoji='<:verseau:960319751136108546>'),[[INTELLIGENCE,2,PRECISION,1]]],
+    [effect("Poisson","horPoisson",turnInit=-1,emoji='<:poisson:960319770337628191>'),[[AGILITY,2],[PRECISION,1]]]
+]
 
 # FindSkill
 def findSkill(skillId) -> skill:
