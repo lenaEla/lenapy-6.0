@@ -279,7 +279,7 @@ for obj in stuffs+weapons+skills+others:
                 what += whaty.name + ", "
         raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("chauve-souris rouge"))
+#print(seeSimilarStuffNameMinLvl("Erudite"))
 #print(seeAllStuffAtMinLvl(0))
 
 """for stuffy in stuffs:

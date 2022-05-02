@@ -1,7 +1,3 @@
-import argparse
-from inspect import stack
-from mimetypes import init
-import re
 from classes import *
 from constantes import *
 from advObjects.advWeapons import *
@@ -9,6 +5,7 @@ from advObjects.advSkills import *
 from advObjects.advStuffs import *
 from advObjects.advInvocs import *
 from advObjects.advEffects import *
+from advObjects.advAllies import *
 
 # Octariens spells
 octoEm = '<:splatted1:727586364618702898>'
@@ -33,9 +30,6 @@ malusSkill1 = skill("Abrutissement","aaa",TYPE_MALUS,0,area=AREA_CIRCLE_2,effect
 malusSkill2 = skill("Éclair","aaa",TYPE_DAMAGE,0,80,cooldown=2,sussess=65,use=MAGIE,emoji='<:darkThunder:912414778356564019>')
 kralamWeap = weapon("Décharge motivante","aaa",RANGE_DIST,AREA_DONUT_4,50,100,0,type=TYPE_HEAL,target=ALLIES,use=CHARISMA)
 kralamSkill2 = skill("Électrochoc","kralamSkill2",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_1,use=CHARISMA,cooldown=3,initCooldown=2,emoji='<:electroShoc:912414625679695873>')
-kralamSkillEff2 = effect("This is, my No No Square","nono",INTELLIGENCE,resistance=10,overhealth=55,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,turnInit=3)
-kralamSkillEff1 = effect("No no, don't touch me there","squaez",trigger=TRIGGER_DAMAGE,callOnTrigger=kralamSkillEff2,lvl=1,emoji=uniqueEmoji('<a:FranziskaNo:800833215106383883>'),type=TYPE_BOOST,resistance=5)
-kralamSkill = skill("Prévention","vn",TYPE_BOOST,0,0,AREA_DONUT_6,cooldown=5,effect=kralamSkillEff1,emoji='<:egide:887743268337619005>')
 temNativTriggered = effect("Promue",'tem',magie=0,turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:colegue:895440308257558529>'))
 temNativ = effect("College",'tem1',trigger=TRIGGER_ON_REMOVE,turnInit=3,unclearable=True,callOnTrigger=temNativTriggered)
 temWeap = weapon("Temmie flakes","aaa",RANGE_DIST,AREA_CIRCLE_5,42,75,0,use=MAGIE,effect=temNativ,emoji='<:temFlakes:919168887222829057>',say=["TEMMIE FLAKES ! An original breakfast !","TEMMIE FLAKES ! It's so good you can't taste it !","TEMMIE FLAKES ! Don't forget to digest it !","TEMMIE FLAKES in your mouth","Whouwhouwhouwhou !"],message="{0} donne des TEMMIE FLAKES à {1}")
@@ -94,7 +88,7 @@ lieWeapEff = effect("Kitsune du feu","lieWeapEff",CHARISMA,emoji=uniqueEmoji('<:
 lieWeap = weapon("Braise","lieWeap",RANGE_LONG,AREA_CIRCLE_4,48,50,charisma=10,magie=10,area=AREA_CIRCLE_1,effect=lieWeapEff,use=MAGIE,emoji='<:lizWeap:908859856608460820>')
 lieSkillEff = effect("Combustion","lieSKillEff",MAGIE,resistance=-2,power=30,turnInit=4,lvl=4,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
 lieSkill = skill("Flamme intérieur","lizSkill",TYPE_DAMAGE,0,effect=lieSkillEff,cooldown=3,power=115,say="Voyons voir si tu va pouvoir résister longtemps...",use=MAGIE,emoji='<:lizSkill:922328829765242961>')
-liaSkill = skill("Douce caresse","liaSkill",TYPE_DAMAGE,0,power=70,range=AREA_CIRCLE_1,effect=[charming,charming,charming],knockback=1,cooldown=5,use=MAGIE,say="Roh allez, détent toi un peu !",emoji='<:liaSkill:922291249002709062>')
+liaSkill = skill("Douce caresse","liaSkill",TYPE_DAMAGE,0,power=70,range=AREA_CIRCLE_1,effect=charming,effPowerPurcent=300,knockback=1,cooldown=5,use=MAGIE,say="Roh allez, détent toi un peu !",emoji='<:liaSkill:922291249002709062>')
 liuSkillEff = effect("Armure Télurique","liuSkillEff",CHARISMA,overhealth=150,aggro=15,inkResistance=10,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:liuArmor:922292960886915103>'),turnInit=3)
 liuSkill = skill("Frappe Télurique","liuSkill",TYPE_DAMAGE,0,power=100,use=ENDURANCE,cooldown=3,effectOnSelf=liuSkillEff,say="Oh je suis pas encore finie tu va voir !",emoji='<:liuSkill:922328931502280774>')
 
@@ -147,7 +141,7 @@ unformLightASkill3 = skill("Lueur mauvaise",'unformLightASkill3',TYPE_BOOST,rang
 
 unformDarknessDot = effect('Anéantissement','unformDarknessMainDoT',MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,power=15,turnInit=8,lvl=8,stackable=True)
 unformDarknessAWeapon = weapon("Noirceur destructrice",'unformDarknessAWeap',RANGE_MELEE,AREA_CIRCLE_2,41,99,strength=20,magie=20,use=MAGIE,effectOnUse=unformDarknessDot)
-unformDarknessASkill1 = skill('Fissure','unformDarkASkill1',TYPE_INDIRECT_DAMAGE,range=AREA_CIRCLE_1,cooldown=5,effect=[unformDarknessDot,unformDarknessDot,unformDarknessDot,unformDarknessDot,unformDarknessDot])
+unformDarknessASkill1 = skill('Fissure','unformDarkASkill1',TYPE_INDIRECT_DAMAGE,range=AREA_CIRCLE_1,cooldown=5,effect=unformDarknessDot,effPowerPurcent=500)
 unformDarknessASkill2 = skill('Ombre aveuglante','unformDarknessASkill2',TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=3)
 unformDarknessASkill3Eff = effect('Ténèbres consummants','unformDarknessASkill3Eff',MAGIE,type=TYPE_MALUS,resistance=-5,endurance=-10,turnInit=3)
 unformDarknessASkill3 = skill("Ombre mauvaise",'unformDarknessASkill3',TYPE_MALUS,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=5,effect=unformDarknessASkill3Eff)
@@ -219,7 +213,7 @@ tablUniqueEnnemies = [
     octarien("Bob",55,100,55,50,35,30,200,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=bobSays,baseLvl=15),
     octarien("Octo Mage",50,100,30,30,30,20,250,20,10,15,octoMageWeap,5,'<:octomage:897910662758543422>',[flame,courant,rock,storm2,None,None,maitriseElementaire],MAGE,baseLvl=20,number=3,element=ELEMENT_UNIVERSALIS_PREMO),
     octarien("Octo Mage II",50,100,30,30,30,20,250,20,10,15,octoMageWeap,5,'<:octoMage2:907712297013751838>',[fireCircle,waterCircle,earthCircle,airCircle,None,None,maitriseElementaire],MAGE,baseLvl=20,number=3,element=ELEMENT_UNIVERSALIS_PREMO),
-    octarien("Zombie",175,200,0,50,70,0,0,50,0,10,ironSword,6,'<:armoredZombie:899993449443491860>',[defi,zombieSkill,None,None,None,None,undead],BERSERK,baseLvl=20,number=2),
+    octarien("Zombie",175,200,0,50,70,0,0,50,0,10,ironSword,6,'<:armoredZombie:899993449443491860>',[defi,zombieSkill,None,None,None,None,undead],BERSERK,baseLvl=20,number=2,rez=False),
     octarien("Octo Bombardier",225,125,20,10,150,35,0,35,20,0,octobomberWeap,6,'<:octobomber:902013837123919924>',aspiration=OBSERVATEUR,baseLvl=20,number=2,skill=[octoTentaMissiles,octoBooyahBombCast]),
     octarien("Tentassin",175,125,20,35,30,100,20,45,15,20,tentaWeap,6,'<:octoshoter2:902013858602967052>',aspiration=BERSERK,skill=[octaStrans,ultraShot],baseLvl=15,number=2),
     octarien("Octo Protecteur",0,100,50,50,30,300,20,20,0,0,octoDef,5,"<:octoProtect:883303222255706142>",[inkarmor,zoneOctoInkRes],aspiration=PREVOYANT,description="Un octarien qui pense que les boucliers sont la meilleure défense",baseLvl=5),
@@ -310,10 +304,7 @@ lunaSkill7 = skill("Ultimawashi","lunaSkill7",TYPE_DAMAGE,0,150,AREA_CIRCLE_1,co
 lunaQuickFightEff = effect('Enchaînement',"lunaQuickFight",emoji=uniqueEmoji('<:qqLuna:932318030380302386>'))
 lunaSkill5Base = skill("Corps à corps","lunaSkill5",TYPE_DAMAGE,0,0,AREA_CIRCLE_1,description="Cette compétence peut avoir 4 effets différents, sélectionné de manière aléatoire",emoji='<:luna4inOne:919260128698589184>',become=[lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4])
 
-vulneTabl[3]
-
 # Clemence Pos Special skills
-clemBloodJauge = effect("Jauge de sang","clemBloodJauge",turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:clemBJ:914710384299106345>'),lvl=100,description="Clémence possédée tourne autour de sa Jauge de Sang\n\nElle débute le combat avec une jauge à **100** Points de sang, son maximum.\nChacunes de ses compétences ont un coût en Points de Sang, qui sont retiré à la jauge à la fin de leur utilisation\n\nSi la jauge de sang tombe à **0 point**, Clémence est étourdie pendant 2 tours durant lesquels sa résistance est diminuée\nLa jauge de sang récupère **1 point** de sang à chaque fois que Clémence inflige 50 points de dégâts, et **100 points** une fois que Clémence n'est plus étourdie\n\nLa quantité de points de sang dans la jauge de sang est constamant visible\nClémence possède 10% de vol de vie")
 clemWeapon = weapon("Rapière en argent lunaire","clemenceWeapon",RANGE_DIST,AREA_CIRCLE_2,135,100,ignoreAutoVerif=True,use=MAGIE,effect=clemBloodJauge,damageOnArmor=2,magie=50,endurance=20,emoji='<:clemWeap:915358467773063208>')
 clemStunEffect = effect("Thrombophilie","clemStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS)
 aliceStunEffect = effect("Hémophilie","aliceStun",stun=True,emoji=uniqueEmoji("<:stun:882597448898474024>"),turnInit=3,type=TYPE_MALUS)
@@ -343,14 +334,15 @@ mattSkill4Eff = effect("Gardé","matt(en)Garde",STRENGTH,power=20,lvl=99,onDecla
 mattSkill4 = skill("Garde","mattSkill4",TYPE_DAMAGE,0,cooldown=5,range=AREA_CIRCLE_1,power=0,effectOnSelf=mattSkill4Eff)
 
 # Kiku
-kikuRezEff = effect("Inmortuae","kikuRezEff",None,turnInit=-1,emoji='<:undead:944989612630229052>',description="Réduit de **{0}%** les soins reçus par le porteur\nSi Kiku est vaincue, tous les porteurs de Inmortuae le seront également",power=30)
-kikuBossRes = skill("Mors Vita Est","kikuRaiseLet'sGo",TYPE_RESURECTION,0,range=AREA_MONO,area=AREA_DONUT_7,use=MAGIE,power=500,emoji=kikuRes.emoji,effect=kikuRezEff,description="Réanime tous les alliés vaincus en leur donnant l'effet {0} __{1}__".format(kikuRezEff.emoji[0][0],kikuRezEff.name))
-kikuBossWeap = weapon("Energie Vitale","kikuWeap",RANGE_LONG,AREA_CIRCLE_5,66,60,0,magie=10,endurance=10,use=MAGIE)
+kikuRaiseEff = effect("Mors Vita Est","kikuBossRaiseEff",power=20,type=TYPE_MALUS,trigger=TRIGGER_DEATH,turnInit=-1,description="Le pouvoir de Kiku affaibli les vivants tous en renforçant les morts !\n\n__Sur les vivants :__\nAugmente les dégâts reçus de **{0}%**. Cette valeur augmente de 20% à chaque début de tour de table\nLorsque le porteur est vaincu, cet effet le réanime immédiatement avec **75%** de ses PVs max puis augmente ces derniers d'un pourcentage équivalant à l'augmentation de dégâts\n\n__Sur les morts, en début de combat :__\nAugmente les PV max de **35%**  tout en soignant cette même valeur\n\nAugmente les dégâts infligés d'une valeur égale à la augmentation de dégâts jusqu'à la fin du combat lors de son déclanchement\nL'augmentation de dégâts est capée à 200%\nSi l'effet est toujours actif au tour **16**, le porteur est immédiatement exécuté",emoji='<:mortVitaEst:916279706351968296>')
+kikuMechExplain = effect("Fée de l'Au-Dela","kikuMechExplain",turnInit=-1,unclearable=True,emoji='<:mortVitaEst:916279706351968296>',silent=True,description="Octroi l'effet <:mortVitaEst:916279706351968296> __Mors Vita Est__ à tous les combattants en début de combat",callOnTrigger=kikuRaiseEff)
+kikuBossWeap = weapon("Energie Vitale","kikuWeap",RANGE_LONG,AREA_CIRCLE_5,66,60,0,magie=10,endurance=10,use=MAGIE,effect=kikuMechExplain,ignoreAutoVerif=True)
 kikuTerraFerrum, kikuAquaFerrum, kikuIgnisFerrum, kikuAerFerrum = copy.deepcopy(mudlame), copy.deepcopy(waterlame), copy.deepcopy(firelame), copy.deepcopy(airlame)
 kikuTerraFerrum.use = kikuAquaFerrum.use = kikuIgnisFerrum.use = kikuAerFerrum.use = MAGIE
 kikuTerraFerrum.id = kikuAquaFerrum.id = kikuIgnisFerrum.id = kikuAerFerrum.id = "kikuUltimaFerrum"
 kikuTerraFerrum.cooldown = kikuAquaFerrum.cooldown = kikuIgnisFerrum.cooldown = kikuAerFerrum.cooldown = 2
 kikuUltimaFerrum = skill('UltimaFerrum',"kikuUltimaFerrum",TYPE_DAMAGE,0,0,use=MAGIE,become=[kikuTerraFerrum, kikuAquaFerrum, kikuIgnisFerrum, kikuAerFerrum],emoji='<:kikuEtFerrum:922065497460203570>')
+kikuSkill2 = skill("Ultra Voca","kikuSkill2",TYPE_DAMAGE,power=65,area=AREA_CIRCLE_2,range=AREA_DONUT_7,cooldown=4,description="Inflige des dégâts à un groupe d'ennemi éloigné\nSi la cible principale n'a pas encore été réanimée, la puissance est doublée")
 
 # Akira H.
 akikiSkillRageBonus = [1,3,0.5,5]
@@ -378,19 +370,19 @@ unformBossSkill2Eff.power = 50
 unformBossSKill2 = skill("Anéantissement accéléré","unformBossSKill2",TYPE_BOOST,range=AREA_MONO,area=AREA_CIRCLE_3,effect=unformBossSkill2Eff,cooldown=5)
 unformBossSkill3 = skill("Pulsion spaciale","unformBossSkill3",TYPE_HEAL,power=250,use=MAGIE,range=AREA_MONO,area=AREA_CIRCLE_5,cooldown=5)
 
-unformBoss = octarien("Aformité incarnée",300,250,200,50,50,200,350,25,15,0,unformBossWeapon,35,'<:uShadow:938530004319477821>',[unformBossSkill1,unformBossSKill2,unformBossSkill3],description="Un leader de l'assaut des aformités, qui cherchent à détruire le multivers",deadIcon='<:empty:866459463568850954> ')
+unformBoss = octarien("Aformité incarnée",300,250,200,50,50,200,350,25,15,0,unformBossWeapon,35,'<:uShadow:938530004319477821>',[unformBossSkill1,unformBossSKill2,unformBossSkill3],description="Un leader de l'assaut des aformités, qui cherchent à détruire le multivers",deadIcon='<:empty:866459463568850954>')
 
 # Tabl Boss ----------------------------------------------------
 tablBoss = [
     octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",435,220,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays,element=ELEMENT_DARKNESS),
     octarien("Jevil",450,200,100,60,75,120,120,10,25,15,jevilWeap,50,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays,element=ELEMENT_DARKNESS),
     octarien("Séréna",50,220,-50,70,50,50,400,25,0,15,armilame,10,'<:serena:897912402354511894>',[poisonus,serenaSkill,serenaSpe,serenaSkill2,serenaFocal],ENCHANTEUR,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
-    octarien("Luna prê.",450,85,80,185,75,80,0,25,35,0,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4,lunaSkill6,lunaSkill7],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
+    octarien("Luna ex.",550,85,80,185,75,80,0,25,35,0,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4,lunaSkill6,lunaSkill7],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
     octarien("Octo Tour",0,350,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,canMove=False,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés"),
-    octarien("Clémence pos.",100,165,50,50,80,150,400,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4,clemSkill5,clemSkill6],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
+    octarien("Clémence pos.",100,165,50,50,80,150,500,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4,clemSkill5,clemSkill6],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
     octarien("The Giant Enemy Spider",300,320,0,80,100,50,280,70,10,20,TGESWeap,50,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True),
     octarien("Matt",450,120,100,100,100,100,0,35,20,0,mattWeapon,50,'<:matt:922064304793059340>',[mattSkill1,mattSkill2,mattSkill3,mattSkill4],BERSERK,GENDER_MALE,"L'ultime adversaire. Dans les jeux Wii Sports en tous cas",'<:matt:922064304793059340>',True),
-    octarien("Kiku",0,60,50,120,100,5,250,25,35,0,kikuBossWeap,10,'<:kiku:921704515332358174>',[kikuBossRes,kikuUltimaFerrum,None,None,None,undead],gender=GENDER_FEMALE,deadIcon ='<:kikuOut:921709153892831294>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
+    octarien("Kiku",0,60,50,120,100,5,250,25,35,0,kikuBossWeap,10,'<:kiku:962082466368213043>',[undead,kikuUltimaFerrum,kikuSkill2],gender=GENDER_FEMALE,deadIcon ='<:kiku:962082466368213043>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
     octarien("Akira H.",420,80,80,50,50,80,100,20,35,0,akikiWeap,50,'<:akira:909048455828238347>',[akikiSkill1,akikiSkill2,akikiSkill3,akikiSkill4,akikiEnrageCastInit],BERSERK,GENDER_MALE,description="Bah bravo, vous avez réussi à le mettre en colère. Maintenant battez vous pour votre dignité ou fuyez pour votre vie.",deadIcon='<:spTako:866465864399323167>',oneVAll=True,baseLvl=15,element=ELEMENT_DARKNESS),
     unformBoss
 ]
@@ -402,7 +394,7 @@ nookSkill2 = skill("Stonks","nookSkill2",TYPE_DAMAGE,0,250,range=AREA_CIRCLE_1,a
 nookSkill3 = skill("Habitat naturel","nookSkill3",TYPE_DAMAGE,0,150,area=AREA_CIRCLE_2,range=AREA_MONO,cooldown=5,initCooldown=2)
 nookSkill4 = skill("Déluge insulaire","nookSkill4",TYPE_DAMAGE,0,40,AREA_MONO,area=AREA_DIST_7,cooldown=6,setAoEDamge=True,initCooldown=3)
 
-ailillSkill = skill("Décapitage","headnt",TYPE_DAMAGE,0,5000,AREA_RANDOMENNEMI_1,tpCac=True,ultimate=True,cooldown=3,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
+ailillSkill = skill("Décapitage","headnt",TYPE_DAMAGE,0,5000,AREA_RANDOMENNEMI_1,tpCac=True,ultimate=True,cooldown=3,execution=True,damageOnArmor=500,message="{0} a assez vu {2} :",emoji='<:decapitage:897846515979149322>',say="J'en ai assez de ta tête.")
 ailillWeap = copy.deepcopy(depha)
 ailillEffBleeding = copy.deepcopy(bleeding)
 ailillEffBleeding.power = 50
@@ -418,10 +410,10 @@ kitsuneSkill1_2 = skill("Glace Originelle","kitsuneSkill1",TYPE_DAMAGE,power=150
 kitsuneSkill1_3 = skill("Vent Originel",'kitsuneSkill1',TYPE_DAMAGE,power=150,range=AREA_MONO,area=AREA_CIRCLE_2,use=MAGIE,cooldown=2,emoji='<:airKitsune:917670912646602823>',say="Oh vous voulez me voir de près ? J'ai de quoi vous satisfaire")
 kitsuneSkill1_4 = skill("Roche Originel",'kitsuneSkill1',TYPE_DAMAGE,power=135,range=AREA_CIRCLE_2,area=AREA_CIRCLE_1,cooldown=2,use=MAGIE,emoji='<:earthKitsune:917670882586017792>')
 kitsuneSkill1 = skill("Magie Originelle",'kitsuneSkill1',TYPE_DAMAGE,become=[kitsuneSkill1_1,kitsuneSkill1_2,kitsuneSkill1_3,kitsuneSkill1_4],use=MAGIE)
-kitsuneSkill2_1 = skill("Vent d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_MONO,area=AREA_CIRCLE_2,effect=[charming,charming,charming,charming,charming],effectOnSelf=charming2,cooldown=3,say="Vous voulez vraiment rester aussi près ? Téméraires dites donc ^^")
-kitsuneSkill2_2 = skill("Terre d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_CIRCLE_2,area=AREA_CIRCLE_1,effect=[charming,charming,charming,charming,charming,charming,charming,charming],effectOnSelf=charming2,cooldown=3,message="{0} recouvre {2} et ses alliés proches avec ses queues")
-kitsuneSkill2_3 = skill("Feu d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_MONO,area=AREA_DIST_5,effect=[charming,charming,charming],effectOnSelf=charming2,cooldown=3,say="Vous voulez pas avoir une meilleure vue ? J'ai de quoi tous vous contenter vous savez ?")
-kitsuneSkill2_4 = skill("Eau d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_DIST_5,area=AREA_CONE_3,effect=[charming,charming,charming,charming,charming],effectOnSelf=charming2,cooldown=3,message="{0} fait pleuvoir un {1} autour de {2}")
+kitsuneSkill2_1 = skill("Vent d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_MONO,area=AREA_CIRCLE_2,effect=charming,effPowerPurcent=300,effectOnSelf=charming2,cooldown=3,say="Vous voulez vraiment rester aussi près ? Téméraires dites donc ^^")
+kitsuneSkill2_2 = skill("Terre d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_CIRCLE_2,area=AREA_CIRCLE_1,effect=charming,effPowerPurcent=700,effectOnSelf=charming2,cooldown=3,message="{0} recouvre {2} et ses alliés proches avec ses queues")
+kitsuneSkill2_3 = skill("Feu d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_MONO,area=AREA_DIST_5,effect=charming,effPowerPurcent=300,effectOnSelf=charming2,cooldown=3,say="Vous voulez pas avoir une meilleure vue ? J'ai de quoi tous vous contenter vous savez ?")
+kitsuneSkill2_4 = skill("Eau d'amour",'kitsuneSkill2',TYPE_MALUS,range=AREA_DIST_5,area=AREA_CONE_3,effect=charming,effPowerPurcent=500,effectOnSelf=charming2,cooldown=3,message="{0} fait pleuvoir un {1} autour de {2}")
 kitsuneSkill2 = skill("Amour élémentaire",'kitsuneSkill2',TYPE_DAMAGE,become=[kitsuneSkill2_1,kitsuneSkill2_2,kitsuneSkill2_3,kitsuneSkill2_4],use=CHARISMA,description="Donne entre 3 et 5 effect __Sous le Charme II__ avec des zones d'effets variables, et __Sous le Charme III__ sur soi-même")
 kitsuneSkill3_1 = skill("Vitesse aérienne",'kitsuneSkill3',TYPE_DAMAGE,power=50,range=AREA_INLINE_3,use=MAGIE,replay=True,cooldown=2,emoji='<:liaSkill:922291249002709062>',knockback=3,jumpBack=2,message="{0} file tel une brise et frappe {2} avec ses queues")
 kitsuneSkill3_2 = skill("Sable mouvants",'kitsuneSkill3',TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_CIRCLE_2,use=MAGIE,cooldown=4,effectOnSelf=liuSkillEff,emoji=liuSkill.emoji)

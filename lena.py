@@ -77,10 +77,6 @@ pathUserProfile = absPath + "/userProfile/"
 # Initialisation
 allShop = weapons + skills + stuffs + others
 
-me = loadCharFile("./userProfile/213027252953284609.prof")
-me.stuffInventory = stuffs
-saveCharFile(user=me)
-
 class shopClass:
     """The class who endle the shop\n
     Maybe I should shearch how it's writed...
@@ -506,7 +502,6 @@ async def verifEmojis(ctx=None):
     except:
         await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
 
-
 @tasks.loop(seconds=1)
 async def oneClock():
     """A simple clock who check every second if a minute have passed\n
@@ -571,7 +566,6 @@ async def hourClock():
 
 # -------------------------------------------- ON READY --------------------------------------------
 
-
 @bot.event
 async def on_ready():
     print("\n---------\nThe bot is fully online ! Starting the initialisations things...\n---------\n")
@@ -632,19 +626,16 @@ async def on_ready():
 
 # -------------------------------------------- ON MESSAGE --------------------------------------------
 
-
 @bot.event
 async def on_message(ctx: discord.message.Message):
     if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
-        user = loadCharFile(
-            "./userProfile/213027252953284609.prof".format(ctx.author.id))
+        user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
         await makeCustomIcon(bot, user)
         await ctx.reply(embed=discord.Embed(title="__Icone de personnage__", color=user.color).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot, user))["id"])))
 
     elif ctx.content.startswith("l!emoji") and ctx.author.id == 213027252953284609:
         try:
-            user = loadCharFile(
-                "./userProfile/213027252953284609.prof".format(ctx.author.id))
+            user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
             user.apparaAcc = user.apparaWeap = None
             tablStuff, user.showAcc = [
                 ironHelmet, batEarRings, batPendant, fecaShield, anakiMask, catEars], True
@@ -674,7 +665,6 @@ async def on_message(ctx: discord.message.Message):
 
 # -------------------------------------------- ENCYCLOPEDIA --------------------------------------------
 
-
 @slash.slash(name="encyclopedia", description="Vous permet de consulter l'encyclopédie", options=[
     create_option(
         name="destination", description="Que voulez vous consulter ?", required=True, option_type=3,
@@ -703,8 +693,6 @@ async def comEncyclopedia(ctx, destination):
 
 # -------------------------------------------- FIGHT --------------------------------------------
 # normal fight
-
-
 @slash.subcommand(base="fight", name="normal", description="Permet de lancer un combat normal")
 async def normal(ctx):
     msg = None
@@ -797,21 +785,7 @@ async def normal(ctx):
         temp.changeLevel(50)
         await fight(bot, [temp], [], ctx, False, procurFight=True, msg=msg)
 
-    elif fun < 1:              # But nobody came
-        teamIcon = ""
-        for wonderfullIdea in team1:
-            teamIcon += "{0} {1}\n".format(await getUserIcon(bot, wonderfullIdea), wonderfullIdea.name)
-
-        temp1 = discord.Embed(title="__Résultats du combat :__", color=black,
-                              description="__Danger :__ <a:bnc:908762423111081994>\n__Nombre de tours :__ <a:bnc:908762423111081994>\n__Durée :__ <a:bnc:908762423111081994>")
-        temp1.add_field(
-            name="<:empty:866459463568850954>\n__Vainqueurs :__", value=teamIcon, inline=True)
-        temp1.add_field(name="<:empty:866459463568850954>\nPerdants :",
-                        value="[[But nobody came](https://bit.ly/3wDwyF3)]", inline=True)
-
-        await ctx.send(embed=temp1, components=[])
-
-    elif fun < 2:              # All OctoHeals ! Yes, it's for you H
+    elif fun < 1:              # All OctoHeals ! Yes, it's for you H
         temp = team1
         temp.sort(key=lambda overheal: overheal.level, reverse=True)
         maxLvl = temp[0].level
@@ -837,7 +811,7 @@ async def normal(ctx):
 
         await fight(bot, team1, team2, ctx, False, msg=msg)
 
-    elif fun < 3:              # All Temmies
+    elif fun < 2:              # All Temmies
         temp = team1
         temp.sort(key=lambda overheal: overheal.level, reverse=True)
         maxLvl = temp[0].level
@@ -856,7 +830,7 @@ async def normal(ctx):
 
         await fight(bot, team1, team2, ctx, False, msg=msg)
 
-    elif fun < 4:              # BOUM BOUM BOUM BOUM
+    elif fun < 3:              # BOUM BOUM BOUM BOUM
         temp = team1
         temp.sort(key=lambda overheal: overheal.level, reverse=True)
         maxLvl = temp[0].level
@@ -876,7 +850,7 @@ async def normal(ctx):
 
         await fight(bot, team1, team2, ctx, False, msg=msg)
 
-    elif fun < 12:             # Raid
+    elif fun < 11:             # Raid
         if msg == None:
             msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
@@ -924,55 +898,43 @@ async def normal(ctx):
         level = team1[0].level
         team1, team2, randomRoll = [], [], random.randint(0, 99)
         if randomRoll < 50:                   # ClemClem
+            procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
-            team1.sort(key=lambda clemency: clemency.level, reverse=True)
-            level += 65+random.randint(0, 10)
+            level += procurData[0]+random.randint(0, 10)
             ent.changeLevel(level)
+            ent.stuff = [
+                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[1][2]),
+                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2]),
+                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2])
+            ]
 
-            miniStuff = stuff("Rune", 'clemRune', 0, 0, endurance=level, charisma=0, agility=level//2, precision=int(level*0.3), intelligence=level//10, magie=level*2.2, resistance=min(level//5, 35),percing=6, emoji=clemEarRings.emoji)
-            ent.stuff = [miniStuff, miniStuff, miniStuff]
             team1.append(ent)
 
         elif randomRoll < 100:                                           # Luna
-            ent = copy.deepcopy(findEnnemi("Luna prê."))
-            team1.sort(key=lambda clemency: clemency.level, reverse=True)
-            level += 100+random.randint(0, 20)
-
-            miniStuffHead = stuff("Boucle d'oreille ombrale", 'lunaDarkPendant', 0, 0, endurance=int(level*0.3), agility=level,precision=int(level*0.3), strength=int(level*2.2), resistance=min(level//5, 30), percing=10, emoji=darkMaidPendants.emoji)
-            miniStuffDress = stuff("Robe de soubrette ombrale ombrale", 'lunaDarkMaidDress', 0, 0, endurance=int(level*0.7), agility=level, precision=int(level*0.5), strength=int(level*3), percing=15, resistance=min(level//5, 40), emoji=darkMaidDress.emoji)
-            miniStuffFlats = stuff("Ballerines ombrales", 'lunaDarkFlats', 0, 0, endurance=int(level*0.3), agility=int(level*1.3), precision=int(level*0.3), strength=int(level*2.2), resistance=min(level//5, 30), percing=10, emoji=darkMaidFlats.emoji)
-
-            ent = tmpAllie(ent.name, 1, black, ent.aspiration, ent.weapon, [miniStuffHead, miniStuffDress, miniStuffFlats], GENDER_FEMALE, ent.skills, element=[
-                           ELEMENT_DARKNESS, ELEMENT_DARKNESS], icon=ent.icon, deadIcon=ent.deadIcon, bonusPoints=[STRENGTH, AGILITY])
+            ent = copy.deepcopy(findAllie("Luna prê."))
+            procurData = procurTempStuff["Luna prê."]
+            level += procurData[0]+random.randint(0, 20)
             ent.changeLevel(level)
 
-            ent.says = says(
-                start="C'est votre dernière chance de prendre la poudre d'escampette.",
-                onKill="Quoi tu es surpris ? C'est pas faute d'avoir prévenu pourtant.",
-                blueWinAlive="Pas la peine de revenir me faire chier, le résulta sera le même",
-                reactBigRaiseEnnemy="Vous me faites une fleur vous savez, que vais pouvoir vous maraver la gueule une seconde fois sans ménagement",
-                blockBigAttack="Chaton, c'est pas à toi de le faire d'habitude ?"
-            )
+            ent.stuff = [
+                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[1][2]),
+                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2]),
+                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2])
+            ]
 
             team1.append(ent)
+
             if random.randint(0, 99) < 50:               # Eclipse Eternelle
-                ent2 = findAllie('Iliana prê.')
+                ent2 = copy.deepcopy(findAllie('Iliana prê.'))
+                procurData = procurTempStuff["Iliana prê."]
                 ent2.changeLevel(level)
 
-                miniStuffHead = stuff("Casque de la neko de la lueur ultime", 'ilianaPreHead', 0, 0, endurance=int(level*1.35), agility=int(
-                    level*0.3), precision=int(level*0.3), charisma=level, magie=level, resistance=min(level//5, 50), percing=10, emoji=zenithHat.emoji)
-                miniStuffDress = stuff("Armure de la neko de la lueur ultime", 'ilianaPreArmor', 0, 0, endurance=int(level*1.85), agility=int(
-                    level*0.3), precision=int(level*0.5), charisma=level, magie=level, percing=15, resistance=min(level//5, 50), emoji=zenithArmor.emoji)
-                miniStuffFlats = stuff("Sorolets de la neko de la lueur ultime", 'ilianaPreBoots', 0, 0, endurance=int(level*1.35), agility=int(
-                    level*0.3), precision=int(level*0.3), charisma=level, magie=level, resistance=min(level//5, 50), percing=10, emoji=zenithBoots.emoji)
-
-                ent2.stuff = [miniStuffHead, miniStuffDress, miniStuffFlats]
-                ent2.says = says(
-                    start="J'espère que tu es en forme Luna...\n<:luna:909047362868105227> : Je suis toujours prête pour ce genre de trucs",
-                    ultimate="Nous nous laisserons pas faire ainsi ! {skill} !",
-                    reactEnnemyKilled="On a pas encore fini",
-                    blueWinAlive="`S'étire` Ce genre d'informités deviens de plus en plus récurant...\n<:luna:909047362868105227> : Ca ne présage rien de bon..."
-                )
+                ent2.stuff = [
+                    stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[1][2]),
+                    stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2]),
+                    stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2])
+                ]
+                
                 team1.append(ent2)
 
                 if user.aspiration in [ALTRUISTE, IDOLE, INOVATEUR, PREVOYANT, VIGILANT, PROTECTEUR]:
@@ -980,20 +942,17 @@ async def normal(ctx):
 
                 boss = copy.deepcopy(unformBoss)
                 boss.changeLevel(level + random.randint(201, 250))
-                team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur informe A'), findEnnemi(
-                    'Ombre informe A'), findEnnemi('Ombre informe B')], 1
+                team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur informe A'), findEnnemi('Ombre informe A'), findEnnemi('Ombre informe B')], 1
                 while cmpt < 8:
                     temp = copy.deepcopy(
                         listDangerous[random.randint(0, len(listDangerous)-1)])
-                    temp.changeLevel(level + random.randint(150, 200))
+                    temp.changeLevel(level + random.randint(75, 150))
                     team2.append(temp)
                     cmpt += 1
 
         else:
-            procurShushiWeapEff = effect("Ténèbres déphasés", "procurShushiWeapEff", MAGIE, power=50,
-                                         area=AREA_CIRCLE_1, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_END_OF_TURN)
-            procurShushiWeap = weapon("Rapière magique", "procurShushiWeap", RANGE_MELEE, AREA_CIRCLE_3, 50,
-                                      80, magie=20, endurance=20, resistance=20, area=AREA_ARC_2, effectOnUse=procurShushiWeapEff)
+            procurShushiWeapEff = effect("Ténèbres déphasés", "procurShushiWeapEff", MAGIE, power=50,area=AREA_CIRCLE_1, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_END_OF_TURN)
+            procurShushiWeap = weapon("Rapière magique", "procurShushiWeap", RANGE_MELEE, AREA_CIRCLE_3, 50, 80, magie=20, endurance=20, resistance=20, area=AREA_ARC_2, effectOnUse=procurShushiWeapEff)
 
         try:
             await fight(bot, team1, team2, ctx, False, procurFight=True, msg=msg)
@@ -1008,8 +967,6 @@ async def normal(ctx):
         await fight(bot, team1, [], ctx, False, msg=msg)
 
 # quick fight
-
-
 @slash.subcommand(base="fight", name="quick", description="Vous permet de faire un combat en sautant directement à la fin")
 async def comQuickFight(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1251,9 +1208,9 @@ async def cooldowns(ctx):
                     else:
                         temp += letter
 
-                toReply.add_field(name="__"+involvedEmoji[cmpt]+"__",value=notFight+fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name, fightingMessage.jump_url))
+                toReply.add_field(name="__Cooldowns__",value=involvedEmoji[cmpt]+"\n"+notFight+fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name, fightingMessage.jump_url))
             else:
-                toReply.add_field(name="__"+involvedEmoji[cmpt]+"__",value=notFight+f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}")
+                toReply.add_field(name="__Cooldowns__",value=involvedEmoji[cmpt]+"\n"+notFight+f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}")
             
         try:
             await ctx.send(embed = toReply, delete_after=10)
@@ -2444,6 +2401,16 @@ async def expeditionTest(ctx):
     listEmbed = await generateExpeditionReport(bot, [user], user, datetime.now(), ctx)
     for a in listEmbed:
         await chan.send(embed=a)
+
+@slash.slash(name="HoroscopeTest", guild_ids=adminServ)
+async def horoTest(ctx):
+    desc = ""
+    for cmpt in horoscopeEff:
+        desc += "{0} __{1}__ :".format(cmpt[0].emoji[0][0],cmpt[0].name)
+        for staty in cmpt[1]:
+            desc += " {0} +{1}".format(nameStats[staty[0]],staty[1])
+        desc += "\n"
+    await ctx.send(embed = discord.Embed(title="__Horoscope__",color=light_blue,description=desc))
 
 ###########################################################
 # Démarrage du bot

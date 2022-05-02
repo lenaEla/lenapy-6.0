@@ -151,6 +151,9 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
             else:
                 tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
+            
+            if tri == 1:
+                tablToSee.sort(key=lambda name: name.name, reverse=True)
             lenTabl = len(tablToSee)
             maxPage=lenTabl//10
             page=0
@@ -278,7 +281,10 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]}. | {a.weapon.emoji} |"
                         firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
                     else:
-                        mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]} | {a.weapon.emoji} |"
+                        variantVar = ""
+                        if a.variant:
+                            variantVar = " (🔀)"
+                        mess += f"{a.icon} __{a.name}__{variantVar}\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]} | {a.weapon.emoji} |"
                         firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
 
                     for b in a.skills:
@@ -362,7 +368,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             sortOptions = changeDefault(sortOptions,respond)
 
             if respond in [0,1]:
-                needRemake,respond
+                needRemake = True
             else:
                 tablToSee.sort(key=lambda ballerine: ballerine.name)
                 if respond in [2,3]:
@@ -413,11 +419,26 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             elif value == 4:
                 await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
             elif value == 5:
-                lvl, tempMachin = 50, None
+                lvl, tempMachin, addLvl = 50, None, 0
+                procurData = None
+                for procurName, procurStuff in procurTempStuff.items():
+                    if respond == procurName:
+                        addLvl = procurStuff[0]
+                        procurData = procurStuff
+                        break
                 while 1:
+                    lvlAdded = lvl + addLvl
                     ally = copy.deepcopy(findAllie(respond))
                     ally.changeLevel(lvl,changeDict=False)
-                    ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
+                    
+                    if procurData == None:
+                        ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
+                    else:
+                        ally.stuff = [
+                            stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[1][2]),
+                            stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[2][2]),
+                            stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[3][2])
+                        ]
                     options, cmpt = [], 0
                     for stuffy in [ally.weapon]+ally.skills+ally.stuff:
                         if type(stuffy) in [skill,weapon,stuff]:
@@ -427,9 +448,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
                     lvlSelectOption = []
                     for a in range(1,12):
-                        lvlSelectOption.append(
-                            create_select_option("Niveau {0}".format(5*a),"lvl_{0}".format(5*a),default=lvl==5*a)
-                            )
+                        lvlSelectOption.append(create_select_option("Niveau {0}".format(5*a),"lvl_{0}".format(5*a+addLvl),default=lvl==5*a))
                     lvlSelect = create_actionrow(create_select(options=lvlSelectOption,placeholder="Choisir un niveau"))
                     embed = infoAllie(ally)
                     if tempMachin == None:
@@ -445,16 +464,17 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         if not(resp2.values[0].startswith("lvl_")):
                             resp3 = int(resp2.values[0])
                             tablStuff = [ally.weapon]+ally.skills+ally.stuff
-                            try:
+                            whatty = whatIsThat(tablStuff[resp3])
+                            if whatty == 0:
                                 await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
-                            except:
-                                try:
-                                    await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
-                                except:
-                                    await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                            elif whatty == 1:
+                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
+                            elif whatty == 2:
+                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
                         else:
                             lvl = int(resp2.values[0][4:])
                     except:
+                        print_exc()
                         await tempMachin.delete()
                         break
 

@@ -1,6 +1,6 @@
 from classes import *
 from constantes import *
-from advObjects.advSkills import tablElemEff
+from advObjects.advSkills import tablElemEff, coroWind
 
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
 roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,70,70,340,strength=10,endurance=10,resistance=10,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2,damageOnArmor=0.8)
@@ -26,11 +26,11 @@ spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,mag
 legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,82,85,300,strength=10,endurance=10,resistance=10,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT)
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,77,90,300,strength=20,resistance=10,emoji='<:ailSword:922696057350127697>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,50,80,150,taille=0,charisma=20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
-butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,32,100,250,taille=0,magie=15,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
+butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,22,100,250,taille=0,area=AREA_CIRCLE_1,magie=15,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
 dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,65,85,500,strength=10,resistance=5,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL,effect="lg")
 magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,80,70,200,endurance=10,charisma=10,resistance=10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
 lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,65,85,250,endurance=10,intelligence=10,resistance=10,emoji="<:lunarBonk:887347614448746516>",use=MAGIE,affinity=ELEMENT_LIGHT)
-rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,63,60,0,magie=5,strength=5,percing=5,use=MAGIE,emoji='<:clemWeap:915358467773063208>',effectOnUse="mx")
+rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,63,60,0,magie=5,intelligence=5,percing=5,use=MAGIE,emoji='<:clemWeap:915358467773063208>',effectOnUse=coroWind)
 fauc = weapon("Faux Tourmentée","bh",RANGE_MELEE,AREA_CIRCLE_2,69,75,0,strength=10,percing=5,emoji='<a:akifauxgif:887335929650507776>',affinity=ELEMENT_DARKNESS,effectOnUse=incur[2])
 serringue = weapon("Serringue","bi",RANGE_DIST,AREA_CIRCLE_3,50,100,350,charisma=30,emoji='<:seringue:887402558665142343>',target=ALLIES,type=TYPE_HEAL,use=CHARISMA,affinity=ELEMENT_LIGHT,message="{0} fait une perfusion à {1}")
 bigshot = weapon("[[Big shot](https://www.youtube.com/watch?v=-8p8VowCmgE)]","bj",RANGE_DIST,AREA_CIRCLE_4,63,60,1997,strength=20,percing=10,emoji='<:bigshot:892756699277037569>',message="{0} PROPOSE UN [[Big shot](https://www.youtube.com/watch?v=-8p8VowCmgE)] À {1} :",area=AREA_LINE_2)

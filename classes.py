@@ -70,6 +70,8 @@ class effect:
     def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0):
         """rtfm"""
         self.name = name                    # Name of the effect
+        if replique != None:
+            self.name = name.format(replicaName=replique.name)
         self.id = id                        # The id. 2 characters
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
         self.overhealth = overhealth        # Base shield power
@@ -286,16 +288,19 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100):
         """rtfm"""
-
+        if type(effect)!=list:
+            effect = [effect]
         self.name = name                                # Name of the skill
+
         self.repetition = repetition                    # The number of hits it does
         self.say:Union[str,List[str]] = say                                  # Does the attacker say something when the skill is used ?
         self.id = id                                    # The id of the skill.  Idealy, unique
         self.type = types                               # The type of the skill. See constante.types
         self.replay = replay
         self.tpCac:bool = tpCac
+        self.execution = execution
         self.jumpBack:int = jumpBack
         self.setAoEDamage:bool = setAoEDamge
         self.areaOnSelf = areaOnSelf
@@ -311,7 +316,6 @@ class skill:
             self.rejectEffect=rejectEffect
         else:
             self.rejectEffect=[rejectEffect]
-
 
         if effectAroundCaster != None:
             if effectAroundCaster[0] not in allTypes:
@@ -333,6 +337,7 @@ class skill:
         self.effPowerPurcent:int = effPowerPurcent
         self.become:List = become
         self.url:str = url
+        self.selfEffPurcent = selfEffPurcent
 
         if percing == None:
             self.percing = 0
@@ -363,7 +368,12 @@ class skill:
         self.effectOnSelf = effectOnSelf
         self.use = use
         if description != None:
-            self.description = description.format(power,power//2)
+            if "{0}" in description:
+                print(name)
+            if self.effect != [None] and type(self.effect[0]) != str:
+                self.description = description.format(effIcon = self.effect[0].emoji[0][0],effName=self.effect[0].name,power=power,power2=power//2,length=self.effect[0].turnInit,armor=self.effect[0].overhealth)
+            else:
+                self.description = description.format(power=power,power2=power//2)
         else:
             self.description = None
 
@@ -375,6 +385,10 @@ class skill:
                 self.use = INTELLIGENCE
             elif types in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
                 self.use = CHARISMA
+            elif power == 0 and self.effect != [None] and type(self.effect[0]) != str:
+                self.use = self.effect[0].stat
+            elif power == 0 and self.effectOnSelf != None and type(self.effectOnSelf) != str:
+                self.use = self.effectOnSelf.stat
 
         self.onArmor = damageOnArmor
         self.invocation = invocation
@@ -389,10 +403,8 @@ class skill:
             if self.effectOnSelf == None:
                 self.effectOnSelf = effect
                 self.effect=None
-                print("{0} : EffectOnSelf not found ! Taken the effect in Effect field insted !".format(name))
 
-        if type(self.effect)!=list:
-            self.effect = [self.effect]
+
 
         if conditionType != []:
             listTypeCond = ["exclusive","statMin","reject"]
@@ -1057,6 +1069,11 @@ class tmpAllie:
         return self.name
 
     def changeLevel(self,level=1,changeDict=True):
+        for procurName, procurStuff in procurTempStuff.items():
+            if self.name == procurName:
+                level += procurStuff[0]
+                break
+
         self.level = level
         stats = self.allStats()
 

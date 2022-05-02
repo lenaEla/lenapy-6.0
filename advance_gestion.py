@@ -259,8 +259,8 @@ def visuArea(area: int, wanted, ranged=True) -> list:
 
     return temp
 
-def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, txt: str = "") -> discord.Embed:
-    effTmp, boucle, iteration, fieldname = "", True, False, "__Effet :__"
+def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, txt: str = "",powerPurcent=100) -> discord.Embed:
+    effTmp, boucle, iteration, fieldname, powerPurcent = "", True, False, "__Effet :__", [powerPurcent,100][powerPurcent==None]
     eff = findEffect(effId)
 
     while boucle:
@@ -283,12 +283,13 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
 
         Powa = ""
         if eff.power > 0:
-            Powa = "\n__Puissance :__ "+str(max(eff.power, eff.overhealth))
+            Powa = "\n__Puissance :__ "+str(int(max(eff.power, eff.overhealth)*(powerPurcent/100)))+[""," ({0}%)".format(powerPurcent)][powerPurcent!=100]
 
         cumu = ""
         if eff.stackable:
             cumu = "\n\nCet effet est **cumulable**"
         effTmp += f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\n__Durée :__ {tamp}\n__Statistique prise en compte :__ **{Stat}**{Powa}{cumu}"
+        effTmp += "\nCet effet se délanche {0}".format(triggersTxt[eff.trigger])
 
         if eff.lvl != 1:
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(
@@ -352,14 +353,9 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
             break
         else:
             if not(self):
-                embed.add_field(name="<:empty:866459463568850954>\n" +
-                                fieldname + txt, value=effTmp, inline=False)
-            elif eff.callOnTrigger == None:
-                embed.add_field(
-                    name="<:empty:866459463568850954>\n**__Effet déclanché :__**", value=effTmp, inline=False)
+                embed.add_field(name="<:empty:866459463568850954>\n" +fieldname + txt, value=effTmp, inline=False)
             else:
-                embed.add_field(
-                    name="<:empty:866459463568850954>\n**__Effet sur soi :__**", value=effTmp, inline=False)
+                embed.add_field(name="<:empty:866459463568850954>\n**__Effet sur soi :__**", value=effTmp, inline=False)
 
             if eff.area != AREA_MONO:
                 if eff.type in [TYPE_ARMOR, TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ, TYPE_RESURECTION, TYPE_HEAL]:
@@ -451,7 +447,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 nbShot = " x{0}".format(skil.repetition)
             else:
                 nbShot = ""
-            temp += f"\n__Puissance :__ **{skil.power}**{nbShot}\n__Zone d'effet :__ "
+            temp += "\n__Puissance :__ {0}\n__Zone d'effet :__ ".format([f"**{skil.power}**{nbShot}","**Execution**"][int(skil.execution)])
             temp += areaNames[skil.area]
             temp += "\n__Précision :__ {0}%\n".format(skil.sussess)
 
@@ -610,6 +606,8 @@ def infoSkill(skill: skill, user: char, ctx):
 
     if skil.ultimate:
         temp += "\nCette compétence est une compétence **ultime**."
+    if skil.execution :
+        temp += "\nCette compétence est une **exécution**. Les cibles exécutées sont immédiatement misent hors-jeu et ne peuvent pas être réanimés"
     if skil.group != 0:
         temp += "\nCette compétence est une compétence **{0}**.".format(
             skillGroupNames[skil.group])
@@ -619,8 +617,7 @@ def infoSkill(skill: skill, user: char, ctx):
         temp += "\nCette compétence soigne son lanceur de l'équivalent de **{0}%** des dégâts infligés".format(
             skil.lifeSteal)
     if skil.erosion != 0:
-        temp += "\nCette compétence réduit les PV maximums de la cible de l'équivalent de **{0}%** des dégâts infligés".format(
-            skil.erosion)
+        temp += "\nCette compétence a **{0}%** d'Erosion Spirituelle.'".format(skil.erosion)
     temp2 = ""
     if skil.tpCac:
         temp2 += "\n__Téléportation :__\nCette compétence téléporte le lanceur au corps à corps de la cible\n> - Si aucune case n'est libre, le lanceur subit des dégâts indirects Harmonie\n"
@@ -745,7 +742,7 @@ def infoSkill(skill: skill, user: char, ctx):
 
         for a in range(len(allReadySeen)):
             txt = ["", " x{0}".format(effToSee[a])][effToSee[a] > 1]
-            repEmb = infoEffect(allReadySeen[a], user, repEmb, ctx, txt=txt)
+            repEmb = infoEffect(allReadySeen[a], user, repEmb, ctx, txt=txt,powerPurcent=skil.effPowerPurcent)
 
     if skil.become != None:
         for skilly in skil.become:
@@ -756,10 +753,9 @@ def infoSkill(skill: skill, user: char, ctx):
 
     if skil.effectOnSelf != None:
         if skil.type != TYPE_PASSIVE:
-            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx, True)
+            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx, True,powerPurcent=skil.selfEffPurcent)
         else:
-            repEmb = infoEffect(skil.effectOnSelf, user,
-                                repEmb, ctx, " (passif)")
+            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx,True," (passif)",powerPurcent=skil.selfEffPurcent)
 
     if skil.invocation != None:
         repEmb = infoInvoc(findSummon(skil.invocation), repEmb)
@@ -795,6 +791,19 @@ def infoSkill(skill: skill, user: char, ctx):
         if len(listEffSelf) > 0:
             repEmb.add_field(
                 name="__Effets sur soi des compétences :__", value=listEffSelf, inline=False)
+    
+    if skil.id == horoscope.id:
+        desc = ""
+        for cmpt in horoscopeEff:
+            desc += "{0} __{1}__ :".format(cmpt[0].emoji[0][0],cmpt[0].name)
+            for staty in range(len(cmpt[1])):
+                desc += " {0} +{1}".format(nameStats[cmpt[1][staty][0]],cmpt[1][staty][1])
+                if staty != len(cmpt[1])-1:
+                    desc += ","
+            desc += "\n"
+
+        repEmb.add_field(name="__Bonus par signe astrologique :__",value=desc,inline=False)
+
     return repEmb
 
 def infoWeapon(weap: weapon, user: char, ctx):
@@ -2004,7 +2013,7 @@ async def getFullteamEmbed(bot: discord.Client, team: List[char], mainUser: char
                 for word in tablWord:
                     if len(word) > 4:
                         temp += " {0}.".format(word[:3])
-                    else:
+                    elif len(word) > 2:
                         temp += " {0}".format(word)
             else:
                 temp += "\n__{0} :__ {1} {2}".format(
@@ -2019,7 +2028,7 @@ async def getFullteamEmbed(bot: discord.Client, team: List[char], mainUser: char
             skilly = findSkill(user.skills[cmpt])
             if skilly != None:
                 temp += "\n{0}".format(skilly.emoji)
-                if len(skilly.name) < 30:
+                if len(skilly.name) < 25:
                     temp += " "+skilly.name
                 else:
                     tempTemp, tablWord = "", []
@@ -2034,8 +2043,8 @@ async def getFullteamEmbed(bot: discord.Client, team: List[char], mainUser: char
                         tablWord.append(tempTemp)
                     for word in tablWord:
                         if len(word) > 6:
-                            temp += " {0}.".format(word[:6])
-                        else:
+                            temp += " {0}.".format(word[:5])
+                        elif len(word) > 2:
                             temp += " {0}".format(word)
             elif cmpt <= nbDispSkill:
                 temp += "\n -"
