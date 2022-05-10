@@ -1,6 +1,7 @@
 from classes import *
 from constantes import *
 from advObjects.advSkills import tablElemEff, coroWind
+from advObjects.advStuffs import shieltron
 
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
 roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,70,70,340,strength=10,endurance=10,resistance=10,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2,damageOnArmor=0.8)
@@ -23,7 +24,7 @@ squiffer = weapon("Décap' Express","au",RANGE_DIST,AREA_CIRCLE_4,78,70,300,stre
 dualJetSkelcher = weapon("Nettoyeur Duo","av",RANGE_LONG,AREA_CIRCLE_5,25,50,200,strength=10,magie=10,precision=10,repetition=4,emoji='<:DualSkelcher:877666662801883237>',damageOnArmor=1.33)
 butterfly = weapon("Papillon Blanc","aw",RANGE_LONG,AREA_CIRCLE_5,50,80,150,taille=0,charisma=20,use=CHARISMA,intelligence=10,emoji='<:butterflyB:883627125561786428>',target=ALLIES,type=TYPE_HEAL,needRotate=False,message="{0} demande à son papillon de soigner {1} :")
 spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,magie=20,taille=0,percing=10,emoji='<:spellBook:878723144326725744>',needRotate=False,use=MAGIE,area=AREA_CIRCLE_1,affinity=ELEMENT_FIRE,message="{0} lance une boule de feu sur {1}")
-legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,82,85,300,strength=10,endurance=10,resistance=10,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT)
+legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,65,85,300,strength=10,resistance=5,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT,effect=shieltron)
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,77,90,300,strength=20,resistance=10,emoji='<:ailSword:922696057350127697>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,50,80,150,taille=0,charisma=20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
 butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,22,100,250,taille=0,area=AREA_CIRCLE_1,magie=15,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
@@ -104,7 +105,7 @@ infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCL
 infLightSword = weapon("Épée de la Lueur Éternelle","cx",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,resistance=5,charisma=10,effect=shareTabl[2],use=CHARISMA,emoji='<:lumSword:926874664175816735>')
 magicWood = weapon("Baguette en argent",'dc',RANGE_LONG,AREA_CIRCLE_5,80,50,1,taille=0,magie=20,precision=10,use=MAGIE,emoji='<:magicWand:934585282907488307>')
 magicMass = weapon("Masse argentée",'cz',RANGE_DIST,AREA_CIRCLE_3,80,60,1,magie=30,use=MAGIE,emoji='<:magicMasse:934585301463072778>')
-magicSwordnShield = weapon("Bouclier runique",'da',RANGE_MELEE,AREA_CIRCLE_1,80,70,1,magie=15,resistance=15,use=MAGIE,emoji='<:magicShield:934585318508736532>',needRotate=False)
+magicSwordnShield = weapon("Bouclier Runique",'da',RANGE_MELEE,AREA_CIRCLE_1,62,70,1,magie=5,resistance=10,use=MAGIE,emoji='<:magicShield:934585318508736532>',needRotate=False,effect=shieltron)
 keyblade = weapon("Keyblade",'db',RANGE_MELEE,AREA_CIRCLE_2,81,80,1,agility=10,strength=10,endurance=10,emoji='<:kb:934497052723929108>',ignoreAutoVerif=True)
 fleauHealEff = effect('Cicatrisation','altiWeapHealEff',CHARISMA,stackable=True,power=8,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,description="Soigne légèrement en début de tour",emoji=sameSpeciesEmoji('<:flB:934615447263916103>','<:flR:934615460157198346>'))
 fleauPassifEffect = effect('Bénidiction de la Compréhension','altiWeapPassifEff',callOnTrigger=fleauHealEff,turnInit=-1,unclearable=True,area=AREA_CIRCLE_2,emoji='<:flE:934615479732043776>',description="Lorsque vous attaquez avec votre arme, donne l'effet __Cicatrisation__ à tous vos alliés dans la zone d'effet\n\nAugmente de 50% la probabililté d'utiliser son arme principale en mode automatique")

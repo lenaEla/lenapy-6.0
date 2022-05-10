@@ -1,0 +1,673 @@
+import discord, random, os, emoji, asyncio, datetime, copy
+from discord_slash.context import SlashContext
+from discord_slash.utils.manage_components import create_actionrow, create_select, create_select_option, create_button
+from adv import *
+from classes import *
+from donnes import *
+from gestion import *
+from advance_gestion import *
+from commands_files.sussess_endler import *
+from commands_files.alice_stats_endler import *
+from traceback import format_exc
+from typing import Union, List
+from sys import maxsize
+from socket import error as SocketError
+import errno
+
+teamWinDB = dbHandler("teamVic.db")
+AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHANT = 0,1,2,3,4,5,6,7
+moveEmoji = ['⬅️','➡️','⬆️','⬇️']
+cancelButton = create_actionrow(create_button(ButtonStyle.grey,"Retour",'◀️',custom_id="return"))
+waitingSelect = create_actionrow(create_select([create_select_option("Veuillez prendre votre mal en patience","wainting...",'🕰️',default=True)],disabled=True))
+
+
+tablIsNpcName = []
+for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna"]:
+	if type(a) != str:
+		tablIsNpcName.append(a.name)
+	else:
+		tablIsNpcName.append(a)
+
+temp = []
+for a in tablIsNpcName:
+	temp.append((a,False))
+
+primitiveDictIsNpcVar = dict(temp)
+
+def getPartnerValue(user : classes.char):
+    if user.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR]:
+        return 10 + random.randint(-3,3)
+    elif user.aspiration in [PROTECTEUR,ATTENTIF]:
+        return 8 + random.randint(-3,3)
+    elif user.aspiration in [OBSERVATEUR,VIGILANT,MAGE,SORCELER]:
+        return 6 + random.randint(-3,3)
+    else:
+        return 4 + random.randint(-3,3)
+
+def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, typeDmg = TYPE_DAMAGE, skillPercing = 0):
+    if use == HARMONIE:
+        maxi, stats = -100, caster.allStats()
+        for cmpt in range(0,7):
+            if stats[cmpt] > maxi:
+                maxi, use = stats[cmpt], cmpt 
+    if use not in [FIXE,None]:
+        dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.1 +1
+        dmg = max(1,round(basePower * (max(-65,caster.allStats()[use]+100-caster.actionStats()[actionStat]))/100 * (1-(min(95,target.resistance*(1-(caster.percing+skillPercing)/100))/100))*(danger/100)*caster.getElementalBonus(target=target,area=area,type=typeDmg)*(1+(0.01*caster.level)))*dmgBonusMelee)
+        return dmg
+    else:
+        return basePower
+
+def indirectDmgCalculator(caster, target, basePower, use, danger, area):
+    damage = ""
+    dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.1 +1
+    if use != None:
+        if use != HARMONIE:
+            stat = caster.allStats()[use]-caster.negativeIndirect
+        else:
+            stat = max(caster.allStats())
+
+        effMultiplier = 100
+        for eff in caster.effect:
+            if eff.effect.id == dmgUp.id:
+                effMultiplier += eff.effect.power
+            elif eff.effect.id == dmgDown.id:
+                effMultiplier -= eff.effect.power
+        for eff in target.effect:
+            if eff.effect.id in [vulne.id,kikuRaiseEff.id]:
+                effMultiplier += eff.effect.power
+            elif eff.effect.id == defenseUp.id:
+                effMultiplier -= eff.effect.power
+            elif eff.effect.inkResistance != 0:
+                effMultiplier -= eff.effect.inkResistance
+            
+        effMultiplier = max(effMultiplier, 5)
+        effMultiplier = min(effMultiplier, 200)
+
+        selfElem = caster.getElementalBonus(target,area,TYPE_INDIRECT_DAMAGE)
+        dangerMul = [100, danger][caster.team == 1]
+        damage = basePower * (1+(stat/100)) *  (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * selfElem * (1+(0.01*target.level)) * effMultiplier/100 * dangerMul/100 * dmgBonusMelee
+
+    return damage
+
+class timeline:
+	"""Classe de la timeline"""
+	def __init__(self):
+		self.timeline = []
+		self.initTimeline = []
+		self.begin = None
+
+	def init(self,tablEntTeam : list):
+		timeline = []
+
+		for tabl in (0,1):
+			tablPrio, tablNorm, tablLast = [],[],[]
+
+			for ent in tablEntTeam[tabl]:
+				suppSkillsCount,healSkillsCount = 0,0
+				for skil in ent.char.skills:
+					if type(skil) == skill:
+						if skil.type in [TYPE_BOOST,TYPE_MALUS] or skil.id in [invocBat2.id]:
+							suppSkillsCount += 1
+						elif skil.type in [TYPE_ARMOR,TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION] or skil.id in [idoOSEff.id,proOSEff.id,preOSEff.id,invocSeraf.id,idoOHEff.id,proOHEff.id,altOHEff.id,lightAura.id,lightAura2.id,invocFee.id,lapSkill.id]:
+							healSkillsCount += 1
+
+				if (suppSkillsCount >= 3 and random.randint(0,99)<50) or (ent.char.weapon.range == RANGE_MELEE and random.randint(0,99)<33):
+					tablPrio.append(ent)
+				elif healSkillsCount >= 3 and random.randint(0,99)<50:
+					tablLast.append(ent)
+				else:
+					tablNorm.append(ent)
+
+			tabltabl = [tablPrio,tablNorm,tablLast]
+			for cmpt in (0,1,2):
+				random.shuffle(tabltabl[cmpt])
+
+			tablEntTeam[tabl] = tabltabl[0]+tabltabl[1]+tabltabl[2]
+		for a in range(max(len(tablEntTeam[0]),len(tablEntTeam[1]))):
+			try:
+				timeline+=[tablEntTeam[0][a]]
+			except:
+				pass
+			try:
+				timeline+=[tablEntTeam[1][a]]
+			except:
+				pass
+
+		self.timeline = timeline
+		self.initTimeline = copy.copy(timeline)
+		self.begin = self.initTimeline[0]
+
+		return self, tablEntTeam
+
+	def getActTurn(self):
+		return self.timeline[0]
+
+	def icons(self):
+		temp = ""
+		for a in self.timeline:
+			if a == self.initTimeline[-1]:
+				temp += f"{a.icon} <|- "
+			else:
+				temp += f"{a.icon} <- "
+		return temp
+
+	def endOfTurn(self,tablEntTeam,tablAliveInvoc):
+		timelineTempo = self.timeline
+		actTurn = timelineTempo[0]
+
+		timelineTempo.remove(actTurn)
+		timelineTempo.append(actTurn)
+
+		for ent in self.timeline[:]:
+			if ent.hp <= 0 and type(ent.char) == invoc:
+				inv = ent
+				timelineTempo.remove(inv)
+				inv.cell.on = None
+				for ent2 in tablEntTeam[inv.team]:
+					if ent2.id == inv.summoner.id:
+						smn = ent2
+						smn.stats.damageDeal += inv.stats.damageDeal
+						smn.stats.indirectDamageDeal += inv.stats.indirectDamageDeal
+						smn.stats.ennemiKill += inv.stats.ennemiKill
+						smn.stats.damageRecived += inv.stats.damageRecived
+						smn.stats.heals += inv.stats.heals
+						smn.stats.damageOnShield += inv.stats.damageOnShield
+						smn.stats.shieldGived += inv.stats.shieldGived
+
+						for dictElem in inv.ownEffect:
+							for on, effID in dictElem.items():
+								for effOn in on.effect:
+									if effOn.id == effID:
+										effOn.caster = smn
+										effOn.effect.power = int(effOn.effect.power * 0.7)
+										break
+
+								on.refreshEffects()
+
+						smn.ownEffect += inv.ownEffect
+						break
+
+				tablEntTeam[inv.team].remove(inv)
+				tablAliveInvoc[inv.team] -= 1
+
+		self.timeline = timelineTempo
+		return tablEntTeam, tablAliveInvoc
+
+class cell:
+	"""
+		The base class for the board\n
+		\n
+		Attributs :\n
+		x : The collum of the cell. Between ``0`` and ``5``
+		y : The line of the cell. Between ``0`` and ``4``
+		id : The number of the cell. Between ``0`` and ``30``
+		on : The object who's on the cell. ``entity`` or ``None``
+	"""
+	def __init__(self,x : int, y : int, id : int, tablAllCells):
+		self.x = x
+		self.y = y
+		self.id = id
+		self.on = None
+		self.tablAllCells:list = tablAllCells
+
+	def distance(self,cell):
+		"""Return the distance with the other cell"""
+		return int(abs(self.x - cell.x)+abs(self.y - cell.y))
+
+	def getArea(self,area=AREA_MONO,team=0) -> list:
+		"""
+			Return a list of the cells in the area\n\n
+			Parameters :\n
+			area : See ``constantes``
+			team : The team of the entity who's looking for the area
+		"""
+		rep = []
+
+		# Circles
+		if area==AREA_MONO:
+			return [self]
+		elif area in [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7]:
+			dist = area
+			if area > AREA_CIRCLE_7:
+				if area <= AREA_DONUT_7:
+					dist -= AREA_DONUT_1-1
+				elif area <= AREA_DIST_7:
+					dist -= AREA_DIST_3-3
+
+			for a in self.tablAllCells:
+				if self.distance(cell=a) <= dist:
+					rep.append(a)
+
+			if area > AREA_CIRCLE_7 and area <= AREA_DONUT_7: # If donut, remove the center
+				rep.remove(self)
+			elif area > AREA_DONUT_7 and area <= AREA_DIST_7: # If dist only, remove melee
+				for a in rep[:]:
+					if self.distance(cell=a) <= 2:
+						rep.remove(a)
+		elif area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
+			return self.tablAllCells
+		elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
+			start,yDiff,xMax = self.x,0,area-10
+			areaTabl = []
+
+			if team==0:
+				ite = 0
+				while start <= 5 and ite <= xMax:
+					for y in range(0,yDiff+1):
+						if findCell(start,self.y+y,self.tablAllCells) not in areaTabl and findCell(start,self.y+y,self.tablAllCells) != None:
+							areaTabl.append(findCell(start,self.y+y,self.tablAllCells))
+						if findCell(start,self.y-y,self.tablAllCells) not in areaTabl and findCell(start,self.y-y,self.tablAllCells) != None:
+							areaTabl.append(findCell(start,self.y-y,self.tablAllCells))
+					start += 1
+					yDiff += 1
+					ite+=1
+			else:
+				ite = 0
+				while start >= 0 and ite <= xMax:
+					for y in range(0,yDiff+1):
+						if findCell(start,self.y+y,self.tablAllCells) not in areaTabl and findCell(start,self.y+y,self.tablAllCells) != None:
+							areaTabl.append(findCell(start,self.y+y,self.tablAllCells))
+						if findCell(start,self.y-y,self.tablAllCells) not in areaTabl and findCell(start,self.y-y,self.tablAllCells) != None:
+							areaTabl.append(findCell(start,self.y-y,self.tablAllCells))
+					start -= 1
+					yDiff += 1
+					ite+=1
+
+			return areaTabl
+		elif area in [17,18,19,20,21]: # Lines
+			for a in self.tablAllCells:
+				if self.y == a.y and abs(a.x - self.x) <= area-16:
+					rep.append(a)
+		elif area in [AREA_ARC_1,AREA_ARC_2,AREA_ARC_3]: # Arcs
+			cmptx = 1
+			while cmptx < area - 32:
+				if team == 0:
+					cell1 = findCell(self.x-cmptx,self.y-cmptx,self.tablAllCells)
+					if cell1 != None:
+						rep.append(cell1)
+					cell2 = findCell(self.x-cmptx,self.y+cmptx,self.tablAllCells)
+					if cell2 != None:
+						rep.append(cell2)
+				if team == 1:
+					cell1 = findCell(self.x+cmptx,self.y-cmptx,self.tablAllCells)
+					if cell1 != None:
+						rep.append(cell1)
+					cell2 = findCell(self.x+cmptx,self.y+cmptx,self.tablAllCells)
+					if cell2 != None:
+						rep.append(cell2)
+				cmptx+=1
+			rep.append(self)
+		elif area in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+			for cell in self.tablAllCells:
+				if cell.on != None and cell.on.team != team:
+					rep.append(cell)
+			random.shuffle(rep)
+			return rep[0:min(area-AREA_RANDOMENNEMI_1+1,len(rep))]
+		elif area in [AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5]:
+			for celly in self.tablAllCells:
+				if (celly.x == self.x or celly.y == self.y) and self.distance(celly) <= area + 2 - AREA_INLINE_2:
+					rep.append(celly)
+		return rep
+
+	def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=100,dead=False,effect=[None],ignoreInvoc = False, directTarget=True,ignoreAspiration = None) -> list: 
+		"""
+			Return a list of the targetable entities in the area\n
+			\n
+			Parameters :\n
+			.area : See ``constantes``
+			.team : The team of the entity who's looking in the area. ``0`` for Blue Team (and Default), ``1`` else for the Red Team
+			.wanted : Who are we looking for ? ``ALLIES`` for the allies of the entity (and Default), ``ENNEMIS`` else
+			.lineOfSight : Do we look for the line of sight ? Default ``False``
+				-> The line of sight will always be ignore if Wanted is at ``ALLIES`` or Area is in ``AREA_ALL_ALLIES,AREA_ALL_ENNEMIS,AREA_ALL_ENTITIES``
+			.lifeUnderPurcentage : Only select entities under or egal at ``lifeUnderPurcentage``% of their maxHp. Default ``100``
+			.dead : Are we looking for dead entities ? Default ``False``
+			.effect : A list of ``effect``objects. If the entities can't be applyed a effect of the list, exclude them. Defaul ``[None]``
+			.ignoreInvoc : Do we ignore the summons ? Default ``False``
+			.directTarget : Do we take into account the Untargetable status effect ? Default ``True``
+			.ignoreAspiration : Do we need to ignore certains entities for their aspirations ? Default ``None``
+		"""
+		
+		if area==AREA_MONO:                 # If the area is monocible, directly return a list with only the entity on the cell
+			return [self.on]
+
+		rep = []
+		if type(effect)!=list:
+			effect = [effect]
+
+		tablArea = self.getArea(area=area,team=team)
+		enties = []
+
+		for cellule in tablArea:
+			if cellule.on != None:                                                          # If there is a entity on the cell
+				ent = cellule.on
+				if directTarget:                                                                # If we are looking for a directTarget, take into account if the entity is untargetable
+					targetable = not(ent.untargetable)
+				else:
+					targetable = True
+
+				if ent.hp > 0 and not(dead):
+					if ent.team == team and wanted == ALLIES and targetable:
+						enties += [ent]
+					elif ent.team != team and wanted == ENNEMIS and targetable:
+						enties += [ent]
+					elif wanted == ALL and targetable:
+						enties += [ent]
+				elif ent.status == STATUS_DEAD and dead:
+					if ent.team == team and wanted == ALLIES and targetable:
+						enties += [ent]
+					elif ent.team != team and wanted == ENNEMIS and targetable:
+						enties += [ent]
+					elif wanted == ALL:
+						enties += [ent]
+
+		rep = enties
+
+		if lineOfSight and wanted==ENNEMIS and (area not in [AREA_ALL_ENEMIES,AREA_ALL_ENTITES]):
+			for a in enties:
+				if not(a.translucide):
+					# Définition de la direction
+					direction, diffX, diffY = None,self.x - a.cell.x,self.y - a.cell.y
+
+					if diffX < 0:
+						if abs(diffY/3) < abs(diffX):
+							direction = '➡️'
+						elif diffY > 0:
+							direction = '↘️'
+						elif diffY < 0:
+							direction = '↗️'
+					elif diffX > 0:
+						if abs(diffY/3) < abs(diffX):
+							direction = '⬅️'
+						elif diffY > 0:
+							direction = '↙️'
+						elif diffY < 0:
+							direction = '↖️'
+					elif diffY > 0 and abs(diffX/3) < abs(diffY):
+						direction = '⬆️'
+					elif diffY < 0 and abs(diffX/3) < abs(diffY):
+						direction = '⬇️'
+
+					if direction == '➡️':
+						cmpt,temp,ite,yOr = a.cell.x+1,[0],0,a.cell.y
+						while cmpt < 6:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt += 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '⬅️':
+						cmpt,temp,ite,yOr = a.cell.x-1,[0],0,a.cell.y
+						while cmpt > 0:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt -= 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '↘️':
+						cmpt,temp,ite,yOr = a.cell.x+1,[0],0,a.cell.y+1
+						while cmpt < 6:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt += 1
+							yOr += 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '↗️':
+						cmpt,temp,ite,yOr = a.cell.x+1,[0],0,a.cell.y-1
+						while cmpt < 6:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt += 1
+							yOr -= 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '↖️':
+						cmpt,temp,ite,yOr = a.cell.x-1,[0],0,a.cell.y-1
+						while cmpt > 0:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt -= 1
+							yOr -= 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '↙️':
+						cmpt,temp,ite,yOr = a.cell.x-1,[0],0,a.cell.y+1
+						while cmpt > 0:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt -= 1
+							yOr += 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '⬆️':
+						yOr,temp,ite,cmpt = a.cell.x,[0],0,a.cell.y-1
+						while cmpt > 0:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt -= 1
+							ite += 1
+							temp += [ite,-ite]
+					elif direction == '⬇️':
+						yOr,temp,ite,cmpt = a.cell.x,[0],0,a.cell.y+1
+						while cmpt < 5:
+							for b in temp:
+								try:
+									tablArea.remove(findCell(cmpt,yOr+b,self.tablAllCells))
+								except:
+									pass
+
+							cmpt += 1
+							ite += 1
+							temp += [ite,-ite]
+
+			enties = []
+			for a in tablArea:
+				if a.on != None:
+					if a.on.hp > 0 and not(dead):
+						targetable = True
+						if directTarget:
+							targetable = not(a.on.untargetable)
+						if a.on.team == team and wanted == ALLIES and targetable:
+							enties += [a.on]
+						elif a.on.team != team and wanted == ENNEMIS and targetable:
+							enties += [a.on]
+						elif wanted == ALL:
+							enties += [a.on]
+					elif a.on.hp <= 0 and dead:
+						if a.on.team == team and wanted == ALLIES and targetable:
+							enties += [a.on]
+						elif a.on.team != team and wanted == ENNEMIS and targetable:
+							enties += [a.on]
+						elif wanted == ALL:
+							enties += [a.on]
+			rep = enties
+
+		temp = []
+		for a in rep:
+			if a.hp/a.maxHp <= lifeUnderPurcentage/100:
+				temp+=[a]
+		rep=temp
+
+		tempToReturn = rep[:] 
+		for rejEff in effect: # Forbiden effects ?
+			if rejEff != None:
+				aeff = findEffect(rejEff)
+				if aeff.reject != None:
+					for b in aeff.reject:
+						actEff = findEffect(b)
+						for tempEnt in tempToReturn:
+							for d in tempEnt.effect:
+								if d.effect.id == actEff.id:
+									if tempEnt in rep:
+										rep.remove(tempEnt)
+										break
+				if not(aeff.stackable):
+					for tempEnt in tempToReturn:
+						for tempEff in tempEnt.effect:
+							if tempEff.id == aeff.id:
+								if tempEnt in rep:
+									rep.remove(tempEnt)
+									break
+
+		if ignoreInvoc: # Ignorer les invocations ?
+			for a in rep[:]:
+				if type(a.char) == invoc:
+					rep.remove(a)
+
+		if ignoreAspiration != None:
+			if type(ignoreAspiration) != list:
+				ignoreAspiration = [ignoreAspiration]
+			for snobed in ignoreAspiration:
+				for ent in rep[:]:
+					if ent.char.aspiration == snobed and (ent in rep):
+						rep.remove(ent)
+
+		rep.sort(key=lambda toSort: self.distance(toSort.cell))
+		return rep
+
+	def getEmptyCellsInArea(self,area=AREA_DONUT_3,team=0):
+		"""Return a list of the empty cells in the area"""
+		tabl = []
+		cells = self.getArea(area,team)
+
+		for a in cells:
+			if a.on == None:
+				tabl.append(a)
+
+		return tabl
+
+	def getCellForSummon(self,area: int, team: int, summon : invoc, summoner):
+		"""Return the best cell for summon something"""
+		tabl = self.getEmptyCellsInArea(area,team)
+		for a in tabl[:]:
+			if team == 0:
+				if a.x > 2:
+					tabl.remove(a)
+			else:
+				if a.x < 3:
+					tabl.remove(a)
+
+		portee = summon.weapon.range
+		if team == 0:
+			temp = sorted(tabl, key= lambda funnyTempVarNameButTheSecond: abs(2-funnyTempVarNameButTheSecond.x-portee)+abs(funnyTempVarNameButTheSecond.y-summoner.cell.y))
+			if len(temp)>0:
+				return temp[0]
+			else:
+				return None
+
+		else:
+			temp = sorted(tabl, key= lambda funnyTempVarNameButTheSecond: abs(3-funnyTempVarNameButTheSecond.x+portee)+abs(funnyTempVarNameButTheSecond.y-summoner.cell.y))
+			if len(temp)>0:
+				return temp[0]
+			else:
+				return None
+
+	def surrondings(self):
+		return [findCell(self.x-1,self.y,self.tablAllCells),findCell(self.x+1,self.y,self.tablAllCells),findCell(self.x,self.y-1,self.tablAllCells),findCell(self.x,self.y+1,self.tablAllCells)]
+
+def findCell(x : int, y : int, tablAllCells) -> cell:
+	"""Return the cell in X:Y, if it exist"""
+	cmpt, maxCellNum = 0, len(tablAllCells)
+	while cmpt < maxCellNum:
+		if tablAllCells[cmpt].x == x and tablAllCells[cmpt].y == y:
+			return tablAllCells[cmpt]
+		cmpt += 1
+
+def map(tablAllCells,bigMap):
+	"""Renvoie un str contenant la carte du combat"""
+	line1,line2,line3,line4,line5 = [None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None]
+	lines = [line1,line2,line3,line4,line5]
+
+	if bigMap:
+		line6, line7 = [None,None,None,None,None,None],[None,None,None,None,None,None]
+		lines.append(line6)
+		lines.append(line7)
+
+	for a in tablAllCells:
+		if isLenapy or True:
+			temp = '<:em:866459463568850954>'
+		else:
+			temp = f'{str(a.x)}:{str(a.y)}'                         # Show cells ID
+		if a.on != None:
+			if a.on.status == STATUS_DEAD:
+				temp = ['<:ls:868838101752098837>','<:ls:868838465180151838>'][a.on.team]
+			elif a.on.status != STATUS_TRUE_DEATH:
+				if a.on.invisible:                              # If the entity is invisible, don't show it. Logic
+					temp = '<:em:866459463568850954>'
+				else:
+					temp = a.on.icon
+			else:
+				a.on = None
+		lines[a.y][a.x]=temp
+	temp = ""
+	for a in lines:
+		for b in [0,1,2,3,4]:
+			temp += f"{a[b]}|"
+		temp += f"{a[b+1]}\n"
+	return temp
+
+def getHealAggro(on, skillToUse : Union[skill,weapon]):
+	if on.hp <= 0 or on.hp >= on.maxHp:
+		return 0
+	elif type(on.char) == invoc:
+		return -111
+	else:
+		prio = (1-on.hp/on.maxHp)*100
+
+		prio = prio * (1.2 - (0.1*on.char.weapon.range))                # If the entity is a melee, he is more important
+		if not(on.auto):
+			prio = prio * 1.1                                           # If the entity is a active player, he is a little more important, for reduce the use of the spoon
+
+		if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and on.maxHp - on.hp < on.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and on.hp/on.maxHp <= 0.35):
+			prio = prio * 0.7                                           # If the skill is a big direct heal and the entity is not low Hp or if the skill is a HoT and the entity is low Hp
+																			# The entity is less important
+		
+		prio = prio * (1-(on.healResist/2/100))                             # If the entity have a big healing resist, he is less important
+
+		incurValue, healAggroBonus = 0, 100
+		for eff in on.effect:
+			if eff.effect.id == incurable.id:
+				incurValue = max(eff.effect.power,incurValue)
+			elif eff.effect.id == undeadEff2.id:
+				healAggroBonus += undeadEff2.power
+
+		prio = prio * (1-(incurValue/2/100)) * (healAggroBonus/100)                              # Same with the healing reduce effects
+		return prio
+
+def getHealTarget(tablTeam : list, skillToUse : skill):
+	if len(tablTeam) == 1:
+		return tablTeam[0]
+	elif len(tablTeam) < 1:
+		raise AttributeError("tablTeam is empty")
+	
+	temp = tablTeam
+	temp.sort(key=lambda funnyTempVarName:getHealAggro(funnyTempVarName,skillToUse),reverse=True)
+	return temp[0]

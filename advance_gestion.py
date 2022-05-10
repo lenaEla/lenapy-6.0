@@ -294,10 +294,8 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         if eff.lvl != 1:
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(
                 eff.lvl)
-        stats = eff.allStats()+[eff.resistance, eff.percing,
-                                eff.critical, eff.overhealth, eff.aggro, eff.inkResistance]
-        names = nameStats+nameStats2 + \
-            ["Armure", "Agression", "Résistance aux dégâts indirects"]
+        stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block]
+        names = nameStats+nameStats2 + ["Armure", "Agression", "Résistance aux dégâts indirects","Blocage"]
 
         if eff.redirection > 0:
             effTmp += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(
@@ -320,6 +318,8 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
 
         if eff.inkResistance > 0 and eff.stat != None:
             effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base\nSi plusieurs effects de réduction de dégâts indirects sont cumulés, seul le plus puissant sera pris en compte"
+        if eff.block > 0:
+            effTmp += "\nUne attaque bloqué réduit de **20%** les dégâts reçus"
         if eff.reject != None:
             effTmp += "\n__Cet effet n'est pas compatible avec les effets :__\n"
             for a in eff.reject:
@@ -1785,6 +1785,11 @@ def infoAllie(allie: tmpAllie):
                 changeDictCell["proba"], changeDictCell["level"], msgChangeDict)
         embed.add_field(
             name="<:empty:866459463568850954>\n__Build alternatif :__", value=temp, inline=False)
+
+    for allyTmpName, allyBalancingEff in tmpBalancingDict.items():
+        if allie.name.lower() == allyTmpName.lower():
+            embed.add_field(name="__Equilibrage :__",value="Lorsqu'{0} se trouve dans l'équipe rouge sans conditions particulières, cet{1} allié{4} temporaire subit l'effet __{2}__ :\n{3}".format(["il","elle"][allie.gender==GENDER_FEMALE],["","te"][allie.gender==GENDER_FEMALE],allyBalancingEff.name,allyBalancingEff.description,["","e"][allie.gender==GENDER_FEMALE]),inline=True)
+            break
 
     return embed
 

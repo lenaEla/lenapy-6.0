@@ -39,9 +39,7 @@ from datetime import datetime
 ###########################################################
 # Initialisations des variables de bases :
 started = False
-
 intents = discord.Intents.all()
-
 bot = commands.Bot(command_prefix="l!",
                    description="LenaPy par LenaicU", intents=intents)
 slash = SlashCommand(bot, sync_commands=True)
@@ -166,7 +164,6 @@ class shopClass:
             return True
         except:
             return False
-
 
 async def inventoryVerif(bot, toVerif: Union[char, str]):
     if type(toVerif) == str:
@@ -313,7 +310,6 @@ else:
     shopping = shopClass(False)
     shopping.newShop()
 
-
 async def restart_program(bot: discord.Client, ctx=None):
     """If no teams are into a fight, restart the bot\n
     If a team fighting, wiat for them to finish then restart the bot"""
@@ -352,7 +348,6 @@ async def restart_program(bot: discord.Client, ctx=None):
         args = ['"%s"' % arg for arg in args]
     os.execv(sys.executable, args)
 
-
 def create_backup():
     """Copy all the characters profiles files into a new directory\n
     Return a ``string`` with the path of the backup directory"""
@@ -368,7 +363,6 @@ def create_backup():
         shutil.copy('./userProfile/{0}'.format(charFile), path+"/"+charFile)
 
     return "Un backup a été sauvegardé à la destinaiton suivante :\n"+path
-
 
 def delete_old_backups():
     """Remove backups directorys older than 3 days"""
@@ -386,7 +380,6 @@ def delete_old_backups():
                 temp += "./data/backups/{0} n'a pas pu être supprimé\n".format(
                     name)
     return temp
-
 
 async def remakeEmojis(ctx=None):
     if ctx != None:
@@ -461,7 +454,6 @@ async def remakeEmojis(ctx=None):
 
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
-
 async def verifEmojis(ctx=None):
     if ctx != None:
         msg = await ctx.send(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ 0%"))
@@ -510,7 +502,6 @@ async def oneClock():
     if tick.second % 60 == 0 and not(minuteClock.is_running()):
         minuteClock.start()
 
-
 @tasks.loop(minutes=1)
 async def minuteClock():
     """
@@ -523,7 +514,6 @@ async def minuteClock():
     tick = datetime.now()
     if tick.minute % 60 == 0 and not(hourClock.is_running()):
         hourClock.start()
-
 
 @tasks.loop(hours=1)
 async def hourClock():
@@ -565,7 +555,6 @@ async def hourClock():
         await inventoryVerif(bot, filename)
 
 # -------------------------------------------- ON READY --------------------------------------------
-
 @bot.event
 async def on_ready():
     print("\n---------\nThe bot is fully online ! Starting the initialisations things...\n---------\n")
@@ -625,7 +614,6 @@ async def on_ready():
 # ====================================================================================================
 
 # -------------------------------------------- ON MESSAGE --------------------------------------------
-
 @bot.event
 async def on_message(ctx: discord.message.Message):
     if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
@@ -897,7 +885,7 @@ async def normal(ctx):
     elif fun < 20:              # Procu Fight
         level = team1[0].level
         team1, team2, randomRoll = [], [], random.randint(0, 99)
-        if randomRoll < 50:                   # ClemClem
+        if randomRoll < 50: # ClemClem
             procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             level += procurData[0]+random.randint(0, 10)
@@ -910,10 +898,10 @@ async def normal(ctx):
 
             team1.append(ent)
 
-        elif randomRoll < 100:                                           # Luna
+        elif randomRoll < 100:  # Luna
             ent = copy.deepcopy(findAllie("Luna prê."))
             procurData = procurTempStuff["Luna prê."]
-            level += procurData[0]+random.randint(0, 20)
+            level += random.randint(0, 50)
             ent.changeLevel(level)
 
             ent.stuff = [
@@ -944,9 +932,8 @@ async def normal(ctx):
                 boss.changeLevel(level + random.randint(201, 250))
                 team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur informe A'), findEnnemi('Ombre informe A'), findEnnemi('Ombre informe B')], 1
                 while cmpt < 8:
-                    temp = copy.deepcopy(
-                        listDangerous[random.randint(0, len(listDangerous)-1)])
-                    temp.changeLevel(level + random.randint(75, 150))
+                    temp = copy.deepcopy(listDangerous[random.randint(0, len(listDangerous)-1)])
+                    temp.changeLevel(level + random.randint(100, 150))
                     team2.append(temp)
                     cmpt += 1
 
@@ -1073,8 +1060,6 @@ async def comQuickFight(ctx):
         await fight(bot, team1, [], ctx)
 
 # octogone fight
-
-
 @slash.subcommand(base="fight", subcommand_group="octogone", name="solo", description="Affrontez quelqu'un en 1v1 Gare Du Nord !", options=[
     create_option("versus", "Affronter qui ?", 6, required=True)
 ])
@@ -1099,8 +1084,6 @@ async def octogone(ctx, versus):
         await ctx.send("La personne que tu as désigné ne possède pas de personnage désolé", delete_after=15)
 
 # team fight
-
-
 @slash.subcommand(base="fight", subcommand_group="octogone", name="team", description="Affrontez l'équipe de quelqu'un avec la votre", options=[
     create_option("versus", "Affronter qui ?", 6, required=True)
 ])
@@ -1143,7 +1126,6 @@ async def teamFight(ctx, versus):
     await fight(bot, team1, team2, ctx, False, octogone=True)
 
 # -------------------------------------------- COOLDOWN --------------------------------------------
-
 @slash.slash(name="cooldowns", description="Vous donne les cooldowns des commandes /fight et /quickFight pour votre équipe")
 async def cooldowns(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
@@ -1219,8 +1201,6 @@ async def cooldowns(ctx):
             await ctx.channel.send(embed= toReply, delete_after=10)
 
 # -------------------------------------------- PATCHNOTE --------------------------------------------
-
-
 @slash.slash(name="patchnote", description="Renvoie le dernier patchnote du bot")
 async def patchnote(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1228,8 +1208,6 @@ async def patchnote(ctx):
     await send_patchnote(ctx)
 
 # -------------------------------------------- ROLL --------------------------------------------
-
-
 @slash.slash(name="roll", description="Permet de lancer un dé", options=[
     create_option(name="min", description="Minimum du jet. Par défaut, 1",
                   option_type=4, required=False),
@@ -1243,8 +1221,6 @@ async def roll(ctx, min=1, max=100):
     await ctx.send(embed=discord.Embed(title=f"🎲 roll {min} - {max}", color=light_blue, description=rollmes.format(random.randint(min, max))))
 
 # -------------------------------------------- SHOP --------------------------------------------
-
-
 @slash.slash(name="shop", description="Vous permet d'entrer dans le magasin")
 async def shopSlash(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1372,8 +1348,6 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
         await inventoryV2(bot, ctx, destination, user)
 
 # -------------------------------------------- POINTS --------------------------------------------
-
-
 @slash.slash(name="points", description="Vous permet de répartir vos points bonus", options=[
     create_option(
         "procuration", "De qui voulez vous consulter l'inventaire ?", 6, required=False)
@@ -1384,14 +1358,11 @@ async def pts(ctx, procuration=None):
     await points(bot, ctx, ["/points", None], procuration, slashed=True)
 
 # -------------------------------------------- TEAM --------------------------------------------
-
 detailPlus = create_button(ButtonStyle.blue, "Aff. détaillé", "➕", "detail")
 detailMinus = create_button(
     ButtonStyle.blue, "Aff. simplifié", "➖", detailPlus["custom_id"])
 
 # team view
-
-
 @slash.subcommand(base="team", name="view", description="Permet de voir les équipements de votre équipe ou de celle de quelqu'un d'autre", options=[
     create_option("joueur", "Voir l'équipe d'un autre joueur",
                   6, required=False)
@@ -1459,8 +1430,6 @@ async def teamView(ctx, joueur=None):
                 extended = not(extended)
 
 # team add
-
-
 @slash.subcommand(base="team", name="add", description="Permet de rajouter un joueur dans son équipe", options=[
     create_option("joueur", "Le joueur à rajouter", 6, required=True)
 ])
@@ -1537,8 +1506,6 @@ async def teamAdd(ctx, joueur):
             await msg.edit(embed=errorEmbed("/team add "+joueur.name, "Votre équipe est déjà au complet"))
 
 # team quit
-
-
 @slash.subcommand(base="team", name="quit", description="Permet de quitter son équipe")
 async def teamQuit(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1559,8 +1526,6 @@ async def teamQuit(ctx):
         await ctx.send(embed=errorEmbed("/team quit", "Vous n'avez aucune équipe à quitter"))
 
 # team fact
-
-
 @slash.subcommand(base="team", name="fact", description="Permet d'avoir des facts sur les membres de votre équipe")
 async def teamFact(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1597,8 +1562,6 @@ async def teamFact(ctx):
             break
 
 # -------------------------------------------- HELP --------------------------------------------
-
-
 @slash.slash(name="help", description="Ouvre la page d'aide du bot")
 async def helpCom(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1606,8 +1569,6 @@ async def helpCom(ctx):
     await helpBot(bot, ctx)
 
 # -------------------------------------------- START --------------------------------------------
-
-
 @slash.slash(name="start", description="Permet de commence l'aventure")
 async def started(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -1615,8 +1576,6 @@ async def started(ctx):
     await start(bot, ctx)
 
 # -------------------------------------------- STATS --------------------------------------------
-
-
 @slash.slash(name="stats", description="Permet de voir vos statistiques ou celles d'un autre joueur", options=[
     create_option(
         "joueur", "Voir les statistiques d'un autre joueur", 6, False)
@@ -1704,8 +1663,6 @@ async def statsCmd(ctx, joueur=None):
             await ctx.send("{0} n'a pas commencé l'aventure".format(joueur.name))
 
 # -------------------------------------------- MANUEL --------------------------------------------
-
-
 @slash.slash(name="manuel", description="Permet de consulter le manuel de l'Aventure", options=[
     create_option(
         "page", "Spécifiez une page à laquelle ouvrir le manuel", 4, False)
@@ -1774,8 +1731,6 @@ async def manuel(ctx, page=0):
             await msg.remove_reaction(str(reaction[0]), reaction[1])
 
 # -------------------------------------------- SEE LOGS --------------------------------------------
-
-
 @slash.subcommand(base="see", name="FightLogs", description="Permet de consulter les logs des combats du jour", guild_ids=[615257372218097691])
 async def seeLogs(ctx):
     listLogs = os.listdir("./data/fightLogs/")
@@ -1846,8 +1801,6 @@ async def seeLogs(ctx):
             page += 1
 
 # -------------------------------------------- SEE STUFF --------------------------------------------
-
-
 @slash.subcommand(base="see", name="StuffRepartition", description="Permet de consulter la réportation des logs", guild_ids=[615257372218097691])
 async def seeStuffRepartition(ctx):
     rep = "=============================================="
@@ -1876,8 +1829,6 @@ async def seeStuffRepartition(ctx):
     await ctx.channel.send(temp2)
 
 # -------------------------------------------- CHOOSE --------------------------------------------
-
-
 @slash.slash(name="Choose", description="Renvoie une élément aléatoire de la liste donnée", options=[
     create_option("choix1", description="Le premier élément de la liste",
                   option_type=discord_slash.SlashCommandOptionType.STRING, required=True),
@@ -1936,7 +1887,6 @@ async def addEnableFight(ctx, valeur=None):
 @slash.subcommand(base="admin", name="restart_Bot", guild_ids=adminServ, description="Permet de redémarrer le bot lorsque tous les combats seront fini")
 async def restartCommand(ctx):
     await restart_program(bot, ctx)
-
 
 @slash.subcommand(base="admin", subcommand_group="emoji", name="reset_all", guild_ids=adminServ, description="Lance une rénitialisation des emojis")
 async def resetCustomEmoji(ctx):
@@ -2031,11 +1981,9 @@ async def resetCustomEmoji(ctx):
 
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
 
-
 @slash.subcommand(base="admin", subcommand_group="emoji", name="remake_all", guild_ids=adminServ, description="Supprime puis refait tous les emojis de personnage")
 async def remakeCustomEmoji(ctx):
     await remakeEmojis(ctx)
-
 
 @slash.subcommand(base="admin", subcommand_group="backup", name="new", description="Permet de réaliser un backup des profiles de personnages", guild_ids=adminServ)
 async def adminBackup(ctx):
@@ -2044,7 +1992,6 @@ async def adminBackup(ctx):
         await ctx.send(embed=discord.Embed(title="__Admin : Backups__", color=light_blue, description=temp))
     except:
         await ctx.channel.send(embed=discord.Embed(title="__Admin : Backups__", color=light_blue, description=temp))
-
 
 @slash.subcommand(base="admin", subcommand_group="stat", name="silentRestatAll", description="silentRestat all users", guild_ids=adminServ)
 async def silentRestatForEveryone(ctx):
@@ -2058,7 +2005,6 @@ async def silentRestatForEveryone(ctx):
     except:
         await msg.edit(embed=discord.Embed(title="__/admin stat silentRestallAll__", description="Une erreur est survenue :\n"+format_exc()))
 
-
 @slash.subcommand(base="admin", subcommand_group="shop", name="forceNewShop", description="silentRestat all users", guild_ids=adminServ)
 async def forceShop(ctx):
     try:
@@ -2067,18 +2013,15 @@ async def forceShop(ctx):
     except:
         await ctx.send("Echec")
 
-
 @slash.subcommand(base="admin", subcommand_group="stat", name="reset_records", guild_ids=adminServ)
 async def resetRecord(ctx):
     await ctx.send(embed=discord.Embed(title="__Reset des records__", color=light_blue, description=aliceStatsDb.resetRecords()))
 
+# -------------------------------------------- KIKIMETER --------------------------------------------
 if isLenapy:
     tabl = [912137828614426704, 405331357112205326]
 else:
     tabl = adminServ
-
-# -------------------------------------------- KIKIMETER --------------------------------------------
-
 
 @slash.slash(name="Kikimeter", description="Permet de voir le top 5 de chaques catégories", guild_ids=tabl, options=[create_option(name="what", description="Que regarder", option_type=str, required=True, choices=[create_choice("total", "total"), create_choice("max", "max")])])
 async def kikimeterCmd(ctx, what):
@@ -2111,8 +2054,6 @@ async def kikimeterCmd(ctx, what):
         await ctx.channel.send(embed=embed)
 
 # -------------------------------------------- PROCURATION --------------------------------------------
-
-
 @slash.slash(name="procuration", description="Permet de donner à un autre utilisateur procuration sur votre inventaire", options=[create_option("utilisateur", "L'utilisateur qui pourra modifier vos objets équipés", 6, True)])
 async def procurCmd(ctx, utilisateur):
     if not(await botChannelVerif(bot, ctx)):
@@ -2120,8 +2061,6 @@ async def procurCmd(ctx, utilisateur):
     await procuration(ctx, utilisateur)
 
 # -------------------------------------------- ICON --------------------------------------------
-
-
 @slash.slash(name="icon", description="Renvoie l'icone de votre personnage", options=[create_option("utilisateur", "Voir l'icone d'un autre utilisateur", 6, False)])
 async def iconCommand(ctx, utilisateur=None):
     if not(await botChannelVerif(bot, ctx)):
@@ -2145,8 +2084,6 @@ async def iconCommand(ctx, utilisateur=None):
     await ctx.send(embed=embed)
 
 # -------------------------------------------- ADVENTURE ---------------------------------------------
-
-
 @slash.subcommand(base="adventure", subcommand_group="duty", name="select", description="Permet de commencer une nouvelle mission", base_description="Commandes de l'Aventure", guild_ids=[615257372218097691])
 async def dutyStart(ctx):
     still = True
@@ -2161,8 +2098,6 @@ async def dutyStart(ctx):
         await msg.edit(embed=discord.Embed(title="__Mission sélectionnée__", color=light_blue, description="Vous avez sélectioné la mission \"{0} - {1}\"".format(actName, dutyName[0].upper()+dutyName[1:].lower())), components=[])
 
 # -------------------------------------------- ROULETTE --------------------------------------------
-
-
 @slash.slash(name="roulette", description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
 async def rouletteSlash(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -2176,8 +2111,6 @@ async def rouletteSlash(ctx):
     await roulette(bot, ctx, user)
 
 # -------------------------------------------- SEE ENEMY REPARTITION -------------------------------
-
-
 @slash.subcommand(base="see", name="enemyRepartition", guild_ids=[615257372218097691], description="Permet de voir la répartition des ennemis")
 async def seeEnnemyRep(ctx):
     # 0 : Dmg; 1 : Heal/Armor; 2 : Buff/Debuff
@@ -2226,8 +2159,6 @@ async def seeEnnemyRep(ctx):
     await ctx.channel.send(embed=embed)
 
 # ------------------------------------------- PRESTIGE ---------------------------------------------
-
-
 @slash.slash(name="prestige", description="Permet de revenir au niveau 1, avec quelques bonus en primes")
 async def prestigeCmd(ctx):
     if not(await botChannelVerif(bot, ctx)):
@@ -2267,8 +2198,6 @@ async def prestigeCmd(ctx):
     await msg.edit(embed=discord.Embed(title="__Prestige__", color=light_blue, description="Vous avez bien prestige votre personnage"), components=[])
 
 # ------------------------------------------- SET_BOT_CHANNEL --------------------------------------
-
-
 @slash.slash(name="set_bot_channel", description="Permet de définir un salon comme salon bot", options=[create_option("salon", "Le salon dans lequel les utilisateurs pourront utiliser les commandes", 7, True)])
 async def setChannel(ctx: discord_slash.SlashContext, salon: discord.TextChannel):
     if not(ctx.author.guild_permissions.manage_channels):
@@ -2282,13 +2211,10 @@ async def setChannel(ctx: discord_slash.SlashContext, salon: discord.TextChannel
     await ctx.send(embed=discord.Embed(title="__/set_bot_channel__", color=light_blue, description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
 
 # ------------------------------------------- VERIF ------------------------------------------------
-
-
 @slash.slash(name="verif_user", description="Permet de voir toutes les informations d'un personnage", guild_ids=adminServ, options=[create_option("identifiant", "L'identifiant de l'utilisateur", SlashCommandOptionType.STRING, True)])
 async def verifuser(ctx, identifiant):
     user = loadCharFile("./userProfile/{0}.prof".format(identifiant))
     await ctx.send(embed=await seeAllInfo(bot, user))
-
 
 @slash.slash(name="verif_team", guild_ids=adminServ)
 async def verifTeams(ctx):
@@ -2350,7 +2276,6 @@ async def verifTeams(ctx):
         else:
             await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
 
-
 @slash.slash(name="verif_emoji", guild_ids=adminServ)
 async def emojiVerficition(ctx):
     msg, remaked, lastProgress = await ctx.send(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ 0%")), "", 0
@@ -2387,12 +2312,10 @@ async def emojiVerficition(ctx):
     except:
         await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
 
-
 @slash.slash(name="char_settings", description="Permet de modifier les paramètres de son icone de personnage")
 async def char_settings(ctx):
     user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
     await userSettings(bot, user, ctx)
-
 
 @slash.slash(name="Test", guild_ids=adminServ)
 async def expeditionTest(ctx):

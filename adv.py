@@ -257,10 +257,10 @@ if not(isLenapy):
             print("{0} : Cumule de stats non égal à {1} ({2} / {1})".format(weap.name,toVerif,summation))
     print("Vérification de l'équilibrage des stuffs terminée\n=============================")
 
-listObjWithNoOrientation = []
+"""listObjWithNoOrientation = []
 for obj in stuffs:
     if obj.orientation == "Neutre":
-        listObjWithNoOrientation.append(obj.name)
+        listObjWithNoOrientation.append(obj.name)"""
 
 """if listObjWithNoOrientation != []:
     print("=================== Objets sans orientations ===================")
@@ -268,18 +268,19 @@ for obj in stuffs:
         print(obj)
 """
 
-allReadySeen = []
-for obj in stuffs+weapons+skills+others:
-    if obj.id not in allReadySeen:
-        allReadySeen.append(obj.id)
-    else:
-        what = ""
-        for whaty in stuffs+weapons+skills+others:
-            if whaty.id == obj.id:
-                what += whaty.name + ", "
-        raise Exception("Identifiant doublon : {1}".format(obj.name,what))
+if not(isLenapy):
+    allReadySeen = []
+    for obj in stuffs+weapons+skills+others:
+        if obj.id not in allReadySeen:
+            allReadySeen.append(obj.id)
+        else:
+            what = ""
+            for whaty in stuffs+weapons+skills+others:
+                if whaty.id == obj.id:
+                    what += whaty.name + ", "
+            raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("Erudite"))
+#print(seeSimilarStuffNameMinLvl("Bouclier"))
 #print(seeAllStuffAtMinLvl(0))
 
 """for stuffy in stuffs:
