@@ -134,8 +134,6 @@ ACT_SHIELD = 2
 ACT_DIRECT = 3
 ACT_INDIRECT = 4
 
-
-AUTO_POWER = "autoPower"
 nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité","Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
 allStatsNames = nameStats+nameStats2
 
@@ -162,7 +160,7 @@ recommandedStat = [
     [CHARISMA, ENDURANCE],
     [MAGIE, INTELLIGENCE],
     [INTELLIGENCE, CHARISMA],
-    [STRENGTH, PRECISION],
+    [STRENGTH, INTELLIGENCE],
     [STRENGTH, MAGIE]
 ]
 recommandedStuffStat = [
@@ -179,10 +177,9 @@ recommandedStuffStat = [
     [CHARISMA, ENDURANCE, RESISTANCE],
     [MAGIE, INTELLIGENCE, ACT_INDIRECT_FULL],
     [INTELLIGENCE, ACT_SHIELD_FULL, CHARISMA],
-    [STRENGTH, PRECISION, CRITICAL],
+    [STRENGTH, INTELLIGENCE, CRITICAL],
     [STRENGTH, MAGIE, ACT_DIRECT_FULL]
 ]
-
 
 while len(aspiEmoji) < len(inspi):
     aspiEmoji.append('<a:menacing:917007335220711434>')
@@ -310,7 +307,7 @@ elemSecPassifDesc = [
 ]
 
 # AoE stuff
-AOEDAMAGEREDUCTION = 0.35
+AOEDAMAGEREDUCTION = 0.4
 AOEMINDAMAGE = 0.2
 
 def uniqueEmoji(emoji):
@@ -374,7 +371,6 @@ shopRandomMsg = [
     "{lena} : \"La vache c'est bien plus compliqué que je le pensais de lancer ces plumes enfaites...\"\n<:hina:908820821185810454> : \"C'est qu'une question d'habitude ^^ Hônnetement... J'arriverai même pas à tenir un de tes fusils donc bon ^^'\"",
     "{sixtine} : \"...\"\n<:krys:916118008991215726> : ?\"\n{sixtine} : \"...\"\n<:krys:916118008991215726> : \"?.? Je peux t'aider ?\"\n{sixtine} : \"Oh heu... Je me demandais juste si tu avais un coeur de pierre...\"\n<:krys:916118008991215726> : \"??.??\"",
     "{iliana} : \"Cl-Clméence... ? Hum... tu sais pourquoi ta soeur m'évite toi... ?\"\n{clemence} : \"Si tu parles d'Alice, elle a eu quelques porblèmes avec un chat quand elle était plus jeune donc elle en est un peu traumatisée\"\n{iliana} : \"Oh... la pauvre...\"",
-    "{iliana} : \"Je... C'est ton droit de me détester mais... Je pourrais au moins savoir pourquoi... ?\"\n{iliana} : \"Lena... qu'est-ce que j'ai mal fait... ?\"\n{iliana} : \"L-Lena... m'ignore pas s'il te plaît...\"\n{iliana}  : \"... Désolée...\"",
     "{sixtine} : \"Par curiosité Alice... tu as quoi comme info sur Iliana ?\"\n{alice} : \"Hum... Laisse moi voir... Tiens voilà\"\n\n[Feuille de papier froisée](https://docs.google.com/document/d/1SUVmdch_lQ-Ub_zoTJKOtxTkwZMqyLD8xrbCq8CTcDQ/edit?usp=drivesdk)\n\n{sixtine} : \"Même sur ça tu as fais d'efforts... ?\"\n{alice} : S-Sixtine ! Tu sais bien que je peux juste... pas...",
     "`Gwen descendit dans le séjour pour aller préparer le petit déjeuné quand elle vit Lena en train de dormir sur le canapé. Sur la table se trouve plusieurs pièces de ce qu'elle devina être un nouveau fusil longue portée et en déduit que l'inkling a encore veillé jusqu'à point d'heure pour mettre au point un nouveau joujou\nEn approchant, elle vit Shushi assise à côté de sa mère en train d'essayer de résoudre un Rubik's cube silencieusement. En la voyant arriver, celle-ci mit doucement un doigt sur ses lèvres. Gwen lui sourit gentiment puis alla dans la cuisine`",
     "{clemence} : `Attend le trio de soeur en lisant assise (à l'ombre) à la terrasse d'un café tout en discutant avec Gwen, quand elle vit Sixitine venir seule` \"Comment ça tu es toute seule Sixtine ? Où sont Féli et Alice ?\"\n{sixtine} : \"Féli a dit qu'elle voulait aller voir la dernière expédition sur les dieux de la Grèce Antique et Alice a... dit un truc à propos de l'Eglise je crois...\"\n{clemence} : \"... Gweny, tu veux bien t'occuper d'aller chercher Alice et je me charge de Féli ?\"\n<:gweny:906303014665617478> : \"Je suis pas vraiment la bienvenue dans les églises catholiques aussi tu sais ?\"\n{clemence} : \"Déjà moins que moi...\"\n{sixtine} : \"Je peux y aller moi si vous voulez... Je suis qu'humaine...\"",
@@ -395,7 +391,11 @@ shopRandomMsg = [
     "{lena} : \"FM comes in different colors, I believe... In the sewing machine, I've lost myself... Memories inside my heart are there to grieve... Color-coded by the love she gave to me...\"\n{luna} : \"Nostalgique ?\"\n{lena} : \"En quelques sortes, je suppose...\"",
     "{sixtine} : `Arrête de dessiner` Hum... Enfaite Anna... heu... comme tu est une fantôme tu peux posséder des gens ?\"\n<:anna:943444730430246933> : \"À vrai dire, pas vraiment... par contre Belle...\"\n`Les deux se tournèrent vers le miroir le plus proche où le reflet de Sixtine n'était absolument pas là où il devrait être, mais en train de fouiller dans le reflet de la boîte à bijoux d'Alice`\n{sixtine} : \"... C'est bien ce qu'il me semblait...\"",
     "<:gweny:906303014665617478> : \"Hey Clémence ! Tu veux faire une partie de paintball avec moi ce soir ?\"\n{clemence} : \"Pourquoi pas, mais il y aura Lena ?\"\n<:gweny:906303014665617478> : \"Hum...\"\n{clemence} : \"...\"\n<:gweny:906303014665617478> : \"...\"\n{clemence} : \"Je vais mettre plusieurs couches de tee-shirts\"\n<:gweny:906303014665617478> : \"Bonne idée, je vais faire de même\"",
-    "{clemence} : \"Hé Ly. Il faut qu'on parle.\"\n<:ly:943444713212641310> : \"A-Ah ?\"\n{clemence} : `La fixe du regard en croisant les bras pendants de longues secondes` \"Oh et au final nan j'ai pas envie. J'espère juste pour toi que tu fais un minimum attention au passé de ceux que tu élimines et que tu ne te t'attaques pas à ceux qui se contente de vivre leur vie où aident les humains. Sinon tu risques d'avoir une vampire légèrement plus corriaces que les autres sur les bras.\""
+    "{clemence} : \"Hé Ly. Il faut qu'on parle.\"\n<:ly:943444713212641310> : \"A-Ah ?\"\n{clemence} : `La fixe du regard en croisant les bras pendants de longues secondes` \"Oh et au final nan j'ai pas envie. J'espère juste pour toi que tu fais un minimum attention au passé de ceux que tu élimines et que tu ne te t'attaques pas à ceux qui se contente de vivre leur vie où aident les humains. Sinon tu risques d'avoir une vampire légèrement plus corriaces que les autres sur les bras.\"",
+    "<:gweny:906303014665617478> : \"Ta mère ne va pas être contente si elle te choppe en train de fouiller dans son atelier\"\n{shushi} : \"Gwen, tu sais pourquoi Miman a autant de balles incendiaires ? Son élément c'est plutôt la glace, non ?\"\n<:gweny:906303014665617478> : \"Détourne pas le sujet. Mais pour répondre à ta question, je pense que ça remonte à l'époque où j'était encore flic à la ville. L'une des membres de la mafia locale était d'élément Métal Pur et il me semble que ta mère et elle se connaissaient personnellement. Et c'était pas l'amour fou entre les deux. Il me semble même que c'est la seule personne que Lena craind encore aujourd'hui, même si ça fait des années qu'elle n'a pas donné signe de vie. Et tu connais ta mère, quand quelque chose la contrari elle préfère contre attaquer, d'où le fait qu'elle ai passé pas mal de temps à mettre au point ces balles\"\n\n`Gwendoline se pencha pour prendre l'une des balles et l'observa attentivement pendant quelques secondes`\n\n<:gweny:906303014665617478> : \"Si je n'abuse, celle-là est prévu pour pénétrer un blindage ultra-épais et exploser à l'intérieur en libérant des sharpels explosifs. De quoi te descendre un élicoptère blindé d'une balle au vu de la puissance du fusil de Lena, si tu veux mon avis\"\n{shushi} : \"Wow...\"\n{shihu} : \"Je comprend mieux pourquoi elle veut pas nous voir jouer ici...\"",
+    "{clemence} : \"Hé Shihu, tu veux un conseil gratuis ? Si tu créais une formule, arrange toi pour que tu n'ai pas à la regréter quand tu seras plus grande\"\n{shihu} : \"Genre pas \"Turlututu et Tralala\" ?\"\n{clemence} : \"Exactement\"\n{alice} : \"Ca reste tout de même mieux que \"Magicabou la magicabou et magici magica bou\"",
+    "{alice} : \"Tu veux que je te dise UΛ-BB4, chez moi tu es une tueuse en série qui a terrorisé la capitale pendant une décénie avant de disparaitre dans la nature avec le titre de personne la plus recherchée de la dimension\"\n{lena} : \"Si tu veux jouer à ce jeu, chez moi tu es une vampire qui a arrêté de grandir à l'âge de 11 ans et demi\"\n{alice} : \"Oh la poisse\"",
+    "{lena} : \"UΛ-BB4, vu que tu te débrouille plutôt bien à longue distance, tu sais comment faire pour shotter un snipeur qui arrête pas de nous faire chier ?\"\n{lena} : \"Hé bah tu peux toujours essayer de combattre le feu par le feu, il me semble que tu as des snipeurs dans l'EEV3 AΣ-E9A, non ?\"\n{lena} : \"Ils se font tous surpasser malheureusement...\"\n{lena} : `Soupir` \"Soit. Je m'en occupe. Tu peux me montrer la dirrection stp ? Ca fait un moment que je suis pas allé dans le secteur AΣ du multivers\""
 ]
 
 shopEventEndYears = [
@@ -996,7 +996,7 @@ procurTempStuff = {
         ["Boucle d'oreille ombrale",'lunaDarkPendant','<:linapendant:890599104902754326>'],
         ["Robe de soubrette ombrale ",'lunaDarkMaidDress','<:linadress:890598423152185364>'],
         ["Ballerines ombrales",'lunaDarkFlats','<:linaflats:890598400624586763>'],
-        [[1,2],[1,0.35],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.1,0.5],[0.2,0.25],[0,0]]
+        [[1,2.55],[1.105,0.4],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.15,0.3],[0.25,0.35],[0,0]]
     ],
     "Iliana prê.":[150,
         ["Casque de la neko de la lueur ultime", 'ilianaPreHead','<:zenithHead:913170464581484554>'],

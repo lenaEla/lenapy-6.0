@@ -199,9 +199,18 @@ stellaLBGuide2 = copy.deepcopy(stellaLBGuide)
 stellaLBGuide2.replica = stellaLB2
 stellaLB = copy.deepcopy(stellaLBFinal)
 stellaLB.id, stellaLB.effPowerPurcent, stellaLB.url, stellaLB.effectOnSelf = trans.id, 100, "https://media.discordapp.net/attachments/927195778517184534/960234772926455908/20220403_194702.gif",stellaLBGuide2
+
+basicMobShieltron = skill("Shieltron","genericShieltron",TYPE_PASSIVE,effectOnSelf=shieltron,emoji=shieltron.emoji[0][0])
+
+# Octo Gazor
+octoGazWeap = weapon("Lance-Toxines","octoGazWeap",RANGE_MELEE,AREA_CIRCLE_2,69,75,strength=5,intelligence=5,endurance=5,emoji=lanceToxEff.emoji[0][0],effectOnUse=lanceToxEff)
+octoGazSkill1 = skill("Dispersion","octoGazSkill1",TYPE_INDIRECT_DAMAGE,effect=lanceToxEff,range=AREA_CIRCLE_4,area=AREA_CONE_3,emoji=lanceToxEff.emoji[0][0],cooldown=5)
+octoGazSkill2 = skill("Projection","octoGazSkill2",TYPE_DAMAGE,power=50,knockback=3,area=AREA_LINE_3,range=AREA_CIRCLE_1,effect=lanceToxEff)
+octoGazSkill3 = skill("Propagation","octoGazSkill3",TYPE_INDIRECT_DAMAGE,effect=lanceToxEff,emoji=lanceToxEff.emoji[0][0],range=AREA_MONO,area=AREA_CIRCLE_3,effPowerPurcent=65,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_CIRCLE_1,lanceToxEff])
+
 # --------------------------------------------------------- Tabl Unique Ennemis ---------------------------------------------------------
 tablUniqueEnnemies = [
-    octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=PROTECTEUR),
+    octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement,basicMobShieltron],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=PROTECTEUR),
     octarien("Octo Tireur",150,55,50,95,155,35,0,20,0,20,octoBallWeap,3,'<:octoshooter:880151608791539742>',[chargeShot,ultraShot],description="Un tireur sans plus ni moins",number=3,aspiration=OBSERVATEUR),
     octarien("Octo Soigneur",30,100,250,35,15,50,50,25,0,0,octoHeal,4,"<:octohealer:880151652710092901>",[lightAura,cure,firstheal],aspiration=ALTRUISTE,description="Un octarien qui se spcésialise dans ~~passer son tour~~ soigner ses alliés",number=3),
     octarien("Rudinn",175,100,20,55,100,35,35,35,0,15,ruddinweap,6,"<a:rudinn:893246033226760232>",skill=[ultraShot],aspiration=TETE_BRULE,deadIcon='<:defeatrudeen:893246353415757824>',baseLvl=10,number=3),
@@ -224,20 +233,21 @@ tablUniqueEnnemies = [
     octarien("Octo Moine",175,125,30,35,75,75,50,30,0,20,mainLibre,5,'<:octoMonk:907723929882337311>',[airStrike,earthStrike,None,None,None,None,maitriseElementaire],BERSERK,baseLvl=15,number=2,element=ELEMENT_UNIVERSALIS_PREMO),
     octarien("Octo Scientifique",10,25,120,75,35,250,10,30,0,0,octoBoostWeap,7,"<:octoScience:915054617933541386>",[octoBoostSkill1,octoBoostSkill2,octoBoostSkill3,octoBoostSkill4,zoneOctoInkRes],INOVATEUR,number=2),
     octarien("Octo Sniper",250,30,20,100,120,20,15,15,10,20,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15,skill=[antiArmorShot]),
-    octarien("Liu",30,300,155,0,50,20,0,65,0,0,liuWeap,7,'<:liu:908754674449018890>',[liuSkill,inkRes2,toMelee,None,None,liuLB,earthUlt2],PROTECTEUR,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH),
+    octarien("Liu",30,300,155,0,50,20,0,65,0,0,liuWeap,7,'<:liu:908754674449018890>',[liuSkill,inkRes2,basicMobShieltron,None,None,liuLB,earthUlt2],PROTECTEUR,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH),
     octarien("Lia",20,50,150,250,30,30,20,30,0,0,liaWeap,7,'<:lia:908754741226520656>',[airCircle,storm2,liaSkill,None,None,windBal],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays,element=ELEMENT_AIR),
     octarien("Lio",20,70,250,75,50,35,80,35,0,0,lioWeap,7,'<:lio:908754690769043546>',[revitalisation,lioRez,veterHealSkill2,None,None,geyser],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays,element=ELEMENT_WATER),
     octarien("Liz",10,60,135,35,20,35,200,35,20,0,lieWeap,7,'<:lie:908754710121574470>',[pyro,lizBoomCast,lieSkill,None,None,None,brasier2],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays,element=ELEMENT_FIRE),
     octarien("Benjamin Hunter",30,100,100,30,50,250,0,35,20,0,hunterWeap,8,'<a:HunterNo:800841356502237225>',[hunterSkill1,hunterSkill2,hunterSkill3,hunterSkill4],IDOLE,GENDER_MALE,deadIcon='<:AutopsyReport:800839396151656469>',baseLvl=15),
     octarien("Octo Invocateur",135,80,45,75,75,45,135,25,0,0,octoInvocWeap,7,'<:octoSummoner:919862854683873331>',[invocCarbunR,invocCarbE,invocCarbSaphir,invocCarbObsi,invocCarbT],baseLvl=20),
-    octarien("Citoptère Pal. Cor.",0,200,200,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[ironWillSkill,clirHeal,lightAura2,renisurection],VIGILANT,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
+    octarien("Citoptère Pal. Cor.",0,200,200,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[ironWillSkill,clirHeal,lightAura2,renisurection,basicMobShieltron],VIGILANT,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
     octarien("Octaling PomPomGirl",10,70,300,100,45,35,10,20,0,0,octaPomWeapon,7,"<:octaPomPom:921910868097257472>",[octoPomSkill1,octoPomSkill2,octoPomSkill3,octoPomSkill4,zoneOctoInkRes],IDOLE,number=2,gender=GENDER_FEMALE),
     octarien("Citoptère Inf. Cor.",0,50,275,75,100,20,20,35,0,0,clirInfWeap,6,'<:cliroInfirm:921915716435836968>',[lightHeal2,lightBigHealArea,renisurection],ALTRUISTE,baseLvl = 15, deadIcon = '<:cliroOut:921912637103698010>',number=2),
     octarien("OctoSUS",200,75,0,35,50,200,0,35,20,0,octoSusWeap,5,'<:octoSus:932220811828412456>',[octoSusSkill1,octoSusSkill2],BERSERK,deadIcon='<:dead:932243831104102450>', baseLvl = 15, number=3),
     octarien("Lueur informe A",135,150,20,20,50,25,200,50,20,0,unformLightAWeapon,10,'<:aformLight:931881464302284871>',[unformLightASkill1,unformLightASkill2,unformLightASkill3],PROTECTEUR,description="Une lueur instable qui cherche à éliminer tous les éléments autre que Lumière de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],baseLvl=30),
     octarien("Ombre informe A",135,150,20,20,50,25,200,50,20,0,unformDarknessAWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessASkill1,unformDarknessASkill2,unformDarknessASkill3],PROTECTEUR,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
     octarien("Ombre informe B",100,80,35,35,50,35,250,20,15,15,unformDarknessBWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessBSkill1,unformDarknessBSkill2,unformDarknessBSkill3],SORCELER,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
-    octarien("Stella",0,50,70,80,50,50,250,20,20,20,stellaWeap,7,'<:stella:958786101940736061>',[stellaSkill1,stellaSkill2,stellaSkill3,stellaSkill4,stellaLB],IDOLE,GENDER_FEMALE,"Représentation astrale du Soleil, Stella aime pas qu'on lui fasse de l'ombre et a un léger complexe de supporiorité\nSa seule présence suffit à réchauffer l'ambiance et fait gagner quelques degrés de luminosité",'<:spIka:866465882540605470>',baseLvl=25,element=[ELEMENT_SPACE,ELEMENT_LIGHT])
+    octarien("Stella",0,50,70,80,50,50,250,20,20,20,stellaWeap,7,'<:stella:958786101940736061>',[stellaSkill1,stellaSkill2,stellaSkill3,stellaSkill4,stellaLB],IDOLE,GENDER_FEMALE,"Représentation astrale du Soleil, Stella aime pas qu'on lui fasse de l'ombre et a un léger complexe de supporiorité\nSa seule présence suffit à réchauffer l'ambiance et fait gagner quelques degrés de luminosité",'<:spIka:866465882540605470>',baseLvl=25,element=[ELEMENT_SPACE,ELEMENT_LIGHT]),
+    octarien("Octo Gazeur",200,70,10,50,35,200,0,50,35,0,octoGazWeap,6,'<:octogazeur:972160938104979516>',[octoGazSkill1,octoGazSkill2,octoGazSkill3],ATTENTIF,baseLvl=10,element=ELEMENT_DARKNESS,number=2)
 ]
 
 # --------------------------------------------------------- Tabl All Ennemis ---------------------------------------------------------
@@ -296,7 +306,7 @@ lunaSkill4_2 = skill("Convertion externe",'lunaSkill4',TYPE_INDIRECT_DAMAGE,0,ra
 lunaSkill4 = skill("Convertion","lunaSkill4",TYPE_INDIRECT_DAMAGE,0,range=AREA_CIRCLE_7,use=STRENGTH,say="Votre Lumière ne vous protègera pas éternellement !",emoji=lunaSkill4Eff.emoji[0][0],become=[lunaSkill4_1,lunaSkill4_2])
 lunaSkill5_1 = skill("Reverse roundhouse-kick","lunaSkill5",TYPE_DAMAGE,0,100,AREA_CIRCLE_1,area=AREA_ARC_1,emoji='<:luna4inOne:919260128698589184>',damageOnArmor=2,description='Inflige des dégâts en zone à un ennemi au corps à corps')
 lunaSkill5_2 = skill("Side-kick fouetté","lunaSkill5",TYPE_DAMAGE,0,135,AREA_CIRCLE_1,emoji='<:luna4inOne:919260128698589184>',say="Hmf !",damageOnArmor=3,description='Inflige des dégâts à une cible unique au corps à corps\nDégâts triplé sur de l\'armure')
-lunaSkill5_3_eff = effect("Destabilisé","lunaSkill5_3Eff",type=TYPE_MALUS,emoji=stuned.emoji,stun=True)
+lunaSkill5_3_eff = effect("Destabilisé","lunaSkill5_3Eff",type=TYPE_MALUS,emoji='<:stun:882597448898474024>',stun=True)
 lunaSkill5_3 = skill("Sweeping into Backflip","lunaSkill5",TYPE_DAMAGE,0,80,AREA_CIRCLE_1,repetition=2,effect=lunaSkill5_3_eff,knockback=1,emoji='<:luna4inOne:919260128698589184>',say="C'est que tu es colant toi !",description='Inflige des dégâts, étourdit pendant un tour et repousse un ennemi au corps à corps')
 lunaSkill5_4 = skill("Double High roundhouse-kick into Side-kick","lunaSkill5",TYPE_DAMAGE,0,40,AREA_CIRCLE_1,repetition=3,knockback=3,emoji='<:luna4inOne:919260128698589184>',say="Hé vous derrière ! Cadeau !",damageOnArmor=2,description='Inflige des dégats et repousse de 3 cases un ennemi au corps à corps')
 lunaSkill6 = skill("Vitesse ombrale","lunaSkill6",TYPE_DAMAGE,0,50,AREA_INLINE_4,emoji='<:lunaDash:932286143884566528>',cooldown=2,replay=True,tpCac=True,sussess=200,description='Se téléporte au corps à corps d\'un ennemi et vous permet de rejouer votre tour')
@@ -319,7 +329,7 @@ clemSkill4 = skill("Sort - Chiroptera vastare","clemSkill4",TYPE_DAMAGE,0,45,ARE
 clemSkill5 = skill("Sort - Tempus Fugit",'clemSkill5',TYPE_DAMAGE,0,35,use=MAGIE,cooldown=3,damageOnArmor=10,replay=True,say=["J'ai pas le temps pour vos conneries.","On va un peu accélrer la cadence !","On se traine un peu du cul là non ?"],emoji='<:TemposFigit:931703850447024138>')
 clemSkill6 = skill("Lance de sang",'clemSkill6',TYPE_DAMAGE,0,65,AREA_DIST_7,area=AREA_CIRCLE_1,use=MAGIE,cooldown=4,emoji='<:bloodSpear:931703831245488128>',setAoEDamge=True)
 
-clemBJcost = {"clemSkill1":35,"clemSkill2":35,"clemUlt":99,"clemSkill3":35,"clemSkill4":35,"aliceSkill1":25,"aliceSkill2":30,"aliceSkill3":32,"aliceSkill4":30,"aliceRez":35,"aliceRez+":150,"clemSkill5":15,"clemSkill5":30}
+clemBJcost = {"clemSkill1":35,"clemSkill2":35,"clemUlt":99,"clemSkill3":35,"clemSkill4":35,"aliceSkill1":15,"aliceSkill2":20,"aliceSkill3":22,"aliceSkill4":20,"aliceRez":25,"aliceRez+":150,"clemSkill5":15,"clemSkill5":30}
 
 # The Giant Ennemi Spider
 TGESWeap = weapon("noneWeap","TheGiantEnemySpiderWeapon",RANGE_DIST,AREA_CIRCLE_1,0,0,0,resistance=50)
@@ -372,9 +382,24 @@ unformBossSkill3 = skill("Pulsion spaciale","unformBossSkill3",TYPE_HEAL,power=2
 
 unformBoss = octarien("Aformité incarnée",300,250,200,50,50,200,350,25,15,0,unformBossWeapon,35,'<:uShadow:938530004319477821>',[unformBossSkill1,unformBossSKill2,unformBossSkill3],description="Un leader de l'assaut des aformités, qui cherchent à détruire le multivers",deadIcon='<:empty:866459463568850954>')
 
+# Iliana Ex.
+iliExWeapEff = effect("Conviction de la Lumière","iliExPasRegenEff",CHARISMA,power=30,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,turnInit=-1,unclearable=True,block=35,emoji='<:ilianaStans:969819202032664596>',description="Accorde à Iliana Ex. 35% de blocage ainsi qu'une régénération durant le combat")
+iliExWeapon = weapon("Epée et Bouclier de la Lumière","iliExWeap",RANGE_DIST,AREA_CIRCLE_1,80,100,effect=iliExWeapEff,emoji=infLightSword.emoji,ignoreAutoVerif=True,use=CHARISMA)
+iliExSkill1Eff = effect("Flashé","iliExSkill1Eff",CHARISMA,precision=-15,power=45,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,description="Un fort flash lumineux à réduit votre visibilité et vous a fait mal aux yeux",emoji='<:MyEyes:784226383018328115>')
+iliExSkill1 = skill("Flash","iliExSkill1",TYPE_INDIRECT_DAMAGE,cooldown=5,area=AREA_CIRCLE_4,range=AREA_MONO,effect=iliExSkill1Eff)
+iliExSkill2 = skill("Croix du Sud","iliExSkill2",TYPE_HEAL,cooldown=7,power=100,use=CHARISMA,area=AREA_INLINE_5,range=AREA_MONO,effectAroundCaster=[TYPE_DAMAGE,AREA_INLINE_5,100],setAoEDamge=True,emoji='<:southCross:973410917826068530>',description="Soigne les alliés autour de vous tout en infligeant des dégâts aux ennemis dans la zone d'effet")
+iliExSkill3 = skill("Vague de Lumière","iliExSkill3",TYPE_DAMAGE,power=80,area=AREA_CONE_2,use=CHARISMA,cooldown=4,range=AREA_CIRCLE_1)
+iliExSkill4 = skill("Vitesse Lumière","iliExSkill4",TYPE_DAMAGE,tpCac=True,cooldown=3,replay=True,power=15,use=CHARISMA)
+iliExSkill5Eff = copy.deepcopy(defenseUp)
+iliExSkill5Eff.power=95
+iliExSKill5 = skill("Lumière Eternelle","lb",TYPE_ARMOR,cooldown=7,effect=iliExSkill5Eff,range=AREA_MONO,emoji=trans.emoji)
+iliExSkill6Eff1 = effect("Etourdissement","iliExSkill6EffStun",type=TYPE_MALUS,emoji="<:stun:882597448898474024>",stun=True)
+iliExSkill6Eff2 = effect("Bouclier Dressé","iliExSkill6EffBck",block=35,emoji='<:shieltron:971787905758560267>')
+iliExSkill6 = skill("Fragmentation","iliExSkill6",TYPE_DAMAGE,use=CHARISMA,power=65,repetition=3,tpCac=True,range=AREA_INLINE_3,effect=iliExSkill6Eff1,effectOnSelf=iliExSkill6Eff2,description="Iliana bash violament un ennemi avant de lui assigner plusieurs coups d'épée\nLe choc initial étoudit la cible tout en augmentant le taux de blocage d'Iliana",cooldown=4)
+
 # Tabl Boss ----------------------------------------------------
 tablBoss = [
-    octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",435,220,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays,element=ELEMENT_DARKNESS),
+    octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",435,200,100,45,45,200,200,30,33,15,bigshot,45,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays,element=ELEMENT_DARKNESS),
     octarien("Jevil",450,200,100,60,75,120,120,10,25,15,jevilWeap,50,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays,element=ELEMENT_DARKNESS),
     octarien("Séréna",50,220,-50,70,50,50,400,25,0,15,armilame,10,'<:serena:897912402354511894>',[poisonus,serenaSkill,serenaSpe,serenaSkill2,serenaFocal],ENCHANTEUR,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
     octarien("Luna ex.",550,85,80,185,75,80,0,25,35,0,lunaWeap,50,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4,lunaSkill6,lunaSkill7],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
@@ -382,9 +407,10 @@ tablBoss = [
     octarien("Clémence pos.",100,165,50,50,80,150,500,35,20,0,clemWeapon,50,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4,clemSkill5,clemSkill6],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
     octarien("The Giant Enemy Spider",300,320,0,80,100,50,280,70,10,20,TGESWeap,50,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True),
     octarien("Matt",450,120,100,100,100,100,0,35,20,0,mattWeapon,50,'<:matt:922064304793059340>',[mattSkill1,mattSkill2,mattSkill3,mattSkill4],BERSERK,GENDER_MALE,"L'ultime adversaire. Dans les jeux Wii Sports en tous cas",'<:matt:922064304793059340>',True),
-    octarien("Kiku",0,60,50,120,100,5,250,25,35,0,kikuBossWeap,10,'<:kiku:962082466368213043>',[undead,kikuUltimaFerrum,kikuSkill2],gender=GENDER_FEMALE,deadIcon ='<:kiku:962082466368213043>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
+    octarien("Kiku",0,100,50,120,100,5,250,25,35,0,kikuBossWeap,10,'<:kiku:962082466368213043>',[undead,kikuUltimaFerrum,kikuSkill2],gender=GENDER_FEMALE,deadIcon ='<:kiku:962082466368213043>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
     octarien("Akira H.",420,80,80,50,50,80,100,20,35,0,akikiWeap,50,'<:akira:909048455828238347>',[akikiSkill1,akikiSkill2,akikiSkill3,akikiSkill4,akikiEnrageCastInit],BERSERK,GENDER_MALE,description="Bah bravo, vous avez réussi à le mettre en colère. Maintenant battez vous pour votre dignité ou fuyez pour votre vie.",deadIcon='<:spTako:866465864399323167>',oneVAll=True,baseLvl=15,element=ELEMENT_DARKNESS),
-    unformBoss
+    unformBoss,
+    octarien("Iliana ex.",10,120,425,50,100,100,15,120,35,15,iliExWeapon,50,'<:Iliana:926425844056985640>',[iliExSkill1,iliExSkill2,iliExSkill3,iliExSkill4,iliExSKill5,iliExSkill6],VIGILANT,GENDER_FEMALE,"Voyant que vous aviez du mal à trouver un adveraire à votre taille, Iliana a décidé de se confronter à vous en utilisant 1% de sa vrai puissance",'<:oci:930481536564879370>',True,baseLvl=25,element=[ELEMENT_LIGHT,ELEMENT_LIGHT])
 ]
 
 # ====================================== Raid Boss ======================================

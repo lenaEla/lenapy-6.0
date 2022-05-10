@@ -67,7 +67,7 @@ class option:
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0, block=0):
         """rtfm"""
         self.name = name                    # Name of the effect
         if replique != None:
@@ -76,6 +76,7 @@ class effect:
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= strength,endurance,charisma,agility,precision,intelligence,magie,resistance,percing,critical
         self.overhealth = overhealth        # Base shield power
         self.redirection = redirection      # Damage redirection ratio. Unuse yet
+        self.block = block
         self.reject = copy.deepcopy(reject)                # A list of the rejected effects
         self.description = description.format(power,power//2)      # A (quick) description of the effect
         self.turnInit = turnInit            # How many turn does the effect stay ?
@@ -323,15 +324,8 @@ class skill:
             elif effectAroundCaster[0] not in allArea:
                 raise Exception("EffectAroudCaster[1] not a area")
 
-        if power != AUTO_POWER:
-            self.power = power                              # Power of the skill. Use for damage and healing skills
-        else:
-            power = 25 + 25*cooldown
-            if area != AREA_MONO:
-                power = power * 0.7
-            if use == MAGIE:
-                power = power * 1.2
-            self.power = int(power)
+        self.power = power  # Power of the skill. Use for damage and healing skills
+
 
         self.knockback:int = knockback
         self.effPowerPurcent:int = effPowerPurcent
@@ -765,16 +759,6 @@ for num in range(0,10):
     vulneTabl.append(vulneTemp)
 
 dmgDown = effect("Dégâts infligés réduits","dmgDown",power=100,emoji=sameSpeciesEmoji("<a:dmgDebuffB:954431054654087228>","<a:dmgDebuffR:954430950668914748>"),type=TYPE_MALUS,stackable=True)
-
-dmgDownTabl = []
-for num in range(0,10):
-    dmgDownTemp = copy.deepcopy(dmgDown)
-    dmgDownTemp.power = 10*num
-    dmgDownTemp.name += " ({0})".format(10*num)
-    dmgDownTemp.description="Réduits les dégâts infligés par le porteur de **{0}%**".format(10*num)
-    dmgDownTabl.append(dmgDownTemp)
-
-
 partage = effect("Partage","share",type=TYPE_MALUS,power=100,turnInit=-1,description="",emoji=[["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"]],area=AREA_DONUT_1)
 
 shareTabl = []
@@ -998,7 +982,8 @@ class tmpAllie:
         bonusPoints:List[int] = [None,None],
         say:says=says(),
         changeDict:Union[None,dict] = None,
-        unlock:Union[bool,None,str]=False
+        unlock:Union[bool,None,str]=False,
+        birthday:Union[None,tuple]=None,
         ):
         """
             The class for a ally, based on the ``char`` class\n
@@ -1035,6 +1020,7 @@ class tmpAllie:
         self.weapon = weapon
         self.stars = 0
         self.team = -1
+        self.birthday = birthday
         self.canMove = True
         self.skills = ["0","0","0","0","0","0","0"]
         self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
@@ -1135,3 +1121,5 @@ class tmpAllie:
                     return True
 
         return None
+
+silenceEff = effect("InCapacité","silenceEff",description="Empèche l'utilisation de compétence durant la durée de l'effet",type=TYPE_MALUS)
