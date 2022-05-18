@@ -2173,10 +2173,8 @@ async def prestigeCmd(ctx):
         await ctx.send("Vous devez être niveau 55 pour pouvoir utiliser cette commande", delete_after=15)
         return 0
 
-    embed = discord.Embed(title="__Prestige__", color=light_blue,
-                          description="En prestigeant votre personnage, vous retournerez au niveau 1<:littleStar:925860806602682369>{0}.\n\nVous conserverez votre inventaire d'objet des de compétences et obtiendrez un __Point Majeur__.\nVous pourrez l'utiliser pour augmenter une de vos statistiques principales de 30 points supplémentaires, ou augmenter vos statistiques secondaires de 10 points".format(user.stars+1))
-    comfirm = create_button(
-        ButtonStyle.green, "Prestige votre personnage", '✅', '✅')
+    embed = discord.Embed(title="__Prestige__", color=light_blue,description="En prestigeant votre personnage, vous retournerez au niveau 1<:littleStar:925860806602682369>{0}.\n\nVous conserverez votre inventaire d'objet des de compétences et obtiendrez un __Point Majeur__.\nVous pourrez l'utiliser pour augmenter une de vos statistiques principales de 30 points supplémentaires, ou augmenter vos statistiques secondaires de 10 points".format(user.stars+1))
+    comfirm = create_button(ButtonStyle.green, "Prestige votre personnage", '✅', '✅')
 
     msg = await ctx.send(embed=embed, components=[create_actionrow(comfirm)])
 
@@ -2194,6 +2192,7 @@ async def prestigeCmd(ctx):
     user = restats(user)
 
     saveCharFile(user=user)
+    await makeCustomIcon(bot, user)
     await inventoryVerif(bot, user)
     await msg.edit(embed=discord.Embed(title="__Prestige__", color=light_blue, description="Vous avez bien prestige votre personnage"), components=[])
 

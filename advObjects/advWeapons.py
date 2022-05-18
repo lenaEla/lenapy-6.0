@@ -153,8 +153,16 @@ spaceMetRuneLong = weapon("Rune allongée dimensionnelle","dy",RANGE_LONG,AREA_C
 timeMetRuneMid = weapon("Rune étendue temporelle","dz",RANGE_DIST,AREA_CIRCLE_4,58,60,1,magie=10,critical=5,effect=tablWeapExp[7],use=MAGIE,emoji='<:timeMid:957762503629226064>',affinity=ELEMENT_TIME,taille=0)
 timeMetRuneLong = weapon("Rune allongée temporelle","ea",RANGE_LONG,AREA_CIRCLE_6,46,60,1,magie=10,percing=5,effect=tablWeapExp[7],use=MAGIE,emoji='<:timeLong:957762475351244810>',affinity=ELEMENT_TIME,taille=0)
 
+iliSwoShield = weapon("Epée et Bouclier de la Lumière","eb",RANGE_MELEE,AREA_CIRCLE_1,58,75,1,resistance=5,charisma=10,effect=shieltron,use=CHARISMA,emoji='<:iliShield:975785889512976434>',affinity=ELEMENT_LIGHT)
+flumShield = weapon("Epée et Bouclier de la Fleur Lumineuse","ec",RANGE_MELEE,AREA_CIRCLE_1,58,75,1,charisma=10,resistance=5,effect="lz",use=CHARISMA,affinity=ELEMENT_LIGHT,emoji='<:flumShield:964467183952465921>')
+flumWand = weapon("Canne de la Fleur Lumineuse","ed",RANGE_LONG,AREA_CIRCLE_5,50,100,1,type=TYPE_HEAL,target=ALLIES,charisma=15,effect="lz",use=CHARISMA,affinity=ELEMENT_LIGHT,emoji='<:flumWand:964465128399568917>')
+dflumShield = weapon("Epée et Bouclier de la Fleur Ténèbreuse","ef",RANGE_MELEE,AREA_CIRCLE_1,58,75,1,magie=10,resistance=5,effect="nt",use=MAGIE,affinity=ELEMENT_DARKNESS,emoji='<:darkShield:964467248486047765>')
+dflumWand = weapon("Canne de la Fleur Ténèbreuse","eg",RANGE_LONG,AREA_CIRCLE_5,35,90,1,magie=15,effect="nt",use=MAGIE,affinity=ELEMENT_DARKNESS,emoji='<:darkWand:964465066860761088>')
+constShield = weapon("Bouclier Constitutionnel",'eh',RANGE_MELEE,AREA_CIRCLE_1,48,90,1,endurance=10,resistance=5,use=ENDURANCE,emoji='<:constShield:964463485968859137>',effect="mk")
+
 # Weapon
-weapons = [fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
+weapons = [iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,
+    fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
     secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,infDarkSword,infLightSword,astroGlobe,
     eternalInkSword,eternalInkStick,eternalInkShield,eternalInkStaff,eternalInkWind,eternalInkScience,eternalInkBow,
