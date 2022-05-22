@@ -546,8 +546,7 @@ async def hourClock():
 
         for userPath in os.listdir("./userProfile/"):
             user = loadCharFile('./userProfile/{0}'.format(userPath))
-            aliceStatsDb.updateJetonsCount(
-                user, 10-(userShopPurcent(user)//10))
+            aliceStatsDb.updateJetonsCount(user, max(0,9-(userShopPurcent(user)//10)))
         await restart_program(bot)
 
     # Skill Verif
@@ -843,7 +842,8 @@ async def normal(ctx):
             msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
-            tablAllTeams.remove(user.team)
+            if user.team not in ["0",0]:
+                tablAllTeams.remove(user.team)
             random.shuffle(tablAllTeams)
 
             moyTeam = 0

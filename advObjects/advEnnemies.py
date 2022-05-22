@@ -357,7 +357,7 @@ kikuSkill2 = skill("Ultra Voca","kikuSkill2",TYPE_DAMAGE,power=65,area=AREA_CIRC
 kikuSkill3 = skill("Cercle des enfers","kikuSkill3",TYPE_DAMAGE,power=75,setAoEDamge=True,range=AREA_MONO,area=AREA_ALL_ENEMIES,cooldown=7,effectAroundCaster=[TYPE_DAMAGE,AREA_CIRCLE_3,50])
 
 # Akira H.
-akikiSkillRageBonus = [1,3,0.5,5]
+akikiSkillRageBonus = [1,2,0.5,5]
 akikiWeap = weapon("Faux Haineuse","akikiWeap",range=RANGE_DIST,effectiveRange=AREA_CIRCLE_2,power=155,sussess=70,strength=25,endurance=25,emoji=fauc.emoji,area=AREA_ARC_1,ignoreAutoVerif=True)
 akikiSkill1 = skill("Fauchage","akikiSkill1",TYPE_DAMAGE,0,75,range=AREA_RANDOMENNEMI_3,area=AREA_ARC_1,sussess=80,cooldown=3)
 akikiSkill2 = skill("Rancoeur","akikiSkill2",TYPE_DAMAGE,0,200,range=AREA_CIRCLE_3,cooldown=4,description="La puissance de cette compétence augmente de **{0}%** par pourcent de PVs manquants".format(akikiSkillRageBonus[0]))
@@ -388,16 +388,18 @@ unformBoss = octarien("Aformité incarnée",300,250,200,50,50,200,350,25,15,0,un
 iliExWeapEff = effect("Conviction de la Lumière","iliExPasRegenEff",CHARISMA,power=30,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,turnInit=-1,unclearable=True,block=35,emoji='<:ilianaStans:969819202032664596>',description="Accorde à Iliana Ex. 35% de blocage ainsi qu'une régénération durant le combat")
 iliExWeapon = weapon("Epée et Bouclier de la Lumière","iliExWeap",RANGE_DIST,AREA_CIRCLE_1,80,100,effect=iliExWeapEff,emoji='<:iliShield:975785889512976434>',ignoreAutoVerif=True,use=CHARISMA)
 iliExSkill1Eff = effect("Flashé","iliExSkill1Eff",CHARISMA,precision=-15,power=45,lvl=2,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,description="Un fort flash lumineux à réduit votre visibilité et vous a fait mal aux yeux",emoji='<:MyEyes:784226383018328115>')
-iliExSkill1 = skill("Flash","iliExSkill1",TYPE_INDIRECT_DAMAGE,cooldown=5,area=AREA_CIRCLE_4,range=AREA_MONO,effect=iliExSkill1Eff)
-iliExSkill2 = skill("Croix du Sud","iliExSkill2",TYPE_HEAL,cooldown=7,power=100,use=CHARISMA,area=AREA_INLINE_5,range=AREA_MONO,effectAroundCaster=[TYPE_DAMAGE,AREA_INLINE_5,100],setAoEDamge=True,emoji='<:southCross:973410917826068530>',description="Soigne les alliés autour de vous tout en infligeant des dégâts aux ennemis dans la zone d'effet")
+iliExSkill1 = skill("Flash","iliExSkill1",TYPE_INDIRECT_DAMAGE,cooldown=3,area=AREA_CIRCLE_4,range=AREA_MONO,effect=iliExSkill1Eff,emoji='<:flash:977025336518799420>')
+iliExSkill2 = skill("Croix du Sud","iliExSkill2",TYPE_HEAL,cooldown=5,power=80,use=CHARISMA,area=AREA_INLINE_5,range=AREA_MONO,effectAroundCaster=[TYPE_DAMAGE,AREA_INLINE_5,80],setAoEDamge=True,emoji='<:southCross:973410917826068530>',description="Soigne les alliés autour de vous tout en infligeant des dégâts aux ennemis dans la zone d'effet")
 iliExSkill3 = skill("Vague de Lumière","iliExSkill3",TYPE_DAMAGE,power=80,area=AREA_CONE_2,use=CHARISMA,cooldown=4,range=AREA_CIRCLE_1)
 iliExSkill4 = skill("Vitesse Lumière","iliExSkill4",TYPE_DAMAGE,tpCac=True,cooldown=3,replay=True,power=15,use=CHARISMA)
 iliExSkill5Eff = copy.deepcopy(defenseUp)
 iliExSkill5Eff.power=95
 iliExSKill5 = skill("Lumière Eternelle","lb",TYPE_ARMOR,cooldown=7,effect=iliExSkill5Eff,range=AREA_MONO,emoji=trans.emoji)
 iliExSkill6Eff1 = effect("Etourdissement","iliExSkill6EffStun",type=TYPE_MALUS,emoji="<:stun:882597448898474024>",stun=True)
-iliExSkill6Eff2 = effect("Bouclier Dressé","iliExSkill6EffBck",block=35,emoji='<:shieltron:971787905758560267>')
-iliExSkill6 = skill("Fragmentation","iliExSkill6",TYPE_DAMAGE,use=CHARISMA,power=65,repetition=3,tpCac=True,range=AREA_INLINE_3,effect=iliExSkill6Eff1,effectOnSelf=iliExSkill6Eff2,description="Iliana bash violament un ennemi avant de lui assigner plusieurs coups d'épée\nLe choc initial étoudit la cible tout en augmentant le taux de blocage d'Iliana",cooldown=4)
+iliExSkill6Eff2 = effect("Bouclier Dressé","iliExSkill6EffBck",block=15,emoji='<:shieltron:971787905758560267>')
+iliExSkill6 = skill("Fragmentation","iliExSkill6",TYPE_DAMAGE,use=CHARISMA,power=75,repetition=3,percing=15,tpCac=True,range=AREA_INLINE_3,effect=iliExSkill6Eff1,effectOnSelf=iliExSkill6Eff2,description="Iliana bash violament un ennemi avant de lui assigner plusieurs coups d'épée\nLe choc initial étoudit la cible tout en augmentant le taux de blocage d'Iliana",cooldown=4)
+
+iliExSay = says(start="Je pense que ça devrait suffire... Je pense pouvoir vous donner suffisamant de fil à retordre tout en vous laissant une chance comme ça, bon courage !",onKill='Désolée si tu as du mal à voir pendant quelques temps',reactBigRaiseEnnemy="Ah, contente de voir que ce combat risque d'être un peu moins à sens unique",redWinAlive="Une autre fois peut-être",redLoose="Hé bah... Je dois avouer que vous vous débrouillez pas trop mal")
 
 # Tabl Boss ----------------------------------------------------
 tablBoss = [
@@ -412,7 +414,7 @@ tablBoss = [
     octarien("Kiku",0,100,50,120,100,5,250,25,35,0,kikuBossWeap,10,'<:kiku:962082466368213043>',[undead,kikuUltimaFerrum,kikuSkill2,kikuSkill3],gender=GENDER_FEMALE,deadIcon ='<:kiku:962082466368213043>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
     octarien("Akira H.",420,80,80,50,50,80,100,20,35,0,akikiWeap,50,'<:akira:909048455828238347>',[akikiSkill1,akikiSkill2,akikiSkill3,akikiSkill4,akikiEnrageCastInit],BERSERK,GENDER_MALE,description="Bah bravo, vous avez réussi à le mettre en colère. Maintenant battez vous pour votre dignité ou fuyez pour votre vie.",deadIcon='<:spTako:866465864399323167>',oneVAll=True,baseLvl=15,element=ELEMENT_DARKNESS),
     unformBoss,
-    octarien("Iliana ex.",10,100,425,50,100,100,15,120,35,15,iliExWeapon,50,'<:Iliana:926425844056985640>',[iliExSkill1,iliExSkill2,iliExSkill3,iliExSkill4,iliExSKill5,iliExSkill6],VIGILANT,GENDER_FEMALE,"Voyant que vous aviez du mal à trouver un adveraire à votre taille, Iliana a décidé de se confronter à vous en utilisant 1% de sa vrai puissance",'<:oci:930481536564879370>',True,baseLvl=25,element=[ELEMENT_LIGHT,ELEMENT_LIGHT])
+    octarien("Iliana ex.",10,95,425,50,100,100,15,100,35,15,iliExWeapon,50,'<:Iliana:926425844056985640>',[iliExSkill1,iliExSkill2,iliExSkill3,iliExSkill4,iliExSKill5,iliExSkill6],VIGILANT,GENDER_FEMALE,"Voyant que vous aviez du mal à trouver un adveraire à votre taille, Iliana a décidé de se confronter à vous en utilisant 1% de sa vrai puissance",'<:oci:930481536564879370>',True,baseLvl=25,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],say=iliExSay)
 ]
 
 # ====================================== Raid Boss ======================================

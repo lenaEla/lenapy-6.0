@@ -44,7 +44,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
         if dateNow.month <= 2 or dateNow.month == 12:
             shopTotalRandom += shopSeasonWinter
-        elif dateNow.month <= 3:
+        elif dateNow.month <= 6:
             shopTotalRandom += shopSeasonSpring
 
         for shopDict in shopEventOneDay:
@@ -65,7 +65,8 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             shihu = '<:shihu:909047672541945927>',
             shehisa = '<:shehisa:919863933320454165>',
             sixtine = '<:sixtine:908819887059763261>',
-            iliana = '<:Iliana:926425844056985640>'
+            iliana = '<:Iliana:926425844056985640>',
+            gweny = '<:gweny:906303014665617478>', alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>'
             )
         initMsg = msg
 

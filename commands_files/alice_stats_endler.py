@@ -361,7 +361,6 @@ class aliceStatsdbEndler:
         - Parameter\n
             - .user : The ``char`` to add into the database"""
         cursory = self.con.cursor()
-        user.owner
         cursory.execute("SELECT * FROM userStats WHERE id = ?",(user.owner,))
         result = cursory.fetchall()
 

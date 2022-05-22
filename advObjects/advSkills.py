@@ -17,7 +17,7 @@ unHolly = skill("Truc pas catho","zo",TYPE_MALUS,69,emoji='<:bravotakei:87720225
 chaos = skill("Chaos Chaos !","zn",TYPE_UNIQUE,1000,range=AREA_MONO,area=AREA_ALL_ENTITES,sussess=200,emoji='<a:CHAOS:762276118224961556>',cooldown=5,ultimate=True,use=None,message="PLEASE ! JUST A SIMPLE CHAOS !")
 contrecoup = skill("Contre-coup","zm",TYPE_INDIRECT_DAMAGE,250,effect="ln",cooldown=2,emoji='<:aftershock:882889694269038592>',use=MAGIE)
 boom = skill("Réaction en chaîne","zl",TYPE_INDIRECT_DAMAGE,250,effect="lv",cooldown=3,emoji='<:bimbamboum:873698494874017812>',use=MAGIE)
-balayette = skill("Baleyette","zk",TYPE_DAMAGE,100,70,range=AREA_MONO,area=AREA_CIRCLE_1,emoji='<:baleyette:873924668963291147>',cooldown=2,setAoEDamge=True)
+balayette = skill("Baleyette","zk",TYPE_DAMAGE,100,100,range=AREA_MONO,area=AREA_CIRCLE_1,emoji='<:baleyette:977166497422139392>',cooldown=3,setAoEDamge=True)
 firstheal = skill("Premiers secours","zj",TYPE_HEAL,100,40,emoji="<:bandage:873542442484396073>")
 cure = skill("Guérison","zi",TYPE_HEAL,250,80,cooldown=5,emoji='<:cure:925190515845132341>')
 lightAura = skill("Aura de Lumière I","zh",TYPE_PASSIVE,250,effectOnSelf="ly",emoji="<:AdL:873548073769533470>")
@@ -98,7 +98,7 @@ infinitFire = skill("Brasier","yc",TYPE_DAMAGE,500,172,AREA_DIST_5,["exclusive",
 storm = skill("Ouragan","yb",TYPE_DAMAGE,500,172,AREA_CIRCLE_2,["exclusive","element",ELEMENT_AIR],True,emoji='<:emoji_44:893471179023732809>',cooldown=5,message="{0} déclanche un ouragan autour de {2} :",area=AREA_CIRCLE_2,use=MAGIE)
 innerdarkness = skill("Ténèbres intérieurs","ya",TYPE_INDIRECT_DAMAGE,500,0,conditionType=["exclusive","element",ELEMENT_DARKNESS],ultimate=True,emoji='<:emoji_48:893471268957990982>',cooldown=5,effect="ms",use=MAGIE,group=SKILL_GROUP_DEMON,hpCost=25)
 divineLight = skill("Lumière divine",'xz',TYPE_INDIRECT_HEAL,500,conditionType=["exclusive","element",ELEMENT_LIGHT],ultimate=True,emoji='<:emoji_49:893471282815963156>',cooldown=5,effect=["mu","mv"],use=CHARISMA,area=AREA_CIRCLE_1,group=SKILL_GROUP_HOLY,maxHpCost=15)
-swordDance = skill("Danse des sabres","xy",TYPE_DAMAGE,350,power=70,use=STRENGTH,emoji='<:sworddance:894544710952173609>',cooldown=3,area=AREA_CIRCLE_2,range=AREA_MONO)
+swordDance = skill("Danse des sabres","xy",TYPE_DAMAGE,350,power=100,use=STRENGTH,emoji='<:sworddance:894544710952173609>',cooldown=3,area=AREA_CIRCLE_2,range=AREA_MONO)
 shot = skill("Tir net","xx",TYPE_DAMAGE,350,75,AREA_CIRCLE_6,emoji='<:shot:894544804321558608>',cooldown=5,use=STRENGTH,damageOnArmor=2)
 percingLance = skill("Lance Perçante","xw",TYPE_DAMAGE,350,power=70,emoji='<:percing:894544752668708884>',cooldown=3,area=AREA_LINE_2,range=AREA_CIRCLE_2)
 percingArrow = skill("Flèche Perçante","wv",TYPE_DAMAGE,350,power=70,emoji='<:percingarrow:887745340915191829>',cooldown=3,area=AREA_LINE_2,range=AREA_DIST_5)
@@ -138,6 +138,7 @@ bleedingTrap = skill("Piège de lacération","vp",TYPE_INDIRECT_DAMAGE,500,effec
 # vn already taken (Prévention)
 convert = skill("Convertion","vm",TYPE_ARMOR,350,range=AREA_DONUT_5,effect="nk",cooldown=3,emoji='<:convertion:900311843938115614>')
 vampirisme = skill("Vampirisme","vl",TYPE_INDIRECT_HEAL,350,range=AREA_DONUT_5,effect="no",cooldown=3,emoji='<:vampire:900312789686571018>',group=SKILL_GROUP_DEMON,hpCost=10,effPowerPurcent=150)
+vampirisme2 = skill("Vampirisme Avancée","spw",TYPE_INDIRECT_HEAL,500,effect="no",cooldown=5,emoji='<:vampire:900312789686571018>',group=SKILL_GROUP_DEMON,hpCost=20,effPowerPurcent=50,area=AREA_CIRCLE_2)
 heriteEstialba = skill("Héritage - Fée d'Estialba","vk",TYPE_PASSIVE,0,effectOnSelf='np',emoji='<:heriteEstialba:900318953262432306>',use=MAGIE)
 heriteLesath = skill("Héritage - Famille Lesath","vj",TYPE_PASSIVE,0,effectOnSelf='ns',emoji='<:hertiteLesath:900322590168608779>')
 focal = skill("Focalisation","vi",TYPE_INDIRECT_DAMAGE,1000,range=AREA_CIRCLE_3,cooldown=7,effect="me",effPowerPurcent=225,area=AREA_CIRCLE_1,effectOnSelf="me",emoji='<:focal:925204877683085332>',shareCooldown=True,use=MAGIE,description="Octrois un puissant effet __Poison d'Estialba__ aux ennemis dans la zone ciblé, avec un contre-coup",selfEffPurcent=75)
@@ -563,8 +564,9 @@ maitriseElementaire = skill("Maîtrise élémentaire","srv",TYPE_PASSIVE,effectO
 magicEffGiver = skill("Concentration élémentaire","sru",TYPE_DAMAGE,500,75,effectOnSelf=elemEff,emoji='<:elemStrike:953217204629950484>',description="Inflige des dégâts à l'ennemi ciblé et vous octroit l'effet élémentaire correspondant à votre élément",cooldown=5,use=MAGIE)
 physEffGiver = skill("Convertion élémentaire","srt",TYPE_DAMAGE,500,75,effectOnSelf=elemEff,emoji='<:elemSpell:953217184795078697>',description="Inflige des dégâts à l'ennemi ciblé et vous octroit l'effet élémentaire correspondant à votre élément",cooldown=5)
 finalFasEff = effect("Final Fascinatoire","finalFas",critical=10,critDmgUp=10,emoji="<:finalFas:951824644523040788>",description="Augmente le taux de coup critique et de dégâts critiques de **10%**")
-danseFasReady = effect("Cast - Final Fascinatoire","danseFasReady",turnInit=5,description="Vous permet d'utiliser la compétence {0} __Danse de la Lame Fascinatoire__".format(swordDance.emoji),emoji=swordDance.emoji)
-finalFas = skill("Final Fascinatoire","srs",TYPE_BOOST,effect=finalFasEff,area=AREA_DONUT_2,range=AREA_MONO,emoji="<:finalFas:951824644523040788>",cooldown=7,description="Augmente le taux de critique et les dégâts critiques des alliés proches de **10%**",rejectEffect=[danseFasReady])
+finalFas = skill("Final Fascinatoire","srs",TYPE_BOOST,effect=finalFasEff,area=AREA_DONUT_2,range=AREA_MONO,emoji="<:finalFas:951824644523040788>",cooldown=7,description="Augmente le taux de critique et les dégâts critiques des alliés proches de **10%**")
+danseFasReady = effect("Cast - Final Fascinatoire","danseFasReady",turnInit=2,description="Vous permet d'utiliser la compétence {0} __Danse de la Lame Fascinatoire__".format(swordDance.emoji),emoji=swordDance.emoji,replique=finalFas)
+
 danceFas = skill("Danse de la Lame Fascinatoire","srs",TYPE_DAMAGE,power=125,area=AREA_CIRCLE_1,use=CHARISMA,cooldown=5,emoji=swordDance.emoji,needEffect=danseFasReady)
 eventFas = effect("Eventail Fascinatoire","evFac",turnInit=-1,unclearable=True,emoji='<:evFas:951824800488230932>',description="Effet passif donné par Fascination. Voir la description de la compétence",callOnTrigger=danseFasReady)
 fascination = skill("Fascination","srs",TYPE_PASSIVE,price=750,emoji='<:evFas:951824800488230932>',effectOnSelf=eventFas,become=[finalFas,danceFas],description="Posséder cette compétence vous octrois l'effet {0} __{1}__.\nPour chaque coup critique effectué par un alliés, la valeur de l'éventail augmente de **10**. Une fois **100 points** atteints, vous obtenez l'effet {2} __{3}__ et le temps de rechargement de cette compétence ainsi que la valeur de l'éventail sont réduit à 0".format(eventFas.emoji[0][0], eventFas.name, danseFasReady.emoji[0][0], danseFasReady.name),use=CHARISMA)
@@ -688,9 +690,9 @@ morsTempSkill = skill("Morsure de la Tempette","sqe",TYPE_INDIRECT_DAMAGE,350,ef
 morsCaudiqueSkill = skill("Morsure Caudique","sqd",TYPE_INDIRECT_DAMAGE,350,effect=morsCaudique,cooldown=5,conditionType=["exclusive","aspiration",ATTENTIF],emoji=morsCaudique.emoji[0][0])
 combEff = effect("Combustion","combustion",MAGIE,power=15,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1,turnInit=-1,lvl=99)
 combustion = skill("Combustion","sqc",TYPE_PASSIVE,500,effectOnSelf=combEff,conditionType=["exclusive","secElem",ELEMENT_FIRE],description="À chaque de tour, inflige des dégâts aux ennemis à votre corps à corps")
-lbRdmBlind = effect("Aveuglement Vermeil","verBlind",type=TYPE_MALUS,power=50,emoji='<:MyEyes:784226383018328115>')
-lbRdmLauch = skill("Fléau Vermeil","sqb",TYPE_DAMAGE,750,250,area=AREA_CIRCLE_2,use=MAGIE,ultimate=True,cooldown=7,emoji='<a:verBlind:974545990369574982>',effectAroundCaster=[TYPE_MALUS,AREA_ALL_ENTITES,lbRdmBlind],description="Après un tour de chargement, inflige de sérieux dégâts aux ennemis dans une large zone, mais réduit la précision de tous les combattant de {0}% pendant un tour".format(lbRdmBlind.power),url='https://media.discordapp.net/attachments/927195778517184534/932773655732158525/20220118_000607.gif')
-lbRdmCaustEff = effect("Cast - {0}".format(lbRdmLauch),"lbRedMageCast",turnInit=2,silent=True,replique=lbRdmLauch)
+lbRdmBlind = effect("Aveuglement Vermeil","verBlind",type=TYPE_BOOST,power=35,emoji='<:MyEyes:784226383018328115>')
+lbRdmLauch = skill("Fléau Vermeil","sqb",TYPE_DAMAGE,750,250,area=AREA_CIRCLE_2,use=MAGIE,ultimate=True,cooldown=7,emoji='<a:verBlind:974545990369574982>',effectAroundCaster=[TYPE_MALUS,AREA_ALL_ALLIES,lbRdmBlind],description="Après un tour de chargement, inflige de sérieux dégâts aux ennemis dans une large zone, mais réduit la précision de tous les alliés de {0}% pendant un tour".format(lbRdmBlind.power),url='https://media.discordapp.net/attachments/927195778517184534/932773655732158525/20220118_000607.gif')
+lbRdmCaustEff = effect("Cast - {0}".format(lbRdmLauch.name),"lbRedMageCast",turnInit=2,silent=True,replique=lbRdmLauch)
 lbRdmCast = copy.deepcopy(lbRdmLauch)
 lbRdmCast.power, lbRdmCast.url, lbRdmCast.effectAroundCaster, lbRdmCast.effectOnSelf = 0, None, None, lbRdmCaustEff
 lightEarthEff = copy.deepcopy(defenseUp)
@@ -703,9 +705,8 @@ solarEruption = skill("Eruption Solaire","spy",TYPE_DAMAGE,500,100,area=AREA_ARC
 firstArmorEff, firstArmorEff2 = effect("Armure préliminaire","armurepreliminaire",INTELLIGENCE,overhealth=65,inkResistance=10,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE), copy.deepcopy(absEff)
 firstArmorEff2.power = 20
 firstArmor = skill("Armure préliminaire","spx",TYPE_ARMOR,500,cooldown=7,effect=[firstArmorEff,firstArmorEff2],description="Octroi une puissante armure à l'allié ciblé, réduisant également les dégâts indirects qu'il reçoit tant qu'elle est active, et augmente également les soins qu'il reçoit de 20%")
-
 # Skill
-skills = [krystalisation,regenVigil,fragmentation,machDeFer,lanceTox,trickAttack,aurore2,holyShieltron,kerachole,gigaFoudre,morsTempSkill,combustion,morsCaudiqueSkill,lbRdmCast,lightEarth,darkAmb,solarEruption,firstArmor,
+skills = [vampirisme2,krystalisation,regenVigil,fragmentation,machDeFer,lanceTox,trickAttack,aurore2,holyShieltron,kerachole,gigaFoudre,morsTempSkill,combustion,morsCaudiqueSkill,lbRdmCast,lightEarth,darkAmb,solarEruption,firstArmor,
     dephaIncant,cwFocus,propaUlt,cwUlt,sanguisGladio,sanguisGladio2,cardiChoc,equatorial,
     elemShield,shieldAura,horoscope,ShiUltimate,intaveneuse,decolation,
     corGraCast,finalFloral,divineSave,redemption,fireElemUse,waterElemUse,airElemUse,earthElemUse,lightElemUse,darkElemUse,spaceElemUse,timeElemUse,bleedingConvert,

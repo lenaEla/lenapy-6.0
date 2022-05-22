@@ -8,6 +8,9 @@ from sre_constants import IN
 from index import *
 from discord_slash.utils.manage_components import *
 
+
+FROM_LEFT, FROM_RIGHT, FROM_UP, FROM_DOWN, FROM_POINT = 0,1,2,3,4
+
 # Constantes :
 # Area of effects
 AREA_MONO = 0  # Caster only
@@ -60,7 +63,7 @@ AREA_INLINE_5 = 45
 areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon",
              "Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases"]
 allArea = range(0, 46)
-
+listNumberEmoji = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟","▶️","⏸️","⏯️","⏹️","⏺️","⏭️","⏮️","⏩","⏪","⏫","⏬","◀️","🔼","🔽","➡️","⬅️","⬆️","⬇️","↗️","↘️","↙️","↖️","↕️","↔️"]
 # Weapon's range
 RANGE_MELEE = 0
 RANGE_DIST = 1
@@ -344,7 +347,7 @@ skillGroupNames = ["neutre", "divine", "démoniaque"]
 # Tabl of random messages for the shop
 shopRandomMsg = [
     "<:ikaBlue:866459319049650206> : `Sit down and eat pop-corns`\n{shushi} : `Regarde les pop-corns avec un air interresée`",
-    "<:ikaPink:866459344173137930> : \"Flum POWA !\"\n{clemence} : \"Les coquelicots c'est mieux je trouve\"\n{alice} : \"N'importe quoi ! Ce sont les roses les plus jolies !\"\n{lena} : \"Vous trois, vous pourriez arrêter de débattre dans mon shop, s'il vous plait ?\"",
+    "<:soria:977183253255557140> : \"Flum POWA !\"\n{clemence} : \"Les coquelicots c'est mieux je trouve\"\n{alice} : \"N'importe quoi ! Ce sont les roses les plus jolies !\"\n{lena} : \"Vous trois, vous pourriez arrêter de débattre dans mon shop, s'il vous plait ?\"",
     "{lena} : \"Tiens, Clémence, j'ai trouvé un drôle de livre ces derniers temps et vu que tu t'y connais un peu en runes et magie, je me demandais si tu pouvais essayer de m'apprendre un peu comment m'en servir...\"\n{clemence} : \"Heu... ok\"",
     "{clemence} : \"Ah, Lena. J'ai jeté un coup d'œil à ton livre et heu... Tu as au moins une idée de ce qu'est un Carbuncle ?\"\n{lena} : \"Absolument pas\"\n{clemence} : \"... Ça va être long...\"",
     '{clemence} : "Hum... j\'ai trouvé des trucs qui pourrait t\'interresser lors de ma dernière escapade dans les ruines d\'Elidyn, Lena"\n{lena} : "Ow ? Montre pour voir ?"',
@@ -361,11 +364,11 @@ shopRandomMsg = [
     '{alice} : "Maraiiiiiiiiine ?"\n{lena} : "Il y a un peu trop de "i" pour moi..."\n{alice} : "C\'est quoi ça."\n\n`Elle sortie son téléphone et le mit directement devant le visage de Lena`\n\n📱 [Photographie d\'une feuille de papier](https://bit.ly/3o74aal)\n\n{lena} : "... Merde. Et comment ça, tu es allé fouiller dans ma chambre !?"',
     '{lena} : "Tu sais que tu va finir par traumatiser des gens avec tes \"Boum boum\" toi ?"\n{shihu} : "Mais c\'est drole les Boum Boum..."',
     '{clemence} : "Hé Powehi, je me suis retrouvée avec plein de Rotten Flesh lors de ma dernière expédition, tu veux que je te les passes ?"\n<:powehi:909048473666596905> : "Oh que oui !"',
-    '<:gweny:906303014665617478> : "Toujours à regarder les étoiles ?"\n<:powehi:909048473666596905> : "J\'ai une question Gwendoline... Tu réagirais comment si tu étais bloquée dans ce monde après ta mort et ne pouvais que regarder les autres être vivant te fuir dès que tu t\'approches trop d\'eux ?"\n<:gweny:906303014665617478> : "Oh heu... Je sais pas vraiment désolée. Compliqué de se mettre à ta place, j\'en ai bien peur"\n<:powehi:909048473666596905> : "C\'est pas grave, merci quand même..."',
+    '{gweny} : "Toujours à regarder les étoiles ?"\n<:powehi:909048473666596905> : "J\'ai une question Gwendoline... Tu réagirais comment si tu étais bloquée dans ce monde après ta mort et ne pouvais que regarder les autres être vivant te fuir dès que tu t\'approches trop d\'eux ?"\n{gweny} : "Oh heu... Je sais pas vraiment désolée. Compliqué de se mettre à ta place, j\'en ai bien peur"\n<:powehi:909048473666596905> : "C\'est pas grave, merci quand même..."',
     '`En entrant dans une pièce présumée vide, vous êtes surpris de voir des reflets lumineux dans un coin. En allant l\'examiner, vous découvrez Shushi et Sixtine qui dorment l\'une contre l\'autre. Au sol se trouve un lecteur de musique`\n\n📱 [Liste de musique en file d\'attente](https://bit.ly/3D6Ltdh)',
     "<:john:908887592756449311> : \"A-Alice, toi qui la connais bien tu... saurais ce que je pourrais faire pour... qu'elle me voit comme autre chose qu'un... ami ?\"\n{alice} : \"Commence par être un peu plus sûr de toi. Là, elle continue de voir le louvetau naïf qui essayait de se coucher à ses pieds au lieu de fuir\"\n<:john:908887592756449311> : \"Mais je-\"\n{alice} : \"Passe ton temps avec elle sous ta forme de loup à être couché à ses pieds. Si tu veux qu'elle te vois comme autre chose qu'un chien de compagnie, va falloir que tu arrête de te comporter tel quel.\"",
     "<:lio:908754690769043546> : \"H-hm !? Oh c'est toi...\"\n{feli} : \"Tiens tu es là toi aussi ?\"\n<:lio:908754690769043546> : \"J'ai pas trouvé d'autres points d'eau dans le coin donc oui... je suppose...\"",
-    "<:gweny:906303014665617478> : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
+    "{gweny} : \"Eh bien... On... fatigue déjà... Liu... ?\"\n<:liu:908754674449018890> : \"Cer... Certainement pas... Je... pourrais courir... comme ça... pendant encore des kilomètres...\"",
     "<:lia:908754741226520656> : \"Hé Alice ! Tu penses quoi de ces fleurs là ?\"\n{alice} : \"Hum... un peu trop jaune à mon goût...\"",
     "{shushi} : \"Hé hé Madame des neiges ! J'ai touvé ça part terre, y a maqué quoi deçu ?\"\n{icelia} : \"Montre moi pour voir ^^ ?\"\n\n📃 [Page de papier à l'encre rose](https://bit.ly/3DgXk8v)",
     "{lena} : \"La vache c'est bien plus compliqué que je le pensais de lancer ces plumes enfaites...\"\n<:hina:908820821185810454> : \"C'est qu'une question d'habitude ^^ Hônnetement... J'arriverai même pas à tenir un de tes fusils donc bon ^^'\"",
@@ -373,7 +376,7 @@ shopRandomMsg = [
     "{iliana} : \"Cl-Clméence... ? Hum... tu sais pourquoi ta soeur m'évite toi... ?\"\n{clemence} : \"Si tu parles d'Alice, elle a eu quelques porblèmes avec un chat quand elle était plus jeune donc elle en est un peu traumatisée\"\n{iliana} : \"Oh... la pauvre...\"",
     "{sixtine} : \"Par curiosité Alice... tu as quoi comme info sur Iliana ?\"\n{alice} : \"Hum... Laisse moi voir... Tiens voilà\"\n\n[Feuille de papier froisée](https://docs.google.com/document/d/1SUVmdch_lQ-Ub_zoTJKOtxTkwZMqyLD8xrbCq8CTcDQ/edit?usp=drivesdk)\n\n{sixtine} : \"Même sur ça tu as fais d'efforts... ?\"\n{alice} : S-Sixtine ! Tu sais bien que je peux juste... pas...",
     "`Gwen descendit dans le séjour pour aller préparer le petit déjeuné quand elle vit Lena en train de dormir sur le canapé. Sur la table se trouve plusieurs pièces de ce qu'elle devina être un nouveau fusil longue portée et en déduit que l'inkling a encore veillé jusqu'à point d'heure pour mettre au point un nouveau joujou\nEn approchant, elle vit Shushi assise à côté de sa mère en train d'essayer de résoudre un Rubik's cube silencieusement. En la voyant arriver, celle-ci mit doucement un doigt sur ses lèvres. Gwen lui sourit gentiment puis alla dans la cuisine`",
-    "{clemence} : `Attend le trio de soeur en lisant assise (à l'ombre) à la terrasse d'un café tout en discutant avec Gwen, quand elle vit Sixitine venir seule` \"Comment ça tu es toute seule Sixtine ? Où sont Féli et Alice ?\"\n{sixtine} : \"Féli a dit qu'elle voulait aller voir la dernière expédition sur les dieux de la Grèce Antique et Alice a... dit un truc à propos de l'Eglise je crois...\"\n{clemence} : \"... Gweny, tu veux bien t'occuper d'aller chercher Alice et je me charge de Féli ?\"\n<:gweny:906303014665617478> : \"Je suis pas vraiment la bienvenue dans les églises catholiques aussi tu sais ?\"\n{clemence} : \"Déjà moins que moi...\"\n{sixtine} : \"Je peux y aller moi si vous voulez... Je suis qu'humaine...\"",
+    "{clemence} : `Attend le trio de soeur en lisant assise (à l'ombre) à la terrasse d'un café tout en discutant avec Gwen, quand elle vit Sixitine venir seule` \"Comment ça tu es toute seule Sixtine ? Où sont Féli et Alice ?\"\n{sixtine} : \"Féli a dit qu'elle voulait aller voir la dernière expédition sur les dieux de la Grèce Antique et Alice a... dit un truc à propos de l'Eglise je crois...\"\n{clemence} : \"... Gweny, tu veux bien t'occuper d'aller chercher Alice et je me charge de Féli ?\"\n{gweny} : \"Je suis pas vraiment la bienvenue dans les églises catholiques aussi tu sais ?\"\n{clemence} : \"Déjà moins que moi...\"\n{sixtine} : \"Je peux y aller moi si vous voulez... Je suis qu'humaine...\"",
     "{sixtine} : `Regarde le crusifix et le livre religieux à côté du lit d'Alice` \"Comment tu arrives à dormir à côté de ça... Clémence ne supporte même pas d'être à proximité d'une croix...\"\n{alice} : `Fait une petite moue`\" C'est elle qui s'est définie en temps qu'ennemi du divin souss prétexte que c'est sa nature. Mais ce genre de discipline tiens sa puissance en la Foi. Tant que tu l'as, qu'importe que ce tu es",
     "{clemence} : \"... Je sais que tu as la manie de dormir partout Sixtine... Mais dans mon cercueil tout en étant claustrophobe ?\"\n{sixtine} : `Dort à point fermé`",
     "{lena} : \"Contente que tu ai changé d'avis\"\n<:ly:943444713212641310> : \"J'avais besoin de changer d'horizon\"",
@@ -390,15 +393,18 @@ shopRandomMsg = [
     "{shehisa} : \"What is going on here? I'm a little out of sorts, I've been contemplating, Fallacies and things that scare me. Why not try to let go? I've been feeling out of order, I'm allowing change so, Take a good look, this is me. This is what I've come to be\"",
     "{lena} : \"FM comes in different colors, I believe... In the sewing machine, I've lost myself... Memories inside my heart are there to grieve... Color-coded by the love she gave to me...\"\n{luna} : \"Nostalgique ?\"\n{lena} : \"En quelques sortes, je suppose...\"",
     "{sixtine} : `Arrête de dessiner` Hum... Enfaite Anna... heu... comme tu est une fantôme tu peux posséder des gens ?\"\n<:anna:943444730430246933> : \"À vrai dire, pas vraiment... par contre Belle...\"\n`Les deux se tournèrent vers le miroir le plus proche où le reflet de Sixtine n'était absolument pas là où il devrait être, mais en train de fouiller dans le reflet de la boîte à bijoux d'Alice`\n{sixtine} : \"... C'est bien ce qu'il me semblait...\"",
-    "<:gweny:906303014665617478> : \"Hey Clémence ! Tu veux faire une partie de paintball avec moi ce soir ?\"\n{clemence} : \"Pourquoi pas, mais il y aura Lena ?\"\n<:gweny:906303014665617478> : \"Hum...\"\n{clemence} : \"...\"\n<:gweny:906303014665617478> : \"...\"\n{clemence} : \"Je vais mettre plusieurs couches de tee-shirts\"\n<:gweny:906303014665617478> : \"Bonne idée, je vais faire de même\"",
+    "{gweny} : \"Hey Clémence ! Tu veux faire une partie de paintball avec moi ce soir ?\"\n{clemence} : \"Pourquoi pas, mais il y aura Lena ?\"\n{gweny} : \"Hum...\"\n{clemence} : \"...\"\n{gweny} : \"...\"\n{clemence} : \"Je vais mettre plusieurs couches de tee-shirts\"\n{gweny} : \"Bonne idée, je vais faire de même\"",
     "{clemence} : \"Hé Ly. Il faut qu'on parle.\"\n<:ly:943444713212641310> : \"A-Ah ?\"\n{clemence} : `La fixe du regard en croisant les bras pendants de longues secondes` \"Oh et au final nan j'ai pas envie. J'espère juste pour toi que tu fais un minimum attention au passé de ceux que tu élimines et que tu ne te t'attaques pas à ceux qui se contente de vivre leur vie où aident les humains. Sinon tu risques d'avoir une vampire légèrement plus corriaces que les autres sur les bras.\"",
-    "<:gweny:906303014665617478> : \"Ta mère ne va pas être contente si elle te choppe en train de fouiller dans son atelier\"\n{shushi} : \"Gwen, tu sais pourquoi Miman a autant de balles incendiaires ? Son élément c'est plutôt la glace, non ?\"\n<:gweny:906303014665617478> : \"Détourne pas le sujet. Mais pour répondre à ta question, je pense que ça remonte à l'époque où j'était encore flic à la ville. L'une des membres de la mafia locale était d'élément Métal Pur et il me semble que ta mère et elle se connaissaient personnellement. Et c'était pas l'amour fou entre les deux. Il me semble même que c'est la seule personne que Lena craind encore aujourd'hui, même si ça fait des années qu'elle n'a pas donné signe de vie. Et tu connais ta mère, quand quelque chose la contrari elle préfère contre attaquer, d'où le fait qu'elle ai passé pas mal de temps à mettre au point ces balles\"\n\n`Gwendoline se pencha pour prendre l'une des balles et l'observa attentivement pendant quelques secondes`\n\n<:gweny:906303014665617478> : \"Si je n'abuse, celle-là est prévu pour pénétrer un blindage ultra-épais et exploser à l'intérieur en libérant des sharpels explosifs. De quoi te descendre un élicoptère blindé d'une balle au vu de la puissance du fusil de Lena, si tu veux mon avis\"\n{shushi} : \"Wow...\"\n{shihu} : \"Je comprend mieux pourquoi elle veut pas nous voir jouer ici...\"",
+    "{gweny} : \"Ta mère ne va pas être contente si elle te choppe en train de fouiller dans son atelier\"\n{shushi} : \"Gwen, tu sais pourquoi Miman a autant de balles incendiaires ? Son élément c'est plutôt la glace, non ?\"\n{gweny} : \"Détourne pas le sujet. Mais pour répondre à ta question, je pense que ça remonte à l'époque où j'était encore flic à la ville. L'une des membres de la mafia locale était d'élément Métal Pur et il me semble que ta mère et elle se connaissaient personnellement. Et c'était pas l'amour fou entre les deux. Il me semble même que c'est la seule personne que Lena craind encore aujourd'hui, même si ça fait des années qu'elle n'a pas donné signe de vie. Et tu connais ta mère, quand quelque chose la contrari elle préfère contre attaquer, d'où le fait qu'elle ai passé pas mal de temps à mettre au point ces balles\"\n\n`Gwendoline se pencha pour prendre l'une des balles et l'observa attentivement pendant quelques secondes`\n\n{gweny} : \"Si je n'abuse, celle-là est prévu pour pénétrer un blindage ultra-épais et exploser à l'intérieur en libérant des sharpels explosifs. De quoi te descendre un élicoptère blindé d'une balle au vu de la puissance du fusil de Lena, si tu veux mon avis\"\n{shushi} : \"Wow...\"\n{shihu} : \"Je comprend mieux pourquoi elle veut pas nous voir jouer ici...\"",
     "{clemence} : \"Hé Shihu, tu veux un conseil gratuis ? Si tu créais une formule, arrange toi pour que tu n'ai pas à la regréter quand tu seras plus grande\"\n{shihu} : \"Genre pas \"Turlututu et Tralala\" ?\"\n{clemence} : \"Exactement\"\n{alice} : \"Ca reste tout de même mieux que \"Magicabou la magicabou et magici magica bou\"\"",
     "{alice} : \"Tu veux que je te dise UΛ-BB4, chez moi tu es une tueuse en série qui a terrorisé la capitale pendant une décénie avant de disparaitre dans la nature avec le titre de personne la plus recherchée de la dimension\"\n{lena} : \"Si tu veux jouer à ce jeu, chez moi tu es une vampire qui a arrêté de grandir à l'âge de 11 ans et demi\"\n{alice} : \"Oh la poisse\"",
     "{lena} : \"UΛ-BB4, vu que tu te débrouille plutôt bien à longue distance, tu sais comment faire pour shotter un snipeur qui arrête pas de nous faire chier ?\"\n{lena} : \"Hé bah tu peux toujours essayer de combattre le feu par le feu, il me semble que tu as des snipeurs dans l'EEV3 AΣ-E9A, non ?\"\n{lena} : \"Ils se font tous surpasser malheureusement...\"\n{lena} : `Soupir` \"Soit. Je m'en occupe. Tu peux me montrer la direction stp ? Ca fait un moment que je suis pas allé dans le secteur AΣ du multivers\"",
-    "<:gweny:906303014665617478> : \"Tiens Karaï ça faisait un moment\"\n\n`La poupée vint hug la jambe de Gwen sans rien dire`\n\n<:gweny:906303014665617478> : \"Ah. Je vois `Gwendoline prit la poupée des ses bras en lui caressant doucement la tête` Vas-y je t'écoute...\"\n\n<:karail:974079383197339699> : \"Pourquoi est-ce que je dois endurer tout ça... 300 ans à attendre pour qu'au final ma place soit prise par une autre version de moi-même... Et par dessus ça je peux même pas en finir...\"\n\n<:gweny:906303014665617478> : \"... Je n'ai pas de réponse à t'apporter malheureusement...\"\n\n<:karail:974079383197339699> : \"Prend soins de ton père pour moi s'il te plaît...\"\n\n<:gweny:906303014665617478> : \"Honnêtement je ne pense pas qu'il ai vraiment besoin que je veille sur lui mais j'y penserais\"\n\n<:karail:974079383197339699> : \"Merci...\"",
-    "`Gwen était assise sur son lit en étant en train de surfer en ligne avec son ordinateur portable quand un mouvement dans le coin de la chambre attira son attention` <:karail:974079383197339699> : \"... Bonsoir Klironovia...\"\n<:klikli:906303031837073429> : \"Tiens, Karaï, ma poupée préférée `Elle prit la poupée et la plaça sur ses jambes tout en continuant sa navigation` Qu'est-ce qui t'amène donc ?\"\n<:karail:974079383197339699> : \"Oh hum... je voulais savoir si je pouvait dormir avec vous ce soir... Si ça vous dérange pas...\"\n<:klikli:906303031837073429> : \"Moi ça me va, et je pense pas que ça dérange les autres non plus. Mais je décline toute responsabilité au cas ou tu te retrouve sous moi durant la nuit\"\n<:karail:974079383197339699> : \"C'est un risque que je suis prête à prendre...\"",
-    "<:karail:974079383197339699> : \"Ainsi donc avec Clara tu es devenue une soigneuse Alty...\"\n<:alty:906303048542990347> : \"ça pose un problème particulier ?\"\n<:karail:974079383197339699> : \"Oh heu non évidammant ! C'est juste que... dans ma timeline tu était plutôt du genre shinobi... ça me fait bizarre c'est tout...\"\n<:alty:906303048542990347> : \"Si j'en crois que ce les autres m'ont dit ce changement est plus ou moins... logique\""
+    "{gweny} : \"Tiens Karaï ça faisait un moment\"\n\n`La poupée vint hug la jambe de Gwen sans rien dire`\n\n{gweny} : \"Ah. Je vois `Gwendoline prit la poupée des ses bras en lui caressant doucement la tête` Vas-y je t'écoute...\"\n\n<:karail:974079383197339699> : \"Pourquoi est-ce que je dois endurer tout ça... 300 ans à attendre pour qu'au final ma place soit prise par une autre version de moi-même... Et par dessus ça je peux même pas en finir...\"\n\n{gweny} : \"... Je n'ai pas de réponse à t'apporter malheureusement...\"\n\n<:karail:974079383197339699> : \"Prend soins de ton père pour moi s'il te plaît...\"\n\n{gweny} : \"Honnêtement je ne pense pas qu'il ai vraiment besoin que je veille sur lui mais j'y penserais\"\n\n<:karail:974079383197339699> : \"Merci...\"",
+    "`Gwen était assise sur son lit en étant en train de surfer en ligne avec son ordinateur portable quand un mouvement dans le coin de la chambre attira son attention` <:karail:974079383197339699> : \"... Bonsoir Klironovia...\"\n{klikli} : \"Tiens, Karaï, ma poupée préférée `Elle prit la poupée et la plaça sur ses jambes tout en continuant sa navigation` Qu'est-ce qui t'amène donc ?\"\n<:karail:974079383197339699> : \"Oh hum... je voulais savoir si je pouvait dormir avec vous ce soir... Si ça vous dérange pas...\"\n{klikli} : \"Moi ça me va, et je pense pas que ça dérange les autres non plus. Mais je décline toute responsabilité au cas ou tu te retrouve sous moi durant la nuit\"\n<:karail:974079383197339699> : \"C'est un risque que je suis prête à prendre...\"",
+    "<:karail:974079383197339699> : \"Ainsi donc avec Clara tu es devenue une soigneuse Alty...\"\n{alty} : \"ça pose un problème particulier ?\"\n<:karail:974079383197339699> : \"Oh heu non évidammant ! C'est juste que... dans ma timeline tu était plutôt du genre shinobi... ça me fait bizarre c'est tout...\"\n{alty} : \"Si j'en crois que ce les autres m'ont dit ce changement est plus ou moins... logique\"",
+    "{lena} : \"`Aide Altikia à ranger les courses` Dit-moi... elles t'ont fait un truc les vampirettes ou comment ça se passe ?\"\n{alty} : \"Hum ? Oh tu parles des gouses d'ails ? Bah Alice dort chez une amie et Clémence a dit qu'elle passerait la nuit à la bibliothèque donc je me suis dit que c'était l'occasion de changer un peu le menu ^^\"\n{lena} : \"Il va falloir passer un sacré coup de déodorisant...\"",
+    "{alty} : \"Et voilà ^^ Et évite de courir trop vite la prochaine fois sinon tu vas retomber\"\n{shushi} : \":< Je veux un bisou magique !\"\n{alty} : \"Oh. `Fait un bisou sur le genou de Shushi` Et voilà ^^\"\n{shushi} : \"Viiii :D\"",
+    "{luna} : \"Hé Gwen, je me demandais, mais on peut échanger nos épées pour quelques minutes s'il te plaît ?\"\n{klikli} : \"Hum, si tu veux mais pourquoi ?\"\n{luna} : \"Tester.\""
 ]
 
 shopEventEndYears = [
@@ -455,7 +461,7 @@ shopSeasonSpring = [
     "{lena} : \"Surtout tu oublie pas ton parapluie !\"\n{shushi} : \"Mi il fait grand soleil !\"\n{lena} : \"Il peut très rapidement se mettre à pleuvoir à cette saison, Shu'\"",
     "{alice} : \"J'ai hate que l'été arrive ! Tu viendras avec nous à la plage Clémence :D ?\"\n{clemence} : \"Hum, tu veux dire sous un soleil de plomb en maillot de bain avec la mer qui fait ses remous juste à côté alors que je déteste l'eau et arrive à me chopper des coups de soleil en hiver et sans reflets sur la neige ?\"\n{alice} : \"... Désolée c'était stupide...\"",
     "<:anna:943444730430246933> : \"Hé Alice, tu en penses quoi de cet ensemble... ?\"\n{alice} : \"Un peu viellot, mais ça te va bien\"",
-    "{lena} : \"On est surtout, évitez de traîner trop avec Lia s'il vous plaît. Le printemps est sa saison de prédilection\""
+    "{lena} : \"Oh est surtout, évitez de traîner trop avec Lia s'il vous plaît. Le printemps est sa saison de prédilection\"",
 ]
 
 shopRepatition = [4, 5, 8, 3]                 # Shop's item category length
@@ -634,16 +640,16 @@ shushiAltSays = says(
 )
 
 shushiSays = says(
-    start="Ze te rendrais fi-ère Miman !",
-    ultimate="Mintenant !",
-    onKill="Purgwa y bouze pu ?",
+    start="Je vais te montrer ce que je peux faire Miman !",
+    ultimate="C'est maintenant ou jamais !",
+    onKill="Tu m'en voudras pas hein ? ?",
     onDeath="Miman !",
     onResurect="Ze veux encore dodo...",
-    blueWinAlive="On a réuzi ?",
+    blueWinAlive="`Petite danse de la victoire` ?",
     blueWinDead="Bien zoué !",
-    blueLoose="Ze vais dewoir fire mieux la pozaine fois !",
+    blueLoose="Je vais devoir faire mieux la prochaine fois !",
     redWinAlive="Alors alors ?",
-    redWinDead="Pi mieux fire !",
+    redWinDead="Peux mieux faire !",
     redLoose="Oh..."
 )
 
@@ -657,8 +663,10 @@ lunaSays = says(
 )
 
 shihuSays = says(
-    start="Ti le regetera pas, Zuzi !",
-    redWinAlive="Boum Boum"
+    start="J'essayerai de pas tout casser !",
+    redWinAlive="Boum Boum",
+    ultimate="Préparez vous à ressentir le pouvoir des Ténèbes !",
+    onKill="Tu risques de broyer du noir pendant un moment, dézolée !"
 )
 
 temSays = says(
@@ -857,7 +865,7 @@ aliceStatsNothingToShow = [
 ]
 
 clemPosSays = says(
-    start="Encore des chasseurs de vamires ? J'en ai ma claque des gens de votre genre.",
+    start="J'en ai ma claque des gens de votre genre.",
     onKill="Un de plus, un de moins. Quelle importance",
     redWinAlive="Restez à votre place.",
     redLoose="Que..."
@@ -946,14 +954,15 @@ lenaTipsMsgTabl = [
     "Alice n'aime pas vraiment que quelqu'un monte sur scène en sa présence"
 ]
 ilianaSaysNormal = says(
-    start="Puisse ce combat être miawtastique !",
-    ultimate="Nynme de la Lumière Infinie !",
+    start="Puisse ce combat être bénéfique pour tous !",
+    ultimate="Qu'est-ce que vous pensez du pouvoir de la Lumière !?",
     limiteBreak="Que la Lumière nous protège !",
-    onKill="Nyan. Désolée",
-    onDeath="Miaw !!",
-    reactAllyKilled="Nyan !",
-    reactBigRaiseAllie="Miawtastique"
+    onKill="Je décline toute responsabilité en cas de tache blanche incrustée dans ta rénite",
+    onDeath="Humf !",
+    reactAllyKilled="J'aurais du faire plus attention, désolée",
+    reactBigRaiseAllie="On reprend ses esprits et on y retourne"
 )
+
 ilianaSaysVsLuna = says(
     start="Tu nous fais encore une crise ?",
     ultimate="Courraw tout le monde !",
@@ -964,12 +973,14 @@ ilianaSaysVsLuna = says(
     blockBigAttack="Si tu crois que tu va m'awvoir avec ça !",
     reactBigRaiseAllie="Je m'owcupe des Ténèbres qui paralyse votre âme, et on y retourwn !"
 )
+
 kitsuneSays = says(
     start="Mais c'est que vous êtes bien nombreux dites donc ^^",
     onKill="Je suppose que s'en était trop pour toi",
     redWinAlive="C'était amusant, vous trouvez pas ?",
     reactBigRaiseEnnemy="Vos âmes m'appartiennent déjà, pourquoi résister ?"
 )
+
 lySays = says(
     start="Arf, mon truc c'est plutôt les squelettes et les zombies, vous savez ?",
     ultimate="Prêts pour le feu d'artifice ?",

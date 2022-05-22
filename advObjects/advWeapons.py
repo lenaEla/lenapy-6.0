@@ -85,20 +85,22 @@ whiteSpiritWings = weapon("Ailes de l'esprit blanc","cu",RANGE_DIST,AREA_CIRCLE_
 diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=25,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag)
 bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=15,effect=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True)
-cardsDeck = effect("Deck de cartes","astro",CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration :\n\n__Ber. :__ Force +5, Rési +5\n__Obs. :__ Force +5, Préci +5\n__P. Plume :__ Force +5, Agi +5\n__T. Brûlée :__ Force +5, Magie +5\n__Mage :__ Magie +5, Préci +5\n__Enc. :__ Magie +5, Rési +5\n__Idole :__ Charisme +5, Intel +5\n__Proc. :__ Intel +5, Rési +5\n__Alt. :__ Charisme +7\n__Prév. :__ Intel +7\n__Invoc. :__ Force +3, Magie +3, Charisme +3, Intel +3\n\n__Empêche l'utilisation de l'arme principale__")
-cardBer = effect("La balance berserk",'BerCard',CHARISMA,strength=7,resistance=5,emoji='<:balance:932399888422043739>')
-cardPlume = effect("La balance agile",'PoiCard',CHARISMA,strength=7,agility=7,emoji='<:balance:932399888422043739>')
-cardObs = effect("La flèche précise",'ObsCard',CHARISMA,strength=7,precision=7,emoji='<:fleche:932399905807433738>')
-cardTet = effect("La flèche bornée",'TetCard',CHARISMA,strength=7,magie=7,emoji='<:fleche:932399905807433738>')
-cardMag = effect("La tour magique",'MagCard',CHARISMA,magie=7,precision=5,emoji='<:tour:932399958936657921>')
-cardEnch = effect("La tour enchantée",'EncCard',CHARISMA,magie=7,resistance=5,emoji='<:tour:932399958936657921>')
-cardAlt = effect("Le tronc revifiant",'AltCard',CHARISMA,charisma=10,emoji='<:tronc:932399933724700763>')
-cardPre = effect("Le tronc résistant",'PreCard',CHARISMA,intelligence=10,emoji='<:tronc:932399933724700763>')
-cardIdo = effect("L'aiguilère attentionée",'IdoCard',CHARISMA,charisma=7,intelligence=7,emoji='<:aiguilere:932399946659921990>')
-cardPro = effect("L'aiguilère ponctuelle",'ProCard',CHARISMA,resistance=7,intelligence=7,emoji='<:aiguilere:932399946659921990>')
-cardVig = effect('Le tronc solide',"vigiCard",CHARISMA,charisma=7,resistance=5,emoji='<:tronc:932399933724700763>')
-cardInv = effect("L'épieu versatil",'InvCard',CHARISMA,charisma=3,intelligence=3,strength=3,magie=3,emoji='<:epieu:932399920873357382>')
-cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardEnch,cardPro,cardVig,cardMag,cardIdo,cardObs,cardInv]
+cardsDeck = effect("Deck de cartes","astro",CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration\n__Empêche l'utilisation de l'arme principale__")
+cardBer = effect("La balance berserk",'BerCard',CHARISMA,strength=10,resistance=5,emoji='<:balance:932399888422043739>')
+cardPlume = effect("La balance agile",'PoiCard',CHARISMA,strength=10,agility=10,emoji='<:balance:932399888422043739>')
+cardObs = effect("La flèche précise",'ObsCard',CHARISMA,strength=10,precision=10,emoji='<:fleche:932399905807433738>')
+cardTet = effect("La flèche bornée",'TetCard',CHARISMA,strength=10,magie=10,emoji='<:fleche:932399905807433738>')
+cardMag = effect("La tour magique",'MagCard',CHARISMA,magie=10,precision=10,emoji='<:tour:932399958936657921>')
+cardEnch = effect("La tour enchantée",'EncCard',CHARISMA,magie=10,resistance=5,emoji='<:tour:932399958936657921>')
+cardAlt = effect("Le tronc revifiant",'AltCard',CHARISMA,charisma=15,emoji='<:tronc:932399933724700763>')
+cardPre = effect("Le tronc résistant",'PreCard',CHARISMA,intelligence=15,emoji='<:tronc:932399933724700763>')
+cardIdo = effect("L'aiguilère attentionée",'IdoCard',CHARISMA,charisma=10,intelligence=10,emoji='<:aiguilere:932399946659921990>')
+cardPro = effect("L'aiguilère ponctuelle",'ProCard',CHARISMA,resistance=5,intelligence=10,emoji='<:aiguilere:932399946659921990>')
+cardSorc = effect("La tour intemporelle",'SorCard',CHARISMA,magie=10,intelligence=10,emoji='<:tour:932399958936657921>')
+cardVig = effect('Le tronc solide',"vigiCard",CHARISMA,charisma=10,resistance=5,emoji='<:tronc:932399933724700763>')
+cardInv = effect("L'épieu versatil",'InvCard',CHARISMA,charisma=5,intelligence=5,strength=5,magie=5,emoji='<:epieu:932399920873357382>')
+cardAtt = effect("La flèche empoisonnée",'ObsCard',CHARISMA,strength=10,intelligence=10,emoji='<:fleche:932399905807433738>')
+cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,cardEnch,cardPro,cardVig,cardSorc,cardIdo,cardAtt,cardInv]
 
 astroGlobe = weapon("Globe céleste",'cy',RANGE_LONG,AREA_CIRCLE_5,40,80,1,charisma=7,intelligence=7,endurance=1,effect=cardsDeck,use=CHARISMA,emoji='<:globe:932399865110093884>')
 infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=85,strength=5,agility=10,effect=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
@@ -125,9 +127,9 @@ explosher2 = weapon('Détoneur Modifié','di',RANGE_LONG,AREA_CIRCLE_4,50,70,1,c
 trislosher = weapon("Dépoteur",'dj',RANGE_MELEE,AREA_CIRCLE_1,40,60,1,strength=10,endurance=10,agility=10,emoji='<:trislosher:936782121450741800>',area=AREA_CONE_2,repetition=2)
 
 miltrilPlanisftEffBuff = copy.deepcopy(dmgUp)
-miltrilPlanisftEffBuff.power, miltrilPlanisftEffBuff.stat = 3.5, INTELLIGENCE
+miltrilPlanisftEffBuff.power, miltrilPlanisftEffBuff.stat = 5, INTELLIGENCE
 miltrilPlanisftEffDebuff = copy.deepcopy(dmgDown)
-miltrilPlanisftEffDebuff.power, miltrilPlanisftEffDebuff.stat = 3.5, INTELLIGENCE
+miltrilPlanisftEffDebuff.power, miltrilPlanisftEffDebuff.stat = 5, INTELLIGENCE
 miltrilPlanisftEff = effect("Deck de cartes II","mitrilPlanisphereEff",INTELLIGENCE,turnInit=-1,unclearable=True,emoji='<:deck:932400761176981605>',description="À chaque début de tour, augmente les dégâts infligés d'un allié ou diminue ceux d'un ennemi de  **3,5%**, affecté par les statistiques\n\n__Empêhce l'utilisation de l'arme principale")
 miltrilPlanisphere = weapon("Planisphère en mithril", 'dk', RANGE_LONG, AREA_CIRCLE_5, 40, 80, 1, charisma=7, intelligence=7,endurance=1, effect=miltrilPlanisftEff, use=INTELLIGENCE, emoji='<:planisMitrill:938379244856291388>')
 

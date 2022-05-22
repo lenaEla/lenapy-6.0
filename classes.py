@@ -58,6 +58,8 @@ class statTabl:
         self.friendlyfire = 0
         self.fullskip = True
         self.armoredDamage = 0
+        self.damageBlocks,self.damageResisted,self.healReduced, self.healIncreased = 0, 0, 0, 0
+        self.maxHpReduced, self.blockCount, self.nbHeal, self.critHeal = 0, 0, 0, 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""

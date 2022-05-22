@@ -1039,3 +1039,9 @@ def loadAdvDutyFile(actName : str, dutyName : str) -> duty:
     dut = duty(actName,dutyName,dutyTextList)
     file.close()
     return dut
+
+def highlight(string : str):
+    if string not in [0,"-","0"]:
+        return "**{0}**".format(string)
+    else:
+        return string

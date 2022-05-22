@@ -109,31 +109,43 @@ def visuArea(area: int, wanted, ranged=True) -> list:
                             rep += [b]
 
             elif area in [AREA_CONE_2, AREA_CONE_3, AREA_CONE_4, AREA_CONE_5, AREA_CONE_6, AREA_CONE_7]:
-                start, yDiff, xMax = self.x, 0, area-10
-                areaTabl = []
-
-                if team == 0:
-                    ite = 0
-                    while start <= 5 and ite <= xMax:
-                        for y in range(0, yDiff+1):
-                            if findCell(start, self.y+y) not in areaTabl and findCell(start, self.y+y) != None:
-                                areaTabl.append(findCell(start, self.y+y))
-                            if findCell(start, self.y-y) not in areaTabl and findCell(start, self.y-y) != None:
-                                areaTabl.append(findCell(start, self.y-y))
-                        start += 1
-                        yDiff += 1
-                        ite += 1
-                else:
-                    ite = 0
-                    while start >= 0 and ite <= xMax:
-                        for y in range(0, yDiff+1):
-                            if findCell(start, self.y+y) not in areaTabl and findCell(start, self.y+y) != None:
-                                areaTabl.append(findCell(start, self.y+y))
-                            if findCell(start, self.y-y) not in areaTabl and findCell(start, self.y-y) != None:
-                                areaTabl.append(findCell(start, self.y-y))
-                        start -= 1
-                        yDiff += 1
-                        ite += 1
+                areaTabl, coneLength, direction = [],area-(AREA_CONE_2-1), FROM_UP
+                if direction == FROM_LEFT:
+                    for cmpt in range(coneLength+1):
+                        for celly in tablAllCells:
+                            if celly not in areaTabl:
+                                if celly == self:
+                                    areaTabl.append(celly)
+                                elif celly.x == self.x+(cmpt-1) and celly.x >= self.x:
+                                    if ((celly.y>self.y and celly.y < self.y+cmpt) or (celly.y<self.y and celly.y > self.y-cmpt) or (celly.y == self.y)):
+                                        areaTabl.append(celly)
+                elif direction == FROM_RIGHT:
+                    for cmpt in range(coneLength+1):
+                        for celly in tablAllCells:
+                            if celly not in areaTabl:
+                                if celly == self:
+                                    areaTabl.append(celly)
+                                elif celly.x == self.x-(cmpt-1) and celly.x <= self.x:
+                                    if ((celly.y>self.y and celly.y < self.y+cmpt) or (celly.y<self.y and celly.y > self.y-cmpt) or (celly.y == self.y)):
+                                        areaTabl.append(celly)
+                elif direction == FROM_UP:
+                    for cmpt in range(coneLength+1):
+                        for celly in tablAllCells:
+                                if celly not in areaTabl:
+                                    if celly == self:
+                                        areaTabl.append(celly)
+                                    elif celly.y == self.y+(cmpt-1) and celly.y >= self.y:
+                                        if ((celly.x>self.x and celly.x < self.x+cmpt) or (celly.x<self.x and celly.x > self.x-cmpt) or (celly.x == self.x)):
+                                            areaTabl.append(celly)
+                elif direction == FROM_DOWN:
+                    for cmpt in range(coneLength+1):
+                        for celly in tablAllCells:
+                                if celly not in areaTabl:
+                                    if celly == self:
+                                        areaTabl.append(celly)
+                                    elif celly.y == self.y-(cmpt-1) and celly.t <= self.y:
+                                        if ((celly.x>self.x and celly.x < self.x+cmpt) or (celly.x<self.x and celly.x > self.x-cmpt) or (celly.x == self.x)):
+                                            areaTabl.append(celly)
 
                 return areaTabl
 
@@ -222,8 +234,7 @@ def visuArea(area: int, wanted, ranged=True) -> list:
             visibleCell = findCell(2, 2)
 
     visibleArea = visibleCell.getArea(area=area)
-    line1, line2, line3, line4, line5 = [None, None, None, None, None, None], [None, None, None, None, None, None], [
-        None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None]
+    line1, line2, line3, line4, line5 = [None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None]
     lines = [line1, line2, line3, line4, line5]
     temp = ""
 
@@ -368,6 +379,24 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
                         eff.area, wanted=ENNEMIS, ranged=False))
 
             break
+
+    if eff.id == cardsDeck.id:
+        cardDesc = ''
+        for cmpt in range(len(cardAspi)):
+            cardDesc += "{0} __{1}__ : ".format(cardAspi[cmpt].emoji[0][0],inspi[cmpt])
+            tmpCardStat, cardStat = [], cardAspi[cmpt].allStats() + [cardAspi[cmpt].resistance, cardAspi[cmpt].percing, cardAspi[cmpt].critical]
+            for statCmpt in range(len(cardStat)):
+                if cardStat[statCmpt] > 0:
+                    tmpCardStat.append([statCmpt,cardStat[statCmpt]])
+            
+            for statCmpt in range(len(tmpCardStat)):
+                cardDesc += "{0} +{1}".format(allStatsNames[tmpCardStat[statCmpt][0]],tmpCardStat[statCmpt][1])
+                if statCmpt < len(tmpCardStat)-1:
+                    cardDesc += ", "
+                else:
+                    cardDesc += "\n"
+        
+        embed.add_field(name="<:empty:866459463568850954>\n__Effets des cartes :__",value=cardDesc,inline=False)
 
     return embed
 
