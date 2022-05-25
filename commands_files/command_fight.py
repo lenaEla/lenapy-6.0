@@ -782,6 +782,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                             if eff.effect.id == estal.id and eff.turnLeft > 0:
                                 summationPower += eff.effect.power * secretum.effect.power / 100 * eff.turnLeft
                                 eff.decate(turn=99,value=99)
+                        self.refreshEffects()
 
                         stat,damageBase,allReadySeen = fEffect.caster.allStats()[MAGIE]-fEffect.caster.negativeIndirect,summationPower,[]
                         for a in self.cell.getEntityOnArea(area=secretum.effect.area,team=self.team,wanted=ALLIES,directTarget=False,fromCell=actTurn.cell):
@@ -1137,11 +1138,11 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                     popipo += noneArmorMsg
                                     if not(execution):
                                         if effectiveDmg > 0 and tempToReturn == "":
-                                            popipo += f"{self.icon} {icon} → {entityInArea.icon} -{effectiveDmg} PV{critMsg}\n"
+                                            popipo += f"{self.icon} {icon} → {entityInArea.icon} -{separeUnit(effectiveDmg)} PV{critMsg}\n"
                                         else:
                                             popipo += tempToReturn + f" {entityInArea.icon} -{effectiveDmg} PV{critMsg}\n"
                                     else:
-                                            popipo += "{0} <:sacrified:973313400056725545> → {1}\n".format(self.icon,entityInArea.icon)
+                                        popipo += "{0} {2} → <:sacrified:973313400056725545> {1}\n".format(self.icon,entityInArea.icon,icon)
 
                                     if erosion != 0 and effectiveDmg > 0:
                                         popipo += f"{self.icon} {eroTxt} → {entityInArea.icon} -{lostHp} PV max\n"
@@ -2051,6 +2052,8 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                         if temp[cmpt]:
                             axis = ["-x","+x","+y","-y"][cmpt]
                             break
+                else:
+                    return toReturn
 
                 posArea = []
                 for cellule in tablAllCells:
@@ -2647,7 +2650,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
 
                     else:                                                           # Any other effect
                         if effect.id == kikuRaiseEff.id and target.status == STATUS_RESURECTED:
-                            hpBonus = target.maxHp - target.maxHp*1.35
+                            hpBonus = int(target.maxHp*1.35) - target.maxHp
                             target.maxHp += hpBonus
                             target.hp = min(target.hp + hpBonus,target.maxHp)
                             effect = copy.deepcopy(dmgUp)
@@ -3663,7 +3666,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
             await turnMsg.edit(embed = emby)
             await asyncio.sleep(2+(min(len(tempTurnMsg),2000)/2000*5))
 
-        fight = True
+        fight, ennemi = True, tablEntTeam[1][0]
         # Effective Fight Start --------------------------------------------------------------------------
         try:
             while fight:
@@ -4054,7 +4057,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
 
                 # Still alive ===========================
                 elif actTurn.hp > 0:
-                    cmpt,iteration,ennemi,replay,allyRea = 0,actTurn.char.weapon.repetition,actTurn,False,actTurn.stats.allieResurected
+                    cmpt,iteration,replay,allyRea = 0,actTurn.char.weapon.repetition,False,actTurn.stats.allieResurected
                     unsuccess = True
 
                     # ========== Playing the turn ==============
@@ -4067,6 +4070,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                 if eff.effect.replica != None:
                                     onReplica = eff
                                     eff.decate(turn=1)
+                                    actTurn.refreshEffects()
                                     break
 
                             canMove,cellx,celly = [True,True,True,True],actTurn.cell.x,actTurn.cell.y
@@ -4081,13 +4085,7 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                             # The entity isn't already casting something
                             if onReplica == False:
                                 if not(actTurn.auto) :                      # Manual Fighter - Action select window
-                                    haveOption,unsuccess = False,False
-
-                                    waitingSelect = create_actionrow(create_select(options=[create_select_option("Veillez patienter...","PILLON!",'🕑',default=True)],disabled=True))
-                                    dateLimite = datetime.now() + timedelta(seconds=30)
-
-                                    haveIterate = False
-
+                                    haveOption,unsuccess, waitingSelect, haveIterate = False,False, create_actionrow(create_select(options=[create_select_option("Veillez patienter...","PILLON!",'🕑',default=True)],disabled=True)), False
                                     def check(m):
                                         return int(m.author_id) == int(actTurn.char.owner) and m.origin_message.id == choiceMsg.id
 
@@ -4235,22 +4233,18 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                         mainSelect = create_select(options=mainOptions,placeholder = "Séléctionnez une option :")
 
                                         if haveIterate:                         # Time limite stuff
-                                            timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[waitingSelect])
+                                            await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[waitingSelect])
                                             await asyncio.sleep(3)
-                                            dateLimite = dateLimite+timedelta(seconds=3)
 
-                                        timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                        await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[create_actionrow(mainSelect)])
+                                        await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[create_actionrow(mainSelect)])
                                         haveIterate = True
 
                                         validoption = False
                                         def checkMainOption(m):
                                             return int(m.author.id) == actTurn.char.owner
                                         while not(validoption):
-                                            timeLimite = (dateLimite - datetime.now()).total_seconds()
                                             try:
-                                                react = await wait_for_component(bot,messages=choiceMsg,check=checkMainOption,timeout = timeLimite)
+                                                react = await wait_for_component(bot,messages=choiceMsg,check=checkMainOption,timeout = 30)
                                             except:
                                                 unsuccess = True
                                                 break
@@ -4308,22 +4302,14 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                                 for a in weapOptions:
                                                     temp+=[create_button(1+cmpt,a["label"],a["emoji"],a["value"])]
                                                     cmpt += 1
-
                                                 weapSelect = [create_actionrow(temp[0],temp[1])]
-
-                                                dateLimite = dateLimite+timedelta(seconds=3)
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+weapSelect)
+                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect]+weapSelect)
 
                                             elif choiceMsgTemp != "":
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
-                                                dateLimite = dateLimite+timedelta(seconds=3)
+                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect,waitingSelect])
                                                 await asyncio.sleep(3)
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,create_actionrow(weapSelect)])
+                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect,create_actionrow(weapSelect)])
 
-                                            timeLimite = (dateLimite - datetime.now()).total_seconds()
                                             try:
                                                 react = await wait_for_component(bot,messages=choiceMsg,check=check,timeout=timeLimite)
                                             except:
@@ -4362,8 +4348,35 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                                 elif skillToUse.type in funnyTempVarNameButTheSecond:
                                                     targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENNEMIS,directTarget=False,fromCell=actTurn.cell)
 
-                                            viArea = actTurn.cell.getArea(area=[skillToUse.range,skillToUse.area][skillToUse.range==AREA_MONO],team=actTurn.team,fromCell=actTurn.cell)
-                                            skillOptions, choiceMsgTemp = [], "__Carte :__\n{0}\n\n__Combattants à portée :__\n".format(map(tablAllCells,bigMap,viArea,fromEnt=actTurn,wanted=[ENNEMIS,ALLIES][skillToUse.type in funnyTempVarName],numberEmoji=targetAtRangeSkill))
+                                            viArea, altViArea = actTurn.cell.getArea(area=[skillToUse.range,skillToUse.area][skillToUse.range==AREA_MONO],team=actTurn.team,fromCell=actTurn.cell),  actTurn.cell.getArea(area=[skillToUse.range,skillToUse.area][skillToUse.range==AREA_MONO],team=actTurn.team,fromCell=actTurn.cell)
+                                            for celly in viArea[:]:
+                                                if celly.on in atRange:
+                                                    direction = getDirection(actTurn.cell,celly)
+                                                    if direction == FROM_LEFT:
+                                                        cellToFind = findCell(celly.x+1,celly.y,tablAllCells)
+                                                        if cellToFind != None:
+                                                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=actTurn.cell):
+                                                                if celly2 in viArea:
+                                                                    viArea.remove(celly2)
+                                                    elif direction == FROM_RIGHT:
+                                                        cellToFind = findCell(celly.x-1,celly.y,tablAllCells)
+                                                        if cellToFind != None:
+                                                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=actTurn.cell):
+                                                                if celly2 in viArea:
+                                                                    viArea.remove(celly2)
+                                                    elif direction == FROM_UP:
+                                                        cellToFind = findCell(celly.x,celly.y+1,tablAllCells)
+                                                        if cellToFind != None:
+                                                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=actTurn.cell):
+                                                                if celly2 in viArea:
+                                                                    viArea.remove(celly2)
+                                                    elif direction == FROM_RIGHT:
+                                                        cellToFind = findCell(celly.x,celly.y-1,tablAllCells)
+                                                        if cellToFind != None:
+                                                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=actTurn.cell):
+                                                                if celly2 in viArea:
+                                                                    viArea.remove(celly2)
+                                            skillOptions, choiceMsgTemp = [], "__Carte :__\n{0}\n\n__Combattants à portée :__\n".format(map(tablAllCells,bigMap,viArea,fromEnt=actTurn,wanted=[ENNEMIS,ALLIES][skillToUse.type in funnyTempVarName],numberEmoji=targetAtRangeSkill,fullArea=altViArea))
 
                                             if skillToUse.type != TYPE_SUMMON:
                                                 nbTargetAtRangeSkill = len(targetAtRangeSkill)
@@ -4400,24 +4413,16 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                                         tipe = 2
                                                     temp+=[create_button(tipe,a["label"],a["emoji"],a["value"])]
                                                     cmpt += 1
-
                                                 skillSelect = [create_actionrow(temp[0],temp[1])]
-
-                                                dateLimite = dateLimite+timedelta(seconds=3)
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+skillSelect)
+                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect]+skillSelect)
 
                                             elif choiceMsgTemp != "":
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect,waitingSelect])
-                                                dateLimite = dateLimite+timedelta(seconds=3)
+                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect,waitingSelect])
                                                 await asyncio.sleep(3)
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp).set_footer(text=f'Fin du tour dans {round(timeLimite)} secondes'),components=[mainSelect]+[create_actionrow(skillSelect)])
+                                                await choiceMsg.edit(embed = discord.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect]+[create_actionrow(skillSelect)])
 
                                             try:
-                                                timeLimite = (dateLimite - datetime.now()).total_seconds()
-                                                react = await wait_for_component(bot,messages=choiceMsg,timeout = timeLimite,check=check)
+                                                react = await wait_for_component(bot,messages=choiceMsg,timeout = 30,check=check)
                                             except:
                                                 unsuccess = True
                                                 await choiceMsg.clear_reactions()
@@ -4489,9 +4494,8 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
 
                                                 choiceToMove = None
                                                 while choiceToMove == None:
-                                                    timeLimite = (dateLimite - datetime.now()).total_seconds()
                                                     try:
-                                                        choiceMove = await wait_for_component(bot,messages=choiceMsg,timeout=timeLimite,check=check)
+                                                        choiceMove = await wait_for_component(bot,messages=choiceMsg,timeout=30,check=check)
                                                     except:
                                                         unsuccess = True
                                                         break
@@ -6040,13 +6044,14 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                         if skillToUse.ultimate and actTurn.char.aspiration == MAGE:
                                             tempTurnMsg += add_effect(actTurn,actTurn,classes.effect("Mage","effMage",None,turnInit=2,magie=actTurn.baseStats[MAGIE]*0.15,unclearable=True,emoji=uniqueEmoji(aspiEmoji[MAGE]),stackable=True))
                                             actTurn.refreshEffects()
-                                        power = skillToUse.power
+                                        power, elemPowBonus = skillToUse.power, 0
 
                                         if skillToUse.condition[:2] == [0,2]:
                                             for eff in actTurn.effect:
                                                 if eff.effect.id in [tablElemEff[skillToUse.condition[2]],tablElemEff[ELEMENT_UNIVERSALIS_PREMO]]:
-                                                    power = int(power*(1+eff.effect.power/100))
-                                                    break
+                                                    elemPowBonus += eff.effect.power
+                                        if elemPowBonus > 0:
+                                            power = power * (1+(elemPowBonus/100))
 
                                         if skillToUse.id == memClemCastSkill.id:
                                             effect = classes.effect("Bouclier vampirique","clemMemSkillShield",overhealth=(actTurn.hp-1)//2,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:clemMemento2:902222663806775428>'),absolutShield=True)
@@ -6478,9 +6483,15 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                             if not(replay or (optionChoice == OPTION_MOVE and not(allReadyMove))):
                                 break
                             else:
-                                replay = False
+                                replay, isCasting = False, False
                                 if optionChoice != OPTION_MOVE:
-                                    tempTurnMsg += "\n__{0} rejoue son tour !__\n".format(actTurn.char.name)
+                                    for eff in actTurn.effect:
+                                        if eff.effect.replica != None:
+                                            isCasting = True
+                                            break
+                                    
+                                    if not(isCasting):
+                                        tempTurnMsg += "\n__{0} rejoue son tour !__\n".format(actTurn.char.name)
                                 tempTurnMsg += lunaUsedQuickFight
                                 if optionChoice == OPTION_MOVE and not(allReadyMove):
                                     allReadyMove = True
@@ -6491,7 +6502,10 @@ async def fight(bot : discord.Client , team1 : list, team2 : list ,ctx : SlashCo
                                         if len(tempTurnMsg) > 4096:
                                             tempTurnMsg = "OVERLOAD"
                                     await turnMsg.edit(embed = discord.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color))
-                                    await asyncio.sleep(3)
+                                    if not(isCasting):
+                                        await asyncio.sleep(3)
+                                    else:
+                                        await asyncio.sleep(1)
                     # ==========================================
                     # Else, the entity is stun
                     else:                                   # The entity is, in fact, stun
