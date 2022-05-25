@@ -93,22 +93,37 @@ aliceSkill5 = skill("Chant de la gloire","aliceSkill5",TYPE_BOOST,effect=aliceSo
 clemBleeding = copy.deepcopy(bleeding)
 clemBleeding.power, clemBleeding.stat, clemBleeding.name = 50, MAGIE, "Sanguisugae"
 clemExSkill1 = skill("Exponentia Catenae", "clemExSkill1", TYPE_DAMAGE, 0, power=100, effectOnSelf=quickCastEff, replay=True, use=MAGIE,description="Inflige des dégâts, puis vous permet de rejouer votre tour en ignorant un tour de chargement de la prochaine compétence utilisée", cooldown=4, initCooldown=2, emoji=quickCast.emoji, lifeSteal=35)
-clemExSkill21Lauch = skill("Sanguinis Explosio", "clemExSkill2Launch", TYPE_DAMAGE, 0, initCooldown=2, power=750,area=AREA_CIRCLE_2, use=MAGIE, cooldown=6, description="Déclanche une explosion infligeant de lourds dégâts dans une large zone")
+clemExSkill21Lauch = skill("Sanguinis Explosio", "clemExSkill2Launch", TYPE_DAMAGE, 0,ultimate=True, emoji='<:clemBoom:978377130750644224>', initCooldown=2, power=750,area=AREA_CIRCLE_2, use=MAGIE, cooldown=6, description="Déclanche une explosion infligeant de lourds dégâts dans une large zone\nTemps de rechargement partagé avec <:clemRay:978376646262403144> __Sanguinis Ray__ \n__Puissance :__ {power}")
 clemExSkill21CastEff = effect("Cast - Sanguinis Explosio", "clemExSkill2CastEff",replique=clemExSkill21Lauch, silent=True, turnInit=2)
-clemExSkill22Lauch = skill("Sanguinis Ray",clemExSkill21Lauch.id,TYPE_DAMAGE,power=1250,range=AREA_MONO,area=AREA_INLINE_5,sussess=250,initCooldown=clemExSkill21Lauch.initCooldown,cooldown=clemExSkill21Lauch.cooldown,setAoEDamge=True,use=MAGIE,description="Tir un grand rayon d'énergie à vos points caridaux, infligeant d'extrèmes dégâts à tous les ennemis alignés\nNe peux pas être esquivé et ignore **35%** de la résistance ennemie",percing=35)
+clemExSkill22Lauch = skill("Sanguinis Ray",clemExSkill21Lauch.id,TYPE_DAMAGE,power=1250,ultimate=True,emoji='<:clemRay:978376646262403144>',area=AREA_INLINE_5,sussess=250,initCooldown=clemExSkill21Lauch.initCooldown,cooldown=clemExSkill21Lauch.cooldown,use=MAGIE,description="Tir un grand rayon d'énergie à vos points caridaux, infligeant d'extrèmes dégâts à tous les ennemis alignés\nNe peux pas être esquivé et ignore **35%** de la résistance ennemie\nTemps de rechargement partégé avec <:clemBoom:978377130750644224> __Sanguinis Explosio__\n__Puissance :__ {power}",percing=35)
 clemExSkill22Cast = effect("Cast - {0}".format(clemExSkill22Lauch.name),"clemRayonSanguinCastEff",silent=True,turnInit=2,replique=clemExSkill22Lauch)
 clemExSkill22 = copy.deepcopy(clemExSkill22Lauch)
 clemExSkill22.power, clemExSkill22.effectOnSelf = 0, clemExSkill22Cast
 clemExSkill21 = copy.deepcopy(clemExSkill21Lauch)
 clemExSkill21.power, clemExSkill21.effectOnSelf = 0, clemExSkill21CastEff
-clemExSkill2 = skill('Sanguis Bang',clemExSkill21.id,TYPE_DAMAGE,cooldown=clemExSkill21.cooldown,use=MAGIE,become=[clemExSkill21,clemExSkill22],area=AREA_CIRCLE_2)
-clemExSkill3 = skill("Sanguis Hastis", "clemExSkill3", TYPE_DAMAGE, 0, power=250, range=AREA_DIST_7, use=MAGIE,area=AREA_CIRCLE_1, cooldown=3, description="Inflige de lourd dégâts à l'ennemi éloignés ciblé et ses alliés alentours")
-clemExSkill4 = skill("Hastae Noctis", "clemExSkill4", TYPE_DAMAGE, 0, power=300,use=MAGIE, cooldown=2, description="Inflige de lourd dégâts monocibles et vous soigne d'une partie des dégâts infligés",lifeSteal=35)
+clemExSkill2 = skill('Sanguis Bang',clemExSkill21.id,TYPE_DAMAGE,cooldown=clemExSkill21.cooldown,ultimate=True,use=MAGIE,become=[clemExSkill21,clemExSkill22],area=AREA_CIRCLE_2,emoji='<:clemCast:978376938286641172>')
+clemExSkill31 = skill("Sanguis Hastis", "clemExSkill3", TYPE_DAMAGE, 0, power=250, range=AREA_DIST_7, use=MAGIE,area=AREA_CIRCLE_1, cooldown=3, description="Inflige de lourd dégâts à l'ennemi éloignés ciblé et ses alliés alentours\nTemps de rechargement partagé avec __Hastae Noctis__\n__Puissance :__ {power}")
+clemExSkill32 = skill("Hastae Noctis", "clemExSkill3", TYPE_DAMAGE, 0, power=300,use=MAGIE, cooldown=3, description="Inflige de lourd dégâts monocibles et vous soigne d'une partie des dégâts infligés\nTemps de rechargement partagé avec __Sanguis Hastis__\n__Puissance :__ {power}",lifeSteal=35)
+clemExSkill3 = skill("Sanguis Hastis/Hastae Noctis","clemExSkill3",TYPE_DAMAGE,become=[clemExSkill31,clemExSkill32],cooldown=clemExSkill32.cooldown,use=MAGIE)
 clemExSkill5 = skill("Saturi Cum Sanguine", "clemExSkill5", TYPE_DAMAGE, 0, power=250, range=AREA_MONO,area=AREA_CIRCLE_2, use=MAGIE, cooldown=5, description="Inflige de lourd aux ennemis alentours")
 clemExSkill6 = skill("Sanguis Pluvia", "clemExSkill6", TYPE_DAMAGE, power=50, range=AREA_MONO, area=AREA_ALL_ENEMIES, initCooldown=2, use=MAGIE,cooldown=5, setAoEDamge=True, replay=True, description="Inflige des dégâts à tous les ennemis en volant une partie des dégâts infligés, tout en leur infligeant un effet de dégâts indirects sur la durée",lifeSteal=35,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_ALL_ENEMIES,clemBleeding])
 clemExSkill7Eff = copy.deepcopy(dmgUp)
 clemExSkill7Eff.power, clemExSkill7Eff.turnInit = 35, 3
 clemExSkill7 = skill("Sanguis Exaltus", "clemExSkill7", TYPE_BOOST, range=AREA_MONO, emoji='<a:dmgBuffB:954429227657224272>', effect=clemExSkill7Eff, cooldown=7,description="Augmente vos dégâts de **{0}%** pendant {1} tours et vous permet de rejouer votre tour".format(clemExSkill7Eff.power, clemExSkill7Eff.turnInit),replay=True)
+
+CLEMCOMB6POWER, CLEMCOMB5POWER, CLEMCOMB4POWER, CLEMCOMB3POWER, CLEMCOMB2POWER, CLEMCOMB1POWER = 750,100,400,350,300,100
+
+clemExSkill41 = skill("Résolution Sanglante","clemExSkill4",TYPE_DAMAGE,power=CLEMCOMB6POWER,cooldown=5,range=AREA_INLINE_5,emoji='<:resolution:978398280943804436>',area=AREA_LINE_5,description="Effectue une succession d'attaque contre un ennemi. Le dernier coup du combo inflige des dégâts en ligne\n__Puissance totale :__ **{0}**".format(CLEMCOMB6POWER+CLEMCOMB5POWER+CLEMCOMB4POWER+CLEMCOMB3POWER+CLEMCOMB2POWER+CLEMCOMB1POWER),use=MAGIE)
+clemExSkill41Cast = effect("Résolution préparée","clemExSkill41Cast",silent=True,replique=clemExSkill41)
+clemExSkill42 = skill("Déplacement Sanglant","clemExSkill4",TYPE_DAMAGE,power=CLEMCOMB5POWER,jumpBack=1,effectOnSelf=clemExSkill41Cast,emoji='<:dep:932765889017839636>',range=AREA_CIRCLE_1,replay=True,use=MAGIE,tpCac=True)
+clemExSkill42Cast = effect("Déplacement préparé","clemExSkill42Cast",silent=True,replique=clemExSkill42)
+clemExSkill43 = skill("Redoublement Sanglant","clemExSkill4",TYPE_DAMAGE,power=CLEMCOMB4POWER,effectOnSelf=clemExSkill42Cast,emoji='<:combo3:978398179999514624>',range=AREA_CIRCLE_1,replay=True,use=MAGIE,tpCac=True)
+clemExSkill43Cast = effect("Redoublement préparé","clemExSkill43Cast",silent=True,replique=clemExSkill43)
+clemExSkill44 = skill("Zwerchhau Sanglant","clemExSkill4",TYPE_DAMAGE,power=CLEMCOMB3POWER,effectOnSelf=clemExSkill43Cast,emoji='<:combo2:978398160454045738>',range=AREA_CIRCLE_1,replay=True,use=MAGIE,tpCac=True)
+clemExSkill44Cast = effect("Zwerchhau préparé","clemExSkill44Cast",silent=True,replique=clemExSkill44)
+clemExSkill45 = skill("Riposte Sanglante","clemExSkill4",TYPE_DAMAGE,power=CLEMCOMB2POWER,effectOnSelf=clemExSkill44Cast,emoji='<:combo1:978398142967992330>',range=AREA_CIRCLE_1,replay=True,use=MAGIE,tpCac=True)
+clemExSkill45Cast = effect("Riposte préparée","clemExSkill45Cast",silent=True,replique=clemExSkill45)
+clemExSkill4 = skill("Corps à Corps Sanglant","clemExSkill4",TYPE_DAMAGE,power=CLEMCOMB1POWER,effectOnSelf=clemExSkill45Cast,replay=True,range=AREA_INLINE_5,emoji='<:cac:932765903102291999>',tpCac=True,description="Effectue une succession d'attaque contre un ennemi. Le dernier coup du combo inflige des dégâts en ligne\n__Puissance totale :__ **{0}**".format(CLEMCOMB6POWER+CLEMCOMB5POWER+CLEMCOMB4POWER+CLEMCOMB3POWER+CLEMCOMB2POWER+CLEMCOMB1POWER),use=MAGIE)
 
 clemExSay = says(
     start="Très bien, vous l'avez cherché.",
@@ -188,7 +203,7 @@ lunaPreSkill5_2 = copy.deepcopy(lunaSkill5_2)
 lunaPreSkill5_2.effectOnSelf, lunaPreSkill5_2.replay, lunaPreSkill5_2.power = lunaPreSkill5_1_cast, True, int(lunaPreSkill5_2.power*1.3)
 lunaPreSkill5_2_cast = effect("Enchaînement 3","ench3",silent=True,replique=lunaPreSkill5_2)
 lunaPreSkill5_3 = copy.deepcopy(lunaSkill5_1)
-lunaPreSkill5_3.effectOnSelf, lunaPreSkill5_3.replay, lunaPreSkill5_3.description, lunaPreSkill5_3.name, lunaPreSkill5_3.power = lunaPreSkill5_2_cast, True, "Effectue plusieurs attaques sur un adversaire\n__Puissance estimée :__ **{0}**".format(int(lunaPreSkill5_1.power*lunaPreSkill5_1.repetition)+int(lunaPreSkill5_2.power*lunaPreSkill5_2.repetition)+int(lunaPreSkill5_3.power*lunaPreSkill5_3.repetition)), "Combo Corps à Corps", int(lunaPreSkill5_3.power*1.3)
+lunaPreSkill5_3.effectOnSelf, lunaPreSkill5_3.replay, lunaPreSkill5_3.description, lunaPreSkill5_3.name, lunaPreSkill5_3.power = lunaPreSkill5_2_cast, True, "Effectue plusieurs attaques sur un adversaire\n__Puissance estimée :__ **461**", "Combo Corps à Corps", int(lunaPreSkill5_3.power*1.3)
 lunaPreSkill2_eff = effect("Ténèbres d'Obsidienne","lunaPreIndirect",STRENGTH,power=80,emoji='<:lunaIndi:932447879786823730>',turnInit=3,lvl=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE)
 lunaPreSkill2 = skill("Obsidienne Ténébreuse","lunaPreSkill2",TYPE_INDIRECT_DAMAGE,emoji=lunaPandan.emoji,effect=lunaPreSkill2_eff,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_INLINE_4,lunaPreSkill2_eff],range=AREA_MONO,area=AREA_CIRCLE_4,cooldown=4,description="Inflige un effet de dégâts indirects aux ennemis alentours. Les adversaires allignés subissent une deuxième fois l'effet",replay=True)
 lunaPreSkill3 = skill("Frappe d'Obsidienne","lunaPreSkill3",TYPE_DAMAGE,emoji=lunaSkill2.emoji,power=int(lunaSkill2.power*lunaSkill2.repetition*1.25),cooldown=lunaSkill2.cooldown,description="Inflige de lourd dégâts à un ennemi.\n__Puissance :__ **{power}**")

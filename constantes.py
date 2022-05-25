@@ -80,8 +80,7 @@ TRIGGER_START_OF_TURN = 6
 TRIGGER_ON_REMOVE = 7
 TRIGGER_AFTER_DAMAGE = 8
 
-allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,
-               TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE]
+allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE]
 triggersTxt = [
     "passivement",
     "lorsque le porteur reçoit des dégâts directs",
@@ -93,6 +92,9 @@ triggersTxt = [
     "lors du retrait de cet effet",
     "après que le porteur ai infligé des dégâts directs"
 ]
+
+DMGBONUSATLVL50 = 65
+DMGBONUSPERLEVEL = DMGBONUSATLVL50/50/100
 
 # Skills and effects types
 TYPE_ARMOR = 0
@@ -1006,19 +1008,19 @@ procurTempStuff = {
         ["Bottines de la cohabitation","dualBoost",'<:coaBoots:911659778995007528>'],
         [[0,0],[5,0.2],[2,0.3],[0.5,1],[0.5,1],[3,0.8],[4,0.8],[1,0.2],[0.5,0.3],[0.8,0.2]]
     ],
-    "Luna prê.":[150,
+    "Luna prê.":[250,
         ["Boucle d'oreille ombrale",'lunaDarkPendant','<:linapendant:890599104902754326>'],
         ["Robe de soubrette ombrale ",'lunaDarkMaidDress','<:linadress:890598423152185364>'],
         ["Ballerines ombrales",'lunaDarkFlats','<:linaflats:890598400624586763>'],
-        [[1,2.55],[1.105,0.4],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.15,0.3],[0.25,0.35],[0,0]]
+        [[1,2.55],[1.105,0.35],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.15,0.3],[0.25,0.35],[0,0]]
     ],
-    "Iliana prê.":[150,
+    "Iliana prê.":[250,
         ["Casque de la neko de la lueur ultime", 'ilianaPreHead','<:zenithHead:913170464581484554>'],
         ["Armure de la neko de la lueur ultime", 'ilianaPreArmor','<:zenithArmor:913170492452646922>'],
         ["Sorolets de la neko de la lueur ultime", 'ilianaPreBoots','<:zenithBoots:913170512564334623>'],
         [[0.2,0.1],[1,2.5],[1,3],[0.5,0.9],[1.2,0.3],[3,0.05],[5,0.05],[5,0.03],[1,0.05],[1,0.05]]
     ],
-    "Clémence Exaltée":[75,
+    "Clémence Exaltée":[135,
         ["Boucles d'oreilles runiques","clemRune",'<:clemEarRings:920297359848636458>'],
         ["Veste sanguine",'clemRune','<:clemVeste:920300283068833874>'],
         ["Bottes sanguines","clemRune","<:clemBoots:920297554330157056>"],

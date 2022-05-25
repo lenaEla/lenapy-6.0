@@ -559,8 +559,8 @@ revelation = skill("Révélation","srw",TYPE_BOOST,divination.price,effect=revel
 elemEff = effect("Energie multiélémentaire","elemEff",None,turnInit=3,stackable=True,description="Cet effet devient un effet élémentaire correspondant à votre élément, augmentant de **{0}%** la puissance de vos compétences exclusives à votre élément (Non cumulable)\nCertaines compétences peuvent consommer les effets élémentaires pour obtenir des propriétés supplémentaires",power=5,emoji=elemEmojis[ELEMENT_UNIVERSALIS_PREMO])
 elemEffName = ["Neutralité","Flamme intérieur","Courrant interne","Tempête intérieur","Minéralisation","Lueur interne","Ombre interne","Poussière cosmique","Seconde temporelle","Illuminae"]
 mEP = 35
-matriseElemEff = effect("Maîtrise élémentaire","maitriseElemPas",None,turnInit=-1,unclearable=True,description="Vous octroit **{0}%** de chance d'obtenir l'effet {1} __{2}__ lorsque vous utilisez une compétence élémentaire".format(mEP,elemEff.emoji[0][0],elemEff.name),emoji=elemEmojis[ELEMENT_UNIVERSALIS_PREMO],callOnTrigger=elemEff)
-maitriseElementaire = skill("Maîtrise élémentaire","srv",TYPE_PASSIVE,effectOnSelf=matriseElemEff,emoji=elemEmojis[ELEMENT_UNIVERSALIS_PREMO],price=500)
+matriseElemEff = effect("Maîtrise élémentaire","maitriseElemPas",None,turnInit=-1,unclearable=True,description="Vous octroit **{0}%** de chance d'obtenir l'effet {1} __{2}__ lorsque vous utilisez une compétence élémentaire".format(mEP,elemEff.emoji[0][0],elemEff.name),emoji='<:catDefault:956599837128802324>',callOnTrigger=elemEff)
+maitriseElementaire = skill("Maîtrise élémentaire","srv",TYPE_PASSIVE,effectOnSelf=matriseElemEff,emoji='<:catDefault:956599837128802324>',price=500)
 magicEffGiver = skill("Concentration élémentaire","sru",TYPE_DAMAGE,500,75,effectOnSelf=elemEff,emoji='<:elemStrike:953217204629950484>',description="Inflige des dégâts à l'ennemi ciblé et vous octroit l'effet élémentaire correspondant à votre élément",cooldown=5,use=MAGIE)
 physEffGiver = skill("Convertion élémentaire","srt",TYPE_DAMAGE,500,75,effectOnSelf=elemEff,emoji='<:elemSpell:953217184795078697>',description="Inflige des dégâts à l'ennemi ciblé et vous octroit l'effet élémentaire correspondant à votre élément",cooldown=5)
 finalFasEff = effect("Final Fascinatoire","finalFas",critical=10,critDmgUp=10,emoji="<:finalFas:951824644523040788>",description="Augmente le taux de coup critique et de dégâts critiques de **10%**")
@@ -611,7 +611,7 @@ redemption = skill("Rédemption","sro",TYPE_DAMAGE,500,150,area=AREA_CIRCLE_1,ma
 tablElemEff = []
 for cmpt in range(len(elemNames)):
     temp = copy.deepcopy(elemEff)
-    temp.emoji, temp.name, temp.description, temp.id = uniqueEmoji(elemEmojis[cmpt]), elemEffName[cmpt], "Augmente de **{0}%** la puissance de vos compétences exclusives à l'élément **{1}** (Non cumulable)\n\nCertaines compétences peuvent consommer cet effet pour obtenir des propriétés supplémentaires".format(temp.power,elemNames[cmpt]), temp.id + str(cmpt)
+    temp.emoji, temp.name, temp.description, temp.id = uniqueEmoji(elemEmojis[cmpt]), elemEffName[cmpt], "Augmente de **{0}%** la puissance de vos compétences exclusives à l'élément **{1}**\n\nCertaines compétences peuvent consommer cet effet pour obtenir des propriétés supplémentaires".format(temp.power,elemNames[cmpt]), temp.id + str(cmpt)
     tablElemEff.append(temp)
 for cmpt in range(len(transTabl)):
     transTabl[cmpt].name, transTabl[cmpt].description = lbNames[cmpt], lbDesc[cmpt]
