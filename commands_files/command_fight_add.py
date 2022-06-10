@@ -20,9 +20,10 @@ moveEmoji = ['⬅️','➡️','⬆️','⬇️']
 cancelButton = create_actionrow(create_button(ButtonStyle.grey,"Retour",'◀️',custom_id="return"))
 waitingSelect = create_actionrow(create_select([create_select_option("Veuillez prendre votre mal en patience","wainting...",'🕰️',default=True)],disabled=True))
 
+altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
 
 tablIsNpcName = []
-for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna"]:
+for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune"]:
     if type(a) != str:
         tablIsNpcName.append(a.name)
     else:
@@ -210,7 +211,7 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
             if a in fullArea and not(a in showArea):
                 temp = '<:unseenTargeted:978458473018830858>'
             else:
-                temp = ['<:em:866459463568850954>',['<:tb:873118129214083102>','<:tr:873118129130192947>'][wanted==ENNEMIS]][a in showArea]
+                temp = ['<:em:866459463568850954>',['<:tb:873118129214083102>','<:tr:873118129130192947>'][wanted==ENEMIES]][a in showArea]
         else:
             temp = f'{str(a.x)}:{str(a.y)}'                         # Show cells ID
         if a.on != None:
@@ -219,7 +220,7 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
             elif a.on.status != STATUS_TRUE_DEATH:
                 if a.on.invisible:                              # If the entity is invisible, don't show it. Logic
                     temp = '<:em:866459463568850954>'
-                elif a not in showArea or (wanted==ALLIES and a.on.team != fromEnt.team) or (wanted==ENNEMIS and a.on.team == fromEnt.team):
+                elif a not in showArea or (wanted==ALLIES and a.on.team != fromEnt.team) or (wanted==ENEMIES and a.on.team == fromEnt.team):
                     temp = [a.on.icon,'❇️'][a.on==fromEnt]
                 elif a != fromEnt.cell:
                     temp = '<:unsee:899788326691823656>'

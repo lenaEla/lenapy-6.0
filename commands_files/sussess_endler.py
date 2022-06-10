@@ -94,7 +94,15 @@ maj17="""
         delegationHave     INTEGER DEFAULT (0),
         delegationCount     INTEGER DEFAULT (0),
         stellaHave     INTEGER DEFAULT (0),
-        stellaCount     INTEGER DEFAULT (0)
+        stellaCount     INTEGER DEFAULT (0),
+        momKitsuneHave     INTEGER DEFAULT (0),
+        momKitsuneCount     INTEGER DEFAULT (0),
+        kiku1Have     INTEGER DEFAULT (0),
+        kiku1Count     INTEGER DEFAULT (0),
+        sufferingHave     INTEGER DEFAULT (0),
+        sufferingCount     INTEGER DEFAULT (0),
+        kiku2Have     INTEGER DEFAULT (0),
+        kiku2Count     INTEGER DEFAULT (0)
     );
 
     INSERT INTO achivements (
@@ -178,7 +186,9 @@ maj17="""
                                 dirtyHave,
                                 dirtyCount,
                                 delegationHave,
-                                delegationCount
+                                delegationCount,
+                                stellaHave,
+                                stellaCount
                             )
                             SELECT id,
                                 aliceCount,
@@ -260,7 +270,9 @@ maj17="""
                                 dirtyHave,
                                 dirtyCount,
                                 delegationHave,
-                                delegationCount
+                                delegationCount,
+                                stellaHave,
+                                stellaCount
                             FROM sqlitestudio_temp_table;
 
     DROP TABLE sqlitestudio_temp_table;
@@ -335,11 +347,16 @@ class successTabl:
         self.still = success("You win by doing absolutly nothing",1,"still",description="Gagner un combat en passant tous vos tours",recompense='hga')
         self.dirty = success("Main propre",5,"dirty",description="Gagner {0} combats en étant dans les 3 meilleurs DPT sans infliger de dégâts directs")
         self.delegation = success("Laisser le sale boulot aux autres",1,"delegation",description="Terminer un combat en atant meilleur DPT mais en ayant réalisé aucune élimination")
-        self.stella = success("Puissance solaire",10,"stella","srb",description="Affronter Stella {0} fois")
+        self.stella = success("Puissance solaire",10,"stella","srb",description="Affrontez Stella {0} fois",emoji=findEnnemi("Stella").icon)
+        self.momKitsune = success("La passion originelle",3,"momKitsune","sph",description="Affrontez Kitsune {0} fois",emoji=findEnnemi("Kitsune").icon)
+        self.kiku1 = success("Aux portes de la mort",5,"kiku1","spg",description="Affrontez Kiku {0} fois",emoji=findEnnemi("Kiku").icon)
+        self.kiku2 = success("Rire au visage de la mort",1,"kiku2",description="Être en vie en commençant son 16e tour tout en ayant l'effet \"Mors Vita Est\" de Kiku",emoji=findEnnemi("Kiku").icon)
+        self.suffering = success("Suffering form success",1,"suffering",description="Remplir l'une des conditions suivantes :\n- Être ciblé par la compétence Carapace à épines\n- Être vaincu pour son propre effet de dégâts indirect",emoji=blueShell.emoji)
 
     def tablAllSuccess(self):
         """Renvoie un tableau avec tous les objets success"""
-        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation,self.stella]
+        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation,self.stella,
+        self.momKitsune,self.kiku1,self.kiku2,self.suffering]
 
     def where(self,where : str):
         alls = self.tablAllSuccess()
@@ -430,7 +447,7 @@ class succesDb:
         cursor = self.con.cursor()
 
         try:
-            cursor.execute("SELECT stellaCount FROM achivements;")
+            cursor.execute("SELECT kiku2Count FROM achivements;")
         except:
             temp = ""
             for a in maj17:

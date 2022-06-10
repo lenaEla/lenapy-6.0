@@ -888,12 +888,12 @@ async def normal(ctx):
         if randomRoll < 50: # ClemClem
             procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
-            level += random.randint(0, 10)
+            level += random.randint(0, 100)
             ent.changeLevel(level)
             ent.stuff = [
-                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[1][2]),
-                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2]),
-                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[3][2])
+                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
+                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2]),
+                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[3][2])
             ]
 
             team1.append(ent)
@@ -905,9 +905,9 @@ async def normal(ctx):
             ent.changeLevel(level)
 
             ent.stuff = [
-                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[1][2]),
-                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2]),
-                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2])
+                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
+                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2]),
+                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2])
             ]
 
             team1.append(ent)
@@ -918,9 +918,9 @@ async def normal(ctx):
                 ent2.changeLevel(level)
 
                 ent2.stuff = [
-                    stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[1][2]),
-                    stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2]),
-                    stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*level),int(procurData[4][1][0]*procurData[4][1][1]*level),int(procurData[4][2][0]*procurData[4][2][1]*level),int(procurData[4][3][0]*procurData[4][3][1]*level),int(procurData[4][4][0]*procurData[4][4][1]*level),int(procurData[4][5][0]*procurData[4][5][1]*level),int(procurData[4][6][0]*procurData[4][6][1]*level),int(procurData[4][7][0]*procurData[4][7][1]*level),int(procurData[4][8][0]*procurData[4][8][1]*level),int(procurData[4][9][0]*procurData[4][9][1]*level),emoji=procurData[2][2])
+                    stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[1][2]),
+                    stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[2][2]),
+                    stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[2][2])
                 ]
                 
                 team1.append(ent2)
@@ -1017,7 +1017,10 @@ async def comQuickFight(ctx):
         msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
-            tablAllTeams.remove(user.team)
+            try:
+                tablAllTeams.remove(user.team)
+            except:
+                pass
             random.shuffle(tablAllTeams)
 
             moyTeam = 0
@@ -1045,8 +1048,8 @@ async def comQuickFight(ctx):
             temp.sort(key=lambda overheal: overheal.level, reverse=True)
             maxLvl = temp[0].level
             team2 = []
-            alea = copy.deepcopy(
-                tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
+            alea = copy.deepcopy(tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
+            #alea = copy.deepcopy(findEnnemi("Kitsune"))
 
             alea.changeLevel(maxLvl)
             team2.append(alea)
@@ -1371,10 +1374,8 @@ async def teamView(ctx, joueur=None):
     if not(await botChannelVerif(bot, ctx)):
         return 0
     if joueur == None:
-        pathUserProfile = absPath + "/userProfile/" + \
-            str(ctx.author.id) + ".prof"
-    else:
-        pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
+        joueur = ctx.author
+    pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
 
     if os.path.exists(pathUserProfile):
         user, extended = loadCharFile(pathUserProfile), False
@@ -1396,9 +1397,13 @@ async def teamView(ctx, joueur=None):
                 for usr in teamMates:
                     level = str(usr.level) + ["", "<:ls:925860806602682369>{0}".format(usr.stars)][usr.stars > 0]
                     ballerine = f'{aspiEmoji[usr.aspiration]}|{usr.weapon.emoji}|{usr.stuff[0].emoji}{usr.stuff[1].emoji}{usr.stuff[2].emoji}|'
-                    for b in usr.skills:
-                        if type(b) == skill:
-                            ballerine += b.emoji
+                    for cmpt in range(len(usr.skills)):
+                        if type(usr.skills[cmpt]) == skill:
+                            ballerine += usr.skills[cmpt].emoji
+                        elif usr.level >= lvlToUnlockSkill[cmpt]:
+                            ballerine += "<:noSkill:978458473018830858>"
+                        else:
+                            ballerine += "🔒"
                     ballerine += "\n\n"
 
                     icon = await getUserIcon(bot, usr)
@@ -2324,16 +2329,19 @@ async def expeditionTest(ctx):
     for a in listEmbed:
         await chan.send(embed=a)
 
-@slash.slash(name="HoroscopeTest", guild_ids=adminServ)
-async def horoTest(ctx):
-    desc = ""
-    for cmpt in horoscopeEff:
-        desc += "{0} __{1}__ :".format(cmpt[0].emoji[0][0],cmpt[0].name)
-        for staty in cmpt[1]:
-            desc += " {0} +{1}".format(nameStats[staty[0]],staty[1])
-        desc += "\n"
-    await ctx.send(embed = discord.Embed(title="__Horoscope__",color=light_blue,description=desc))
-
+@slash.slash(name="area_test",guild_ids=adminServ)
+async def areaTest(ctx):
+    first = True
+    for area in [AREA_CONE_3,AREA_LINE_3,AREA_ARC_1]:
+        emb = discord.Embed(title=areaNames[area],color=light_blue)
+        for cmpt in (0,1,2,3):
+            emb.add_field(name=["__From Left__","__From Right__","__From Up__","__From Down__"][cmpt],value=visuArea(area,ENEMIES,False,cmpt),inline=False)
+        if first:
+            await ctx.send(embed=emb)
+            first = False
+        else:
+            await ctx.channel.send(embed=emb)
+            
 ###########################################################
 # Démarrage du bot
 if not(isLenapy):

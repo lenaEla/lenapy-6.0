@@ -3,6 +3,7 @@ import io
 import os
 from sys import maxsize
 from typing import List
+from charset_normalizer import from_fp
 
 import discord
 from discord_slash.utils.manage_components import create_actionrow, create_select, create_select_option, create_button
@@ -67,9 +68,9 @@ def getDirection(cell1,cell2):
         return FROM_POINT
     xDif, yDif = cell1.x-cell2.x, cell1.y-cell2.y
     if abs(xDif) >= abs(yDif):
-        if xDif < 0:
+        if xDif > 0:
             return FROM_LEFT
-        elif xDif > 0:
+        elif xDif < 0:
             return FROM_RIGHT
     else:
         if yDif > 0:
@@ -131,7 +132,7 @@ class cell:
             return self.tablAllCells
         elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
             areaTabl, coneLength, direction = [self],area-(AREA_CONE_2-2), getDirection(fromCell,self)
-            if direction in [FROM_LEFT,FROM_POINT]:
+            if direction in [FROM_RIGHT,FROM_POINT]:
                 for cmpt in range(coneLength+1):
                     for celly in self.tablAllCells:
                         if celly not in areaTabl:
@@ -140,7 +141,7 @@ class cell:
                             elif celly.x == self.x+(cmpt-1) and celly.x >=self.x:
                                 if ((celly.y>self.y and celly.y < self.y+cmpt) or (celly.y<self.y and celly.y > self.y-cmpt) or (celly.y == self.y)):
                                     areaTabl.append(celly)
-            elif direction == FROM_RIGHT:
+            elif direction == FROM_LEFT:
                 for cmpt in range(coneLength+1):
                     for celly in self.tablAllCells:
                         if celly not in areaTabl:
@@ -149,7 +150,7 @@ class cell:
                             elif celly.x == self.x-(cmpt-1) and celly.x <= self.x:
                                 if ((celly.y>self.y and celly.y < self.y+cmpt) or (celly.y<self.y and celly.y > self.y-cmpt) or (celly.y == self.y)):
                                     areaTabl.append(celly)
-            elif direction == FROM_UP:
+            elif direction == FROM_DOWN:
                 for cmpt in range(coneLength+1):
                     for celly in self.tablAllCells:
                             if celly not in areaTabl:
@@ -158,7 +159,7 @@ class cell:
                                 elif celly.y == self.y+(cmpt-1) and celly.y >= self.y:
                                     if ((celly.x>self.x and celly.x < self.x+cmpt) or (celly.x<self.x and celly.x > self.x-cmpt) or (celly.x == self.x)):
                                         areaTabl.append(celly)
-            elif direction == FROM_DOWN:
+            elif direction == FROM_UP:
                 for cmpt in range(coneLength+1):
                     for celly in self.tablAllCells:
                             if celly not in areaTabl:
@@ -181,11 +182,11 @@ class cell:
                         rep.append(cellToSee)
             elif direction == FROM_UP:
                 for cellToSee in self.tablAllCells:
-                    if self.x == cellToSee.x and (cellToSee.y - self.y <= area-(AREA_LINE_2-1) and cellToSee.y - self.y > 0):
+                    if self.x == cellToSee.x and (cellToSee.y - self.y <= area-(AREA_LINE_2-1) and cellToSee.y - self.y >= 0):
                         rep.append(cellToSee)
             elif direction == FROM_DOWN:
                 for cellToSee in self.tablAllCells:
-                    if self.x == cellToSee.x and (self.y - cellToSee.y <= area-(AREA_LINE_2-1) and cellToSee.y - self.y < 0):
+                    if self.x == cellToSee.x and (self.y - cellToSee.y <= area-(AREA_LINE_2-1) and cellToSee.y - self.y <= 0):
                         rep.append(cellToSee)
         elif area in [AREA_ARC_1,AREA_ARC_2,AREA_ARC_3]: # Arcs
             cmptx, direction = 1, getDirection(self,fromCell)
@@ -209,17 +210,17 @@ class cell:
             else:
                 while cmptx < area - 32:
                     if direction == FROM_UP:
-                        cell1 = findCell(self.x-cmptx,self.y+cmptx,self.tablAllCells)
-                        if cell1 != None:
-                            rep.append(cell1)
-                        cell2 = findCell(self.x-cmptx,self.y+cmptx,self.tablAllCells)
-                        if cell2 != None:
-                            rep.append(cell2)
-                    else:
-                        cell1 = findCell(self.x+cmptx,self.y-cmptx,self.tablAllCells)
+                        cell1 = findCell(self.x-cmptx,self.y-cmptx,self.tablAllCells)
                         if cell1 != None:
                             rep.append(cell1)
                         cell2 = findCell(self.x+cmptx,self.y-cmptx,self.tablAllCells)
+                        if cell2 != None:
+                            rep.append(cell2)
+                    else:
+                        cell1 = findCell(self.x-cmptx,self.y+cmptx,self.tablAllCells)
+                        if cell1 != None:
+                            rep.append(cell1)
+                        cell2 = findCell(self.x+cmptx,self.y+cmptx,self.tablAllCells)
                         if cell2 != None:
                             rep.append(cell2)
                     cmptx+=1
@@ -243,7 +244,7 @@ class cell:
             Parameters :\n
             .area : See ``constantes``
             .team : The team of the entity who's looking in the area. ``0`` for Blue Team (and Default), ``1`` else for the Red Team
-            .wanted : Who are we looking for ? ``ALLIES`` for the allies of the entity (and Default), ``ENNEMIS`` else
+            .wanted : Who are we looking for ? ``ALLIES`` for the allies of the entity (and Default), ``ENEMIES`` else
             .lineOfSight : Do we look for the line of sight ? Default ``False``
                 -> The line of sight will always be ignore if Wanted is at ``ALLIES`` or Area is in ``AREA_ALL_ALLIES,AREA_ALL_ENNEMIS,AREA_ALL_ENTITIES``
             .lifeUnderPurcentage : Only select entities under or egal at ``lifeUnderPurcentage``% of their maxHp. Default ``100``
@@ -273,41 +274,42 @@ class cell:
                     targetable = True
 
                 if ent.hp > 0 and not(dead):
-                    if targetable and ((ent.team == team and wanted == ALLIES) or (ent.team != team and wanted == ENNEMIS) or (wanted == ALL)):
+                    if targetable and ((ent.team == team and wanted == ALLIES) or (ent.team != team and wanted == ENEMIES) or (wanted == ALL)):
                         enties.append(ent)
 
                 elif ent.hp <= 0 and dead:
-                    if (ent.team == team and wanted == ALLIES) or (ent.team != team and wanted == ENNEMIS) or (wanted == ALL):
+                    if (ent.team == team and wanted == ALLIES) or (ent.team != team and wanted == ENEMIES) or (wanted == ALL):
                         enties.append(ent)
         rep = enties
 
-        if lineOfSight and wanted==ENNEMIS and (area not in [AREA_ALL_ENEMIES,AREA_ALL_ENTITES]):
+        if lineOfSight and wanted==ENEMIES and (area not in [AREA_ALL_ENEMIES,AREA_ALL_ENTITES]):
             for ent in enties[:]:
-                celly, direction = ent.cell = getDirection(self,celly)
-                if direction == FROM_LEFT:
-                    cellToFind = findCell(celly.x+1,celly.y,self.tablAllCells)
-                    if cellToFind != None:
-                        for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
-                            if celly2.on != None and celly.on.team != team and celly2.on in enties:
-                                enties.remove(celly2.on)
-                elif direction == FROM_RIGHT:
-                    cellToFind = findCell(celly.x-1,celly.y,self.tablAllCells)
-                    if cellToFind != None:
-                        for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
-                            if celly2.on != None and celly.on.team != team and celly2.on in enties:
-                                enties.remove(celly2.on)
-                elif direction == FROM_UP:
-                    cellToFind = findCell(celly.x,celly.y+1,self.tablAllCells)
-                    if cellToFind != None:
-                        for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
-                            if celly2.on != None and celly.on.team != team and celly2.on in enties:
-                                enties.remove(celly2.on)
-                elif direction == FROM_DOWN:
-                    cellToFind = findCell(celly.x,celly.y-1,self.tablAllCells)
-                    if cellToFind != None:
-                        for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
-                            if celly2.on != None and celly.on.team != team and celly2.on in enties:
-                                enties.remove(celly2.on)
+                if ent.team != team:
+                    celly, direction = ent.cell, getDirection(self,ent.cell)
+                    if direction == FROM_RIGHT:
+                        cellToFind = findCell(celly.x+1,celly.y,self.tablAllCells)
+                        if cellToFind != None:
+                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
+                                if celly2.on != None and celly.on.team != team and celly2.on in enties:
+                                    enties.remove(celly2.on)
+                    elif direction == FROM_LEFT:
+                        cellToFind = findCell(celly.x-1,celly.y,self.tablAllCells)
+                        if cellToFind != None:
+                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
+                                if celly2.on != None and celly.on.team != team and celly2.on in enties:
+                                    enties.remove(celly2.on)
+                    elif direction == FROM_DOWN:
+                        cellToFind = findCell(celly.x,celly.y+1,self.tablAllCells)
+                        if cellToFind != None:
+                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
+                                if celly2.on != None and celly.on.team != team and celly2.on in enties:
+                                    enties.remove(celly2.on)
+                    elif direction == FROM_UP:
+                        cellToFind = findCell(celly.x,celly.y-1,self.tablAllCells)
+                        if cellToFind != None:
+                            for celly2 in cellToFind.getArea(area=AREA_CONE_7,fromCell=self):
+                                if celly2.on != None and celly.on.team != team and celly2.on in enties:
+                                    enties.remove(celly2.on)
 
         temp = []
         for a in rep:
@@ -400,7 +402,7 @@ def findCell(x : int, y : int, tablAllCells) -> cell:
             return tablAllCells[cmpt]
         cmpt += 1
 
-def visuArea(area: int, wanted, ranged=True) -> list:
+def visuArea(area: int, wanted, ranged=True, fromDir=FROM_LEFT) -> list:
     tablAllCells, cmpt = [], 0
     for a in [0, 1, 2, 3, 4, 5]:
         for b in [0, 1, 2, 3, 4]:
@@ -417,7 +419,7 @@ def visuArea(area: int, wanted, ranged=True) -> list:
                 isAlly = -1
                 isAlly2 = 0
                 isAlly3 = 1
-            elif area in [5, 6, 7, 14, 15, 16, 20, 21, 26, 27, 28, 31, 32, 33]:
+            elif area in [5, 6, 7, 14, 15, 16, 26, 27, 28, 31, 32, 33]:
                 isAlly = -2
                 isAlly2 = -1
                 isAlly3 = 2
@@ -430,11 +432,10 @@ def visuArea(area: int, wanted, ranged=True) -> list:
 
         if area in [AREA_CIRCLE_4, AREA_CONE_4, AREA_LINE_4, AREA_DONUT_4, AREA_DIST_4]:
             visibleCell = findCell(base+isAlly2, 2, tablAllCells)
-        elif area in [5, 6, 7, 14, 15, 16, 20, 21, 26, 27, 28, 31, 32, 33]:
+        elif area in [5, 6, 7, 14, 15, 16, 26, 27, 28, 31, 32, 33]:
             visibleCell = findCell(base+isAlly3, 2, tablAllCells)
         else:
             visibleCell = findCell(base+isAlly, 2, tablAllCells)
-
     else:
         if area in [AREA_CIRCLE_4, AREA_CONE_2, AREA_LINE_4, AREA_DONUT_4, AREA_DIST_4, AREA_INLINE_3]:
             visibleCell = findCell(1, 2, tablAllCells)
@@ -443,7 +444,16 @@ def visuArea(area: int, wanted, ranged=True) -> list:
         else:
             visibleCell = findCell(2, 2, tablAllCells)
 
-    visibleArea = visibleCell.getArea(area=area, fromCell = [visibleCell,findCell(0,2,tablAllCells)][ranged])
+    if fromDir == FROM_LEFT:
+        fromCell = findCell(0,2,tablAllCells)
+    elif fromDir == FROM_RIGHT:
+        fromCell =  findCell(5,2,tablAllCells)
+    elif fromDir == FROM_UP:
+        fromCell = findCell(3,0,tablAllCells)
+    elif fromDir == FROM_DOWN:
+        fromCell = findCell(3,4,tablAllCells)
+
+    visibleArea = visibleCell.getArea(area=area, fromCell = [visibleCell,fromCell][not(ranged)])
     line1, line2, line3, line4, line5 = [None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None], [None, None, None, None, None, None]
     lines = [line1, line2, line3, line4, line5]
     temp = ""
@@ -456,21 +466,23 @@ def visuArea(area: int, wanted, ranged=True) -> list:
             else:
                 temp = "<:t2:873118129130192947>"
 
+        if [a.x,a.y] == [fromCell.x,fromCell.y] and not(ranged):
+            temp = [tablAllAllies[0].icon,'<:tl:979408929467539537>'][a in visibleArea and wanted == ALLIES]
         lines[a.y][a.x] = temp
     if ranged:
-        lines[visibleCell.y][visibleCell.x] = "<:iw:871149538554044466>"
+        lines[visibleCell.y][visibleCell.x] = [tablAllAllies[0].icon,'<:tl:979408929467539537>'][visibleCell in visibleArea and wanted == ALLIES]
     else:
         if visibleCell in visibleArea:
-            if wanted == ENNEMIS:
+            if wanted == ENEMIES:
                 # Memo : Lines[y][x]
                 lines[visibleCell.y][visibleCell.x] = "<:ir:873118129541238814>"
             else:
                 lines[visibleCell.y][visibleCell.x] = '<:ib:873118128958214166>'
         else:
-            if wanted == ENNEMIS:
-                lines[visibleCell.y][visibleCell.x] = '<ir:866459224664702977>'
+            if wanted == ENEMIES:
+                lines[visibleCell.y][visibleCell.x] = '<:ir:866459224664702977>'
             else:
-                lines[visibleCell.y][visibleCell.x] = '<:ib866459302319226910>'
+                lines[visibleCell.y][visibleCell.x] = '<:ib:866459302319226910>'
 
     temp = ""
     for a in lines:
@@ -486,6 +498,9 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
 
     while boucle:
         eff = findEffect(effId)
+        if eff.id == kikuRaiseEff.id:
+            eff = copy.deepcopy(eff)
+            eff.callOnTrigger = kikuUnlifeGift
         bonus, malus = "", ""
         Stat = ""
         if eff.stat == None:
@@ -510,7 +525,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         if eff.stackable:
             cumu = "\n\nCet effet est **cumulable**"
         effTmp += f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\n__Durée :__ {tamp}\n__Statistique prise en compte :__ **{Stat}**{Powa}{cumu}"
-        effTmp += "\nCet effet se délanche {0}".format(triggersTxt[eff.trigger])
+        effTmp += "\nCet effet se délanche {0}\n".format(triggersTxt[eff.trigger])
 
         if eff.lvl != 1:
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(
@@ -528,14 +543,14 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         effTmp += f'\n__Description :__\n{eff.description}\n'
         for a in range(len(stats)):
             if stats[a] > 0:
-                bonus += f"{names[a]} : +{stats[a]}\n"
+                bonus += f"{names[a]} : +{int(stats[a]*powerPurcent/100)}\n"
             elif stats[a] < 0:
-                malus += f"{names[a]} : {stats[a]}\n"
+                malus += f"{names[a]} : {int(stats[a]*powerPurcent/100)}\n"
 
         if bonus != "":
-            effTmp += f"\n**__Bonus de statistiques :__**\n{bonus}"
+            effTmp += "\n**__Bonus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + bonus
         if malus != "":
-            effTmp += f'\n**__Malus de statistiques :__**\n{malus}'
+            effTmp += "\n**__Malus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + malus
 
         if eff.inkResistance > 0 and eff.stat != None:
             effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base\nSi plusieurs effects de réduction de dégâts indirects sont cumulés, seul le plus puissant sera pris en compte"
@@ -549,7 +564,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
 
         if eff.callOnTrigger != None and not(iteration):
             effId = eff.callOnTrigger
-            iteration = True
+            iteration = eff.id != kikuMechExplain.id
             embed.add_field(name=fieldname, value=effTmp, inline=False)
             effTmp = ""
             fieldname = "<:empty:866459463568850954>\n__À l'activation, cet effet donne un autre effet :__"
@@ -569,7 +584,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
                 for a in babie:
                     if a == eff.type:
                         embed.add_field(name="__Zone d'effet :__", value=visuArea(
-                            eff.area, wanted=ENNEMIS, ranged=False))
+                            eff.area, wanted=ENEMIES, ranged=False))
                         break
             break
         else:
@@ -586,7 +601,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
 
                 elif eff.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]:
                     embed.add_field(name="__Zone d'effet :__", value=visuArea(
-                        eff.area, wanted=ENNEMIS, ranged=False))
+                        eff.area, wanted=ENEMIES, ranged=False))
 
             break
 
@@ -633,7 +648,7 @@ def infoSkill(skill: skill, user: char, ctx):
         multiPower.append(skil)
 
     if [skill.id, skill.name] == [trans.id, trans.name]:
-        skil = transTabl[user.aspiration]
+        skil = lb3Tabl[user.aspiration]
 
     elif skil.id == mageUlt.id:
         if user.element in [ELEMENT_FIRE, ELEMENT_AIR, ELEMENT_SPACE]:
@@ -920,10 +935,14 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.knockback > 0 and skil.become == None:
         temp2 += "\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}\n> - Si la cible percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.knockback, [
                                                                                                                                                                                                                                        "", "s"][int(skil.knockback > 1)])
+    if skil.pull > 0 and skil.become == None:
+        temp2 += "\n__Attraction :__\nCette compétence attire les cibles sur **{0}** case{1}".format(skil.pull,["","s"][skil.pull>1])
     if skil.jumpBack:
         temp2 += "\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack, [
                                                                                                                                                                                                                                        "", "s"][int(skil.jumpBack > 1)])
 
+    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf.jaugeValue) != None) or (skil.jaugeEff != None):
+        temp2 = "\nCette compétence est une **compétence à jauge**. Chaque combattant ne peut avoir qu'une seule jauge simultanémant"
     if temp2 != "":
         temp += "\n"+temp2
 
@@ -937,17 +956,16 @@ def infoSkill(skill: skill, user: char, ctx):
                 temp += "\n__{1}__ repousse la cible de **{0}** case{2}".format(
                     becomeName.knockback, becomeName.name, ["", "s"][becomeName.knockback > 1])
 
+    repEmb = discord.Embed(title=skil.name, color=user.color,description=desc+"\n\n__Statistiques :__\n"+temp)
+    
+
     if skil.effectAroundCaster != None:
         if type(skil.effectAroundCaster[2]) == effect:
-            toAdd = "__Effet :__ {0} ({1})".format(
-                skil.effectAroundCaster[2].name, tablTypeStr[skil.effectAroundCaster[2].type])
+            toAdd = "__Effet :__ {0}".format(skil.effectAroundCaster[2].name, skil.effectAroundCaster[2].emoji[0][0])
         else:
             toAdd = "__Puissance :__ {0}".format(skil.effectAroundCaster[2])
-        temp += "\n\n__Effet supplémentaire autour du lanceur :__\n__Type :__ {0}\n__Zone d'effet :__ {1}\n{2}".format(
-            tablTypeStr[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd)
+        repEmb.add_field(name="<:empty:866459463568850954>\n__Effet supplémentaire autour du lanceur :__",inline=False,value="__Type :__ {0}\n__Zone d'effet :__ {1}\n{2}".format(tablTypeStr[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd))
 
-    repEmb = discord.Embed(title=skil.name, color=user.color,
-                           description=desc+"\n\n__Statistiques :__\n"+temp)
     if skil.emoji[1] == "a":
         repEmb.set_thumbnail(
             url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
@@ -958,16 +976,16 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.become == None:
         if skil.range not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5]:
             repEmb.add_field(name="__Portée :__", value=visuArea(skil.range, wanted=[
-                             ALLIES, ENNEMIS][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]]))
+                             ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]]))
 
         if skil.area not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5, AREA_ALL_ALLIES, AREA_ALL_ENEMIES, AREA_ALL_ENTITES]:
             repEmb.add_field(name="__Zone d'effet :__", value=visuArea(skil.area, wanted=[
-                             ALLIES, ENNEMIS][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]], ranged=False))
+                             ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]], ranged=False))
 
     else:
         listRange, listRangeName, listArea, listName = [], [], [], []
         for become in skil.become:
-            wantedTarget = [ALLIES, ENNEMIS][become.type in [
+            wantedTarget = [ALLIES, ENEMIES][become.type in [
                 TYPE_DAMAGE, TYPE_INDIRECT_DAMAGE, TYPE_MALUS]]
             if [become.range, wantedTarget] not in listRange:
                 listRange.append([become.range, wantedTarget])
@@ -1048,10 +1066,15 @@ def infoSkill(skill: skill, user: char, ctx):
 
     if skil.effectOnSelf != None:
         if skil.type != TYPE_PASSIVE:
-            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx, True,powerPurcent=skil.selfEffPurcent)
+            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx, True ,powerPurcent=skil.selfEffPurcent)
         else:
             repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx,True," (passif)",powerPurcent=skil.selfEffPurcent)
-
+    if skil.effectAroundCaster != None and type(skil.effectAroundCaster[2])==effect:
+        repEmb = infoEffect(skil.effectAroundCaster[2], user, repEmb, ctx, powerPurcent=[skil.effPowerPurcent,int(liaLB.effPowerPurcent/5)][skil==liaLB],txt = " *(autour du lanceur)*")
+    
+    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf.jaugeValue) != None) or (skil.jaugeEff != None):
+        repEmb = infoEffect([skil.effectOnSelf,skil.jaugeEff][skil.jaugeEff != None], user, repEmb, ctx,txt = " *(Jauge)*")
+    
     if skil.invocation != None:
         repEmb = infoInvoc(findSummon(skil.invocation), repEmb)
 
@@ -1167,7 +1190,7 @@ def infoWeapon(weap: weapon, user: char, ctx):
     for a in babie:
         if a == weap.type:
             repEmb.add_field(name="__Portée :__", value=visuArea(
-                weap.effectiveRange, wanted=ENNEMIS))
+                weap.effectiveRange, wanted=ENEMIES))
             break
 
     if weap.area != AREA_MONO and weap.area != AREA_ALL_ALLIES and weap.area != AREA_ALL_ENEMIES and weap.area != AREA_ALL_ENTITES:
@@ -1182,7 +1205,7 @@ def infoWeapon(weap: weapon, user: char, ctx):
         for a in babie:
             if a == weap.type:
                 repEmb.add_field(name="__Zone d'effet :__", value=visuArea(
-                    weap.area, wanted=ENNEMIS, ranged=False))
+                    weap.area, wanted=ENEMIES, ranged=False))
                 break
 
     if weap.effect != None:
@@ -2083,7 +2106,7 @@ def infoAllie(allie: tmpAllie):
 
     for allyTmpName, allyBalancingEff in tmpBalancingDict.items():
         if allie.name.lower() == allyTmpName.lower():
-            embed.add_field(name="__Equilibrage :__",value="Lorsqu'{0} se trouve dans l'équipe rouge sans conditions particulières, cet{1} allié{4} temporaire subit l'effet __{2}__ :\n{3}".format(["il","elle"][allie.gender==GENDER_FEMALE],["","te"][allie.gender==GENDER_FEMALE],allyBalancingEff.name,allyBalancingEff.description,["","e"][allie.gender==GENDER_FEMALE]),inline=True)
+            embed.add_field(name="__Equilibrage :__",value="Lorsqu'{0} se trouve dans l'équipe rouge sans conditions particulières, cet{1} allié{4} temporaire subit l'effet {5} __{2}__ :\n{3}".format(["il","elle"][allie.gender==GENDER_FEMALE],["","te"][allie.gender==GENDER_FEMALE],allyBalancingEff.name,allyBalancingEff.description,["","e"][allie.gender==GENDER_FEMALE],allyBalancingEff.emoji[0][0]),inline=False)
             break
 
     return embed
@@ -2249,17 +2272,20 @@ async def getRandomStatsEmbed(bot: discord.Client, team: List[classes.char], tex
             biggest = random.randint(0, 4)
             if biggest < 2:
                 if rdm2 == "max":
-                    records = aliceStatsDb.getRecord(
-                        "max{0}".format(randomStat))
-                    if int(records["owner"]) == int(choisen["char"].owner):
-                        desc += "\n\nC'est d'ailleurs le record tiens"
-                    else:
-                        try:
-                            recorder = loadCharFile(
-                                absPath + "/userProfile/" + str(records["owner"]) + ".prof")
-                            desc += "\n\n"+randomRecordMsg[random.randint(0, len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot, recorder), value=separeUnit(int(records["value"])), name=recorder.name, il=["il", "elle"][recorder.gender == GENDER_FEMALE], e=["", "e"][recorder.gender == GENDER_FEMALE])
-                        except:
-                            desc += "\n\nJ'ai pas pu trouver qui avait le record, par contre"
+                    try:
+                        records = aliceStatsDb.getRecord(
+                            "max{0}".format(randomStat))
+                        if int(records["owner"]) == int(choisen["char"].owner):
+                            desc += "\n\nC'est d'ailleurs le record tiens"
+                        else:
+                            try:
+                                recorder = loadCharFile(
+                                    absPath + "/userProfile/" + str(records["owner"]) + ".prof")
+                                desc += "\n\n"+randomRecordMsg[random.randint(0, len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot, recorder), value=separeUnit(int(records["value"])), name=recorder.name, il=["il", "elle"][recorder.gender == GENDER_FEMALE], e=["", "e"][recorder.gender == GENDER_FEMALE])
+                            except:
+                                desc += "\n\nJ'ai pas pu trouver qui avait le record, par contre"
+                    except:
+                        pass
                 elif len(team) > 1:
                     summation = 0
                     for di in listDict:

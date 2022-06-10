@@ -10,7 +10,6 @@ from donnes import *
 from gestion import *
 from advance_gestion import *
 from emoji import backward_arrow,check
-from commands_files.command_encyclopedia import changeDefault
 from commands_files.command_start import chooseAspiration,chooseColor,changeCustomColor
 
 inventoryMenu = create_select(
@@ -39,7 +38,8 @@ changeElemDisabled4 = create_button(1,"Utiliser comme élément secondaire",getE
 confirmButton = create_button(ButtonStyle.green,"Équiper",check,"confirm")
 useMimikator = create_button(ButtonStyle.gray,"Utiliser votre Mimikator",getEmojiObject(mimique.emoji),"mimikator")
 hideNonEquip = create_button(ButtonStyle.blue,"Cacher Non équip.",custom_id="hideNoneEquip",emoji=getEmojiObject('<:invisible:899788326691823656>'))
-affNonEquip = create_button(ButtonStyle.green,"Aff. Non équip.",custom_id="affNoneEquip",emoji=getEmojiObject("<:noeuil:887743235131322398>"))
+affExclu = create_button(ButtonStyle.green,"Aff. Exclusivité",custom_id="affExclu",emoji=getEmojiObject(matriseElemEff.emoji[0][0]))
+affNonEquip = create_button(ButtonStyle.grey,"Aff. Non équip.",custom_id="affNoneEquip",emoji=getEmojiObject("<:noeuil:887743235131322398>"))
 allType = create_button(ButtonStyle.gray,"Aff. Tout",custom_id="allDamages",emoji=getEmojiObject('<:targeted:912415337088159744>'))
 onlyPhys = create_button(ButtonStyle.success,"Aff. Phy./Corp. un.",custom_id="onlyPhys",emoji=getEmojiObject("<:berkSlash:916210295867850782>"))
 onlyMag = create_button(ButtonStyle.blurple,"Aff Mag./Psy. un.",custom_id="onlyMag",emoji=getEmojiObject('<:lizDirectSkill:917202291042435142>'))
@@ -47,6 +47,9 @@ affAcc = create_button(ButtonStyle.success,"Aff. Accessoire",getEmojiObject('<:d
 affBody = create_button(ButtonStyle.green,"Aff. Tenue",getEmojiObject('<:defMid:896928729673109535>'),"dress")
 affShoes = create_button(ButtonStyle.blue,"Aff. Chaussures",getEmojiObject('<:defShoes:896928709330731018>'),"flats")
 affAllStuff = create_button(ButtonStyle.grey,"Aff. Tout",getEmojiObject('<:dualMagie:899628510463803393>'),"all")
+
+affCompMelee = create_button(ButtonStyle.red,"Aff. Comp. Mêlée",getEmojiObject(absorbingStrike.emoji),"melee_ult")
+affCompDist = create_button(ButtonStyle.red,"Aff. Comp. Distance",getEmojiObject(absorbingArrow.emoji),"dist_ult")
 
 tablStatsName = nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"]
 
@@ -64,8 +67,12 @@ for skilly in skills:
 returnAndConfirmActionRow = create_actionrow(returnButton,confirmButton)
 
 def getSortSkillValue(object : skill, wanted : int):
-    if wanted in [15,17]:
+    if wanted in [15,17]:       # Indirect Dmg or Armor
         eff = findEffect(object.effect[0])
+        if eff == None:
+            eff = findEffect(object.effectOnSelf)
+            if (eff == None or (eff != None and eff.type not in [TYPE_INDIRECT_DAMAGE,TYPE_ARMOR])) and object.effectAroundCaster != None:
+                eff = findEffect(object.effectAroundCaster[2])
         if eff != None:
             if wanted == 15:
                 return eff.power * object.effPowerPurcent/100
@@ -74,18 +81,40 @@ def getSortSkillValue(object : skill, wanted : int):
         else:
             print("{0} n'a rien a faire dans la catégorie {1} !".format(object.name,["Dégâts indirects","Armure"][int(wanted==17)]))
             return 0
-    elif wanted == 14:
+    elif wanted == 14:      # Dmg     
         while not(object.effectOnSelf == None or findEffect(object.effectOnSelf).replica == None):
             object = findSkill(findEffect(object.effectOnSelf).replica)
-        return object.power * object.repetition
+        if object.type == TYPE_DAMAGE:
+            return object.power * object.repetition
+        elif object.effectAroundCaster != None:
+            return object.effectAroundCaster[2]
 
-    elif wanted == 16:
+    elif wanted == 16:  # Heal
         if object.effect[0] == None:
             while not(object.effectOnSelf == None or findEffect(object.effectOnSelf).replica == None):
                 object = findSkill(findEffect(object.effectOnSelf).replica)
             return object.power
         else:
-            return findEffect(object.effect[0]).power
+            if object.effect[0] != None:
+                return findEffect(object.effect[0]).power
+            elif object.effectOnSelf != None:
+                return findEffect(object.effectOnSelf).power
+            elif object.effectAroundCaster != None:
+                return object.effectAroundCaster[2]
+
+    return 0
+
+def changeDefault(select : dict, value : int):
+    """Chance the default value from a Select Menu for the selected option"""
+    value = str(value)
+    temp = copy.deepcopy(select)
+    for a in temp["options"]:
+        if a["value"] == value:
+            a["default"] = True
+        elif a["default"] == True:
+            a["default"] = False
+
+    return temp
 
 elemOptions = []
 for a in range(0,len(elemDesc)):
@@ -852,7 +881,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         affult = create_button(ButtonStyle.green,"Aff. tout type",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"aff_ult")
         hideult = create_button(ButtonStyle.blue,"Cacher Ultimes",getEmojiObject(skillnonult[random.randint(0,len(skillnonult)-1)].emoji),"hide_ult")
         affonlyult = create_button(ButtonStyle.grey,"Aff. seulement Ult.",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"affonly_ult")
-        tablShowUltButton = [affult,hideult,affonlyult]
+        tablShowUltButton = [affult,hideult,affonlyult,affCompMelee,affCompDist]
         affmono = create_button(ButtonStyle.green,"Aff. comp. monocibles",getEmojiObject(skillMono[random.randint(0,len(skillMono)-1)].emoji),"mono_area")
         affaoe = create_button(ButtonStyle.blue,"Aff. comp. Zone",getEmojiObject(skillAoe[random.randint(0,len(skillAoe)-1)].emoji),"aoe_area")
         affallarea = create_button(ButtonStyle.grey,"Aff. toutes zones",getEmojiObject(skills[random.randint(0,len(skills)-1)].emoji),"all_area")
@@ -875,7 +904,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         if len(listUserProcure) > 24:
             listUserProcure = listUserProcure[:24]
 
-        affAll,stuffAff,statsToAff,stuffToAff = False,False,0,0
+        affAll,stuffAff,statsToAff,stuffToAff = 0,False,0,0
         while 1:
             if len(listUserProcure) > 0:
                 procurOptions = []
@@ -976,17 +1005,21 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         see = typeTabl[tri-14]
                         if type(see) != list:
                             for ski in tablToSee[:]:
-                                if ski.type != see:
+                                if (see != TYPE_BOOST and not(ski.type == see or (ski.effect != [None] and findEffect(ski.effect[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST):
                                     tablToSee.remove(ski)
 
                         else:
                             for ski in tablToSee[:]:
-                                if ski.type not in see:
+                                if not(ski.type in see or (ski.effect != [None] and findEffect(ski.effect[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
                                     tablToSee.remove(ski)
 
-                    if not(affAll):
+                    if affAll==0:
                         for a in tablToSee[:]:
                             if not(a.havConds(user)):
+                                tablToSee.remove(a)
+                    elif affAll == 1:
+                        for a in tablToSee[:]:
+                            if not(a.havConds(user)) or a.condition == []:
                                 tablToSee.remove(a)
 
                     if statsToAff > 0:
@@ -1000,6 +1033,14 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     elif hideUlt == 2:
                         for skilly in tablToSee[:]:
                             if not skilly.ultimate:
+                                tablToSee.remove(skilly)
+                    elif hideUlt == 3:
+                        for skilly in tablToSee[:]:
+                            if skilly.ultimate or skilly.range not in areaMelee+areaMixte:
+                                tablToSee.remove(skilly)
+                    elif hideUlt == 4:
+                        for skilly in tablToSee[:]:
+                            if skilly.ultimate or skilly.range not in areaDist+areaMixte:
                                 tablToSee.remove(skilly)
                     if affMono == 1:
                         for skilly in tablToSee[:]:
@@ -1252,10 +1293,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(userIconThub))
 
             if destination in [1,2]:
-                if affAll:
-                    temp1 = hideNonEquip
-                else:
-                    temp1 = affNonEquip
+                temp1 = [hideNonEquip,affExclu,affNonEquip][affAll-1]
                 if statsToAff == 0:
                     temp2 = onlyPhys
                 elif statsToAff == 1:
@@ -1266,15 +1304,12 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 if destination == 1:
                     ultimateTemp = [create_actionrow(temp1,temp2)]
                 else:
-                    temp3 = tablShowUltButton[[hideUlt+1,0][hideUlt==2]]
+                    temp3 = tablShowUltButton[(hideUlt+1)%5]
                     temp4 = tablSkillArea[affMono]
                     ultimateTemp = [create_actionrow(temp1,temp2,temp3,temp4)]
 
             elif destination == 0:
-                if affAll:
-                    temp1 = hideNonEquip
-                else:
-                    temp1 = affNonEquip
+                temp1 = [hideNonEquip,affNonEquip,affExclu][affAll]
                 temp2 = [affAcc,affBody,affShoes,affAllStuff][stuffToAff%4]
                 ultimateTemp = [create_actionrow(temp1,temp2)]
             else:
@@ -1358,17 +1393,20 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
             elif respond.values[0].startswith("cat_"):
                 destination = int(respond.values[0].replace("cat_",""))
-                needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, False, False, 0, 0
+                needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, 1, False, 0, 0
 
             elif respond.values[0].startswith("goto"):
                 page = int(respond.values[0].replace("goto",""))
 
             elif respond.values[0].startswith("user_"):
                 user = loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
-                needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, False, False, 0, 0
+                needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, 0, False, 0, 0
 
-            elif respond.values[0] in ["hideNoneEquip","affNoneEquip"]:
-                affAll = not(affAll)
+            elif respond.values[0] in ["hideNoneEquip","affNoneEquip","affExclu"]:
+                for cmpt in range(3):
+                    if respond.values[0] == ["hideNoneEquip","affExclu","affNoneEquip"][cmpt]:
+                        affAll = cmpt
+                        break
                 stuffAff = not(stuffAff)
                 needRemake = True
             elif respond.values[0] in ["allDamages","onlyPhys","onlyMag","acc","dress","flats","all"]:
@@ -1378,7 +1416,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     stuffToAff = (stuffToAff+1)%4
                 needRemake = True
             elif respond.values[0].endswith("_ult"):
-                hideUlt = (hideUlt+1)%3
+                hideUlt = (hideUlt+1)%5
                 needRemake = True
             elif respond.values[0].endswith("_area"):
                 affMono = (affMono+1)%3

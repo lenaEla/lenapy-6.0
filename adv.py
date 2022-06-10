@@ -280,7 +280,7 @@ if not(isLenapy):
                     what += whaty.name + ", "
             raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("Erudite"))
+#print(seeSimilarStuffNameMinLvl("danseuse"))
 #print(seeAllStuffAtMinLvl(0))
 
 """for stuffy in stuffs:

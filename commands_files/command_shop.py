@@ -44,8 +44,12 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
         if dateNow.month <= 2 or dateNow.month == 12:
             shopTotalRandom += shopSeasonWinter
-        elif dateNow.month <= 6:
+        elif dateNow.month <= 5:
             shopTotalRandom += shopSeasonSpring
+        elif dateNow.month <= 8:
+            shopTotalRandom += shopSeasonsSummer
+        elif dateNow.mouth <= 11:
+            shopTotalRandom += shopSeasonsAutomne
 
         for shopDict in shopEventOneDay:
             if shopDict["date"] == (dateNow.day,dateNow.month):
@@ -55,18 +59,18 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
         shopRdMsg = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)].format(
             ctx.author.name,
             user.name,
-            lena = '<:lena:909047343876288552>',
-            alice = '<:alice:908902054959939664>',
-            shushi = '<:shushi:909047653524963328>',
-            clemence = '<:clemence:908902579554111549>',
+            lena = tablAllAllies[0].icon,
+            alice = tablAllAllies[3].icon,
+            shushi = tablAllAllies[4].icon,
+            clemence = tablAllAllies[2].icon,
             luna = '<:luna:909047362868105227>',
             feli = '<:felicite:909048027644317706>',
             icelia = '<:icealia:909065559516250112>',
             shihu = '<:shihu:909047672541945927>',
-            shehisa = '<:shehisa:919863933320454165>',
+            shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon,
             sixtine = '<:sixtine:908819887059763261>',
             iliana = '<:Iliana:926425844056985640>',
-            gweny = '<:gweny:906303014665617478>', alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>'
+            gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>'
             )
         initMsg = msg
 

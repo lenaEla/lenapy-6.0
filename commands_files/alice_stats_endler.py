@@ -392,11 +392,14 @@ class aliceStatsdbEndler:
             listUpdated.append(result["total{0}".format(tablAdd[num])]+tablStats[num])
             listUpdated.append(max(result["max{0}".format(tablAdd[num])],tablStats[num]))
 
-            if tablStats[num] > records[num]["value"]:
-                cursor.execute("UPDATE records SET owner = ?, value = ? WHERE recordName = ?;",(int(user.owner),tablStats[num],"max{0}".format(tablAdd[num])))
-                self.con.commit()
-                cursor.execute("SELECT * FROM records")
-                records = cursor.fetchall()
+            try:
+                if tablStats[num] > records[num]["value"]:
+                    cursor.execute("UPDATE records SET owner = ?, value = ? WHERE recordName = ?;",(int(user.owner),tablStats[num],"max{0}".format(tablAdd[num])))
+                    self.con.commit()
+                    cursor.execute("SELECT * FROM records")
+                    records = cursor.fetchall()
+            except IndexError:
+                pass
 
         cursor.execute("UPDATE userStats SET totalDamage = ?, maxDamage = ?, totalKill = ?, maxKill = ?, totalResu = ?, maxResu = ?, totalRecivedDamage = ?, maxRecivedDamage = ?, totalHeal = ?, maxHeal = ?, totalArmor = ?, maxArmor = ?, totalSupp = ?, maxSupp = ? WHERE id = ?;",(listUpdated[0],listUpdated[1],listUpdated[2],listUpdated[3],listUpdated[4],listUpdated[5],listUpdated[6],listUpdated[7],listUpdated[8],listUpdated[9],listUpdated[10],listUpdated[11],listUpdated[12],listUpdated[13],int(user.owner)))
         self.con.commit()

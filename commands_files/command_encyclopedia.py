@@ -5,18 +5,7 @@ from constantes import *
 from gestion import getEmojiObject, whatIsThat
 from advance_gestion import infoStuff,infoWeapon,infoSkill,getUserIcon,infoAllie,infoEnnemi
 from commands_files.sussess_endler import *
-
-def changeDefault(select : dict, value : int):
-    """Chance the default value from a Select Menu for the selected option"""
-    value = str(value)
-    temp = copy.deepcopy(select)
-    for a in temp["options"]:
-        if a["value"] == value:
-            a["default"] = True
-        elif a["default"] == True:
-            a["default"] = False
-
-    return temp
+from commands_files.command_inventory import getSortSkillValue
 
 async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, destination : int, user : char):
     """The main function for the encyclopedia command"""
@@ -32,12 +21,13 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 stuffed[a].append(b.emoji)
 
     # Randomly select emojis for the "Destionation" select Menu
-    opValues,value,fullValue=["accessoires","vetements","chaussures","armes","competences","tempAlies","ennemies","boss","locked","achivements"],0,["Accessoires","Vêtements","Chaussures","Armes","Compétences","Alliés","Ennemis","Boss","Objets non-possédés","Succès"]
+    value = copy.deepcopy(destination)
+    opValues,destination,fullValue=["accessoires","vetements","chaussures","armes","competences","tempAlies","ennemies","boss","locked","achivements"],0,["Accessoires","Vêtements","Chaussures","Armes","Compétences","Alliés","Ennemis","Boss","Objets non-possédés","Succès"]
     valueIcon = [stuffed[0][random.randint(0,len(stuffed[0])-1)],stuffed[1][random.randint(0,len(stuffed[1])-1)],stuffed[2][random.randint(0,len(stuffed[2])-1)],weapons[random.randint(0,len(weapons)-1)].emoji,skills[random.randint(0,len(skills)-1)].emoji,tablAllAllies[random.randint(0,len(tablAllAllies)-1)].icon,tablAllEnnemies[random.randint(0,len(tablAllEnnemies)-1)].icon,tablBoss[random.randint(0,len(tablBoss)-1)].icon,'<:splatted2:727586393173524570>','<:ls1:868838101752098837>']
     tri = 0
     for a in range(0,len(opValues)):
-        if destination == opValues[a]:
-            value=a
+        if value == opValues[a]:
+            destination=a
             break
 
     needRemake = True
@@ -47,23 +37,23 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
     while 1:
         destOptions = []
         for a in range(0,len(opValues)):
-            destOptions+=[create_select_option(fullValue[a],opValues[a],getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[value])]
+            destOptions+=[create_select_option(fullValue[a],opValues[a],getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[destination])]
 
         destSelect = create_actionrow(create_select(destOptions))
 
         # The options for the filter menu. Change with the selected destination
         options = [
-            create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri or(tri > 3 and value > 3 and value != 9)),
+            create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri),
             create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
         ]
 
-        if value in [0,1,2,3,4]:
+        if destination in [0,1,2,3,4]:
             options += [
             create_select_option("Possédé","2",'🔓',default=2==tri),
             create_select_option("Non possédé","3",'🔒',default=3==tri)
             ]
         
-        if value in [0,1,2,3]:
+        if destination in [0,1,2,3]:
             options+=[
                 create_select_option("Force","4",'💪',default=4==tri),
                 create_select_option("Endurance","5",'🏃',default=5==tri),
@@ -76,7 +66,26 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 create_select_option("Pénétration","12",'🗡️',default=12==tri),
                 create_select_option("Critique","13",'🎲',default=13==tri)]
 
-        if value in [9]:
+        elif destination == 4:
+            options += [
+                create_select_option("Dégâts","14",getEmojiObject('<:meteor:904164411990749194>'),default=tri==14),
+                create_select_option("Dégâts indirects","15",getEmojiObject('<:tentamissile:884757344397951026>'),default=tri==15),
+                create_select_option("Soins","16",getEmojiObject('<:AdL:873548073769533470>'),default=tri==16),
+                create_select_option("Armure","17",getEmojiObject('<:orbeDef:873725544427053076>'),default=tri==17),
+                create_select_option("Boost",'18',getEmojiObject('<:bpotion:867165268911849522>'),default=tri==18),
+                create_select_option("Malus","19",getEmojiObject('<:nostalgia:867162802783649802>'),default=tri==19),
+                create_select_option("Invocation","20",getEmojiObject('<:sprink1:887747751339757599>'),default=tri==20),
+                create_select_option("Passif","21",getEmojiObject('<:IdoOH:909278546172719184>'),default=tri==21)
+            ]
+
+        elif destination in [5,6,7]:
+            options += [
+                create_select_option("DPT - Mêlée","21",getEmojiObject('<:sworddance:894544710952173609>'),default=tri==21),
+                create_select_option("DPT - Distance","22",getEmojiObject('<:preciseShot:916561817969500191>'),default=tri==22),
+                create_select_option("Supports","23",getEmojiObject('<:alice:893463608716062760>'),default=tri==23),
+                create_select_option("Soigneur / Armuriers","24",getEmojiObject('<:absorb:971788658782928918>'),default=tri==24),
+            ]
+        elif destination in [9]:
             options += [
             create_select_option("Terminés","14",'🔓',default=13==tri),
             create_select_option("Non terminés","15",'🔒',default=14==tri)
@@ -86,22 +95,40 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
     
         if needRemake:                          # The "TablToSee" generation
             tablToSee = []
-            if value in [0,1,2]:
+            if destination in [0,1,2]:
                 for a in stuffs:
-                    if a.type == value:
+                    if a.type == destination:
                         tablToSee.append(a)
-            elif value == 3:
+            elif destination == 3:
                 tablToSee = weapons[:]
-            elif value == 4:
+            elif destination == 4:
                 tablToSee = skills[:]
-            elif value == 5:
+                if tri >= 14:
+                    typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
+                    see = typeTabl[tri-14]
+                    if type(see) != list:
+                        for ski in tablToSee[:]:
+                            if not(ski.type == see or (ski.effect != [None] and findEffect(ski.effect[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see)):
+                                tablToSee.remove(ski)
+                    else:
+                        for ski in tablToSee[:]:
+                            if not(ski.type in see or (ski.effect != [None] and findEffect(ski.effect[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
+                                tablToSee.remove(ski)
+
+                if tri in [14,16]:
+                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                elif tri in [15]:
+                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                elif tri in [17]:
+                    tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+            elif destination == 5:
                 for a in tablAllAllies+tablVarAllies:
                     if a not in tablToSee:
                         tablToSee.append(a)
-            elif value == 6:
+            elif destination == 6:
                 tablToSee = tablUniqueEnnemies[:]
-            elif value == 7:
-                for a in tablBoss+tablRaidBoss:
+            elif destination == 7:
+                for a in tablBoss+tablRaidBoss+tablBossPlus:
                     trouv=False
                     for b in tablToSee:
                         if a.name == b.name:
@@ -110,19 +137,19 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     if not(trouv):
                         tablToSee.append(a)
 
-            elif value == 8:
+            elif destination == 8:
                 tablToSee = weapons[:]+stuffs[:]+skills[:]
                 for a in tablToSee[:]:
                     if user.have(a):
                         tablToSee.remove(a)
 
-            elif value==9:
+            elif destination==9:
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
                 user = loadCharFile(pathUserProfile)
                 tablToSee = achivement.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
 
-            if value in [0,1,2,3]:
+            if destination in [0,1,2,3]:
                 if tri in [2,3]:
                     tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
                 elif tri == 4:
@@ -149,6 +176,17 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(tri-14))
                 else:
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
+            elif destination in [5,6,7] and tri >= 21:
+                for ent in tablToSee[:]:
+                    if tri == 21 and ent.aspiration not in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR]:
+                        tablToSee.remove(ent)
+                    elif tri == 22 and ent.aspiration not in [OBSERVATEUR,ATTENTIF,MAGE,SORCELER]:
+                        tablToSee.remove(ent)
+                    elif tri == 23 and ent.aspiration not in [IDOLE,INOVATEUR]:
+                        tablToSee.remove(ent)
+                    elif tri == 24 and ent.aspiration not in [PROTECTEUR,ALTRUISTE,VIGILANT,PREVOYANT]:
+                        tablToSee.remove(ent)
+                tablToSee.sort(key=lambda ballerine:ballerine.name)
             else:
                 tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
             
@@ -160,15 +198,15 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             needRemake = False
 
         # Base description for the selected destination
-        if value in [0,1,2,3,4,8]:                          # Stuffs, Weapons and Skills
+        if destination in [0,1,2,3,4,8]:                          # Stuffs, Weapons and Skills
             desc = f"{userIcon} : Vous possédez déjà cet objet\n<:coinsn_t:885921771071627304> : Cet ebjet ne peut pas être obtenu dans le Magasin ou en butin"
-        elif value == 5:                                    # Alliés Temps
+        elif destination == 5:                                    # Alliés Temps
             desc = "Les alliés temporaires rejoignent automatiquement un combat pour remplir les équipes en dessous de 4 membres"
-        elif value == 6:                                    # Ennemis
+        elif destination == 6:                                    # Ennemis
             desc = "Les ennemis sont là pour vous opposer une petite résistance tout de même"
-        elif value == 7:                                    # Boss's
+        elif destination == 7:                                    # Boss's
             desc = "Chaque combat a une chance sur trois de voir un Boss parmis les ennemis"
-        elif value == 9:                                    # Sussess
+        elif destination == 9:                                    # Sussess
             desc = "Liste des succès :"
 
         firstOptions = []
@@ -176,7 +214,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             firstOptions+=[create_select_option("Page précédente","return",emoji.backward_arrow)]
 
         if lenTabl != 0: # Génération des pages
-            if value < 5 or value == 8:
+            if destination < 5 or destination == 8:
                 mess=""
                 if page != maxPage:
                     maxi = (page+1)*10
@@ -197,7 +235,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     mess += temp+lock+"\n"
 
                     # Première info utile
-                    if value in [0,1,2,8] and type(a) == stuff:
+                    if destination in [0,1,2,8] and type(a) == stuff:
                         affinity = ""
                         if type(a) == stuff and a.affinity != None:
                             affinity = elemEmojis[a.affinity]
@@ -209,7 +247,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         if affinity != "":
                             affinity = " - "+affinity
                         mess +="*"+a.orientation+affinity+"*\n"
-                    elif value in [3,4,8] and type(a) != stuff:
+                    elif destination in [3,4,8] and type(a) != stuff:
                         ballerine = tablTypeStr[a.type]+" "
                         if a.use != None and a.use != HARMONIE:
                             sandale = nameStats[a.use]
@@ -218,7 +256,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         elif a.use == HARMONIE:
                             sandale = "Harmonie"
 
-                        if value == 3:
+                        if destination == 3:
                             babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
                         else:
                             babie=''
@@ -239,7 +277,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
                     # Statistiques
                     temp = ""
-                    if value in [0,1,2,3,8]:
+                    if destination in [0,1,2,3,8]:
                         if type(a) != skill:
                             stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
                             for b in range(0,len(stats)):
@@ -270,7 +308,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     # Création de l'option
                     mess += temp+"\n"
                     firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
-            elif value != 9:
+            elif destination != 9:
                 mess = ""
                 if page != maxPage:
                     maxi = (page+1)*10
@@ -365,36 +403,38 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
     
         if respond.values[0].isdigit():
             respond = int(respond.values[0])
-            sortOptions = changeDefault(sortOptions,respond)
 
             if respond in [0,1]:
                 needRemake = True
             else:
-                tablToSee.sort(key=lambda ballerine: ballerine.name)
-                if respond in [2,3]:
-                    tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(respond-2))
-                elif respond == 4:
-                    tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
-                elif respond == 5:
-                    tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
-                elif respond == 6:
-                    tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
-                elif respond == 7:
-                    tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
-                elif respond == 8:
-                    tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
-                elif respond == 9:
-                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
-                elif respond == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
-                elif respond == 11:
-                    tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
-                elif respond == 12:
-                    tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
-                elif respond == 13:
-                    tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
-                elif respond in [14,15]:
-                    tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(respond-14))
+                if destination in [0,1,2,3]:
+                    tablToSee.sort(key=lambda ballerine: ballerine.name)
+                    if respond in [2,3]:
+                        tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(respond-2))
+                    elif respond == 4:
+                        tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    elif respond == 5:
+                        tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
+                    elif respond == 6:
+                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
+                    elif respond == 7:
+                        tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
+                    elif respond == 8:
+                        tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
+                    elif respond == 9:
+                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
+                    elif respond == 10:
+                        tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    elif respond == 11:
+                        tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
+                    elif respond == 12:
+                        tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                    elif respond == 13:
+                        tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+                    elif respond in [14,15]:
+                        tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(respond-14))
+                else:
+                    needRemake = True
             tri=respond
 
         else:
@@ -409,16 +449,16 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             elif respond in opValues:
                 for a in range(0,len(opValues)):
                     if opValues[a] == respond:
-                        value = a
+                        destination = a
                         needRemake = True
                         break
-            elif value in [0,1,2]:
+            elif destination in [0,1,2]:
                 await inter.send(embed=infoStuff(findStuff(respond),user,ctx))
-            elif value == 3:
+            elif destination == 3:
                 await inter.send(embed=infoWeapon(findWeapon(respond),user,ctx))
-            elif value == 4:
+            elif destination == 4:
                 await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
-            elif value == 5:
+            elif destination == 5:
                 lvl, tempMachin, addLvl = 50, None, 0
                 procurData = None
                 for procurName, procurStuff in procurTempStuff.items():
@@ -478,7 +518,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         await tempMachin.delete()
                         break
 
-            elif value in [6,7]:
+            elif destination in [6,7]:
                 options = []
                 ennemi = findEnnemi(respond)
                 cmpt = 0
@@ -501,18 +541,18 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     try:
                         resp3 = int(resp2.values[0])
                         tablStuff = [ennemi.weapon]+ennemi.skills
-                        try:
+                        if type(tablStuff[resp3]) == weapon:
                             await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
-                        except:
-                            try:
-                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
-                            except:
-                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                        elif type(tablStuff[resp3]) == skill:
+                            await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
+                        else:
+                            await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
                     except:
+                        print_exc()
                         await tempMachin.delete()
                         break
 
-            elif value == 8:
+            elif destination == 8:
                 what = whatIsThat(respond)
                 if what == 0:
                     await inter.send(embed=infoWeapon(findWeapon(respond),user,ctx))

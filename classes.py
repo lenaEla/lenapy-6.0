@@ -56,10 +56,11 @@ class statTabl:
         self.selfBurn = 0
         self.headnt = False
         self.friendlyfire = 0
-        self.fullskip = True
+        self.fullskip, self.turnSkipped = True, 0
         self.armoredDamage = 0
         self.damageBlocks,self.damageResisted,self.healReduced, self.healIncreased = 0, 0, 0, 0
         self.maxHpReduced, self.blockCount, self.nbHeal, self.critHeal = 0, 0, 0, 0
+        self.sufferingFromSucess, self.lauthingAtTheFaceOfDeath = False, False
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -69,7 +70,7 @@ class option:
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0, block=0):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0, block=0, jaugeValue:Union[list,None]=None, denieWeap = False):
         """rtfm"""
         self.name = name                    # Name of the effect
         if replique != None:
@@ -107,7 +108,7 @@ class effect:
         self.absolutShield:bool = absolutShield
         self.onDeclancher:bool = onDeclancher
         self.inkResistance = inkResistance
-        self.dmgUp, self.critDmgUp, self.healUp, self.critHealUp = dmgUp, critDmgUp, healUp, critHealUp
+        self.dmgUp, self.critDmgUp, self.healUp, self.critHealUp, self.jaugeValue, self.denieWeap = dmgUp, critDmgUp, healUp, critHealUp, jaugeValue, denieWeap
 
         if self.reject != None and self.id in self.reject:
             self.reject.remove(self.id)
@@ -175,7 +176,7 @@ class effect:
 
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect:Union[None,effect]=None,effectOnUse=None,target=ENNEMIS,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False,taille=1):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effect:Union[None,effect]=None,effectOnUse=None,target=ENEMIES,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False,taille=1):
         """rtfm"""
         self.name:str = name
         self.say:Union[str,List[str]] = say
@@ -291,7 +292,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamge=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100,effBeforePow=False):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamage=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100,effBeforePow=False,jaugeEff=None,pull=0):
         """rtfm"""
         if type(effect)!=list:
             effect = [effect]
@@ -305,11 +306,11 @@ class skill:
         self.tpCac:bool = tpCac
         self.execution = execution
         self.jumpBack:int = jumpBack
-        self.setAoEDamage:bool = setAoEDamge
+        self.setAoEDamage:bool = setAoEDamage
         self.areaOnSelf = areaOnSelf
         self.lifeSteal:int = lifeSteal
-        self.erosion = erosion
-        self.effBeforePow=effBeforePow
+        self.erosion, self.pull = erosion, pull
+        self.effBeforePow, self.jaugeEff =effBeforePow, jaugeEff
         self.effectAroundCaster: Union[None,List[int]] = effectAroundCaster
         if needEffect == None or type(needEffect) == list:
             self.needEffect=needEffect
@@ -340,9 +341,6 @@ class skill:
             self.percing = 0
         else:
             self.percing = percing + 20*int(ultimate)
-
-        if range == AREA_MONO and area != AREA_MONO and types == TYPE_DAMAGE and not(setAoEDamge):
-            self.power = int(power * (1+AOEDAMAGEREDUCTION))
 
         self.price = price                              # Price. 0 if the skill can't be drop or bought
         self.conditionType = 0
@@ -770,6 +768,8 @@ for num in range(0,10):
     shareTemp.description="En revecant des soins monocibles, les alliés dans la zone d'effet en reçoivent **{0}**% bonus.\n\nSi plusieurs effets Partages sont présent sur la même cible, uniquement le plus puissant sont pris en compte".format(10*num)
     shareTabl.append(shareTemp)
 
+healDoneBonus = effect("Soins réalisés augmentés","healBonus",description="Augmente les soins réalisés par le lanceur d'une valeur équivalante à la puissance de cet effet",emoji='<:temperance:982349348992081960>')
+
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement",turnInit=2)
 
 textBaliseAtReplace = ["Ã©","Ã","à§"]
@@ -939,11 +939,6 @@ class octarien:
 
         for a in range(0,len(stats)):
             stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50*skillCountMul)
-
-        if level > 50:
-            tempStats = copy.deepcopy(self.allStats())
-            for a in range(0,len(tempStats)):
-                stats[a] = tempStats[a] + (stats[a]-tempStats[a])//3
 
         for cmpt in range(len(lvlToUnlockSkill)):
             if self.level < lvlToUnlockSkill[cmpt]:
@@ -1125,3 +1120,4 @@ class tmpAllie:
 
 silenceEff = effect("InCapacité","silenceEff",description="Empèche l'utilisation de compétence durant la durée de l'effet",type=TYPE_MALUS,emoji='<:silenced:975746154270691358>')
 absEff = effect("Absorbtion","absEff",description="Augmente les soins reçus par le porteur d'un pourcentage équivalant à la puissance de cet effet",emoji='<:absorb:971788658782928918>',stackable=True)
+chained = effect("Enchaîné","chained",emoji='<:chained:982710848487317575>',description="Empêche tous déplacements de la cible, que ce soit par elle-même que part une compétence")
