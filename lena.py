@@ -588,15 +588,16 @@ async def on_ready():
     await downloadElementIcon(bot)
     print("Download complete\nVerefying the characters inventorys...")
 
-    for filename in os.listdir("./userProfile/"):
-        await inventoryVerif(bot, filename)
+    if isLenapy:
+        for filename in os.listdir("./userProfile/"):
+            await inventoryVerif(bot, filename)
 
-    if os.path.exists("./userTeams/"):
-        for teamPath in os.listdir("./userTeams/"):
-            team = readSaveFiles("./userTeams/"+teamPath)[0]
-            userTeamDb.updateTeam(int(teamPath.replace(".team", "")), team)
-            os.remove("./userTeams/"+teamPath)
-        os.rmdir("./userTeams/")
+        if os.path.exists("./userTeams/"):
+            for teamPath in os.listdir("./userTeams/"):
+                team = readSaveFiles("./userTeams/"+teamPath)[0]
+                userTeamDb.updateTeam(int(teamPath.replace(".team", "")), team)
+                os.remove("./userTeams/"+teamPath)
+            os.rmdir("./userTeams/")
 
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
@@ -765,7 +766,9 @@ async def normal(ctx):
         team1 = [user]
 
     # Random event
-    fun = random.randint(0, 99)
+    fun, teamLvl = random.randint(0, 99), 0
+    for ent in team1:
+        teamLvl = max(ent.level,teamLvl)
 
     if fun < 0:                # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
@@ -837,7 +840,7 @@ async def normal(ctx):
 
         await fight(bot, team1, team2, ctx, False, msg=msg)
 
-    elif fun < 11:             # Raid
+    elif fun < 10 and teamLvl >= 25:             # Raid
         if msg == None:
             msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
@@ -885,7 +888,7 @@ async def normal(ctx):
     elif fun < 20:              # Procu Fight
         level = team1[0].level
         team1, team2, randomRoll = [], [], random.randint(0, 99)
-        if randomRoll < 50: # ClemClem
+        if randomRoll < 60: # ClemClem
             procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             level += random.randint(0, 100)
@@ -1011,9 +1014,11 @@ async def comQuickFight(ctx):
     else:
         team1 = [user]
 
-    fun = random.randint(0, 99)
+    fun, teamLvl = random.randint(0, 99), 0
+    for ent in team1:
+        teamLvl = max(ent.level,teamLvl)
 
-    if fun < 5:             # Raid
+    if fun < 5 and teamLvl >= 25:             # Raid
         msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
@@ -1049,7 +1054,7 @@ async def comQuickFight(ctx):
             maxLvl = temp[0].level
             team2 = []
             alea = copy.deepcopy(tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
-            #alea = copy.deepcopy(findEnnemi("Kitsune"))
+            #alea = copy.deepcopy(findEnnemi("Nacialisla"))
 
             alea.changeLevel(maxLvl)
             team2.append(alea)
@@ -1266,7 +1271,7 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
             nom = nom[0:-1]
 
         if whatIsThat(nom) == None:
-            research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token]
+            research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token,trans]
             lastResarch = []
             nameTempCmpt, lenName = 0, len(nom)
             while 1:
@@ -1339,6 +1344,31 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
             except:
                 await ctx.channel.send(embed=repEmb, components=[])
             return 0
+        elif nom in [trans.name,"lb"]:
+            transField = "La **Transcendance** est une compétence commune à tous les joueurs et alliés temporaires débloquée et équipée automatiquement dès le début.\nLorsqu'utilisée, cette compétence deviens l'une des compétences listée si dessous en fonction du nombre de **jauges transcendiques** remplie ainsi que de l'aspiration du lanceur.\nLe nombre de jauges transcendiques disponibles dans un combat dépend de divers critères. Chaques critères remplie rajoute une barre pour l'équipe en question :\n> - L'équipe comporte au moins 8 membres\n> - L'équipe comporte au moins 16 membres\n> - L'équipe adverse contient au moins 1 boss\n> - L'équipe adverse est composée d'un boss AllvOne\n> - L'équipe adverse est composée d'alliés temporaires ou de joueurs\n\nLorsqu'utilisée, toutes les **jauges transcendiques** de l'équipe sont remises à 0, même si elles n'étaient pas toutes remplies."
+            emby = discord.Embed(title="__Transcendance :__",color=light_blue,description=transField)
+            await ctx.send(embed=emby)
+
+            transNames, cmpt, tably = ["__Transcendances niveau 1__ <:lbFull:983450379205378088>","__Transcendances niveau 2__ <:lbFull:983450379205378088><:lbFull:983450379205378088>","__Transcendances niveau 3__ <:lbFull:983450379205378088><:lbFull:983450379205378088><:lbFull:983450379205378088>","__Transcendances niveau 4__ <:lbFull:983450379205378088><:lbFull:983450379205378088><:lbFull:983450379205378088><:lbFull:983450379205378088>"], 0, [lb1MinTabl,lb2MinTabl,lb3Tabl,[lb4]]
+            
+            while cmpt < 4:
+                transField = ""
+                for skilly in tably[cmpt]:
+                    usedBy = ""
+                    if cmpt != 3:
+                        for cmpt2 in range(len(inspi)):
+                            if [lb1Tabl,lb2Tabl,lb3Tabl][cmpt][cmpt2] == skilly:
+                                usedBy += aspiEmoji[cmpt2]
+                    else:
+                        for cmpt2 in range(len(inspi)):
+                            usedBy += aspiEmoji[cmpt2]
+                    transField += "{0} __{1} :__ ({3})\n> {2}\n\n".format(skilly.emoji,skilly.name,skilly.description.replace("\n","\n> "),usedBy)
+                emby = discord.Embed(title=transNames[cmpt],color=light_blue,description=transField)
+                emby.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(trans.emoji)["id"]))
+
+                await ctx.channel.send(embed=emby)
+                cmpt += 1
+            return 1
 
         nom = [nom, None]
 

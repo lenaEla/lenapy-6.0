@@ -149,7 +149,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 tablToSee = achivement.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
 
-            if destination in [0,1,2,3]:
+            if destination in [0,1,2,3,9]:
                 if tri in [2,3]:
                     tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
                 elif tri == 4:

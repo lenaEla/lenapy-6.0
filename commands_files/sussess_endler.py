@@ -1,6 +1,7 @@
 import discord, sqlite3, os
 from gestion import *
 from advance_gestion import *
+from advObjects.advSkills import *
 
 maj17="""
     PRAGMA foreign_keys = 0;
@@ -102,7 +103,13 @@ maj17="""
         sufferingHave     INTEGER DEFAULT (0),
         sufferingCount     INTEGER DEFAULT (0),
         kiku2Have     INTEGER DEFAULT (0),
-        kiku2Count     INTEGER DEFAULT (0)
+        kiku2Count     INTEGER DEFAULT (0),
+        ailill2Have     INTEGER DEFAULT (0),
+        ailill2Count     INTEGER DEFAULT (0),
+        altyHave     INTEGER DEFAULT (0),
+        altyCount     INTEGER DEFAULT (0),
+        klikliHave     INTEGER DEFAULT (0),
+        klikliCount     INTEGER DEFAULT (0)
     );
 
     INSERT INTO achivements (
@@ -188,7 +195,15 @@ maj17="""
                                 delegationHave,
                                 delegationCount,
                                 stellaHave,
-                                stellaCount
+                                stellaCount,
+                                momKitsuneHave,
+                                momKitsuneCount,
+                                kiku1Have,
+                                kiku1Count,
+                                sufferingHave,
+                                sufferingCount,
+                                kiku2Have,
+                                kiku2Count
                             )
                             SELECT id,
                                 aliceCount,
@@ -272,7 +287,15 @@ maj17="""
                                 delegationHave,
                                 delegationCount,
                                 stellaHave,
-                                stellaCount
+                                stellaCount,
+                                momKitsuneHave,
+                                momKitsuneCount,
+                                kiku1Have,
+                                kiku1Count,
+                                sufferingHave,
+                                sufferingCount,
+                                kiku2Have,
+                                kiku2Count
                             FROM sqlitestudio_temp_table;
 
     DROP TABLE sqlitestudio_temp_table;
@@ -311,7 +334,7 @@ class successTabl:
         self.clemence = success("La quête de la nuit",10,"clemence",recompense="bg",description="Affrontez ou faites équipe avec Clémence {0} fois",emoji='<:clemence:908902579554111549>')
         self.akira = success("Seconde impression",10,"akira",recompense="bh",description="Affrontez ou faites équipe avec Akira {0} fois",emoji='<:akira:909048455828238347>')
         self.fight = success("L'ivresse du combat",1,"fight",recompense="ys",description="Faire {0} combat manuel",emoji='<:splattershotJR:866367630465433611>')
-        self.gwen = success("Une histoire de vangeance",10,"gwen",["ka","kb"],"Affrontez ou faites équipe avec Gwen {0} fois",emoji='<:takoYellow:866459052132532275>')
+        self.gwen = success("Une histoire de vangeance",3,"gwen",["ka","kb",gwenyStrike.id],"Affrontez ou faites équipe avec Gwendoline {0} fois",emoji='<:takoYellow:866459052132532275>')
         self.quickFight = success("Le temps c'est de l'argent",10,"quickFight",None,"Lancez {0} combats rapides",'<:hourglass1:872181651801772052>')
         self.helene = success("Là où mes ailes me porteront",10,"helene","yr","Affrontez ou faites équipe avec Hélène {0} fois",'<:takoWhite:871149576965455933>')
         self.school = success("Je ne veux pas d'écolière pour défendre nos terres",30,"school",None,"Mi Miman tu es habiyée en écolière... Combatti {0} fois !",'<:splattershot:866367647113543730>')
@@ -352,11 +375,14 @@ class successTabl:
         self.kiku1 = success("Aux portes de la mort",5,"kiku1","spg",description="Affrontez Kiku {0} fois",emoji=findEnnemi("Kiku").icon)
         self.kiku2 = success("Rire au visage de la mort",1,"kiku2",description="Être en vie en commençant son 16e tour tout en ayant l'effet \"Mors Vita Est\" de Kiku",emoji=findEnnemi("Kiku").icon)
         self.suffering = success("Suffering form success",1,"suffering",description="Remplir l'une des conditions suivantes :\n- Être ciblé par la compétence Carapace à épines\n- Être vaincu pour son propre effet de dégâts indirect",emoji=blueShell.emoji)
+        self.ailill2 = success("Un résultat sanglant",3,"ailill2",bloodBath2.id,"Affrontez Ailill {0} fois",emoji='<a:Ailill:882040705814503434>')
+        self.alty = success("Laisser la vedette aux autres",3,"alty",altyCover.id,"Affrontez ou faites équipe avec Altikia {0} fois","<:alty:906303048542990347>")
+        self.klikli = success("Ne pas laissez les autres imposer leur volonté",3,"klikli",klikliStrike.id,"Affrontez ou faites équipe avec Klironovia {0} fois","<:klikli:906303031837073429>")
 
     def tablAllSuccess(self):
         """Renvoie un tableau avec tous les objets success"""
         return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation,self.stella,
-        self.momKitsune,self.kiku1,self.kiku2,self.suffering]
+        self.momKitsune,self.kiku1,self.kiku2,self.suffering,self.ailill2,self.alty,self.klikli]
 
     def where(self,where : str):
         alls = self.tablAllSuccess()
@@ -447,7 +473,7 @@ class succesDb:
         cursor = self.con.cursor()
 
         try:
-            cursor.execute("SELECT kiku2Count FROM achivements;")
+            cursor.execute("SELECT ailill2Have FROM achivements;")
         except:
             temp = ""
             for a in maj17:

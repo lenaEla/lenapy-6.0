@@ -34,13 +34,13 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
         except:
             msg = await loadingSlashEmbed(ctx)
 
-        shopTotalRandom = shopRandomMsg
+        shopTotalRandom = copy.deepcopy(shopRandomMsg)
 
         dateNow = datetime.now()
         years = dateNow.year
 
         if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
-            shopTotalRandom += shopEventEndYears + shopEventEndYears
+            shopTotalRandom += shopEventEndYears 
 
         if dateNow.month <= 2 or dateNow.month == 12:
             shopTotalRandom += shopSeasonWinter
@@ -230,11 +230,6 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
                 shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {normalFightMsg}\n__Quick__ : {quickFightMsg}",inline=False)
 
-            if userShopPurcent(user) >= 75 and not(user.have(trans)):
-                fullEmb = discord.Embed(title="Vous avez obtenu 75% du magasin",description="Vous recevez la compétence suivante en récompense :\n<:limiteBreak:886657642553032824> Transcendance (identifiant : yt)",color=user.color)
-                user.skillInventory.append(trans)
-                saveCharFile(pathUserProfile,user)
-                await ctx.channel.send(embed=fullEmb)
 
             select = create_select(options=options,placeholder="Choisissez un article pour avoir plus d'informations dessus")
 

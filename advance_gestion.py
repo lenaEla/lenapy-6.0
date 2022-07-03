@@ -48,12 +48,14 @@ def remove_accents(input_str: str):
             temp += "e"
         elif a in ["ì", "ï", "î"]:
             temp += "i"
-        elif a in ["ù", "û"]:
+        elif a in ["ù", "û", "Ü"]:
             temp += "u"
         elif a in ["À", "Ä", "Â"]:
             temp += "A"
         elif a in ["É", "È", "Ë", "Ê"]:
             temp += "E"
+        elif a in ["Ù", "Û", "Ü"]:
+            temp += "U"        
         elif a == " ":
             pass
         elif a in ["?", "!", ";", ",", "."]:
@@ -237,7 +239,7 @@ class cell:
                     rep.append(celly)
         return rep
 
-    def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=100,dead=False,effect=[None],ignoreInvoc = False, directTarget=True,ignoreAspiration = None,fromCell=None) -> list: 
+    def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=99999,dead=False,effect=[None],ignoreInvoc = False, directTarget=True,ignoreAspiration = None,fromCell=None) -> list: 
         """
             Return a list of the targetable entities in the area\n
             \n
@@ -540,7 +542,11 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         if eff.immunity:
             effTmp += "\nCet effect rend le porteur **invulnérable aux dégâts**\n"
 
-        effTmp += f'\n__Description :__\n{eff.description}\n'
+        if eff.description != "Pas de description":
+            if effTmp[-1] == "\n":
+                effTmp += f'\n__Description :__\n{eff.description}\n'
+            else:
+                effTmp += f'\n\n__Description :__\n{eff.description}\n'
         for a in range(len(stats)):
             if stats[a] > 0:
                 bonus += f"{names[a]} : +{int(stats[a]*powerPurcent/100)}\n"
@@ -555,7 +561,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         if eff.inkResistance > 0 and eff.stat != None:
             effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base\nSi plusieurs effects de réduction de dégâts indirects sont cumulés, seul le plus puissant sera pris en compte"
         if eff.block > 0:
-            effTmp += "\nUne attaque bloqué réduit de **20%** les dégâts reçus"
+            effTmp += "\nUne attaque bloquée réduit de **35%** les dégâts reçus"
         if eff.reject != None:
             effTmp += "\n__Cet effet n'est pas compatible avec les effets :__\n"
             for a in eff.reject:
@@ -941,7 +947,7 @@ def infoSkill(skill: skill, user: char, ctx):
         temp2 += "\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack, [
                                                                                                                                                                                                                                        "", "s"][int(skil.jumpBack > 1)])
 
-    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf.jaugeValue) != None) or (skil.jaugeEff != None):
+    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf).jaugeValue != None) or (skil.jaugeEff != None):
         temp2 = "\nCette compétence est une **compétence à jauge**. Chaque combattant ne peut avoir qu'une seule jauge simultanémant"
     if temp2 != "":
         temp += "\n"+temp2
@@ -956,7 +962,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 temp += "\n__{1}__ repousse la cible de **{0}** case{2}".format(
                     becomeName.knockback, becomeName.name, ["", "s"][becomeName.knockback > 1])
 
-    repEmb = discord.Embed(title=skil.name, color=user.color,description=desc+"\n\n__Statistiques :__\n"+temp)
+    repEmb = discord.Embed(title="__{1}__\n(ID:{0})".format(skil.id,skil.name), color=user.color,description=desc+"\n\n__Statistiques :__\n"+temp)
     
 
     if skil.effectAroundCaster != None:
@@ -967,11 +973,9 @@ def infoSkill(skill: skill, user: char, ctx):
         repEmb.add_field(name="<:empty:866459463568850954>\n__Effet supplémentaire autour du lanceur :__",inline=False,value="__Type :__ {0}\n__Zone d'effet :__ {1}\n{2}".format(tablTypeStr[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd))
 
     if skil.emoji[1] == "a":
-        repEmb.set_thumbnail(
-            url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
     else:
-        repEmb.set_thumbnail(
-            url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
 
     if skil.become == None:
         if skil.range not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5]:
@@ -1072,7 +1076,7 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.effectAroundCaster != None and type(skil.effectAroundCaster[2])==effect:
         repEmb = infoEffect(skil.effectAroundCaster[2], user, repEmb, ctx, powerPurcent=[skil.effPowerPurcent,int(liaLB.effPowerPurcent/5)][skil==liaLB],txt = " *(autour du lanceur)*")
     
-    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf.jaugeValue) != None) or (skil.jaugeEff != None):
+    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf).jaugeValue != None) or (skil.jaugeEff != None):
         repEmb = infoEffect([skil.effectOnSelf,skil.jaugeEff][skil.jaugeEff != None], user, repEmb, ctx,txt = " *(Jauge)*")
     
     if skil.invocation != None:

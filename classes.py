@@ -181,6 +181,10 @@ class weapon:
         self.name:str = name
         self.say:Union[str,List[str]] = say
         self.id:str = id
+        try:
+            self.id.isdigit
+        except:
+            print(self.name)
         self.range = range
         self.strength = strength
         self.endurance = endurance
@@ -1120,4 +1124,9 @@ class tmpAllie:
 
 silenceEff = effect("InCapacité","silenceEff",description="Empèche l'utilisation de compétence durant la durée de l'effet",type=TYPE_MALUS,emoji='<:silenced:975746154270691358>')
 absEff = effect("Absorbtion","absEff",description="Augmente les soins reçus par le porteur d'un pourcentage équivalant à la puissance de cet effet",emoji='<:absorb:971788658782928918>',stackable=True)
-chained = effect("Enchaîné","chained",emoji='<:chained:982710848487317575>',description="Empêche tous déplacements de la cible, que ce soit par elle-même que part une compétence")
+chained = effect("Enchaîné","chained",emoji='<:chained:982710848487317575>',description="Empêche tous déplacements de la cible, que ce soit par elle-même que part une compétence",type=TYPE_MALUS)
+upgradedLifeSteal = effect("Augmentation du plafond de vol de vie","lifeSteal+",power=100,turnInit=-1,silent=True,unclearable=True,description="Augmente de **{0}%** le plafond de vol de vie")
+
+ailillUpLifeSteal, clemPosUpLifeSteal, clemExUpLifeSteal = copy.deepcopy(upgradedLifeSteal), copy.deepcopy(upgradedLifeSteal), copy.deepcopy(upgradedLifeSteal)
+ailillUpLifeSteal.power, clemPosUpLifeSteal.power, clemExUpLifeSteal.power = 20,50,10000
+upLifeStealNames, upLifeStealEff = ["Clémence Exaltée","Clémence pos.","Ailill"], [clemExUpLifeSteal,clemPosUpLifeSteal,ailillUpLifeSteal]
