@@ -157,9 +157,9 @@ DANGERUPPERSTAR = 5
 # Aspirations
 BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, ENCHANTEUR, PROTECTEUR, VIGILANT, SORCELER, INOVATEUR, ATTENTIF, ASPI_NEUTRAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
 inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant", "Tête brulée", "Mage","Altruiste", "Enchanteur", "Protecteur", "Vigilant", "Sorcier", "Inovateur", "Attentif", "Neutre"]
-aspiEmoji = ['<:berk:915376153580167209>', '<:obs:903136012975357952>', '<:poi:909548928045842462>', '<:ido:909549029027880992>', '<:pre:910185501535903775>', '<:tet:903136049834889317>','<:mag:909549699160219659>', '<:alt:909549006680653824>', '<:enc:903136097553506314>', '<:pro:909549059059122176>', '<:vigil:939209910019829810>', '<:sorc:939209891510378598>']
-lbNames = ["Lames de l'Ombre","Laser Ultra-Nucléïque","Poussé du Mystral Gagnat","Apothéose planétaire","Armure Galactique","Fracture Dimentionnelle","Colère de Nacialisla","Don de Vie","Zone Magiconucléïque","Pousée d'Espoir","Résiliance Infernale","Cataclysme Céleste","Avenir Prometeur","Tir Ultime"]
-lbDesc = ["Inflige des dégâts à l'ennemi ciblé et vous soigne d'une partie des dégâts infligés","Inflige des dégâts monocibles en direction de l'ennemi ciblé et augmente temporairement vos statistiques","Inflige des dégâts à l'ennemi ciblé et le repousse violament","Augmente les statistiques des alliés pendant un certain temps et réanime ceux qui sont vaincus","Donne un grand montant d'armure aux alliés à portée et augmente temporairement leurs statistiques offensives","Inflige des dégâts à l'ennemi ciblé et réduit ses PV max d'une partie des dégâts infligés","Inflige d'importants dégâts dans une large zone autour de l'ennemi ciblé","Soigne les alliés à portée et leur donne un effet de régénération tout en réanimant ceux qui étaient vaincus","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et vous octroit une armure","Donne une importante armure aux alliés à portée et augmente temporairement leurs statistiques défensives","Soigne les alliés à portée et réanime puissament les alliés vaincus qu'importe leur position","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et lui octroit un effet de dégâts indirects multi-cibles supplémentaire","Augmente les statistiques des alliés à portée durant un certain temps et réduit leurs dégâts subis pendant la même durée","Inflige des dégâts en ligne droite sur l'ennemi ciblé et augmente temporairement vos statistiques"]
+aspiEmoji = ["<:ber:985007311997263932>","<:obs:985007736360165407>","<:pplume:985007345648148541>","<:ido:985007596656275476>","<:pre:985007771613274133>","<:tbrule:985007436538740766>","<:ma:985010178900500561>","<:alt:985007803322224720>","<:enc:985007558156755004>","<:pro:985009037546487850>","<:vig:985009013097910302>","<:sor:985007632639205458>","<:inov:985007247656632360>","<:att:985007703707500555>","<:neutral:985011113458536538>"]
+lbNames = ["Lames de l'Ombre","Odre de Tir : Drône 3.4.8 Alpha","Frappe de Silicia","Apothéose planétaire","Armure Galactique","Fracture Dimentionnelle","Colère de Nacialisla","Bénédiction de Nacialisla","Desctruction Silicienne","Pousée d'Espoir","Grandeur de Nacialisla","Cataclysme Powehien","Avenir Prometeur","Chef d'Oeuvre Balistique"]
+lbDesc = ["Inflige des dégâts à l'ennemi ciblé et vous soigne d'une partie des dégâts infligés","Inflige des dégâts à l'ennemi ciblé et augmente vos statistiques","Inflige des dégâts à l'ennemi ciblé et le repousse violament","Augmente les statistiques des alliés à portée et réanime ceux qui sont vaincus","Octroi une armure aux alliés à portée et augmente leurs statistiques offensives","Inflige des dégâts à l'ennemi ciblé et réduit ses PV max","Inflige dégâts dans une large zone autour de l'ennemi ciblé","Soigne les alliés à portée et leur donne un effet de régénération tout en réanimant ceux qui étaient vaincus","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et vous octroit une armure","Octroi une armure aux alliés à portée et augmente leurs statistiques défensives","Soigne les alliés à portée en réanimant ceux vaincus tout en réduisant vos dégâts subis","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et lui inflige un effet de dégâts indirects multi-cibles","Augmente les statistiques des alliés à portée et réduit leurs dégâts subis pendant la même durée","Inflige des dégâts en ligne droite sur l'ennemi ciblé et augmente vos statistiques"]
 recommandedStat = [
     [STRENGTH, ENDURANCE],
     [STRENGTH, PRECISION],
@@ -404,11 +404,18 @@ shopRandomMsg = [
     "{clemence} : \"Hé Shihu, tu veux un conseil gratuis ? Si tu créais une formule, arrange toi pour que tu n'ai pas à la regréter quand tu seras plus grande\"\n{shihu} : \"Genre pas \"Turlututu et Tralala\" ?\"\n{clemence} : \"Exactement\"\n{alice} : \"Ca reste tout de même mieux que \"Magicabou la magicabou et magici magica bou\"\"",
     "{alice} : \"Tu veux que je te dise UΛ-BB4, chez moi tu es une tueuse en série qui a terrorisé la capitale pendant une décénie avant de disparaitre dans la nature avec le titre de personne la plus recherchée de la dimension\"\n{lena} : \"Si tu veux jouer à ce jeu, chez moi tu es une vampire qui a arrêté de grandir à l'âge de 11 ans et demi\"\n{alice} : \"Oh la poisse\"",
     "{lena} : \"UΛ-BB4, vu que tu te débrouille plutôt bien à longue distance, tu sais comment faire pour shotter un snipeur qui arrête pas de nous faire chier ?\"\n{lena} : \"Hé bah tu peux toujours essayer de combattre le feu par le feu, il me semble que tu as des snipeurs dans l'EEV3 AΣ-E9A, non ?\"\n{lena} : \"Ils se font tous surpasser malheureusement...\"\n{lena} : `Soupir` \"Soit. Je m'en occupe. Tu peux me montrer la direction stp ? Ca fait un moment que je suis pas allé dans le secteur AΣ du multivers\"",
-    "{gweny} : \"Tiens Karaï ça faisait un moment\"\n\n`La poupée vint hug la jambe de Gwen sans rien dire`\n\n{gweny} : \"Ah. Je vois `Gwendoline prit la poupée des ses bras en lui caressant doucement la tête` Vas-y je t'écoute...\"\n\n{karai} : \"Pourquoi est-ce que je dois endurer tout ça... 300 ans à attendre pour qu'au final ma place soit prise par une autre version de moi-même... Et par dessus ça je peux même pas en finir...\"\n\n{gweny} : \"... Je n'ai pas de réponse à t'apporter malheureusement...\"\n\n{karai} : \"Prend soins de ton père pour moi s'il te plaît...\"\n\n{gweny} : \"Honnêtement je ne pense pas qu'il ai vraiment besoin que je veille sur lui mais j'y penserais\"\n\n{karai} : \"Merci...\"",
+    "{gweny} : \"Tiens Karaï ça faisait un moment\"\n`La poupée vint hug la jambe de Gwen sans rien dire`\n{gweny} : \"Ah. Je vois `Gwendoline prit la poupée des ses bras en lui caressant doucement la tête` Vas-y je t'écoute...\"\n{karai} : \"Pourquoi est-ce que je dois endurer tout ça... 300 ans à attendre pour qu'au final ma place soit prise par une autre version de moi-même... Et par dessus ça je peux même pas en finir...\"\n{gweny} : \"... Je n'ai pas de réponse à t'apporter malheureusement...\"\n\n{karai} : \"Prend soins de ton père pour moi s'il te plaît...\"\n{gweny} : \"Honnêtement je ne pense pas qu'il ai vraiment besoin que je veille sur lui mais j'y penserais\"\n{karai} : \"Merci...\"",
     "`Gwen était assise sur son lit en étant en train de surfer en ligne avec son ordinateur portable quand un mouvement dans le coin de la chambre attira son attention`\n{karai} : \"... Bonsoir Klironovia...\"\n{klikli} : \"Tiens, Karaï, ma poupée préférée `Elle prit la poupée et la plaça sur ses jambes tout en continuant sa navigation` Qu'est-ce qui t'amène donc ?\"\n{karai} : \"Oh hum... je voulais savoir si je pouvait dormir avec vous ce soir... Si ça vous dérange pas...\"\n{klikli} : \"Moi ça me va, et je pense pas que ça dérange les autres non plus. Mais je décline toute responsabilité au cas ou tu te retrouve sous moi durant la nuit\"\n{karai} : \"C'est un risque que je suis prête à prendre...\"",
     "{karai} : \"Ainsi donc avec Clara tu es devenue une soigneuse Alty...\"\n{alty} : \"ça pose un problème particulier ?\"\n{karai} : \"Oh heu non évidammant ! C'est juste que... dans ma timeline tu était plutôt du genre shinobi... ça me fait bizarre c'est tout...\"\n{alty} : \"Si j'en crois que ce les autres m'ont dit ce changement est plus ou moins... logique\"",
     "{alty} : \"Et voilà ^^ Et évite de courir trop vite la prochaine fois sinon tu vas retomber\"\n{shushi} : \":< Je veux un bisou magique !\"\n{alty} : \"Oh. `Fait un bisou sur le genou de Shushi` Et voilà ^^\"\n{shushi} : \"Viiii :D\"",
-    "{luna} : \"Hé Gwen, je me demandais, mais on peut échanger nos épées pour quelques minutes s'il te plaît ?\"\n{klikli} : \"Hum, si tu veux mais pourquoi ?\"\n{luna} : \"Tester.\""
+    "{luna} : \"Hé Gwen, je me demandais, mais on peut échanger nos épées pour quelques minutes s'il te plaît ?\"\n{klikli} : \"Hum, si tu veux mais pourquoi ?\"\n{luna} : \"Tester.\"",
+    "<:stella:958786101940736061> : \"Oh Nacia' ! Tu te débrouilles avec ton réchauffement atmosphérique en ce moment ?\"\n<:nacialisla:985933665534103564> : \"On peut pas vraiment dire que tu m'aide Stella...\"",
+    "<:kitsune:935552850686255195> : \"Oh c'est toi. Ta vandetta est toujours dans tes projets ? Il me semble que la population d'humains à quand même sacrément diminuée ces dernières années. Enfin... pas que les humains.\"\n<:nacialisla:985933665534103564> : \"On fait pas d'omelette sans casser des oeufs. Et pour répondre à ta question, j'ai tout de même prévu de leur faire quelques piqûres de rappels de temps en temps\"\n<:kitsune:935552850686255195> : \"J'aimerais juste que tu te souvienne qu'il y a pas que ces primates qui souffres de tes crises.\"\n<:nacialisla:985933665534103564> : \"Et je te rappelle que le génocide de tes décendantes n'a rien à voir avec moi.\"\n<:kitsune:935552850686255195> : \"Oh je ne parlais pas que pour mon \"espèce\" tu sais.\"",
+    "<:lia:908754741226520656> : `Est couchée dans l'herbe avec ses soeurs à regarder les nuages` \"Dites... Vous pensez qu'on a combien de soeurs, nièces, petites nièces etceteras... ?\"\n<:lie:908754710121574470> : \"Hum... Tu connais très bien la réponse Lia...\"\n<:lia:908754741226520656> : `Lève un bras au ciel comme pour essayer d'attraper les étoiles en soupirant` \"Je reformule... Vous pensez qu'elles sont combien là haut ?\"\n<:lio:908754690769043546> : \"... J'aurais voulu les connaîtres aussi...\"\n<:lie:908754710121574470> : `Se redresse en regardant ses soeurs` \"ça ne sert à rien de s'apitoyer sur leurs sorts. Oui plus d'un millier d'années nous sépare de la mort de la dernière représentante de notre espèce, mais le fait est que Maman a réussi à se libérer et que nous as donné naissance. On est peut-être les kitsunes les plus jeunes à l'heure actuelle, mais de nous a le potenciel pour augmenter dragstiquement notre démographie\"\n<:liu:908754674449018890> : \"ça me fait bizarre de penser qu'on est en même temps tout en bas de l'arbre généalogique mais en même temps tout en haut...\"\n<:lie:908754710121574470> : `Secoue la tête` \"On est ni en bas ni en haut. On est une nouvelle branche à part entière\"",
+    "<:rdmEvilGuy:866459027562954762> : \"Rien ni personne ne pourra m'arrêter ! Mon plan est parfait et j'ai anticipé toutes les possibilités ! Lorsque j'aurais assujeti le monde, personne ne remettra mes idées en question et je serais enfin reconnu pour mon génie ! Puis je le détruirais après avoir terminé mon vaiseau galactique et j'ira asurjetir la galaxie ! Et lorsque ça sera fait, je la détruirais également parceque je le peux et que j'en ai les moyens ! Mon armée de robot est invincible et vous allez toutes mourirs dans d'affreuses souf-ARG !\"\n<:helene:906303162854543390> : \"Shehisa !\"\n<:shehisa:919863933320454165> : \"Oh vous comptiez écouter son discourt pendant encore longtemps ? Vous savez pas comment c'est stressant de rester invisible derrière les gens en attendant le moment parfait pour les planter une dague dans la nuque...\"\n<:icealia:909065559516250112> : \"Oh non tu as bien fais je commençais à en avoir marre aussi\"",
+    "<:benedict:958786319776112690> : \"Même si cette idée me plaît toujours pas, je dois avouer que tu fais une bonne enfant de coeur, tu as une plutôt bonne bouille quand tu as pas la bouche grande ouverte\"\n{alice} : M-merci ma Soeur, je suppose...\"",
+    "<:benedict:958786319776112690> : \"Alice, même si je le conçois tu chantes très bien, est-ce que tu pourrais essayer de ne pas couvrir les autres à la chorale ? C'est un coeur, pas un solo\"\n{alice} : \"D-Désolée je m'en rend pas compte...\"",
+    "{shihu} : \"Il me faut des cristaux magiques sinon je vais jamais y arriver...\"\n{shushi} : \"Tu en fais trop Shihu... Tu t'épuises pour rien, c'est pas grave si on y arrive pas...\"\n{shihu} : \"On doit y arriver sans l'aide de personne... On en peut plus de se faire rabaissée par Clémence dès qu'elle en a l'occasion, je veux lui montrer qu'on est capacle de réussir là où elle a échoué et lui rabatre le clapet... Pour une fois...\"\n{shushi} : \"Clémence a plus de quatre fois notre âge... On peut pas rivaliser !\"\n{shihu} : \"Mais on a quelque chose qu'elle n'a pas : Une réserve presque infinie de l'une des quatres énergies qui régient l'univers.\"\n{shushi} : \"T-Tu va finir par disparaitre si tu continue comme ça... J'ai... j'ai pas envie de me retrouver seule...\"\n{shihu} : \"... ça serait peut-être mieux ainsi... Ma simple existance a débilement compliqué la tienne...\"\n{shushi} : `Prend spontanément le controle de sa main droite pour se gifler elle-même` \"Je t'interdis de penser ce genre de truc tu m'entends !?\""
 ]
 
 shopEventEndYears = [
@@ -460,9 +467,7 @@ shopSeasonWinter = [
     "{gweny} : \"Ta mère ne va pas être contente si elle te choppe en train de fouiller dans son atelier\"\n{shushi} : \"Gwen, tu sais pourquoi Miman a autant de balles incendiaires ? Son élément c'est plutôt la glace, non ?\"\n{gweny} : \"Détourne pas le sujet. Mais pour répondre à ta question, je pense que ça remonte à l'époque où j'était encore flic à la ville. L'une des membres de la mafia locale était d'élément Métal Pur et il me semble que ta mère et elle se connaissaient personnellement. Et c'était pas l'amour fou entre les deux. Il me semble même que c'est la seule personne que Lena craind encore aujourd'hui, même si ça fait des années qu'elle n'a pas donné signe de vie. Et tu connais ta mère, quand quelque chose la contrari elle préfère contre attaquer, d'où le fait qu'elle ai passé pas mal de temps à mettre au point ces balles\"\n\n`Gwendoline se pencha pour prendre l'une des balles et l'observa attentivement pendant quelques secondes`\n\n{gweny} : \"Si je n'abuse, celle-là est prévu pour pénétrer un blindage ultra-épais et exploser à l'intérieur en libérant des sharpels explosifs. De quoi te descendre un élicoptère blindé d'une balle au vu de la puissance du fusil de Lena, si tu veux mon avis\"\n{shushi} : \"Wow...\"\n{shihu} : \"Je comprend mieux pourquoi elle veut pas nous voir jouer ici...\"",
     "{helene} : \"Ah Shi' ! Je t'ai fait une nouvelle tenue en fourure tu en pense quoi ?\"\n{shehisa} : `Prend la tenue et va se changer, puis se regarde dans un miroir` \"Hum... elle me plait bien. Et c'est vrai que je me sensait un peu... sous-vêtue ces derniers temps\"\n{helene} : \"Quelle idée de porter des trucs aussi cours en hiver aussi...\"",
     "`Gwen descendit dans le séjour pour aller préparer le petit déjeuné quand elle vit Lena en train de dormir sur le canapé. Sur la table se trouve plusieurs pièces de ce qu'elle devina être un nouveau fusil longue portée et en déduit que l'inkling a encore veillé jusqu'à point d'heure pour mettre au point un nouveau joujou\nEn approchant, elle vit Shushi assise à côté de sa mère en train d'essayer de résoudre un Rubik's cube silencieusement. En la voyant arriver, celle-ci mit doucement un doigt sur ses lèvres. Gwen lui sourit gentiment puis alla dans la cuisine`",
-    "{clemence} : `Attend le trio de soeur en lisant assise (à l'ombre) à la terrasse d'un café tout en discutant avec Gwen, quand elle vit Sixitine venir seule` \"Comment ça tu es toute seule Sixtine ? Où sont Féli et Alice ?\"\n{sixtine} : \"Féli a dit qu'elle voulait aller voir la dernière expédition sur les dieux de la Grèce Antique et Alice a... dit un truc à propos de l'Eglise je crois...\"\n{clemence} : \"... Gweny, tu veux bien t'occuper d'aller chercher Alice et je me charge de Féli ?\"\n{gweny} : \"Je suis pas vraiment la bienvenue dans les églises catholiques aussi tu sais ?\"\n{clemence} : \"Déjà moins que moi...\"\n{sixtine} : \"Je peux y aller moi si vous voulez... Je suis qu'humaine...\"",
-    "<:benedict:958786319776112690> : \"Même si j'ai toujours du mal avec ça, je dois avouer que tu fais une bonne Enfant de Coeur Alice. Tout en étant un bon élément  dans la chorale alors que tes... capacités sont bloquée.\"\n{alice} : \"Mirchi ^°^"
-    
+    "{clemence} : `Attend le trio de soeur en lisant assise (à l'ombre) à la terrasse d'un café tout en discutant avec Gwen, quand elle vit Sixitine venir seule` \"Comment ça tu es toute seule Sixtine ? Où sont Féli et Alice ?\"\n{sixtine} : \"Féli a dit qu'elle voulait aller voir la dernière expédition sur les dieux de la Grèce Antique et Alice a... dit un truc à propos de l'Eglise je crois...\"\n{clemence} : \"... Gweny, tu veux bien t'occuper d'aller chercher Alice et je me charge de Féli ?\"\n{gweny} : \"Je suis pas vraiment la bienvenue dans les églises catholiques aussi tu sais ?\"\n{clemence} : \"Déjà moins que moi...\"\n{sixtine} : \"Je peux y aller moi si vous voulez... Je suis qu'humaine...\"",    
 ]
 
 shopSeasonSpring = [
@@ -488,7 +493,15 @@ shopSeasonsSummer = [
     "{helene} : \"Clémence vous me donnez chaud à être aussi vêtue...\"\n{clemence} : \"La seule chaleur que je ressent est celle des UV du soleil donc ça va t'étonnner mais je me sens plutôt au frais actuellement\"",
     "<:lio:908754690769043546> : `Regarde Alice et Sixtine essayer d'apprendre à nager à Shushi depuis le fond de son lac`\n{feli} : \"Coucou !\"\n<:lio:908754690769043546> : `Sursaute (peut-être vraiment parler de sursaut quand on flotte dans l'eau ?)` \"Oh c'est toi... J'oublie toujours que tu peux respirer sous l'eau aussi...\"\n{feli} : \"ça t'arrive jamais de sortir de ton lac de temps en temps ? Enfin à part pour ralonger nos combats\"\n<:lio:908754690769043546> : \"Mais j'aime bien mon lac moi... et puis il y a trop de problèmes là haut... Et pour ton deuxième point, les combats sont plus interressant contre vous qu'avec. C'est toujours trop rapide avec vous...\"\n{feli} : \"Oula, à ne pas sortir du contexte celle-là\"\n<:lio:908754690769043546> : \"Oh hum... désolée...\"",
     "{gweny} : `S'écroule dans son lit` \"J'en peut plus de ces canicules je dois changer de tee-shirts trois fois par jours...\"\n{karai} : `Ricane depuis l'étagère` \"Tu as toujours eu ce genre de problème Gweny\"\n{gweny} : \"ça m'aide pas vraiment ça Karaï...\"",
-    "{alice} : `Regarde Iliana sous sa forme de chat en train de faire l'étoile de mer par terre` \"Hum... Tu... tu sais que tu aurais moins chaud en forme humaine... ? Enfin... moins de fourure et la sudation tout ça tout ça...\"\n{iliana} : \"Lena pourra plus me saquer si elle me voit sous forme humaine pendant tout l'été... Et j'ai nul part autre où aller...\"\n{alice} : \"...\" `Monte dans sa chambre et reviens quelques secondes plus tard avec un petit ventilateur qu'elle branche à côté de la chatte, puis elle s'assoit à côté`\n{iliana} : \"... Merci...\""
+    "{alice} : `Regarde Iliana sous sa forme de chat en train de faire l'étoile de mer par terre` \"Hum... Tu... tu sais que tu aurais moins chaud en forme humaine... ? Enfin... moins de fourure et la sudation tout ça tout ça...\"\n{iliana} : \"Lena pourra plus me saquer si elle me voit sous forme humaine pendant tout l'été... Et j'ai nul part autre où aller...\"\n{alice} : \"...\" `Monte dans sa chambre et reviens quelques secondes plus tard avec un petit ventilateur qu'elle branche à côté de la chatte, puis elle s'assoit à côté`\n{iliana} : \"... Merci...\"",
+    "{lena} : \"Hé Iliana, tu pourrais me rendre un service ?\"\n{iliana} : \"Mui ?\"\n{lena} : \"Tu as déjà entendu parler d'un certain Schrödinger ?\"\n{iliana} : \"... Oh zut j'ai totalement oublié ! Alice m'avait proposé de les accompagner à la plage, il faut que je me trouve un maillot de bain !\"",
+    "{luna} : `Regarde Shushi et Shihu faire de la calligraphie, en controlant chacune leur main dominante respective`\n{lena} : \"Tu sais, si tu veux passer du temps avec elle il suffit de le dire hein\"\n{luna} : `Soupir` À quoi bon. Elle me considère sûrment même plus comme sa mère, et je suis nulle pour essayer de l'être\"\n{lena} : \"Tu te trompes. Quoi qu'il arrive, tu seras toujours sa mère. Elle s'est juste faite à l'idée qu'elle ne pourra pas avoir une relation \"normale\" de file-mère avec toi, et elle essaye de l'avoir avec moi à la place\"\n{luna} : \"ça me motive encore moins à essayer, ça Lena\"\n{lena} : \"Ce que je veux dire, c'est que ce n'est pas en restant cacher au fond de notre âme que ça va changer les choses, Luna\"",
+    "`C'est l'heure du beach épisode ! Dans l'eau en face de vous vous pouvez observer le trio de soeurs et Shihu en train de jouer avec un ballon de plage dans la mer\nUn peu plus sur le côté vous pouvez voir Lia et Liz qui louchent pas mal sur un groupe de surfeur en étant à moitié jalouses du fait que Liu est parmis eux alors qu'elle ne semble pas vraiment être affectuée par la chad attitude qu'ils libèrent\nCeux qui font de la plongée sous-marine peuvent voir Lio en bikini (pour une fois) en train de récupérer les objets perdus par les nageurs et constater que quelques familles auront du mal à prendre leurs voitures sans leurs clés, et vous dites que voir une kitsune sortir de l'eau pour les leur rendre fait très fée sortant du lac et qui propose une version d'or ou d'argent d'un objet perdu\nAssise sur un rocher, vous pouvez retrouver Lena en train de lire les pieds dans l'eau tout en surveillant Gwen qui nage dangereusement près en lui lançant des regards malicieux de temps en temps pour vérifier si la jeune femme aux cheveux bleus fait attention à elle ou non\nEt enfin, collées l'une à l'autre, vous pouvez retrouver Clémence et Iliana qui, bien que toutes les deux en maillot de bain, ne veulent quitter l'ombre du parasol pour rien au monde`",
+    "<:benedict:958786319776112690> : `Viens à la rencontre de Clémence qui attendait à la sortie de l'église` \"Tu es la soeur d'Alice, c'est cela ?\"\n{clemence} : \"C'est si compliqué à deviner ?\"\n<:benedict:958786319776112690> : `Croise les bras en faisant la moue` \"Il n'y a pas beaucoup de vampires qui attendrait pendant une dizaine de minutes devant un église d'autant plus qu'il ne fait pas encore nuit. D'autant plus qu'Alice nous avait dit que tu viendrais la chercher après le Chemin de Croix.\"\n{clemence} : \"Et je suppose que si ce n'est pas elle qui vient directement c'est parcequ'il s'est passé quelque chose ?\"\n<:benedict:958786319776112690> : \"Elle a perdu connaissance en milieu d'après-midi et ne s'est toujours pas réveillé depuis. Je pense que le soleil de plomb et la symbolique du chemin n'a pas fait du bien à ses... origines, aussi... résistante soit-elle. Peut-être que toi qui t'y connais un peu mieux sur ce sujet pourrait la réveiller. Si c'est le cas, je t'autorise à rentrer dans l'église pour aller la voir.\"\n{clemence} : `Soupir` \"Si un jour on m'aurait dit qu'on m'inviterais à rentrer dans une église...\"",
+    "{clemence} : \"Hum... Où est Alice ?\"\n{feli} : \"Elle était avec nous non ?\"\n<:anna:943444730430246933> : \"Je croyais qu'elle t'avais rejoint après le Palais des Glaces Clémence !\"\n{clemence} : \"... Attendez... Vous avez emmené Alice, qui n'a aucun sens de l'orientation ni reflet dans un Palais des Glaces au beau milieu d'une fête foraine tellement bruyante que j'ai du mal à ne pas me cogner contre un mur si je me fit qu'à mes oreilles alors que je suis bien plus expérimenté qu'elle en echolocalisation et ne l'avez même pas attendue ou aidé !?\"\n{feli} : \"Elle mettait tellement longtemps on a pensé qu'elle était déjà sortie '^' !\"\n{clemence} : `Facepalm`\n<:anna:943444730430246933> : `Regarde ses pieds pas très fière d'elle et jette un coup d'oeuil à la vitrine la plus proche`\n<:belle:943444751288528957> : `Roule des yeux et sort du cadre de la vitrine`",
+    "{iliana} : `Saute sur un lit (avec sa forme de chat) et s'instale confortablement pour la nuit mais a une révélation` \"Le lit de Shushi c'est le deuxième depuis la porte, c'est ça ?\"\n{alice} : `Hoche lentement la tête en tramblant un peu`\n{iliana} : \"D-Désolée ! Vos deux lits se ressemblent beaucoup dans le noir et depuis le sol !\" `Se relève et s'apprète à sauter`\n{alice} : \"A-Attent... tu peux rester si tu veux...\"\n{iliana} : \"Tu... es sûre ?\"\n{alice} : `Hoche une nouvelle fois la tête lentement` \"Clémence... veut vraiment que je fasse des efforts avec toi et... Féli n'a pas tord non plus quand elle dit que tu risques pas d'essayer de me manger, encore moins sous ma forme humaine donc... je... je veux bien... hum... te laisser une chance ?\"{iliana} : `Regarde les yeux roses d'Alice qui brillaient légèrement dans le noir puis viens à sa hauteur et se couche contre elle en ronronnant`",
+    "{lena} : \"Au fait Krys, je dois te rajouter au club des hydrophobes ? T'en fais pas on mord pas. Enfin peut-être Iliana mais premièrement elle le fait que si elle est vraiment énervée et de deux je pense qu'elle s'y casserais les dents avec toi.\"\n<:krys:916118008991215726> : \"Le club des quoi ?\"",
+    "<:lia:908754741226520656> : \"Pourquoi c'est moi qui doit garder mes petits frères et soeurs !?\"\n<:kitsune:935552850686255195> : \"Parceque Lio est occupée. Tu verras ils sont pas méchants, par contre cette portée là-\"\n<:lia:908754741226520656> : \"Laisse moi deviner, adores jouer dans les queues de leur mère ?\"\n<:kitsune:935552850686255195> : \"Pourquoi tu dis ça sur ce ton là ? Toi aussi tu aimais bien le faire à leur âge ?\"\n<:lia:908754741226520656> : \"Sauf que tu as trois fois plus de queues que moi Maman >< ! On pouvait chacun avoir la notre pour s'amuser, là ils sont presque à deux à me tirer sur chaqu'une d'entre elles !\"\n<:kitsune:935552850686255195> : `Ricane` \"Commence par t'assoir comme ça tu risques pas de leur tomber dessus si ils tirent trop fort. Et c'est pas tout mais je vais devoir y aller moi, bon courage. Oh et hésite pas à leurs montrer quelques tours. Même si ce sont de renardaux ordinaires, ils restent plutôt sensible à la magie. Ta soeur qui est actuellement en train de se frotter à tes jambes semble avoir une affinité avec le vent d'ailleurs, vous devriez bien vous entendre. `Avec un ton plus bas, sans vraiment s'adresser à Lia` J'aimerais bien que vous passiez plus de temps avec vos frères et soeurs \"ordinaires\" vous savez...\""
 ]
 
 shopSeasonsAutomne = []
@@ -519,7 +532,7 @@ tablCat = ["Début du combat", "Compétence ultime", "Transcendance", "En élimi
 
 class says:
     """A class for storing the says message from a entity"""
-    def __init__(self, start=None, ultimate=None, limiteBreak=None, onKill=None, onDeath=None, onResurect=None, blueWinAlive=None, blueWinDead=None, blueLoose=None, redWinAlive=None, redWinDead=None, redLoose=None, blockBigAttack=None, reactBigRaiseAllie=None, reactBigRaiseEnnemy=None, bigRaise=None, reactEnnemyKilled=None, reactAllyKilled=None):
+    def __init__(self, start=None, ultimate=None, limiteBreak=None, onKill=None, onDeath=None, onResurect=None, blueWinAlive=None, blueWinDead=None, blueLoose=None, redWinAlive=None, redWinDead=None, redLoose=None, blockBigAttack=None, reactBigRaiseAllie=None, reactBigRaiseEnnemy=None, bigRaise=None, reactEnnemyKilled=None, reactAllyKilled=None, reactAllyLb=None, reactEnemyLb=None):
         self.start = start
         self.ultimate = ultimate
         self.limiteBreak = limiteBreak
@@ -538,6 +551,8 @@ class says:
         self.bigRaise = bigRaise
         self.reactEnnemyKilled = reactEnnemyKilled
         self.reactAllyKilled = reactAllyKilled
+        self.reactAllyLb = reactAllyLb
+        self.reactEnemyLb = reactEnemyLb
 
     def tabl(self):
         return [
@@ -597,7 +612,8 @@ lenaSays = says(
     reactBigRaiseEnnemy="Je dois avouer qu'il était pas mal celui-là. Je suppose que j'ai qu'à donner le meilleur de moi-même de nouveau",
     reactEnnemyKilled="Pas trop mal {killer}",
     reactAllyKilled="T'en fais pas {downed}, je m'en charge.",
-    blockBigAttack="Hé Luna ! Un brisage de l'Espace Temps ça te dis ?\"*\n<:luna:909047362868105227> : \*\"C'est pas déjà ce que l'on était en train de faire ?"
+    blockBigAttack="Hé Luna ! Un brisage de l'Espace Temps ça te dis ?\"*\n<:luna:909047362868105227> : \*\"C'est pas déjà ce que l'on était en train de faire ?",
+    reactEnemyLb="`Ricane` Si ça vous chante",reactAllyLb="Belle {skill}, {caster}"
 )
 
 aliceSays = says(
@@ -612,7 +628,10 @@ aliceSays = says(
     reactBigRaiseEnnemy="Je peux le faire aussi {caster}... Pas de quoi s'en venter...",
     bigRaise="Alors alors (〃▽〃)?",
     reactEnnemyKilled="En voilà un qui sera pas là pour mon final",
-    reactAllyKilled="T'en fais pas {downed} !"
+    reactAllyKilled="T'en fais pas {downed} !",
+    reactAllyLb="Mow, je voulais terminer en apothéose moi :<",
+    reactEnemyLb="Pff, tu appelles ça une démonstration, {caster} ?",
+    limiteBreak="C'est l'heure de terminer en apothéose !"
 )
 
 clemSays = says(
@@ -621,8 +640,11 @@ clemSays = says(
     onDeath="Je t'ai sous estimé manifestement...",
     onResurect="Merci du coup de main",
     redWinAlive="Et bah alors, on abandonne déjà ?",
-    blueWinAlive="Simple. Basique.",
-    reactEnnemyKilled="Pas mal celle-là {killer}"
+    blueWinAlive="ça sera tout pour moi",
+    reactEnnemyKilled="Pas trop {killer}",
+    redLoose="Pas la peine de prendre la grosse tête.",
+    limiteBreak="Vous commencez sérieusement à m'ennuyer.",
+    reactAllyLb="J'aurais pû le faire moi-même {caster}."
 )
 
 ailillSays = says(
@@ -630,7 +652,8 @@ ailillSays = says(
     onKill="Venez autant que vous êtes, ça changera rien",
     onDeath="Tu... paie rien pour attendre...",
     redWinAlive="Vous appelez ça un combat ?",
-    reactBigRaiseEnnemy="Parceque vous pensez que ça changera quelque chose ?"
+    reactBigRaiseEnnemy="Parceque vous pensez que ça changera quelque chose ?",
+    reactEnemyLb="Juste une égratinure..."
 )
 
 jevilSays = says(
@@ -707,14 +730,17 @@ spamtonSays = says(
     start="HEY EVERY       ! IT'S ME, SPAMTON G. SPAMTON!",
     redWinAlive="DON'T FORGET TO [[Like and Subscribe](https://gfycat.com/fr/gifs/search/youtube+subscribe+button+green+screen)] FOR MORE [[Hyperlink Blocked]]!",
     redLoose="THIS IS [[One Purchase](https://www.m6boutique.com/?adlgid=c|g||383715070314|b&gclid=Cj0KCQjwlOmLBhCHARIsAGiJg7lgxkpj8jJSOEZZ_q1URCeEWFW_SmyGcVeiKz8wUmO0-LCAE9Sz4SsaAgsvEALw_wcB)] YOU WILL [[Regret](https://www.youtube.com/watch?v=u617RilV5wU)] FOR THE REST OF YOUR LIFE!",
-    onKill="HOW'S AN INNOCENT GUY LIKE ME SUPPOSED TO [[Rip People Off](https://www.youtube.com/watch?v=nIxMX6uyuAI)] WHEN KIDS LIKE YOU ARE [[Beating People Up](https://www.youtube.com/watch?v=4c_eEd-ReiY)],"
+    onKill="HOW'S AN INNOCENT GUY LIKE ME SUPPOSED TO [[Rip People Off](https://www.youtube.com/watch?v=nIxMX6uyuAI)] WHEN KIDS LIKE YOU ARE [[Beating People Up](https://www.youtube.com/watch?v=4c_eEd-ReiY)]",
+    reactEnemyLb="DON'T YOU WANNA BE A [[Big Shot(https://www.youtube.com/watch?v=-8p8VowCmgE)]]!?"
 )
 
 powehiSays = says(
     start="Un nouveau cycle commence...",
     limiteBreak="Qui vous a dit que je vous laisserais faire ?",
     onDeath="Kya !",
-    onResurect="Mourir, c'est toujours pas drôle"
+    onResurect="Mourir, c'est toujours pas drôle",
+    reactBigRaiseAllie="On peut dire que tu sais y faire {caster}",
+    reactEnemyLb="C'est beau de s'acharner inutilement..."
 )
 
 randomWaitingMsg = [
@@ -735,7 +761,9 @@ liaSays = says(
     onKill="Oh déjà... ?",
     onDeath="Hii ! Compris compris !",
     redWinAlive="C'était marrant !",
-    redLoose="Vous savez pas rire..."
+    redLoose="Vous savez pas rire...",
+    reactBigRaiseAllie="Toujours aussi jouissif {caster}",
+    reactEnemyLb="Mow, je crois qu'ils sont un peu en colère"
 )
 
 liuSays = says(
@@ -743,7 +771,8 @@ liuSays = says(
     onKill="Va falloir mieux gérer ta fatigue la prochaine fois",
     onResurect="Une seconde course ?",
     redLoose="Hé bah... Finalement c'est moi qui ai mordu la poussière",
-    limiteBreak="Pas si vite !"
+    limiteBreak="Pas si vite !",
+    reactEnemyLb="C'est bon tu as fini {caster} ?"
 )
 
 lioSays = says(
@@ -754,7 +783,7 @@ lioSays = says(
     redWinAlive="Le monde des humains est... perturbant...",
     bigRaise="On lache rien...",
     reactBigRaiseEnnemy="Je peux faire ça aussi, tu sais...",
-    reactAllyKilled="Vous commencez à me taper sur les nerfs..."
+    reactAllyKilled="Vous commencez à me taper sur les nerfs...",
 )
 
 lizSays = says(
@@ -762,7 +791,8 @@ lizSays = says(
     ultimate="Allez quoi, déclarez moi votre flamme !",
     onKill="Woops, j'y suis allé trop fort manifestement",
     onDeath="Pff, vous êtes pas drôle",
-    redLoose="Waw, je me suis jamais faite autant refroidir rapidement..."
+    redLoose="Waw, je me suis jamais faite autant refroidir rapidement...",
+    reactEnemyLb="T'enflamme pas trop vite {caster}."
 )
 
 julieSays = says(
@@ -778,7 +808,9 @@ sixtineSays = says(
     start="`Baille en s'étirant`",
     ultimate="Laissez moi tranquille...",
     redWinAlive="Je retourne dessiner maintenant...",
-    redLoose="Zzz..."
+    redLoose="Zzz...",
+    reactBigRaiseAllie="Waw...",
+    reactAllyLb="C'était joli à regarder..."
 )
 
 randomMaxDmg = [
@@ -1031,11 +1063,11 @@ lySays = says(
     reactBigRaiseEnnemy="Je doute que ça suffira à inverser la tendance !",
     reactEnnemyKilled="Tu as oublié ton totem de résurrection, {downed} ?"
 )
-gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimate="Ok ça suffit là !",limiteBreak="Ok là vous m'avez énervée !",reactAllyKilled="Je suppose que j'ai une nouvelle cible maintenant",reactBigRaiseEnnemy="En quoi c'est juste ça Lena !?\"*\n<:lena:909047343876288552> : \"*Vous pouvez le faire aussi, arrête de te plaindre",onKill="Tu m'en diras des nouvelles.",redWinAlive="Vous en revoulez ?")
+gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimate="Ok ça suffit là !",limiteBreak="Ok là vous m'avez énervée !",reactAllyLb="Espéront que ça changera la donne",reactAllyKilled="Je suppose que j'ai une nouvelle cible maintenant",reactBigRaiseEnnemy="En quoi c'est juste ça Lena !?\"*\n<:lena:909047343876288552> : \"*Vous pouvez le faire aussi, arrête de te plaindre",onKill="Tu m'en diras des nouvelles.",redWinAlive="Vous en revoulez ?")
 klikliSays = says(start="Ok. Je vais m'en occuper rapidement",limiteBreak="OK, VOILÀ POUR VOUS !",onKill="Si tu veux revenir, j't'ai pas encore montrer tout ce dont je suis capable.",reactEnnemyKilled="Pff, j'peux le faire toute seule tu sais ?",ultimate="J'espère que tu as les yeux grands ouverts {target} !",redWinAlive="J'espère que vous en avez pris de la graine.")
 altySays = says(start="'K, je vais faire de mon mieux",onKill="Désolée...",onResurect="Ok, second round !",reactAllyKilled="{downed} !",redWinAlive="Oulà, ça va aller ? Je crois qu'on y est allé un peu fort...",redWinDead="`Rigole` Bien joué tout le monde !")
 
-shehisaSays = says(start="Ok, si on suit le plan, tout se passera bien",onKill="Tu aurais pu attendre que je soit partie avant de creuver quand même.",onDeath="Humf, c'était pas prévu ça...",reactAllyKilled="On lache rien !",reactBigRaiseEnnemy="C'était trop beau pour être vrai",blueWinAlive="Tout s'est déroulé comme prévu",redWinAlive="Tout s'est déroulé selon le plan")
+shehisaSays = says(start="Ok, si on suit le plan, tout se passera bien",onKill="Tu aurais pu attendre que je soit partie avant de creuver quand même.",onDeath="Humf, c'était pas prévu ça...",reactAllyKilled="On lache rien !",reactBigRaiseEnnemy="C'était trop beau pour être vrai",reactAllyLb="Wowowo tu nous as fait quoi là {caster} ?",blueWinAlive="Tout s'est déroulé comme prévu",redWinAlive="Tout s'est déroulé selon le plan")
 
 # Procur Temp stuff
 procurTempStuff = {
@@ -1049,7 +1081,7 @@ procurTempStuff = {
         ["Boucle d'oreille ombrale",'lunaDarkPendant','<:linapendant:890599104902754326>'],
         ["Robe de soubrette ombrale ",'lunaDarkMaidDress','<:linadress:890598423152185364>'],
         ["Ballerines ombrales",'lunaDarkFlats','<:linaflats:890598400624586763>'],
-        [[1.2,2.55],[1.15,0.35],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.20,0.35],[0.25,0.35],[0,0]]
+        [[1.2,2.55],[1.15,0.4],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.25,0.35],[0.25,0.35],[0,0]]
     ],
     "Iliana prê.":[250,
         ["Casque de la neko de la lueur ultime", 'ilianaPreHead','<:zenithHead:913170464581484554>'],
@@ -1061,7 +1093,7 @@ procurTempStuff = {
         ["Boucles d'oreilles runiques","clemRune",'<:clemEarRings:920297359848636458>'],
         ["Veste sanguine",'clemRune','<:clemVeste:920300283068833874>'],
         ["Bottes sanguines","clemRune","<:clemBoots:920297554330157056>"],
-        [[0.6,0.2],[1,0.4],[0.5,0.5],[2,.05],[1,0.3],[1.2,0.8],[1.5,0.8],[0.5,0.22],[1,0.030],[1,0.0005]]
+        [[0.6,0.2],[1.25,1],[0.5,0.5],[2,.05],[1,0.3],[1.2,0.8],[1.7,1],[0.5,0.25],[1,0.031],[1,0.0005]]
     ],
     "Alice Exaltée":[0,
         ["Noeud en ruban chauve-souris","aliceExHat","<:batRuban:887328511222763593>"],

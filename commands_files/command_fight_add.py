@@ -23,7 +23,7 @@ waitingSelect = create_actionrow(create_select([create_select_option("Veuillez p
 altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
 
 tablIsNpcName = []
-for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune"]:
+for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]"]:
     if type(a) != str:
         tablIsNpcName.append(a.name)
     else:
@@ -52,9 +52,13 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
             if stats[cmpt] > maxi:
                 maxi, use = stats[cmpt], cmpt 
     if use not in [FIXE,None]:
-        dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.1 +1
+        dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.15 +1
+        enemyPercing = [caster.percing+skillPercing, max(caster.percing+skillPercing,15)][target.isNpc("Clémence Exaltée") or target.isNpc("Luna prê.")]
         resistFactor = (1-(min(95,target.resistance*(1-(caster.percing+skillPercing)/100))/100))
-        dmg = round(basePower * (max(-65,caster.allStats()[use]+100-caster.actionStats()[actionStat]))/100 *(danger/100)*caster.getElementalBonus(target=target,area=area,type=typeDmg)*(1+(DMGBONUSPERLEVEL*caster.level)))*dmgBonusMelee
+        lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
+        if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
+            lvlBonus = 2.5
+        dmg = round(basePower * (max(-65,caster.allStats()[use]+100-caster.actionStats()[actionStat]))/100 *(danger/100)*caster.getElementalBonus(target=target,area=area,type=typeDmg)*lvlBonus*dmgBonusMelee)
         target.stats.damageResisted += dmg - (dmg*resistFactor)
         return max(1,round(dmg*resistFactor))
     else:
@@ -69,11 +73,11 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area):
         else:
             stat = max(caster.allStats())
 
-        effMultiplier = 100
+        effMultiplier = 100 + 5*int(not(caster.auto))
         for eff in caster.effect:
             if eff.effect.id == dmgUp.id:
                 effMultiplier += eff.effect.power
-            elif eff.effect.id == dmgDown.id:
+            elif eff.effect.id in [dmgDown.id,indDealReducTmp.id]:
                 effMultiplier -= eff.effect.power
         for eff in target.effect:
             if eff.effect.id in [vulne.id,kikuRaiseEff.id]:
@@ -88,7 +92,10 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area):
 
         selfElem = caster.getElementalBonus(target,area,TYPE_INDIRECT_DAMAGE)
         dangerMul = [100, danger][caster.team == 1]
-        damage = basePower * (1+(stat/100)) *  (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * selfElem * (1+(DMGBONUSPERLEVEL*caster.level)) * effMultiplier/100 * dangerMul/100 * dmgBonusMelee
+        lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
+        if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
+            lvlBonus = 2.5
+        damage = basePower * (1+(stat/100)) *  (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * selfElem * lvlBonus * effMultiplier/100 * dangerMul/100 * dmgBonusMelee
 
     return damage
 
@@ -114,7 +121,7 @@ class timeline:
                         elif skil.type in [TYPE_ARMOR,TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION] or skil.id in [idoOSEff.id,proOSEff.id,preOSEff.id,invocSeraf.id,idoOHEff.id,proOHEff.id,altOHEff.id,lightAura.id,lightAura2.id,invocFee.id,lapSkill.id]:
                             healSkillsCount += 1
 
-                if (suppSkillsCount >= 3 and random.randint(0,99)<50) or (ent.char.weapon.range == RANGE_MELEE and random.randint(0,99)<33):
+                if (suppSkillsCount >= 3 and random.randint(0,99)<50) or (ent.char.weapon.range == RANGE_MELEE and random.randint(0,99)<33) or not(ent.auto):
                     tablPrio.append(ent)
                 elif healSkillsCount >= 3 and random.randint(0,99)<50:
                     tablLast.append(ent)
@@ -221,7 +228,10 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
                 if a.on.invisible:                              # If the entity is invisible, don't show it. Logic
                     temp = '<:em:866459463568850954>'
                 elif a not in showArea or (wanted==ALLIES and a.on.team != fromEnt.team) or (wanted==ENEMIES and a.on.team == fromEnt.team):
-                    temp = [a.on.icon,'❇️'][a.on==fromEnt]
+                    if a not in showArea and a in fullArea:
+                        temp = '<:unsee:899788326691823656>'
+                    else:
+                        temp = [a.on.icon,'❇️'][a.on==fromEnt]
                 elif a != fromEnt.cell:
                     temp = '<:unsee:899788326691823656>'
                     for cmpt in range(len(numberEmoji)):
@@ -277,3 +287,71 @@ def getHealTarget(tablTeam : list, skillToUse : skill):
     temp = tablTeam
     temp.sort(key=lambda funnyTempVarName:getHealAggro(funnyTempVarName,skillToUse),reverse=True)
     return temp[0]
+
+def getPrelimManWindow(actTurn, LBBars: List[List[int]], tablEntTeam : List):
+    toReturn, cmpt = actTurn.quickEffectIcons()+"Trans. : ", 0
+    while cmpt < LBBars[actTurn.team][0]:
+        if LBBars[actTurn.team][1]//3 > cmpt:
+            toReturn += "<:lbF:983450379205378088>"
+        elif LBBars[actTurn.team][1]%3 >= 0 and LBBars[actTurn.team][1] >= LBBars[actTurn.team][0]*3:
+            toReturn += ["<:lb0:983450435404849202>","<:lb1:983450416010371183>","<:lb2:983450398645977218>"][LBBars[actTurn.team][1]%3]
+        else:
+            toReturn += "<:lb0:983450435404849202>"
+        cmpt += 1
+    baseStat, actStat, difStatMsg, difMsg = actTurn.baseStats, actTurn.allStats(), [], ""
+    baseStat = [baseStat[0],baseStat[1],baseStat[2],baseStat[3],baseStat[4],baseStat[5],baseStat[6]]
+    for cmpt in (0,1,2,3,4,5,6):
+        if baseStat[cmpt] != actStat[cmpt]:
+            difStatMsg.append("__{0}.__ {1}{2}".format(nameStats[cmpt][:3],["","+"][actStat[cmpt]-baseStat[cmpt]>0],actStat[cmpt]-baseStat[cmpt]))
+    lenDif = len(difStatMsg)
+    if lenDif == 1:
+        difMsg = "\n{0}".format(difStatMsg[0])
+    elif lenDif > 1:
+        difMsg = "\n"
+        for cmpt in range(lenDif):
+            difMsg += "{0}".format(difStatMsg[cmpt])
+            if cmpt < lenDif - 1:
+                difMsg += ", "
+
+    toReturn += difMsg
+    dmgUpCount, defenseUpCount, buffMsg = 0, 0, ""
+    for eff in actTurn.effect:
+        if eff.effect.id == dmgUp.id:
+            dmgUpCount += eff.effect.power
+        elif eff.effect.id == dmgDown.id:
+            dmgUpCount -= eff.effect.power
+        elif eff.effect.id == defenseUp.id:
+            defenseUpCount += eff.effect.power
+        elif eff.effect.id == vulne.id:
+            defenseUpCount -= eff.effect.power
+    if dmgUpCount != 0:
+        buffMsg += "\n{0} {1}{2}%".format(["<a:dmgDown:954430950668914748>","<a:dmgUp:954429227657224272>"][dmgUpCount>0],["","+"][dmgUpCount>0],round(dmgUpCount,2))
+    if defenseUpCount != 0:
+        if buffMsg != "":
+            buffMsg += ", "
+        else:
+            buffMsg += "\n"
+        buffMsg += "{0} {1}{2}%".format(["<a:defdown:954544494110441563>","<a:defup:954537632543682620>"][defenseUpCount>0],["","+"][defenseUpCount>0],round(defenseUpCount,2))
+
+    allieUnHealthy, allieRea, allieDead, allieAlive = 0, 0, 0, 0
+    for ent in tablEntTeam[actTurn.team]:
+        if ent != actTurn and type(ent.char) != invoc:
+            if ent.hp > 0 and ent.hp/ent.maxHp <= 0.5:
+                allieUnHealthy += 1
+            elif ent.hp <= 0 and ent.status == STATUS_DEAD:
+                allieRea += 1
+            elif ent.hp <= 0:
+                allieDead += 1
+            else:
+                allieAlive += 1
+    
+    alliesEmoji = ["<:ha:866459302319226910>","<:inh:881587796287057951>","<:ls1:868838101752098837>","<:d2B:907289950301601843>"]
+    for cmpt in [0,1,2,3]:
+        if [allieAlive,allieUnHealthy,allieRea,allieDead][cmpt] > 0:
+            if buffMsg != "":
+                buffMsg += ", "
+            else:
+                buffMsg += "\n"
+            buffMsg += "{0}x{1}".format(alliesEmoji[cmpt],[allieAlive,allieUnHealthy,allieRea,allieDead][cmpt])
+    toReturn += buffMsg
+    return toReturn

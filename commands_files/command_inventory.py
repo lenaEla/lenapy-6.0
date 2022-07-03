@@ -48,8 +48,9 @@ affBody = create_button(ButtonStyle.green,"Aff. Tenue",getEmojiObject('<:defMid:
 affShoes = create_button(ButtonStyle.blue,"Aff. Chaussures",getEmojiObject('<:defShoes:896928709330731018>'),"flats")
 affAllStuff = create_button(ButtonStyle.grey,"Aff. Tout",getEmojiObject('<:dualMagie:899628510463803393>'),"all")
 
-affCompMelee = create_button(ButtonStyle.red,"Aff. Comp. Mêlée",getEmojiObject(absorbingStrike.emoji),"melee_ult")
-affCompDist = create_button(ButtonStyle.red,"Aff. Comp. Distance",getEmojiObject(absorbingArrow.emoji),"dist_ult")
+affCompMelee = create_button(ButtonStyle.red,"Aff. Comp. Mêlée",getEmojiObject(absorbingStrike.emoji),"melee_range")
+affCompDist = create_button(ButtonStyle.red,"Aff. Comp. Distance",getEmojiObject(absorbingArrow.emoji),"dist_range")
+affAllRange = create_button(ButtonStyle.grey,"Aff toute portée",custom_id="all_range")
 
 tablStatsName = nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"]
 
@@ -876,16 +877,17 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
         msg = None
         opValues=["equipement","armes","competences","autre"]
         tri = 0
-        needRemake, stuffStatus, hideUlt, affMono, stuffMenuStatus = True, 0, 0, 0, 0, 
+        needRemake, stuffStatus, hideUlt, affMono, stuffMenuStatus, rangeSkill = True, 0, 0, 0, 0, 0
 
         affult = create_button(ButtonStyle.green,"Aff. tout type",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"aff_ult")
         hideult = create_button(ButtonStyle.blue,"Cacher Ultimes",getEmojiObject(skillnonult[random.randint(0,len(skillnonult)-1)].emoji),"hide_ult")
         affonlyult = create_button(ButtonStyle.grey,"Aff. seulement Ult.",getEmojiObject(skillult[random.randint(0,len(skillult)-1)].emoji),"affonly_ult")
-        tablShowUltButton = [affult,hideult,affonlyult,affCompMelee,affCompDist]
+        tablShowUltButton = [affult,hideult,affonlyult]
         affmono = create_button(ButtonStyle.green,"Aff. comp. monocibles",getEmojiObject(skillMono[random.randint(0,len(skillMono)-1)].emoji),"mono_area")
         affaoe = create_button(ButtonStyle.blue,"Aff. comp. Zone",getEmojiObject(skillAoe[random.randint(0,len(skillAoe)-1)].emoji),"aoe_area")
         affallarea = create_button(ButtonStyle.grey,"Aff. toutes zones",getEmojiObject(skills[random.randint(0,len(skills)-1)].emoji),"all_area")
         tablSkillArea = [affmono,affaoe,affallarea]
+        tablRangeSkill = [affAllRange,affCompMelee,affCompDist]
 
         listUserProcure = [user]
         for a in user.haveProcurOn:
@@ -1034,11 +1036,11 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         for skilly in tablToSee[:]:
                             if not skilly.ultimate:
                                 tablToSee.remove(skilly)
-                    elif hideUlt == 3:
+                    if rangeSkill == 1:
                         for skilly in tablToSee[:]:
                             if skilly.ultimate or skilly.range not in areaMelee+areaMixte:
                                 tablToSee.remove(skilly)
-                    elif hideUlt == 4:
+                    elif rangeSkill == 2:
                         for skilly in tablToSee[:]:
                             if skilly.ultimate or skilly.range not in areaDist+areaMixte:
                                 tablToSee.remove(skilly)
@@ -1304,9 +1306,10 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 if destination == 1:
                     ultimateTemp = [create_actionrow(temp1,temp2)]
                 else:
-                    temp3 = tablShowUltButton[(hideUlt+1)%5]
+                    temp3 = tablShowUltButton[(hideUlt+1)%3]
                     temp4 = tablSkillArea[affMono]
-                    ultimateTemp = [create_actionrow(temp1,temp2,temp3,temp4)]
+                    temp5 = tablRangeSkill[(rangeSkill+1)%3]
+                    ultimateTemp = [create_actionrow(temp1,temp2,temp3,temp4,temp5)]
 
             elif destination == 0:
                 temp1 = [hideNonEquip,affNonEquip,affExclu][affAll]
@@ -1416,7 +1419,10 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                     stuffToAff = (stuffToAff+1)%4
                 needRemake = True
             elif respond.values[0].endswith("_ult"):
-                hideUlt = (hideUlt+1)%5
+                hideUlt = (hideUlt+1)%3
+                needRemake = True
+            elif respond.values[0].endswith("_range"):
+                rangeSkill = (rangeSkill+1)%3
                 needRemake = True
             elif respond.values[0].endswith("_area"):
                 affMono = (affMono+1)%3

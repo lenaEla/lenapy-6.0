@@ -49,6 +49,7 @@ changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania,a
 # Specials skills ================================================================================
 # Total Kboum
 totalAnnilLauch = copy.deepcopy(explosion)
+totalAnnilLauch.power = 500
 
 totalAnnilCastEff4 = copy.deepcopy(castExplo)
 totalAnnilCastEff4.replica, totalAnnilCastEff4.name = totalAnnilLauch, "Annihilation totale dans 1 tour !"
@@ -79,6 +80,8 @@ totalAnnilLauch.name = totalAnnilCastSkill1.name = totalAnnilCastSkill2.name = t
 totalAnnilLauch.ultimate = totalAnnilCastSkill1.ultimate = totalAnnilCastSkill2.ultimate = totalAnnilCastSkill3.ultimate = totalAnnilCastSkill4.ultimate = totalAnnilCastSkill0.ultimate = totalAnnilLauch.shareCooldown = totalAnnilCastSkill1.shareCooldown = totalAnnilCastSkill2.shareCooldown = totalAnnilCastSkill3.shareCooldown = totalAnnilCastSkill4.shareCooldown = totalAnnilCastSkill0.shareCooldown = False
 
 BOUMBOUMBOUMBOUMweap = weapon("noneWeap","BoumX4",1,AREA_CIRCLE_1,0,0,0)
+fairyBomb.effect[0].callOnTrigger = copy.deepcopy(findEffect("me"))
+fairyBomb.effect[0].callOnTrigger.power = fairyBomb.effect[0].callOnTrigger.power//2
 
 def findOther(otherId : Union[str,other]) -> Union[other,None]:
     if type(otherId) == other:
@@ -280,7 +283,7 @@ if not(isLenapy):
                     what += whaty.name + ", "
             raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("danseuse"))
+#print(seeSimilarStuffNameMinLvl("Onirique"))
 #print(seeAllStuffAtMinLvl(0))
 
 """for stuffy in stuffs:

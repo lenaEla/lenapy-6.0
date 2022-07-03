@@ -13,11 +13,11 @@ feeSkill = skill("Murmure de l'aurore","aag",TYPE_INDIRECT_HEAL,0,0,AREA_MONO,co
 titWeap = weapon("Rune de Malice","titaniaWeapo,n",RANGE_MELEE,AREA_CIRCLE_1,26,50,repetition=3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2,use=MAGIE) 
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',use=CHARISMA,type=TYPE_HEAL,target=ALLIES,message="{0} encourage doucement {1} :")
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,65,emoji='<:defHeal:885899034563313684>',cooldown=4,description="Soigne l'allié ciblé\n__Puissance :__ **{power}**")
-lapinoSkill2 = skill("Murmure d'abnégation","lapinoSkill2",TYPE_HEAL,power=100,use=CHARISMA,cooldown=3,maxHpCost=95,description="Soigne l'allié ciblé au prix de la quasi totalité des PV max du Lapino\n__Puissance :__ **{power}**")
 batSkill = skill("Cru-aile","aak",TYPE_DAMAGE,0,100,AREA_CIRCLE_2,emoji='<:defDamage:885899060488339456>',use=AGILITY)
 autoWeap = weapon("NoneWeap","NoneWeap",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:noneWeap:917311409585537075>")
 autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus,silent=True)
 autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,125,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff,sussess=200,setAoEDamage=True,description="Inflige des dégâts en zone autour de la Bombe Robot, puis s'auto détruit à la fin du tour\n__Puissance :__ **{power}**")
+lapinoSkill2 = skill("Murmure d'Abnégation","lapinoSkill2",TYPE_HEAL,power=100,use=CHARISMA,cooldown=3,description="Soigne l'allié ciblé mais le Lapino est vaincu par la suite\n__Puissance :__ **{power}**",effectOnSelf=autoEff)
 cutyBatSkill1Eff = effect("Motivé Bis","batMotivEff",stat=CHARISMA,strength=7,magie=7,charisma=7,intelligence=7)
 cutyBatSkill1 = skill("Motivation de la Chauve-Souris","batMotiv",TYPE_BOOST,0,0,AREA_MONO,area=AREA_DONUT_2,use=CHARISMA,cooldown=4,effect=cutyBatSkill1Eff,description="Augmente la Force, la Magie, le Charisme et l'Intelligence des alliés proches de la Chauve-Souris II")
 cutyBatSkill2Eff = effect("Renforcement Bis","batRenforceEff",stat=INTELLIGENCE,endurance=7,resistance=3,emoji=uniqueEmoji('<:egide:887743268337619005>'))
@@ -57,10 +57,15 @@ autFouSkill1Eff.power, autFouSkill1Eff.stat, autFouSkill2Eff.power, autFouSkill2
 autFouSkill1 = skill("Mortier d'ether néfaste","autFouSkill1",TYPE_MALUS,effect=autFouSkill1Eff,area=AREA_CIRCLE_3,use=INTELLIGENCE,range=AREA_MONO,effectAroundCaster=[TYPE_DAMAGE,AREA_DONUT_3,60],cooldown=2,emoji='<:mortarR:983595021859184650>',description="Augmente les dégâts reçus par les ennemis à portée et leur inflige des dégâts\n__Puissance des dégâts :__ 60\n__Puissance de l'augmentation de dégâts subis :__ 5% (Intelligence)")
 autFouSkill2 = skill("Mortier d'ether bénéfique","autFouSKill2",TYPE_BOOST,effect=[autFouSkill2Eff,autFouSkill2Armor],area=AREA_CIRCLE_3,range=AREA_MONO,emoji='<:mortarB:983594992708751410>',description="Augmente les dégâts infligés par les alliés à portée et leur procure une armure\n__Puissance de l'augmentation des dégâts infligés :__ 5%\n__Puissance de l'armure :__ 20")
 autQueenWeap = weapon("Coup de poings","autQueenWeap",RANGE_MELEE,AREA_CIRCLE_1,90,200,emoji='<:queenWeap:983594110025863189>',ignoreAutoVerif=True)
-autQueenSkill1 = skill("Roue véloce","autQueenSkill1",TYPE_DAMAGE,power=20,range=AREA_INLINE_4,replay=True,emoji='<:queenDash:983594130338902066>',description="L'auto tourelle reine charge un ennemi et rejoue son tour\n__Puissance :__ {power}")
-autQueenSkill2 = skill("Marteau Piqueur","autQueenSkill2",TYPE_DAMAGE,power=135,sussess=200,emoji='<:queenColi:983595079916736542>',cooldown=3,description="L'auto tourelle reine porte une puissance attaque sur l'ennemi ciblé avec une précision parfaite\n__Puissance :__ {power}")
-pipisSkill = skill("Auto-Pipisation","autopipisboom",TYPE_DAMAGE,power=200,range=AREA_MONO,area=AREA_CIRCLE_3,effectOnSelf=autoEff)
+autQueenSkill1 = skill("Roue véloce","autQueenSkill1",TYPE_DAMAGE,power=20,range=AREA_INLINE_4,tpCac=True,replay=True,emoji='<:queenDash:983594130338902066>',description="L'auto tourelle reine charge un ennemi et rejoue son tour\n__Puissance :__ {power}")
+autQueenSkill2 = skill("Marteau Piqueur","autQueenSkill2",TYPE_DAMAGE,power=135,sussess=200,damageOnArmor=3,emoji='<:queenColi:983595079916736542>',cooldown=3,description="L'auto tourelle reine porte une puissance attaque sur l'ennemi ciblé avec une précision parfaite. Dégâts triplés sur l'armure\n__Puissance :__ {power}")
+pipisSkill = skill("Auto-Pipisation","autopipisboom",TYPE_DAMAGE,power=200,range=AREA_MONO,area=AREA_CIRCLE_3,effectOnSelf=autoEff,initCooldown=3)
 pipisWeap = copy.deepcopy(autoWeap)
+lightButterflyWeap = weapon("Lueur Volatile","lightButterflyWeap",RANGE_DIST,AREA_CIRCLE_5,power=50,sussess=100,use=CHARISMA,type=TYPE_HEAL,target=ALLIES,ignoreAutoVerif=True)
+lightButterflySkill1 = skill("Eclats Lumineux","lightButterflySkill1",TYPE_HEAL,power=40,range=AREA_MONO,area=AREA_CIRCLE_3)
+lightButterflySkill2Eff = effect("Bénédiction Lumineuse","lightButterflySkill2Eff",CHARISMA,type=TYPE_INDIRECT_HEAL,power=25,turnInit=3,trigger=TRIGGER_START_OF_TURN,stackable=True)
+lightButterflySkill2 = skill("Bénédiction Concentrique","lightButterflySkill2",TYPE_INDIRECT_HEAL,effect=lightButterflySkill2Eff,use=CHARISMA)
+lightButterflySkill3 = skill("Bénédiction Lumineuse","lightButterflySkill3",TYPE_INDIRECT_HEAL,effect=lightButterflySkill2Eff,use=CHARISMA,effPowerPurcent=40,area=AREA_CIRCLE_1,range=AREA_CIRCLE_4)
 
 batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.5],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans temps de rechargement",skill=[batSkill],element=ELEMENT_AIR)
 carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],20,10,[PURCENTAGE,1],MAGE,["<:carbEmR:919858018739437568>",'<:carbEmB:919857996274749451>'],carbunE,[carbunSkill],description="Une invocation utilisant des compétences de zone pour vaincre des groupes d'ennemis de loin",element=ELEMENT_AIR)
@@ -84,9 +89,10 @@ autQueen = invoc("Auto tourelle Reine",[PURCENTAGE,0.7],[PURCENTAGE,0.7],[PURCEN
 carbObsi = invoc("Carbuncle Obsidienne",strength=[PURCENTAGE,0.7],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.5],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.3],resistance=[PURCENTAGE,1],percing=[PURCENTAGE,1],critical=[PURCENTAGE,0.5],aspiration=POIDS_PLUME,icon=['<:carbObsiB:919857954029707284>','<:carObsiR:919857975051558954>'],weapon=carbOb,skill=[carbObSkill],element=ELEMENT_DARKNESS)
 carbSaphir = invoc("Carbuncle Saphir",strength=[PURCENTAGE,0.7],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.5],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.3],resistance=[PURCENTAGE,0.5],percing=[PURCENTAGE,1],critical=[PURCENTAGE,1],aspiration=OBSERVATEUR,icon=["<:ce1:884889724114841610>","<:ce2:884889693374775357>"],weapon=carbSa,skill=[carbSaSkill],element=ELEMENT_WATER)
 pipis = invoc("Pipis",[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.3],[PURCENTAGE,0.1],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.7],ASPI_NEUTRAL,["<:pipis:984865081672212491>","<:pipis:984865081672212491>"],pipisWeap,[pipisSkill])
+lightButterfly = invoc("Papillon de Lumière",[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],25,0,15,ALTRUISTE,["<:blum:992495387812311060>","<:rlum:992495404933455974>"],lightButterflyWeap,[lightButterflySkill1,lightButterflySkill2,lightButterflySkill3],description="Un papillon pouvant soigner les combattants alliés, efficace aussi bien en zone qu'en monocible",element=ELEMENT_LIGHT)
 
 # Invocations
-invocTabl = [seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR,autTour,autFou,autQueen,pipis,
+invocTabl = [seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR,autTour,autFou,autQueen,pipis,lightButterfly,
 ]
 
 def findSummon(name) -> invoc:

@@ -1,6 +1,6 @@
 from classes import *
 from constantes import *
-from advObjects.advSkills import tablElemEff, coroWind
+from advObjects.advSkills import tablElemEff, coroWind, plumRemEff
 from advObjects.advStuffs import shieltron
 
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
@@ -109,7 +109,7 @@ magicWood = weapon("Baguette en argent",'dc',RANGE_LONG,AREA_CIRCLE_5,80,50,1,ta
 magicMass = weapon("Masse argentée",'cz',RANGE_DIST,AREA_CIRCLE_3,80,60,1,magie=30,use=MAGIE,emoji='<:magicMasse:934585301463072778>')
 magicSwordnShield = weapon("Bouclier Runique",'da',RANGE_MELEE,AREA_CIRCLE_1,62,70,1,magie=5,resistance=10,use=MAGIE,emoji='<:magicShield:934585318508736532>',needRotate=False,effect=shieltron)
 keyblade = weapon("Keyblade",'db',RANGE_MELEE,AREA_CIRCLE_2,81,80,1,agility=10,strength=10,endurance=10,emoji='<:kb:934497052723929108>',ignoreAutoVerif=True)
-fleauHealEff = effect('Cicatrisation','altiWeapHealEff',CHARISMA,stackable=True,power=8,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,description="Soigne légèrement en début de tour",emoji=sameSpeciesEmoji('<:flB:934615447263916103>','<:flR:934615460157198346>'))
+fleauHealEff = effect('Cicatrisation','altiWeapHealEff',CHARISMA,stackable=True,power=15,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,description="Soigne légèrement en début de tour",emoji=sameSpeciesEmoji('<:flB:934615447263916103>','<:flR:934615460157198346>'))
 fleauPassifEffect = effect('Bénidiction de la Compréhension','altiWeapPassifEff',callOnTrigger=fleauHealEff,turnInit=-1,unclearable=True,area=AREA_CIRCLE_2,emoji='<:flE:934615479732043776>',description="Lorsque vous attaquez avec votre arme, donne l'effet __Cicatrisation__ à tous vos alliés dans la zone d'effet\n\nAugmente de 50% la probabililté d'utiliser son arme principale en mode automatique")
 fleau = weapon('Fléau de la Compréhension',"de",RANGE_MELEE,AREA_CIRCLE_2,58,50,1,charisma=10,resistance=5,use=CHARISMA,effect=fleauPassifEffect,emoji='<:fleau:934615644622704641>',area=AREA_ARC_1)
 
@@ -161,9 +161,16 @@ flumWand = weapon("Canne de la Fleur Lumineuse","ed",RANGE_LONG,AREA_CIRCLE_5,50
 dflumShield = weapon("Epée et Bouclier de la Fleur Ténèbreuse","ef",RANGE_MELEE,AREA_CIRCLE_1,58,75,1,magie=10,resistance=5,effect="nt",use=MAGIE,affinity=ELEMENT_DARKNESS,emoji='<:darkShield:964467248486047765>')
 dflumWand = weapon("Canne de la Fleur Ténèbreuse","eg",RANGE_LONG,AREA_CIRCLE_5,35,90,1,magie=15,effect="nt",use=MAGIE,affinity=ELEMENT_DARKNESS,emoji='<:darkWand:964465066860761088>')
 constShield = weapon("Bouclier Constitutionnel",'eh',RANGE_MELEE,AREA_CIRCLE_1,48,90,1,endurance=10,resistance=5,use=ENDURANCE,emoji='<:constShield:964463485968859137>',effect="mk")
+aliceFan = weapon("Eventail","ei",RANGE_MELEE,AREA_CIRCLE_2,56,80,1,strength=10,charisma=10,endurance=10,area=AREA_ARC_1,emoji='<:aliceFan:986989072318861363>')
+dSixtineWeap = weapon("Rapière Onirique","ej",RANGE_MELEE,AREA_CIRCLE_1,power=55,sussess=70,price=1,area=AREA_LINE_2,magie=15,agility=10,resistance=5,emoji='<:dsixtRap:987009911097540710>',use=MAGIE)
+phenixLeath = weapon("Plumes de Phénix","ek",RANGE_DIST,AREA_CIRCLE_4,36,65,1,magie=10,endurance=5,effect=dtsword.effect,emoji='<:phenpl:992946043161411694>',area=AREA_CONE_2,use=MAGIE)
+
+plume2 = copy.deepcopy(plume)
+plume2.effectOnUse = plumRemEff
 
 # Weapon
-weapons = [iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,
+weapons = [dSixtineWeap,phenixLeath,
+    iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,aliceFan,
     fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
     secretum,ElitherScope,grav,darkbluebutterfly,bleuSpiritWings,whiteSpiritWings,infDarkSword,infLightSword,astroGlobe,
