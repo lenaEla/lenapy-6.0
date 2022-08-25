@@ -1,7 +1,7 @@
 from classes import *
 from constantes import *
 from advObjects.advSkills import *
-from advObjects.advWeapons import purpleSecretEff, critBonusEff
+from advObjects.advWeapons import purpleSecretEff, critBonusEff, liaKatanaEff
 
 tankStans = ["ne","ng","nh","ol","nf"]
 dptStans = ["ns","np","pacteDeSang","pacteD'âme","purpleSecrets",critBonusEff.id]
@@ -128,7 +128,7 @@ purpleSecretEff.reject = critBonusEff.reject = dptStans
 chaosProhib = [deterEff1,dephased,octoboum,const,lostSoul,onceButNotTwice,zelianR,octoshield]
 
 #Effect
-effects = [ironHealthEff,preciChiEff,
+effects = [ironHealthEff,preciChiEff,liaKatanaEff,windDanceEff,imuneLightStun,
     critBonusEff,idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,extraEting,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff,magicRuneEff,purpleSecretEff,fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff3,convertEff,vampirismeEff,heriteEstialbaEff,estal2,bleeding2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,bleeding,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estal,defensive,flumEffect,lightAuraEffect,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,hunter,hunterBuff,menthe,badaboum,courageE
 ]
 

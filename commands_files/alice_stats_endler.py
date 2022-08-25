@@ -265,6 +265,73 @@ enemyStatCreate ="""
     AllyRaiseMoy        DEFAULT (0)
     );
 """
+maj4 = """PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM userStats;
+
+    DROP TABLE userStats;
+
+    CREATE TABLE userStats (
+        id                 INTEGER PRIMARY KEY
+                                UNIQUE,
+        totalDamage        INTEGER,
+        maxDamage          INTEGER,
+        totalHeal          INTEGER,
+        maxHeal            INTEGER,
+        totalArmor         INTEGER,
+        maxArmor           INTEGER,
+        totalRecivedDamage INTEGER,
+        maxRecivedDamage   INTEGER,
+        totalKill          INTEGER,
+        maxKill            INTEGER,
+        totalResu          INTEGER,
+        maxResu            INTEGER,
+        totalSupp          INTEGER,
+        maxSupp            INTEGER,
+        jetonOws
+    );
+
+    INSERT INTO userStats (
+                            id,
+                            totalDamage,
+                            maxDamage,
+                            totalHeal,
+                            maxHeal,
+                            totalArmor,
+                            maxArmor,
+                            totalRecivedDamage,
+                            maxRecivedDamage,
+                            totalKill,
+                            maxKill,
+                            totalResu,
+                            maxResu,
+                            totalSupp,
+                            maxSupp,
+                            jetonOws
+                        )
+                        SELECT id,
+                                totalDamage,
+                                maxDamage,
+                                totalHeal,
+                                maxHeal,
+                                totalArmor,
+                                maxArmor,
+                                totalRecivedDamage,
+                                maxRecivedDamage,
+                                totalKill,
+                                maxKill,
+                                totalResu,
+                                maxResu,
+                                totalSupp,
+                                maxSupp,
+                                jetonOws
+                            FROM sqlitestudio_temp_table;
+
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;
+"""
 class aliceStatsdbEndler:
     """This database keeps the user's fighting stats and their progress in the main adventure"""
     def __init__(self):
@@ -312,33 +379,19 @@ class aliceStatsdbEndler:
 
         try:
             cursor.execute("SELECT dutyProgressAct FROM userStats;")
-        except:
             temp = ""
-            for a in maj2:
+            for a in maj4:
                 if a != ";":
                     temp+=a
                 else:
                     cursor.execute(temp)
                     temp = ""
 
-            cursor.execute("UPDATE userStats SET dutyProgressAct = ?, dutyProgressMission = ?;",(None,None))
             self.con.commit()
-            print("maj2 done")
-
-        try:
-            cursor.execute("SELECT dutyResumeRef FROM userStats;")
+            print("maj4 done")
         except:
-            temp = ""
-            for a in maj3:
-                if a != ";":
-                    temp+=a
-                else:
-                    cursor.execute(temp)
-                    temp = ""
+            pass
 
-            cursor.execute("UPDATE userStats SET dutyResumeRef = ?, dutyGroupData = ?, jetonOws = ?;",(None,None,0))
-            self.con.commit()
-            print("maj3 done")
 
         try:
             cursor.execute("SELECT * FROM enemyStats;")
@@ -361,11 +414,11 @@ class aliceStatsdbEndler:
         - Parameter\n
             - .user : The ``char`` to add into the database"""
         cursory = self.con.cursor()
-        cursory.execute("SELECT * FROM userStats WHERE id = ?",(user.owner,))
+        cursory.execute("SELECT * FROM userStats WHERE id = {0}".format(user.owner))
         result = cursory.fetchall()
 
         if len(result) == 0:
-            cursory.execute("INSERT INTO userStats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(user.owner,0,0,0,0,0,0,0,0,0,0,0,0,0,0,None,None,None,None,0))
+            cursory.execute("INSERT INTO userStats VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(user.owner,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0))
             self.con.commit()
             print("Le personnage {0} a été rajouté à la base de donnée".format(user.name))
         cursory.close()
@@ -416,7 +469,7 @@ class aliceStatsdbEndler:
         result = cursor.fetchall()
 
         if len(result) == 0:
-            self.addUser(char)
+            self.addUser(user)
             cursor.execute("SELECT {0} FROM userStats WHERE id = ?".format,(user.owner,))
             result = cursor.fetchall()
 

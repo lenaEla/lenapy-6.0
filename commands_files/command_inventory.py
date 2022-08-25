@@ -9,7 +9,7 @@ from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from emoji import backward_arrow,check
+from emoji import backward_arrow,check,cross
 from commands_files.command_start import chooseAspiration,chooseColor,changeCustomColor
 
 inventoryMenu = create_select(
@@ -52,7 +52,6 @@ affCompMelee = create_button(ButtonStyle.red,"Aff. Comp. Mêlée",getEmojiObject
 affCompDist = create_button(ButtonStyle.red,"Aff. Comp. Distance",getEmojiObject(absorbingArrow.emoji),"dist_range")
 affAllRange = create_button(ButtonStyle.grey,"Aff toute portée",custom_id="all_range")
 
-tablStatsName = nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"]
 
 skillult, skillnonult, skillMono, skillAoe = [], [], [], []
 for skilly in skills:
@@ -64,6 +63,9 @@ for skilly in skills:
         skillMono.append(skilly)
     else:
         skillAoe.append(skilly)
+
+confirmChange = create_button(ButtonStyle.green,"Le renouveau c'est cool",check,"confirm")
+rejectModernity = create_button(ButtonStyle.grey,"Rejeter la modernité",cross,"nope")
 
 returnAndConfirmActionRow = create_actionrow(returnButton,confirmButton)
 
@@ -82,11 +84,13 @@ def getSortSkillValue(object : skill, wanted : int):
         else:
             print("{0} n'a rien a faire dans la catégorie {1} !".format(object.name,["Dégâts indirects","Armure"][int(wanted==17)]))
             return 0
-    elif wanted == 14:      # Dmg     
-        while not(object.effectOnSelf == None or findEffect(object.effectOnSelf).replica == None):
+    elif wanted == 14:      # Dmg  
+        objPower = max(object.power,object.maxPower) * object.repetition
+        while not(object.effectOnSelf == None or (type(findEffect(object.effectOnSelf)) == effect and findEffect(object.effectOnSelf).replica == None)):
             object = findSkill(findEffect(object.effectOnSelf).replica)
+            objPower += max(object.power,object.maxPower) * object.repetition
         if object.type == TYPE_DAMAGE:
-            return object.power * object.repetition
+            return objPower
         elif object.effectAroundCaster != None:
             return object.effectAroundCaster[2]
 
@@ -161,16 +165,16 @@ async def compare(bot : discord.client, ctx : ComponentContext, user : char, see
     embed = discord.Embed(title="__Comparaison : {0} {2} -> {3} {1}__".format(toCompare.name,see.name,toCompare.emoji,see.emoji),color=user.color)
     compBonus = ""
     compMalus = ""
-    allStaty = allStatsNames + ["Soins","Boost","Armure","Direct","Indirect"]
+    allStaty = allStatsNames
     allStatsCompare = toCompare.allStats() + [toCompare.resistance,toCompare.percing,toCompare.critical,toCompare.negativeHeal*-1,toCompare.negativeBoost*-1,toCompare.negativeShield*-1,toCompare.negativeDirect*-1,toCompare.negativeIndirect*-1]
     allStatsSee = see.allStats() + [see.resistance,see.percing,see.critical,see.negativeHeal*-1,see.negativeBoost*-1,see.negativeShield*-1,see.negativeDirect*-1,see.negativeIndirect*-1]
 
     for cmpt in range(len(allStatsSee)):
         diff = allStatsSee[cmpt] - allStatsCompare[cmpt]
         if diff > 0:
-            compBonus += "{0} : **+{1}**\n".format(allStaty[cmpt],diff)
+            compBonus += "{2} {0} : **+{1}**\n".format(allStaty[cmpt],diff,statsEmojis[cmpt])
         elif diff < 0:
-            compMalus += "{0} : {1}\n".format(allStaty[cmpt],diff)
+            compMalus += "{2}{0} : {1}\n".format(allStaty[cmpt],diff,statsEmojis[cmpt])
 
     if compBonus != "":
         embed.add_field(name="<:empty:866459463568850954>\n__Gains de statistiques :__",value=compBonus,inline=True)
@@ -700,7 +704,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
 
             if obj == autoStuff:
                 emb.add_field(name ='<:empty:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
-                emb.add_field(name ='<:empty:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(tablStatsName[recommandedStuffStat[user.aspiration][0]],tablStatsName[recommandedStuffStat[user.aspiration][1]],tablStatsName[recommandedStuffStat[user.aspiration][2]]),inline=False)
+                emb.add_field(name ='<:empty:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]]),inline=False)
 
             trouv = False
             for a in user.otherInventory:
@@ -742,10 +746,11 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                                 
                                 await oldMsg.edit(embed = discord.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
                             else:
-                                
-                                await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreure est survenue"))
+                                await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreure est survenue\n"))
+                                print_exc()
                     except:
                         await oldMsg.edit(embed = errorEmbed("__/inventory__","Une erreure est survenue"))
+                        print_exc()
                 elif obj==changeAppa:
                     
                     await oldMsg.edit(embed = discord.Embed(title = "__/inventory__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
@@ -860,7 +865,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
                         user.autoStuff = True
                         user.otherInventory.remove(obj)
                         saveCharFile(user=user)
-                        await oldMsg.edit(embed=discord.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(tablStatsName[recommandedStuffStat[user.aspiration][0]],tablStatsName[recommandedStuffStat[user.aspiration][1]],tablStatsName[recommandedStuffStat[user.aspiration][2]])))
+                        await oldMsg.edit(embed=discord.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]])))
                     else:
                         await oldMsg.edit(embed=discord.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
                 await oldMsg.clear_reactions()
@@ -938,40 +943,25 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
             ]
 
             if destination in [0,1]:
-                options+=[
-                    [
-                        create_select_option("Force","4",'💪',default=4==tri),
-                        create_select_option("Endurance","5",'🏃',default=5==tri),
-                        create_select_option("Charisme",'6','💃',default=6==tri),
-                        create_select_option("Agilité","7",'🤸',default=7==tri),
-                        create_select_option("Précision","8",'🏹',default=8==tri),
-                        create_select_option("Intelligence","9",'🎓',default=9==tri),
-                        create_select_option("Magie","10",'🧙',default=10==tri),
-                        create_select_option("Résistance","11",'🛡️',default=11==tri),
-                        create_select_option("Pénétration","12",'🗡️',default=12==tri),
-                        create_select_option("Critique","13",'🎲',default=13==tri),
-                        create_select_option("Soins","14",getEmojiObject('<:cure:925190515845132341>'),default=14==tri),
-                        create_select_option("Boost","15",getEmojiObject('<:dyna:932618114892439613>'),default=15==tri),
-                        create_select_option("Armures","16",getEmojiObject('<:inkArmor:866829950463246346>'),default=16==tri),
-                        create_select_option("Directs","17",getEmojiObject('<:splatbomb:873527088286687272>'),default=17==tri),
-                        create_select_option("Indirects","18",getEmojiObject('<:estabistia:883123793730609172>'),default=18==tri),
-                        create_select_option("Autre cat.","autCat_1","➡️")
-                    ],
-                    [
-                        create_select_option("Cat. classiques","autCat_0","⬅️"),
-                        create_select_option("For. - Pré.","22",getEmojiObject('<:lightBlue:933728207453163590>'),default=22==tri),
-                        create_select_option("For. - Agi.","23",getEmojiObject('<:green:933734508317003846>'),default=23==tri),
-                        create_select_option("Endur. - For.","24",getEmojiObject('<:black:933728357152096277>'),default=24==tri),
-                        create_select_option("Endur. - Mag.","25",getEmojiObject('<:orangeBatEarRing:938496708554416168>'),default=25==tri),
-                        create_select_option("Endur. - Soins / Char.","26",getEmojiObject('<:apGreenBatEar:938496729718849546>'),default=26==tri),
-                        create_select_option("Endur. - Intel. / Arm.","27",getEmojiObject('<:darkblue:933728323455045672>'),default=27==tri),
-                        create_select_option("Char. - Soins","28",getEmojiObject('<:white:933785500257513472>'),default=28==tri),
-                        create_select_option("Char. - Boost","29",getEmojiObject('<:pink:933728188754980904>'),default=29==tri),
-                        create_select_option("Intel. - Arm.","30",getEmojiObject('<:blue:933728247995305994>'),default=30==tri),
-                        create_select_option("Intel. - Boost","31",getEmojiObject('<:yellowBatER:937740799150555148>'),default=31==tri),
-                        create_select_option("Mag. - Préc.","32",getEmojiObject('<:red:933728281289715782> '),default=32==tri),
-                    ]
-                ][stuffMenuStatus]
+                if not(stuffMenuStatus):
+                    for cmpt in range(4,ACT_INDIRECT_FULL+5):
+                        options.append(create_select_option(allStatsNames[cmpt-4],str(cmpt),getEmojiObject(statsEmojis[cmpt-4]),default=cmpt==tri))
+                    options.append(create_select_option("Autre cat.","autCat_1","➡️"))
+                else:
+                    options +=[
+                                create_select_option("Cat. classiques","autCat_0","⬅️"),
+                                create_select_option("For. - Pré.","22",getEmojiObject('<:lightBlue:933728207453163590>'),default=22==tri),
+                                create_select_option("For. - Agi.","23",getEmojiObject('<:green:933734508317003846>'),default=23==tri),
+                                create_select_option("Endur. - For.","24",getEmojiObject('<:black:933728357152096277>'),default=24==tri),
+                                create_select_option("Endur. - Mag.","25",getEmojiObject('<:orangeBatEarRing:938496708554416168>'),default=25==tri),
+                                create_select_option("Endur. - Soins / Char.","26",getEmojiObject('<:apGreenBatEar:938496729718849546>'),default=26==tri),
+                                create_select_option("Endur. - Intel. / Arm.","27",getEmojiObject('<:darkblue:933728323455045672>'),default=27==tri),
+                                create_select_option("Char. - Soins","28",getEmojiObject('<:white:933785500257513472>'),default=28==tri),
+                                create_select_option("Char. - Boost","29",getEmojiObject('<:pink:933728188754980904>'),default=29==tri),
+                                create_select_option("Intel. - Arm.","30",getEmojiObject('<:blue:933728247995305994>'),default=30==tri),
+                                create_select_option("Intel. - Boost","31",getEmojiObject('<:yellowBatER:937740799150555148>'),default=31==tri),
+                                create_select_option("Mag. - Préc.","32",getEmojiObject('<:red:933728281289715782> '),default=32==tri),
+                            ]
 
             elif destination == 2:
                 options+=[
@@ -1007,8 +997,9 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         see = typeTabl[tri-14]
                         if type(see) != list:
                             for ski in tablToSee[:]:
-                                if (see != TYPE_BOOST and not(ski.type == see or (ski.effect != [None] and findEffect(ski.effect[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST):
-                                    tablToSee.remove(ski)
+                                if type(ski) != None:
+                                    if (see != TYPE_BOOST and not(ski.type == see or (ski.effect != [None] and findEffect(ski.effect[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST):
+                                        tablToSee.remove(ski)
 
                         else:
                             for ski in tablToSee[:]:
@@ -1153,18 +1144,18 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 if destination != 3:
                     mess=""
                     if page != maxPage:
-                        maxi = (page+1)*15
+                        maxi = (page+1)*10
                     else:
                         maxi = lenTabl
-                    for a in tablToSee[(page)*15:maxi]:
+                    for a in tablToSee[(page)*10:maxi]:
                         # Nom, posession
-                        canEquip = ""
+                        canEquip, hasEquiped = "", ""
                         if type(a) in [skill,stuff] and not(a.havConds(user)):
                             canEquip = "`"
                         elif a in [user.weapon]+user.skills+user.stuff:
-                            canEquip = "**"
+                            hasEquiped = " 💼"
 
-                        mess += f"\n{a.emoji} __{canEquip}{a.name}{canEquip}__\n"
+                        mess += f"\n{a.emoji}{hasEquiped} __{canEquip}{a.name}{canEquip}__\n"
                         if type(a) == skill:
                             eff = findEffect(a.effect[0])
 
@@ -1215,16 +1206,28 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                             if affinity != "":
                                 affinity = " - "+affinity
 
-                            mess += f"*{babie}{ballerine} - {sandale}{affinity}*\n"
+                            addInfo, quickDesc = "", ""
+                            if type(a) == skill:
+                                if a.jaugeEff != None:
+                                    addInfo += a.jaugeEff.emoji[0][0]
+                                if a.group != 0:
+                                    addInfo += ["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][a.group]
+                                if a.type == TYPE_PASSIVE and a.quickDesc != "":
+                                    quickDesc = "\n> "+a.quickDesc
+                            if addInfo != "":
+                                addInfo = " - "+addInfo
+
+                            mess += f"*{babie}{ballerine} - {sandale}{affinity}{addInfo}{quickDesc}*"
+
 
                         # Statistiques
                         temp = ""
                         if destination in [0,1,2]:
                             if type(a) != skill:
-                                stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
+                                stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],statsEmojis
                                 for b in range(0,len(stats)):
                                     if stats[b] != 0:
-                                        form = ""
+                                        form = ["", "`"][stats[b]<0]
                                         if b == tri-4:
                                             form = "**"
                                         if tri in [4,10] and b in [13,14]:
@@ -1236,15 +1239,18 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                         elif tri == 9 and b in [12,11]:
                                             if (b == 12 and (stats[12] > stats[11] or stats[12] == stats[11])) or (b == 11 and (stats[11] > stats[12] or stats[11] == stats[12])):
                                                 form = "**"
-                                        temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
+                                        
+                                    
+                                        temp += "{0}{1}{2}{3}{1}, ".format(abre[b],form,["","+"][stats[b]>0],stats[b])
+                                if len(temp)>0 and temp[-1] == ",":
+                                    temp = temp[:-1]
                                 if a.affinity != None:
-                                    nim = elemNames[a.affinity]
-                                    if len(nim) > 3:
-                                        nim = nim[0:3]+"."
-                                    temp += " Elem. : "+nim
+                                    temp += elemEmojis[a.affinity]
 
                                 if a.effect != None:
-                                    temp += " *{0}*".format(findEffect(a.effect).name)
+                                    eff = findEffect(a.effect)
+                                    if eff != None:
+                                        temp += "\n{1} {0}".format(eff.name, eff.emoji[user.species-1][0])
 
                             else:
                                 if a.ultimate:
@@ -1270,7 +1276,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                     temp += "Cd. init. : {0}".format(a.initCooldown)
                         # Création de l'option
                         mess += temp+"\n"
-                        firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
+                        firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji),description=[None,"Cet object est déjà équipé"][a in [user.weapon]+user.skills+user.stuff])]
                 else:
                     mess = ""
                     if page != maxPage:
@@ -1447,3 +1453,113 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         await inventory(bot,inter,respond,delete=True,procur=user.owner)
                     else:
                         await inventory(bot,inter,respond,delete=True)
+
+async def breakTheLimits(bot : discord.client, ctx : discord_slash.SlashContext, user : classes.char, msg : discord.message = None):
+    if msg == None:
+        try:
+            msg = await ctx.send(embed = await getRandomStatsEmbed(bot, [user], text="Chargement..."))
+        except:
+            msg = await ctx.channel.send(embed = await getRandomStatsEmbed(bot, [user], text="Chargement..."))
+
+    started = False
+
+    while 1:
+        if not(started):
+            actBonus, valeurAjoute = "", 0
+            if user.limitBreaks == [0,0,0,0,0,0,0]:
+                actBonus = "`Pas de bonus`"
+            else:
+                valeur, nbBuff = 0, 0
+                for cmpt in range(len(user.limitBreaks)):
+                    if user.limitBreaks[cmpt] > 0:
+                        actBonus += statsEmojis[cmpt]
+                        nbBuff += 1
+                        valeur = max(valeur, user.limitBreaks[cmpt])
+                actBonus += " +{0}%".format(valeur)
+
+                valeurAjoute = 30 * valeur * nbBuff
+
+            hasSkillUpdated, lvl = True, user.level - 5
+            nbExpectedSkills, nbSkills = 0, 0
+            for cmpt in range(len(lvlToUnlockSkill)):
+                if lvl >= lvlToUnlockSkill[cmpt]:
+                    nbExpectedSkills += 1
+
+            for skilly in user.skills:
+                if type(skilly) == skill:
+                    nbSkills += 1
+            
+            hasSkillUpdated = nbSkills >= nbExpectedSkills
+            hasUpdatedStuff = True
+            for stuffy in user.stuff:
+                if stuffy.minLvl < user.level-10:
+                    hasUpdatedStuff = False
+                    break
+
+            hasBonusPointsUpdated, updateBonus = user.points < 5, "\n\n"
+
+            if not(hasBonusPointsUpdated and hasSkillUpdated and hasUpdatedStuff):
+                updateBonus += "__Bonus de personnage à jour :__\nComplétez les conditions suivantes pour obtenir un bonus de 5% dans toutes vos satistiques principales :\n"
+                updateBonus += "{0} {1}Avoir moins de **5 points bonus** non attribués{1}\n".format([cross,emoji.check][hasBonusPointsUpdated],["","~~"][hasBonusPointsUpdated])
+                updateBonus += "{0} {1}Avoir moins des équipements à votre niveau ou maximum **10 niveaux** en dessous du votre{1}\n".format([cross,emoji.check][hasUpdatedStuff],["","~~"][hasUpdatedStuff])
+                updateBonus += "{0} {1}Avoir **aucun** d'emplacement de compétences vides, à l'exeption du dernière emplacement sur il a été débloqué réçament{1}\n".format([cross,emoji.check][hasSkillUpdated],["","~~"][hasSkillUpdated])
+
+            else:
+                updateBonus += "__Bonus de personnage à jour :__\n<:str:1012308654780850267>,<:sta:1012308718140002374>,<:cha:1012308755121188905>,<:agi:1012308798494482482><:pre:1012308901498208286><:int:1012308834661961748><:mag:1012308871525699604> +5%\n"           
+            
+            repEmb = discord.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "__En début de combats, votre personnage verra ses statistiques suivantes augmenter :__\n{0}{1}\n- Vous pouvez obtenir un nouveau set de bonus en déboursant quelques pièces, mais libre à vous de choisir si vous voulez l'utiliser ou passer.\n- En utilisant un nouveau set de bonus, l'ancien est perdu.\n- Plus votre set de bonus utilisé est puissant, plus la quantité de pièces devant être débourssée est élevée".format(actBonus,updateBonus))
+
+            payButton = create_actionrow(create_button(ButtonStyle.blue,"Nouveau Set ({0})".format(100+valeurAjoute),getEmojiObject("<:coins:862425847523704832>"),"buy",disabled=user.currencies<100+valeurAjoute))
+            await msg.edit(embed=repEmb,components=[payButton])
+
+            def check(m):
+                return int(m.author_id) == int(ctx.author_id)
+
+            try:
+                respond = await wait_for_component(bot,msg,payButton,check=check,timeout=60)
+            except asyncio.exceptions.TimeoutError:
+                await msg.edit(embed=discord.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "En début de combats, votre personnage verra ses statistiques suivantes augmenter :\n{0}".format(actBonus)),components=[])
+                return 0
+
+        started = True
+        user = loadCharFile(user=user)
+        if user.currencies <= 100+valeurAjoute:
+            await msg.edit(embed=discord.Embed(title="__Dépassement de ses limites :__", color=red, description = "Une erreur est survenue :\nVous n'avez pas les fonds nécessaires"))
+            return 0
+
+        user.currencies -= 100+valeurAjoute
+        saveCharFile(user=user)
+        rolledBonus = tablBreakingTheLimits[random.randint(0,len(tablBreakingTheLimits)-1)]
+
+        rolledPower = random.randint(tablRangeLB[len(rolledBonus)-1][0],tablRangeLB[len(rolledBonus)-1][-1])
+
+        bonusTxt = ""
+        for cmpt in range(len(rolledBonus)):
+            bonusTxt += statsEmojis[rolledBonus[cmpt]] + allStatsNames[rolledBonus[cmpt]] + "\n"
+        bonusTxt += "+{0}%".format(rolledPower)
+
+        repEmb = discord.Embed(title="__Dépassement de ses limites :__", color = user.color, description = "__Votre bonus actuel est :__\n{0}\n\n__Vous venez de tirer :__\n{1}\n\nSouhaitez vous concerver ce nouveau set de bonus ?".format(actBonus, bonusTxt))
+
+        repayButton = create_actionrow(create_button(ButtonStyle.blue,"Passer et retirer ({0})".format(100+valeurAjoute),getEmojiObject("<:coins:862425847523704832>"),"buy",disabled=user.currencies<100+valeurAjoute))
+        buttons = create_actionrow(confirmChange,rejectModernity)
+        await msg.edit(embed=repEmb,components=[buttons,repayButton])
+        try:
+            respond = await wait_for_component(bot,msg,[payButton,buttons],check=check,timeout=60)
+        except asyncio.exceptions.TimeoutError:
+            await msg.edit(embed=discord.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "En début de combats, votre personnage verra ses statistiques suivantes augmenter :\n{0}".format(actBonus)),components=[])
+            return 0
+
+        if respond.custom_id == "nope":
+            started = False
+        elif respond.custom_id == "buy":
+            pass
+        else:
+            for cmpt in range(0,MAGIE+1):
+                if cmpt in rolledBonus:
+                    user.limitBreaks[cmpt] = rolledPower
+                else:
+                    user.limitBreaks[cmpt] = 0
+            
+            saveCharFile(user=user)
+            started = False
+

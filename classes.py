@@ -61,6 +61,8 @@ class statTabl:
         self.damageBlocks,self.damageResisted,self.healReduced, self.healIncreased = 0, 0, 0, 0
         self.maxHpReduced, self.blockCount, self.nbHeal, self.critHeal = 0, 0, 0, 0
         self.sufferingFromSucess, self.lauthingAtTheFaceOfDeath = False, False
+        self.nbLB, self.nbSummon = 0, 0
+        self.summonDmg, self.summonHeal = 0, 0
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -70,7 +72,7 @@ class option:
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
-    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0, block=0, jaugeValue:Union[list,None]=None, denieWeap = False):
+    def __init__(self,name,id,stat=None,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = 1,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0, block=0, jaugeValue:Union[list,None]=None, denieWeap = False, counterProb=0):
         """rtfm"""
         self.name = name                    # Name of the effect
         if replique != None:
@@ -109,13 +111,14 @@ class effect:
         self.onDeclancher:bool = onDeclancher
         self.inkResistance = inkResistance
         self.dmgUp, self.critDmgUp, self.healUp, self.critHealUp, self.jaugeValue, self.denieWeap = dmgUp, critDmgUp, healUp, critHealUp, jaugeValue, denieWeap
+        self.counterProb = counterProb
 
         if self.reject != None and self.id in self.reject:
             self.reject.remove(self.id)
 
-        if emoji == None and self.replica != None:
-            self.emoji = self.replica.emoji
-        if emoji == None:
+        if emoji == None and replique != None:
+            self.emoji = uniqueEmoji(replique.emoji)
+        elif emoji == None:
             if self.inkResistance > 0:
                 self.emoji=[['<:inkResB:921486005008216094>','<:inkResR:921486021265354814>'],['<:inkResB:921486005008216094>','<:inkResR:921486021265354814>'],['<:inkResB:921486005008216094>','<:inkResR:921486021265354814>']]
             elif self.type in [TYPE_BOOST]:
@@ -296,7 +299,7 @@ splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,a
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,conditionType = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamage=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100,effBeforePow=False,jaugeEff=None,pull=0):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power= 0,range = AREA_CIRCLE_5,condition = [],ultimate = False,group = 0,emoji = None,effect=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamage=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100,effBeforePow=False,jaugeEff=None,pull=0,maxPower=0,minJaugeValue = 0, maxJaugeValue = 0, minTargetRequired = 1, quickDesc = ""):
         """rtfm"""
         if type(effect)!=list:
             effect = [effect]
@@ -314,7 +317,7 @@ class skill:
         self.areaOnSelf = areaOnSelf
         self.lifeSteal:int = lifeSteal
         self.erosion, self.pull = erosion, pull
-        self.effBeforePow, self.jaugeEff =effBeforePow, jaugeEff
+        self.effBeforePow, self.jaugeEff, self.minJaugeValue, self.maxJaugeValue = effBeforePow, jaugeEff, minJaugeValue, [maxJaugeValue,minJaugeValue][minJaugeValue>= 0 and maxJaugeValue == 0]
         self.effectAroundCaster: Union[None,List[int]] = effectAroundCaster
         if needEffect == None or type(needEffect) == list:
             self.needEffect=needEffect
@@ -333,7 +336,9 @@ class skill:
                 raise Exception("EffectAroudCaster[1] not a area")
 
         self.power = power  # Power of the skill. Use for damage and healing skills
-
+        self.maxPower = maxPower
+        if maxPower == 0 and minJaugeValue == maxJaugeValue and minJaugeValue != 0:
+            self.maxPower = power
 
         self.knockback:int = knockback
         self.effPowerPurcent:int = effPowerPurcent
@@ -347,8 +352,7 @@ class skill:
             self.percing = percing + 20*int(ultimate)
 
         self.price = price                              # Price. 0 if the skill can't be drop or bought
-        self.conditionType = 0
-        self.condition = conditionType
+        self.condition = condition
         self.ultimate = ultimate
         self.effect = effect
         self.range = range
@@ -356,6 +360,7 @@ class skill:
         self.cooldown = cooldown
         self.area = area
         self.maxHpCost, self.hpCost = maxHpCost, hpCost
+        self.minTargetRequired = minTargetRequired
         if sussess != 100 or types != TYPE_DAMAGE:
             self.sussess = sussess
         else:
@@ -375,7 +380,7 @@ class skill:
                 self.description = description.format(power=power,power2=power//2)
         else:
             self.description = None
-
+        self.quickDesc = quickDesc
         self.initCooldown = initCooldown
         self.shareCooldown = shareCooldown
 
@@ -388,11 +393,10 @@ class skill:
                 self.use = self.effect[0].stat
             elif power == 0 and self.effectOnSelf != None and type(self.effectOnSelf) != str:
                 self.use = self.effectOnSelf.stat
-
+                
         self.onArmor = damageOnArmor
         self.invocation = invocation
         self.message = message
-
         self.useActionStats = useActionStats
 
         if types==TYPE_PASSIVE:
@@ -402,43 +406,6 @@ class skill:
             if self.effectOnSelf == None:
                 self.effectOnSelf = effect
                 self.effect=None
-
-        if conditionType != []:
-            listTypeCond = ["exclusive","statMin","reject"]
-            cmpt = 0
-            for a in listTypeCond:
-                if conditionType[0] == a:
-                    self.condition[0] = cmpt
-                cmpt+=1
-
-            if self.condition[0] == 0:
-                listExclu = ["weapon","aspiration","element","secElem"]
-                cmpt = 0
-                for a in listExclu:
-                    if conditionType[1] == a:
-                        self.condition[1] = cmpt
-                    cmpt += 1
-                
-                self.condition[2] = conditionType[2]
-
-            elif self.condition[0] == 1:
-                listStats,cmpt = ["strength","endurance","charisma","agility","precision","intelligence"],0
-                for a in listStats:
-                    if conditionType[1] == a:
-                        self.condition[1] = cmpt
-                    cmpt += 1
-
-                self.condition[2] = int(conditionType[2])
-
-            elif self.condition[0] == 2:
-                listReject = ["weapon","skill"]
-                cmpt = 0
-                for a in listReject:
-                    if conditionType[1] == a:
-                        self.condition[1] = cmpt
-                    cmpt += 1
-                
-                self.condition[2] = conditionType[2]
 
         if area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
             self.range = AREA_MONO
@@ -492,6 +459,10 @@ class skill:
 
         if self.use == STRENGTH and self.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL,TYPE_BOOST,TYPE_MALUS] and (self.effect[0] != None and type(self.effect[0]) != str) :
             self.use = self.effect[0].stat
+
+        if self.jaugeEff != None and self.minJaugeValue == self.maxJaugeValue == 0:
+            self.minJaugeValue = self.maxJaugeValue = 1
+            self.maxPower = self.power
 
     def havConds(self,user):
         """Verify if the User have the conditions to equip the skill"""
@@ -689,10 +660,26 @@ class char:
         self.handed = 1
         self.autoStuff = False
         self.haveProcurOn = []
+        self.limitBreaks = [0,0,0,0,0,0,0]
 
     def have(self,obj):
         """Verify if the character have the object Obj"""
-        return obj in self.weaponInventory or obj in self.skillInventory or obj in self.stuffInventory or obj in self.otherInventory
+        for weap in self.weaponInventory:
+            if weap.id == obj.id:
+                return True
+        for skilly in self.skillInventory:
+            if skilly.id == obj.id:
+                return True
+        for stuffy in self.stuffInventory:
+            if stuffy.id == obj.id:
+                return True
+        try:
+            for othy in self.otherInventory:
+                if othy.id == obj.id:
+                    return True
+        except:
+            print(self.otherInventory)
+        return False
 
     def isNpc(self,name : str):
         return False
@@ -712,6 +699,7 @@ class invoc:
         self.species = 1
         self.stars = 0
         self.canMove = canMove
+        self.limitBreaks, self.points = [0,0,0,0,0,0,0], 0
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
@@ -777,61 +765,10 @@ healDoneBonus = effect("Soins réalisés augmentés","healBonus",description="Au
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement",turnInit=2)
 
 textBaliseAtReplace = ["Ã©","Ã","à§"]
-textBaliseToReplace = ["é","à","ç"]
+textBaliseToReplace = ["é","à","Ç"]
 
 if len(textBaliseAtReplace) != len(textBaliseToReplace):
     raise Exception("len(textBaliseAtReplace) != len(textBaliseToReplace)")
-
-class dutyText:
-    """The class of a duty text, for generating the embed\n"""
-    def __init__(self,ref : str, text : str):
-        self.ref = ref
-        
-        for cmpt in range(len(textBaliseAtReplace)):
-            text = text.replace(textBaliseAtReplace[cmpt],textBaliseToReplace[cmpt])
-        
-        self.text = text
-
-        if len(self.text) > 4026:
-            raise Exception("Text ref {0} is to big ({1} / 4026)".format(self.ref,len(self.text)))
-
-class duty:
-    """The class of a loaded duty"""
-    def __init__(self,act: str,name : str, dutyTextList : List[dutyText]):
-        """
-            .name : The name of the duty\n
-            .dutyTextList : A ``list`` of ``dutyText`` objects
-        """
-        self.act = act
-        self.name = name
-        self.dutyTextList = dutyTextList
-        self.cmpt = -1
-        self.team = []
-
-    def __str__(self):
-        return self.name
-
-    def nextText(self):
-        """Increment the inter cumpter and return the corresponding ``dutyText``"""
-        self.cmpt += 1
-        print(self.cmpt)
-        if self.cmpt > len(self.dutyTextList)-1:
-            raise Exception("Duty {0} error : dutyTextList index above the len of the list".format(self))
-        return self.dutyTextList[self.cmpt]
-
-    def prevText(self):
-        """Decrement the inter cumpter and return the corresponding ``dutyText``"""
-        self.cmpt -= 1
-        if self.cmpt < 0:
-            raise Exception("Duty {0} error : dutyTextList index under 0".format(self))
-        return self.dutyTextList[self.cmpt]
-
-    def actText(self):
-        """Return the actual ``dutyText``"""
-        return self.dutyTextList[self.cmpt]
-
-    def addTeam(self,team : list):
-        self.team = team
 
 octoEmpty1 = stuff("placeolder","ht",0,0)
 octoEmpty2 = stuff("placeolder","hu",0,0)
@@ -892,7 +829,7 @@ class octarien:
         self.owner = self.team = 0
         self.species = 3
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = maxStrength,maxEndurance,maxCharisma,maxAgility,maxPrecision,maxIntelligence,maxMagie
-        self.resistance,self.percing,self.critical = resistance,percing,critical
+        self.resistance,self.percing,self.critical, self.points = resistance,percing,critical, 0
         self.aspiration = aspiration
         self.weapon = weapon
         self.number = number
@@ -900,6 +837,7 @@ class octarien:
         self.stars = 0
         self.team = -2
         self.canMove = canMove
+        self.limitBreaks = [0,0,0,0,0,0,0]
         while len(self.skills) < 7:
             self.skills+=["0"]
 
@@ -984,6 +922,7 @@ class tmpAllie:
         changeDict:Union[None,dict] = None,
         unlock:Union[bool,None,str]=False,
         birthday:Union[None,tuple]=None,
+        limitBreaks:list=None
         ):
         """
             The class for a ally, based on the ``char`` class\n
@@ -1023,7 +962,7 @@ class tmpAllie:
         self.birthday = birthday
         self.canMove = True
         self.skills = ["0","0","0","0","0","0","0"]
-        self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
+        self.majorPoints, self.points = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0], 0
         for a in range(len(skill)):
             self.skills[a] = skill[a]
         self.skillsInventory = []
@@ -1050,17 +989,24 @@ class tmpAllie:
             self.changeDict = [changeDict]
 
         self.unlock = unlock
+        if limitBreaks == None:
+            self.limitBreaks = [0,0,0,0,0,0,0]
+        else:
+            self.limitBreaks = [0,0,0,0,0,0,0]
+            for cmpt in limitBreaks[0]:
+                self.limitBreaks[cmpt] = limitBreaks[1]
 
     def __str__(self):
         return self.name
 
-    def changeLevel(self,level=1,changeDict=True):
+    def changeLevel(self,level=1,changeDict=True,stars=0):
         for procurName, procurStuff in procurTempStuff.items():
             if self.name == procurName:
                 level += procurStuff[0]
                 break
 
         self.level = level
+        self.stars = stars
         stats = self.allStats()
 
         for a in range(0,len(stats)):
@@ -1098,6 +1044,9 @@ class tmpAllie:
         if self.level < 30:
             self.secElement = ELEMENT_NEUTRAL
 
+        if stars > 0:
+            for cmpt in range(min(stars,len(recommandedMajorPoints[self.aspiration]))):
+                self.majorPoints[recommandedMajorPoints[self.aspiration][cmpt]] = [35,10][recommandedMajorPoints[self.aspiration][cmpt] in [RESISTANCE,PERCING,CRITICAL]] * [1,-1][recommandedMajorPoints[self.aspiration][cmpt] >= ACT_HEAL_FULL]
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
 
     def allStats(self):
@@ -1106,27 +1055,35 @@ class tmpAllie:
     def isNpc(self,name : str):
         return self.name == name
 
-    def isUnlock(self, duty:duty):
-        """Return if the Tmp can be use in the ``duty``"""
-        if self.unlock == None:
-            return True
-        elif self.unlock == False:
-            return False
-        
-        for mainTemp in allActs:
-            for temp in mainTemp[1:]:
-                if mainTemp[0]+"|"+temp == self.unlock:
-                    return False
-                elif mainTemp[0]+"|"+temp == duty.act+"|"+duty.name:
-                    return True
-
-        return None
-
 silenceEff = effect("InCapacité","silenceEff",description="Empèche l'utilisation de compétence durant la durée de l'effet",type=TYPE_MALUS,emoji='<:silenced:975746154270691358>')
 absEff = effect("Absorbtion","absEff",description="Augmente les soins reçus par le porteur d'un pourcentage équivalant à la puissance de cet effet",emoji='<:absorb:971788658782928918>',stackable=True)
 chained = effect("Enchaîné","chained",emoji='<:chained:982710848487317575>',description="Empêche tous déplacements de la cible, que ce soit par elle-même que part une compétence",type=TYPE_MALUS)
 upgradedLifeSteal = effect("Augmentation du plafond de vol de vie","lifeSteal+",power=100,turnInit=-1,silent=True,unclearable=True,description="Augmente de **{0}%** le plafond de vol de vie")
+imuneLightStun = effect("Immunité à l'étourdissement","imuneLightStun",description="Le porteur ne peut plus être étourdi.\nCertains effects étourdissants ignorent cette immunitée",emoji='<:antiStun:1005128649613262968>',turnInit=5)
+lightStun = effect("Etourdissement","lightStun",stun=True,type=TYPE_MALUS,description="Le porteur de l'effet est étourdi.\n\nSans effet sur les boss Stand Alone, les boss de Raid ainsi que certains ennemis.\nInfligé à un joueur ou un allié temporaire, ce dernier bénéficie par la suite d'une immunité aux étourdissements durant **{0} tours**.".format(imuneLightStun.turnInit),emoji='<:stun:1005128631888117852>',reject=[imuneLightStun.id])
+
+ENEMYIGNORELIGHTSTUN = ["OctoBOUM","Liu"]
 
 ailillUpLifeSteal, clemPosUpLifeSteal, clemExUpLifeSteal = copy.deepcopy(upgradedLifeSteal), copy.deepcopy(upgradedLifeSteal), copy.deepcopy(upgradedLifeSteal)
 ailillUpLifeSteal.power, clemPosUpLifeSteal.power, clemExUpLifeSteal.power = 20,50,10000
 upLifeStealNames, upLifeStealEff = ["Clémence Exaltée","Clémence pos.","Ailill"], [clemExUpLifeSteal,clemPosUpLifeSteal,ailillUpLifeSteal]
+
+class duty():
+    def __init__(self,serie:str,number:int):
+        self.serie, self.numer, self.txtPath = serie, number, "./data/advScriptTxt/{0}/{1}.txt".format(serie.replace(" ","_"),number)
+        self.eventIndex, self.enemies, self.allies, self.embedTxtList = [], [], [], []
+
+    def load(self):
+        """Load the duty with their text box"""
+        loadedFile = open(self.txtPath)
+        tempTxt, loadedRowTxt = "", loadedFile.readlines() + "====="
+        for line in loadedRowTxt:
+            if "=====" in line:
+                self.embedTxtList.append(tempTxt)
+                tempTxt = ""
+            else:
+                tempTxt += line
+
+        while len(self.eventIndex) < len(self.embedTxtList):
+            self.eventIndex.append(None)
+

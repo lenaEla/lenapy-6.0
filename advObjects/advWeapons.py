@@ -168,8 +168,11 @@ phenixLeath = weapon("Plumes de Phénix","ek",RANGE_DIST,AREA_CIRCLE_4,36,65,1,m
 plume2 = copy.deepcopy(plume)
 plume2.effectOnUse = plumRemEff
 
+liaKatanaEff = effect("Akashi","liaKatanaEff",None,turnInit=-1,unclearable=True,emoji='<:liaCounter:998001563379437568>',counterProb=15,description="Vous octroi **15%** de chance d'effectuer une **contre-attaque** en esquivant une attaque d'un adversaire se trouvant à 3 cases ou moins de vous",reject=["windDanceEff"])
+liaKatana = weapon("Akashi","el",RANGE_MELEE,AREA_CIRCLE_1,29,50,repetition=3,effect=liaKatanaEff,agility=10,endurance=5,use=AGILITY,emoji='<:liaKat:998001500267749448>',price=1)
+
 # Weapon
-weapons = [dSixtineWeap,phenixLeath,
+weapons = [dSixtineWeap,phenixLeath,liaKatana,
     iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,aliceFan,
     fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
@@ -200,3 +203,5 @@ def findWeapon(WeaponId) -> weapon:
                 break
     
         return rep
+
+akiaPreWeapon = [klikliSword,splatcharger,dualies,micPink,bleuSpiritWings,clashBlaster,magicWood,explosher2,magicSwordnShield,inkbrella2,constShield,dflumWand,luth,HunterRiffle]

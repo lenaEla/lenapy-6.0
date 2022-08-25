@@ -514,7 +514,6 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         else:
                             lvl = int(resp2.values[0][4:])
                     except:
-                        print_exc()
                         await tempMachin.delete()
                         break
 

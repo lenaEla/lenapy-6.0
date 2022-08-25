@@ -81,7 +81,10 @@ totalAnnilLauch.ultimate = totalAnnilCastSkill1.ultimate = totalAnnilCastSkill2.
 
 BOUMBOUMBOUMBOUMweap = weapon("noneWeap","BoumX4",1,AREA_CIRCLE_1,0,0,0)
 fairyBomb.effect[0].callOnTrigger = copy.deepcopy(findEffect("me"))
-fairyBomb.effect[0].callOnTrigger.power = fairyBomb.effect[0].callOnTrigger.power//2
+fairyBomb.effect[0].callOnTrigger.power = int(fairyBomb.effect[0].callOnTrigger.power*0.4)
+
+hemoBomb.effect[0].callOnTrigger = copy.deepcopy(findEffect("mx"))
+hemoBomb.effect[0].callOnTrigger.power = fairyBomb.effect[0].callOnTrigger.power//2
 
 def findOther(otherId : Union[str,other]) -> Union[other,None]:
     if type(otherId) == other:
@@ -283,9 +286,10 @@ if not(isLenapy):
                     what += whaty.name + ", "
             raise Exception("Identifiant doublon : {1}".format(obj.name,what))
 
-#print(seeSimilarStuffNameMinLvl("Onirique"))
-#print(seeAllStuffAtMinLvl(0))
+#print(seeSimilarStuffNameMinLvl("orateur"))
+#print(seeAllStuffAtMinLvl(50))
 
 """for stuffy in stuffs:
     if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:
         print("{0} use a default emoji".format(stuffy.name))"""
+

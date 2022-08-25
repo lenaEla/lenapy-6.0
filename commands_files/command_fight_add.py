@@ -22,8 +22,10 @@ waitingSelect = create_actionrow(create_select([create_select_option("Veuillez p
 
 altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
 
+HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.1
+
 tablIsNpcName = []
-for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]"]:
+for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]","Nacialisla"]:
     if type(a) != str:
         tablIsNpcName.append(a.name)
     else:
@@ -53,7 +55,7 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
                 maxi, use = stats[cmpt], cmpt 
     if use not in [FIXE,None]:
         dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.15 +1
-        enemyPercing = [caster.percing+skillPercing, max(caster.percing+skillPercing,15)][target.isNpc("Clémence Exaltée") or target.isNpc("Luna prê.")]
+        enemyPercing = [caster.percing+skillPercing, min(caster.percing+skillPercing,15)][target.isNpc("Clémence Exaltée") or target.isNpc("Luna prê.")]
         resistFactor = (1-(min(95,target.resistance*(1-(caster.percing+skillPercing)/100))/100))
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
@@ -64,12 +66,12 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
     else:
         return basePower
 
-def indirectDmgCalculator(caster, target, basePower, use, danger, area):
+def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActionStat = ACT_INDIRECT):
     damage = ""
     dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.1 +1
     if use != None:
         if use != HARMONIE:
-            stat = caster.allStats()[use]-caster.negativeIndirect
+            stat = caster.allStats()[use]-[caster.negativeHeal, caster.negativeShield, caster.negativeBoost, caster.negativeDirect, caster.negativeIndirect][useActionStat]
         else:
             stat = max(caster.allStats())
 
@@ -179,10 +181,10 @@ class timeline:
                         smn.stats.damageDeal += inv.stats.damageDeal
                         smn.stats.indirectDamageDeal += inv.stats.indirectDamageDeal
                         smn.stats.ennemiKill += inv.stats.ennemiKill
-                        smn.stats.damageRecived += inv.stats.damageRecived
                         smn.stats.heals += inv.stats.heals
-                        smn.stats.damageOnShield += inv.stats.damageOnShield
                         smn.stats.shieldGived += inv.stats.shieldGived
+                        smn.stats.summonDmg += inv.stats.damageDeal + inv.stats.indirectDamageDeal
+                        smn.stats.summonHeal += inv.stats.shieldGived + inv.stats.heals
 
                         for dictElem in inv.ownEffect:
                             for on, effID in dictElem.items():

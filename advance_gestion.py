@@ -56,9 +56,7 @@ def remove_accents(input_str: str):
             temp += "E"
         elif a in ["Ù", "Û", "Ü"]:
             temp += "U"        
-        elif a == " ":
-            pass
-        elif a in ["?", "!", ";", ",", "."]:
+        elif a in ["?", "!", ";", ",", "."," ","-"]:
             temp += "_"
         else:
             temp += a
@@ -354,6 +352,12 @@ class cell:
                         rep.remove(ent)
 
         rep.sort(key=lambda toSort: self.distance(toSort.cell))
+        for ent in rep[:]:
+            if type(ent) == None:
+                try:
+                    rep.remove(ent)
+                except:
+                    pass
         return rep
 
     def getEmptyCellsInArea(self,area=AREA_DONUT_3,team=0):
@@ -468,10 +472,10 @@ def visuArea(area: int, wanted, ranged=True, fromDir=FROM_LEFT) -> list:
             else:
                 temp = "<:t2:873118129130192947>"
 
-        if [a.x,a.y] == [fromCell.x,fromCell.y] and not(ranged):
+        if [a.x,a.y] == [fromCell.x,fromCell.y] and not(ranged) and area not in notOrientedAreas:
             temp = [tablAllAllies[0].icon,'<:tl:979408929467539537>'][a in visibleArea and wanted == ALLIES]
         lines[a.y][a.x] = temp
-    if ranged:
+    if ranged and area not in notOrientedAreas:
         lines[visibleCell.y][visibleCell.x] = [tablAllAllies[0].icon,'<:tl:979408929467539537>'][visibleCell in visibleArea and wanted == ALLIES]
     else:
         if visibleCell in visibleArea:
@@ -510,7 +514,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         elif eff.stat == PURCENTAGE:
             Stat = "Pourcentage"
         elif eff.stat != HARMONIE:
-            Stat = allStatsNames[eff.stat]
+            Stat = statsEmojis[eff.stat] + " " +allStatsNames[eff.stat]
         else:
             Stat = "Harmonie"
 
@@ -533,7 +537,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(
                 eff.lvl)
         stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block]
-        names = nameStats+nameStats2 + ["Armure", "Agression", "Résistance aux dégâts indirects","Blocage"]
+        names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage"]
 
         if eff.redirection > 0:
             effTmp += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(
@@ -549,9 +553,9 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
                 effTmp += f'\n\n__Description :__\n{eff.description}\n'
         for a in range(len(stats)):
             if stats[a] > 0:
-                bonus += f"{names[a]} : +{int(stats[a]*powerPurcent/100)}\n"
+                bonus += "{2} __{0}__ : +{1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
             elif stats[a] < 0:
-                malus += f"{names[a]} : {int(stats[a]*powerPurcent/100)}\n"
+                malus += "{2} __{0}__ : {1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
 
         if bonus != "":
             effTmp += "\n**__Bonus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + bonus
@@ -561,9 +565,11 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         if eff.inkResistance > 0 and eff.stat != None:
             effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base\nSi plusieurs effects de réduction de dégâts indirects sont cumulés, seul le plus puissant sera pris en compte"
         if eff.block > 0:
-            effTmp += "\nUne attaque bloquée réduit de **35%** les dégâts reçus"
+            effTmp += "\n__Blocage :__\nUne attaque bloquée réduit de **35%** les dégâts reçus"
+        if eff.counterProb > 0:
+            effTmp += "\n__Contre Attaque :__\n- Puissance : **{0}**, Agilité\n- Utilise la statistique d'action la plus élevée entre Direct et Indirect\n- Inflige des dégâts indirects\n- Vous ne pouvez effectuer qu'une seule contre-attaque par entité par tour de jeu".format(COUNTERPOWER)
         if eff.reject != None:
-            effTmp += "\n__Cet effet n'est pas compatible avec les effets :__\n"
+            effTmp += "\n{0}__Cet effet n'est pas compatible avec les effets :__\n".format(["","\n"][effTmp[-1]!="\n"])
             for a in eff.reject:
                 rejected = findEffect(a)
                 effTmp += f"{rejected.emoji[user.species-1][0]} {rejected.name}\n"
@@ -621,7 +627,7 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
                     tmpCardStat.append([statCmpt,cardStat[statCmpt]])
             
             for statCmpt in range(len(tmpCardStat)):
-                cardDesc += "{0} +{1}".format(allStatsNames[tmpCardStat[statCmpt][0]],tmpCardStat[statCmpt][1])
+                cardDesc += "{2}{0} +{1}".format(allStatsNames[tmpCardStat[statCmpt][0]],tmpCardStat[statCmpt][1],statsEmojis[statCmpt])
                 if statCmpt < len(tmpCardStat)-1:
                     cardDesc += ", "
                 else:
@@ -718,14 +724,14 @@ def infoSkill(skill: skill, user: char, ctx):
 
     temp = "__Type :__ "
 
-    if skil.type == TYPE_DAMAGE:
-        temp += "Dégats\n"
+    temp += tablTypeStr[skil.type] + "\n"
 
-        if skil.description != None:
-            temp += "\n__Description :__\n"+skil.description+"\n"
+    if skil.description != None:
+        temp += "\n__Description :__\n"+skil.description+"\n"
 
-        # Power, Success and Damage Type
-        if skil.become == None:
+    # Power, Success and Damage Type
+    if skil.become == None:
+        if skil.power > 0:
             if skil.repetition > 1:
                 nbShot = " x{0}".format(skil.repetition)
             else:
@@ -733,6 +739,8 @@ def infoSkill(skill: skill, user: char, ctx):
 
             if multiPower == []:
                 temp += "\n__Puissance :__ {0}".format([f"**{skil.power}**{nbShot}","**Execution**"][int(skil.execution)])
+                if skil.maxPower != 0 and skil.maxPower != skil.power:
+                    temp += "\n__Puissance Max :__ {0}".format([f"**{skil.maxPower}**{nbShot}","**Execution**"][int(skil.execution)])
                 temp += "\n__Zone d'effet :__ "+ areaNames[skil.area] + "\n__Précision :__ {0}%\n".format(skil.sussess)
             else:
                 temp += "\n__Puissance :__ **"
@@ -760,7 +768,7 @@ def infoSkill(skill: skill, user: char, ctx):
                     if not(precisionAlreadyAdded):
                         preciDict[multiPower[cmpt].sussess] = multiPower[cmpt].emoji
                 temp += str(sumPowa) + "** " + txtTmp
-                temp += "\n__Zones d'effets :__"
+                temp += "\n__Zonse d'effets :__"
                 print(areaDict)
                 for cmpt in areaDict:
                     temp += "\n{0} ({1})".format(areaNames[cmpt],areaDict[cmpt])
@@ -768,111 +776,58 @@ def infoSkill(skill: skill, user: char, ctx):
                 for cmpt in preciDict:
                     temp += "\n{0}% ({1})".format(cmpt,preciDict[cmpt])            
 
-        else:
-            temp += "\n__Puissances :__\n"
-            for cmpt in range(len(skil.become)):
+    else:
+        temp += "\n__Puissances :__\n"
+        for cmpt in range(len(skil.become)):
+            if skil.become[cmpt].power > 0:
                 multi = ""
                 if skil.become[cmpt].repetition > 1:
                     multi = " x{0}".format(skil.become[cmpt].repetition)
-                temp += "__{0}__{2} ({1})\n".format(
-                    skil.become[cmpt].power, skil.become[cmpt].name, multi)
+                temp += "__{0}__{2} ({1})\n".format(skil.become[cmpt].power, skil.become[cmpt].name, multi)
 
-            temp += "\n__Zone d'effet :__\n"
-            for cmpt in range(len(skil.become)):
-                temp += "{0} ({1})\n".format(
-                    areaNames[skil.become[cmpt].area], skil.become[cmpt].name)
+        temp += "\n__Zone d'effet :__\n"
+        for cmpt in range(len(skil.become)):
+            temp += "{0} ({1})\n".format(
+                areaNames[skil.become[cmpt].area], skil.become[cmpt].name)
 
-            temp += "\n__Précisions :__\n"
-            for cmpt in range(len(skil.become)):
-                temp += "{0}% ({1})\n".format(
-                    skil.become[cmpt].sussess, skil.become[cmpt].name)
+        temp += "\n__Précisions :__\n"
+        for cmpt in range(len(skil.become)):
+            temp += "{0}% ({1})\n".format(
+                skil.become[cmpt].sussess, skil.become[cmpt].name)
 
-        # Clem and Alice blood jauge skills
-        if skil.id.startswith("clem") or skil.id.startswith("alice"):
-            for skillID, cost in clemBJcost.items():
-                if skil.id == skillID:
-                    temp += "\n__Coût en points de sang :__ **{0}**".format(
-                        cost)
+    # Clem and Alice blood jauge skills
+    if skil.id.startswith("clem") or skil.id.startswith("alice"):
+        for skillID, cost in clemBJcost.items():
+            if skil.id == skillID:
+                temp += "\n__Coût en points de sang :__ **{0}**".format(cost)
+    
+    if skil.jaugeEff != None:
+        if skil.minJaugeValue != 0:
+            temp += "\n__Coût minimal en {1} {2} :__ **{0}**".format(skil.minJaugeValue, skil.jaugeEff.emoji[0][0], skil.jaugeEff.name)
+        if skil.maxJaugeValue != skil.minJaugeValue:
+            temp += "\n__Coût maximal en {1} {2} :__ **{0}**".format(skil.maxJaugeValue, skil.jaugeEff.emoji[0][0], skil.jaugeEff.name)
 
-        if skil.range == AREA_MONO:
-            if skil.type != TYPE_PASSIVE:
-                temp += f"\nCette compétence se lance sur **soi-même**"
-            else:
-                temp += f"\nLes compétences passives se déclanchent au début du combat"
-
-        if skil.become == None:
-            temp += "\nCette compétence cible les **ennemis**"
-
-        if skil.onArmor != 1 and skil.become == None:
-            temp += "\n__Dégâts sur armure :__ **{0}%**".format(
-                int(skil.onArmor*100))
-        elif skil.become != None:
-            for becomeName in skil.become:
-                if becomeName.onArmor != 1:
-                    temp += "\n__{2} {1}__ inflige **{0}%** de ses dégâts aux armures".format(
-                        int(becomeName.onArmor*100), becomeName.name, becomeName.emoji)
-
-        if skil.use not in [None, HARMONIE]:
-            temp += f"\n\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
-        elif skil.use == None:
-            temp += f"\nCette compétence inflige un montant **fixe** de dégâts"
-        elif skil.use == HARMONIE:
-            temp += f"\nCette compétence utilise la statistique d'**Harmonie**"
-
-    else:
-        temp += tablTypeStr[skil.type]
-
-        if skil.become != None:
-            for skilly in skil.become:
-                temp += "\n__Type ({0}) :__ {1}".format(skilly.name,tablTypeStr[skilly.type])
-                if skilly.type in [TYPE_DAMAGE, TYPE_HEAL]:
-                    temp += "\n> Puissance : **{0}**, {1}".format(
-                        skilly.power, nameStats[skilly.use])
-
-        if skil.description != None:
-            temp += "\n\n__Description :__\n"+skil.description+"\n"
-
+    if skil.range == AREA_MONO:
         if skil.type != TYPE_PASSIVE:
-            temp += "\n__Zone d'effet :__ {0}".format(areaNames[skil.area])
-
-        if skil.id.startswith("clem") or skil.id.startswith("alice"):
-            for skillID, cost in clemBJcost.items():
-                if skil.id == skillID:
-                    temp += "\n__Coût en points de sang :__ **{0}**".format(
-                        cost)
-
-        if skil.type in [TYPE_HEAL, TYPE_RESURECTION] and skil.become == None:
-            temp += "\n__Puissance :__ {0}".format(skil.power)
-            if skil.use not in [None, HARMONIE]:
-                temp += f"\n\nCette compétence utilise la statistique de **{nameStats[skil.use]}**"
-            elif skil.use == None:
-                temp += f"\nCette compétence soigne d'un montant **fixe** de PV"
-            elif skil.use == HARMONIE:
-                temp += f"\nCette compétence utilise la statistique d'**Harmonie**"
-
-        if skil.range == AREA_MONO:
-            if skil.type != TYPE_PASSIVE:
-                temp += f"\nCette compétence se lance sur **soi-même**"
-            else:
-                temp += f"\nLes compétences passives se déclanchent au début du combat"
+            temp += f"\nCette compétence se lance sur **soi-même**"
         else:
-            ballerine, babie = [TYPE_ARMOR, TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ,
-                                TYPE_RESURECTION, TYPE_HEAL], [TYPE_INDIRECT_DAMAGE, TYPE_MALUS]
-            for a in ballerine:
-                if a == skil.type:
-                    temp += f"\nCette compétence cible les **alliés**"
-                    break
-            for a in babie:
-                if a == skil.type:
-                    temp += f"\nCette compétence cible les **ennemis**"
-                    break
+            temp += f"\nLes compétences passives se déclanchent au début du combat"
 
-        if skil.area != AREA_MONO:
-            ballerine = ["tous les alliés",
-                         "tous les ennemis", "tous les combattants"]
-            for a in range(AREA_ALL_ALLIES, AREA_ALL_ENTITES+1):
-                if a == skil.area:
-                    temp += f"\nCette compétence affecte **{ballerine[a-8]}**"
+    if skil.become == None and skil.type in friendlyTypes+hostilesTypes and not(skil.range == skil.area == AREA_MONO):
+        temp += "\nCette compétence {1} les **{0}**".format(["alliés","ennemis"][skil.type in hostilesTypes],["affecte","cible"][skil.range != AREA_MONO])
+
+    if skil.onArmor != 1 and skil.become == None:
+        temp += "\n__Dégâts sur armure :__ **{0}%**".format(int(skil.onArmor*100))
+    elif skil.become != None:
+        for becomeName in skil.become:
+            if becomeName.onArmor != 1:
+                temp += "\n__{2} {1}__ inflige **{0}%** de ses dégâts aux armures".format(
+                    int(becomeName.onArmor*100), becomeName.name, becomeName.emoji)
+
+    if skil.use not in [None, HARMONIE]:
+        temp += f"\n\nCette compétence utilise la statistique de {statsEmojis[skil.use]} **{nameStats[skil.use]}**"
+    else:
+        temp += [f"\nCette compétence inflige un montant **fixe** de dégâts",f"\nCette compétence utilise la statistique **la plus élevée**"][skil.use==HARMONIE]
 
     if skil.shareCooldown:
         temp += f"\nCette compétence a un cooldown syncronisé avec toute l'équipe"
@@ -880,22 +835,19 @@ def infoSkill(skill: skill, user: char, ctx):
         temp += f"\nCette compétence ne peut pas être utilisée avant le tour {skil.initCooldown}"
 
     if skil.useActionStats != None:
-        temp += "\nCette compétence utilise la statistiques d'action **{0}**".format(
-            ["Soins", "Bonus et Malus", "Armures et Mitigeation", 'Dégâts Directs', "Dégâts Indirects"][skil.useActionStats])
+        temp += "\nCette compétence utilise la statistiques d'action {1} **{0}**".format(allStatsNames[skil.useActionStats+CRITICAL+1],statsEmojis[skil.useActionStats+CRITICAL+1])
     if skil.condition != []:
         temp += "\nCette compétence "
-        if skil.condition[0] == 0:
+        if skil.condition[0] == EXCLUSIVE:
             temp += "est exclusive à "
             if skil.condition[1] == 0:
                 temp += "l'arme "+findWeapon(skil.condition[2]).name+"**"
-            elif skil.condition[1] == 1:
-                temp += "l'aspiration **"+inspi[skil.condition[2]]+"**"
-            elif skil.condition[1] == 2:
-                temp += "l'élément principal **" + \
-                    elemNames[skil.condition[2]]+"**"
+            elif skil.condition[1] == ASPIRATION:
+                temp += "l'aspiration "+aspiEmoji[skil.condition[2]]+" **"+inspi[skil.condition[2]]+"**"
+            elif skil.condition[1] == ELEMENT:
+                temp += "l'élément principal {1} **{0}**".format(elemNames[skil.condition[2]],elemEmojis[skil.condition[2]])
             elif skil.condition[1] == 3:
-                temp += "l'élément secondaire **" + \
-                    elemNames[skil.condition[2]]+"**"
+                temp += "l'élément secondaire **" + elemNames[skil.condition[2]]+"**"
         elif skil.condition[0] == 1:
             temp += f"nécessite que la statistique **{nameStats[skil.condition[1]]}** du personnage soit à **{skil.condition[2]}**"
         elif skil.condition[0] == 2:
@@ -914,24 +866,20 @@ def infoSkill(skill: skill, user: char, ctx):
         temp += "\nCette compétence permet de rejouer son tour"
 
     if skil.maxHpCost > 0:
-        temp += "\nCette compétence consome **{0}%** des PV maximums du lanceur lors de son utilisation".format(
-            skil.maxHpCost)
+        temp += "\nCette compétence consome **{0}%** des **PV maximums** du lanceur lors de son utilisation".format(skil.maxHpCost)
     if skil.hpCost > 0:
-        temp += "\nCette compétence consome **{0}%** des PV actuels du lanceur lors de son utilisation".format(
-            skil.hpCost)
+        temp += "\nCette compétence consome **{0}%** des **PV actuels** du lanceur lors de son utilisation".format(skil.hpCost)
 
     if skil.ultimate:
         temp += "\nCette compétence est une compétence **ultime**."
     if skil.execution :
         temp += "\nCette compétence est une **exécution**. Les cibles exécutées sont immédiatement misent hors-jeu et ne peuvent pas être réanimés"
     if skil.group != 0:
-        temp += "\nCette compétence est une compétence **{0}**.".format(
-            skillGroupNames[skil.group])
+        temp += "\nCette compétence est une compétence {1} **{0}**.".format(skillGroupNames[skil.group][0].upper()+skillGroupNames[skil.group][1:],["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][skil.group])
     if skil.setAoEDamage:
         temp += "\nLes dégâts de cette compétence ne sont pas affectés par la réduction de dégâts de zone"
     if skil.lifeSteal > 0:
-        temp += "\nCette compétence soigne son lanceur de l'équivalent de **{0}%** des dégâts infligés".format(
-            skil.lifeSteal)
+        temp += "\nCette compétence soigne son lanceur de l'équivalent de **{0}%** des dégâts infligés".format(skil.lifeSteal)
     if skil.erosion != 0:
         temp += "\nCette compétence a **{0}%** d'Erosion Spirituelle.'".format(skil.erosion)
     temp2 = ""
@@ -939,16 +887,14 @@ def infoSkill(skill: skill, user: char, ctx):
         temp2 += "\n__Téléportation :__\nCette compétence téléporte le lanceur au corps à corps de la cible\n> - Si aucune case n'est libre, le lanceur subit des dégâts indirects Harmonie\n"
 
     if skil.knockback > 0 and skil.become == None:
-        temp2 += "\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}\n> - Si la cible percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.knockback, [
-                                                                                                                                                                                                                                       "", "s"][int(skil.knockback > 1)])
+        temp2 += "\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}\n> - Si la cible percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.knockback, ["", "s"][int(skil.knockback > 1)])
     if skil.pull > 0 and skil.become == None:
         temp2 += "\n__Attraction :__\nCette compétence attire les cibles sur **{0}** case{1}".format(skil.pull,["","s"][skil.pull>1])
     if skil.jumpBack:
-        temp2 += "\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack, [
-                                                                                                                                                                                                                                       "", "s"][int(skil.jumpBack > 1)])
+        temp2 += "\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack, ["", "s"][int(skil.jumpBack > 1)])
 
     if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf).jaugeValue != None) or (skil.jaugeEff != None):
-        temp2 = "\nCette compétence est une **compétence à jauge**. Chaque combattant ne peut avoir qu'une seule jauge simultanémant"
+        temp2 = "\nCette compétence octroi et utilise {0} **{1}**.\n> Un combattant ne peut pas cumuler plusieurs types de jauges différents, mais plusieurs compétences peuvent utiliser la même jauge.".format(skil.jaugeEff.emoji[0][0],skil.jaugeEff.name)
     if temp2 != "":
         temp += "\n"+temp2
 
@@ -964,7 +910,6 @@ def infoSkill(skill: skill, user: char, ctx):
 
     repEmb = discord.Embed(title="__{1}__\n(ID:{0})".format(skil.id,skil.name), color=user.color,description=desc+"\n\n__Statistiques :__\n"+temp)
     
-
     if skil.effectAroundCaster != None:
         if type(skil.effectAroundCaster[2]) == effect:
             toAdd = "__Effet :__ {0}".format(skil.effectAroundCaster[2].name, skil.effectAroundCaster[2].emoji[0][0])
@@ -979,12 +924,10 @@ def infoSkill(skill: skill, user: char, ctx):
 
     if skil.become == None:
         if skil.range not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5]:
-            repEmb.add_field(name="__Portée :__", value=visuArea(skil.range, wanted=[
-                             ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]]))
+            repEmb.add_field(name="__Portée :__", value=visuArea(skil.range, wanted=[ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]]))
 
         if skil.area not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5, AREA_ALL_ALLIES, AREA_ALL_ENEMIES, AREA_ALL_ENTITES]:
-            repEmb.add_field(name="__Zone d'effet :__", value=visuArea(skil.area, wanted=[
-                             ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]], ranged=False))
+            repEmb.add_field(name="__Zone d'effet :__", value=visuArea(skil.area, wanted=[ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]], ranged=False))
 
     else:
         listRange, listRangeName, listArea, listName = [], [], [], []
@@ -1064,9 +1007,11 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.become != None:
         for skilly in skil.become:
             if skilly.effect != [None]:
+                allReadySeenEff = []
                 for eff in skilly.effect:
-                    repEmb = infoEffect(findEffect(
-                        eff), user, repEmb, ctx, txt=" ({0})".format(skilly.name))
+                    if eff.id not in allReadySeenEff:
+                        repEmb = infoEffect(findEffect(eff), user, repEmb, ctx, txt=" ({0})".format(skilly.name))
+                        allReadySeenEff.append(eff.id)
 
     if skil.effectOnSelf != None:
         if skil.type != TYPE_PASSIVE:
@@ -1129,10 +1074,8 @@ def infoSkill(skill: skill, user: char, ctx):
     return repEmb
 
 def infoWeapon(weap: weapon, user: char, ctx):
-    repEmb = discord.Embed(title=unhyperlink(
-        weap.name), color=user.color, description=f"Icone : {weap.emoji}")
-    repEmb.set_thumbnail(
-        url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
+    repEmb = discord.Embed(title=weap.emoji + "**__"+ unhyperlink(weap.name)+ "__**", color=user.color)
+    repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
 
     portee = ["Mêlée", "Dist.", "L. Dist."][weap.range]
 
@@ -1148,8 +1091,7 @@ def infoWeapon(weap: weapon, user: char, ctx):
     else:
         cible = "Dégâts de zone"
 
-    info += "\n__Zone d'effet :__ " + cible + \
-        f"\n__Statistique utilisée :__ {nameStats[weap.use]}"
+    info += "\n__Zone d'effet :__ " + cible + f"\n__Statistique utilisée :__ {statsEmojis[weap.use]} {nameStats[weap.use]}"
 
     if weap.onArmor != 1 and weap.type == TYPE_DAMAGE:
         info = f"\n__Dégâts sur armure :__ **{int(weap.onArmor*100)}**%"
@@ -1163,43 +1105,21 @@ def infoWeapon(weap: weapon, user: char, ctx):
     else:
         nbShot = ""
 
-    repEmb.add_field(name="__Informations Principales :__",
-                     value=f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision par défaut :__ {weap.sussess}%\n<:empty:866459463568850954>", inline=False)
-    repEmb.add_field(name="__Statistiques secondaires :__",
-                     value=f'{element}{info}\n<:empty:866459463568850954>', inline=False)
+    repEmb.add_field(name="<:empty:866459463568850954>\n__Informations Principales :__", value=f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision :__ {weap.sussess}%", inline=True)
+    repEmb.add_field(name="<:empty:866459463568850954>\n__Statistiques secondaires :__",value=f'{element}{info}', inline=True)
     bonus, malus = "", ""
     stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical]
-    names = nameStats+nameStats2
     for a in range(len(stats)):
         if stats[a] > 0:
-            bonus += f"{names[a]} : +{stats[a]}\n"
-        elif stats[a] < 0:
-            malus += f"{names[a]} : {stats[a]}\n"
+            bonus += f"{statsEmojis[a]} __{allStatsNames[a]}__ : +{stats[a]}\n"
 
     if bonus != "":
-        repEmb.add_field(name="__Bonus de statistiques :__",
-                         value=bonus+"\n<:empty:866459463568850954>", inline=False)
-    if malus != "":
-        repEmb.add_field(name="__Malus de statistiques :__",
-                         value=malus+"\n<:empty:866459463568850954>", inline=False)
+        repEmb.add_field(name="<:empty:866459463568850954>\n__Bonus de statistiques :__",value=bonus, inline=False)
 
-    ballerine, babie = [TYPE_ARMOR, TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ,
-                        TYPE_RESURECTION, TYPE_HEAL], [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]
-    for a in ballerine:
-        if a == weap.type:
-            repEmb.add_field(name="__Portée :__", value=visuArea(
-                weap.effectiveRange, wanted=ALLIES))
-            break
-
-    for a in babie:
-        if a == weap.type:
-            repEmb.add_field(name="__Portée :__", value=visuArea(
-                weap.effectiveRange, wanted=ENEMIES))
-            break
+    repEmb.add_field(name="__Portée :__", value=visuArea(weap.effectiveRange, wanted=weap.target))
 
     if weap.area != AREA_MONO and weap.area != AREA_ALL_ALLIES and weap.area != AREA_ALL_ENEMIES and weap.area != AREA_ALL_ENTITES:
-        ballerine, babie = [TYPE_ARMOR, TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ,
-                            TYPE_RESURECTION, TYPE_HEAL], [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]
+        ballerine, babie = [TYPE_ARMOR, TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ,TYPE_RESURECTION, TYPE_HEAL], [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]
         for a in ballerine:
             if a == weap.type:
                 repEmb.add_field(name="__Zone d'effet :__", value=visuArea(
@@ -1243,23 +1163,12 @@ def infoStuff(stuff: stuff, user: char, ctx):
         url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
 
     bonus, malus = "", ""
-    stats = weap.allStats()+[weap.resistance, weap.percing]
-    names = nameStats+nameStats2
-    for a in range(len(stats)):
-        if stats[a] > 0:
-            bonus += f"{names[a]} : +{stats[a]}\n"
-        elif stats[a] < 0:
-            malus += f"{names[a]} : {stats[a]}\n"
-
-    negative = [weap.negativeHeal, weap.negativeBoost,
-                weap.negativeShield, weap.negativeDirect, weap.negativeIndirect]
-    for stat in range(len(negative)):
-        if negative[stat] > 0:
-            malus += "{0} : {1}\n".format(["Soins", "Boosts et Malus", "Armures et Mitigation",
-                                          "Dégâts directs", "Dégâts indirects"][stat], negative[stat]*-1)
-        elif negative[stat] < 0:
-            bonus += "{0} : {1}\n".format(["Soins", "Boosts et Malus", "Armures et Mitigation",
-                                          "Dégâts directs", "Dégâts indirects"][stat], negative[stat]*-1)
+    stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical] + [weap.negativeHeal*-1, weap.negativeBoost*-1,weap.negativeShield*-1, weap.negativeDirect*-1, weap.negativeIndirect*-1]
+    for cmpt in range(len(stats)):
+        if stats[cmpt] > 0:
+            bonus += "{2} __{0}__ : +{1}\n".format(allStatsNames[cmpt],stats[cmpt],statsEmojis[cmpt])
+        elif stats[cmpt] < 0:
+            malus += "{2} __{0}__ : {1}\n".format(allStatsNames[cmpt],stats[cmpt],statsEmojis[cmpt])
 
     if bonus != "":
         repEmb.add_field(name="__Bonus de statistiques :__",
@@ -1781,12 +1690,11 @@ async def makeCustomIcon(bot: discord.Client, user: char, returnImage: bool = Fa
             background2 = Image.new("RGBA", background.size, (0, 0, 0, 0))
         cmpt = 0
         while cmpt < user.stars:
+            cmpt += 1
             litStar = Image.open("./data/images/char_icons/littleStar.png")
             litStar = litStar.resize((38, 38))
-            background2.paste(
-                litStar, (33*(cmpt % 4)+5, 38*(cmpt//4)), litStar)
+            background2.paste(litStar, (30*(cmpt % 4), 30*(cmpt//4)), litStar)
             litStar.close()
-            cmpt += 1
 
     pixel = background.load()
     layer = Image.open(tablLine[user.species-1])

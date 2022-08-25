@@ -549,6 +549,10 @@ def saveCharFile(path : str = None, user : char = None):
         saved += str(a) + ";"
     saved += "\n"
 
+    for a in user.limitBreaks:
+        saved += str(a) + ";"
+    saved += "\n"
+
     userSettingsDb.updateUserSays(user)
     userSettingsDb.updateUserIconSettings(user)
     rewriteFile(path,saved)
@@ -572,43 +576,18 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     rep.species = int(file[0][5])                           # Species
     rep.color = int(file[0][6])                             # Color
     rep.team = int(file[0][7])                              # Team id
-    try:                                                    # Custom color
-        rep.customColor = bool(int(file[0][8]))
-    except:
-        rep.customColor = False
-    try:                                                    # Gender I guess ?
-        rep.gender = int(file[1][8])
-    except:
-        rep.gender = int(file[1][7])
-        file[1][7] = file[1][6]
-        file[1][6] = 0
-    try:
-        rep.colorHex = file[0][9]
-    except:
-        rep.colorHex = "None"
+    rep.customColor = bool(int(file[0][8]))                 # Custom color
+    rep.gender = int(file[1][8])
+    rep.colorHex = file[0][9]
+    rep.stars = int(file[0][10])
+    rep.iconForm = int(file[0][11])
+    rep.secElement = int(file[0][12])
 
-    try:
-        rep.stars = int(file[0][10])
-    except:
-        rep.stars = 0
-    try:
-        rep.iconForm = int(file[0][11])
-    except:
-        rep.iconForm = 0
-    try:
-        rep.secElement = int(file[0][12])
-    except:
-        rep.secElement = ELEMENT_NEUTRAL
-    
     # Stats
     rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
     rep.resistance,rep.percing,rep.critical,rep.points = int(file[2][0]),int(file[2][1]),int(file[2][2]),int(file[2][3])
 
-    try:
-        rep.majorPointsCount = int(file[2][-1])
-    except:
-        rep.majorPointsCount = 0
-        print("No major point count")
+    rep.majorPointsCount = int(file[2][-1])
 
     try:                                                    # Bonus points
         temp = []
@@ -628,7 +607,6 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     except:
         rep.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         print("No major point")
-
 
     rep.weapon = findWeapon(file[3][0])                     # Weapon
     cmpt,temp = 0,[]
@@ -655,7 +633,7 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         cmpt,temp = 0,[]
         while cmpt < len(file[6]):
             tempFind = findSkill(file[6][cmpt].replace("\n",""))
-            if tempFind != None:
+            if type(tempFind) != None:
                 temp += [tempFind]
             cmpt += 1
         rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
@@ -697,9 +675,12 @@ def loadCharFile(path : str = None, user:char = None) -> char:
 
     cmpt,temp = 0,[]
     while cmpt < len(file[9]):
-
         file[9][cmpt] = file[9][cmpt].replace("\n","")
-        temp += [findOther(file[9][cmpt])]
+        otherTemp = findOther(file[9][cmpt])
+        if type(otherTemp) != None:
+            temp.append(otherTemp)
+        else:
+            print(file[9][cmpt])
         cmpt += 1
     rep.otherInventory = temp
 
@@ -730,6 +711,14 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     except:
         rep.haveProcurOn = []
 
+    try:
+        rep.limitBreaks = []
+        for temp in file[13]:
+            rep.limitBreaks.append(int(temp))
+        if len(rep.limitBreaks) != 7:
+            rep.limitBreaks = [0,0,0,0,0,0,0]
+    except:
+        rep.limitBreaks = [0,0,0,0,0,0,0]
     rep.says = userSettingsDb.getUserSays(rep)
     rep = userSettingsDb.getUserIconSettings(rep)
 
@@ -988,63 +977,8 @@ async def botChannelVerif(bot:discord.Client,ctx:discord_slash.SlashContext):
                 pass
         return False
 
-def loadAdvDutyFile(actName : str, dutyName : str) -> duty:
-    """Load the texts for Duty of the main adventure\n
-    Parameters :\n
-    .actName : The name of the main act of the duty\n
-    .dutyName : The name of the duty"""
-
-    dutyTextList = []
-    file = open("./data/advScriptTxt/{0}/{1}.txt".format(actName,dutyName.replace(".txt","")))
-    text, ref = "",""
-    fileContent = file.readlines()
-    for line in fileContent:
-        baliseOpend, tempBalise, endOfText, endOfTextFlag = False,"","",False
-        for car in line:
-            if car == "[":
-                baliseOpend = True
-                tempBalise = "["
-            elif car == "]":
-                baliseOpend = False
-                tempBalise += "]"
-
-                if tempBalise.startswith("[ref:"):
-                    ref = tempBalise[5:-1]
-                else:
-                    text += tempBalise
-
-                tempBalise = ""
-
-            elif car == "=" and not(endOfTextFlag):
-                endOfTextFlag = True
-                endOfText += car
-
-            elif car == "=" and endOfTextFlag:
-                endOfText += car
-                if len(endOfText) >= 5:
-                    dutyTextList.append(dutyText(ref,text))
-                    ref,text,baliseOpend, tempBalise, endOfText, endOfTextFlag = "","",False,"","",False
-
-            elif car != "=" and endOfTextFlag:
-                endOfTextFlag = False
-                text += endOfText + car
-                endOfText = ""
-
-            elif baliseOpend:
-                tempBalise += car
-
-            else:
-                text += car
-
-    dut = duty(actName,dutyName,dutyTextList)
-    file.close()
-    return dut
-
 def highlight(string : str):
     if string not in [0,"-","0"]:
         return "**{0}**".format(string)
     else:
         return string
-
-            
-

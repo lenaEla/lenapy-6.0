@@ -1,212 +1,133 @@
 import discord
 from discord_slash.context import SlashContext
 from classes import *
+from commands_files.command_fight import fight
 from gestion import *
 from advance_gestion import *
 from commands_files.sussess_endler import *
 from commands_files.alice_stats_endler import *
 
-nextButton = create_button(ButtonStyle.blue,"Suivant","▶️","next")
-pauseButton = create_button(ButtonStyle.grey,"Faire une pause","⏸️","pause")
-enableFavTeam = create_button(ButtonStyle.secondary,"Utiliser l'équipe favorite","<:littleStar:925860806602682369>","fav")
-disabledFavTeam = create_button(ButtonStyle.secondary,"Vous n'avez pas d'équipe favorite","<:littleStar:925860806602682369>","fav",disabled=True)
-errorFavTeam = create_button(ButtonStyle.red,"Erreur lord du chargement de l'équipe favorite","<:littleStar:925860806602682369>","fav",disabled=True)
-classicButtons = [create_actionrow(pauseButton,nextButton)]
+nextButton = create_button(ButtonStyle.green,"Suivant","▶️","next")
+fightButton = create_button(ButtonStyle.blue,"Combattre",getEmojiObject('<:turf:810513139740573696>'),"fight")
+endButton = create_button(ButtonStyle.green,"Terminer","▶️","end")
 
-async def adventureDutySelect(bot : discord.client, ctx : SlashContext, user : char): 
-    """
-        Function for the menu for selecting the duty\n
-        Parameters :\n
-        .bot : The bot's ``discord.client``
-        .ctx : The contexte of the command
-        .user : The ``char`` of the user\n
-        Returns :\n
-        .If sucessful :
-            .actName, dutyName, msg
-        .Else:
-            .``None``, ``None``, ``None``
-    """
-    userProgressAct, userProgressDuty = aliceStatsDb.getAdventureProgress(user)
-    tablAllreadyFinishedAct = []
-    status,next = True,0
+DPT_MELEE,HEALER,BOOSTER,DPT_DIST = 0,1,2,3
+aspiRoleTabl = [[BERSERK,TETE_BRULE,POIDS_PLUME,ENCHANTEUR],[ALTRUISTE,PREVOYANT,PROTECTEUR,VIGILANT],[IDOLE,INOVATEUR],[OBSERVATEUR,MAGE,SORCELER,ATTENTIF]]
 
-    if userProgressAct == None:
-        next = True
+async def playDuty(bot:discord.Client,msg:discord.Message,duty:duty,user:char,ctx:discord_slash.SlashContext):
+    """Play a duty"""
+    # Loading / Generating phase
+    playerTeam:List[Union[char,tmpAllie]] = [user]
+    roleList = [0,1,2,3]
+    for cmpt in range(len(aspiRoleTabl)):
+        if user.aspiration in aspiRoleTabl[cmpt]:
+            try:
+                roleList.remove(cmpt)
+            except:
+                pass
 
-    for cmpt in range(len(allActs)):
-        if status:
-            tablAllreadyFinishedAct.append(True)
+    for allie in duty.allies:
+        if type(allie) != list:
+            for cmpt in range(len(aspiRoleTabl)):
+                if allie.aspiration in aspiRoleTabl[cmpt]:
+                    try:
+                        roleList.remove(cmpt)
+                    except:
+                        pass
+                    playerTeam.append(allie)
+        elif len(roleList) > 0:
+            for ally in allie:
+                for cmpt in roleList:
+                    if ally.aspiration in aspiRoleTabl[cmpt]:
+                        try:
+                            roleList.remove(cmpt)
+                        except:
+                            pass
+                        playerTeam.append(ally)
+                        break
+                if ally in playerTeam:
+                    break
         else:
-            tablAllreadyFinishedAct.append(False)
+            playerTeam.append(allie)
 
-        if next:
-            status = False
-            next = False
+    for cmpt in range(1,len(playerTeam)):
+        playerTeam[cmpt].changeLevel(level=user.level,stars=user.stars,changeDict=False)
 
-        if allActs[cmpt][0] == userProgressAct and userProgressDuty != None:
-            status = False
+    for cmpt in range(len(duty.embedTxtList)):
+        duty.embedTxtList[cmpt] = duty.embedTxtList[cmpt].format(
+            userName = user.name,
+            lena = tablAllAllies[0].icon, shushi = tablAllAllies[4].icon, luna = '<:luna:909047362868105227>', shihu = '<:shihu:909047672541945927>',
+            alice = tablAllAllies[3].icon, sixtine = '<:sixtine:908819887059763261>', feli = '<:felicite:909048027644317706>',
+            clemence = tablAllAllies[2].icon,
+            shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, icelia = '<:icealia:909065559516250112>',
+            iliana = '<:Iliana:926425844056985640>',
+            gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
+            lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>"
+            )
 
-        elif allActs[cmpt][0] == userProgressAct:
-            next = True
+    def reactCheck(m):
+        return int(m.author_id) == user.owner
 
-    desc = "__Veillez sélectionner un act :__\n\n"
+    embedIndex, result = 0, False
+    while 1:
+        embed, endButtons = discord.Embed(name = "__{0} ({1})__'".format(duty.serie,duty.numer),color=user.color,description=duty.embedTxtList[embedIndex]), []
+        if duty.eventIndex[embedIndex] == None:
+            endButtons = create_actionrow(nextButton)
+        elif duty.eventIndex[embedIndex][0] == EVENT_CHOICE:
+            endSelectOption = []
+            for choice in range(1,len(duty.eventIndex[embedIndex])):
+                endSelectOption.append(create_select_option(label=duty.eventIndex[embedIndex][choice][0],value=choice))
+            endButtons = create_actionrow(create_select(options=endSelectOption))
+        elif duty.eventIndex[embedIndex][0] == EVENT_FIGHT:
+            endButtons = create_actionrow(fightButton)
+        elif duty.eventIndex[embedIndex][0] == EVENT_END:
+            endButtons = create_actionrow(endButton)  
+        
+        await msg.edit(embed=embed,components=endButtons)
 
-    actSelectOptions = []
-
-    for cmpt in range(len(allActs)):
-        if tablAllreadyFinishedAct[cmpt]:
-            desc += "[Act {0}] - {1}\n".format(cmpt,allActs[cmpt][0])
-            actSelectOptions.append(create_select_option(allActs[cmpt][0],allActs[cmpt][0]))
-        else:
-            desc += "`[Act {0}] - ".format(cmpt)
-            for letter in allActs[cmpt][0]:
-                desc += "?"
-            desc += "`\n"
-
-    embed = discord.Embed(title="__Aventure : Sélection de l'Act__",color=user.color,description=desc)
-    mainMenu = await ctx.send(embed=embed,components=[create_actionrow(create_select(actSelectOptions,placeholder="Veillez sélectionner un act"))])
-
-    def check(m):
-        return m.author_id == ctx.author_id
-
-    try:
-        react = await wait_for_component(bot,mainMenu,check=check,timeout=60)
-    except:
-        await mainMenu.delete()
-        return None, None, None
-
-    embed = discord.Embed(title="__Aventure : Sélection de l'Act__",color=user.color,description=desc)
-    await mainMenu.edit(embed=embed,components=[create_actionrow(getChoisenSelect(create_select(actSelectOptions,placeholder="Veillez sélectionner un act"),react.values[0]))])
-
-    toReact = react
-    react = react.values[0]
-
-    selectedAct = None
-    for cmpt in range(len(allActs)):
-        if allActs[cmpt][0] == react:
-            selectedAct = cmpt
+        try:
+            react = await wait_for_component(bot,msg,endButtons,reactCheck,3+(len(duty.embedTxtList[embedIndex])/180))
+            if react.component_type == ComponentType.button:
+                react = react.custom_id
+            else:
+                react = react.values[0]
+        except TimeoutError:
+            if duty.eventIndex[embedIndex] == None:
+                react = nextButton["customId"]
+            elif duty.eventIndex[embedIndex][0] == EVENT_CHOICE:
+                react = 1
+            elif duty.eventIndex[embedIndex][0] == EVENT_FIGHT:
+                react = fightButton["customId"]
+            elif duty.eventIndex[embedIndex][0] == EVENT_END:
+                endButtons = endButton["customId"]
+        
+        if react == nextButton["customId"]:
+            embedIndex += 1
+        elif react == fightButton["customId"]:
+            if duty.eventIndex[embedIndex][1] != None:
+                enemyTeam = duty.eventIndex[embedIndex][1]
+            else:
+                enemyTeam = []
+                while len(enemyTeam) < len(playerTeam):
+                    alea = duty.enemies[random.randint(0,len(duty.enemies))]
+                    alea.changeLevel(level=user.level)
+                    enemyTeam.append(alea)
+            
+            try:
+                fightResult = await fight(bot,playerTeam,enemyTeam,ctx,False,msg=msg)
+            except:
+                fightResult = None
+            
+            if fightResult:
+                embedIndex += 1
+            else:
+                break
+        elif react == endButton["customId"]:
+            result = True
             break
-
-    if selectedAct == None:
-        raise Exception("The selected act hasn't been found")
-
-    desc = "__Veillez sélectionner une mission :__\n\n"
-
-    if userProgressAct == None:
-        userProgressAct = allActs[0][0]
-    if userProgressDuty == None:
-        userProgressDuty = allActs[selectedAct][1]
-
-    unlock,actUnlock = True,react==userProgressAct
-    dutySelectOptions = []
-    for cmpt in range(1,len(allActs[selectedAct])):
-        if unlock or not(actUnlock) :
-            desc += "[{0}] - {1}\n".format(cmpt,allActs[selectedAct][cmpt][0].upper()+allActs[selectedAct][cmpt][1:-4].lower())
-            dutySelectOptions.append(create_select_option(allActs[selectedAct][cmpt][0].upper()+allActs[selectedAct][cmpt][1:-4].lower(),allActs[selectedAct][cmpt][:-4]))
-        else:
-            desc += "`[{0}] - ".format(cmpt)
-            for letter in allActs[selectedAct][cmpt]:
-                desc += "?"
-            desc += "`\n"
-
-        if actUnlock and allActs[selectedAct][cmpt] == userProgressDuty:
-            unlock = False
-
-    missionSelect = create_select(dutySelectOptions,placeholder="Veillez sélectionner une mission")
-    selectMenu = await toReact.send(embed=discord.Embed(title="__Sélection de la mission - {0}__".format(react),color=user.color,description=desc),components=[create_actionrow(missionSelect)])
-    actSelected = react
-    try:
-        react = await wait_for_component(bot,selectMenu,check=check,timeout=60)
-    except:
-        await mainMenu.delete()
-        return None, None, None
-
-    await selectMenu.delete()
-    react = react.values[0]
-
-    return actSelected, react, mainMenu
-
-async def dutyTextAff(message : discord.Message, text : dutyText, user : char, duty : duty):
-    """Generate the embed for a ``dutyText`` and edit the ``message`` given in parameters\n
-    Return the ``len`` of the embed's description"""
-    desc = text.text.format(
-        charName=user.name,
-        Lena="<:lena:909047343876288552>")
-
-    embed = discord.Embed(title="__{0} : {1}__".format(duty.act,duty.name),color=user.color,description=desc)
-
-    await message.edit(embed=embed,components=classicButtons)
-    return len(desc)
-
-async def pauseDuty(message : discord.Message, duty : duty, dutyText : dutyText, user : char):
-    """Generate the pause data and update it into the database"""
-    pauseData = duty.act + "|" + duty.name + "|" + dutyText.ref + "|"
-
-    teamTemp, cmpt = ["-","-","-","-","-"],0
-    for temp in duty.team:
-        teamTemp[cmpt] = temp.name
-        cmpt += 1
-
-    for temp in teamTemp:
-        pauseData+=temp+"|"
-
-    aliceStatsDb.updatePauseData(user,pauseData)
-
-    message.edit(embed = discord.Embed(title="__{0} : {1}__".format(duty.act,duty.name),color=user.color,description="Votre mission a été mise en pause\n\nVous pouvez la reprendre quand vous voulez avec /adventure duty resume"),components=[])
-    return 0
-
-def partySelect(duty : duty):
-    listMeleeDPT,listDistDPT,listHealer,listShielder,listBoost,listOther = [],[],[],[],[],[]
-
-    for tempAllie in tablAllAllies:
-        if tempAllie.isUnlock(duty):
-            if tempAllie.aspiration in [BERSERK,POIDS_PLUME,ENCHANTEUR,TETE_BRULE]:
-                listMeleeDPT.append(tempAllie)
-            elif tempAllie.aspiration in [OBSERVATEUR,MAGE,TETE_BRULE]:
-                listDistDPT.append(tempAllie)
-            elif tempAllie.aspiration == ALTRUISTE:
-                listHealer.append(tempAllie)
-            elif tempAllie.aspiration == PREVOYANT:
-                listShielder.append(tempAllie)
-            elif tempAllie.aspiration in [IDOLE,PROTECTEUR]:
-                listBoost.append(tempAllie)
-            else:
-                listOther.append(tempAllie)
-
-    for a in [listMeleeDPT,listDistDPT,listHealer,listShielder,listBoost,listOther]:
-        temp = []
-        for b in a:
-            temp.append(b.name)
-
-        print(temp)
+        elif type(react) == int:
+            embedIndex = duty.eventIndex[embedIndex][react][1]
 
 
-async def mainDuty(bot: discord.Client, message : discord.Message, ctx : SlashContext, user: char, duty: duty, resumed : Union[None,dict] = None):
-    if resumed != None:
-        while duty.actText().ref != resumed["ref"]:
-            duty.cmpt += 1
-            if duty.cmpt >= len(duty.dutyTextList):
-                print("DutyError : The duty's resume point havn't been found")
-                await message.edit(embed=discord.Embed(title="__{0} : {1}__",color=red,description="Une erreur est survenue :\nLe point de reprise n'a pas pu être retrouvé"))
-                return 0
 
-        tempDutyTeam = []
-        for temp in resumed["team"]:
-            temporaly = findAllie(temp)
-            if temporaly == None:
-                print("DutyError : A duty's team member hav'nt been found")
-                await message.edit(embed=discord.Embed(title="__{0} : {1}__",color=red,description="Une erreur est survenue :\nUn allié n'a pas pu être retrouvé"))
-                return 0
-            else:
-                tempDutyTeam.append(temporaly)
 
-        duty.team = tempDutyTeam
-
-    else:
-        favTeam = aliceStatsDb.getTeamFavData(user)
-        if favTeam == False:
-            favTeamButton = errorFavTeam
-        elif favTeam == None:
-            favTeamButton = disabledFavTeam
-        else:
-            favTeamButton = enableFavTeam

@@ -1,0 +1,14 @@
+```Mise à jour 3.11.8.1```
+__Commandes :__
+- __Manuel :__
+> - Ajout de deux pages (33 et 34) décrivant la brisure de limite et le bonus de personnage à jour
+
+- __Limitbreaks :__
+> - Utiliser la commande en dessous du niveau 40 indique désormais tout de même le status du bonus de personnage à jour
+
+__Mécanique :__
+- __Bonus de personnage à jour :__
+> - Devient une mécanique à part entière, active dès le niveau 1
+
+__Corrections :__
+- Corrections diverses

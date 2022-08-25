@@ -18,7 +18,7 @@ from adv import *
 from advance_gestion import *
 from classes import *
 from commands_files.alice_stats_endler import *
-from commands_files.command_duty import adventureDutySelect
+from commands_files.command_duty import *
 from commands_files.command_encyclopedia import *
 from commands_files.command_expedition import *
 from commands_files.command_fight import *
@@ -40,8 +40,7 @@ from datetime import datetime
 # Initialisations des variables de bases :
 started = False
 intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="l!",
-                   description="LenaPy par LenaicU", intents=intents)
+bot = commands.Bot(command_prefix="l!",description="LenaPy par LenaicU", intents=intents)
 slash = SlashCommand(bot, sync_commands=True)
 
 existDir(absPath + "/userProfile/")
@@ -57,16 +56,6 @@ existDir(absPath + "/data/backups/")
 
 if not(os.path.exists("./data/advScriptTxt/")):
     raise Exception("Missing folder error : advScriptTxt do not exist")
-
-for verif in allActs:
-    if not(os.path.exists("./data/advScriptTxt/"+verif[0])):
-        raise Exception(
-            "Missing folder error : {0} do not exist".format(verif[0]))
-    else:
-        for fileVerif in verif[1:]:
-            if not(os.path.exists("./data/advScriptTxt/"+verif[0]+"/"+fileVerif)):
-                raise Exception("Missing file error : {0} do not exist".format(
-                    verif[0]+"/"+fileVerif))
 
 actualyFight, actualyQuickFight = [], []
 pathUserProfile = absPath + "/userProfile/"
@@ -558,11 +547,14 @@ async def hourClock():
 async def on_ready():
     print("\n---------\nThe bot is fully online ! Starting the initialisations things...\n---------\n")
     startMsg = globalVar.getRestartMsg()
-    if startMsg != 0:                           # If the bot was rebooted with the admin command, change the status
-        msg = await bot.fetch_channel(912137828614426707)
-        msg = await msg.fetch_message(startMsg)
+    try:
+        if startMsg != 0:                           # If the bot was rebooted with the admin command, change the status
+            msg = await bot.fetch_channel(912137828614426707)
+            msg = await msg.fetch_message(startMsg)
 
-        await msg.edit(embed=discord.Embed(title="Redémarrage en cours...", description="Phase d'initalisation..."))
+            await msg.edit(embed=discord.Embed(title="Redémarrage en cours...", description="Phase d'initalisation..."))
+            globalVar.changeFightEnabled(True)
+    except:
         globalVar.changeFightEnabled(True)
 
     # Shop reload and status change
@@ -603,11 +595,14 @@ async def on_ready():
     if not(isLenapy):
         print(datetime.now().strftime('%H:%M'))
 
-    if startMsg != 0:
-        await msg.edit(embed=discord.Embed(title="Redémarrage en cours...", color=light_blue, description="Le bot a bien été redémarré"))
-        await msg.channel.send("Le redémarrage du bot est terminé Léna", delete_after=10)
+    try:
+        if startMsg != 0:
+            await msg.edit(embed=discord.Embed(title="Redémarrage en cours...", color=light_blue, description="Le bot a bien été redémarré"))
+            await msg.channel.send("Le redémarrage du bot est terminé Léna", delete_after=10)
+            globalVar.getRestartMsg(int(0))
+            print("Redémarrage terminé")
+    except:
         globalVar.getRestartMsg(int(0))
-        print("Redémarrage terminé")
 
 # ====================================================================================================
 #                                               COMMANDS
@@ -680,6 +675,8 @@ async def comEncyclopedia(ctx, destination):
     await encylopedia(bot, ctx, destination, user)
 
 # -------------------------------------------- FIGHT --------------------------------------------
+
+allreadyinWait, allreadyinWaitQuick = [], []
 # normal fight
 @slash.subcommand(base="fight", name="normal", description="Permet de lancer un combat normal")
 async def normal(ctx):
@@ -709,15 +706,19 @@ async def normal(ctx):
         if timing > 60*10:
             await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])), delete_after=10)
             return 0
-        else:
+        elif ballerine not in allreadyinWait:
+            allreadyinWait.append(ballerine)
             while 1:
                 timing = teamWinDB.getFightCooldown(ballerine)
                 if timing > 0:
                     try:
                         if msg == None:
-                            msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}:{1})".format(timing//60, timing % 60)))
+                            try:
+                                msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                            except:
+                                msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                         else:
-                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}:{1})".format(timing//60, timing % 60)))
+                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                     except:
                         pass
                     await asyncio.sleep(10)
@@ -730,7 +731,14 @@ async def normal(ctx):
                     except:
                         pass
                     break
+        else:
+            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe est déjà en file d'attente"),delete_after=15)
+            return 0
 
+    try:
+        allreadyinWait.remove(ballerine)
+    except:
+        pass
     fightingStatus = teamWinDB.isFightingBool(ballerine)
     if fightingStatus[0]:
         channel = await bot.fetch_channel(fightingStatus[2])
@@ -766,9 +774,15 @@ async def normal(ctx):
         team1 = [user]
 
     # Random event
-    fun, teamLvl = random.randint(0, 99), 0
+    if msg == None:
+        try:
+            msg = await ctx.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat en cours de génération...__"))
+        except:
+            msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat en cours de génération...__"))
+    fun, teamLvl, starLvl = random.randint(0, 99), 0, 0
     for ent in team1:
         teamLvl = max(ent.level,teamLvl)
+        starLvl = max(ent.stars,starLvl)    
 
     if fun < 0:                # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
@@ -841,8 +855,6 @@ async def normal(ctx):
         await fight(bot, team1, team2, ctx, False, msg=msg)
 
     elif fun < 10 and teamLvl >= 25:             # Raid
-        if msg == None:
-            msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
             if user.team not in ["0",0]:
@@ -874,8 +886,7 @@ async def normal(ctx):
             temp.sort(key=lambda overheal: overheal.level, reverse=True)
             maxLvl = temp[0].level
             team2 = []
-            alea = copy.deepcopy(
-                tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
+            alea = copy.deepcopy(tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
 
             alea.changeLevel(maxLvl)
             team2.append(alea)
@@ -888,11 +899,11 @@ async def normal(ctx):
     elif fun < 20:              # Procu Fight
         level = team1[0].level
         team1, team2, randomRoll = [], [], random.randint(0, 99)
-        if randomRoll < 60: # ClemClem
+        if randomRoll < 50: # ClemClem
             procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             level += random.randint(0, 100)
-            ent.changeLevel(level)
+            ent.changeLevel(level,stars=starLvl)
             ent.stuff = [
                 stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
                 stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2]),
@@ -905,7 +916,7 @@ async def normal(ctx):
             ent = copy.deepcopy(findAllie("Luna prê."))
             procurData = procurTempStuff["Luna prê."]
             level += random.randint(0, 50)
-            ent.changeLevel(level)
+            ent.changeLevel(level,stars=starLvl)
 
             ent.stuff = [
                 stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
@@ -918,7 +929,7 @@ async def normal(ctx):
             if random.randint(0, 99) < 50:               # Eclipse Eternelle
                 ent2 = copy.deepcopy(findAllie('Iliana prê.'))
                 procurData = procurTempStuff["Iliana prê."]
-                ent2.changeLevel(level)
+                ent2.changeLevel(level,stars=starLvl)
 
                 ent2.stuff = [
                     stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[1][2]),
@@ -932,11 +943,11 @@ async def normal(ctx):
                     team1 = [ent2, ent]
 
                 boss = copy.deepcopy(unformBoss)
-                boss.changeLevel(level + random.randint(201, 250))
+                boss.changeLevel(level + random.randint(300, 350))
                 team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur informe A'), findEnnemi('Ombre informe A'), findEnnemi('Ombre informe B')], 1
                 while cmpt < 8:
                     temp = copy.deepcopy(listDangerous[random.randint(0, len(listDangerous)-1)])
-                    temp.changeLevel(level + random.randint(100, 150))
+                    temp.changeLevel(level + random.randint(200, 300))
                     team2.append(temp)
                     cmpt += 1
 
@@ -959,6 +970,7 @@ async def normal(ctx):
 # quick fight
 @slash.subcommand(base="fight", name="quick", description="Vous permet de faire un combat en sautant directement à la fin")
 async def comQuickFight(ctx):
+    msg = None
     if not(await botChannelVerif(bot, ctx)):
         return 0
     if not(globalVar.fightEnabled()):
@@ -979,34 +991,45 @@ async def comQuickFight(ctx):
         ballerine = user.team
 
     timing = teamWinDB.getFightCooldown(ballerine, True)
-    fightingStatus = teamWinDB.isFightingBool(ballerine)
+    if timing > 0:
+        if timing > 60*10:
+            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats rapides que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])), delete_after=10)
+            return 0
+        elif ballerine not in allreadyinWaitQuick:
+            allreadyinWaitQuick.append(ballerine)
+            while 1:
+                timing = teamWinDB.getFightCooldown(ballerine, True)
+                if timing > 0:
+                    try:
+                        if msg == None:
+                            try:
+                                msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                            except:
+                                msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
 
-    if fightingStatus[0]:
-        channel = await bot.fetch_channel(fightingStatus[2])
-        fightingMessage = await channel.fetch_message(fightingStatus[0])
-
-        fightingRespond = "__Votre équipe affronte actuellement :__\n"
-        temp = ""
-        for letter in fightingStatus[1]:
-            if letter == ";" and len(temp) > 0:
-                ennemi = findEnnemi(temp)
-                if ennemi == None:
-                    ennemi = findAllie(temp)
-                if ennemi != None:
-                    fightingRespond += "{0} {1}\n".format(
-                        ennemi.icon, ennemi.name)
+                        else:
+                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                    except:
+                        pass
+                    await asyncio.sleep(10)
                 else:
-                    fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
-                temp = ""
-            else:
-                temp += letter
+                    try:
+                        if msg == None:
+                            msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Combat en cour de génération..."))
+                        else:
+                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Combat en cour de génération..."))
 
-        await ctx.send(embed=discord.Embed(title="__/fight__", color=user.color, description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name, fightingMessage.jump_url)), delete_after=15)
-        return 0
-    elif timing > 0:
-        await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats rapide que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])), delete_after=10)
-        return 0
+                    except:
+                        pass
+                    break
+        else:
+            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe est déjà en file d'attente"))
+            return 0
 
+    try:
+        allreadyinWaitQuick.remove(ballerine)
+    except:
+        pass
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
@@ -1014,12 +1037,18 @@ async def comQuickFight(ctx):
     else:
         team1 = [user]
 
+    if msg == None:
+        try:
+            msg = await ctx.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat rapide en cours de génération...__"))
+        except:
+            msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat rapide en cours de génération...__"))
+
     fun, teamLvl = random.randint(0, 99), 0
     for ent in team1:
         teamLvl = max(ent.level,teamLvl)
 
     if fun < 5 and teamLvl >= 25:             # Raid
-        msg = await ctx.send(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
+        await msg.edit(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
             try:
@@ -1065,7 +1094,7 @@ async def comQuickFight(ctx):
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
 
     else:
-        await fight(bot, team1, [], ctx)
+        await fight(bot, team1, [], ctx, msg= msg)
 
 # octogone fight
 @slash.subcommand(base="fight", subcommand_group="octogone", name="solo", description="Affrontez quelqu'un en 1v1 Gare Du Nord !", options=[
@@ -1258,11 +1287,9 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
             break
 
     if procuration != None:
-        user = loadCharFile(absPath + "/userProfile/" +
-                            str(procuration.id) + ".prof")
+        user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
     else:
-        user = loadCharFile(absPath + "/userProfile/" +
-                            str(ctx.author.id) + ".prof")
+        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
 
     if nom != None:
         nom = nom.replace("_", " ")
@@ -1270,10 +1297,16 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
         while nom.endswith(" "):
             nom = nom[0:-1]
 
-        if whatIsThat(nom) == None:
-            research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token,trans]
-            lastResarch = []
-            nameTempCmpt, lenName = 0, len(nom)
+        research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token,trans]
+        lastResarch = []
+        nameTempCmpt, lenName, findId = 0, len(nom), False
+
+        for obj in research:
+            if nom == obj.id:
+                nom, findId = obj.id, True
+                break
+
+        if not(findId):
             while 1:
                 lastResarch = research[:]
                 if nameTempCmpt+1 <= lenName:
@@ -1611,10 +1644,7 @@ async def started(ctx):
     await start(bot, ctx)
 
 # -------------------------------------------- STATS --------------------------------------------
-@slash.slash(name="stats", description="Permet de voir vos statistiques ou celles d'un autre joueur", options=[
-    create_option(
-        "joueur", "Voir les statistiques d'un autre joueur", 6, False)
-])
+@slash.slash(name="stats", description="Permet de voir vos statistiques ou celles d'un autre joueur", options=[create_option("joueur", "Voir les statistiques d'un autre joueur", 6, False)])
 async def statsCmd(ctx, joueur=None):
     if not(await botChannelVerif(bot, ctx)):
         return 0
@@ -1633,16 +1663,10 @@ async def statsCmd(ctx, joueur=None):
         level = str(
             user.level)+['', "<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars > 0]
         exp = [str(user.level*50-20), "MAX"][user.level == 55]
-        rep = discord.Embed(title=f"__Page de statistique de {user.name} {userIcon}__", color=user.color,
-                            description=f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]} ({elemEmojis[user.secElement]} {elemNames[user.secElement]})\n<:empty:866459463568850954>")
+        rep = discord.Embed(title=f"__Page de statistique de {user.name} {userIcon}__", color=user.color,description=f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]} ({elemEmojis[user.secElement]} {elemNames[user.secElement]})\n__Aspiration :__ {aspiEmoji[user.aspiration]} {inspi[user.aspiration]}")
 
-        rep.set_thumbnail(
-            url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
-        rep.add_field(name="__Aspiration :__",
-                      value=aspiEmoji[user.aspiration] + " " + inspi[user.aspiration], inline=False)
-
-        sumStatsBonus = [user.majorPoints[0], user.majorPoints[1], user.majorPoints[2], user.majorPoints[3], user.majorPoints[4], user.majorPoints[5], user.majorPoints[6],
-                         user.majorPoints[7], user.majorPoints[8], user.majorPoints[9], user.majorPoints[10], user.majorPoints[11], user.majorPoints[12], user.majorPoints[13], user.majorPoints[14]]
+        rep.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
+        sumStatsBonus = [user.majorPoints[0], user.majorPoints[1], user.majorPoints[2], user.majorPoints[3], user.majorPoints[4], user.majorPoints[5], user.majorPoints[6], user.majorPoints[7], user.majorPoints[8], user.majorPoints[9], user.majorPoints[10], user.majorPoints[11], user.majorPoints[12], user.majorPoints[13], user.majorPoints[14]]
 
         for a in [user.weapon, user.stuff[0], user.stuff[1], user.stuff[2]]:
             sumStatsBonus[0] += a.strength
@@ -1660,20 +1684,29 @@ async def statsCmd(ctx, joueur=None):
             sumStatsBonus[12] += a.negativeShield * -1
             sumStatsBonus[13] += a.negativeDirect * -1
             sumStatsBonus[14] += a.negativeIndirect * -1
-
+        
+        estimPV = separeUnit(round((130+user.level*15)*((user.endurance+sumStatsBonus[ENDURANCE])/100+1)))
         for a in range(len(sumStatsBonus)):
             if sumStatsBonus[a] > 0:
                 sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
 
-        rep.add_field(name="<:empty:866459463568850954>\n__Stats. principaux :__",
-                      value=f"__Force :__ {user.strength} ({sumStatsBonus[0]})\n__Endurance :__ {user.endurance} ({sumStatsBonus[1]})\n__Charisme :__ {user.charisma} ({sumStatsBonus[2]})\n__Agilité :__ {user.agility} ({sumStatsBonus[3]})\n__Précision :__ {user.precision} ({sumStatsBonus[4]})\n__Intelligence :__ {user.intelligence} ({sumStatsBonus[5]})\n__Magie :__ {user.magie} ({sumStatsBonus[6]})", inline=True)
-        rep.add_field(name="<:empty:866459463568850954>\n__Stats. secondaires :__",
-                      value=f"__Résistance :__ {user.resistance} ({sumStatsBonus[7]})\n__Pénétration :__ {user.percing} ({sumStatsBonus[8]})\n__Critique :__ {user.critical} ({sumStatsBonus[9]})", inline=True)
-        rep.add_field(name="<:empty:866459463568850954>\n__Stats. d'actions :__",
-                      value=f"__Soins :__ 0 ({sumStatsBonus[10]})\n__Boost et Malus :__ 0 ({sumStatsBonus[11]})\n__Armures :__ 0 ({sumStatsBonus[12]})\n__Dégâts directs :__ 0 ({sumStatsBonus[13]})\n__Dégâts indirects :__ 0 ({sumStatsBonus[14]})", inline=True)
+        value = "\n__PVs :__ {0}".format(estimPV)
+        allStatsUser = user.allStats()+[user.resistance,user.percing,user.critical,user.majorPoints[ACT_BOOST_FULL],user.majorPoints[ACT_HEAL_FULL],user.majorPoints[ACT_SHIELD_FULL],user.majorPoints[ACT_DIRECT_FULL],user.majorPoints[ACT_INDIRECT_FULL]]
+        for cmpt in range(0,MAGIE+1):
+            value += "\n{0} __{1}__ : {2} ({3})".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt],sumStatsBonus[cmpt])
+        rep.add_field(name="<:empty:866459463568850954>\n__Stats. principaux :__",value=value, inline=False)
+        value = ""
+        for cmpt in range(RESISTANCE,CRITICAL+1):
+            value += "\n{0} __{1}__ : {2} ({3})".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt],sumStatsBonus[cmpt])
+        rep.add_field(name="<:empty:866459463568850954>\n__Stats. secondaires :__",value=value, inline=True)
+        value = ""
+        for cmpt in range(ACT_HEAL_FULL,ACT_INDIRECT_FULL+1):
+            value += "\n{0} __{1}__ : {2} ({3})".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt],sumStatsBonus[cmpt])
+        rep.add_field(name="<:empty:866459463568850954>\n__Stats. d'actions :__",value=value, inline=True)
         tempStuff, tempSkill = "", ""
+        
         for a in [0, 1, 2]:
-            tempStuff += f"{ user.stuff[a].emoji} {user.stuff[a].name}\n"
+            tempStuff += f"{user.stuff[a].emoji} {user.stuff[a].name}\n"
 
         for a in [0, 1, 2, 3, 4, 5, 6]:
             try:
@@ -1684,10 +1717,9 @@ async def statsCmd(ctx, joueur=None):
                 else:
                     tempSkill += " 🔒\n"
 
-        rep.add_field(name="<:empty:866459463568850954>\n__Arme et équipements :__",
-                      value=user.weapon.emoji+" "+user.weapon.name+"\n\n"+tempStuff, inline=True)
-        rep.add_field(name="<:empty:866459463568850954>\n__Compétences :__",
-                      value=tempSkill, inline=True)
+        rep.add_field(name="<:empty:866459463568850954>",value='**__Objets équipés :__**',inline=False)
+        rep.add_field(name="__Arme et équipements :__",value=user.weapon.emoji+" "+user.weapon.name+"\n\n"+tempStuff, inline=True)
+        rep.add_field(name="__Compétences :__",value=tempSkill, inline=True)
 
         await msg.edit(embed=rep)
 
@@ -2119,18 +2151,6 @@ async def iconCommand(ctx, utilisateur=None):
     await ctx.send(embed=embed)
 
 # -------------------------------------------- ADVENTURE ---------------------------------------------
-@slash.subcommand(base="adventure", subcommand_group="duty", name="select", description="Permet de commencer une nouvelle mission", base_description="Commandes de l'Aventure", guild_ids=[615257372218097691])
-async def dutyStart(ctx):
-    still = True
-    try:
-        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
-    except:
-        still = False
-        await ctx.send(embed=discord.Embed(title="__Commande de l'Aventure :__", description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"), delete_after=15)
-
-    if still:
-        actName, dutyName, msg = await adventureDutySelect(bot, ctx, user)
-        await msg.edit(embed=discord.Embed(title="__Mission sélectionnée__", color=light_blue, description="Vous avez sélectioné la mission \"{0} - {1}\"".format(actName, dutyName[0].upper()+dutyName[1:].lower())), components=[])
 
 # -------------------------------------------- ROULETTE --------------------------------------------
 @slash.slash(name="roulette", description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
@@ -2350,6 +2370,55 @@ async def emojiVerficition(ctx):
 async def char_settings(ctx):
     user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
     await userSettings(bot, user, ctx)
+
+# ======================= Limit Breaks ================================
+@slash.slash(name="limitbreaks",description="Permet de briser les limites de votre personnage",options=[create_option("procuration", "Permet d'utiliser la commande avec un autre personnage", 6, False)])
+async def limitBreak(ctx,procuration:discord.Member=None):
+    if not(await botChannelVerif(bot, ctx)):
+        return 0
+    try:
+        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+    except:
+        await ctx.send("Vous n'avez pas encore de personnage.\nVous pouvez vous en créer un à l'aide de la commande /start",delete_after=15)
+        return 0
+
+    if procuration != None:
+        if procuration.id not in user.haveProcurOn:
+            await ctx.send("{0} ne vous a pas donné procuration sur son personnage".format(procuration.nick),delete_after=15)
+            return 0
+        else:
+            user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
+
+    if user.level < 40 and user.stars <= 0:
+        hasSkillUpdated, lvl = True, user.level - 5
+        nbExpectedSkills, nbSkills = 0, 0
+        for cmpt in range(len(lvlToUnlockSkill)):
+            if lvl >= lvlToUnlockSkill[cmpt]:
+                nbExpectedSkills += 1
+
+        for skilly in user.skills:
+            if type(skilly) == skill:
+                nbSkills += 1
+        
+        hasSkillUpdated = nbSkills >= nbExpectedSkills
+        hasUpdatedStuff = True
+        for stuffy in user.stuff:
+            if stuffy.minLvl < user.level-10:
+                hasUpdatedStuff = False
+                break
+
+        hasBonusPointsUpdated, updateBonus = user.points < 5, ""
+
+        if not(hasBonusPointsUpdated and hasSkillUpdated and hasUpdatedStuff):
+            updateBonus += "__Bonus de personnage à jour :__\nComplétez les conditions suivantes pour obtenir un bonus de 5% dans toutes vos satistiques principales :\n"
+            updateBonus += "{0} {1}Avoir moins de **5 points bonus** non attribués{1}\n".format([cross,emoji.check][hasBonusPointsUpdated],["","~~"][hasBonusPointsUpdated])
+            updateBonus += "{0} {1}Avoir moins des équipements à votre niveau ou maximum **10 niveaux** en dessous du votre{1}\n".format([cross,emoji.check][hasUpdatedStuff],["","~~"][hasUpdatedStuff])
+            updateBonus += "{0} {1}Avoir **aucun** d'emplacement de compétences vides, à l'exeption du dernière emplacement sur il a été débloqué réçament{1}\n".format([cross,emoji.check][hasSkillUpdated],["","~~"][hasSkillUpdated])
+
+        await ctx.send("Vous ne pourrez briser vos limites qu'à partir du Niveau 40\n\n"+updateBonus,delete_after=15)
+        return 0
+    await breakTheLimits(bot, ctx, user)
+
 
 @slash.slash(name="Test", guild_ids=adminServ)
 async def expeditionTest(ctx):
