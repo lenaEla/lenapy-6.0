@@ -20,9 +20,11 @@ moveEmoji = ['⬅️','➡️','⬆️','⬇️']
 cancelButton = create_actionrow(create_button(ButtonStyle.grey,"Retour",'◀️',custom_id="return"))
 waitingSelect = create_actionrow(create_select([create_select_option("Veuillez prendre votre mal en patience","wainting...",'🕰️',default=True)],disabled=True))
 
+hiddenIcons = ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:905169617163538442>','<:lo:887853918665707621>','<:co:895440308257558529>']+aspiEmoji
+
 altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
 
-HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.1
+HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.2
 
 tablIsNpcName = []
 for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]","Nacialisla"]:
@@ -54,7 +56,7 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
             if stats[cmpt] > maxi:
                 maxi, use = stats[cmpt], cmpt 
     if use not in [FIXE,None]:
-        dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.15 +1
+        dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,MASCOTTE] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.15 +1
         enemyPercing = [caster.percing+skillPercing, min(caster.percing+skillPercing,15)][target.isNpc("Clémence Exaltée") or target.isNpc("Luna prê.")]
         resistFactor = (1-(min(95,target.resistance*(1-(caster.percing+skillPercing)/100))/100))
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
@@ -76,28 +78,27 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
             stat = max(caster.allStats())
 
         effMultiplier = 100 + 5*int(not(caster.auto))
-        for eff in caster.effect:
-            if eff.effect.id == dmgUp.id:
-                effMultiplier += eff.effect.power
-            elif eff.effect.id in [dmgDown.id,indDealReducTmp.id]:
-                effMultiplier -= eff.effect.power
-        for eff in target.effect:
-            if eff.effect.id in [vulne.id,kikuRaiseEff.id]:
-                effMultiplier += eff.effect.power
-            elif eff.effect.id == defenseUp.id:
-                effMultiplier -= eff.effect.power
-            elif eff.effect.inkResistance != 0:
-                effMultiplier -= eff.effect.inkResistance
+        for eff in caster.effects:
+            if eff.effects.id == dmgUp.id:
+                effMultiplier += eff.effects.power
+            elif eff.effects.id in [dmgDown.id,indDealReducTmp.id]:
+                effMultiplier -= eff.effects.power
+        for eff in target.effects:
+            if eff.effects.id in [vulne.id,kikuRaiseEff.id]:
+                effMultiplier += eff.effects.power
+            elif eff.effects.id == defenseUp.id:
+                effMultiplier -= eff.effects.power
+            elif eff.effects.inkResistance != 0:
+                effMultiplier -= eff.effects.inkResistance
             
         effMultiplier = max(effMultiplier, 5)
         effMultiplier = min(effMultiplier, 200)
 
-        selfElem = caster.getElementalBonus(target,area,TYPE_INDIRECT_DAMAGE)
         dangerMul = [100, danger][caster.team == 1]
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
             lvlBonus = 2.5
-        damage = basePower * (1+(stat/100)) *  (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * selfElem * lvlBonus * effMultiplier/100 * dangerMul/100 * dmgBonusMelee
+        damage = basePower * (1+(stat/100)) *  (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * lvlBonus * effMultiplier/100 * dangerMul/100 * dmgBonusMelee
 
     return damage
 
@@ -188,10 +189,10 @@ class timeline:
 
                         for dictElem in inv.ownEffect:
                             for on, effID in dictElem.items():
-                                for effOn in on.effect:
+                                for effOn in on.effects:
                                     if effOn.id == effID:
                                         effOn.caster = smn
-                                        effOn.effect.power = int(effOn.effect.power * 0.7)
+                                        effOn.effects.power = int(effOn.effects.power * 0.7)
                                         break
 
                                 on.refreshEffects()
@@ -205,7 +206,19 @@ class timeline:
         self.timeline = timelineTempo
         return tablEntTeam, tablAliveInvoc
 
-def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numberEmoji=None,fullArea=[]):
+    def insert(self,entBefore,entToInsert):
+        found = False
+        for cmpt in range(len(self.timeline)):
+            if entBefore.id == self.timeline[cmpt].id and type(self.timeline[cmpt].char) not in [invoc, depl]:
+                whereToInsert = cmpt+1
+                break
+        
+        if not(found):
+            whereToInsert = 1
+        
+        self.timeline.insert(whereToInsert,entToInsert)
+        
+def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numberEmoji=None,fullArea=[],deplTabl=[]):
     """Renvoie un str contenant la carte du combat"""
     line1,line2,line3,line4,line5 = [None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None]
     lines = [line1,line2,line3,line4,line5]
@@ -223,7 +236,7 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
                 temp = ['<:em:866459463568850954>',['<:tb:873118129214083102>','<:tr:873118129130192947>'][wanted==ENEMIES]][a in showArea]
         else:
             temp = f'{str(a.x)}:{str(a.y)}'                         # Show cells ID
-        if a.on != None:
+        if a.on != None and (numberEmoji == None or (len(numberEmoji)>0 and type(numberEmoji[0] != cell))):
             if a.on.status == STATUS_DEAD:
                 temp = ['<:ls:868838101752098837>','<:ls:868838465180151838>'][a.on.team]
             elif a.on.status != STATUS_TRUE_DEATH:
@@ -244,6 +257,18 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
                     temp = '<:ikaWhiteTargeted1:873118129021157377>'
             else:
                 a.on = None
+        elif numberEmoji != None and a in numberEmoji:
+            for cmpt in range(len(numberEmoji)):
+                if a == numberEmoji[cmpt]:
+                    temp = listNumberEmoji[cmpt]
+                    break
+        elif a.depl != None:
+            temp = a.depl.char.icon[a.depl.team]
+        else:
+            for deplEnt in deplTabl:
+                if a in deplEnt[2]:
+                    temp = deplEnt[0].char.cellIcon[deplEnt[0].team]
+                    break
         lines[a.y][a.x]=temp
     temp = ""
     for a in lines:
@@ -252,42 +277,42 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
         temp += f"{a[b+1]}\n"
     return temp
 
-def getHealAggro(on, skillToUse : Union[skill,weapon]):
-    if on.hp <= 0 or on.hp >= on.maxHp:
-        return 0
-    elif type(on.char) == invoc:
+def getHealAggro(caster,target, skillToUse : Union[skill,weapon],armor=False):
+    if type(target.char) == invoc or target.hp <= 0 or target.hp >= target.maxHp:
         return -111
     else:
-        prio = (1-on.hp/on.maxHp)*100
-
-        prio = prio * (1.2 - (0.1*on.char.weapon.range))                # If the entity is a melee, he is more important
-        if not(on.auto):
+        prio = (1-(target.hp/target.maxHp))*100
+        prio = prio * (1.2 - (0.1*target.char.weapon.range))                # If the entity is a melee, he is more important
+        if not(target.auto):
             prio = prio * 1.1                                           # If the entity is a active player, he is a little more important, for reduce the use of the spoon
 
-        if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and on.maxHp - on.hp < on.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and on.hp/on.maxHp <= 0.35):
+        if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and target.maxHp - target.hp < target.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and target.hp/target.maxHp <= 0.35):
             prio = prio * 0.7                                           # If the skill is a big direct heal and the entity is not low Hp or if the skill is a HoT and the entity is low Hp
-                                                                            # The entity is less important
         
-        prio = prio * (1-(on.healResist/2/100))                             # If the entity have a big healing resist, he is less important
+        prio = prio * (1-(target.healResist/2/100))                             # If the entity have a big healing resist, he is less important
 
         incurValue, healAggroBonus = 0, 100
-        for eff in on.effect:
-            if eff.effect.id == incurable.id:
-                incurValue = max(eff.effect.power,incurValue)
-            elif eff.effect.id == undeadEff2.id:
+        for eff in target.effects:
+            if eff.effects.id == incurable.id:
+                incurValue = max(eff.effects.power,incurValue)
+            elif eff.effects.id == undeadEff2.id:
                 healAggroBonus += undeadEff2.power
 
         prio = prio * (1-(incurValue/2/100)) * (healAggroBonus/100)                              # Same with the healing reduce effects
+        
+        if (not(armor) and (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_DPT and target.char.aspiration in dptAspi) or (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_BUFF and target.char.aspiration in boostAspi) or (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_HEAL and target.char.aspiration in healAspi+armorAspi) or caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_MELEE and len(target.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=caster.team,wanted=ENEMIES,directTarget=False,fromCell=target.cell)) >= 2) or (armor and (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_DPT and target.char.aspiration in dptAspi) or (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_BUFF and target.char.aspiration in boostAspi) or (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_HEAL and target.char.aspiration in armorAspi+healAspi) or caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_MELEE and len(target.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=caster.team,wanted=ENEMIES,directTarget=False,fromCell=target.cell)) >= 2):
+            prio = prio * 1.35
+        
         return prio
 
-def getHealTarget(tablTeam : list, skillToUse : skill):
+def getHealTarget(caster,tablTeam : list, skillToUse : skill):
     if len(tablTeam) == 1:
         return tablTeam[0]
     elif len(tablTeam) < 1:
         raise AttributeError("tablTeam is empty")
     
     temp = tablTeam
-    temp.sort(key=lambda funnyTempVarName:getHealAggro(funnyTempVarName,skillToUse),reverse=True)
+    temp.sort(key=lambda funnyTempVarName:getHealAggro(caster,funnyTempVarName,skillToUse),reverse=True)
     return temp[0]
 
 def getPrelimManWindow(actTurn, LBBars: List[List[int]], tablEntTeam : List):
@@ -317,15 +342,15 @@ def getPrelimManWindow(actTurn, LBBars: List[List[int]], tablEntTeam : List):
 
     toReturn += difMsg
     dmgUpCount, defenseUpCount, buffMsg = 0, 0, ""
-    for eff in actTurn.effect:
-        if eff.effect.id == dmgUp.id:
-            dmgUpCount += eff.effect.power
-        elif eff.effect.id == dmgDown.id:
-            dmgUpCount -= eff.effect.power
-        elif eff.effect.id == defenseUp.id:
-            defenseUpCount += eff.effect.power
-        elif eff.effect.id == vulne.id:
-            defenseUpCount -= eff.effect.power
+    for eff in actTurn.effects:
+        if eff.effects.id == dmgUp.id:
+            dmgUpCount += eff.effects.power
+        elif eff.effects.id == dmgDown.id:
+            dmgUpCount -= eff.effects.power
+        elif eff.effects.id == defenseUp.id:
+            defenseUpCount += eff.effects.power
+        elif eff.effects.id == vulne.id:
+            defenseUpCount -= eff.effects.power
     if dmgUpCount != 0:
         buffMsg += "\n{0} {1}{2}%".format(["<a:dmgDown:954430950668914748>","<a:dmgUp:954429227657224272>"][dmgUpCount>0],["","+"][dmgUpCount>0],round(dmgUpCount,2))
     if defenseUpCount != 0:
@@ -357,3 +382,144 @@ def getPrelimManWindow(actTurn, LBBars: List[List[int]], tablEntTeam : List):
             buffMsg += "{0}x{1}".format(alliesEmoji[cmpt],[allieAlive,allieUnHealthy,allieRea,allieDead][cmpt])
     toReturn += buffMsg
     return toReturn
+
+AGI_REQUIERD_FOR_30_CRIT = 180
+PRE_REQUIERD_FOR_30_CRIT = 180
+
+def probCritDmg(ent) -> int:
+    return (ent.agility/(AGI_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + (ent.precision/(PRE_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + ent.critical
+
+END_REQUIERD_FOR_30_CRIT = 350
+def probCritHeal(ent,target) -> int:
+    return (ent.precision/(PRE_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + (target.endurance/(END_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + ent.critical
+
+def calHealPower(ent,target,power,secElemMul,statUse,useActionStats,danger):
+    if ent.team == 0:
+        danger = 100
+    return round(power * secElemMul * (1+(max(-65,statUse-ent.actionStats()[useActionStats]))/100+(target.endurance/1500))*ent.valueBoost(target = target,heal=True)*ent.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL) * danger/100)
+
+def getBuffAggro(caster,target,effect:classes.effect):
+    if (caster == target and effect.turnInit < 2) or type(effect) != classes.effect:
+        return 0
+    toReturn, targetStats, maxEffStats, effStats = 0, target.allStats(), [], effect.allStats()
+    for cmpt in range(len(effStats)):
+        maxEffStats.append([cmpt,effStats[cmpt]])
+
+    if effect.block > 0 or effect.inkResistance > 0:
+        maxEffStats[ENDURANCE][1] += 10
+    if effect.dodge > 0 or effect.counterOnDodge > 0:
+        maxEffStats[ENDURANCE][1] += 5
+        maxEffStats[AGILITY][1] += 5
+    if effect.id == dmgUp.id:
+        maxEffStats[STRENGTH][1] += 5
+        maxEffStats[MAGIE][1] += 5
+    if effect.id == healDoneBonus.id:
+        maxEffStats[CHARISMA][1] += 1
+
+    maxEffStats.sort(key=lambda ballerine: ballerine[1], reverse=True)
+    BASESTATVALUE = 300
+    toReturn = targetStats[maxEffStats[0][0]]/BASESTATVALUE
+
+    BASEDPTVALUE = 10000
+    if caster.char.charSettings["buffTarget"] == CHARSET_BUFFTARGET_HIGHDPT and target.char.aspiration in dptAspi:
+        toReturn = toReturn * (1+(target.stats.damageDeals/BASEDPTVALUE))
+    elif caster.char.charSettings["buffTarget"] == CHARSET_BUFFTARGET_LOWDPT and target.char.aspiration in dptAspi:
+        toReturn = toReturn * (1+(BASEDPTVALUE-target.stats.damageDeals/BASEDPTVALUE))
+    elif caster.char.charSettings["buffTarget"] == CHARSET_BUFFTARGET_HASULT and target.char.aspiration in dptAspi:
+        bigSkillMul = 1
+        for cmpt in range(len(target.char.skills)):
+            if type(target.char.skills[cmpt]) == skill and target.cooldowns[cmpt] == 0 and (target.char.skills[cmpt].cooldown >= 7 or target.char.skills[cmpt].ultimate):
+                bigSkillMul += 0.25
+        toReturn = toReturn * bigSkillMul
+
+    return toReturn 
+        
+def getRaiseAggro(caster,target):
+    if not(target.auto):
+        return 10
+    if caster.char.charSettings["raiseTarget"] == CHARSET_RAISETARGET_DEFAULT or (caster.char.charSettings["raiseTarget"] == CHARSET_RAISETARGET_DMG and target.char.aspiration in dptAspi) or caster.char.charSettings["raiseTarget"] == CHARSET_RAISETARGET_BUFF and target.char.aspiration in boostAspi or caster.char.charSettings["raiseTarget"] == CHARSET_RAISETARGET_HEAL and target.char.aspiration in healAspi+armorAspi:
+        return 1
+
+    return 0
+
+async def getResultScreen(bot,ent) -> discord.Embed:
+    stats = ent.stats
+    userIcon = await ent.getIcon(bot)
+    descri = f"{ent.char.weapon.emoji}"
+
+    if type(ent.char) in [char,tmpAllie]:
+        descri += f" | {ent.char.stuff[0].emoji} {ent.char.stuff[1].emoji} {ent.char.stuff[2].emoji}"
+
+    skillTmp = ""
+    for a in ent.char.skills:
+        if type(a) == skill:
+            if skillTmp == "":
+                skillTmp = " |"
+            skillTmp += " {0}".format(a.emoji)
+
+    descri+=skillTmp
+    statsEm = discord.Embed(title = "__Statistiques de {0} {1}__".format(userIcon,unhyperlink(ent.name)),color=ent.char.color,description=descri)
+
+    precisePurcent,dodgePurcent,critPurcent = "-","-","-"
+    if stats.totalNumberShot > 0:
+        precisePurcent = str(round(stats.shootHited/stats.totalNumberShot*100)) +"%"
+        critPurcent = str(round(stats.crits/stats.totalNumberShot*100)) +"%"
+    if stats.numberAttacked > 0:
+        dodgePurcent = str(round(stats.dodge/stats.numberAttacked*100)) +"%"
+
+    statsCatNames = ["__Statistiques offensives <:sgladio2:968479144293855252> :__","<:empty:866459463568850954>\n__Statistiques défensives <:renfAv:989529323063107605> :__","<:empty:866459463568850954>\n__Statistiques de soutiens <:finalFloralR:956715234842791937>  :__","<:empty:866459463568850954>\n__Autres :__"]
+
+    allStatsTabl = [
+        {
+            "Dégâts totaux infligés":ent.stats.damageDeal,
+            "> - Dégâts indirects":ent.stats.indirectDamageDeal,
+            "> - Dégâts sous boost":ent.stats.underBoost,
+            "> - Dégâts sur armure":ent.stats.damageOnShield,
+            "Coups de grâce":ent.stats.ennemiKill,
+            "Précision":precisePurcent,
+            "Coups critiques":critPurcent
+        },
+        {
+            "Tours survécus":ent.stats.survival,
+            "Dégâts reçus":ent.stats.damageRecived,
+            "> - Dégâts réduits sur soi":int(ent.stats.damageResisted),
+            "> - Dégâts sur armure reçus":ent.stats.damageProtected,
+            "> - Dégâts bloqués":ent.stats.damageBlocks,
+            "Taux d'esquive":dodgePurcent,
+            "Taux de blocage":"{0}%".format(round(ent.stats.blockCount/max(ent.stats.numberAttacked,1)*100))
+        },
+        {
+            "{0} réamimés".format(["Combattants","Alliés"][not(ent.isNpc("Kiku"))]):ent.stats.allieResurected,
+            "Soins effectués":ent.stats.heals,
+            "Armures données":ent.stats.shieldGived,
+            "> - Dégâts protégés":ent.stats.armoredDamage,
+            "Points Supports":ent.stats.damageBoosted+ent.stats.damageDodged,
+            "> - Dégâts augmentés":ent.stats.damageBoosted,
+            "> - Dégâts réduits":ent.stats.damageDodged,
+            "> - Soins augmentés":ent.stats.healIncreased,
+            "> - Soins réduits":ent.stats.healReduced,
+            "Taux Critique (soins et armure)":"{0}%".format(round(ent.stats.critHeal/max(ent.stats.nbHeal,1)*100))
+        },
+        {
+            "Tours passés":ent.stats.turnSkipped,
+            "Dégâts sur soi-même":ent.stats.selfBurn,
+            "Invocation / Déployables invoqués":ent.stats.nbSummon,
+            "> - Dégâts (Invoc./Depl.)":ent.stats.summonDmg,
+            "> - Soins / Armures (Invoc./Depl.)":ent.stats.summonHeal
+        }
+    ]
+
+    for cmpt in range(len(statsCatNames)):
+        try:
+            catDict = allStatsTabl[cmpt]
+            tempDesc = ""
+            for catName, catValue in catDict.items():
+                if not(catName.startswith("> -")):
+                    tempDesc += "__{0}__ : {1}\n".format(catName,highlight(separeUnit(catValue)))
+                elif catValue > 0:
+                    tempDesc += "{0} : {1}\n".format(catName,highlight(separeUnit(catValue)))
+            statsEm.add_field(name=statsCatNames[cmpt],value=tempDesc,inline=False)
+        except:
+            print_exc()
+    statsEm.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
+    return statsEm

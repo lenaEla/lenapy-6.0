@@ -1,10 +1,9 @@
-```Mise à jour 3.3.5```
-__Equilibrage :__
-- __La Fin :__
-> - Dégâts contre armures augmentés à 135%
+```Mise à jour 4.P1.5.3```
+__Alliés Temporaires :__
+- __Kyrs / Anna / Belle :__
+> - Modification des compétences
 
-- __Akira :__
-> - Changement d'équipement
-
-- __Sixtine :__
-> - Changement d'arme
+__Autres :__
+- Ajout d'emojis pour indiquer la portée et la zone d'effet des compétences
+- Un rapide résumé de la compétence est désormais affichée dans les résultats d'un combat lorsque l'utilisateur principal obtiens une compétence en butin
+- Réduction de la probabilté d'obtenir un jeton de roulette en butin en fonction du pourcentage d'objets possédés

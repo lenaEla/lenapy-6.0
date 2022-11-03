@@ -30,6 +30,7 @@ from commands_files.command_procuration import *
 from commands_files.command_shop import *
 from commands_files.command_start import *
 from commands_files.sussess_endler import *
+from commands_files.cmd_twitch import *
 from data.bot_tokens import lenapy, shushipy
 from data.database import *
 from donnes import *
@@ -156,7 +157,7 @@ class shopClass:
 
 async def inventoryVerif(bot, toVerif: Union[char, str]):
     if type(toVerif) == str:
-        user = loadCharFile(absPath + "/userProfile/" + toVerif)
+        user = await loadCharFile(absPath + "/userProfile/" + toVerif)
     else:
         user = toVerif
     aliceStatsDb.addUser(user)
@@ -279,7 +280,7 @@ async def inventoryVerif(bot, toVerif: Union[char, str]):
             pass
 
     if user.level > 55:
-        user = loadCharFile(user=user)
+        user = await loadCharFile(user=user)
         user.level, user.exp = 55, 0
         user = restats(user)
 
@@ -342,7 +343,7 @@ def create_backup():
     Return a ``string`` with the path of the backup directory"""
     now = datetime.now()
     nowStr = now.strftime("%Y%m%d_%H%M")
-    path = "./data/backups/"+nowStr
+    path = "./data/backups/"+nowStr 
     try:
         os.mkdir(path)
     except:
@@ -425,7 +426,7 @@ async def remakeEmojis(ctx=None):
     cmpt = 0
 
     for num in allChar:
-        user = loadCharFile("./userProfile/"+num)
+        user = await loadCharFile("./userProfile/"+num)
         await makeCustomIcon(bot, user)
         cmpt += 1
 
@@ -454,7 +455,7 @@ async def verifEmojis(ctx=None):
     lenAllUser, progress = len(listAllUsersFiles), 0
     try:
         for path in listAllUsersFiles:
-            user, haveSucced = loadCharFile("./userProfile/"+path), False
+            user, haveSucced = await loadCharFile("./userProfile/"+path), False
             userIcon = await getUserIcon(bot, user)
             haveSucced = False
             for guildId in [ShushyCustomIcons, LenaCustomIcons][isLenapy]:
@@ -534,13 +535,17 @@ async def hourClock():
         await verifEmojis()
 
         for userPath in os.listdir("./userProfile/"):
-            user = loadCharFile('./userProfile/{0}'.format(userPath))
+            user = await loadCharFile('./userProfile/{0}'.format(userPath))
             aliceStatsDb.updateJetonsCount(user, max(0,9-(userShopPurcent(user)//10)))
         await restart_program(bot)
 
     # Skill Verif
     for filename in os.listdir("./userProfile/"):
         await inventoryVerif(bot, filename)
+
+@tasks.loop(seconds=5)
+async def twitchAlertLoop():
+    await verifStreamingStreamers(bot)
 
 # -------------------------------------------- ON READY --------------------------------------------
 @bot.event
@@ -572,24 +577,14 @@ async def on_ready():
         oneClock.start()
 
     teamWinDB.resetAllFightingStatus()
+    if not(twitchAlertLoop.is_running()):
+        twitchAlertLoop.start()
 
     print("\nDownloading the emojis for the custom icons...")
     await downloadAllHeadGearPng(bot)
     await downloadAllWeapPng(bot)
     await downloadAllIconPng(bot)
     await downloadElementIcon(bot)
-    print("Download complete\nVerefying the characters inventorys...")
-
-    if isLenapy:
-        for filename in os.listdir("./userProfile/"):
-            await inventoryVerif(bot, filename)
-
-        if os.path.exists("./userTeams/"):
-            for teamPath in os.listdir("./userTeams/"):
-                team = readSaveFiles("./userTeams/"+teamPath)[0]
-                userTeamDb.updateTeam(int(teamPath.replace(".team", "")), team)
-                os.remove("./userTeams/"+teamPath)
-            os.rmdir("./userTeams/")
 
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
@@ -607,18 +602,23 @@ async def on_ready():
 # ====================================================================================================
 #                                               COMMANDS
 # ====================================================================================================
+if isLenapy:
+    adminServ = [912137828614426704]
+else:
+    adminServ = [927195778013859902]
+
 
 # -------------------------------------------- ON MESSAGE --------------------------------------------
 @bot.event
 async def on_message(ctx: discord.message.Message):
     if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
-        user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
+        user = await loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
         await makeCustomIcon(bot, user)
         await ctx.reply(embed=discord.Embed(title="__Icone de personnage__", color=user.color).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot, user))["id"])))
 
     elif ctx.content.startswith("l!emoji") and ctx.author.id == 213027252953284609:
         try:
-            user = loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
+            user = await loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
             user.apparaAcc = user.apparaWeap = None
             tablStuff, user.showAcc = [
                 ironHelmet, batEarRings, batPendant, fecaShield, anakiMask, catEars], True
@@ -665,12 +665,13 @@ async def on_message(ctx: discord.message.Message):
         ]
     )
 ])
+
 async def comEncyclopedia(ctx, destination):
     if not(await botChannelVerif(bot, ctx)):
         return 0
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    user = loadCharFile(pathUserProfile)
+    user = await loadCharFile(pathUserProfile)
 
     await encylopedia(bot, ctx, destination, user)
 
@@ -689,7 +690,7 @@ async def normal(ctx):
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     try:
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
     except:
         await ctx.send("Vous n'avez pas commencé l'aventure", delete_after=10)
         return 0
@@ -769,9 +770,11 @@ async def normal(ctx):
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
+            team1 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
+
+    teamSettings = aliceStatsDb.getTeamSettings(team1[0])
 
     # Random event
     if msg == None:
@@ -782,79 +785,86 @@ async def normal(ctx):
     fun, teamLvl, starLvl = random.randint(0, 99), 0, 0
     for ent in team1:
         teamLvl = max(ent.level,teamLvl)
-        starLvl = max(ent.stars,starLvl)    
+        starLvl = max(ent.stars,starLvl)
 
     if fun < 0:                # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
         temp.changeLevel(50)
         await fight(bot, [temp], [], ctx, False, procurFight=True, msg=msg)
 
-    elif fun < 1:              # All OctoHeals ! Yes, it's for you H
+    elif fun < 10:              # All OctoHeals ! Yes, it's for you H
         temp = team1
         temp.sort(key=lambda overheal: overheal.level, reverse=True)
         maxLvl = temp[0].level
 
-        team2 = []
-        lenBoucle = 8
-        cmpt = 0
+        tablPreDefTeam = ["OctoHeal","Temmie","OctoBooms","Kitsunes","Aéro-Bennes"]
+        roll = random.randint(0,len(tablPreDefTeam)-1)
+        fightCtx = fightContext()
+        #roll = 3
+        
+        if roll == 0:
+            team2, lenBoucle, cmpt = [],8,0
+            octoHealVet = findEnnemi("Octo Soigneur Vétéran")
+            octoHeal = findEnnemi("Octo Soigneur")
 
-        octoHealVet = findEnnemi("Octo Soigneur Vétéran")
-        octoHeal = findEnnemi("Octo Soigneur")
+            if maxLvl < octoHealVet.baseLvl:
+                alea = copy.deepcopy(octoHeal)
+            else:
+                alea = copy.deepcopy(octoHealVet)
 
-        if maxLvl < octoHealVet.baseLvl:
-            alea = copy.deepcopy(octoHeal)
-        else:
-            alea = copy.deepcopy(octoHealVet)
+            alea.changeLevel(maxLvl)
+            while cmpt < lenBoucle:
+                team2.append(alea)
+                cmpt += 1
+        elif roll == 1:
+            team2, lenBoucle, cmpt = [],8,1
 
-        alea.changeLevel(maxLvl)
-        alea.charisma = alea.charisma//2
-
-        while cmpt < lenBoucle:
+            alea = copy.deepcopy(findEnnemi("Bob"))
+            alea.changeLevel(maxLvl)
+            alea.magie = alea.magie // 2
             team2.append(alea)
-            cmpt += 1
+            
+            alea = copy.deepcopy(findEnnemi("Temmie"))
+            alea.changeLevel(maxLvl)
 
-        await fight(bot, team1, team2, ctx, False, msg=msg)
+            while cmpt < lenBoucle:
+                team2.append(alea)
+                cmpt += 1
+        elif roll == 2:
+            team2, lenBoucle, cmpt = [],8,1
+            alea = copy.deepcopy(findEnnemi("OctoBOUM"))
+            alea.changeLevel(maxLvl)
+            alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCast, None, None, None, None, None, None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
 
-    elif fun < 2:              # All Temmies
-        temp = team1
-        temp.sort(key=lambda overheal: overheal.level, reverse=True)
-        maxLvl = temp[0].level
+            while cmpt < lenBoucle:
+                team2.append(alea)
+                cmpt += 1
+        elif roll == 3:
+            team2 = [copy.deepcopy(findEnnemi("Lia")),copy.deepcopy(findEnnemi("Liu")),copy.deepcopy(findEnnemi("Liz")),copy.deepcopy(findEnnemi("Lio"))]
+            for cmpt in range(len(team2)):
+                team2[cmpt].changeLevel(maxLvl)
 
-        team2 = []
-        lenBoucle = 8
-        cmpt = 0
+            kitFightConstEff = copy.deepcopy(constEff)
+            kitFightConstEff.power, kitFightConstEff.stat, kitFightConstEff.turnInit, kitFightConstEff.unclearable = 35, PURCENTAGE, -1, True
+            kitFightDmgUp = copy.deepcopy(dmgUp)
+            kitFightDmgUp.power, kitFightDmgUp.turnInit, kitFightDmgUp.unclearable = 35, -1, True
+            kitFightHealUp = copy.deepcopy(healDoneBonus)
+            kitFightHealUp.power, kitFightHealUp.turnInit, kitFightHealUp.unclearable = 35, -1, True
 
-        alea = copy.deepcopy(findEnnemi("Temmie"))
-        alea.changeLevel(maxLvl)
-        alea.magie = alea.magie // 3
+            fightCtx.giveEffToTeam2 = [kitFightDmgUp, kitFightHealUp, kitFightConstEff]
+        elif roll == 4:
+            team2, lenBoucle, cmpt = [],8,1
 
-        while cmpt < lenBoucle:
-            team2.append(alea)
-            cmpt += 1
+            alea = copy.deepcopy(findEnnemi("Aéro-benne"))
+            alea.changeLevel(maxLvl)
 
-        await fight(bot, team1, team2, ctx, False, msg=msg)
+            while cmpt < lenBoucle:
+                team2.append(alea)
+                cmpt += 1
+        
+        await fight(bot, team1, team2, ctx, False, contexte=fightCtx, msg=msg, teamSettings=teamSettings)
 
-    elif fun < 3:              # BOUM BOUM BOUM BOUM
-        temp = team1
-        temp.sort(key=lambda overheal: overheal.level, reverse=True)
-        maxLvl = temp[0].level
-
-        team2 = []
-        lenBoucle = 8
-        cmpt = 0
-
-        alea = copy.deepcopy(findEnnemi("OctoBOUM"))
-        alea.skills, alea.weapon, alea.magie, alea.exp = [
-            totalAnnilCastSkill0, None, None, None, None, None, None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
-        alea.changeLevel(maxLvl)
-
-        while cmpt < lenBoucle:
-            team2.append(alea)
-            cmpt += 1
-
-        await fight(bot, team1, team2, ctx, False, msg=msg)
-
-    elif fun < 10 and teamLvl >= 25:             # Raid
+    elif fun < 20 and teamLvl >= 25:             # Raid
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
             if user.team not in ["0",0]:
@@ -872,7 +882,7 @@ async def normal(ctx):
                 tempTeam, moyTempTeam = [], 0
                 for a in userTeamDb.getTeamMember(tempTeamId):
                     if a not in allReadySeen:
-                        tempUser = loadCharFile(
+                        tempUser = await loadCharFile(
                             "./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
@@ -891,15 +901,15 @@ async def normal(ctx):
             alea.changeLevel(maxLvl)
             team2.append(alea)
 
-            await fight(bot, team1, team2, ctx, False, bigMap=True, msg=msg)
+            await fight(bot, team1, team2, ctx, False, bigMap=True, msg=msg, teamSettings=teamSettings)
         except:
             await msg.edit(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
 
-    elif fun < 20:              # Procu Fight
+    elif fun < 30:              # Procu Fight
         level = team1[0].level
         team1, team2, randomRoll = [], [], random.randint(0, 99)
-        if randomRoll < 50: # ClemClem
+        if randomRoll < 35: # ClemClem
             procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             level += random.randint(0, 100)
@@ -912,7 +922,7 @@ async def normal(ctx):
 
             team1.append(ent)
 
-        elif randomRoll < 100:  # Luna
+        elif randomRoll < 65:  # Luna
             ent = copy.deepcopy(findAllie("Luna prê."))
             procurData = procurTempStuff["Luna prê."]
             level += random.randint(0, 50)
@@ -921,7 +931,7 @@ async def normal(ctx):
             ent.stuff = [
                 stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
                 stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2]),
-                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2])
+                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[3][2])
             ]
 
             team1.append(ent)
@@ -934,7 +944,7 @@ async def normal(ctx):
                 ent2.stuff = [
                     stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[1][2]),
                     stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[2][2]),
-                    stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[2][2])
+                    stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent2.level),int(procurData[4][1][0]*procurData[4][1][1]*ent2.level),int(procurData[4][2][0]*procurData[4][2][1]*ent2.level),int(procurData[4][3][0]*procurData[4][3][1]*ent2.level),int(procurData[4][4][0]*procurData[4][4][1]*ent2.level),int(procurData[4][5][0]*procurData[4][5][1]*ent2.level),int(procurData[4][6][0]*procurData[4][6][1]*ent2.level),int(procurData[4][7][0]*procurData[4][7][1]*ent2.level),int(procurData[4][8][0]*procurData[4][8][1]*ent2.level),int(procurData[4][9][0]*procurData[4][9][1]*ent2.level),emoji=procurData[3][2])
                 ]
                 
                 team1.append(ent2)
@@ -952,11 +962,20 @@ async def normal(ctx):
                     cmpt += 1
 
         else:
-            procurShushiWeapEff = effect("Ténèbres déphasés", "procurShushiWeapEff", MAGIE, power=50,area=AREA_CIRCLE_1, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_END_OF_TURN)
-            procurShushiWeap = weapon("Rapière magique", "procurShushiWeap", RANGE_MELEE, AREA_CIRCLE_3, 50, 80, magie=20, endurance=20, resistance=20, area=AREA_ARC_2, effectOnUse=procurShushiWeapEff)
+            procurData = procurTempStuff["Lia Ex"]
+            ent = copy.deepcopy(findAllie("Lia Ex"))
+            level += random.randint(0, 50)
+            ent.changeLevel(level,stars=starLvl)
+            ent.stuff = [
+                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
+                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[2][2]),
+                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[3][2])
+            ]
+
+            team1.append(ent)
 
         try:
-            await fight(bot, team1, team2, ctx, False, procurFight=True, msg=msg)
+            await fight(bot, team1, team2, ctx, False, procurFight=True, msg=msg, teamSettings=teamSettings)
         except:
             if msg == None:
                 await ctx.send(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
@@ -965,7 +984,7 @@ async def normal(ctx):
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
 
     else:
-        await fight(bot, team1, [], ctx, False, msg=msg)
+        await fight(bot, team1, [], ctx, False, msg=msg, teamSettings=teamSettings)
 
 # quick fight
 @slash.subcommand(base="fight", name="quick", description="Vous permet de faire un combat en sautant directement à la fin")
@@ -973,13 +992,13 @@ async def comQuickFight(ctx):
     msg = None
     if not(await botChannelVerif(bot, ctx)):
         return 0
-    if not(globalVar.fightEnabled()):
+    if not(globalVar.fightEnabled()) and int(ctx.author_id) != 213027252953284609:
         await ctx.send(embed=discord.Embed(title="__Combats désactivés__", description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"), delete_after=10)
         return 0
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     try:
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
     except:
         await ctx.send("Vous n'avez pas commencé l'aventure", delete_after=10)
         return 0
@@ -1033,9 +1052,11 @@ async def comQuickFight(ctx):
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
+            team1 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
+
+    teamSettings = aliceStatsDb.getTeamSettings(team1[0])
 
     if msg == None:
         try:
@@ -1068,7 +1089,7 @@ async def comQuickFight(ctx):
                 tempTeam, moyTempTeam = [], 0
                 for a in userTeamDb.getTeamMember(tempTeamId):
                     if a not in allReadySeen:
-                        tempUser = loadCharFile(
+                        tempUser = await loadCharFile(
                             "./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
@@ -1088,16 +1109,15 @@ async def comQuickFight(ctx):
             alea.changeLevel(maxLvl)
             team2.append(alea)
 
-            await fight(bot, team1, team2, ctx, True, bigMap=True, msg=msg)
+            await fight(bot, team1, team2, ctx, True, bigMap=True, msg=msg, teamSettings=teamSettings)
         except:
             await msg.edit(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
-
     else:
-        await fight(bot, team1, [], ctx, msg= msg)
+        await fight(bot, team1, [], ctx, msg= msg, teamSettings = teamSettings)
 
 # octogone fight
-@slash.subcommand(base="fight", subcommand_group="octogone", name="solo", description="Affrontez quelqu'un en 1v1 Gare Du Nord !", options=[
+@slash.subcommand(base="octogone", name="solo", description="Affrontez quelqu'un en 1v1 Gare Du Nord !", options=[
     create_option("versus", "Affronter qui ?", 6, required=True)
 ])
 async def octogone(ctx, versus):
@@ -1109,10 +1129,10 @@ async def octogone(ctx, versus):
         return 0
 
     if os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof"):
-        await fight(bot, [loadCharFile(pathUserProfile)], [loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")], ctx, auto=False, octogone=True)
+        await fight(bot, [await loadCharFile(pathUserProfile)], [await loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")], ctx, auto=False, octogone=True)
 
     elif versus.id in [623211750832996354, 769999212422234122]:
-        temp = loadCharFile(pathUserProfile)
+        temp = await loadCharFile(pathUserProfile)
         tempi = tablAllAllies[0]
         tempi.changeLevel(50)
         await fight(bot, [temp], [tempi], ctx, auto=False, octogone=True)
@@ -1121,7 +1141,7 @@ async def octogone(ctx, versus):
         await ctx.send("La personne que tu as désigné ne possède pas de personnage désolé", delete_after=15)
 
 # team fight
-@slash.subcommand(base="fight", subcommand_group="octogone", name="team", description="Affrontez l'équipe de quelqu'un avec la votre", options=[
+@slash.subcommand(base="octogone", name="team", description="Affrontez l'équipe de quelqu'un avec la votre", options=[
     create_option("versus", "Affronter qui ?", 6, required=True)
 ])
 async def teamFight(ctx, versus):
@@ -1131,11 +1151,11 @@ async def teamFight(ctx, versus):
     if not(os.path.exists(pathUserProfile)):
         await ctx.send("Vous ne possédez pas de personnage.\nAllez donc faire un tour vers /start", delete_after=15)
         return 0
-    user = loadCharFile(pathUserProfile)
+    user = await loadCharFile(pathUserProfile)
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
+            team1 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
@@ -1146,10 +1166,10 @@ async def teamFight(ctx, versus):
         return 0
 
     if versus.id not in [623211750832996354, 769999212422234122]:
-        octogoned = loadCharFile(pathOctogonedProfile, ctx)
+        octogoned = await loadCharFile(pathOctogonedProfile, ctx)
         if octogoned.team != 0:
             for a in userTeamDb.getTeamMember(user.team):
-                team2 += [loadCharFile("./userProfile/{0}.prof".format(a))]
+                team2 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
         else:
             team2 = [octogoned]
     else:
@@ -1167,11 +1187,11 @@ async def teamFight(ctx, versus):
 async def cooldowns(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
         involvedTeam, involvedEmoji = [[user.team,user.owner][user.team==0]], [await getUserIcon(bot,user)]
 
         for procur in user.haveProcurOn:
-            usr = loadCharFile("./userProfile/{0}.prof".format(procur))
+            usr = await loadCharFile("./userProfile/{0}.prof".format(procur))
             if usr.team not in involvedTeam or usr.team == 0:
                 involvedTeam.append([usr.team,user.owner][usr.team==0])
                 involvedEmoji.append(await getUserIcon(bot,usr))
@@ -1287,9 +1307,9 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
             break
 
     if procuration != None:
-        user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
+        user = await loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
     else:
-        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+        user = await loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
 
     if nom != None:
         nom = nom.replace("_", " ")
@@ -1441,14 +1461,14 @@ async def teamView(ctx, joueur=None):
     pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
 
     if os.path.exists(pathUserProfile):
-        user, extended = loadCharFile(pathUserProfile), False
+        user, extended = await loadCharFile(pathUserProfile), False
         msg = await loadingSlashEmbed(ctx)
         if user.team == 0:
             teamMates = [user]
         else:
             teamMates = []
             for usr in userTeamDb.getTeamMember(user.team):
-                teamMates.append(loadCharFile(
+                teamMates.append(await loadCharFile(
                     path="./userProfile/{0}.prof".format(usr)))
 
         def checky(m):
@@ -1506,7 +1526,7 @@ async def teamAdd(ctx, joueur):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
 
         msg = await loadingSlashEmbed(ctx)
 
@@ -1530,7 +1550,7 @@ async def teamAdd(ctx, joueur):
         if noneCap and not(selfAdd):
             mention = joueur
             if os.path.exists(absPath + "/userProfile/" + str(mention.id) + ".prof"):
-                allReadyinTeam, allReadyInThatTeam, mate = False, False, loadCharFile(
+                allReadyinTeam, allReadyInThatTeam, mate = False, False, await loadCharFile(
                     absPath + "/userProfile/" + str(mention.id) + ".prof")
                 if mate.team != 0:
                     allReadyinTeam = True
@@ -1580,7 +1600,7 @@ async def teamQuit(ctx):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
 
     if user.team != 0:
         team = userTeamDb.getTeamMember(user.team)
@@ -1600,13 +1620,13 @@ async def teamFact(ctx):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
 
     teamUser = []
 
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            teamUser.append(loadCharFile(
+            teamUser.append(await loadCharFile(
                 absPath + "/userProfile/" + str(a) + ".prof"))
 
     else:
@@ -1629,6 +1649,58 @@ async def teamFact(ctx):
             await msg.edit(embed=embed, components=[])
             break
 
+# team settings
+"""@slash.subcommand(base="team", name="settings", description="Permet de modifier des paramètres d'équipes")
+async def teamSetFunction(ctx):
+    if not(await botChannelVerif(bot, ctx)):
+        return 0
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    if os.path.exists(pathUserProfile):
+        user = await loadCharFile(pathUserProfile)
+    team, msg = userTeamDb.getTeamMember(user.team), None
+    teamSet = aliceStatsDb.getTeamSettings(user)
+
+    if teamSet["teamLeader"] == None:
+        buttons = create_actionrow(create_button(ButtonStyle.green,"Devenir Chef d'équipe",emoji.check,"becomeTeamLead"),create_button(ButtonStyle.gray,"Passer son tour",emoji.cross,"pass"))
+        msg = await ctx.send(embed=discord.Embed(title="__Paramètres d'équipe__",color=user.color,description="Votre équipe ne possède pas encore de chef d'équipe.\nVoulez vous, {0} {1}, vous auto-proclamer comme chef d'équipe ?".format(await getUserIcon(bot,user),user.name)),components=[buttons])
+        def check(m):
+            return m.author_id == ctx.author_id
+        
+        try:
+            rep = await wait_for_component(bot,msg,buttons,check,30)
+            rep = rep.custom_id
+        except:
+            rep = "pass"
+        
+        if rep == "becomeTeamLead":
+            teamSet["teamLeader"] = user.owner
+            if aliceStatsDb.updateTeamSettings(user,teamSet):
+                await msg.edit(embed=discord.Embed(title="__Paramètres d'équipe__",description="Vous êtes désormais le chef de votre équipe",color=user.color),components=[])
+                await asyncio.sleep(3)
+    
+    leader = None
+    for ent in team:
+        if ent == teamSet["teamLeader"]:
+            leader = await loadCharFile(absPath + "/userProfile/" + str(ent) + ".prof")
+            break
+    repEmb = discord.Embed(title="__Equipe {0}__".format(teamSet["teamName"]),color=user.color)
+    baseInfo = "__ID. :__ {0}\n__Chef :__ {1}{2}\n__Capitaine :__ ".format(leader.team,await getUserIcon(bot,leader),leader.name)
+    if teamSet["teamCaptain"] != None:
+        baseInfo += "{0} {1}".format(capSkills[teamSet["teamCaptain"]]["icon"],capSkills[teamSet["teamCaptain"]]["name"])
+        tablCapExp = [teamSet["teamCapLenaExp"],teamSet["teamCapClemenceExp"],teamSet["teamCapHeleneExp"],teamSet["teamCapShehisaExp"],teamSet["teamCapLiuExp"],teamSet["teamCapEdelweissExp"],teamSet["teamCapElinaExp"],teamSet["teamCapIcealiaExp"]]
+        lvl = int(tablCapExp[teamSet["teamCaptain"]]>=CAP_EXP_LVL2) + int(tablCapExp[teamSet["teamCaptain"]]>=CAP_EXP_LVL3)
+        baseInfo += "\n> {0}".format(capSkills[teamSet["teamCaptain"]]["desc"].format(capSkills[teamSet["teamCaptain"]]["lvlValue1"][lvl],capSkills[teamSet["teamCaptain"]]["lvlValue2"][lvl]).replace("\n","\n> "))
+        baseInfo += "\n__Expérience du capitaine :__ {0}/{1}".format(["MAX",tablCapExp[teamSet["teamCaptain"]]][tablCapExp[teamSet["teamCaptain"]] < CAP_EXP_LVL2],[CAP_EXP_LVL2,CAP_EXP_LVL3,CAP_EXP_LVL3][lvl])
+    else:
+        baseInfo += "-\n__Expériance du capitaine :__ -"
+
+    repEmb.add_field(name="__Résumé :__",value=baseInfo)
+
+    if msg == None:
+        msg = await ctx.send(embed=repEmb)
+    else:
+        await msg.edit(embed=repEmb)
+"""
 # -------------------------------------------- HELP --------------------------------------------
 @slash.slash(name="help", description="Ouvre la page d'aide du bot")
 async def helpCom(ctx):
@@ -1656,7 +1728,7 @@ async def statsCmd(ctx, joueur=None):
 
     if os.path.exists(pathUserProfile):
         msg = await loadingSlashEmbed(ctx)
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
 
         userIcon = await getUserIcon(bot, user)
 
@@ -1924,12 +1996,6 @@ async def chooseCmd(ctx, choix1, choix2, choix3=None, choix4=None, choix5=None):
     await ctx.send(embed=discord.Embed(title="/choose", color=light_blue, description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0, len(randChooseMsg)-1)], selected)))
 
 # -------------------------------------------- ADMIN --------------------------------------------
-if isLenapy:
-    adminServ = [912137828614426704]
-else:
-    adminServ = [927195778013859902]
-
-
 @slash.subcommand(base="admin", name="enable_Fight", guild_ids=adminServ, description="Permet d'activer les combats ou non", options=[
     create_option("valeur", "Activer ou désaciver les combats",
                   SlashCommandOptionType.BOOLEAN, False)
@@ -2031,7 +2097,7 @@ async def resetCustomEmoji(ctx):
 
     await refresh("Création des émojis...")
     for num in allChar:
-        user = loadCharFile("./userProfile/"+num)
+        user = await loadCharFile("./userProfile/"+num)
         await getUserIcon(bot, user)
         cmpt += 1
 
@@ -2065,7 +2131,7 @@ async def silentRestatForEveryone(ctx):
     msg = await ctx.send(embed=discord.Embed(title="__/admin stat silentRestallAll__", color=light_blue, description="Restats en cours..."))
     try:
         for fileName in os.listdir("./userProfile/"):
-            user = loadCharFile("./userProfile/"+fileName)
+            user = await loadCharFile("./userProfile/"+fileName)
             user = silentRestats(user)
             saveCharFile(user=user)
         await msg.edit(embed=discord.Embed(title="__/admin stat silentRestallAll__", color=light_blue, description="Tous les utilisateurs ont été restats 👍"))
@@ -2094,7 +2160,7 @@ else:
 async def kikimeterCmd(ctx, what):
     listAllChars = []
     for text in os.listdir("./userProfile/"):
-        listAllChars.append(loadCharFile("./userProfile/" + text))
+        listAllChars.append(await loadCharFile("./userProfile/" + text))
 
     for cmpt in range(len(listAllChars)):
         temp = aliceStatsDb.getUserStats(listAllChars[cmpt], "all")
@@ -2134,9 +2200,9 @@ async def iconCommand(ctx, utilisateur=None):
         return 0
     try:
         if utilisateur == None:
-            user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+            user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
         else:
-            user = loadCharFile(
+            user = await loadCharFile(
                 "./userProfile/{0}.prof".format(utilisateur.id))
     except:
         if utilisateur == None:
@@ -2158,7 +2224,7 @@ async def rouletteSlash(ctx):
     if not(await botChannelVerif(bot, ctx)):
         return 0
     try:
-        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+        user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
     except:
         await ctx.send(embed=discord.Embed(title="__Commande de l'Aventure :__", description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"), delete_after=15)
         return 0
@@ -2219,7 +2285,7 @@ async def prestigeCmd(ctx):
     if not(await botChannelVerif(bot, ctx)):
         return 0
     try:
-        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+        user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
     except:
         await ctx.send("Vous n'avez même pas encore commencé l'aventure et vous voulez déjà prestige ?", delete_after=15)
         return 0
@@ -2242,7 +2308,7 @@ async def prestigeCmd(ctx):
         await msg.edit(embed=embed, components=[])
         return 0
 
-    user = loadCharFile(user=user)
+    user = await loadCharFile(user=user)
     user.level, user.exp, user.stars = 1, 0, user.stars+1
     user = restats(user)
 
@@ -2267,7 +2333,7 @@ async def setChannel(ctx: discord_slash.SlashContext, salon: discord.TextChannel
 # ------------------------------------------- VERIF ------------------------------------------------
 @slash.slash(name="verif_user", description="Permet de voir toutes les informations d'un personnage", guild_ids=adminServ, options=[create_option("identifiant", "L'identifiant de l'utilisateur", SlashCommandOptionType.STRING, True)])
 async def verifuser(ctx, identifiant):
-    user = loadCharFile("./userProfile/{0}.prof".format(identifiant))
+    user = await loadCharFile("./userProfile/{0}.prof".format(identifiant))
     await ctx.send(embed=await seeAllInfo(bot, user))
 
 @slash.slash(name="verif_team", guild_ids=adminServ)
@@ -2285,7 +2351,7 @@ async def verifTeams(ctx):
 
         tmpTeamMembers = teamMembers[:]
         for ids in teamMembers:
-            user = loadCharFile(path="./userProfile/{0}.prof".format(ids))
+            user = await loadCharFile(path="./userProfile/{0}.prof".format(ids))
             if user.owner in allReadySeen:
                 warn = "~~"
                 if getUserMainTeam(user) != team:
@@ -2337,7 +2403,7 @@ async def emojiVerficition(ctx):
     lenAllUser, progress = len(listAllUsersFiles), 0
     try:
         for path in listAllUsersFiles:
-            user, haveSucced = loadCharFile("./userProfile/"+path), False
+            user, haveSucced = await loadCharFile("./userProfile/"+path), False
             userIcon = await getUserIcon(bot, user)
             haveSucced = False
             for guildId in [ShushyCustomIcons, LenaCustomIcons][isLenapy]:
@@ -2366,9 +2432,10 @@ async def emojiVerficition(ctx):
     except:
         await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
 
+# ------------------------------------------ CHAR SETTINGS ----------------------------------------
 @slash.slash(name="char_settings", description="Permet de modifier les paramètres de son icone de personnage")
 async def char_settings(ctx):
-    user = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+    user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
     await userSettings(bot, user, ctx)
 
 # ======================= Limit Breaks ================================
@@ -2377,7 +2444,7 @@ async def limitBreak(ctx,procuration:discord.Member=None):
     if not(await botChannelVerif(bot, ctx)):
         return 0
     try:
-        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+        user = await loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
     except:
         await ctx.send("Vous n'avez pas encore de personnage.\nVous pouvez vous en créer un à l'aide de la commande /start",delete_after=15)
         return 0
@@ -2387,7 +2454,7 @@ async def limitBreak(ctx,procuration:discord.Member=None):
             await ctx.send("{0} ne vous a pas donné procuration sur son personnage".format(procuration.nick),delete_after=15)
             return 0
         else:
-            user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
+            user = await loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
 
     if user.level < 40 and user.stars <= 0:
         hasSkillUpdated, lvl = True, user.level - 5
@@ -2419,10 +2486,14 @@ async def limitBreak(ctx,procuration:discord.Member=None):
         return 0
     await breakTheLimits(bot, ctx, user)
 
+# ------------------------------------------ STREAM ----------------------------------------
+@slash.slash(name="twitch_alerts",description="Permet de gérer les alertes streams")
+async def lenaTwitchAlerte(ctx):
+    await streamSettingsFunction(bot,ctx.guild,ctx)
 
 @slash.slash(name="Test", guild_ids=adminServ)
 async def expeditionTest(ctx):
-    user, chan = loadCharFile(
+    user, chan = await loadCharFile(
         "./userProfile/{0}.prof".format(ctx.author.id)), ctx.channel
     listEmbed = await generateExpeditionReport(bot, [user], user, datetime.now(), ctx)
     for a in listEmbed:
@@ -2431,15 +2502,23 @@ async def expeditionTest(ctx):
 @slash.slash(name="area_test",guild_ids=adminServ)
 async def areaTest(ctx):
     first = True
-    for area in [AREA_CONE_3,AREA_LINE_3,AREA_ARC_1]:
+    for area in [AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7,]:
         emb = discord.Embed(title=areaNames[area],color=light_blue)
-        for cmpt in (0,1,2,3):
-            emb.add_field(name=["__From Left__","__From Right__","__From Up__","__From Down__"][cmpt],value=visuArea(area,ENEMIES,False,cmpt),inline=False)
-        if first:
-            await ctx.send(embed=emb)
-            first = False
+        if area not in notOrientedAreas:
+            for cmpt in (0,1,2,3):
+                emb.add_field(name=["__From Left__","__From Right__","__From Up__","__From Down__"][cmpt],value=visuArea(area,ENEMIES,False,cmpt),inline=False)
+            if first:
+                await ctx.send(embed=emb)
+                first = False
+            else:
+                await ctx.channel.send(embed=emb)
         else:
-            await ctx.channel.send(embed=emb)
+            emb.add_field(name=areaNames[area],value=visuArea(area,ENEMIES,True),inline=False)
+            if first:
+                await ctx.send(embed=emb)
+                first = False
+            else:
+                await ctx.channel.send(embed=emb)
             
 ###########################################################
 # Démarrage du bot

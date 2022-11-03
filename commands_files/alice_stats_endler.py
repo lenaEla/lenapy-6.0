@@ -332,11 +332,237 @@ maj4 = """PRAGMA foreign_keys = 0;
 
     PRAGMA foreign_keys = 1;
 """
+majTeamDb = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM userTeams;
+
+    DROP TABLE userTeams;
+
+    CREATE TABLE userTeams (
+        teamId            INTEGER PRIMARY KEY
+                                NOT NULL
+                                UNIQUE,
+        teamMember0       INTEGER DEFAULT 0,
+        teamMember1       INTEGER DEFAULT 0,
+        teamMember2       INTEGER DEFAULT 0,
+        teamMember3       INTEGER DEFAULT 0,
+        teamMember4       INTEGER DEFAULT 0,
+        teamMember5       INTEGER DEFAULT 0,
+        teamMember6       INTEGER DEFAULT 0,
+        teamMember7       INTEGER DEFAULT 0,
+        teamLeader        INTEGER,
+        settingsAllyIcon  INTEGER DEFAULT (0),
+        settingsEnemyIcon INTEGER DEFAULT (0) 
+    );
+
+    INSERT INTO userTeams (
+                            teamId,
+                            teamMember0,
+                            teamMember1,
+                            teamMember2,
+                            teamMember3,
+                            teamMember4,
+                            teamMember5,
+                            teamMember6,
+                            teamMember7
+                        )
+                        SELECT teamId,
+                                teamMember0,
+                                teamMember1,
+                                teamMember2,
+                                teamMember3,
+                                teamMember4,
+                                teamMember5,
+                                teamMember6,
+                                teamMember7
+                            FROM sqlitestudio_temp_table;
+
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;
+"""
+
+majTeamDb2 = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM userTeams;
+
+    DROP TABLE userTeams;
+
+    CREATE TABLE userTeams (
+        teamId            INTEGER PRIMARY KEY
+                                NOT NULL
+                                UNIQUE,
+        teamMember0       INTEGER DEFAULT 0,
+        teamMember1       INTEGER DEFAULT 0,
+        teamMember2       INTEGER DEFAULT 0,
+        teamMember3       INTEGER DEFAULT 0,
+        teamMember4       INTEGER DEFAULT 0,
+        teamMember5       INTEGER DEFAULT 0,
+        teamMember6       INTEGER DEFAULT 0,
+        teamMember7       INTEGER DEFAULT 0,
+        teamLeader        INTEGER,
+        settingsAllyIcon  INTEGER DEFAULT (0),
+        settingsEnemyIcon INTEGER DEFAULT (0),
+        teamName          STRING,
+        teamCaptain       INTEGER,
+        teamCapLenaExp    INTEGER DEFAULT ( 0),
+        teamCapClemenceExp    INTEGER DEFAULT ( 0),
+        teamCapHeleneExp    INTEGER DEFAULT ( 0),
+        teamCapShehisaExp    INTEGER DEFAULT ( 0),
+        teamCapLiuExp    INTEGER DEFAULT ( 0),
+        teamCapEdelweissExp    INTEGER DEFAULT ( 0),
+        teamCapElinaExp    INTEGER DEFAULT ( 0),
+        teamCapIcealiaExp    INTEGER DEFAULT ( 0)
+    );
+
+    INSERT INTO userTeams (
+                            teamId,
+                            teamMember0,
+                            teamMember1,
+                            teamMember2,
+                            teamMember3,
+                            teamMember4,
+                            teamMember5,
+                            teamMember6,
+                            teamMember7,
+                            teamLeader,
+                            settingsAllyIcon,
+                            settingsEnemyIcon
+                        )
+                        SELECT teamId,
+                                teamMember0,
+                                teamMember1,
+                                teamMember2,
+                                teamMember3,
+                                teamMember4,
+                                teamMember5,
+                                teamMember6,
+                                teamMember7,
+                                teamLeader,
+                                settingsAllyIcon,
+                                settingsEnemyIcon
+                            FROM sqlitestudio_temp_table;
+
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;
+
+    """
+
+userSettingsDbUptade = """
+    PRAGMA foreign_keys = 0;
+
+    CREATE TABLE sqlitestudio_temp_table AS SELECT *
+                                            FROM userSettings;
+
+    DROP TABLE userSettings;
+
+    CREATE TABLE userSettings (
+        userId              INTEGER PRIMARY KEY
+                                    NOT NULL
+                                    UNIQUE,
+        start,
+        ultimate,
+        limiteBreak,
+        onKill,
+        onDeath,
+        onResurect,
+        blueWinAlive,
+        blueWinDead,
+        blueLoose,
+        redWinAlive,
+        redWinDead,
+        redLoose,
+        blockBigAttack,
+        reactBigRaiseAllie,
+        reactBigRaiseEnnemy,
+        bigRaise,
+        reactEnnemyKilled,
+        reactAllyKilled,
+        hand                INTEGER DEFAULT 1,
+        affElem             BOOLEAN DEFAULT 1,
+        affAcc              BOOLEAN DEFAULT 1,
+        affWeap             BOOLEAN DEFAULT (1),
+        lastDay             STRING  DEFAULT ('0000'),
+        weaponUse           INTEGER DEFAULT (1),
+        dmgSkillUse           INTEGER DEFAULT (1),
+        healSkillUse           INTEGER DEFAULT (1),
+        armorSkillUse           INTEGER DEFAULT (1),
+        buffSkillUse           INTEGER DEFAULT (1),
+        debuffSkillUse           INTEGER DEFAULT (1),
+        summonSkillUse           INTEGER DEFAULT (1),
+        offTarget           INTEGER DEFAULT (0),
+        healTarget           INTEGER DEFAULT (0),
+        armorTarget           INTEGER DEFAULT (0),
+        buffTarget           INTEGER DEFAULT (0),
+        raiseTarget         INTERGER DEFAULT (0)
+    );
+
+    INSERT INTO userSettings (
+                                userId,
+                                start,
+                                ultimate,
+                                limiteBreak,
+                                onKill,
+                                onDeath,
+                                onResurect,
+                                blueWinAlive,
+                                blueWinDead,
+                                blueLoose,
+                                redWinAlive,
+                                redWinDead,
+                                redLoose,
+                                blockBigAttack,
+                                reactBigRaiseAllie,
+                                reactBigRaiseEnnemy,
+                                bigRaise,
+                                reactEnnemyKilled,
+                                reactAllyKilled,
+                                hand,
+                                affElem,
+                                affAcc,
+                                affWeap,
+                                lastDay
+                            )
+                            SELECT userId,
+                                    start,
+                                    ultimate,
+                                    limiteBreak,
+                                    onKill,
+                                    onDeath,
+                                    onResurect,
+                                    blueWinAlive,
+                                    blueWinDead,
+                                    blueLoose,
+                                    redWinAlive,
+                                    redWinDead,
+                                    redLoose,
+                                    blockBigAttack,
+                                    reactBigRaiseAllie,
+                                    reactBigRaiseEnnemy,
+                                    bigRaise,
+                                    reactEnnemyKilled,
+                                    reactAllyKilled,
+                                    hand,
+                                    affElem,
+                                    affAcc,
+                                    affWeap,
+                                    lastDay
+                            FROM sqlitestudio_temp_table;
+
+    DROP TABLE sqlitestudio_temp_table;
+
+    PRAGMA foreign_keys = 1;"""
+
 class aliceStatsdbEndler:
     """This database keeps the user's fighting stats and their progress in the main adventure"""
     def __init__(self):
         """Update the database, if needed"""
-        self.con = sqlite3.connect(f"./data/database/aliceStats.db")
+        self.con = sqlite3.connect(f"./data/database/aliceStats.db",timeout=10,check_same_thread=False)
         self.con.row_factory = sqlite3.Row
         self.database = "aliceStats.db"
 
@@ -364,7 +590,7 @@ class aliceStatsdbEndler:
             cursor.execute("SELECT totalSupp FROM userStats;")
         except:
             temp = ""
-            for a in maj1:
+            for a in majTeamDb:
                 if a != ";":
                     temp+=a
                 else:
@@ -372,10 +598,8 @@ class aliceStatsdbEndler:
                     temp = ""
 
             cursor.execute(temp)
-            cursor.execute("UPDATE userStats SET totalSupp = ?, maxSupp = ?;",(0,0))
-            #cursor.execute("INSERT INTO records VALUES (?,?,?)",("maxSupp",0,0,))
             self.con.commit()
-            print("maj1 done")
+            print("UserTeams updated")
 
         try:
             cursor.execute("SELECT dutyProgressAct FROM userStats;")
@@ -406,6 +630,51 @@ class aliceStatsdbEndler:
 
             self.con.commit()
             print("enemyStat crée")
+
+        try:
+            cursor.execute("SELECT teamLeader FROM userTeams;")
+        except:
+            temp = ""
+            for a in majTeamDb:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            cursor.execute(temp)
+            self.con.commit()
+            print("majTeam1 done")
+
+        try:
+            cursor.execute("SELECT teamName FROM userTeams;")
+        except:
+            temp = ""
+            for a in majTeamDb2:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            cursor.execute(temp)
+            self.con.commit()
+            print("majTeam2 done")
+
+        try:
+            cursor.execute("SELECT weaponUse FROM userSettings;")
+        except:
+            temp = ""
+            for a in userSettingsDbUptade:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            cursor.execute(temp)
+            self.con.commit()
+            print("user Settings updated")
 
         cursor.close()
 
@@ -439,7 +708,7 @@ class aliceStatsdbEndler:
         records = cursor.fetchall()
         listUpdated = []
 
-        tablStats = [stats.damageDeal,stats.ennemiKill,stats.allieResurected,stats.damageRecived,stats.heals,stats.shieldGived,stats.damageDogded+stats.damageBoosted]
+        tablStats = [stats.damageDeal,stats.ennemiKill,stats.allieResurected,stats.damageRecived,stats.heals,stats.shieldGived,stats.damageDodged+stats.damageBoosted]
 
         for num in range(len(tablAdd)):
             listUpdated.append(result["total{0}".format(tablAdd[num])]+tablStats[num])
@@ -596,8 +865,8 @@ class aliceStatsdbEndler:
             "HealPerLevelMoy":round((result["HealPerLevel"]+round(tablStats.heals/enemy.level,1)) / (result["NbFight"]+1),1),
             "ArmorPerLevel":result["ArmorPerLevel"]+round(tablStats.shieldGived/enemy.level,1),
             "ArmorPerLevelMoy":round((result["ArmorPerLevel"]+round(tablStats.shieldGived/enemy.level,1)) / (result["NbFight"]+1),1),
-            "BoostPerLevel":result["BoostPerLevel"]+round((tablStats.damageBoosted+tablStats.damageDogded)/enemy.level,1),
-            "BoostPerLevelMoy":round((result["BoostPerLevel"]+round((tablStats.damageBoosted+tablStats.damageDogded)/enemy.level,1)) / (result["NbFight"]+1),1),
+            "BoostPerLevel":result["BoostPerLevel"]+round((tablStats.damageBoosted+tablStats.damageDodged)/enemy.level,1),
+            "BoostPerLevelMoy":round((result["BoostPerLevel"]+round((tablStats.damageBoosted+tablStats.damageDodged)/enemy.level,1)) / (result["NbFight"]+1),1),
             "Kill":result["Kill"]+tablStats.ennemiKill,
             "KillMoy":round((result["Kill"]+tablStats.ennemiKill)/(result["NbFight"]+1),1),
             "AllyRaise":result["AllyRaise"]+tablStats.allieResurected,
@@ -630,4 +899,41 @@ class aliceStatsdbEndler:
             cursory.close()
             return format_exc()
 
+    def getTeamSettings(self,user: char) -> dict:
+        cursor = self.con.cursor()
+        teamToSee = int(user.team)
+        cursor.execute("SELECT * FROM userTeams WHERE teamId = ?",(teamToSee,))
+        result = cursor.fetchall()
+
+        if len(result)==0:
+            cursor.close()
+            return createTeamSettingsDict(teamLeader=user.owner)        
+        else:
+            result = result[0]
+            teamName = result["teamName"]
+            if teamName in [None,""]:
+                teamName = getRandomTeamName()
+                cursor.execute("UPDATE userTeams SET teamName = ? WHERE teamId = ?;",(teamName,teamToSee))
+                print("L'équipe {0} a été automatiquement renommé \"{1}\"".format(teamToSee,teamName))
+            cursor.close()
+            return createTeamSettingsDict(result["teamLeader"],result["settingsAllyIcon"],result["settingsEnemyIcon"],teamName,result["teamCaptain"],result["teamCapLenaExp"],result["teamCapClemenceExp"],result["teamCapHeleneExp"],result["teamCapShehisaExp"],result["teamCapLiuExp"],result["teamCapEdelweissExp"],result["teamCapElinaExp"],result["teamCapIcealiaExp"])
+
+    def updateTeamSettings(self,team:Union[int,str,char],teamSettings:dict):
+        cursor = self.con.cursor()
+        try:
+            if type(team) == char:
+                teamToSee = int(team.team)
+            else:
+                teamToSee = int(team)
+            
+            for setName, setValue in teamSettings.items():
+                cursor.execute("UPDATE userTeams SET {0} = ? WHERE teamId = ?;".format(setName),(setValue,teamToSee))
+            
+            self.con.commit()
+            cursor.close()
+            return True
+        except:
+            cursor.close()
+            print_exc()
+            return False
 aliceStatsDb = aliceStatsdbEndler()

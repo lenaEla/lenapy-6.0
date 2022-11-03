@@ -51,40 +51,16 @@ changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania,a
 totalAnnilLauch = copy.deepcopy(explosion)
 totalAnnilLauch.power = 500
 
-totalAnnilCastEff4 = copy.deepcopy(castExplo)
-totalAnnilCastEff4.replica, totalAnnilCastEff4.name = totalAnnilLauch, "Annihilation totale dans 1 tour !"
-totalAnnilCastSkill4 = copy.deepcopy(explosionCast)
-totalAnnilCastSkill4.effectOnSelf = totalAnnilCastEff4
+totalAnnilCastEff = effect("Cast - {replicaName}","totalBoomCast",turnInit=2,silent=True,replique=totalAnnilLauch)
+totalAnnilCast = copy.deepcopy(totalAnnilLauch)
+totalAnnilCast.power, totalAnnilCast.effectOnSelf = 0, totalAnnilCastEff
 
-totalAnnilCastEff3 = copy.deepcopy(castExplo)
-totalAnnilCastEff3.replica, totalAnnilCastEff3.name = totalAnnilCastSkill4, "Annihilation totale dans 2 tours !"
-totalAnnilCastSkill3 = copy.deepcopy(explosionCast)
-totalAnnilCastSkill3.effectOnSelf = totalAnnilCastEff3
+BOUMBOUMBOUMBOUMweap = weapon("noneWeap","noneweap",1,AREA_CIRCLE_1,0,0,0)
+fairyBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect("me"))
+fairyBomb.effects[0].callOnTrigger.power = int(fairyBomb.effects[0].callOnTrigger.power*0.4)
 
-totalAnnilCastEff2 = copy.deepcopy(castExplo)
-totalAnnilCastEff2.replica, totalAnnilCastEff2.name = totalAnnilCastSkill3, "Annihilation totale dans 3 tours !"
-totalAnnilCastSkill2 = copy.deepcopy(explosionCast)
-totalAnnilCastSkill2.effectOnSelf = totalAnnilCastEff2
-
-totalAnnilCastEff1 = copy.deepcopy(castExplo)
-totalAnnilCastEff1.replica, totalAnnilCastEff1.name = totalAnnilCastSkill2, "Annihilation totale dans 4 tours !"
-totalAnnilCastSkill1 = copy.deepcopy(explosionCast)
-totalAnnilCastSkill1.effectOnSelf = totalAnnilCastEff1
-
-totalAnnilCastEff0 = copy.deepcopy(castExplo)
-totalAnnilCastEff0.replica, totalAnnilCastEff0.name = totalAnnilCastSkill1, "Annihilation totale dans 5 tours !"
-totalAnnilCastSkill0 = copy.deepcopy(explosionCast)
-totalAnnilCastSkill0.effectOnSelf = totalAnnilCastEff0
-
-totalAnnilLauch.name = totalAnnilCastSkill1.name = totalAnnilCastSkill2.name = totalAnnilCastSkill3.name = totalAnnilCastSkill4.name = totalAnnilCastSkill0.name = "Annihilation totale"
-totalAnnilLauch.ultimate = totalAnnilCastSkill1.ultimate = totalAnnilCastSkill2.ultimate = totalAnnilCastSkill3.ultimate = totalAnnilCastSkill4.ultimate = totalAnnilCastSkill0.ultimate = totalAnnilLauch.shareCooldown = totalAnnilCastSkill1.shareCooldown = totalAnnilCastSkill2.shareCooldown = totalAnnilCastSkill3.shareCooldown = totalAnnilCastSkill4.shareCooldown = totalAnnilCastSkill0.shareCooldown = False
-
-BOUMBOUMBOUMBOUMweap = weapon("noneWeap","BoumX4",1,AREA_CIRCLE_1,0,0,0)
-fairyBomb.effect[0].callOnTrigger = copy.deepcopy(findEffect("me"))
-fairyBomb.effect[0].callOnTrigger.power = int(fairyBomb.effect[0].callOnTrigger.power*0.4)
-
-hemoBomb.effect[0].callOnTrigger = copy.deepcopy(findEffect("mx"))
-hemoBomb.effect[0].callOnTrigger.power = fairyBomb.effect[0].callOnTrigger.power//2
+hemoBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect("mx"))
+hemoBomb.effects[0].callOnTrigger.power = fairyBomb.effects[0].callOnTrigger.power//2
 
 def findOther(otherId : Union[str,other]) -> Union[other,None]:
     if type(otherId) == other:
@@ -164,7 +140,7 @@ if not(isLenapy):
     print("Nombre d'équipements : ", len(stuffs))
     allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for a in stuffs:
-        if a.effect == None or (a.effect != None and findEffect(a.effect).id != summonerMalus.id):
+        if a.effects == None or (a.effects != None and findEffect(a.effects).id != summonerMalus.id):
             ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
             babie = [a.negativeHeal,a.negativeBoost,a.negativeShield,a.negativeDirect,a.negativeIndirect]
             sumation = 0
@@ -175,10 +151,10 @@ if not(isLenapy):
             for b in babie:
                 sumation -= b
 
-            if sumation != 20 and a.effect == None and a.name != "Claquettes chaussettes":
+            if sumation != 20 and a.effects == None and a.name != "Claquettes chaussettes":
                 print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
 
-            elif sumation != 10 and a.effect != None:
+            elif sumation != 10 and a.effects != None:
                 print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
 
     temp = "\nDistribution des statistiques :\n"
@@ -256,7 +232,7 @@ if not(isLenapy):
                 summation += stats
 
         toVerif = 30
-        if weap.effect != None or weap.effectOnUse != None:
+        if weap.effects != None or weap.effectOnUse != None:
             toVerif = 15
 
         if int(summation) != int(toVerif):
@@ -284,12 +260,52 @@ if not(isLenapy):
             for whaty in stuffs+weapons+skills+others:
                 if whaty.id == obj.id:
                     what += whaty.name + ", "
-            raise Exception("Identifiant doublon : {1}".format(obj.name,what))
+            raise Exception("Identifiant doublon : {0}({1})".format(what,obj.id))
 
-#print(seeSimilarStuffNameMinLvl("orateur"))
+#print(seeSimilarStuffNameMinLvl("papillon rose"))
 #print(seeAllStuffAtMinLvl(50))
 
 """for stuffy in stuffs:
     if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:
         print("{0} use a default emoji".format(stuffy.name))"""
+
+cmpt = 0
+for obj in skills+tablVarAllies+tablUniqueEnnemies+tablBoss+tablBossPlus+tablRaidBoss:
+    tablToSee: List[skill] = []
+    if type(obj) == skill and obj.become == None and obj.depl == None:
+        tablToSee = [obj]
+    elif type(obj) == skill and obj.become != None:
+        tablToSee = obj.become
+    elif type(obj) == skill:
+        tablToSee = [obj.depl.skills]
+    else:
+        for ski in obj.skills:
+            if type(ski) == skill:
+                tablToSee.append(ski)
+
+    for ski in tablToSee:
+        effToSee = []
+        effPlus = [None]
+        if ski.effectAroundCaster != None and type(ski.effectAroundCaster[2]) == effect:
+            effPlus = [ski.effectAroundCaster[2]]
+        for eff in ski.effects+[ski.effectOnSelf]+effPlus:
+            if type(eff) == effect:
+                if eff.id in [vulne.id,dmgUp.id,dmgDown.id,defenseUp.id,absEff.id,upgradedLifeSteal.id] and eff.stat in [FIXE,None] and not(str(eff.power) in eff.name):
+                    eff.name = eff.name + " ({0}%)".format(eff.power)
+                    cmpt += 1
+
+if cmpt > 0:
+    print("{0} effets ont été renommés".format(cmpt))
+
+"""skillsDict = {}
+for skilly in skills:
+    try:
+        skillsDict[skilly.type][0] = skillsDict[skilly.type][0] + skilly.iaPow
+        skillsDict[skilly.type][1] = skillsDict[skilly.type][1] + 1
+    except:
+        skillsDict[skilly.type] = [skilly.iaPow,1]
+
+for skillType, iaPowTT in skillsDict.items():
+    print("{0} : {1} moy IA pow".format(tablTypeStr[skillType],iaPowTT[0]//iaPowTT[1]))
+"""
 

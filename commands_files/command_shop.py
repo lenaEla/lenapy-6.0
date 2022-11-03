@@ -1,4 +1,3 @@
-from re import findall
 import discord, os
 from discord_slash.utils.manage_components import *
 from adv import *
@@ -25,10 +24,31 @@ allGiveButtonButAllreadyHaveF = create_button(ButtonStyle.gray,"Vous êtes une a
 haveIcon = "<:bought:906623435256504451>" 
 allTeamHaveIcon = "<:teamBought:906621631143743538>"
 
+def formatShop(txt:str) -> str:
+    return txt.format(
+        lena = tablAllAllies[0].icon,
+        alice = tablAllAllies[3].icon,
+        shushi = tablAllAllies[4].icon,
+        clemence = tablAllAllies[2].icon, john = '<:john:908887592756449311>',
+        luna = '<:luna:909047362868105227>',
+        feli = '<:felicite:909048027644317706>',
+        icelia = '<:icealia:909065559516250112>',
+        shihu = '<:shihu:909047672541945927>',stimeo = '<:stimeo:1028894772460531765>',
+        shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon,
+        sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>',
+        iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>',
+        gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
+        lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>", kitsune = "<:kitsune:935552850686255195>",
+        anna = "<:anna:943444730430246933>", belle = "<:belle:943444751288528957>",
+        edelweiss = '<:edelweiss:918451422939451412>', epiphyllum = "<:epiphilium:1014094726351294484>",
+        ruby='<:ruby:958786374759251988>', julie = '<:julie:910185448951906325>',
+        akia = '<a:akia:993550766415564831>',
+    )
+
 async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile): # Does the user have a character
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
         try:
             msg = await loadingEmbed(ctx)
         except:
@@ -36,7 +56,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
         shopTotalRandom = copy.deepcopy(shopRandomMsg)
 
-        dateNow = datetime.now()
+        dateNow = datetime.now() + horaire
         years = dateNow.year
 
         if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
@@ -49,23 +69,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 shopTotalRandom = shopDict["tabl"]
                 break
 
-        shopRdMsg = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)].format(
-            ctx.author.name,
-            user.name,
-            lena = tablAllAllies[0].icon,
-            alice = tablAllAllies[3].icon,
-            shushi = tablAllAllies[4].icon,
-            clemence = tablAllAllies[2].icon,
-            luna = '<:luna:909047362868105227>',
-            feli = '<:felicite:909048027644317706>',
-            icelia = '<:icealia:909065559516250112>',
-            shihu = '<:shihu:909047672541945927>',
-            shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon,
-            sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>',
-            iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>',
-            gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
-            lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>"
-            )
+        shopRdMsg = formatShop(shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)])
         initMsg = msg
 
         if user.team != 0:
@@ -84,7 +88,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                 teamMember = []
                 for a in teamList:
                     if a != int(ctx.author.id):
-                        teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
+                        teamMember += [await loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
 
             shopEmb = discord.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} {emoji.coins}.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*")
 
@@ -268,7 +272,7 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
             if respond.component_type == 2:
                 if respond.custom_id =="buy all":
                     tempMsg = await respond.send(embed=discord.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
-                    user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+                    user = await loadCharFile("./userProfile/{0}.prof".format(user.owner))
                     tempTabl = []
                     for obj in listNotHave:
                         if not(user.have(obj)) and user.currencies >= obj.price:
@@ -290,10 +294,10 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
 
                 elif respond.custom_id == "buy'n'send all":
                     tempMsg = await respond.send(embed=discord.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
-                    user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+                    user = await loadCharFile("./userProfile/{0}.prof".format(user.owner))
                     tempTabl1,tempTabl2,tempTabl3 = [],[],[]
                     for teamUser in teamMember:
-                        gifted = loadCharFile("./userProfile/{0}.prof".format(teamUser.owner))
+                        gifted = await loadCharFile("./userProfile/{0}.prof".format(teamUser.owner))
                         tempDeleveryMsg = ""
                         for obj in listNotAllTeamHave:
                             if not(gifted.have(obj)) and user.currencies >= obj.price:
@@ -512,3 +516,19 @@ async def shop2(bot : discord.Client, ctx : discord.message,shopping : list):
                     await msg.edit(embed=discord.Embed(title="Uncatch error in shop command",description=format_exc()),components=[])
     else:
         await ctx.send(embed = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),delete_after=15)
+
+if not(isLenapy):
+    print("Shop message verification...")
+    tablShopMsg = shopRandomMsg+shopEventEndYears
+    for temp in shopEventOneDay:
+        tablShopMsg = tablShopMsg + temp["tabl"]
+    for temp in shopMonthlyMsg:
+        tablShopMsg = tablShopMsg + temp
+
+    for shopmsg in tablShopMsg:
+        try:
+            formatShop(shopmsg)
+        except:
+            print("Error with the following shop message :\n{0}".format(shopmsg))
+            print_exc()
+    print("Shop message verification done")

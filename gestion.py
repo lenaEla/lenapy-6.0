@@ -103,7 +103,7 @@ majUserSettings1 = """
 class userTeamDbEndler:
     """A database who store some user's info like their team"""
     def __init__(self):
-        self.con = sqlite3.connect(f"./data/database/aliceStats.db")
+        self.con = sqlite3.connect(f"./data/database/aliceStats.db",timeout=10,check_same_thread=False)
         self.con.row_factory = sqlite3.Row
         self.database = "aliceStats.db"
 
@@ -131,7 +131,6 @@ class userTeamDbEndler:
             cursory.execute('INSERT INTO userTeams (teamId,{2}) VALUES ({0},{1});'.format(team,listToAdd,listToAdd2))
             self.con.commit()
             cursory.close()
-
             print("The team number {0} have been added into the database".format(team))
         else:
             while len(members) < 8:
@@ -144,6 +143,7 @@ class userTeamDbEndler:
         cursory = self.con.cursor()
         cursory.execute('SELECT teamMember0, teamMember1, teamMember2, teamMember3, teamMember4, teamMember5, teamMember6, teamMember7 FROM userTeams WHERE teamId = {0};'.format(team))
         result = cursory.fetchone()
+        cursory.close()
 
         if result == None:
             return None
@@ -159,7 +159,7 @@ class userTeamDbEndler:
         cursory, toReturn = self.con.cursor(), []
         cursory.execute("SELECT teamId FROM userTeams;")
         result = cursory.fetchall()
-
+        cursory.close()
         for a in result:
             toReturn.append(a["teamId"])
         
@@ -169,13 +169,14 @@ class userTeamDbEndler:
         cursory = self.con.cursor()
         cursory.execute("SELECT teamMember0 FROM userTeams WHERE teamId = {0};".format(team))
         result = cursory.fetchone()
+        cursory.close()
         return not(result == None)
 
 class userSettingsDbEndler:
     def __init__(self):
-        self.con = sqlite3.connect(f"./data/database/aliceStats.db")
+        self.con = sqlite3.connect(f"./data/database/userSettings.db",timeout=10,check_same_thread=False)
         self.con.row_factory = sqlite3.Row
-        self.database = "aliceStats.db"
+        self.database = "userSettings.db"
 
         cursor = self.con.cursor()
 
@@ -195,166 +196,112 @@ class userSettingsDbEndler:
             self.con.commit()
             print("maj1 done")
 
-        cursor = self.con.cursor()
+        cursor.close()
+    
+    def addUserToDb(self, user:char):
+        toAddCat, toAddValue, blabla = [], [], user.says.tabl()
+        for a in range(len(blabla)):
+            if blabla[a] != None:
+                toAddCat.append(userSettingsInterCatNames[a])
+                toAddValue.append(blabla[a])
+    
+        toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
+        for a in [0,1]:
+            for cmpt in range(len(tempTabl[a])):
+                if a == 1:
+                    toAdd = "'"
+                    for b in tempTabl[a][cmpt]:
+                        if b in ["'"]:
+                            toAdd += "''"
+                        else:
+                            toAdd += b
+                    toAdd += "'"
+                else:
+                    toAdd = tempTabl[a][cmpt]
 
-    def updateUserSays(self,user:char):
+                toAddStr[a]+=toAdd
+                if cmpt < len(tempTabl[a])-1:
+                    toAddStr[a]+=","
+
         cursory = self.con.cursor()
+        cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
+        cursory.close()
+        self.con.commit()
+        print("{0} a été rajouté dans la base de donnée".format(user.name))
 
-        cursory.execute("SELECT userId FROM userSettings WHERE userId = {0};".format(user.owner))
+    def updateUserSettings(self,user:char):
+        cursory = self.con.cursor()
+        cursory.execute("SELECT * FROM userSettings WHERE userId = {0};".format(user.owner))
         result = cursory.fetchone()
 
         if result == None:
-            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
-            for a in range(len(blabla)):
-                if blabla[a] != None:
-                    toAddCat.append(userSettingsInterCatNames[a])
-                    toAddValue.append(blabla[a])
-        
-            toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
-            for a in [0,1]:
-                for cmpt in range(len(tempTabl[a])):
-                    if a == 1:
-                        toAdd = "'"
-                        for b in tempTabl[a][cmpt]:
-                            if b in ["'"]:
-                                toAdd += "''"
-                            else:
-                                toAdd += b
-                        toAdd += "'"
-                    else:
-                        toAdd = tempTabl[a][cmpt]
-
-                    toAddStr[a]+=toAdd
-                    if cmpt < len(tempTabl[a])-1:
-                        toAddStr[a]+=","
-
-            cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
-            self.con.commit()
-            print("{0} a été rajouté dans la base de donnée".format(user.name))
+            cursory.close()
+            self.addUserToDb(self)
+            cursory = self.con.cursor()
         else:
             toAddCat, toAddValue, blabla = [], [], user.says.tabl()
             for a in range(len(blabla)):
                 if blabla[a] != None:
                     toAddCat.append(userSettingsInterCatNames[a])
                     toAddValue.append(blabla[a])
-
             toAddStr, tempTabl = "", [toAddCat,toAddValue]
             for cmpt in range(len(tempTabl[0])):
-                toAdd = ""
-                for b in tempTabl[1][cmpt]:
-                    if b == "'":
-                        toAdd += "''"
-                    else:
-                        toAdd += b
-                toAdd += ""
+                if result[tempTabl[0][cmpt]] != blabla[cmpt]:
+                    toAdd = ""
+                    for b in tempTabl[1][cmpt]:
+                        if b == "'":
+                            toAdd += "''"
+                        else:
+                            toAdd += b
+                    toAdd += ""
 
-                toAddStr+= "{0}='{1}'".format(tempTabl[0][cmpt],toAdd)
-                if cmpt < len(tempTabl[0])-1:
-                    toAddStr+=","
+                    toAddStr+= "{0}='{1}'".format(tempTabl[0][cmpt],toAdd)
+                    if cmpt < len(tempTabl[0])-1:
+                        toAddStr+=","
 
             if toAddStr != "":
                 cursory.execute("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
-                self.con.commit()
+            
+            textUpdateSettings = ""
+            for setName, setValue in user.charSettings.items():
+                if result[setName] != setValue:
+                    textUpdateSettings += "{0} {1} = {2}".format(["",","][textUpdateSettings!=""],setName,setValue)
+            
+            if textUpdateSettings != "":
+                cursory.execute("UPDATE userSettings SET {0} WHERE userId = ?;".format(textUpdateSettings),(user.owner,))
+
+            iconSetValues = [user.handed,user.showElement,user.showAcc,user.showWeapon]
+            textIconSet = ""
+            for cmpt in range(len(iconSetCatNames)):
+                if result[iconSetCatNames[cmpt]] != iconSetValues[cmpt]:
+                    textIconSet += "{0} {1} = {2}".format(["",","][textIconSet!=""],iconSetCatNames[cmpt],iconSetValues[cmpt])            
+            if textIconSet != "":
+                cursory.execute("UPDATE userSettings SET {0} WHERE userId = ?;".format(textIconSet),(user.owner,))
+
+        cursory.close()
+        self.con.commit()
+
+    def getUserSettings(self,user: char) -> char:
+        cursory = self.con.cursor()
+        cursory.execute("SELECT * FROM userSettings WHERE userId = {0};".format(user.owner))
+        result = cursory.fetchone()
         cursory.close()
 
-    def getUserSays(self,user:char):
-        cursory = self.con.cursor()
-
-        toStr = ""
-        for a in range(len(userSettingsInterCatNames)):
-            toStr += userSettingsInterCatNames[a]
-            if a < len(userSettingsInterCatNames)-1:
-                toStr+=","
-
-        cursory.execute("SELECT {1} FROM userSettings WHERE userId = {0};".format(user.owner,toStr))
-        result = cursory.fetchone()
-
         if result == None:
-            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
-            for a in range(len(blabla)):
-                if blabla[a] != None:
-                    toAddCat.append(userSettingsInterCatNames[a])
-                    toAddValue.append(blabla[a])
-        
-            toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
-            for a in [0,1]:
-                for cmpt in range(len(tempTabl[a])):
-                    if a == 1:
-                        toAdd = "'"
-                        for b in tempTabl[a][cmpt]:
-                            if b in ["'"]:
-                                toAdd += "''"
-                            else:
-                                toAdd += b
-                        toAdd += "'"
-                    else:
-                        toAdd = tempTabl[a][cmpt]
-
-                    toAddStr[a]+=toAdd
-                    if cmpt < len(tempTabl[a])-1:
-                        toAddStr[a]+=","
-
-            cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
-
-            self.con.commit()
-            print("{0} a été rajouté dans la base de donnée".format(user.name))
-            return says()
+            self.addUserToDb(self)
         else:
             tablTemp = []
-            for a in result:
-                tablTemp.append(a)
+            for cmpt in range(len(tablSaysDictCat)):
+                tablTemp.append(result[tablSaysDictCat[cmpt]])
             
-            temp = says()
+            tempSays = says()
+            user.says = tempSays.fromTabl(tablTemp)
+            user.handed,user.showElement,user.showAcc,user.showWeapon = result[iconSetCatNames[0]], result[iconSetCatNames[1]], result[iconSetCatNames[2]], result[iconSetCatNames[3]]
 
-            return temp.fromTabl(tablTemp)
+            for charSetName in emptyCharDict:
+                user.charSettings[charSetName] = result[charSetName]
 
-    def getUserIconSettings(self,user:char):
-        cursory = self.con.cursor()
-
-        cursory.execute("SELECT hand, affElem, affAcc, affWeap FROM userSettings WHERE userId = {0};".format(user.owner))
-        result = cursory.fetchone()
-        user.handed, user.showAcc, user.showElement, user.showWeapon = result["hand"], bool(result["affAcc"]), bool(result["affElem"]), bool(result["affWeap"])
         return user
-
-    def updateUserIconSettings(self,user:char):
-        cursory = self.con.cursor()
-
-        cursory.execute("SELECT userId FROM userSettings WHERE userId = {0};".format(user.owner))
-        result = cursory.fetchone()
-
-        if result == None:
-            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
-            for a in range(len(blabla)):
-                if blabla[a] != None:
-                    toAddCat.append(userSettingsInterCatNames[a])
-                    toAddValue.append(blabla[a])
-        
-            toAddStr, tempTabl, = ["",""], [toAddCat,toAddValue]
-            for a in [0,1]:
-                for cmpt in range(len(tempTabl[a])):
-                    if a == 1:
-                        toAdd = "'"
-                        for b in tempTabl[a][cmpt]:
-                            if b in ["'"]:
-                                toAdd += "''"
-                            else:
-                                toAdd += b
-                        toAdd += "'"
-                    else:
-                        toAdd = tempTabl[a][cmpt]
-
-                    toAddStr[a]+=toAdd
-                    if cmpt < len(tempTabl[a])-1:
-                        toAddStr[a]+=","
-
-            cursory.execute("INSERT INTO userSettings (userId{3}{0}) VALUES ({1}{3}{2});".format(toAddStr[0],user.owner,toAddStr[1],["",","][toAddStr[0]!=""]))
-            self.con.commit()
-            print("{0} a été rajouté dans la base de donnée".format(user.name))
-
-        else:
-            cursory.execute("UPDATE userSettings SET hand = ?, affElem = ?, affAcc = ?, affWeap = ? WHERE userId = {0};".format(user.owner),(user.handed,user.showElement,user.showAcc,user.showWeapon))
-            self.con.commit()
-            cursory.close()
 
 userTeamDb = userTeamDbEndler()
 userSettingsDb = userSettingsDbEndler()
@@ -494,71 +441,73 @@ def randRep(liste : list):
     return liste[random.randint(0,len(liste)-1)]
 
 def saveCharFile(path : str = None, user : char = None):
-    if user == None:
-        raise Exception("Attribut Error : No user gave")
-    if path == None:
-        path = './userProfile/{0}.prof'.format(user.owner)
-    #try:
-    saved = ""
-    for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars,user.iconForm,user.secElement]:
-        saved += str(a)+";"
-    saved += "\n"
-    for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
-        saved += str(a)+";"
-    saved += "\n"
-    for a in [user.resistance,user.percing,user.critical,user.points]:
-        saved += str(a)+";"
-    for a in user.bonusPoints+user.majorPoints+[user.majorPointsCount]:
-        saved += str(a)+";"
-    saved += "\n"
-    saved += user.weapon.id +";\n"
-    for a in user.weaponInventory:
-        saved += a.id+";"
-    saved += "\n"
-    for a in user.skills:
-        try:
-            saved += a.id+";"
-        except:
-            saved += "0;"
-    saved += "\n"
-    for a in user.skillInventory:
-        saved += a.id+";"
-    saved += "\n"
-    for a in user.stuff:
-        saved += a.id+";"
-    for a in [user.apparaWeap,user.apparaAcc]:
-        if a != None:
-            saved += a.id+";"
-        else:
-            saved += "0;"
-    saved += "\n"
-    for a in user.stuffInventory:
-        saved += a.id+";"
-    saved += "\n"
-    for a in user.otherInventory:
-        saved += a.id+";"
-    saved += "\n"
-    for a in user.procuration:
-        if int(a) != user.owner:
+    try:
+        if user == None:
+            raise Exception("Attribut Error : No user gave")
+        if path == None:
+            path = './userProfile/{0}.prof'.format(user.owner)
+        #try:
+        saved = ""
+        for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars,user.iconForm,user.secElement]:
             saved += str(a)+";"
-    saved += "\n"
+        saved += "\n"
+        for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
+            saved += str(a)+";"
+        saved += "\n"
+        for a in [user.resistance,user.percing,user.critical,user.points]:
+            saved += str(a)+";"
+        for a in user.bonusPoints+user.majorPoints+[user.majorPointsCount]:
+            saved += str(a)+";"
+        saved += "\n"
+        saved += user.weapon.id +";\n"
+        for a in user.weaponInventory:
+            saved += a.id+";"
+        saved += "\n"
+        for a in user.skills:
+            try:
+                saved += a.id+";"
+            except:
+                saved += "0;"
+        saved += "\n"
+        for a in user.skillInventory:
+            saved += a.id+";"
+        saved += "\n"
+        for a in user.stuff:
+            saved += a.id+";"
+        for a in [user.apparaWeap,user.apparaAcc]:
+            if a != None:
+                saved += a.id+";"
+            else:
+                saved += "0;"
+        saved += "\n"
+        for a in user.stuffInventory:
+            saved += a.id+";"
+        saved += "\n"
+        for a in user.otherInventory:
+            saved += a.id+";"
+        saved += "\n"
+        for a in user.procuration:
+            if int(a) != user.owner:
+                saved += str(a)+";"
+        saved += "\n"
 
-    saved += str(user.element) +";"+str(int(user.autoPoint))+";"+str(int(user.autoStuff))+";\n"
+        saved += str(user.element) +";"+str(int(user.autoPoint))+";"+str(int(user.autoStuff))+";\n"
 
-    for a in user.haveProcurOn:
-        saved += str(a) + ";"
-    saved += "\n"
+        for a in user.haveProcurOn:
+            saved += str(a) + ";"
+        saved += "\n"
 
-    for a in user.limitBreaks:
-        saved += str(a) + ";"
-    saved += "\n"
+        for a in user.limitBreaks:
+            saved += str(a) + ";"
+        saved += "\n"
 
-    userSettingsDb.updateUserSays(user)
-    userSettingsDb.updateUserIconSettings(user)
-    rewriteFile(path,saved)
-    return True
+        userSettingsDb.updateUserSettings(user)
+        rewriteFile(path,saved)
+        return True
+    except:
+        raise
 
-def loadCharFile(path : str = None, user:char = None) -> char:
+async def loadCharFile(path : str = None, user:char = None) -> char:
     """
         Return a ``char`` object loaded from the file at ``path``
     """
@@ -719,9 +668,8 @@ def loadCharFile(path : str = None, user:char = None) -> char:
             rep.limitBreaks = [0,0,0,0,0,0,0]
     except:
         rep.limitBreaks = [0,0,0,0,0,0,0]
-    rep.says = userSettingsDb.getUserSays(rep)
-    rep = userSettingsDb.getUserIconSettings(rep)
 
+    rep = userSettingsDb.getUserSettings(rep)
     return rep
 
 def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):
@@ -842,6 +790,44 @@ def completlyRemoveEmoji(text:str):
             justExited = False
     return toReturn
 
+gbdmaj = """CREATE TABLE guildStreamSettings (
+    guild        INTEGER NOT NULL,
+    streamerName STRING  NOT NULL,
+    notifRole    INTEGER,
+    notifMsg     STRING  DEFAULT [notifRole : streamerName viens de commencer un stream !],
+    embedTitle   STRING  DEFAULT streamTitle,
+    embedDesc    STRING  DEFAULT [gameName\nhyperlink],
+    embedColor   STRING,
+    notifChannel INTEGER,
+    hyperlinkTxt STRING  DEFAULT [Ça se passe ici !],
+    showImage    BOOLEAN DEFAULT (TRUE),
+    image0       STRING,
+    image1       STRING,
+    image2       STRING
+);
+"""
+
+listToChange = ["notifRole","streamerName","gameName","hyperlink","streamTitle","streamTitle"]
+class streamEmbed():
+    def __init__(self, guild, notifRole=None, notifChannel=None, streamerName="alice_kohishu", notifMsg="Hey notifRole ! **streamerName** viens de commencer un live !", embedTitle="streamTitle", embedDesc="Viens donc le voir jouer à gameName hyperlink", embedColor=light_blue, hyperlinkTxt="ici", showImage=True, image0=None, image1=None, image2=None):
+        self.guild, self.notifRole, self.notifChannel, self.streamerName, self.embedTitle, self.embedDesc, self.showImage, self.image0, self.image1, self.image2 = guild, notifRole, notifChannel, streamerName, embedTitle, embedDesc, showImage, image0, image1, image2
+        self.notifMsg = [notifMsg,"streamerName viens de commencer un stream !"][self.notifRole == None and notifMsg == "notifRole : streamerName viens de commencer un stream !"]
+        if embedColor != None:
+            if type(embedColor) != int:
+                self.embedColor = int(embedColor,16)
+            else:
+                self.embedColor = embedColor
+        else:
+            self.embedColor = light_blue
+        self.hyperlinkTxt = hyperlinkTxt
+        self.hyperlink = "[{1}](https://www.twitch.tv/{0})".format(streamerName.lower(),hyperlinkTxt)
+
+        listToChange = ["notifRole","streamerName","gameName","hyperlink","streamTitle"]
+        for cmpt in range(len(listToChange)):
+            self.notifMsg = self.notifMsg.replace(listToChange[cmpt],"{"+listToChange[cmpt]+"}")
+            self.embedDesc = self.embedDesc.replace(listToChange[cmpt],"{"+listToChange[cmpt]+"}")
+            self.embedTitle = self.embedTitle.replace(listToChange[cmpt],"{"+listToChange[cmpt]+"}")
+
 class globalVarDb:
     """
         The class for the database who keep the global variables
@@ -886,6 +872,21 @@ class globalVarDb:
 
             self.con.commit()
             print("Table guildSettings crée")
+        
+        try:
+            cursor.execute("SELECT * FROM guildStreamSettings;")
+        except:
+            temp = ""
+            for a in gbdmaj:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursor.execute(temp)
+                    temp = ""
+
+            self.con.commit()
+            print("Table guildStreamSettings crée")
+        
         cursor.close()
 
     def fightEnabled(self) -> bool:
@@ -960,6 +961,59 @@ class globalVarDb:
             cursor.close()
             return result[0]["botChannel"]
 
+    def getStreamAlertList(self):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT guild, streamerName FROM guildStreamSettings;")
+        result = cursor.fetchall()
+        cursor.close()
+        return result
+
+    def getStreamAlertEmbed(self, guild, streamerName):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(guild, streamerName,))
+        result = cursor.fetchone()
+        cursor.close()
+
+        return streamEmbed(result["guild"],result["notifRole"],result["notifChannel"],result["streamerName"],result["notifMsg"],result["embedTitle"],result["embedDesc"],result["embedColor"],result["hyperlinkTxt"],result["showImage"],result["image0"],result["image1"],result["image2"])
+
+    def getStreamAlterPerGuild(self, guild):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ?;",(guild,))
+        result = cursor.fetchall()
+        cursor.close()
+        toReturn = []
+        for rep in result:
+            toReturn.append(streamEmbed(rep["guild"],rep["notifRole"],rep["notifChannel"],rep["streamerName"],rep["notifMsg"],rep["embedTitle"],rep["embedDesc"],rep["embedColor"],rep["hyperlinkTxt"],rep["showImage"],rep["image0"],rep["image1"],rep["image2"]))
+
+        return toReturn
+
+    def updateStreamEmbed(self,streamEmbed:streamEmbed):
+        cursor = self.con.cursor()
+        cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(streamEmbed.guild, streamEmbed.streamerName,))
+        result = cursor.fetchall()
+
+        listToChange = ["notifRole","streamerName","gameName","hyperlink","streamTitle"]
+        for cmpt in range(len(listToChange)):
+            streamEmbed.notifMsg = streamEmbed.notifMsg.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
+            streamEmbed.embedDesc = streamEmbed.embedDesc.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
+            streamEmbed.embedTitle = streamEmbed.embedTitle.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
+
+
+        if len(result) <= 0:
+            cursor.execute("INSERT INTO guildStreamSettings VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);",(streamEmbed.guild,streamEmbed.streamerName,streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,))
+            cursor.close()
+            self.con.commit()
+        else:
+            cursor.execute("UPDATE guildStreamSettings SET notifRole=?, notifMsg=?, embedTitle=?, embedDesc=?, embedColor=?, notifChannel=?, hyperlinkTxt=?, showImage=?, image0=?, image1=?, image2=? WHERE guild = ? AND streamerName = ?",(streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,streamEmbed.guild,streamEmbed.streamerName,))
+            cursor.close()
+            self.con.commit()
+
+    def removeAlert(self,guild_id,streamer_login):
+        cursor = self.con.cursor()
+        cursor.execute("DELETE FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(guild_id,streamer_login))
+        cursor.close()
+        self.con.commit()
+        
 globalVar = globalVarDb()
 
 async def botChannelVerif(bot:discord.Client,ctx:discord_slash.SlashContext):
@@ -982,3 +1036,15 @@ def highlight(string : str):
         return "**{0}**".format(string)
     else:
         return string
+
+def getRandomTeamName() -> str:
+    rdmFirst = teamFirstName[random.randint(0,len(teamFirstName)-1)]
+    return rdmFirst[0] + " " + teamSecondName[random.randint(0,len(teamSecondName)-1)][rdmFirst[1]]
+
+OBJECTIVE_WIN = 0
+class fightContext():
+    def __init__(self,giveEffToTeam1:list=[],giveEffToTeam2:list=[],objective=OBJECTIVE_WIN):
+        self.giveEffToTeam1 = giveEffToTeam1
+        self.giveEffToTeam2 = giveEffToTeam2
+        self.objective = objective
+

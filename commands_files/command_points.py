@@ -10,12 +10,12 @@ from advance_gestion import *
 from typing import List
 
 async def points(bot : discord.client, ctx : discord.message, args : List[str], procuration = None, slashed = False):
-    mainUser = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+    mainUser = await loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
     listUserProcure = [mainUser]
     for a in mainUser.haveProcurOn:
-        listUserProcure.append(loadCharFile("./userProfile/{0}.prof".format(a)))
+        listUserProcure.append(await loadCharFile("./userProfile/{0}.prof".format(a)))
     
-    mainUser2 = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+    mainUser2 = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
     def userSortValue(user):
         if user.owner == mainUser2.owner:
             return 2
@@ -37,7 +37,7 @@ async def points(bot : discord.client, ctx : discord.message, args : List[str], 
         await ctx.send("Vous n'avez pas commencé l'aventure",delete_after=15)
         return 0
 
-    user = loadCharFile(pathUserProfile)
+    user = await loadCharFile(pathUserProfile)
 
     if int(user.owner) != int(ctx.author.id):
         if ctx.author.id not in user.procuration:
@@ -53,7 +53,7 @@ async def points(bot : discord.client, ctx : discord.message, args : List[str], 
         return m.author_id == ctx.author.id
 
     while 1:
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
         if len(listUserProcure) > 0:
             procurOptions = []
             for a in listUserProcure:
