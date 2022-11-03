@@ -108,11 +108,11 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     see = typeTabl[tri-14]
                     if type(see) != list:
                         for ski in tablToSee[:]:
-                            if not(ski.type == see or (ski.effect != [None] and findEffect(ski.effect[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see)):
+                            if not(ski.type == see or (ski.effects != [None] and findEffect(ski.effects[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see)):
                                 tablToSee.remove(ski)
                     else:
                         for ski in tablToSee[:]:
-                            if not(ski.type in see or (ski.effect != [None] and findEffect(ski.effect[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
+                            if not(ski.type in see or (ski.effects != [None] and findEffect(ski.effects[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
                                 tablToSee.remove(ski)
 
                 if tri in [14,16]:
@@ -145,7 +145,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
             elif destination==9:
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                user = loadCharFile(pathUserProfile)
+                user = await loadCharFile(pathUserProfile)
                 tablToSee = achivement.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
 
@@ -302,8 +302,8 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                                     nim = nim[0:3]+"."
                                 temp += " Elem. : "+nim
 
-                            if a.effect != None:
-                                temp += " *{0}*".format(findEffect(a.effect).name)
+                            if a.effects != None:
+                                temp += " *{0}*".format(findEffect(a.effects).name)
 
                     # Création de l'option
                     mess += temp+"\n"
@@ -492,7 +492,10 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                     lvlSelect = create_actionrow(create_select(options=lvlSelectOption,placeholder="Choisir un niveau"))
                     embed = infoAllie(ally)
                     if tempMachin == None:
-                        tempMachin = await inter.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
+                        try:
+                            tempMachin = await inter.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
+                        except:
+                            tempMachin = await inter.channel.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
                     else:
                         await tempMachin.edit(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
                     try:
@@ -547,7 +550,6 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         else:
                             await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
                     except:
-                        print_exc()
                         await tempMachin.delete()
                         break
 

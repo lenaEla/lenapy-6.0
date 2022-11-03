@@ -6,6 +6,7 @@ from gestion import *
 from advance_gestion import *
 from commands_files.sussess_endler import *
 from commands_files.alice_stats_endler import *
+from index import *
 
 nextButton = create_button(ButtonStyle.green,"Suivant","▶️","next")
 fightButton = create_button(ButtonStyle.blue,"Combattre",getEmojiObject('<:turf:810513139740573696>'),"fight")

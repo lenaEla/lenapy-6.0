@@ -71,11 +71,13 @@ returnAndConfirmActionRow = create_actionrow(returnButton,confirmButton)
 
 def getSortSkillValue(object : skill, wanted : int):
     if wanted in [15,17]:       # Indirect Dmg or Armor
-        eff = findEffect(object.effect[0])
+        eff = findEffect(object.effects[0])
         if eff == None:
             eff = findEffect(object.effectOnSelf)
             if (eff == None or (eff != None and eff.type not in [TYPE_INDIRECT_DAMAGE,TYPE_ARMOR])) and object.effectAroundCaster != None:
                 eff = findEffect(object.effectAroundCaster[2])
+            if eff == None and object.depl != None:
+                eff = findEffect(object.depl.skills.effects[0])
         if eff != None:
             if wanted == 15:
                 return eff.power * object.effPowerPurcent/100
@@ -95,13 +97,13 @@ def getSortSkillValue(object : skill, wanted : int):
             return object.effectAroundCaster[2]
 
     elif wanted == 16:  # Heal
-        if object.effect[0] == None:
+        if object.effects[0] == None:
             while not(object.effectOnSelf == None or findEffect(object.effectOnSelf).replica == None):
                 object = findSkill(findEffect(object.effectOnSelf).replica)
             return object.power
         else:
-            if object.effect[0] != None:
-                return findEffect(object.effect[0]).power
+            if object.effects[0] != None:
+                return findEffect(object.effects[0]).power
             elif object.effectOnSelf != None:
                 return findEffect(object.effectOnSelf).power
             elif object.effectAroundCaster != None:
@@ -144,7 +146,7 @@ async def mimikThat(bot : discord.client, ctx : ComponentContext, msg : discord.
     if react.custom_id == "return":
         return False
     else:
-        user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+        user = await loadCharFile("./userProfile/{0}.prof".format(user.owner))
         if index:
             user.apparaAcc = toChange
         else:
@@ -310,7 +312,7 @@ async def blablaEdit(bot : discord.client, ctx : discord.Message, msg : discord.
         return int(message.author.id) == int(ctx.author.id) and int(message.channel.id) == int(msg.channel.id)
 
     while 1:
-        user = loadCharFile(pathUserProfile)
+        user = await loadCharFile(pathUserProfile)
         tablSays = user.says.tabl()
         option = []
         for count in range(len(tablCat)):
@@ -402,7 +404,7 @@ async def inventory(bot : discord.client, ctx : discord.Message, identifiant : s
     def checkIsAuthorReact(reaction,user):
         return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id)
 
-    user = loadCharFile(pathUserProfile)
+    user = await loadCharFile(pathUserProfile)
     if user.owner != ctx.author.id:
         if ctx.author.id not in user.procuration:
             try:
@@ -896,9 +898,9 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
         listUserProcure = [user]
         for a in user.haveProcurOn:
-            listUserProcure.append(loadCharFile("./userProfile/{0}.prof".format(a)))
+            listUserProcure.append(await loadCharFile("./userProfile/{0}.prof".format(a)))
         
-        mainUser = loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+        mainUser = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
         def userSortValue(user):
             if user.owner == mainUser.owner:
                 return 2
@@ -930,7 +932,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 ],
                 placeholder="Changer de catégorie d'objets"
             )
-            user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
+            user = await loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
             for a in range(len(listUserProcure)):
                 if listUserProcure[a].owner == user.owner:
                     listUserProcure[a] = user
@@ -998,12 +1000,12 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         if type(see) != list:
                             for ski in tablToSee[:]:
                                 if type(ski) != None:
-                                    if (see != TYPE_BOOST and not(ski.type == see or (ski.effect != [None] and findEffect(ski.effect[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST):
+                                    if (see != TYPE_BOOST and not(ski.type == see or (ski.effects != [None] and findEffect(ski.effects[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see) or (ski.depl != None and ski.depl.skills.type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST) or (see == TYPE_BOOST and ski.depl != None and ski.depl.skills.type != see):
                                         tablToSee.remove(ski)
 
                         else:
                             for ski in tablToSee[:]:
-                                if not(ski.type in see or (ski.effect != [None] and findEffect(ski.effect[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
+                                if not(ski.type in see or (ski.effects != [None] and findEffect(ski.effects[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
                                     tablToSee.remove(ski)
 
                     if affAll==0:
@@ -1157,7 +1159,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
 
                         mess += f"\n{a.emoji}{hasEquiped} __{canEquip}{a.name}{canEquip}__\n"
                         if type(a) == skill:
-                            eff = findEffect(a.effect[0])
+                            eff = findEffect(a.effects[0])
 
                         # Première info utile
                         if destination == 0 and type(a) == stuff:
@@ -1165,7 +1167,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                         elif destination in [1,2] and type(a) != stuff:
                             ballerine = tablTypeStr[a.type]
                             if destination == 1:
-                                eff = a.effect
+                                eff = a.effects
                             else:
                                 eff = None
                             if a.power > 0:
@@ -1247,12 +1249,13 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                                 if a.affinity != None:
                                     temp += elemEmojis[a.affinity]
 
-                                if a.effect != None:
-                                    eff = findEffect(a.effect)
+                                if a.effects != None:
+                                    eff = findEffect(a.effects)
                                     if eff != None:
                                         temp += "\n{1} {0}".format(eff.name, eff.emoji[user.species-1][0])
 
                             else:
+                                temp += "\n"
                                 if a.ultimate:
                                     temp += "Ultime"
 
@@ -1408,7 +1411,7 @@ async def inventoryV2(bot : discord.client,ctx : discord_slash.SlashContext ,des
                 page = int(respond.values[0].replace("goto",""))
 
             elif respond.values[0].startswith("user_"):
-                user = loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
+                user = await loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
                 needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, 0, False, 0, 0
 
             elif respond.values[0] in ["hideNoneEquip","affNoneEquip","affExclu"]:
@@ -1522,7 +1525,7 @@ async def breakTheLimits(bot : discord.client, ctx : discord_slash.SlashContext,
                 return 0
 
         started = True
-        user = loadCharFile(user=user)
+        user = await loadCharFile(user=user)
         if user.currencies <= 100+valeurAjoute:
             await msg.edit(embed=discord.Embed(title="__Dépassement de ses limites :__", color=red, description = "Une erreur est survenue :\nVous n'avez pas les fonds nécessaires"))
             return 0

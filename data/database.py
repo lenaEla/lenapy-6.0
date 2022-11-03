@@ -1,5 +1,6 @@
-import sqlite3, classes, datetime, adv, discord
+import sqlite3, classes, adv, discord
 from typing import List, Union
+from datetime import datetime, timedelta
 
 majTeamVic2 = """
     PRAGMA foreign_keys = 0;
@@ -413,7 +414,7 @@ class dbHandler():
 
         else:
             query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,';',0);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
@@ -456,7 +457,7 @@ class dbHandler():
 
         else:
             query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
@@ -476,7 +477,7 @@ class dbHandler():
             result = result[0]
         else:
             query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
@@ -499,7 +500,7 @@ class dbHandler():
         self.con.commit()
         cmpt = 1
         for a in shop:
-            last = datetime.datetime.now()
+            last = datetime.now()
             last = last.strftime("%m/%d/%Y, %H:%M:%S")
             cursor.execute(f"INSERT INTO shop VALUES ('{a.id}','{last}',{cmpt});")
             cmpt += 1
@@ -530,7 +531,7 @@ class dbHandler():
         if len(result)>0:
             rep = {'ShopListe':[],'Date':None}
             click = result[0]["last"]
-            rep["Date"] = datetime.datetime.strptime(click,"%m/%d/%Y, %H:%M:%S")
+            rep["Date"] = datetime.strptime(click,"%m/%d/%Y, %H:%M:%S")
             for a in result:
                 rep["ShopListe"] += [a["id"]]
             return rep
@@ -578,20 +579,20 @@ class dbHandler():
             else:
                 result = result[0]["lastFight"]
             try:
-                result = datetime.datetime.strptime(result,"%m/%d/%Y, %H:%M:%S")
+                result = datetime.strptime(result,"%m/%d/%Y, %H:%M:%S")
             except:
                 return 0
-            delta = result + datetime.timedelta(hours=1+2*quickFight)
-            now = datetime.datetime.now()
+            delta = result + timedelta(hours=1+2*quickFight)
+            now = datetime.now()
             ballerine = delta - now
             return max(0,int(ballerine.total_seconds()))
         else:
             return 0
 
-    def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime.datetime] = None):
+    def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime] = None):
         cursor = self.con.cursor()
         if fromTime == None:
-            now = datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            now = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         else:
             now = fromTime.strftime("%m/%d/%Y, %H:%M:%S")
         if quickFight:

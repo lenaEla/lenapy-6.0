@@ -10,7 +10,7 @@ carbunSkill = skill("Eclat Emeraude","aac",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_2,s
 carbunTSKill = skill("Eclat de Topaze","aad",TYPE_DAMAGE,0,100,AREA_MONO,area=AREA_CIRCLE_2,sussess=80,cooldown=4,emoji="<:eclattopaze:884889967397056512>",use=ENDURANCE,description="Inflige des dégâts dans une large zone autour du Carbuncle Topaze\n__Puissance :__ **{power}**")
 feeWeap = weapon("Embrassement","aae",RANGE_DIST,AREA_CIRCLE_4,20,100,0,type=TYPE_HEAL,use=CHARISMA,emoji="<:feerie:885076995522834442>",target=ALLIES,area=AREA_CIRCLE_1)
 feeEffect = effect("Murmure de l'aurore","aaf",CHARISMA,type=TYPE_INDIRECT_HEAL,power=10,emoji=uniqueEmoji('<:feerie:885076995522834442>'),trigger=TRIGGER_START_OF_TURN,turnInit=3,stackable=True)
-feeSkill = skill("Murmure de l'aurore","aag",TYPE_INDIRECT_HEAL,0,0,AREA_MONO,cooldown=3,area=AREA_CIRCLE_3,emoji="<:feerie:885076995522834442>",effect=feeEffect,description="Donne un effet régénérant aux alliés autours de la Fée Soignante\n__Puissance :__ **{power}**\n__Durée__ : {length} tours")
+feeSkill = skill("Murmure de l'aurore","aag",TYPE_INDIRECT_HEAL,0,0,AREA_MONO,cooldown=3,area=AREA_CIRCLE_3,emoji="<:feerie:885076995522834442>",effects=feeEffect,description="Donne un effet régénérant aux alliés autours de la Fée Soignante\n__Puissance :__ **{power}**\n__Durée__ : {length} tours")
 titWeap = weapon("Rune de Malice","titaniaWeapo,n",RANGE_MELEE,AREA_CIRCLE_1,26,50,repetition=3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2,use=MAGIE) 
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',use=CHARISMA,type=TYPE_HEAL,target=ALLIES,message="{0} encourage doucement {1} :")
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,65,emoji='<:defHeal:885899034563313684>',cooldown=4,description="Soigne l'allié ciblé\n__Puissance :__ **{power}**")
@@ -20,20 +20,20 @@ autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT
 autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,100,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff,sussess=200,setAoEDamage=True,description="Inflige des dégâts en zone autour de la Bombe Robot, puis s'auto détruit à la fin du tour\n__Puissance :__ **{power}**")
 lapinoSkill2 = skill("Murmure d'Abnégation","lapinoSkill2",TYPE_HEAL,power=100,use=CHARISMA,cooldown=3,description="Soigne l'allié ciblé mais le Lapino est vaincu par la suite\n__Puissance :__ **{power}**",effectOnSelf=autoEff)
 cutyBatSkill1Eff = effect("Motivé Bis","batMotivEff",stat=CHARISMA,strength=7,magie=7,charisma=7,intelligence=7)
-cutyBatSkill1 = skill("Motivation de la Chauve-Souris","batMotiv",TYPE_BOOST,0,0,AREA_MONO,area=AREA_DONUT_2,use=CHARISMA,cooldown=4,effect=cutyBatSkill1Eff,description="Augmente la Force, la Magie, le Charisme et l'Intelligence des alliés proches de la Chauve-Souris II")
+cutyBatSkill1 = skill("Motivation de la Chauve-Souris","batMotiv",TYPE_BOOST,0,0,AREA_MONO,area=AREA_DONUT_2,use=CHARISMA,cooldown=4,effects=cutyBatSkill1Eff,description="Augmente la Force, la Magie, le Charisme et l'Intelligence des alliés proches de la Chauve-Souris II")
 cutyBatSkill2Eff = effect("Renforcement Bis","batRenforceEff",stat=INTELLIGENCE,endurance=7,resistance=3,emoji=uniqueEmoji('<:egide:887743268337619005>'))
-cutyBatSkill2 = skill("Renforcement de la Chauve-Souris","batRenforce",TYPE_BOOST,0,0,range=AREA_DONUT_5,cooldown=3,emoji='<:egide:887743268337619005>',effect=cutyBatSkill2Eff,description="Augmente l'Endurance et la Résistance de l'allié ciblé")
+cutyBatSkill2 = skill("Renforcement de la Chauve-Souris","batRenforce",TYPE_BOOST,0,0,range=AREA_DONUT_5,cooldown=3,emoji='<:egide:887743268337619005>',effects=cutyBatSkill2Eff,description="Augmente l'Endurance et la Résistance de l'allié ciblé")
 cutyBatSkill3Eff = effect("Echolocalisé","batEchoEff",CHARISMA,agility=-7,type=TYPE_MALUS)
-cutyBatSkill3 = skill("Echolocalisation","batEcho",TYPE_MALUS,0,0,AREA_MONO,area=AREA_DONUT_5,effect=cutyBatSkill3Eff,cooldown=3,description="Diminue l'Agilité des ennemis affectés")
+cutyBatSkill3 = skill("Echolocalisation","batEcho",TYPE_MALUS,0,0,AREA_MONO,area=AREA_DONUT_5,effects=cutyBatSkill3Eff,cooldown=3,description="Diminue l'Agilité des ennemis affectés")
 cutyBatWeap = weapon("Onde sonore","batWeap",RANGE_DIST,AREA_CIRCLE_5,32,100,effectOnUse=incur[1],use=CHARISMA)
 carbunRWeap = weapon("Griffe enflammé","rubyWeap",RANGE_MELEE,AREA_CIRCLE_1,56,100,use=MAGIE,emoji=batWeap.emoji)
 carbunRSkill1 = skill("Pyrotechnie du Carbuncle","rubySkill",TYPE_DAMAGE,0,75,AREA_CIRCLE_2,cooldown=3,use=MAGIE,description="Inflige des dégâts à l'ennemi ciblé\n__Puissance :__ **{power}**")
 curbunRSkill2Eff = effect("Flamme éternelle","fire",MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,power=35,lvl=3,turnInit=3)
-carbunRSkill2 = skill("Flammes éternelles","rubySkill2",TYPE_DAMAGE,0,70,AREA_CIRCLE_3,effect=curbunRSkill2Eff,cooldown=3,use=MAGIE,description="Inflige des dégâts à l'ennemi ciblé tout en lui infligeant un effet de dégâts indirects\n__Puissance :__ **{power}**\n__Puissance (indirect) :__ **35**\n__Durée (indirect) :__ 3 tours")
+carbunRSkill2 = skill("Flammes éternelles","rubySkill2",TYPE_DAMAGE,0,70,AREA_CIRCLE_3,effects=curbunRSkill2Eff,cooldown=3,use=MAGIE,description="Inflige des dégâts à l'ennemi ciblé tout en lui infligeant un effet de dégâts indirects\n__Puissance :__ **{power}**\n__Puissance (indirect) :__ **35**\n__Durée (indirect) :__ 3 tours")
 serafWeaponEff = effect("Bénidiction séraphique","serafWeapShield",INTELLIGENCE,overhealth=25,lightShield=True,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,emoji=sameSpeciesEmoji('<:dictameB:911078870936084551>','<:dictameR:911078775217848342>'))
 serafWeapon = weapon("Bénéiction séraphique","serafWeap",RANGE_DIST,AREA_CIRCLE_5,power=10,sussess=100,effectOnUse=serafWeaponEff,type=TYPE_HEAL,use=INTELLIGENCE,emoji='<:dictameB:911078870936084551>',target=ALLIES)
 dictameEff = effect("Dictame","dictameEff",INTELLIGENCE,overhealth=35,type=TYPE_ARMOR,emoji=serafWeaponEff.emoji,trigger=TRIGGER_DAMAGE)
-serafSkill = skill("Dictame","dictame",TYPE_ARMOR,0,0,range=AREA_MONO,area=AREA_CIRCLE_2,effect=dictameEff,cooldown=2,use=INTELLIGENCE,emoji=serafWeapon.emoji,description="Donne une armure aux allié proches de la Fée Protectrice\n__Puissance de l'armure :__ **{armor}**")
+serafSkill = skill("Dictame","dictame",TYPE_ARMOR,0,0,range=AREA_MONO,area=AREA_CIRCLE_2,effects=dictameEff,cooldown=2,use=INTELLIGENCE,emoji=serafWeapon.emoji,description="Donne une armure aux allié proches de la Fée Protectrice\n__Puissance de l'armure :__ **{armor}**")
 GESLweap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0)
 GESLskill = skill("Piétinement Physique","TheGiantEnnemySpiderLeft",TYPE_DAMAGE,0,40)
 GESRskill = skill("Piétinement Magique","TheGiantEnnemySpiderRigth",TYPE_DAMAGE,0,GESLskill.power,use=MAGIE)
@@ -55,8 +55,8 @@ autFouWeap = copy.deepcopy(autoWeap)
 autFouWeap.use, autFouWeap.range = INTELLIGENCE, RANGE_DIST
 autFouSkill1Eff, autFouSkill2Eff, autFouSkill2Armor = copy.deepcopy(vulne), copy.deepcopy(dmgUp), effect("Mortier d'ether bénéfique","autFouSkill2Armor",INTELLIGENCE,overhealth=20,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,emoji=sameSpeciesEmoji("<:mortarB:983594992708751410>","<:mortarR:983595021859184650>"))
 autFouSkill1Eff.power, autFouSkill1Eff.stat, autFouSkill2Eff.power, autFouSkill2Eff.stat = 5, INTELLIGENCE, 5, INTELLIGENCE
-autFouSkill1 = skill("Mortier d'ether néfaste","autFouSkill1",TYPE_MALUS,effect=autFouSkill1Eff,area=AREA_CIRCLE_3,use=INTELLIGENCE,range=AREA_MONO,effectAroundCaster=[TYPE_DAMAGE,AREA_DONUT_3,60],cooldown=2,emoji='<:mortarR:983595021859184650>',description="Augmente les dégâts reçus par les ennemis à portée et leur inflige des dégâts\n__Puissance des dégâts :__ 60\n__Puissance de l'augmentation de dégâts subis :__ 5% (Intelligence)")
-autFouSkill2 = skill("Mortier d'ether bénéfique","autFouSKill2",TYPE_BOOST,effect=[autFouSkill2Eff,autFouSkill2Armor],area=AREA_CIRCLE_3,range=AREA_MONO,emoji='<:mortarB:983594992708751410>',description="Augmente les dégâts infligés par les alliés à portée et leur procure une armure\n__Puissance de l'augmentation des dégâts infligés :__ 5%\n__Puissance de l'armure :__ 20")
+autFouSkill1 = skill("Mortier d'ether néfaste","autFouSkill1",TYPE_MALUS,effects=autFouSkill1Eff,area=AREA_CIRCLE_3,use=INTELLIGENCE,range=AREA_MONO,effectAroundCaster=[TYPE_DAMAGE,AREA_DONUT_3,60],cooldown=2,emoji='<:mortarR:983595021859184650>',description="Augmente les dégâts reçus par les ennemis à portée et leur inflige des dégâts\n__Puissance des dégâts :__ 60\n__Puissance de l'augmentation de dégâts subis :__ 5% (Intelligence)")
+autFouSkill2 = skill("Mortier d'ether bénéfique","autFouSKill2",TYPE_BOOST,effects=[autFouSkill2Eff,autFouSkill2Armor],area=AREA_CIRCLE_3,range=AREA_MONO,emoji='<:mortarB:983594992708751410>',description="Augmente les dégâts infligés par les alliés à portée et leur procure une armure\n__Puissance de l'augmentation des dégâts infligés :__ 5%\n__Puissance de l'armure :__ 20")
 autQueenWeap = weapon("Coup de poings","autQueenWeap",RANGE_MELEE,AREA_CIRCLE_1,60,200,emoji='<:queenWeap:983594110025863189>',ignoreAutoVerif=True)
 autQueenSkill1 = skill("Roue véloce","autQueenSkill1",TYPE_DAMAGE,power=15,range=AREA_INLINE_4,tpCac=True,replay=True,emoji='<:queenDash:983594130338902066>',description="L'auto tourelle reine charge un ennemi et rejoue son tour\n__Puissance :__ {power}")
 autQueenSkill2 = skill("Marteau Piqueur","autQueenSkill2",TYPE_DAMAGE,range=AREA_CIRCLE_1,power=130,sussess=200,damageOnArmor=3,emoji='<:queenColi:983595079916736542>',cooldown=3,description="L'auto tourelle reine porte une puissance attaque sur l'ennemi ciblé avec une précision parfaite. Dégâts triplés sur l'armure\n__Puissance :__ {power}")
@@ -65,12 +65,14 @@ pipisWeap = copy.deepcopy(autoWeap)
 lightButterflyWeap = weapon("Lueur Volatile","lightButterflyWeap",RANGE_DIST,AREA_CIRCLE_5,power=60,sussess=100,use=CHARISMA,type=TYPE_HEAL,target=ALLIES,ignoreAutoVerif=True)
 lightButterflySkill1 = skill("Eclats Lumineux","lightButterflySkill1",TYPE_HEAL,power=50,range=AREA_MONO,area=AREA_CIRCLE_3)
 lightButterflySkill2Eff = effect("Bénédiction Lumineuse","lightButterflySkill2Eff",CHARISMA,type=TYPE_INDIRECT_HEAL,power=35,turnInit=3,trigger=TRIGGER_START_OF_TURN,stackable=True)
-lightButterflySkill2 = skill("Bénédiction Concentrique","lightButterflySkill2",TYPE_INDIRECT_HEAL,effect=lightButterflySkill2Eff,use=CHARISMA)
-lightButterflySkill3 = skill("Bénédiction Lumineuse","lightButterflySkill3",TYPE_INDIRECT_HEAL,effect=lightButterflySkill2Eff,use=CHARISMA,effPowerPurcent=40,area=AREA_CIRCLE_1,range=AREA_CIRCLE_4)
+lightButterflySkill2 = skill("Bénédiction Concentrique","lightButterflySkill2",TYPE_INDIRECT_HEAL,effects=lightButterflySkill2Eff,use=CHARISMA)
+lightButterflySkill3 = skill("Bénédiction Lumineuse","lightButterflySkill3",TYPE_INDIRECT_HEAL,effects=lightButterflySkill2Eff,use=CHARISMA,effPowerPurcent=40,area=AREA_CIRCLE_1,range=AREA_CIRCLE_4)
 mrLifeWeap = weapon("Sifflement","mrLifeWeap",RANGE_DIST,AREA_CIRCLE_4,power=30,use=CHARISMA,ignoreAutoVerif=True,sussess=60)
 mrLifeSkill1Eff = effect("Ralentisment","mrLifeSkill1Eff",CHARISMA,agility=-7,precision=-7,turnInit=3,type=TYPE_MALUS,stackable=True)
-mrLifeSkill1 = skill("Ralentissement","mrLifeSkill1",TYPE_MALUS,effect=mrLifeSkill1Eff,cooldown=3,description="Réduit l'agilité et la précision de la cible",range=AREA_CIRCLE_4)
-mrLifeSkill2 = skill("Ralentissement Avancé","mrLifeSkill2",TYPE_MALUS,effect=mrLifeSkill1Eff,cooldown=3,description="Réduit l'agilité et la précision des ennemis alentours",range=AREA_MONO,area=AREA_CIRCLE_4,effPowerPurcent=40)
+mrLifeSkill1 = skill("Ralentissement","mrLifeSkill1",TYPE_MALUS,effects=mrLifeSkill1Eff,cooldown=3,description="Réduit l'agilité et la précision de la cible",range=AREA_CIRCLE_4)
+mrLifeSkill2 = skill("Ralentissement Avancé","mrLifeSkill2",TYPE_MALUS,effects=mrLifeSkill1Eff,cooldown=3,description="Réduit l'agilité et la précision des ennemis alentours",range=AREA_MONO,area=AREA_CIRCLE_4,effPowerPurcent=40)
+skeletonWeap = weapon("Epée nécromantique","skeletonWeap",RANGE_MELEE,AREA_CIRCLE_1,60,60,0,strength=10,magie=10,ignoreAutoVerif=True,use=MAGIE)
+
 
 batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.5],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans temps de rechargement",skill=[batSkill],element=ELEMENT_AIR)
 carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],20,10,[PURCENTAGE,1],MAGE,["<:carbEmR:919858018739437568>",'<:carbEmB:919857996274749451>'],carbunE,[carbunSkill],description="Une invocation utilisant des compétences de zone pour vaincre des groupes d'ennemis de loin",element=ELEMENT_AIR)
@@ -96,9 +98,10 @@ carbSaphir = invoc("Carbuncle Saphir",strength=[PURCENTAGE,0.7],endurance=[PURCE
 pipis = invoc("Pipis",[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.3],[PURCENTAGE,0.1],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,0.7],ASPI_NEUTRAL,["<:pipis:984865081672212491>","<:pipis:984865081672212491>"],pipisWeap,[pipisSkill])
 lightButterfly = invoc("Papillon de Lumière",[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],25,0,15,ALTRUISTE,["<:blum:992495387812311060>","<:rlum:992495404933455974>"],lightButterflyWeap,[lightButterflySkill1,lightButterflySkill2,lightButterflySkill3],description="Un papillon pouvant soigner les combattants alliés, efficace aussi bien en zone qu'en monocible",element=ELEMENT_LIGHT)
 mrLifeSavor = invoc("Mr. Lifesavor",[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],30,10,15,INOVATEUR,["<:mrLifeSavor:1009824241954324561>","<:mrLifeSavor:1009824241954324561>"],mrLifeWeap,[mrLifeSkill1,mrLifeSkill2],description="Sifflet animé de Lime Cookie, Mr Lifesavor prend garde à ce que personne ne court à côté de la piscine\nPeut réduire l'agilité et la précision ses ennemis")
-
+skeleton = invoc("Squelette",aspiration=POIDS_PLUME,strength=[PURCENTAGE,0.25],endurance=[PURCENTAGE,0.35],charisma=[PURCENTAGE,0.25],agility=[PURCENTAGE,0.25],precision=[PURCENTAGE,0.25],intelligence=[PURCENTAGE,0.25],magie=[PURCENTAGE,0.35],resistance=20,percing=10,critical=0,icon=['<:skeleton:1034363693724610580>','<:skeleton:1034363693724610580>'],weapon=skeletonWeap,description="Une invocation faible mais pouvant facilement submerger l'ennemi")
 # Invocations
-invocTabl = [seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR,autTour,autFou,autQueen,pipis,lightButterfly,mrLifeSavor,
+
+invocTabl = [skeleton,seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR,autTour,autFou,autQueen,pipis,lightButterfly,mrLifeSavor,
 ]
 
 def findSummon(name) -> invoc:

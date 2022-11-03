@@ -466,7 +466,7 @@ class successTabl:
 
 class succesDb:
     def __init__(self, database : str):
-        self.con = sqlite3.connect(f"./data/database/{database}")
+        self.con = sqlite3.connect(f"./data/database/{database}",check_same_thread=False)
         self.con.row_factory = sqlite3.Row
         self.database = database
 
@@ -504,6 +504,7 @@ class succesDb:
             result = cursor.fetchall()
 
         result = result[0]
+        cursor.close()
         achivTabl = successTabl()
 
         for a in achivTabl.tablAllSuccess():
