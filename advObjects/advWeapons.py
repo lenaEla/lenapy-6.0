@@ -3,8 +3,8 @@ from constantes import *
 from advObjects.advSkills import tablElemEff, coroWind, plumRemEff
 from advObjects.advStuffs import shieltron
 
-splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = emoji.splatShot,affinity=ELEMENT_NEUTRAL)
-roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,70,70,340,strength=10,endurance=10,resistance=10,emoji = emoji.roller,needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2,damageOnArmor=0.8)
+splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = '<:splattershot:866367647113543730>',affinity=ELEMENT_NEUTRAL)
+roller = weapon("Rouleau","ac",RANGE_MELEE,AREA_CIRCLE_1,70,70,340,strength=10,endurance=10,resistance=10,emoji = '<:splatroller:866367775722831934>',needRotate=False,affinity=ELEMENT_AIR,area=AREA_CONE_2,damageOnArmor=0.8)
 splatcharger = weapon("Fusil de précision anti-matériel","ad",RANGE_LONG,AREA_CIRCLE_5,83,60,482,strength=10,precision=20,emoji = '<:sniperRifle:903115499204923402>',affinity=ELEMENT_WATER)
 miniBrush = weapon("Epinceau","ae",RANGE_MELEE,AREA_CIRCLE_1,31,45,224,agility=10,charisma=10,endurance=10,repetition=5,emoji='<:inkBrush:866463573580578816>',needRotate=False)
 inkbrella = weapon("Para-Encre","ag",RANGE_MELEE,AREA_CIRCLE_1,41,45,price=472,endurance=5,resistance=10,repetition=3,effects='lp',emoji='<:splatbrella:866464991255199834>',needRotate=False)

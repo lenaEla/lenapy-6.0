@@ -1,6 +1,5 @@
-import discord, random, os, emoji, asyncio, datetime, copy
-from discord_slash.context import SlashContext
-from discord_slash.utils.manage_components import create_actionrow, create_select, create_select_option, create_button
+import random, copy, interactions
+from interactions import *
 from adv import *
 from classes import *
 from donnes import *
@@ -8,17 +7,13 @@ from gestion import *
 from advance_gestion import *
 from commands_files.sussess_endler import *
 from commands_files.alice_stats_endler import *
-from traceback import format_exc
 from typing import Union, List
-from sys import maxsize
-from socket import error as SocketError
-import errno
 
 teamWinDB = dbHandler("teamVic.db")
 AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHANT = 0,1,2,3,4,5,6,7
 moveEmoji = ['⬅️','➡️','⬆️','⬇️']
-cancelButton = create_actionrow(create_button(ButtonStyle.grey,"Retour",'◀️',custom_id="return"))
-waitingSelect = create_actionrow(create_select([create_select_option("Veuillez prendre votre mal en patience","wainting...",'🕰️',default=True)],disabled=True))
+cancelButton = interactions.ActionRow(components=[interactions.Button(type=2,style=2,label="Retour",emoji=Emoji(name="◀️"),custom_id="return")])
+waitingSelect = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "waitingSelect", options=[interactions.SelectOption(label="Veuillez prendre votre mal en patience",value="wainting...",emoji=Emoji(name='🕰️'),default=True)],disabled=True)])
 
 hiddenIcons = ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:905169617163538442>','<:lo:887853918665707621>','<:co:895440308257558529>']+aspiEmoji
 
@@ -69,9 +64,9 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
         return basePower
 
 def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActionStat = ACT_INDIRECT):
-    damage = ""
+    damage = basePower
     dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.1 +1
-    if use != None:
+    if use not in [None,FIXE]:
         if use != HARMONIE:
             stat = caster.allStats()[use]-[caster.negativeHeal, caster.negativeShield, caster.negativeBoost, caster.negativeDirect, caster.negativeIndirect][useActionStat]
         else:
@@ -422,9 +417,9 @@ def getBuffAggro(caster,target,effect:classes.effect):
 
     BASEDPTVALUE = 10000
     if caster.char.charSettings["buffTarget"] == CHARSET_BUFFTARGET_HIGHDPT and target.char.aspiration in dptAspi:
-        toReturn = toReturn * (1+(target.stats.damageDeals/BASEDPTVALUE))
+        toReturn = toReturn * (1+(target.stats.damageDeal/BASEDPTVALUE))
     elif caster.char.charSettings["buffTarget"] == CHARSET_BUFFTARGET_LOWDPT and target.char.aspiration in dptAspi:
-        toReturn = toReturn * (1+(BASEDPTVALUE-target.stats.damageDeals/BASEDPTVALUE))
+        toReturn = toReturn * (1+(BASEDPTVALUE-target.stats.damageDeal/BASEDPTVALUE))
     elif caster.char.charSettings["buffTarget"] == CHARSET_BUFFTARGET_HASULT and target.char.aspiration in dptAspi:
         bigSkillMul = 1
         for cmpt in range(len(target.char.skills)):
@@ -433,7 +428,7 @@ def getBuffAggro(caster,target,effect:classes.effect):
         toReturn = toReturn * bigSkillMul
 
     return toReturn 
-        
+
 def getRaiseAggro(caster,target):
     if not(target.auto):
         return 10
@@ -442,7 +437,7 @@ def getRaiseAggro(caster,target):
 
     return 0
 
-async def getResultScreen(bot,ent) -> discord.Embed:
+async def getResultScreen(bot,ent) -> interactions.Embed:
     stats = ent.stats
     userIcon = await ent.getIcon(bot)
     descri = f"{ent.char.weapon.emoji}"
@@ -458,7 +453,7 @@ async def getResultScreen(bot,ent) -> discord.Embed:
             skillTmp += " {0}".format(a.emoji)
 
     descri+=skillTmp
-    statsEm = discord.Embed(title = "__Statistiques de {0} {1}__".format(userIcon,unhyperlink(ent.name)),color=ent.char.color,description=descri)
+    statsEm = interactions.Embed(title = "__Statistiques de {0} {1}__".format(userIcon,unhyperlink(ent.name)),color=ent.char.color,description=descri)
 
     precisePurcent,dodgePurcent,critPurcent = "-","-","-"
     if stats.totalNumberShot > 0:
@@ -521,5 +516,5 @@ async def getResultScreen(bot,ent) -> discord.Embed:
             statsEm.add_field(name=statsCatNames[cmpt],value=tempDesc,inline=False)
         except:
             print_exc()
-    statsEm.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
+    statsEm.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
     return statsEm

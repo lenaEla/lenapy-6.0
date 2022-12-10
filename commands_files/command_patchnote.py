@@ -1,7 +1,8 @@
 from gestion import existFile
 import discord
+import interactions
 
-async def new_patch(bot : discord.Client,ctx : discord.Message):
+async def new_patch(bot : interactions.Client, ctx : interactions.Message):
     """Permet d'enregistrer un nouveau patchnote"""
     existFile("./data/patch/patch.txt")
     patchFile = open("./data/patch/patch.txt","w")

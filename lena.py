@@ -7,18 +7,13 @@ import random
 import shutil
 import sys
 
-import discord
-from discord.ext import commands, tasks
-from discord_slash import *
-from discord_slash import SlashCommand
-from discord_slash.utils.manage_commands import create_choice, create_option
+from discord.ext import tasks
+from interactions import *
 
-import emoji
 from adv import *
 from advance_gestion import *
 from classes import *
 from commands_files.alice_stats_endler import *
-from commands_files.command_duty import *
 from commands_files.command_encyclopedia import *
 from commands_files.command_expedition import *
 from commands_files.command_fight import *
@@ -40,9 +35,7 @@ from datetime import datetime
 ###########################################################
 # Initialisations des variables de bases :
 started = False
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="l!",description="LenaPy par LenaicU", intents=intents)
-slash = SlashCommand(bot, sync_commands=True)
+slash = setup(interactions.Client(token=[shushipy,lenapy][isLenapy],intents=interactions.Intents(Intents.ALL)))
 
 existDir(absPath + "/userProfile/")
 existDir(absPath + "/data/images/")
@@ -110,7 +103,7 @@ class shopClass:
                 while babies.hour % 3 != 0:
                     babies = babies + timedelta(hours=1)
 
-                await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+babies.strftime('%Hh')))
+                await slash.change_presence(ClientPresence(status=StatusType.ONLINE,activities=[PresenceActivity(name="Prochain shop à "+babies.strftime('%Hh'),type=PresenceActivityType.GAME)]))
 
             shopWeap, shopSkill, shopStuff, ShopOther = [], [], [], others[:]
             for a in weapons:
@@ -155,9 +148,9 @@ class shopClass:
         except:
             return False
 
-async def inventoryVerif(bot, toVerif: Union[char, str]):
+async def inventoryVerif(slash, toVerif: Union[char, str]):
     if type(toVerif) == str:
-        user = await loadCharFile(absPath + "/userProfile/" + toVerif)
+        user = loadCharFile(absPath + "/userProfile/" + toVerif)
     else:
         user = toVerif
     aliceStatsDb.addUser(user)
@@ -212,13 +205,13 @@ async def inventoryVerif(bot, toVerif: Union[char, str]):
     if modifSkill+modifStuff > 0:
         saveCharFile(user=user)
         try:
-            toUser = await bot.fetch_user(user.owner)
+            toUser = await get(slash,interactions.User,object_id=user.owner)
             message = ""
             if modifSkill > 0:
                 message += ballerine+"\n"
             if modifStuff > 0:
                 message += babie
-            await toUser.send(embed=discord.Embed(title="__Problème lors de la vérification automatique de l'inventaire__", color=user.color, description=message))
+            await toUser.send(embeds=interactions.Embed(title="__Problème lors de la vérification automatique de l'inventaire__", color=user.color, description=message))
         except:
             pass
 
@@ -244,8 +237,8 @@ async def inventoryVerif(bot, toVerif: Union[char, str]):
         temp = "Vous ne respectez pas les conditions de niveaux d'un ou plusieurs de vos équipements\nLe(s) équipement(s) suivant a(ont) automatiquement été remplacé(s) :\n\n"+temp
         saveCharFile(user=user)
         try:
-            toUser = await bot.fetch_user(user.owner)
-            await toUser.send(embed=discord.Embed(title="__Problème lors de la vérification automatique de l'inventaire__", color=user.color, description=temp))
+            toUser = await get(slash,interactions.User,object_id=user.owner)
+            await toUser.send(embeds=interactions.Embed(title="__Problème lors de la vérification automatique de l'inventaire__", color=user.color, description=temp))
         except:
             pass
 
@@ -273,23 +266,23 @@ async def inventoryVerif(bot, toVerif: Union[char, str]):
 
     if tempMissingAchivRecompMsg != "":
         try:
-            toUser = await bot.fetch_user(user.owner)
-            await toUser.send(embed=discord.Embed(title="__Problème lors de la vérification automatique de l'inventaire__", color=user.color, description="Une ou plusieurs récompenses de succès n'ont pas été trouvées dans votre inventaire et vous ont été restituée :\n"+tempMissingAchivRecompMsg))
+            toUser = await get(slash,interactions.User,object_id=user.owner)
+            await toUser.send(embeds=interactions.Embed(title="__Problème lors de la vérification automatique de l'inventaire__", color=user.color, description="Une ou plusieurs récompenses de succès n'ont pas été trouvées dans votre inventaire et vous ont été restituée :\n"+tempMissingAchivRecompMsg))
             print("{0} n'avait pas toutes ces récompenses de succès".format(user.name))
         except:
             pass
 
     if user.level > 55:
-        user = await loadCharFile(user=user)
+        user = loadCharFile(user=user)
         user.level, user.exp = 55, 0
         user = restats(user)
 
         saveCharFile(user=user)
 
-        toSend = await bot.fetch_user(user.owner)
+        toSend = await get(slash,interactions.User,object_id=user.owner)
 
         try:
-            await toSend.send(embed=discord.Embed(title="__Problème lors de la vérification automatique de votre inventaire :__", description="Votre niveau est supérieur au niveau maximal, et à été ramené à ce dernier\nVos points bonus ont été rénitialisées\n\nPensez à faire un tour vers /prestige", color=light_blue))
+            await toSend.send(embeds=interactions.Embed(title="__Problème lors de la vérification automatique de votre inventaire :__", description="Votre niveau est supérieur au niveau maximal, et à été ramené à ce dernier\nVos points bonus ont été rénitialisées\n\nPensez à faire un tour vers /prestige", color=light_blue))
         except:
             pass
 
@@ -300,16 +293,16 @@ else:
     shopping = shopClass(False)
     shopping.newShop()
 
-async def restart_program(bot: discord.Client, ctx=None):
+async def restart_program(bot: interactions.Client, ctx=None):
     """If no teams are into a fight, restart the bot\n
     If a team fighting, wiat for them to finish then restart the bot"""
     if ctx != None:
-        msg = await ctx.send(embed=discord.Embed(title="Redémarrage en attente...", description="Vérifications des équipes en combat..."))
+        msg = await ctx.send(embeds=interactions.Embed(title="Redémarrage en attente...", description="Vérifications des équipes en combat..."))
     else:
-        chan = await bot.fetch_channel(912137828614426707)
-        msg = await chan.send(embed=discord.Embed(title="Redémarrage automatique en attente...", description="Vérifications des équipes en combat..."))
+        chan = await get(slash,interactions.Channel,object_id=912137828614426707)
+        msg = await chan.send(embeds=interactions.Embed(title="Redémarrage automatique en attente...", description="Vérifications des équipes en combat..."))
     globalVar.changeFightEnabled(False)
-    await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="attendre la fin des combats en cours pour redémarrer"))
+    await slash.change_presence(status=ClientPresence(status=StatusType.DND,activities=[PresenceActivity(name="Attendre la fin des combats",type=PresenceActivityType.GAME)]))
 
     globalVar.getRestartMsg(int(msg.id))
     fighting = True
@@ -320,16 +313,16 @@ async def restart_program(bot: discord.Client, ctx=None):
             if teamWinDB.isFightingBool(team)[0]:
                 if firstIt:
                     teamTemp = userTeamDb.getTeamMember(team)
-                    us = await bot.fetch_user(teamTemp[0])
-                    await msg.edit(embed=discord.Embed(title="Redémarrage en attente...", description="Un combat est encore en cours <a:loading:862459118912667678> ({0})".format(us.mention)))
+                    us = await get(slash,interactions.User,object_id=teamTemp[0])
+                    await msg.edit(embeds=interactions.Embed(title="Redémarrage en attente...", description="Un combat est encore en cours <a:loading:862459118912667678> ({0})".format(us.mention)))
                     firstIt = False
                 fighting = True
                 break
         if fighting:
             await asyncio.sleep(3)
 
-    await msg.edit(embed=discord.Embed(title="Redémarrage en attente...", description="Redémarrage en cours..."))
-    await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="redémarrer"))
+    await msg.edit(embeds=interactions.Embed(title="Redémarrage en attente...", description="Redémarrage en cours..."))
+    await slash.change_presence(ClientPresence(status=StatusType.IDLE,activities=[PresenceActivity(name="Redémarrer...",type=PresenceActivityType.GAME)]))
 
     args = sys.argv[:]
 
@@ -373,15 +366,15 @@ def delete_old_backups():
 
 async def remakeEmojis(ctx=None):
     if ctx != None:
-        msg = await ctx.send(embed=discord.Embed(title="Remake des emojis..."))
+        msg = await ctx.send(embeds=interactions.Embed(title="Remake des emojis..."))
     else:
-        chan = await bot.fetch_channel(912137828614426707)
-        msg = await chan.send(embed=discord.Embed(title="Remake des emojis..."))
+        chan = await get(slash,interactions.Channel,object_id=912137828614426707)
+        msg = await chan.send(embeds=interactions.Embed(title="Remake des emojis..."))
 
-    await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="refaire les emojis..."))
+    await slash.change_presence(ClientPresence(status=StatusType.IDLE,activities=[PresenceActivity(name="Refaire les émojis...",type=PresenceActivityType.GAME)]))
 
     async def refresh(text: str):
-        await msg.edit(embed=discord.Embed(title="Remake des emojis...", description=text))
+        await msg.edit(embeds=interactions.Embed(title="Remake des emojis...", description=text))
 
     await refresh("Suppression de la base de données...")
     try:
@@ -398,14 +391,14 @@ async def remakeEmojis(ctx=None):
 
     allEmojisNum = 0
     for a in iconGuildList:
-        emojiGuild = await bot.fetch_guild(a)
+        emojiGuild = await get(slash,interactions.Guild,a)
         allEmojisNum += len(emojiGuild.emojis)
 
     cmpt = 0
     now = datetime.now().second
     lastTime = copy.deepcopy(now)
     for a in iconGuildList:
-        emojiGuild = await bot.fetch_guild(a)
+        emojiGuild = await get(slash,interactions.Guild,a)
 
         for b in emojiGuild.emojis:
             try:
@@ -426,8 +419,8 @@ async def remakeEmojis(ctx=None):
     cmpt = 0
 
     for num in allChar:
-        user = await loadCharFile("./userProfile/"+num)
-        await makeCustomIcon(bot, user)
+        user = loadCharFile("./userProfile/"+num)
+        await makeCustomIcon(slash, user)
         cmpt += 1
 
         if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
@@ -436,40 +429,40 @@ async def remakeEmojis(ctx=None):
 
     await refresh("Fini !")
     if ctx != None:
-        await ctx.channel.send("Le remake des emojis est terminées !", delete_after=10)
+        await ctx.channel.send("Le remake des emojis est terminées !")
 
     ballerine = datetime.now() + horaire + timedelta(hours=1)
     while ballerine.hour % 3 != 0:
         ballerine = ballerine + timedelta(hours=1)
 
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
+    await slash.change_presence(ClientPresence(status=StatusType.ONLINE,activities=[PresenceActivity(name="Prochain shop à "+ballerine.strftime('%Hh'),type=PresenceActivityType.GAME)]))
 
 async def verifEmojis(ctx=None):
     if ctx != None:
-        msg = await ctx.send(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ 0%"))
+        msg = await ctx.send(embeds=interactions.Embed(title="Vérification des émojis...", description="__Progression :__ 0%"))
     else:
-        chan = await bot.fetch_channel(912137828614426707)
-        msg = await chan.send(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ 0%"))
+        chan = await get(slash,interactions.Channel,912137828614426707)
+        msg = await chan.send(embeds=interactions.Embed(title="Vérification des émojis...", description="__Progression :__ 0%"))
     remaked, lastProgress = "", 0
     listAllUsersFiles = os.listdir("./userProfile/")
     lenAllUser, progress = len(listAllUsersFiles), 0
     try:
         for path in listAllUsersFiles:
-            user, haveSucced = await loadCharFile("./userProfile/"+path), False
-            userIcon = await getUserIcon(bot, user)
+            user, haveSucced = loadCharFile("./userProfile/"+path), False
+            userIcon = await getUserIcon(slash, user)
             haveSucced = False
             for guildId in [ShushyCustomIcons, LenaCustomIcons][isLenapy]:
-                guild = await bot.fetch_guild(guildId)
+                guild = await get(slash,interactions.Guild,guildId)
                 try:
-                    await guild.fetch_emoji(getEmojiObject(userIcon)["id"])
+                    await get(slash, interactions.Emoji, parent_id=int(guild.id), object_id=getEmojiObject(userIcon).id)
                     haveSucced = True
                     break
                 except:
                     pass
             if not(haveSucced):
                 customIconDB.removeUserIcon(user)
-                await makeCustomIcon(bot, user)
-                if await getUserIcon(bot, user) not in ['<:LenaWhat:760884455727955978>', '<a:lostSilver:917783593441456198>']:
+                await makeCustomIcon(slash, user)
+                if await getUserIcon(slash, user) not in ['<:LenaWhat:760884455727955978>', '<a:lostSilver:917783593441456198>']:
                     remaked += "Emoji de {0} refait\n".format(user.name)
                 else:
                     remaked += "Erreur lors du remake de l'emoji de {0}\n".format(
@@ -477,12 +470,12 @@ async def verifEmojis(ctx=None):
             progress += 1
 
             if progress/lenAllUser * 100 > lastProgress + 5:
-                await msg.edit(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ {0}%\n".format(round(progress/lenAllUser * 100, 2))+remaked))
+                await msg.edit(embeds=interactions.Embed(title="Vérification des émojis...", description="__Progression :__ {0}%\n".format(round(progress/lenAllUser * 100, 2))+remaked))
                 lastProgress = progress/lenAllUser * 100
 
-        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked, color=light_blue))
+        await msg.edit(embeds=interactions.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked, color=light_blue))
     except:
-        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
+        await msg.edit(embeds=interactions.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
 
 @tasks.loop(seconds=1)
 async def oneClock():
@@ -516,10 +509,10 @@ async def hourClock():
             temp = await shopping.newShop()
 
     elif tick.hour == 4:
-        chan = await bot.fetch_channel(912137828614426707)
+        chan = await get(slash,interactions.Channel,912137828614426707)
         if tick.day == 19:
-            chan = await bot.fetch_channel(912137828614426707)
-            await chan.send(embed=discord.Embed(title="__Reset des records__", color=light_blue, description=aliceStatsDb.resetRecords()))
+            chan = await get(slash,interactions.Channel,912137828614426707)
+            await chan.send(embeds=interactions.Embed(title="__Reset des records__", color=light_blue, description=aliceStatsDb.resetRecords()))
         for log in os.listdir("./data/fightLogs/"):
             try:
                 os.remove("./data/fightLogs/"+log)
@@ -527,37 +520,35 @@ async def hourClock():
             except:
                 print("{0} n'a pas pu être supprimé".format(
                     "./data/fightLogs/"+log))
-        await chan.send(embed=discord.Embed(title="__Suppression des logs__", color=light_blue, description="Les logs de combats ont été supprimés"))
-        await chan.send(embed=discord.Embed(title="__Auto backup__", color=light_blue, description=create_backup()))
+        await chan.send(embeds=interactions.Embed(title="__Suppression des logs__", color=light_blue, description="Les logs de combats ont été supprimés"))
+        await chan.send(embeds=interactions.Embed(title="__Auto backup__", color=light_blue, description=create_backup()))
         temp = delete_old_backups()
         if temp != "":
-            await chan.send(embed=discord.Embed(title="__Auto backup__", color=light_blue, description=temp))
+            await chan.send(embeds=interactions.Embed(title="__Auto backup__", color=light_blue, description=temp))
         await verifEmojis()
 
         for userPath in os.listdir("./userProfile/"):
-            user = await loadCharFile('./userProfile/{0}'.format(userPath))
+            user = loadCharFile('./userProfile/{0}'.format(userPath))
             aliceStatsDb.updateJetonsCount(user, max(0,9-(userShopPurcent(user)//10)))
         await restart_program(bot)
 
     # Skill Verif
     for filename in os.listdir("./userProfile/"):
-        await inventoryVerif(bot, filename)
+        await inventoryVerif(slash, filename)
 
 @tasks.loop(seconds=5)
 async def twitchAlertLoop():
     await verifStreamingStreamers(bot)
 
 # -------------------------------------------- ON READY --------------------------------------------
-@bot.event
+@slash.event
 async def on_ready():
     print("\n---------\nThe bot is fully online ! Starting the initialisations things...\n---------\n")
     startMsg = globalVar.getRestartMsg()
     try:
         if startMsg != 0:                           # If the bot was rebooted with the admin command, change the status
-            msg = await bot.fetch_channel(912137828614426707)
-            msg = await msg.fetch_message(startMsg)
-
-            await msg.edit(embed=discord.Embed(title="Redémarrage en cours...", description="Phase d'initalisation..."))
+            msg = await get(slash, interactions.Message, parent_id=912137828614426707, object_id=startMsg)
+            await msg.edit(embeds=interactions.Embed(title="Redémarrage en cours...", description="Phase d'initalisation..."))
             globalVar.changeFightEnabled(True)
     except:
         globalVar.changeFightEnabled(True)
@@ -569,9 +560,9 @@ async def on_ready():
             ballerine = ballerine + timedelta(hours=1)
 
         if not(globalVar.fightEnabled()):
-            await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Les combats sont actuellements désactivés"))
+            await slash.change_presence(ClientPresence(status=StatusType.DND,activities=[PresenceActivity(name="Les combats sont désactivés",type=PresenceActivityType.GAME)]))
         else:
-            await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
+            await slash.change_presence(ClientPresence(status=StatusType.ONLINE,activities=[PresenceActivity(name="Prochain shop à "+ballerine.strftime('%Hh'),type=PresenceActivityType.GAME)]))
 
     if not(oneClock.is_running()):
         oneClock.start()
@@ -581,10 +572,10 @@ async def on_ready():
         twitchAlertLoop.start()
 
     print("\nDownloading the emojis for the custom icons...")
-    await downloadAllHeadGearPng(bot)
-    await downloadAllWeapPng(bot)
-    await downloadAllIconPng(bot)
-    await downloadElementIcon(bot)
+    await downloadAllHeadGearPng(slash)
+    await downloadAllWeapPng(slash)
+    await downloadAllIconPng(slash)
+    await downloadElementIcon(slash)
 
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
@@ -592,8 +583,8 @@ async def on_ready():
 
     try:
         if startMsg != 0:
-            await msg.edit(embed=discord.Embed(title="Redémarrage en cours...", color=light_blue, description="Le bot a bien été redémarré"))
-            await msg.channel.send("Le redémarrage du bot est terminé Léna", delete_after=10)
+            await msg.edit(embeds=interactions.Embed(title="Redémarrage en cours...", color=light_blue, description="Le bot a bien été redémarré"))
+            await msg.channel.send("Le redémarrage du bot est terminé Léna")
             globalVar.getRestartMsg(int(0))
             print("Redémarrage terminé")
     except:
@@ -607,92 +598,74 @@ if isLenapy:
 else:
     adminServ = [927195778013859902]
 
-
 # -------------------------------------------- ON MESSAGE --------------------------------------------
-@bot.event
-async def on_message(ctx: discord.message.Message):
-    if ctx.content.startswith("l!test") and ctx.author.id == 213027252953284609:
-        user = await loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
-        await makeCustomIcon(bot, user)
-        await ctx.reply(embed=discord.Embed(title="__Icone de personnage__", color=user.color).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot, user))["id"])))
-
-    elif ctx.content.startswith("l!emoji") and ctx.author.id == 213027252953284609:
+@slash.event
+async def on_message(ctx: interactions.Message):
+    pathUserProfile = "./userProfile/{0}.prof".format(ctx.author.id)
+    if os.path.exists(pathUserProfile) and len(ctx.content) >= 3:
         try:
-            user = await loadCharFile("./userProfile/213027252953284609.prof".format(ctx.author.id))
-            user.apparaAcc = user.apparaWeap = None
-            tablStuff, user.showAcc = [
-                ironHelmet, batEarRings, batPendant, fecaShield, anakiMask, catEars], True
-            for handed in [0, 1]:
-                user.handed = handed
-                for stuffy in tablStuff:
-                    user.stuff[0] = stuffy
-                    imageFile = await makeCustomIcon(bot, user, True)
-                    filing = open("./data/images/temp.png", "wb")
-                    filing.write(imageFile)
-                    filing.close()
-                    filing = open("./data/images/temp.png", "rb")
-                    await ctx.channel.send(content="Position : {0}".format(stuffy.position), file=discord.File(fp=filing))
-                    filing.close()
+            await addExpUser(slash, pathUserProfile, ctx, 3, 3)
         except:
-            await ctx.channel.send(content=format_exc())
-
-    else:
-        pathUserProfile = "./userProfile/{0}.prof".format(ctx.author.id)
-        if os.path.exists(pathUserProfile) and len(ctx.content) >= 3:
-            try:
-                await addExpUser(bot, pathUserProfile, ctx, 3, 3)
-            except:
-                print("Erreur dans la gestion du message de {0}".format(
-                    ctx.author.name))
-                print_exc()
+            print("Erreur dans la gestion du message de {0}".format(
+                ctx.author.name))
+            print_exc()
 
 # -------------------------------------------- ENCYCLOPEDIA --------------------------------------------
-
-@slash.slash(name="encyclopedia", description="Vous permet de consulter l'encyclopédie", options=[
-    create_option(
-        name="destination", description="Que voulez vous consulter ?", required=True, option_type=3,
+@slash.command(name="encyclopedia", description="Vous permet de consulter l'encyclopédie", options=[
+    interactions.Option(
+        name="destination", description="Que voulez vous consulter ?", required=False, type=3,
         choices=[
-            create_choice(name="Accessoires", value="accessoires"),
-            create_choice(name="Vêtements", value="vetements"),
-            create_choice(name="Chaussures", value="chaussures"),
-            create_choice(name="Armes", value="armes"),
-            create_choice(name="Compétences", value="competences"),
-            create_choice(name="Alliés Temporaires", value='tempAlies'),
-            create_choice(name="Ennemis", value="ennemies"),
-            create_choice(name="Boss", value="boss"),
-            create_choice(name="Objets non-possédés", value="locked"),
-            create_choice(name="Succès", value="achivements")
+            interactions.Choice(name="Accessoires", value="accessoires"),
+            interactions.Choice(name="Vêtements", value="vetements"),
+            interactions.Choice(name="Chaussures", value="chaussures"),
+            interactions.Choice(name="Armes", value="armes"),
+            interactions.Choice(name="Compétences", value="competences"),
+            interactions.Choice(name="Alliés Temporaires", value='tempAlies'),
+            interactions.Choice(name="Ennemis", value="ennemies"),
+            interactions.Choice(name="Boss", value="boss"),
+            interactions.Choice(name="Objets non-possédés", value="locked"),
+            interactions.Choice(name="Succès", value="achivements")
         ]
     )
 ])
 
-async def comEncyclopedia(ctx, destination):
-    if not(await botChannelVerif(bot, ctx)):
-        return 0
+async def comEncyclopedia(ctx: CommandContext, destination = None):
+    if not(await botChannelVerif(slash, ctx)):
+        await ctx.send("Je ne suis pas autorisée à donner suite aux commandes dans ce salon",ephemeral=True)
+
+    await ctx.defer()
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    user = await loadCharFile(pathUserProfile)
+    user = loadCharFile(pathUserProfile)
 
-    await encylopedia(bot, ctx, destination, user)
+    if user == None:
+        await ctx.send("Vous devez avoir un personnage pour utiliser cette commande.\nVous pouvez en créer un a l'aide de la command /start")
+
+    try:
+        if destination == None:
+            destination = "locked"
+        await encylopedia(slash, ctx, destination, user)
+    except Exception as e:
+        print_exc()
+        await ctx.send("Une erreur est survenue :\n{0}".format(e))
 
 # -------------------------------------------- FIGHT --------------------------------------------
-
 allreadyinWait, allreadyinWaitQuick = [], []
 # normal fight
-@slash.subcommand(base="fight", name="normal", description="Permet de lancer un combat normal")
+@slash.command(name="fight_normal", description="Permet de lancer un combat normal")
 async def normal(ctx):
     msg = None
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     if not(globalVar.fightEnabled()):
-        await ctx.send(embed=discord.Embed(title="__Combats désactivés__", description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"), delete_after=10)
+        await ctx.send(embeds=interactions.Embed(title="__Combats désactivés__", description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),ephemeral=True)
         return 0
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     try:
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
     except:
-        await ctx.send("Vous n'avez pas commencé l'aventure", delete_after=10)
+        await ctx.send("Vous n'avez pas commencé l'aventure",ephemeral=True)
         return 0
 
     ballerine, temp = 0, 0
@@ -705,7 +678,7 @@ async def normal(ctx):
 
     if timing > 0:
         if timing > 60*10:
-            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])), delete_after=10)
+            await ctx.send(embeds=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats normaux que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])),ephemeral=True)
             return 0
         elif ballerine not in allreadyinWait:
             allreadyinWait.append(ballerine)
@@ -715,25 +688,25 @@ async def normal(ctx):
                     try:
                         if msg == None:
                             try:
-                                msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                                msg = await ctx.send(embeds=await getRandomStatsEmbed(slash, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                             except:
-                                msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                                msg = await ctx.channel.send(embeds=await getRandomStatsEmbed(slash, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                         else:
-                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                            await msg.edit(embeds=await getRandomStatsEmbed(slash, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                     except:
                         pass
                     await asyncio.sleep(10)
                 else:
                     try:
                         if msg == None:
-                            msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Combat en cour de génération..."))
+                            msg = await ctx.send(embeds=await getRandomStatsEmbed(slash, [user], text="Combat en cour de génération..."))
                         else:
-                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Combat en cour de génération..."))
+                            await msg.edit(embeds=await getRandomStatsEmbed(slash, [user], text="Combat en cour de génération..."))
                     except:
                         pass
                     break
         else:
-            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe est déjà en file d'attente"),delete_after=15)
+            await ctx.send(embeds=errorEmbed("Cooldown", "Votre équipe est déjà en file d'attente"),ephemeral=True)
             return 0
 
     try:
@@ -742,8 +715,8 @@ async def normal(ctx):
         pass
     fightingStatus = teamWinDB.isFightingBool(ballerine)
     if fightingStatus[0]:
-        channel = await bot.fetch_channel(fightingStatus[2])
-        fightingMessage = await channel.fetch_message(fightingStatus[0])
+        channel = await get(slash,interactions.Channel,object_id=fightingStatus[2],parent_id=ctx.guild_id)
+        fightingMessage = await get(slash, interactions.Message, object_id=fightingStatus[0],parent_id=channel.id)
 
         fightingRespond = "__Votre équipe affronte actuellement :__\n"
         temp = ""
@@ -762,15 +735,15 @@ async def normal(ctx):
                 temp += letter
 
         if msg == None:
-            await ctx.send(embed=discord.Embed(title="__/fight__", color=user.color, description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name, fightingMessage.jump_url)), delete_after=15)
+            await ctx.send(embeds=interactions.Embed(title="__/fight__", color=user.color, description=fightingRespond),ephemeral=True)
         else:
-            await msg.edit(embed=discord.Embed(title="__/fight__", color=user.color, description=fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name, fightingMessage.jump_url)), delete_after=15)
+            await msg.edit(embeds=interactions.Embed(title="__/fight__", color=user.color, description=fightingRespond))
         return 0
 
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            team1 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
+            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
@@ -779,9 +752,9 @@ async def normal(ctx):
     # Random event
     if msg == None:
         try:
-            msg = await ctx.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat en cours de génération...__"))
+            msg = await ctx.send(embeds=await getRandomStatsEmbed(slash,team1,text="__Combat en cours de génération...__"))
         except:
-            msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat en cours de génération...__"))
+            msg = await ctx.channel.send(embeds=await getRandomStatsEmbed(slash,team1,text="__Combat en cours de génération...__"))
     fun, teamLvl, starLvl = random.randint(0, 99), 0, 0
     for ent in team1:
         teamLvl = max(ent.level,teamLvl)
@@ -790,7 +763,7 @@ async def normal(ctx):
     if fun < 0:                # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
         temp.changeLevel(50)
-        await fight(bot, [temp], [], ctx, False, procurFight=True, msg=msg)
+        await fight(slash, [temp], [], ctx, False, procurFight=True, msg=msg)
 
     elif fun < 10:              # All OctoHeals ! Yes, it's for you H
         temp = team1
@@ -845,11 +818,11 @@ async def normal(ctx):
                 team2[cmpt].changeLevel(maxLvl)
 
             kitFightConstEff = copy.deepcopy(constEff)
-            kitFightConstEff.power, kitFightConstEff.stat, kitFightConstEff.turnInit, kitFightConstEff.unclearable = 35, PURCENTAGE, -1, True
+            kitFightConstEff.power, kitFightConstEff.stat, kitFightConstEff.turnInit, kitFightConstEff.unclearable = 25, PURCENTAGE, -1, True
             kitFightDmgUp = copy.deepcopy(dmgUp)
-            kitFightDmgUp.power, kitFightDmgUp.turnInit, kitFightDmgUp.unclearable = 35, -1, True
+            kitFightDmgUp.power, kitFightDmgUp.turnInit, kitFightDmgUp.unclearable = 25, -1, True
             kitFightHealUp = copy.deepcopy(healDoneBonus)
-            kitFightHealUp.power, kitFightHealUp.turnInit, kitFightHealUp.unclearable = 35, -1, True
+            kitFightHealUp.power, kitFightHealUp.turnInit, kitFightHealUp.unclearable = 25, -1, True
 
             fightCtx.giveEffToTeam2 = [kitFightDmgUp, kitFightHealUp, kitFightConstEff]
         elif roll == 4:
@@ -862,7 +835,7 @@ async def normal(ctx):
                 team2.append(alea)
                 cmpt += 1
         
-        await fight(bot, team1, team2, ctx, False, contexte=fightCtx, msg=msg, teamSettings=teamSettings)
+        await fight(slash, team1, team2, ctx, False, contexte=fightCtx, msg=msg, teamSettings=teamSettings)
 
     elif fun < 20 and teamLvl >= 25:             # Raid
         try:
@@ -882,7 +855,7 @@ async def normal(ctx):
                 tempTeam, moyTempTeam = [], 0
                 for a in userTeamDb.getTeamMember(tempTeamId):
                     if a not in allReadySeen:
-                        tempUser = await loadCharFile(
+                        tempUser = loadCharFile(
                             "./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
@@ -901,9 +874,9 @@ async def normal(ctx):
             alea.changeLevel(maxLvl)
             team2.append(alea)
 
-            await fight(bot, team1, team2, ctx, False, bigMap=True, msg=msg, teamSettings=teamSettings)
+            await fight(slash, team1, team2, ctx, False, bigMap=True, msg=msg, teamSettings=teamSettings)
         except:
-            await msg.edit(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
+            await msg.edit(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
 
     elif fun < 30:              # Procu Fight
@@ -975,32 +948,32 @@ async def normal(ctx):
             team1.append(ent)
 
         try:
-            await fight(bot, team1, team2, ctx, False, procurFight=True, msg=msg, teamSettings=teamSettings)
+            await fight(slash, team1, team2, ctx, False, procurFight=True, msg=msg, teamSettings=teamSettings)
         except:
             if msg == None:
-                await ctx.send(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
+                await ctx.send(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
             else:
-                await msg.edit(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
+                await msg.edit(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
 
     else:
-        await fight(bot, team1, [], ctx, False, msg=msg, teamSettings=teamSettings)
+        await fight(slash, team1, [], ctx, False, msg=msg, teamSettings=teamSettings)
 
 # quick fight
-@slash.subcommand(base="fight", name="quick", description="Vous permet de faire un combat en sautant directement à la fin")
+@slash.command(name="fight_quick", description="Vous permet de faire un combat en sautant directement à la fin")
 async def comQuickFight(ctx):
     msg = None
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
-    if not(globalVar.fightEnabled()) and int(ctx.author_id) != 213027252953284609:
-        await ctx.send(embed=discord.Embed(title="__Combats désactivés__", description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"), delete_after=10)
+    if not(globalVar.fightEnabled()) and int(ctx.author.id) != 213027252953284609:
+        await ctx.send(embeds=interactions.Embed(title="__Combats désactivés__", description="Les combats sont actuellement désactivés pour cause de bug ou de déploiment imminant d'une mise à jour\nVeuillez vous référer au status du bot pour savoir si les combats sont désactivés ou non"),ephemeral=True)
         return 0
 
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     try:
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
     except:
-        await ctx.send("Vous n'avez pas commencé l'aventure", delete_after=10)
+        await ctx.send("Vous n'avez pas commencé l'aventure",ephemeral=True)
         return 0
 
     ballerine, temp = 0, 0
@@ -1012,7 +985,7 @@ async def comQuickFight(ctx):
     timing = teamWinDB.getFightCooldown(ballerine, True)
     if timing > 0:
         if timing > 60*10:
-            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats rapides que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])), delete_after=10)
+            await ctx.send(embeds=errorEmbed("Cooldown", "Votre équipe ne pourra faire de combats rapides que dans {0} minute{1} et {2} seconde{3}".format(timing//60, ["", "s"][timing//60 > 1], timing % 60, ["", "s"][timing % 60 > 1])),ephemeral=True)
             return 0
         elif ballerine not in allreadyinWaitQuick:
             allreadyinWaitQuick.append(ballerine)
@@ -1022,27 +995,27 @@ async def comQuickFight(ctx):
                     try:
                         if msg == None:
                             try:
-                                msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                                msg = await ctx.send(embeds=await getRandomStatsEmbed(slash, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                             except:
-                                msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                                msg = await ctx.channel.send(embeds=await getRandomStatsEmbed(slash, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
 
                         else:
-                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
+                            await msg.edit(embeds=await getRandomStatsEmbed(slash, [user], text="Votre combat a été mis en liste d'attente (Reste {0}{1}:{2}{3})".format(["","0"][timing//60<10], timing//60, ["","0"][timing%60<10], timing % 60)))
                     except:
                         pass
                     await asyncio.sleep(10)
                 else:
                     try:
                         if msg == None:
-                            msg = await ctx.send(embed=await getRandomStatsEmbed(bot, [user], text="Combat en cour de génération..."))
+                            msg = await ctx.send(embeds=await getRandomStatsEmbed(slash, [user], text="Combat en cour de génération..."))
                         else:
-                            await msg.edit(embed=await getRandomStatsEmbed(bot, [user], text="Combat en cour de génération..."))
+                            await msg.edit(embeds=await getRandomStatsEmbed(slash, [user], text="Combat en cour de génération..."))
 
                     except:
                         pass
                     break
         else:
-            await ctx.send(embed=errorEmbed("Cooldown", "Votre équipe est déjà en file d'attente"))
+            await ctx.send(embeds=errorEmbed("Cooldown", "Votre équipe est déjà en file d'attente"))
             return 0
 
     try:
@@ -1052,7 +1025,7 @@ async def comQuickFight(ctx):
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            team1 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
+            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
@@ -1060,16 +1033,16 @@ async def comQuickFight(ctx):
 
     if msg == None:
         try:
-            msg = await ctx.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat rapide en cours de génération...__"))
+            msg = await ctx.send(embeds=await getRandomStatsEmbed(slash,team1,text="__Combat rapide en cours de génération...__"))
         except:
-            msg = await ctx.channel.send(embed=await getRandomStatsEmbed(bot,team1,text="__Combat rapide en cours de génération...__"))
+            msg = await ctx.channel.send(embeds=await getRandomStatsEmbed(slash,team1,text="__Combat rapide en cours de génération...__"))
 
     fun, teamLvl = random.randint(0, 99), 0
     for ent in team1:
         teamLvl = max(ent.level,teamLvl)
 
     if fun < 5 and teamLvl >= 25:             # Raid
-        await msg.edit(embed=discord.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
+        await msg.edit(embeds=interactions.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
             try:
@@ -1089,7 +1062,7 @@ async def comQuickFight(ctx):
                 tempTeam, moyTempTeam = [], 0
                 for a in userTeamDb.getTeamMember(tempTeamId):
                     if a not in allReadySeen:
-                        tempUser = await loadCharFile(
+                        tempUser = loadCharFile(
                             "./userProfile/{0}.prof".format(a))
                         moyTempTeam += tempUser.level
                         tempTeam += [tempUser]
@@ -1109,67 +1082,139 @@ async def comQuickFight(ctx):
             alea.changeLevel(maxLvl)
             team2.append(alea)
 
-            await fight(bot, team1, team2, ctx, True, bigMap=True, msg=msg, teamSettings=teamSettings)
+            await fight(slash, team1, team2, ctx, True, bigMap=True, msg=msg, teamSettings=teamSettings)
         except:
-            await msg.edit(embed=discord.Embed(title="__Unknow error during fight__", description=format_exc()))
+            await msg.edit(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
     else:
-        await fight(bot, team1, [], ctx, msg= msg, teamSettings = teamSettings)
+        await fight(slash, team1, [], ctx, msg= msg, teamSettings = teamSettings)
+
+# test fights
+@slash.command(name="fight_test", description="Permet de réaliser 10 combats rapides de suite", scope=adminServ)
+async def comTestFight(ctx):
+    await ctx.defer()
+    try:
+        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+
+        team1 = []
+        if user.team != 0:
+            for a in userTeamDb.getTeamMember(user.team):
+                team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
+        else:
+            team1 = [user]
+
+        teamSettings = aliceStatsDb.getTeamSettings(team1[0])
+        teamLvl, cmpt = 0, 0
+        for ent in team1:
+            teamLvl = max(ent.level,teamLvl)
+
+        while cmpt < 10:
+            fun = random.randint(0, 99)
+            if fun < 5 and teamLvl >= 25:             # Raid
+                try:
+                    team3 = copy.deepcopy(team1)
+                    tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
+                    try:
+                        tablAllTeams.remove(user.team)
+                    except:
+                        pass
+                    random.shuffle(tablAllTeams)
+
+                    moyTeam = 0
+                    for a in team3:
+                        moyTeam += a.level
+                        allReadySeen.append(a.owner)
+
+                    moyTeam = moyTeam/len(team3)
+
+                    for tempTeamId in tablAllTeams:
+                        tempTeam, moyTempTeam = [], 0
+                        for a in userTeamDb.getTeamMember(tempTeamId):
+                            if a not in allReadySeen:
+                                tempUser = loadCharFile(
+                                    "./userProfile/{0}.prof".format(a))
+                                moyTempTeam += tempUser.level
+                                tempTeam += [tempUser]
+
+                        moyTempTeam = moyTempTeam/max(1, len(tempTeam))
+                        if moyTeam <= moyTempTeam+10 and moyTeam >= moyTempTeam-10:
+                            team3 += tempTeam
+                            break
+
+                    temp = team3
+                    temp.sort(key=lambda overheal: overheal.level, reverse=True)
+                    maxLvl = temp[0].level
+                    team2 = []
+                    alea = copy.deepcopy(tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
+                    #alea = copy.deepcopy(findEnnemi("Nacialisla"))
+
+                    alea.changeLevel(maxLvl)
+                    team2.append(alea)
+
+                    await fight(slash, team3, team2, ctx, True, bigMap=True, teamSettings=teamSettings, testFight=True, waitEnd=False)
+                except:
+                    teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
+            else:
+                await fight(slash, team1, [], ctx, teamSettings = teamSettings, testFight=True, waitEnd=False)
+            cmpt += 1
+        await ctx.send("Tous les combats ont été effectués ✅")
+    except:
+        await ctx.send("Une erreur est survenue :\n"+format_exc(1900))
 
 # octogone fight
-@slash.subcommand(base="octogone", name="solo", description="Affrontez quelqu'un en 1v1 Gare Du Nord !", options=[
-    create_option("versus", "Affronter qui ?", 6, required=True)
+@slash.command(name="octogone_solo", description="Affrontez quelqu'un en 1v1 Gare Du Nord !", options=[
+    interactions.Option(name="versus", description="Affronter qui ?", type=6, required=True)
 ])
 async def octogone(ctx, versus):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if not(os.path.exists(pathUserProfile)):
-        await ctx.send("Comment veut-tu affronter quelqu'un si tu n'a pas de personnage ?\nVa donc faire un tour vers /start", delete_after=15)
+        await ctx.send("Comment veut-tu affronter quelqu'un si tu n'a pas de personnage ?\nVa donc faire un tour vers /start",ephemeral=True)
         return 0
 
     if os.path.exists(absPath + "/userProfile/" + str(versus.id) + ".prof"):
-        await fight(bot, [await loadCharFile(pathUserProfile)], [await loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")], ctx, auto=False, octogone=True)
+        await fight(slash, [loadCharFile(pathUserProfile)], [loadCharFile(absPath + "/userProfile/" + str(versus.id) + ".prof")], ctx, auto=False, octogone=True)
 
     elif versus.id in [623211750832996354, 769999212422234122]:
-        temp = await loadCharFile(pathUserProfile)
+        temp = loadCharFile(pathUserProfile)
         tempi = tablAllAllies[0]
         tempi.changeLevel(50)
-        await fight(bot, [temp], [tempi], ctx, auto=False, octogone=True)
+        await fight(slash, [temp], [tempi], ctx, auto=False, octogone=True)
 
     else:
-        await ctx.send("La personne que tu as désigné ne possède pas de personnage désolé", delete_after=15)
+        await ctx.send("La personne que tu as désigné ne possède pas de personnage désolé",ephemeral=True)
 
 # team fight
-@slash.subcommand(base="octogone", name="team", description="Affrontez l'équipe de quelqu'un avec la votre", options=[
-    create_option("versus", "Affronter qui ?", 6, required=True)
+@slash.command(name="octogone_team", description="Affrontez l'équipe de quelqu'un avec la votre", options=[
+    interactions.Option(name="versus", description="Affronter qui ?", type=6, required=True)
 ])
 async def teamFight(ctx, versus):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if not(os.path.exists(pathUserProfile)):
-        await ctx.send("Vous ne possédez pas de personnage.\nAllez donc faire un tour vers /start", delete_after=15)
+        await ctx.send("Vous ne possédez pas de personnage.\nAllez donc faire un tour vers /start",ephemeral=True)
         return 0
-    user = await loadCharFile(pathUserProfile)
+    user = loadCharFile(pathUserProfile)
     team1 = []
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            team1 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
+            team1 += [loadCharFile("./userProfile/{0}.prof".format(a))]
     else:
         team1 = [user]
 
     team2 = []
     pathOctogonedProfile = absPath + "/userProfile/" + str(versus.id) + ".prof"
     if not(os.path.exists(pathOctogonedProfile)) and versus.id not in [623211750832996354, 769999212422234122]:
-        await ctx.send("L'utilisateur désigné ne possède pas de personnage", delete_after=15)
+        await ctx.send("L'utilisateur désigné ne possède pas de personnage",ephemeral=True)
         return 0
 
     if versus.id not in [623211750832996354, 769999212422234122]:
-        octogoned = await loadCharFile(pathOctogonedProfile, ctx)
+        octogoned = loadCharFile(pathOctogonedProfile, ctx)
         if octogoned.team != 0:
             for a in userTeamDb.getTeamMember(user.team):
-                team2 += [await loadCharFile("./userProfile/{0}.prof".format(a))]
+                team2 += [loadCharFile("./userProfile/{0}.prof".format(a))]
         else:
             team2 = [octogoned]
     else:
@@ -1180,30 +1225,30 @@ async def teamFight(ctx, versus):
             alea.changeLevel(55)
             team2.append(alea)
 
-    await fight(bot, team1, team2, ctx, False, octogone=True)
+    await fight(slash, team1, team2, ctx, False, octogone=True)
 
 # -------------------------------------------- COOLDOWN --------------------------------------------
-@slash.slash(name="cooldowns", description="Vous donne les cooldowns des commandes /fight et /quickFight pour votre équipe")
+@slash.command(name="cooldowns", description="Vous donne les cooldowns des commandes /fight et /quickFight pour votre équipe")
 async def cooldowns(ctx):
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = await loadCharFile(pathUserProfile)
-        involvedTeam, involvedEmoji = [[user.team,user.owner][user.team==0]], [await getUserIcon(bot,user)]
+        user = loadCharFile(pathUserProfile)
+        involvedTeam, involvedEmoji = [[user.team,user.owner][user.team==0]], [await getUserIcon(slash,user)]
 
         for procur in user.haveProcurOn:
-            usr = await loadCharFile("./userProfile/{0}.prof".format(procur))
+            usr = loadCharFile("./userProfile/{0}.prof".format(procur))
             if usr.team not in involvedTeam or usr.team == 0:
                 involvedTeam.append([usr.team,user.owner][usr.team==0])
-                involvedEmoji.append(await getUserIcon(bot,usr))
+                involvedEmoji.append(await getUserIcon(slash,usr))
             else:
                 for cmpt in range(len(involvedTeam)):
                     if involvedTeam[cmpt] == usr.team:
-                        involvedEmoji[cmpt]+=await getUserIcon(bot,usr)
+                        involvedEmoji[cmpt]+=await getUserIcon(slash,usr)
         
         color = user.color
         if not(globalVar.fightEnabled()):
             color = red
-        toReply = discord.Embed(title="__Cooldowns des commandes Fight__", color=color)
+        toReply = interactions.Embed(title="__Cooldowns des commandes Fight__", color=color)
 
         for cmpt in range(len(involvedTeam)):
             team = involvedTeam[cmpt]
@@ -1228,9 +1273,6 @@ async def cooldowns(ctx):
                 color = user.color
 
             if fightingStatus[0]:
-                channel = await bot.fetch_channel(fightingStatus[2])
-                fightingMessage = await channel.fetch_message(fightingStatus[0])
-
                 fightingRespond = "__Votre équipe affronte actuellement :__\n"
                 temp = ""
                 for letter in fightingStatus[1]:
@@ -1247,59 +1289,54 @@ async def cooldowns(ctx):
                     else:
                         temp += letter
 
-                toReply.add_field(name="__Cooldowns__",value=involvedEmoji[cmpt]+"\n"+notFight+fightingRespond+"\nsur __[{0}]({1})__".format(channel.guild.name, fightingMessage.jump_url))
+                toReply.add_field(name="__Cooldowns__",value=involvedEmoji[cmpt]+"\n"+notFight+fightingRespond)
             else:
                 toReply.add_field(name="__Cooldowns__",value=involvedEmoji[cmpt]+"\n"+notFight+f"__Normal__ : {fcooldown} minute{faccord} et {fseconds} seconde{fsaccord}\n__Quick__ : {fqcooldown} minute{fqaccord} et {fqseconds} seconde{fqsaccord}")
             
         try:
-            await ctx.send(embed = toReply, delete_after=10)
+            await ctx.send(embeds = toReply,ephemeral=True)
         except:
-            toReply.set_footer(text="/cooldown ({0}#{1})".format(ctx.author.name, ctx.author.discriminator),icon_url=ctx.author.avatar_url)
-            await ctx.channel.send(embed= toReply, delete_after=10)
+            await ctx.send("Une erreur est survenue :\n"+format_exc(1900))
 
 # -------------------------------------------- PATCHNOTE --------------------------------------------
-@slash.slash(name="patchnote", description="Renvoie le dernier patchnote du bot")
+@slash.command(name="patchnote", description="Renvoie le dernier patchnote du bot")
 async def patchnote(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     await send_patchnote(ctx)
 
 # -------------------------------------------- ROLL --------------------------------------------
-@slash.slash(name="roll", description="Permet de lancer un dé", options=[
-    create_option(name="min", description="Minimum du jet. Par défaut, 1",
-                  option_type=4, required=False),
-    create_option(name="max", description="Minimum du jet. Par défaut, 100",
-                  option_type=4, required=False),
+@slash.command(name="roll", description="Permet de lancer un dé", options=[
+    interactions.Option(name="min", description="Minimum du jet. Par défaut, 1",type=4, required=False),
+    interactions.Option(name="max", description="Minimum du jet. Par défaut, 100",type=4, required=False),
 ])
 async def roll(ctx, min=1, max=100):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     rollmes = rollMessage[random.randint(0, len(rollMessage)-1)]
-    await ctx.send(embed=discord.Embed(title=f"🎲 roll {min} - {max}", color=light_blue, description=rollmes.format(random.randint(min, max))))
+    await ctx.send(embeds=interactions.Embed(title=f"🎲 roll {min} - {max}", color=light_blue, description=rollmes.format(random.randint(min, max))))
 
 # -------------------------------------------- SHOP --------------------------------------------
-@slash.slash(name="shop", description="Vous permet d'entrer dans le magasin")
+@slash.command(name="shop", description="Vous permet d'entrer dans le magasin")
 async def shopSlash(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
-    await shop2(bot, ctx, shopping.shopping)
+    await shop2(slash, ctx, shopping.shopping)
 
 # -------------------------------------------- INVENTORY --------------------------------------------
-@slash.slash(name="inventory", description="Vous permet de naviger dans votre inventaire", options=[
-    create_option("destination", "Dans quel inventaire voulez-vous aller ?", 3, required=False, choices=[
-        create_choice("Equipement", "Equipement"),
-        create_choice("Arme", "Arme"),
-        create_choice("Compétences", "Compétences"),
-        create_choice("Objets spéciaux", "Objets spéciaux"),
-        create_choice("Elements", "Elements")
+@slash.command(name="inventory", description="Vous permet de naviger dans votre inventaire", options=[
+    interactions.Option(name="destination", description="Dans quel inventaire voulez-vous aller ?", type=3, required=False, choices=[
+        interactions.Choice(name="Equipement", value="Equipement"),
+        interactions.Choice(name="Arme", value="Arme"),
+        interactions.Choice(name="Compétences", value="Compétences"),
+        interactions.Choice(name="Objets spéciaux", value="Objets spéciaux"),
+        interactions.Choice(name="Elements", value="Elements")
     ]),
-    create_option(
-        "procuration", "De qui voulez vous consulter l'inventaire ?", 6, required=False),
-    create_option(
-        "nom", "Le nom ou l'identifiant d'un objet. Les espaces peuvent être remplacés par des _", 3, required=False)
+    interactions.Option(name="procuration", description="De qui voulez vous consulter l'inventaire ?", type=6, required=False),
+    interactions.Option(name="nom", description="Le nom ou l'identifiant d'un objet. Les espaces peuvent être remplacés par des _", type=3, required=False)
 ])
 async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     for a in range(5):
         if ["Equipement", "Arme", "Compétences", "Objets spéciaux", "Elements"][a] == destination:
@@ -1307,9 +1344,9 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
             break
 
     if procuration != None:
-        user = await loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
+        user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
     else:
-        user = await loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
 
     if nom != None:
         nom = nom.replace("_", " ")
@@ -1322,7 +1359,7 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
         nameTempCmpt, lenName, findId = 0, len(nom), False
 
         for obj in research:
-            if nom == obj.id:
+            if nom == obj.id or remove_accents(obj.name.lower()) == nom:
                 nom, findId = obj.id, True
                 break
 
@@ -1351,8 +1388,7 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
                         if not(user.have(a)):
                             have = "`"
                         desc += "{0} {2}{1}{2}\n".format(a.emoji, a.name, have)
-                        options += [create_select_option(unhyperlink(
-                            a.name), a.name, getEmojiObject(a.emoji))]
+                        options += [interactions.SelectOption(label=unhyperlink(a.name), value=a.name, emoji=getEmojiObject(a.emoji))]
 
                     if len(options) > 24:
                         def getNameSortValue(obj):
@@ -1370,37 +1406,37 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
                             if not(user.have(a)):
                                 have = "`"
                             desc += "{0} {2}{1}{2}\n".format(a.emoji, a.name, have)
-                            options += [create_select_option(unhyperlink(a.name), a.name, getEmojiObject(a.emoji))]
+                            options += [interactions.SelectOption(unhyperlink(a.name), a.name, getEmojiObject(a.emoji))]
 
-                    select = create_select(options, placeholder="Sélectionnez un objet :")
-                    msg = await ctx.send(embed=discord.Embed(title="/inventory", color=light_blue, description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc), components=[create_actionrow(select)])
+                    select = interactions.SelectMenu(custom_id = "invSherchMenu", options=options, placeholder="Sélectionnez un objet :")
+                    msg = await ctx.send(embeds=interactions.Embed(title="/inventory", color=light_blue, description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc), components=[interactions.ActionRow(components=[select])])
 
                     def check(m):
-                        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+                        return m.author.id == ctx.author.id and m.message.id == msg.id
 
                     try:
-                        respond = await wait_for_component(bot, components=select, check=check, timeout=60)
+                        respond = await slash.wait_for_component(components=select, check=check, timeout=60)
                     except:
-                        await msg.edit(embed=discord.Embed(title="/inventory", color=light_blue, description="Liste des résultats correspondant à la recherche\n\n"+desc), components=[])
+                        await msg.edit(embeds=interactions.Embed(title="/inventory", color=light_blue, description="Liste des résultats correspondant à la recherche\n\n"+desc), components=[])
                         return 0
                         break
 
-                    nom = respond.values[0]
-                    await msg.edit(embed=discord.Embed(title="/inventory", color=light_blue, description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc), components=[create_actionrow(getChoisenSelect(select, respond.values[0]))])
+                    nom = respond.data.values[0]
+                    await msg.edit(embeds=interactions.Embed(title="/inventory", color=light_blue, description="L'objet spécifié n'a pas été trouvé. Voici une liste des résultats les plus proches :\n\n"+desc), components=[interactions.ActionRow(components=[getChoisenSelect(select, respond.data.values[0])])])
                     break
 
         if nom == token.name:
             obj = token
             repEmb = infoOther(obj, user)
             try:
-                await ctx.send(embed=repEmb, components=[])
+                await ctx.send(embeds=repEmb, components=[])
             except:
-                await ctx.channel.send(embed=repEmb, components=[])
+                await ctx.channel.send(embeds=repEmb, components=[])
             return 0
         elif nom in [trans.name,"lb"]:
             transField = "La **Transcendance** est une compétence commune à tous les joueurs et alliés temporaires débloquée et équipée automatiquement dès le début.\nLorsqu'utilisée, cette compétence deviens l'une des compétences listée si dessous en fonction du nombre de **jauges transcendiques** remplie ainsi que de l'aspiration du lanceur.\nLe nombre de jauges transcendiques disponibles dans un combat dépend de divers critères. Chaques critères remplie rajoute une barre pour l'équipe en question :\n> - L'équipe comporte au moins 8 membres\n> - L'équipe comporte au moins 16 membres\n> - L'équipe adverse contient au moins 1 boss\n> - L'équipe adverse est composée d'un boss AllvOne\n> - L'équipe adverse est composée d'alliés temporaires ou de joueurs\n\nLorsqu'utilisée, toutes les **jauges transcendiques** de l'équipe sont remises à 0, même si elles n'étaient pas toutes remplies."
-            emby = discord.Embed(title="__Transcendance :__",color=light_blue,description=transField)
-            await ctx.send(embed=emby)
+            emby = interactions.Embed(title="__Transcendance :__",color=light_blue,description=transField)
+            await ctx.send(embeds=emby)
 
             transNames, cmpt, tably = ["__Transcendances niveau 1__ <:lbFull:983450379205378088>","__Transcendances niveau 2__ <:lbFull:983450379205378088><:lbFull:983450379205378088>","__Transcendances niveau 3__ <:lbFull:983450379205378088><:lbFull:983450379205378088><:lbFull:983450379205378088>","__Transcendances niveau 4__ <:lbFull:983450379205378088><:lbFull:983450379205378088><:lbFull:983450379205378088><:lbFull:983450379205378088>"], 0, [lb1MinTabl,lb2MinTabl,lb3Tabl,[lb4]]
             
@@ -1416,10 +1452,10 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
                         for cmpt2 in range(len(inspi)):
                             usedBy += aspiEmoji[cmpt2]
                     transField += "{0} __{1} :__ ({3})\n> {2}\n\n".format(skilly.emoji,skilly.name,skilly.description.replace("\n","\n> "),usedBy)
-                emby = discord.Embed(title=transNames[cmpt],color=light_blue,description=transField)
-                emby.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(trans.emoji)["id"]))
+                emby = interactions.Embed(title=transNames[cmpt],color=light_blue,description=transField)
+                emby.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(trans.emoji).id))
 
-                await ctx.channel.send(embed=emby)
+                await ctx.channel.send(embeds=emby)
                 cmpt += 1
             return 1
 
@@ -1429,50 +1465,47 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
         nom = [None]
 
     if nom != [None]:
-        await inventory(bot, ctx, nom[0], procur=user.owner)
+        await inventory(slash, ctx, nom[0], procur=user.owner)
     else:
-        await inventoryV2(bot, ctx, destination, user)
+        await inventoryV2(slash, ctx, destination, user)
 
 # -------------------------------------------- POINTS --------------------------------------------
-@slash.slash(name="points", description="Vous permet de répartir vos points bonus", options=[
-    create_option(
-        "procuration", "De qui voulez vous consulter l'inventaire ?", 6, required=False)
+@slash.command(name="points", description="Vous permet de répartir vos points bonus", options=[
+    interactions.Option(name="procuration", description="De qui voulez vous consulter les points bonus ?", type=6, required=False)
 ])
 async def pts(ctx, procuration=None):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
-    await points(bot, ctx, ["/points", None], procuration, slashed=True)
+    await points(slash, ctx, ["/points", None], procuration, slashed=True)
 
 # -------------------------------------------- TEAM --------------------------------------------
-detailPlus = create_button(ButtonStyle.blue, "Aff. détaillé", "➕", "detail")
-detailMinus = create_button(
-    ButtonStyle.blue, "Aff. simplifié", "➖", detailPlus["custom_id"])
+detailPlus = interactions.Button(type=2, style=ButtonStyle.PRIMARY, label="Aff. détaillé", emoji=Emoji(name="➕"), custom_id="detail")
+detailMinus = interactions.Button(type=2, style=ButtonStyle.PRIMARY, label="Aff. simplifié", emoji=Emoji(name="➖"), custom_id=detailPlus.custom_id)
 
 # team view
-@slash.subcommand(base="team", name="view", description="Permet de voir les équipements de votre équipe ou de celle de quelqu'un d'autre", options=[
-    create_option("joueur", "Voir l'équipe d'un autre joueur",
-                  6, required=False)
+@slash.command(name="team_view", description="Permet de voir les équipements de votre équipe ou de celle de quelqu'un d'autre", options=[
+    interactions.Option(name="joueur", description="Voir l'équipe d'un autre joueur", type=6, required=False)
 ])
 async def teamView(ctx, joueur=None):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     if joueur == None:
         joueur = ctx.author
     pathUserProfile = absPath + "/userProfile/" + str(joueur.id) + ".prof"
 
     if os.path.exists(pathUserProfile):
-        user, extended = await loadCharFile(pathUserProfile), False
+        user, extended = loadCharFile(pathUserProfile), False
         msg = await loadingSlashEmbed(ctx)
         if user.team == 0:
             teamMates = [user]
         else:
             teamMates = []
             for usr in userTeamDb.getTeamMember(user.team):
-                teamMates.append(await loadCharFile(
+                teamMates.append(loadCharFile(
                     path="./userProfile/{0}.prof".format(usr)))
 
         def checky(m):
-            return m.author_id == ctx.author_id
+            return m.author.id == ctx.author.id
 
         while 1:
             temp = ""
@@ -1489,44 +1522,44 @@ async def teamView(ctx, joueur=None):
                             ballerine += "🔒"
                     ballerine += "\n\n"
 
-                    icon = await getUserIcon(bot, usr)
+                    icon = await getUserIcon(slash, usr)
                     points = ""
                     if usr.points > 0:
                         points = " *(+)*"
                     temp += f"__{icon} **{usr.name}** ({level})__{points}\n{ballerine}"
                 if int(user.owner) == int(ctx.author.id):
-                    embed = discord.Embed(title="/team view", color=user.color,description="__Votre équipe se compose de :__\n\n"+temp)
+                    emb = interactions.Embed(title="/team view", color=user.color,description="__Votre équipe se compose de :__\n\n"+temp)
                 else:
-                    embed = discord.Embed(title="/team view", color=user.color,description="__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp)
+                    emb = interactions.Embed(title="/team view", color=user.color,description="__L'équipe de {0} se compose de :__\n\n".format(user.name)+temp)
 
                 if user.team != 0:
-                    embed.add_field(name="<:empty:866459463568850954>\n__Résultats des derniers combats :__",value=teamWinDB.getVictoryStreakStr(user))
+                    emb.add_field(name="<:empty:866459463568850954>\n__Résultats des derniers combats :__",value=teamWinDB.getVictoryStreakStr(user))
 
             else:
-                embed = await getFullteamEmbed(bot, teamMates, user)
+                embeds = await getFullteamEmbed(slash, teamMates, user)
 
-            await msg.edit(embed=embed, components=[create_actionrow([detailPlus, detailMinus][extended])])
+            await msg.edit(embeds=emb, components=[interactions.ActionRow(components=[detailPlus, detailMinus][extended])])
 
             try:
-                react = await wait_for_component(bot, msg, check=checky, timeout=60)
+                react = await slash.wait_for_component(msg, check=checky, timeout=60)
             except:
 
-                await msg.edit(embed=embed, components=[])
+                await msg.edit(embeds=emb, components=[])
                 break
 
             if react.custom_id == detailPlus["custom_id"]:
                 extended = not(extended)
 
 # team add
-@slash.subcommand(base="team", name="add", description="Permet de rajouter un joueur dans son équipe", options=[
-    create_option("joueur", "Le joueur à rajouter", 6, required=True)
+@slash.command(name="team_add", description="Permet de rajouter un joueur dans son équipe", options=[
+    interactions.Option(name="joueur", description="Le joueur à rajouter", type=6, required=True)
 ])
 async def teamAdd(ctx, joueur):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
 
         msg = await loadingSlashEmbed(ctx)
 
@@ -1550,7 +1583,7 @@ async def teamAdd(ctx, joueur):
         if noneCap and not(selfAdd):
             mention = joueur
             if os.path.exists(absPath + "/userProfile/" + str(mention.id) + ".prof"):
-                allReadyinTeam, allReadyInThatTeam, mate = False, False, await loadCharFile(
+                allReadyinTeam, allReadyInThatTeam, mate = False, False, loadCharFile(
                     absPath + "/userProfile/" + str(mention.id) + ".prof")
                 if mate.team != 0:
                     allReadyinTeam = True
@@ -1558,49 +1591,49 @@ async def teamAdd(ctx, joueur):
                         allReadyInThatTeam = True
 
                 if not(allReadyinTeam):
-                    await msg.edit(embed=discord.Embed(title="/team add "+joueur.name, color=user.color, description=f"{mention.mention}, {ctx.author.mention} vous propose de rejoidre son équipe. Qu'en dites vous ?"))
-                    await msg.add_reaction(emoji.check)
-                    await msg.add_reaction(emoji.cross)
+                    await msg.edit(embeds=interactions.Embed(title="/team add "+joueur.name, color=user.color, description=f"{mention.mention}, {ctx.author.mention} vous propose de rejoidre son équipe. Qu'en dites vous ?"))
+                    await msg.add_reaction("✅")
+                    await msg.add_reaction("❌")
 
                     def checkisIntendedUser(reaction, user):
                         return int(user.id) == int(mention.id)
 
                     try:
-                        reaction = await bot.wait_for("reaction_add", timeout=60, check=checkisIntendedUser)
+                        reaction = await slash.wait_for("reaction_add", timeout=60, check=checkisIntendedUser)
                     except:
-                        await msg.clear_reactions()
-                        await msg.edit(embed=errorEmbed("/team add "+joueur.name, "La commande n'a pas pu aboutir"))
+                        await msg.remove_all_reactions()
+                        await msg.edit(embeds=errorEmbed("/team add "+joueur.name, "La commande n'a pas pu aboutir"))
 
-                    if str(reaction[0]) == emoji.check:
+                    if str(reaction[0]) == "✅":
                         mate.team = user.team
                         saveCharFile(absPath + "/userProfile/" +
                                      str(mention.id) + ".prof", mate)
                         team = userTeamDb.getTeamMember(user.team)
                         team.append(mention.id)
                         userTeamDb.updateTeam(user.team, team)
-                        await msg.clear_reactions()
-                        await msg.edit(embed=discord.Embed(title="/team add "+joueur.name, color=user.color, description="Vous faites dorénavent parti de la même équipe"))
+                        await msg.remove_all_reactions()
+                        await msg.edit(embeds=interactions.Embed(title="/team add "+joueur.name, color=user.color, description="Vous faites dorénavent parti de la même équipe"))
 
                 elif allReadyInThatTeam:
-                    await msg.edit(embed=errorEmbed("/team add "+joueur.name, "Ce joueur est déjà dans ton équipe"))
+                    await msg.edit(embeds=errorEmbed("/team add "+joueur.name, "Ce joueur est déjà dans ton équipe"))
                 elif allReadyinTeam:
-                    await msg.edit(embed=errorEmbed("/team add "+joueur.name, "Ce joueur a déjà une équipe"))
+                    await msg.edit(embeds=errorEmbed("/team add "+joueur.name, "Ce joueur a déjà une équipe"))
 
             else:
-                await msg.edit(embed=errorEmbed("/team add "+joueur.name, "Cet utilisateur n'a pas commencé l'aventure"))
+                await msg.edit(embeds=errorEmbed("/team add "+joueur.name, "Cet utilisateur n'a pas commencé l'aventure"))
         elif selfAdd:
-            await msg.edit(embed=errorEmbed("/team add "+joueur.name, "Vous voulez faire équipe avec vous-même ?"))
+            await msg.edit(embeds=errorEmbed("/team add "+joueur.name, "Vous voulez faire équipe avec vous-même ?"))
         else:
-            await msg.edit(embed=errorEmbed("/team add "+joueur.name, "Votre équipe est déjà au complet"))
+            await msg.edit(embeds=errorEmbed("/team add "+joueur.name, "Votre équipe est déjà au complet"))
 
 # team quit
-@slash.subcommand(base="team", name="quit", description="Permet de quitter son équipe")
+@slash.command(name="team_quit", description="Permet de quitter son équipe")
 async def teamQuit(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
 
     if user.team != 0:
         team = userTeamDb.getTeamMember(user.team)
@@ -1608,66 +1641,65 @@ async def teamQuit(ctx):
         user.team = 0
 
         userTeamDb.updateTeam(user.team, team)
-        await ctx.send(embed=discord.Embed(title="/team quit", color=user.color, description="Vous avez bien quitté votre équipe"))
+        await ctx.send(embeds=interactions.Embed(title="/team quit", color=user.color, description="Vous avez bien quitté votre équipe"))
         saveCharFile(pathUserProfile, user)
     else:
-        await ctx.send(embed=errorEmbed("/team quit", "Vous n'avez aucune équipe à quitter"))
+        await ctx.send(embeds=errorEmbed("/team quit", "Vous n'avez aucune équipe à quitter"))
 
 # team fact
-@slash.subcommand(base="team", name="fact", description="Permet d'avoir des facts sur les membres de votre équipe")
+@slash.command(name="team_fact", description="Permet d'avoir des facts sur les membres de votre équipe")
 async def teamFact(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
 
     teamUser = []
 
     if user.team != 0:
         for a in userTeamDb.getTeamMember(user.team):
-            teamUser.append(await loadCharFile(
+            teamUser.append(loadCharFile(
                 absPath + "/userProfile/" + str(a) + ".prof"))
 
     else:
         teamUser.append(user)
 
-    button = create_actionrow(create_button(
-        ButtonStyle.grey, "Autre fact", "🔄", "🔄"))
+    button = interactions.ActionRow(components=[interactions.Button(type=2, style=2, label="Autre fact", emoji=Emoji(name="🔄"), custom_id="🔄")])
     msg = None
 
     while 1:
-        embed = await getRandomStatsEmbed(bot, teamUser, "/team fact")
+        emb = await getRandomStatsEmbed(slash, teamUser, "/team fact")
         if msg == None:
-            msg = await ctx.send(embed=embed, components=[button])
+            msg = await ctx.send(embeds=emb, components=[button])
         else:
-            await msg.edit(embed=embed, components=[button])
+            await msg.edit(embeds=emb, components=[button])
 
         try:
-            await wait_for_component(bot, msg, timeout=60)
+            await slash.wait_for_component(msg, timeout=60)
         except:
-            await msg.edit(embed=embed, components=[])
+            await msg.edit(embeds=emb, components=[])
             break
 
 # team settings
-"""@slash.subcommand(base="team", name="settings", description="Permet de modifier des paramètres d'équipes")
+"""@slash.command(name_localizations="team", name="settings", description="Permet de modifier des paramètres d'équipes")
 async def teamSetFunction(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
     if os.path.exists(pathUserProfile):
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
     team, msg = userTeamDb.getTeamMember(user.team), None
     teamSet = aliceStatsDb.getTeamSettings(user)
 
     if teamSet["teamLeader"] == None:
-        buttons = create_actionrow(create_button(ButtonStyle.green,"Devenir Chef d'équipe",emoji.check,"becomeTeamLead"),create_button(ButtonStyle.gray,"Passer son tour",emoji.cross,"pass"))
-        msg = await ctx.send(embed=discord.Embed(title="__Paramètres d'équipe__",color=user.color,description="Votre équipe ne possède pas encore de chef d'équipe.\nVoulez vous, {0} {1}, vous auto-proclamer comme chef d'équipe ?".format(await getUserIcon(bot,user),user.name)),components=[buttons])
+        buttons = interactions.ActionRow(components=[interactions.Button(type=2, style=ButtonStyle.SUCCESS,"Devenir Chef d'équipe","✅","becomeTeamLead"),interactions.Button(type=2, style=ButtonStyle.SECONDARY,"Passer son tour","❌","pass"))
+        msg = await ctx.send(embeds=interactions.Embed(title="__Paramètres d'équipe__",color=user.color,description="Votre équipe ne possède pas encore de chef d'équipe.\nVoulez vous, {0} {1}, vous auto-proclamer comme chef d'équipe ?".format(await getUserIcon(slash,user),user.name)),components=[buttons])
         def check(m):
-            return m.author_id == ctx.author_id
+            return m.author.id == ctx.author.id
         
         try:
-            rep = await wait_for_component(bot,msg,buttons,check,30)
+            rep = await slash.wait_for_component(msg,buttons,check,30)
             rep = rep.custom_id
         except:
             rep = "pass"
@@ -1675,16 +1707,16 @@ async def teamSetFunction(ctx):
         if rep == "becomeTeamLead":
             teamSet["teamLeader"] = user.owner
             if aliceStatsDb.updateTeamSettings(user,teamSet):
-                await msg.edit(embed=discord.Embed(title="__Paramètres d'équipe__",description="Vous êtes désormais le chef de votre équipe",color=user.color),components=[])
+                await msg.edit(embeds=interactions.Embed(title="__Paramètres d'équipe__",description="Vous êtes désormais le chef de votre équipe",color=user.color),components=[])
                 await asyncio.sleep(3)
     
     leader = None
     for ent in team:
         if ent == teamSet["teamLeader"]:
-            leader = await loadCharFile(absPath + "/userProfile/" + str(ent) + ".prof")
+            leader = loadCharFile(absPath + "/userProfile/" + str(ent) + ".prof")
             break
-    repEmb = discord.Embed(title="__Equipe {0}__".format(teamSet["teamName"]),color=user.color)
-    baseInfo = "__ID. :__ {0}\n__Chef :__ {1}{2}\n__Capitaine :__ ".format(leader.team,await getUserIcon(bot,leader),leader.name)
+    repEmb = interactions.Embed(title="__Equipe {0}__".format(teamSet["teamName"]),color=user.color)
+    baseInfo = "__ID. :__ {0}\n__Chef :__ {1}{2}\n__Capitaine :__ ".format(leader.team,await getUserIcon(slash,leader),leader.name)
     if teamSet["teamCaptain"] != None:
         baseInfo += "{0} {1}".format(capSkills[teamSet["teamCaptain"]]["icon"],capSkills[teamSet["teamCaptain"]]["name"])
         tablCapExp = [teamSet["teamCapLenaExp"],teamSet["teamCapClemenceExp"],teamSet["teamCapHeleneExp"],teamSet["teamCapShehisaExp"],teamSet["teamCapLiuExp"],teamSet["teamCapEdelweissExp"],teamSet["teamCapElinaExp"],teamSet["teamCapIcealiaExp"]]
@@ -1697,28 +1729,28 @@ async def teamSetFunction(ctx):
     repEmb.add_field(name="__Résumé :__",value=baseInfo)
 
     if msg == None:
-        msg = await ctx.send(embed=repEmb)
+        msg = await ctx.send(embeds=repEmb)
     else:
-        await msg.edit(embed=repEmb)
+        await msg.edit(embeds=repEmb)
 """
 # -------------------------------------------- HELP --------------------------------------------
-@slash.slash(name="help", description="Ouvre la page d'aide du bot")
+@slash.command(name="help", description="Ouvre la page d'aide du bot")
 async def helpCom(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
-    await helpBot(bot, ctx)
+    await helpBot(slash, ctx)
 
 # -------------------------------------------- START --------------------------------------------
-@slash.slash(name="start", description="Permet de commence l'aventure")
+@slash.command(name="start", description="Permet de commence l'aventure")
 async def started(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
-    await start(bot, ctx)
+    await start(slash, ctx)
 
 # -------------------------------------------- STATS --------------------------------------------
-@slash.slash(name="stats", description="Permet de voir vos statistiques ou celles d'un autre joueur", options=[create_option("joueur", "Voir les statistiques d'un autre joueur", 6, False)])
+@slash.command(name="stats", description="Permet de voir vos statistiques ou celles d'un autre joueur", options=[interactions.Option(name="joueur", description="Voir les statistiques d'un autre joueur", type=6, required=False)])
 async def statsCmd(ctx, joueur=None):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     if joueur == None:
         pathUserProfile = absPath + "/userProfile/" + \
@@ -1728,16 +1760,16 @@ async def statsCmd(ctx, joueur=None):
 
     if os.path.exists(pathUserProfile):
         msg = await loadingSlashEmbed(ctx)
-        user = await loadCharFile(pathUserProfile)
+        user = loadCharFile(pathUserProfile)
 
-        userIcon = await getUserIcon(bot, user)
+        userIcon = await getUserIcon(slash, user)
 
         level = str(
             user.level)+['', "<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars > 0]
         exp = [str(user.level*50-20), "MAX"][user.level == 55]
-        rep = discord.Embed(title=f"__Page de statistique de {user.name} {userIcon}__", color=user.color,description=f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]} ({elemEmojis[user.secElement]} {elemNames[user.secElement]})\n__Aspiration :__ {aspiEmoji[user.aspiration]} {inspi[user.aspiration]}")
+        rep = interactions.Embed(title=f"__Page de statistique de {user.name} {userIcon}__", color=user.color,description=f"__Niveau :__ {level}\n__Expérience :__ {user.exp} / {exp}\n\n__Element :__ {elemEmojis[user.element]} {elemNames[user.element]} ({elemEmojis[user.secElement]} {elemNames[user.secElement]})\n__Aspiration :__ {aspiEmoji[user.aspiration]} {inspi[user.aspiration]}")
 
-        rep.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon)["id"]))
+        rep.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
         sumStatsBonus = [user.majorPoints[0], user.majorPoints[1], user.majorPoints[2], user.majorPoints[3], user.majorPoints[4], user.majorPoints[5], user.majorPoints[6], user.majorPoints[7], user.majorPoints[8], user.majorPoints[9], user.majorPoints[10], user.majorPoints[11], user.majorPoints[12], user.majorPoints[13], user.majorPoints[14]]
 
         for a in [user.weapon, user.stuff[0], user.stuff[1], user.stuff[2]]:
@@ -1756,24 +1788,21 @@ async def statsCmd(ctx, joueur=None):
             sumStatsBonus[12] += a.negativeShield * -1
             sumStatsBonus[13] += a.negativeDirect * -1
             sumStatsBonus[14] += a.negativeIndirect * -1
-        
-        estimPV = separeUnit(round((130+user.level*15)*((user.endurance+sumStatsBonus[ENDURANCE])/100+1)))
-        for a in range(len(sumStatsBonus)):
-            if sumStatsBonus[a] > 0:
-                sumStatsBonus[a] = "+"+str(sumStatsBonus[a])
 
+        estimPV = separeUnit(round((130+user.level*15)*(int((user.endurance+sumStatsBonus[ENDURANCE]*(1+user.limitBreaks[ENDURANCE]/100)))/100+1)))
         value = "\n__PVs :__ {0}".format(estimPV)
         allStatsUser = user.allStats()+[user.resistance,user.percing,user.critical,user.majorPoints[ACT_BOOST_FULL],user.majorPoints[ACT_HEAL_FULL],user.majorPoints[ACT_SHIELD_FULL],user.majorPoints[ACT_DIRECT_FULL],user.majorPoints[ACT_INDIRECT_FULL]]
         for cmpt in range(0,MAGIE+1):
-            value += "\n{0} __{1}__ : {2} ({3})".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt],sumStatsBonus[cmpt])
+            userStats = int((allStatsUser[cmpt]+sumStatsBonus[cmpt]) * (1+user.limitBreaks[cmpt]/100))
+            value += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],userStats)
         rep.add_field(name="<:empty:866459463568850954>\n__Stats. principaux :__",value=value, inline=False)
         value = ""
         for cmpt in range(RESISTANCE,CRITICAL+1):
-            value += "\n{0} __{1}__ : {2} ({3})".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt],sumStatsBonus[cmpt])
+            value += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
         rep.add_field(name="<:empty:866459463568850954>\n__Stats. secondaires :__",value=value, inline=True)
         value = ""
         for cmpt in range(ACT_HEAL_FULL,ACT_INDIRECT_FULL+1):
-            value += "\n{0} __{1}__ : {2} ({3})".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt],sumStatsBonus[cmpt])
+            value += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
         rep.add_field(name="<:empty:866459463568850954>\n__Stats. d'actions :__",value=value, inline=True)
         tempStuff, tempSkill = "", ""
         
@@ -1793,7 +1822,7 @@ async def statsCmd(ctx, joueur=None):
         rep.add_field(name="__Arme et équipements :__",value=user.weapon.emoji+" "+user.weapon.name+"\n\n"+tempStuff, inline=True)
         rep.add_field(name="__Compétences :__",value=tempSkill, inline=True)
 
-        await msg.edit(embed=rep)
+        await msg.edit(embeds=rep)
 
     else:
         if joueur == None:
@@ -1802,17 +1831,16 @@ async def statsCmd(ctx, joueur=None):
             await ctx.send("{0} n'a pas commencé l'aventure".format(joueur.name))
 
 # -------------------------------------------- MANUEL --------------------------------------------
-@slash.slash(name="manuel", description="Permet de consulter le manuel de l'Aventure", options=[
-    create_option(
-        "page", "Spécifiez une page à laquelle ouvrir le manuel", 4, False)
+@slash.command(name="manuel", description="Permet de consulter le manuel de l'Aventure", options=[
+    interactions.Option(name="page", description="Spécifiez une page à laquelle ouvrir le manuel", type=4, required=False)
 ])
 async def manuel(ctx, page=0):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     msg, manPage, chapterInt, ini = await loadingSlashEmbed(ctx), page, 0, True
 
     def checkReaction(reaction, user):
-        return int(reaction.message.id) == int(msg.id) and int(user.id) == int(ctx.author.id) and (str(reaction) == emoji.backward_arrow or str(reaction) == emoji.forward_arrow or str(reaction) == '⏪' or str(reaction) == '⏩')
+        return int(reaction.message.id) == int(msg.id) and int(user.id) == int(ctx.author.id) and (str(reaction) == "◀️" or str(reaction) =="▶️" or str(reaction) == '⏪' or str(reaction) == '⏩')
 
     while 1:
         if manPage < lenChapter[chapterInt]:
@@ -1821,35 +1849,35 @@ async def manuel(ctx, page=0):
             if manPage >= lenChapter[chapterInt+1]:
                 chapterInt += 1
 
-        ballerine = discord.Embed(title="__"+tablPage[manPage][0]+" :__", color=light_blue,
+        ballerine = interactions.Embed(title="__"+tablPage[manPage][0]+" :__", color=light_blue,
                                   description=tablPage[manPage][1]).set_footer(text=f"Page {manPage} / {len(tablPage)-1}")
 
         if len(tablPage[manPage]) == 3:
             ballerine.set_image(url=tablPage[manPage][2])
 
-        await msg.edit(embed=ballerine)
+        await msg.edit(embeds=ballerine)
         if ini:
             await msg.add_reaction('⏪')
-            await msg.add_reaction(emoji.backward_arrow)
-            await msg.add_reaction(emoji.forward_arrow)
+            await msg.add_reaction("◀️")
+            await msg.add_reaction("▶️")
             await msg.add_reaction('⏩')
             ini = False
 
         reaction = None
         try:
-            reaction = await bot.wait_for("reaction_add", timeout=380, check=checkReaction)
+            reaction = await slash.wait_for("reaction_add", timeout=380, check=checkReaction)
         except:
-            await msg.clear_reactions()
+            await msg.remove_all_reactions()
             break
 
         if reaction != None:
-            if str(reaction[0]) == emoji.backward_arrow:
+            if str(reaction[0]) == "◀️":
                 if manPage == 0:
                     manPage = len(tablPage)-1
                 else:
                     manPage -= 1
 
-            elif str(reaction[0]) == emoji.forward_arrow:
+            elif str(reaction[0]) =="▶️":
                 if manPage == len(tablPage)-1:
                     manPage = 0
                 else:
@@ -1870,7 +1898,7 @@ async def manuel(ctx, page=0):
             await msg.remove_reaction(str(reaction[0]), reaction[1])
 
 # -------------------------------------------- SEE LOGS --------------------------------------------
-@slash.subcommand(base="see", name="FightLogs", description="Permet de consulter les logs des combats du jour", guild_ids=[615257372218097691])
+@slash.command(name="see_fightlogs", description="Permet de consulter les logs des combats du jour", scope=[615257372218097691])
 async def seeLogs(ctx):
     listLogs = os.listdir("./data/fightLogs/")
     listLogs.sort(key=lambda name: name[-8:])
@@ -1884,55 +1912,50 @@ async def seeLogs(ctx):
         maxi = min(len(listLogs), (page+1)*24)
         for log in listLogs[page*24:maxi]:
             desc += "> - {0}\n".format(log)
-            option.append(create_select_option(log, log))
+            option.append(interactions.SelectOption(log, log))
 
-        embed = discord.Embed(
+        emb = interactions.Embed(
             title="__Logs des combats du jour__", color=light_blue, description=desc)
 
         if len(option) > 0:
-            select = create_select(option)
+            select = interactions.SelectMenu(custom_id = "seeFightLogs", options =option)
         else:
-            select = create_select([create_select_option(
-                "disabled", "0")], placeholder="Il n'y a aucun logs à afficher", disabled=True)
+            select = interactions.SelectMenu(custom_id = "seeFightLogs", options= [interactions.SelectOption(label="disabled", value="0")], placeholder="Il n'y a aucun logs à afficher", disabled=True)
 
         if page != 0:
-            previousBoutton = create_button(ButtonStyle(
-                2), "Page précédente", emoji.backward_arrow, "back")
+            previousBoutton = interactions.Button(type=2, style=ButtonStyle(2), label="Page précédente", emoji=Emoji(name="◀️"), custom_id="back")
         else:
-            previousBoutton = create_button(ButtonStyle(
-                2), "Page précédente", emoji.backward_arrow, "back", disabled=True)
+            previousBoutton = interactions.Button(type=2, style=ButtonStyle(2), label="Page précédente", emoji=Emoji(name="◀️"), custom_id="back", disabled=True)
         if page != maxPage:
-            nextBoutton = create_button(ButtonStyle(
-                2), "Page suivante", emoji.forward_arrow, "forward")
+            nextBoutton = interactions.Button(type=2, style=ButtonStyle(2), label="Page suivante", emoji=Emoji(name="▶️"), custom_id="forward")
         else:
-            nextBoutton = create_button(ButtonStyle(
-                2), "Page suivante", emoji.forward_arrow, "forward", disabled=True)
+            nextBoutton = interactions.Button(type=2, style=ButtonStyle(2), label="Page suivante", emoji=Emoji(name="▶️"), custom_id="forward", disabled=True)
 
-        buttons = create_actionrow(previousBoutton, nextBoutton)
+        buttons = interactions.ActionRow(components=[previousBoutton, nextBoutton])
 
         if msg == None:
             try:
-                msg = await ctx.send(embed=embed, components=[create_actionrow(select), buttons])
+                msg = await ctx.send(embeds=emb, components=[interactions.ActionRow(components=[select]), buttons])
             except:
-                msg = await ctx.channel.send(embed=embed, components=[create_actionrow(select), buttons])
+                msg = await ctx.channel.send(embeds=emb, components=[interactions.ActionRow(components=[select]), buttons])
         else:
-            await msg.edit(embed=embed, components=[create_actionrow(select), buttons])
+            await msg.edit(embeds=emb, components=[interactions.ActionRow(components=[select]), buttons])
 
         try:
-            respond = await wait_for_component(bot, msg, timeout=180)
+            respond = await slash.wait_for_component(msg, timeout=180)
         except:
             break
 
         try:
-            resp = respond.values[0]
+            resp = respond.data.values[0]
         except:
             resp = respond.custom_id
         if resp not in ["back", "forward"]:
             opened = open("./data/fightLogs/{0}".format(resp), "rb")
             try:
-                await respond.send("Voici les logs du combat :", file=discord.File(fp=opened))
+                await respond.send("Voici les logs du combat :", file=interactions.File(filename=resp,fp=opened))
             except:
-                await ctx.channel.send("Voici les logs du combat :", file=discord.File(fp=opened))
+                await ctx.channel.send("Voici les logs du combat :", file=interactions.File(filename=resp,fp=opened))
             opened.close()
         elif resp == "back":
             page -= 1
@@ -1940,7 +1963,7 @@ async def seeLogs(ctx):
             page += 1
 
 # -------------------------------------------- SEE STUFF --------------------------------------------
-@slash.subcommand(base="see", name="StuffRepartition", description="Permet de consulter la réportation des logs", guild_ids=[615257372218097691])
+@slash.command(name="see_stuffrepartition", description="Permet de consulter la réportation des logs", scope=[615257372218097691])
 async def seeStuffRepartition(ctx):
     rep = "=============================================="
     temp = copy.deepcopy(stuffs)
@@ -1967,21 +1990,43 @@ async def seeStuffRepartition(ctx):
             temp += a
     await ctx.channel.send(temp2)
 
+ssrTypeChoice = []
+for cmpt in range(TYPE_DEPL+1):
+    ssrTypeChoice.append(Choice(name=tablTypeStr[cmpt],value=cmpt))
+ssrAspiChoice = []
+for cmpt in range(MASCOTTE+1):
+    ssrAspiChoice.append(Choice(name=inspi[cmpt],value=cmpt))
+ssrElemChoice = []
+for cmpt in range(ELEMENT_TIME+1):
+    ssrElemChoice.append(Choice(name=elemNames[cmpt],value=cmpt))
+ssrUseChoice = []
+for cmpt in range(MAGIE+1):
+    ssrUseChoice.append(Choice(name=nameStats[cmpt],value=cmpt))
+
+@slash.command(name="see_skill_repartition",scope=adminServ,options=[
+    Option(type=OptionType.INTEGER,name="skilltype",required=True,choices=ssrTypeChoice,description="Le type de compétence à voir"),
+    Option(type=OptionType.INTEGER,name="aspiration",choices=ssrAspiChoice,description="Afficher les compétences exclusives à une aspiration"),
+    Option(type=OptionType.INTEGER,name="element",choices=ssrElemChoice,description="Afficher les compétences exclusives à un élément"),
+    Option(type=OptionType.INTEGER,name="use",choices=ssrUseChoice,description="Afficher uniquement les compétences utilisant une statistique"),
+    Option(type=OptionType.INTEGER,name="skillrange",choices=[Choice(name="Mêlée",value=0),Choice(name="Distance",value=1)],description="Afficher uniquement les compétences avec une portée spécifique")
+])
+async def seeSkillRepartition(ctx: interactions.CommandContext, skilltype: int, aspiration: Union[int, None] = None, element: Union[int, None] = None, use: Union[int,None] = None, skillrange: Union[int, None] = None):
+    await ctx.defer()
+    try:
+        await seeSkillsRep(ctx, skilltype, aspiration, element, use, skillRange)
+    except Exception as e:
+        await ctx.send(content=e.__str__())
+
 # -------------------------------------------- CHOOSE --------------------------------------------
-@slash.slash(name="Choose", description="Renvoie une élément aléatoire de la liste donnée", options=[
-    create_option("choix1", description="Le premier élément de la liste",
-                  option_type=discord_slash.SlashCommandOptionType.STRING, required=True),
-    create_option("choix2", description="Le second élément de la liste",
-                  option_type=discord_slash.SlashCommandOptionType.STRING, required=True),
-    create_option("choix3", description="Un potentiel troisième de la liste",
-                  option_type=discord_slash.SlashCommandOptionType.STRING, required=False),
-    create_option("choix4", description="Un potentiel quatrième de la liste",
-                  option_type=discord_slash.SlashCommandOptionType.STRING, required=False),
-    create_option("choix5", description="Un potentiel cinquième de la liste",
-                  option_type=discord_slash.SlashCommandOptionType.STRING, required=False)
+@slash.command(name="choose", description="Renvoie une élément aléatoire de la liste donnée", options=[
+    interactions.Option(name="choix1", description="Le premier élément de la liste",type=interactions.OptionType.STRING, required=True),
+    interactions.Option(name="choix2", description="Le second élément de la liste",type=interactions.OptionType.STRING, required=True),
+    interactions.Option(name="choix3", description="Un potentiel troisième de la liste",type=interactions.OptionType.STRING, required=False),
+    interactions.Option(name="choix4", description="Un potentiel quatrième de la liste",type=interactions.OptionType.STRING, required=False),
+    interactions.Option(name="choix5", description="Un potentiel cinquième de la liste",type=interactions.OptionType.STRING, required=False)
 ])
 async def chooseCmd(ctx, choix1, choix2, choix3=None, choix4=None, choix5=None):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     tempTabl = [choix1, choix2]
     for a in [choix3, choix4, choix5]:
@@ -1993,12 +2038,11 @@ async def chooseCmd(ctx, choix1, choix2, choix3=None, choix4=None, choix5=None):
         selected = selected[:-1]
     while selected.startswith(" "):
         selected = selected[1:]
-    await ctx.send(embed=discord.Embed(title="/choose", color=light_blue, description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0, len(randChooseMsg)-1)], selected)))
+    await ctx.send(embeds=interactions.Embed(title="/choose", color=light_blue, description="{0} :\n__{1}__".format(randChooseMsg[random.randint(0, len(randChooseMsg)-1)], selected)))
 
 # -------------------------------------------- ADMIN --------------------------------------------
-@slash.subcommand(base="admin", name="enable_Fight", guild_ids=adminServ, description="Permet d'activer les combats ou non", options=[
-    create_option("valeur", "Activer ou désaciver les combats",
-                  SlashCommandOptionType.BOOLEAN, False)
+@slash.command(name="admin_enable_fight", scope=adminServ, description="Permet d'activer les combats ou non", options=[
+    interactions.Option(name="valeur", description="Activer ou désaciver les combats", type=OptionType.BOOLEAN, required=False)
 ])
 async def addEnableFight(ctx, valeur=None):
     globalVar.changeFightEnabled(valeur)
@@ -2006,28 +2050,28 @@ async def addEnableFight(ctx, valeur=None):
         valeur = globalVar.fightEnabled()
 
     if not(valeur):
-        await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Les combats sont actuellements désactivés"))
+        await slash.change_presence(ClientPresence(status=StatusType.DND,activities=[PresenceActivity(name="Les combats sont désactivés",type=PresenceActivityType.GAME)]))
     else:
         ballerine = datetime.now() + horaire + timedelta(hours=1)
         while ballerine.hour % 3 != 0:
             ballerine = ballerine + timedelta(hours=1)
 
-        await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
+        await slash.change_presence(ClientPresence(status=StatusType.ONLINE,activities=[PresenceActivity(name="Prochain shop à "+ballerine.strftime('%Hh'),type=PresenceActivityType.GAME)]))
 
-    await ctx.send(embed=discord.Embed(title="__Admin Enable Fight__", description="Les combats sont désormais __{0}__".format(["désactivés", "activés"][int(valeur)]), color=[red, light_blue][int(valeur)]))
+    await ctx.send(embeds=interactions.Embed(title="__Admin Enable Fight__", description="Les combats sont désormais __{0}__".format(["désactivés", "activés"][int(valeur)]), color=[red, light_blue][int(valeur)]))
 
 
-@slash.subcommand(base="admin", name="restart_Bot", guild_ids=adminServ, description="Permet de redémarrer le bot lorsque tous les combats seront fini")
+@slash.command(name="admin_restart_bot", scope=adminServ, description="Permet de redémarrer le bot lorsque tous les combats seront fini")
 async def restartCommand(ctx):
-    await restart_program(bot, ctx)
+    await restart_program(slash, ctx)
 
-@slash.subcommand(base="admin", subcommand_group="emoji", name="reset_all", guild_ids=adminServ, description="Lance une rénitialisation des emojis")
+@slash.command(name="admin_emoji_reset_all", scope=adminServ, description="Lance une rénitialisation des emojis")
 async def resetCustomEmoji(ctx):
-    msg = await ctx.send(embed=discord.Embed(title="Rénitialisation des emojis..."))
-    await bot.change_presence(status=discord.Status.idle, activity=discord.Game(name="rénitialiser les emojis..."))
+    msg = await ctx.send(embeds=interactions.Embed(title="Rénitialisation des emojis..."))
+    await slash.change_presence(ClientPresence(status=StatusType.IDLE,activities=[PresenceActivity(name="Refaire les émojis...",type=PresenceActivityType.GAME)]))
 
     async def refresh(text: str):
-        await msg.edit(embed=discord.Embed(title="Rénitialisation des emojis...", description=text))
+        await msg.edit(embeds=interactions.Embed(title="Rénitialisation des emojis...", description=text))
 
     await refresh("Suppression des dossiers images...")
     path = "./data/images"
@@ -2054,14 +2098,14 @@ async def resetCustomEmoji(ctx):
 
     allEmojisNum = 0
     for a in iconGuildList:
-        emojiGuild = await bot.fetch_guild(a)
+        emojiGuild = await get(slash,interactions.Guild,a)
         allEmojisNum += len(emojiGuild.emojis)
 
     cmpt = 0
     now = datetime.now().second
     lastTime = copy.deepcopy(now)
     for a in iconGuildList:
-        emojiGuild = await bot.fetch_guild(a)
+        emojiGuild = await get(slash,interactions.Guild,a)
 
         for b in emojiGuild.emojis:
             try:
@@ -2085,8 +2129,8 @@ async def resetCustomEmoji(ctx):
     base = open("./data/database/custom_icon.db", "w")
     base.close()
     customIconDB.remarkeCustomDB()
-    await downloadAllHeadGearPng(bot, msg, lastTime)
-    await downloadAllWeapPng(bot, msg, lastTime)
+    await downloadAllHeadGearPng(slash, msg, lastTime)
+    await downloadAllWeapPng(slash, msg, lastTime)
     await refresh("Téléchargements des icones de bases...")
     await downloadAllIconPng(bot)
     await downloadElementIcon(bot)
@@ -2097,8 +2141,8 @@ async def resetCustomEmoji(ctx):
 
     await refresh("Création des émojis...")
     for num in allChar:
-        user = await loadCharFile("./userProfile/"+num)
-        await getUserIcon(bot, user)
+        user = loadCharFile("./userProfile/"+num)
+        await getUserIcon(slash, user)
         cmpt += 1
 
         if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
@@ -2106,39 +2150,39 @@ async def resetCustomEmoji(ctx):
             lastTime = now
 
     await refresh("Fini !")
-    await ctx.channel.send("La rénitialisation des emojis est terminées !", delete_after=10)
+    await ctx.channel.send("La rénitialisation des emojis est terminées !")
 
     ballerine = datetime.now() + horaire + timedelta(hours=1)
     while ballerine.hour % 3 != 0:
         ballerine = ballerine + timedelta(hours=1)
 
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Prochain shop à "+ballerine.strftime('%Hh')))
+    await slash.change_presence(ClientPresence(status=StatusType.ONLINE,activities=[PresenceActivity(name="Prochain shop à "+ballerine.strftime('%Hh'),type=PresenceActivityType.GAME)]))
 
-@slash.subcommand(base="admin", subcommand_group="emoji", name="remake_all", guild_ids=adminServ, description="Supprime puis refait tous les emojis de personnage")
+@slash.command(name="admin_emoji_remake_all", scope=adminServ, description="Supprime puis refait tous les emojis de personnage")
 async def remakeCustomEmoji(ctx):
     await remakeEmojis(ctx)
 
-@slash.subcommand(base="admin", subcommand_group="backup", name="new", description="Permet de réaliser un backup des profiles de personnages", guild_ids=adminServ)
+@slash.command(name="admin_backup_new", description="Permet de réaliser un backup des profiles de personnages", scope=adminServ)
 async def adminBackup(ctx):
     temp = create_backup()
     try:
-        await ctx.send(embed=discord.Embed(title="__Admin : Backups__", color=light_blue, description=temp))
+        await ctx.send(embeds=interactions.Embed(title="__Admin : Backups__", color=light_blue, description=temp))
     except:
-        await ctx.channel.send(embed=discord.Embed(title="__Admin : Backups__", color=light_blue, description=temp))
+        await ctx.channel.send(embeds=interactions.Embed(title="__Admin : Backups__", color=light_blue, description=temp))
 
-@slash.subcommand(base="admin", subcommand_group="stat", name="silentRestatAll", description="silentRestat all users", guild_ids=adminServ)
+@slash.command(name="admin_stat_silent_restat_all", description="silentRestat all users", scope=adminServ)
 async def silentRestatForEveryone(ctx):
-    msg = await ctx.send(embed=discord.Embed(title="__/admin stat silentRestallAll__", color=light_blue, description="Restats en cours..."))
+    msg = await ctx.send(embeds=interactions.Embed(title="__/admin stat silentRestallAll__", color=light_blue, description="Restats en cours..."))
     try:
         for fileName in os.listdir("./userProfile/"):
-            user = await loadCharFile("./userProfile/"+fileName)
+            user = loadCharFile("./userProfile/"+fileName)
             user = silentRestats(user)
             saveCharFile(user=user)
-        await msg.edit(embed=discord.Embed(title="__/admin stat silentRestallAll__", color=light_blue, description="Tous les utilisateurs ont été restats 👍"))
+        await msg.edit(embeds=interactions.Embed(title="__/admin stat silentRestallAll__", color=light_blue, description="Tous les utilisateurs ont été restats 👍"))
     except:
-        await msg.edit(embed=discord.Embed(title="__/admin stat silentRestallAll__", description="Une erreur est survenue :\n"+format_exc()))
+        await msg.edit(embeds=interactions.Embed(title="__/admin stat silentRestallAll__", description="Une erreur est survenue :\n"+format_exc()))
 
-@slash.subcommand(base="admin", subcommand_group="shop", name="forceNewShop", description="silentRestat all users", guild_ids=adminServ)
+@slash.command(name="admin_force_new_shop", description="silentRestat all users", scope=adminServ)
 async def forceShop(ctx):
     try:
         await shopping.newShop()
@@ -2146,9 +2190,9 @@ async def forceShop(ctx):
     except:
         await ctx.send("Echec")
 
-@slash.subcommand(base="admin", subcommand_group="stat", name="reset_records", guild_ids=adminServ)
+@slash.command(name="admin_reset_records", scope=adminServ)
 async def resetRecord(ctx):
-    await ctx.send(embed=discord.Embed(title="__Reset des records__", color=light_blue, description=aliceStatsDb.resetRecords()))
+    await ctx.send(embeds=interactions.Embed(title="__Reset des records__", color=light_blue, description=aliceStatsDb.resetRecords()))
 
 # -------------------------------------------- KIKIMETER --------------------------------------------
 if isLenapy:
@@ -2156,18 +2200,18 @@ if isLenapy:
 else:
     tabl = adminServ
 
-@slash.slash(name="Kikimeter", description="Permet de voir le top 5 de chaques catégories", guild_ids=tabl, options=[create_option(name="what", description="Que regarder", option_type=str, required=True, choices=[create_choice("total", "total"), create_choice("max", "max")])])
+@slash.command(name="kikimeter", description="Permet de voir le top 5 de chaques catégories", scope=tabl, options=[interactions.Option(name="what", description="Que regarder", type=3, required=True, choices=[interactions.Choice(name="total", value="total"), interactions.Choice(name="max", value="max")])])
 async def kikimeterCmd(ctx, what):
     listAllChars = []
     for text in os.listdir("./userProfile/"):
-        listAllChars.append(await loadCharFile("./userProfile/" + text))
+        listAllChars.append(loadCharFile("./userProfile/" + text))
 
     for cmpt in range(len(listAllChars)):
         temp = aliceStatsDb.getUserStats(listAllChars[cmpt], "all")
         listAllChars[cmpt] = {"char": listAllChars[cmpt], "{what}Damage".format(what=what): temp["{what}Damage".format(what=what)], "{what}Kill".format(what=what): temp["{what}Kill".format(what=what)], "{what}Resu".format(what=what): temp["{what}Resu".format(what=what)], "{what}RecivedDamage".format(
             what=what): temp["{what}RecivedDamage".format(what=what)], "{what}Heal".format(what=what): temp["{what}Heal".format(what=what)], "{what}Armor".format(what=what): temp["{what}Armor".format(what=what)], "{what}Supp".format(what=what): temp["{what}Supp".format(what=what)]}
 
-    embed = discord.Embed(
+    emb = interactions.Embed(
         title="__Kikimeter__", description="=========================================================")
     for cat in ["{what}Damage".format(what=what), "{what}Kill".format(what=what), "{what}Resu".format(what=what), "{what}RecivedDamage".format(what=what), "{what}Heal".format(what=what), "{what}Armor".format(what=what), "{what}Supp".format(what=what)]:
         listAllChars.sort(
@@ -2176,63 +2220,63 @@ async def kikimeterCmd(ctx, what):
 
         for cmpt in range(min(5, len(listAllChars)-1)):
             if listAllChars[cmpt]["{0}".format(cat)] > 0:
-                desc += "{0} - {1} {2} ({3})\n".format(cmpt+1, await getUserIcon(bot, listAllChars[cmpt]["char"]), listAllChars[cmpt]["char"].name, separeUnit(int(listAllChars[cmpt]["{0}".format(cat)])))
+                desc += "{0} - {1} {2} ({3})\n".format(cmpt+1, await getUserIcon(slash, listAllChars[cmpt]["char"]), listAllChars[cmpt]["char"].name, separeUnit(int(listAllChars[cmpt]["{0}".format(cat)])))
 
         if desc != "":
-            embed.add_field(
+            emb.add_field(
                 name="<:empty:866459463568850954>\n__{0}__".format(cat), value=desc)
     try:
-        await ctx.send(embed=embed)
+        await ctx.send(embeds=emb)
     except:
-        await ctx.channel.send(embed=embed)
+        await ctx.channel.send(embeds=emb)
 
 # -------------------------------------------- PROCURATION --------------------------------------------
-@slash.slash(name="procuration", description="Permet de donner à un autre utilisateur procuration sur votre inventaire", options=[create_option("utilisateur", "L'utilisateur qui pourra modifier vos objets équipés", 6, True)])
+@slash.command(name="procuration", description="Permet de donner à un autre utilisateur procuration sur votre inventaire", options=[interactions.Option(name="utilisateur", description="L'utilisateur qui pourra modifier vos objets équipés", type=6, required=True)])
 async def procurCmd(ctx, utilisateur):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     await procuration(ctx, utilisateur)
 
 # -------------------------------------------- ICON --------------------------------------------
-@slash.slash(name="icon", description="Renvoie l'icone de votre personnage", options=[create_option("utilisateur", "Voir l'icone d'un autre utilisateur", 6, False)])
+@slash.command(name="icon", description="Renvoie l'icone de votre personnage", options=[interactions.Option(name="utilisateur", description="Voir l'icone d'un autre utilisateur", type=6, required=False)])
 async def iconCommand(ctx, utilisateur=None):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     try:
         if utilisateur == None:
-            user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+            user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
         else:
-            user = await loadCharFile(
+            user = loadCharFile(
                 "./userProfile/{0}.prof".format(utilisateur.id))
     except:
         if utilisateur == None:
-            await ctx.send("Vous devez avoir commencé l'Aventure pour utiliser cette commande\nFaites donc un tour du côté de /start !", delete_after=15)
+            await ctx.send("Vous devez avoir commencé l'Aventure pour utiliser cette commande\nFaites donc un tour du côté de /start !",ephemeral=True)
         else:
-            await ctx.send("La personne mentionnée n'a pas commencé l'aventure", delete_after=15)
+            await ctx.send("La personne mentionnée n'a pas commencé l'aventure",ephemeral=True)
         return 0
 
-    embed = discord.Embed(title="__Icone de personnage__", color=user.color)
-    embed.set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot, user))["id"]))
+    emb = interactions.Embed(title="__Icone de personnage__", color=user.color)
+    emb.set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(slash, user)).id))
 
-    await ctx.send(embed=embed)
+    await ctx.send(embeds=emb)
 
 # -------------------------------------------- ADVENTURE ---------------------------------------------
 
 # -------------------------------------------- ROULETTE --------------------------------------------
-@slash.slash(name="roulette", description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
+@slash.command(name="roulette", description="Permet d'utiliser un Jeton de roulette pour obtenir un objet ou des pièces")
 async def rouletteSlash(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     try:
-        user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
     except:
-        await ctx.send(embed=discord.Embed(title="__Commande de l'Aventure :__", description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"), delete_after=15)
+        await ctx.send(embeds=interactions.Embed(title="__Commande de l'Aventure :__", description="Vous devez avoir commencé l'aventure pour utiliser cette commande.\n\nFaites donc un tour vers /start"),ephemeral=True)
         return 0
 
-    await roulette(bot, ctx, user)
+    await roulette(slash, ctx, user)
 
 # -------------------------------------------- SEE ENEMY REPARTITION -------------------------------
-@slash.subcommand(base="see", name="enemyRepartition", guild_ids=[615257372218097691], description="Permet de voir la répartition des ennemis")
+@slash.command(name="see_enemy_repartition", scope=[615257372218097691], description="Permet de voir la répartition des ennemis")
 async def seeEnnemyRep(ctx):
     # 0 : Dmg; 1 : Heal/Armor; 2 : Buff/Debuff
     octoRolesNPos = [[[], [], []], [[], [], []], [[], [], []]]
@@ -2253,90 +2297,120 @@ async def seeEnnemyRep(ctx):
             octoRolesNPos[roleId][octa.weapon.range].append(octa)
 
     for cmpt in (0, 1, 2):
-        embed = discord.Embed(title="__Ennemi répartion : {0}__".format(
+        emb = interactions.Embed(title="__Ennemi répartion : {0}__".format(
             ["DPT_PHYS", "Healer/Shilder", "Support"][cmpt]), color=light_blue)
         for cmptBis in range(len(octoRolesNPos[cmpt])):
             desc = ""
             for name in octoRolesNPos[cmpt][cmptBis]:
                 desc += "{0} {1}\n".format(name.icon, name.name)
             if len(desc) > 0:
-                embed.add_field(name=["__Mêlée :__", "__Distance :__",
+                emb.add_field(name=["__Mêlée :__", "__Distance :__",
                                 "__Backline :__"][cmptBis], value=desc, inline=True)
             else:
-                embed.add_field(name=["__Mêlée :__", "__Distance :__",
+                emb.add_field(name=["__Mêlée :__", "__Distance :__",
                                 "__Backline :__"][cmptBis], value="`-`", inline=True)
 
         if cmpt == 0:
-            await ctx.send(embed=embed)
+            await ctx.send(embeds=emb)
         else:
-            await ctx.channel.send(embed=embed)
+            await ctx.channel.send(embeds=emb)
 
     desc = ''
     for name in dicidants:
         desc += "{0} {1}\n".format(name.icon, name.name)
-    embed = discord.Embed(title="__Hors catégorie :__".format(
+    emb = interactions.Embed(title="__Hors catégorie :__".format(
         ["DPT_PHYS", "Healer/Shilder", "Support"][cmpt]), color=light_blue, description=desc)
 
-    await ctx.channel.send(embed=embed)
+    await ctx.channel.send(embeds=emb)
+
+@slash.command(name="see_enemy",description="Permet d'afficher la page d'info d'un ennemi",scope=adminServ,options=[Option(type=OptionType.STRING,name="name",description="Le nom de l'ennemi",focused=True,required=True)])
+async def seeEnemy(ctx:CommandContext,name:str):
+    await ctx.defer()
+    badGuy = findEnnemi(name)
+    emptyUser = char(owner=int(ctx.author.id))
+    if badGuy != None:
+        listOption = []
+        for skilly in badGuy.skills:
+            if type(skilly) == skill:
+                listOption.append(SelectOption(label=skilly.name,value=skilly.id,emoji=getEmojiObject(skilly.emoji)))
+        
+        select = SelectMenu(custom_id="seeEnemySkill",options=listOption,placeholder="Voir une compétence en détail")
+        emb = infoEnnemi(badGuy)
+        msg = await ctx.send(embeds=emb,components=[select])
+
+        while 1:
+            try:
+                rep: ComponentContext = await slash.wait_for_component(components=select,messages=msg,timeout=180)
+            except asyncio.TimeoutError:
+                await msg.edit(embeds=emb,components=[])
+                break
+
+            await rep.defer()
+            for skilly in badGuy.skills:
+                if type(skilly) == skill and skilly.id == rep.data.values[0]:
+                    await rep.send(embeds=infoSkill(skill=skilly,ctx=rep,user=emptyUser))
+
+    else:
+        await ctx.send(content="L'ennemi \"{0}\" n'a pas été trouvé".format(name))
 
 # ------------------------------------------- PRESTIGE ---------------------------------------------
-@slash.slash(name="prestige", description="Permet de revenir au niveau 1, avec quelques bonus en primes")
+@slash.command(name="prestige", description="Permet de revenir au niveau 1, avec quelques bonus en primes")
 async def prestigeCmd(ctx):
-    if not(await botChannelVerif(bot, ctx)):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     try:
-        user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+        user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
     except:
-        await ctx.send("Vous n'avez même pas encore commencé l'aventure et vous voulez déjà prestige ?", delete_after=15)
+        await ctx.send("Vous n'avez même pas encore commencé l'aventure et vous voulez déjà prestige ?",ephemeral=True)
         return 0
 
     if user.level < 55:
-        await ctx.send("Vous devez être niveau 55 pour pouvoir utiliser cette commande", delete_after=15)
+        await ctx.send("Vous devez être niveau 55 pour pouvoir utiliser cette commande",ephemeral=True)
         return 0
 
-    embed = discord.Embed(title="__Prestige__", color=light_blue,description="En prestigeant votre personnage, vous retournerez au niveau 1<:littleStar:925860806602682369>{0}.\n\nVous conserverez votre inventaire d'objet des de compétences et obtiendrez un __Point Majeur__.\nVous pourrez l'utiliser pour augmenter une de vos statistiques principales de 30 points supplémentaires, ou augmenter vos statistiques secondaires de 10 points".format(user.stars+1))
-    comfirm = create_button(ButtonStyle.green, "Prestige votre personnage", '✅', '✅')
+    emb = interactions.Embed(title="__Prestige__", color=light_blue,description="En prestigeant votre personnage, vous retournerez au niveau 1<:littleStar:925860806602682369>{0}.\n\nVous conserverez votre inventaire d'objet des de compétences et obtiendrez un __Point Majeur__.\nVous pourrez l'utiliser pour augmenter une de vos statistiques principales de 30 points supplémentaires, ou augmenter vos statistiques secondaires de 10 points".format(user.stars+1))
+    comfirm = interactions.Button(type=2, style=ButtonStyle.SUCCESS, label="Prestige votre personnage", emoji=Emoji(name='✅'), custom_id='✅')
 
-    msg = await ctx.send(embed=embed, components=[create_actionrow(comfirm)])
+    msg = await ctx.send(embeds=emb, components=[interactions.ActionRow(components=[comfirm])])
 
     def check(m):
-        return int(m.author_id) == int(ctx.author.id)
+        return int(m.author.id) == int(ctx.author.id)
 
     try:
-        await wait_for_component(bot, msg, check=check, timeout=30)
+        await slash.wait_for_component(msg, check=check, timeout=30)
     except:
-        await msg.edit(embed=embed, components=[])
+        await msg.edit(embeds=emb, components=[])
         return 0
 
-    user = await loadCharFile(user=user)
+    user = loadCharFile(user=user)
     user.level, user.exp, user.stars = 1, 0, user.stars+1
     user = restats(user)
 
     saveCharFile(user=user)
-    await makeCustomIcon(bot, user)
-    await inventoryVerif(bot, user)
-    await msg.edit(embed=discord.Embed(title="__Prestige__", color=light_blue, description="Vous avez bien prestige votre personnage"), components=[])
+    await makeCustomIcon(slash, user)
+    await inventoryVerif(slash, user)
+    await msg.edit(embeds=interactions.Embed(title="__Prestige__", color=light_blue, description="Vous avez bien prestige votre personnage"), components=[])
 
 # ------------------------------------------- SET_BOT_CHANNEL --------------------------------------
-@slash.slash(name="set_bot_channel", description="Permet de définir un salon comme salon bot", options=[create_option("salon", "Le salon dans lequel les utilisateurs pourront utiliser les commandes", 7, True)])
-async def setChannel(ctx: discord_slash.SlashContext, salon: discord.TextChannel):
+@slash.command(name="set_bot_channel", description="Permet de définir un salon comme salon bot", options=[interactions.Option(name="salon", description="Le salon dans lequel les utilisateurs pourront utiliser les commandes", type=7, required=True)])
+async def setChannel(ctx: interactions.CommandContext, salon: interactions.Channel):
     if not(ctx.author.guild_permissions.manage_channels):
-        await ctx.send(embed=discord.Embed(title="__/set_bot_channel__", color=red, description="Tu as besoin des permissions de gérer les salons textuels pour utiliser cette commande, désolée"), delete_after=10)
+        await ctx.send(embeds=interactions.Embed(title="__/set_bot_channel__", color=red, description="Tu as besoin des permissions de gérer les salons textuels pour utiliser cette commande, désolée"),ephemeral=True)
         return 0
-    if type(salon) != discord.TextChannel:
-        await ctx.send(embed=discord.Embed(title="__/set_bot_channel__", color=red, description="Seul un salon textuel peut être rajouté comme salon bot, désolée"), delete_after=10)
+    if type(salon) != interactions.Channel:
+        await ctx.send(embeds=interactions.Embed(title="__/set_bot_channel__", color=red, description="Seul un salon textuel peut être rajouté comme salon bot, désolée"),ephemeral=True)
         return 0
 
     globalVar.setGuildBotChannel(ctx.guild_id, salon.id)
-    await ctx.send(embed=discord.Embed(title="__/set_bot_channel__", color=light_blue, description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
+    await ctx.send(embeds=interactions.Embed(title="__/set_bot_channel__", color=light_blue, description="Le salon {0} a bien été enregistré comme salon bot\nChaque serveur ne peut avoir qu'un seul salon bot, réutiliser la commande remplacera l'ancien".format(salon.mention)))
 
 # ------------------------------------------- VERIF ------------------------------------------------
-@slash.slash(name="verif_user", description="Permet de voir toutes les informations d'un personnage", guild_ids=adminServ, options=[create_option("identifiant", "L'identifiant de l'utilisateur", SlashCommandOptionType.STRING, True)])
+@slash.command(name="verif_user", description="Permet de voir toutes les informations d'un personnage", scope=adminServ, options=[interactions.Option(name="identifiant", description="L'identifiant de l'utilisateur", type=OptionType.STRING, required=True)])
 async def verifuser(ctx, identifiant):
-    user = await loadCharFile("./userProfile/{0}.prof".format(identifiant))
-    await ctx.send(embed=await seeAllInfo(bot, user))
+    user = loadCharFile("./userProfile/{0}.prof".format(identifiant))
+    await ctx.send(embeds=await seeAllInfo(slash, user))
 
-@slash.slash(name="verif_team", guild_ids=adminServ)
+@slash.command(name="verif_team", scope=adminServ)
 async def verifTeams(ctx):
     toSend, allReadySeen, msg, userTeam = "", [], None, []
 
@@ -2351,7 +2425,7 @@ async def verifTeams(ctx):
 
         tmpTeamMembers = teamMembers[:]
         for ids in teamMembers:
-            user = await loadCharFile(path="./userProfile/{0}.prof".format(ids))
+            user = loadCharFile(path="./userProfile/{0}.prof".format(ids))
             if user.owner in allReadySeen:
                 warn = "~~"
                 if getUserMainTeam(user) != team:
@@ -2368,7 +2442,7 @@ async def verifTeams(ctx):
             else:
                 redacted = ""
 
-            temp += "\n{2}{0} {1}{2}{3}".format(await getUserIcon(bot, user), user.name, warn, redacted)
+            temp += "\n{2}{0} {1}{2}{3}".format(await getUserIcon(slash, user), user.name, warn, redacted)
 
         if len(tmpTeamMembers) > 0:
             userTeamDb.updateTeam(team, tmpTeamMembers)
@@ -2377,11 +2451,11 @@ async def verifTeams(ctx):
         if len(toSend+temp) > 4000:
             if msg == None:
                 try:
-                    msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
+                    msg = await ctx.send(embeds=interactions.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
                 except:
-                    msg = await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
+                    msg = await ctx.channel.send(embeds=interactions.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
             else:
-                await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
+                await ctx.channel.send(embeds=interactions.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
             toSend = temp
             temp = ""
         else:
@@ -2390,34 +2464,34 @@ async def verifTeams(ctx):
     if toSend != "":
         if msg == None:
             try:
-                msg = await ctx.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
+                msg = await ctx.send(embeds=interactions.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
             except:
-                msg = await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
+                msg = await ctx.channel.send(embeds=interactions.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
         else:
-            await ctx.channel.send(embed=discord.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
+            await ctx.channel.send(embeds=interactions.Embed(title="__Team Vérification__", color=light_blue, description=toSend))
 
-@slash.slash(name="verif_emoji", guild_ids=adminServ)
+@slash.command(name="verif_emoji", scope=adminServ)
 async def emojiVerficition(ctx):
-    msg, remaked, lastProgress = await ctx.send(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ 0%")), "", 0
+    msg, remaked, lastProgress = await ctx.send(embeds=interactions.Embed(title="Vérification des émojis...", description="__Progression :__ 0%")), "", 0
     listAllUsersFiles = os.listdir("./userProfile/")
     lenAllUser, progress = len(listAllUsersFiles), 0
     try:
         for path in listAllUsersFiles:
-            user, haveSucced = await loadCharFile("./userProfile/"+path), False
-            userIcon = await getUserIcon(bot, user)
+            user, haveSucced = loadCharFile("./userProfile/"+path), False
+            userIcon = await getUserIcon(slash, user)
             haveSucced = False
             for guildId in [ShushyCustomIcons, LenaCustomIcons][isLenapy]:
-                guild = await bot.fetch_guild(guildId)
+                guild = await get(slash,interactions.Guild,guildId)
                 try:
-                    await guild.fetch_emoji(getEmojiObject(userIcon)["id"])
+                    await get(slash, interactions.Emoji, parent_id=int(guild.id), object_id=getEmojiObject(userIcon).id)
                     haveSucced = True
                     break
                 except:
                     pass
             if not(haveSucced):
                 customIconDB.removeUserIcon(user)
-                await makeCustomIcon(bot, user)
-                if await getUserIcon(bot, user) not in ['<:LenaWhat:760884455727955978>', '<a:lostSilver:917783593441456198>']:
+                await makeCustomIcon(slash, user)
+                if await getUserIcon(slash, user) not in ['<:LenaWhat:760884455727955978>', '<a:lostSilver:917783593441456198>']:
                     remaked += "Emoji de {0} refait\n".format(user.name)
                 else:
                     remaked += "Erreur lors du remake de l'emoji de {0}\n".format(
@@ -2425,36 +2499,36 @@ async def emojiVerficition(ctx):
             progress += 1
 
             if progress/lenAllUser * 100 > lastProgress + 5:
-                await msg.edit(embed=discord.Embed(title="Vérification des émojis...", description="__Progression :__ {0}%\n".format(round(progress/lenAllUser * 100, 2))+remaked))
+                await msg.edit(embeds=interactions.Embed(title="Vérification des émojis...", description="__Progression :__ {0}%\n".format(round(progress/lenAllUser * 100, 2))+remaked))
                 lastProgress = progress/lenAllUser * 100
 
-        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked, color=light_blue))
+        await msg.edit(embeds=interactions.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked, color=light_blue))
     except:
-        await msg.edit(embed=discord.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
+        await msg.edit(embeds=interactions.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
 
 # ------------------------------------------ CHAR SETTINGS ----------------------------------------
-@slash.slash(name="char_settings", description="Permet de modifier les paramètres de son icone de personnage")
+@slash.command(name="char_settings", description="Permet de modifier les paramètres de son icone de personnage")
 async def char_settings(ctx):
-    user = await loadCharFile("./userProfile/{0}.prof".format(ctx.author_id))
-    await userSettings(bot, user, ctx)
+    user = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+    await userSettings(slash, user, ctx)
 
 # ======================= Limit Breaks ================================
-@slash.slash(name="limitbreaks",description="Permet de briser les limites de votre personnage",options=[create_option("procuration", "Permet d'utiliser la commande avec un autre personnage", 6, False)])
-async def limitBreak(ctx,procuration:discord.Member=None):
-    if not(await botChannelVerif(bot, ctx)):
+@slash.command(name="limitbreaks",description="Permet de briser les limites de votre personnage",options=[interactions.Option(name="procuration", description="Permet d'utiliser la commande avec un autre personnage", type=6, required=False)])
+async def limitBreak(ctx,procuration:interactions.Member=None):
+    if not(await botChannelVerif(slash, ctx)):
         return 0
     try:
-        user = await loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
+        user = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
     except:
-        await ctx.send("Vous n'avez pas encore de personnage.\nVous pouvez vous en créer un à l'aide de la commande /start",delete_after=15)
+        await ctx.send("Vous n'avez pas encore de personnage.\nVous pouvez vous en créer un à l'aide de la commande /start",ephemeral=True)
         return 0
 
     if procuration != None:
         if procuration.id not in user.haveProcurOn:
-            await ctx.send("{0} ne vous a pas donné procuration sur son personnage".format(procuration.nick),delete_after=15)
+            await ctx.send("{0} ne vous a pas donné procuration sur son personnage".format(procuration.nick),ephemeral=True)
             return 0
         else:
-            user = await loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
+            user = loadCharFile(absPath + "/userProfile/" + str(procuration.id) + ".prof")
 
     if user.level < 40 and user.stars <= 0:
         hasSkillUpdated, lvl = True, user.level - 5
@@ -2478,56 +2552,54 @@ async def limitBreak(ctx,procuration:discord.Member=None):
 
         if not(hasBonusPointsUpdated and hasSkillUpdated and hasUpdatedStuff):
             updateBonus += "__Bonus de personnage à jour :__\nComplétez les conditions suivantes pour obtenir un bonus de 5% dans toutes vos satistiques principales :\n"
-            updateBonus += "{0} {1}Avoir moins de **5 points bonus** non attribués{1}\n".format([cross,emoji.check][hasBonusPointsUpdated],["","~~"][hasBonusPointsUpdated])
-            updateBonus += "{0} {1}Avoir moins des équipements à votre niveau ou maximum **10 niveaux** en dessous du votre{1}\n".format([cross,emoji.check][hasUpdatedStuff],["","~~"][hasUpdatedStuff])
-            updateBonus += "{0} {1}Avoir **aucun** d'emplacement de compétences vides, à l'exeption du dernière emplacement sur il a été débloqué réçament{1}\n".format([cross,emoji.check][hasSkillUpdated],["","~~"][hasSkillUpdated])
+            updateBonus += "{0} {1}Avoir moins de **5 points bonus** non attribués{1}\n".format(["❌","✅"][hasBonusPointsUpdated],["","~~"][hasBonusPointsUpdated])
+            updateBonus += "{0} {1}Avoir moins des équipements à votre niveau ou maximum **10 niveaux** en dessous du votre{1}\n".format(["❌","✅"][hasUpdatedStuff],["","~~"][hasUpdatedStuff])
+            updateBonus += "{0} {1}Avoir **aucun** d'emplacement de compétences vides, à l'exeption du dernière emplacement sur il a été débloqué réçament{1}\n".format(["❌","✅"][hasSkillUpdated],["","~~"][hasSkillUpdated])
 
-        await ctx.send("Vous ne pourrez briser vos limites qu'à partir du Niveau 40\n\n"+updateBonus,delete_after=15)
+        await ctx.send("Vous ne pourrez briser vos limites qu'à partir du Niveau 40\n\n"+updateBonus,ephemeral=True)
         return 0
-    await breakTheLimits(bot, ctx, user)
+    await breakTheLimits(slash, ctx, user)
 
 # ------------------------------------------ STREAM ----------------------------------------
-@slash.slash(name="twitch_alerts",description="Permet de gérer les alertes streams")
+@slash.command(name="twitch_alerts",description="Permet de gérer les alertes streams")
 async def lenaTwitchAlerte(ctx):
-    await streamSettingsFunction(bot,ctx.guild,ctx)
+    await streamSettingsFunction(slash,ctx.guild,ctx)
 
-@slash.slash(name="Test", guild_ids=adminServ)
+@slash.command(name="test", scope=adminServ)
 async def expeditionTest(ctx):
-    user, chan = await loadCharFile(
+    user, chan = loadCharFile(
         "./userProfile/{0}.prof".format(ctx.author.id)), ctx.channel
-    listEmbed = await generateExpeditionReport(bot, [user], user, datetime.now(), ctx)
+    listEmbed = await generateExpeditionReport(slash, [user], user, datetime.now(), ctx)
     for a in listEmbed:
-        await chan.send(embed=a)
+        await chan.send(embeds=a)
 
-@slash.slash(name="area_test",guild_ids=adminServ)
+@slash.command(name="area_test",scope=adminServ)
 async def areaTest(ctx):
     first = True
     for area in [AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7,]:
-        emb = discord.Embed(title=areaNames[area],color=light_blue)
+        emb = interactions.Embed(title=areaNames[area],color=light_blue)
         if area not in notOrientedAreas:
             for cmpt in (0,1,2,3):
                 emb.add_field(name=["__From Left__","__From Right__","__From Up__","__From Down__"][cmpt],value=visuArea(area,ENEMIES,False,cmpt),inline=False)
             if first:
-                await ctx.send(embed=emb)
+                await ctx.send(embeds=emb)
                 first = False
             else:
-                await ctx.channel.send(embed=emb)
+                await ctx.channel.send(embeds=emb)
         else:
             emb.add_field(name=areaNames[area],value=visuArea(area,ENEMIES,True),inline=False)
             if first:
-                await ctx.send(embed=emb)
+                await ctx.send(embeds=emb)
                 first = False
             else:
-                await ctx.channel.send(embed=emb)
+                await ctx.channel.send(embeds=emb)
             
 ###########################################################
 # Démarrage du bot
-if not(isLenapy):
-    print("\nKawiiiiii")
-    try:
-        bot.run(shushipy)
-    except:
-        print("La connexion a écouché")
-else:
-    print("\nIl semblerait que je sois seule cette fois. Je m'occuperais de Shushi une autre fois")
-    bot.run(lenapy)
+print(["\nKawiiiiii","\nIl semblerait que je sois seule cette fois. Je m'occuperais de Shushi une autre fois"][isLenapy])
+try:
+    slash.start()
+except Exception as e:
+    print("La connexion a écouché :")
+    print(e)
+

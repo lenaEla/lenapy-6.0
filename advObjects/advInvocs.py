@@ -3,7 +3,7 @@ from classes import *
 from constantes import *
 from advObjects.advSkills import *
 
-batWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,70,80,0,emoji='<:griffe:884889931359596664>',use=AGILITY)
+batWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,35,80,0,emoji='<:griffe:884889931359596664>',use=STRENGTH, ignoreAutoVerif=True)
 carbunTWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,70,80,0,emoji='<:griffe:884889931359596664>',use=ENDURANCE)
 carbunE = weapon("Coup de vent","aab",RANGE_LONG,AREA_CIRCLE_5,40,70,0,emoji='<:vent:884889843681853460>',area=AREA_CIRCLE_1,use=MAGIE)
 carbunSkill = skill("Eclat Emeraude","aac",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_2,sussess=55,emoji='<:rafale:884889889445912577>',use=MAGIE,cooldown=4,description="Inflige des dégâts dans une large zone autour de la cible\n__Puissance :__ **{power}**")
@@ -14,7 +14,6 @@ feeSkill = skill("Murmure de l'aurore","aag",TYPE_INDIRECT_HEAL,0,0,AREA_MONO,co
 titWeap = weapon("Rune de Malice","titaniaWeapo,n",RANGE_MELEE,AREA_CIRCLE_1,26,50,repetition=3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2,use=MAGIE) 
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',use=CHARISMA,type=TYPE_HEAL,target=ALLIES,message="{0} encourage doucement {1} :")
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,65,emoji='<:defHeal:885899034563313684>',cooldown=4,description="Soigne l'allié ciblé\n__Puissance :__ **{power}**")
-batSkill = skill("Cru-aile","aak",TYPE_DAMAGE,0,100,AREA_CIRCLE_2,emoji='<:defDamage:885899060488339456>',use=AGILITY)
 autoWeap = weapon("NoneWeap","NoneWeap",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:noneWeap:917311409585537075>")
 autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus,silent=True)
 autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,100,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff,sussess=200,setAoEDamage=True,description="Inflige des dégâts en zone autour de la Bombe Robot, puis s'auto détruit à la fin du tour\n__Puissance :__ **{power}**")
@@ -74,7 +73,7 @@ mrLifeSkill2 = skill("Ralentissement Avancé","mrLifeSkill2",TYPE_MALUS,effects=
 skeletonWeap = weapon("Epée nécromantique","skeletonWeap",RANGE_MELEE,AREA_CIRCLE_1,60,60,0,strength=10,magie=10,ignoreAutoVerif=True,use=MAGIE)
 
 
-batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[PURCENTAGE,0.5],resistance=20,percing=0,critical=30,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais sans temps de rechargement",skill=[batSkill],element=ELEMENT_AIR)
+batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[HARMONIE,0.35],endurance=[PURCENTAGE,0.35],charisma=[PURCENTAGE,0.35],agility=[PURCENTAGE,0.35],precision=[PURCENTAGE,0.35],intelligence=[PURCENTAGE,0.35],magie=[PURCENTAGE,0.35],resistance=20,percing=0,critical=0,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais pouvant submerger les ennemis",element=ELEMENT_AIR)
 carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],20,10,[PURCENTAGE,1],MAGE,["<:carbEmR:919858018739437568>",'<:carbEmB:919857996274749451>'],carbunE,[carbunSkill],description="Une invocation utilisant des compétences de zone pour vaincre des groupes d'ennemis de loin",element=ELEMENT_AIR)
 carbuncleT = invoc("Carbuncle Topaze",[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.1],0,10,PROTECTEUR,["<:ct1:884889748274028666>","<:ct2:884889807111749662>"],carbunTWeap,[carbunTSKill],description="Une invocation résistante qui n'a pas froid au yeux et viendra sauter dans la mêlée",element=ELEMENT_EARTH)
 feeInv = invoc("Fée soignante",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],10,0,0,ALTRUISTE,["<:fee1:885076945333805086>","<:fee2:885076961695760386>"],feeWeap,[feeSkill],gender=GENDER_FEMALE,description="Une fée qui soigne ses alliés grace à sa magie curative",element=ELEMENT_LIGHT)

@@ -1,11 +1,8 @@
-from asyncio import selector_events
-from shutil import ExecError
+
 from traceback import print_exc
-import discord, requests, data.bot_tokens, gestion, random
-from discord_slash.utils.manage_components import create_actionrow, create_select, create_select_option, create_button, ButtonStyle
-from discord_slash.context import SlashContext
-from discord_slash.utils.manage_components import *
-from constantes import light_blue, red, green
+import requests, data.bot_tokens, gestion, random
+import interactions
+from constantes import *
 import asyncio
 
 isAllReadyStreaming = []
@@ -58,7 +55,7 @@ def getStreamerUser(userlogin):
         print(e)
         return None
 
-async def verifStreamingStreamers(bot:discord.Client):
+async def verifStreamingStreamers(bot:interactions.Client):
     listallAlertes = gestion.globalVar.getStreamAlertList()
     for alert in listallAlertes:
         potStreamEmb = checkIfLive(alert["streamerName"].lower())
@@ -67,8 +64,8 @@ async def verifStreamingStreamers(bot:discord.Client):
             for nowStreaming in listallAlertes:
                 if nowStreaming["streamerName"] == alert["streamerName"].lower():
                     twEmbed = gestion.globalVar.getStreamAlertEmbed(nowStreaming["guild"], nowStreaming["streamerName"])
-                    twEmbed.guild = await bot.fetch_guild(twEmbed.guild)
-                    roles, channels = await twEmbed.guild.fetch_roles(), await twEmbed.guild.fetch_channels()
+                    twEmbed.guild = await get(bot, interactions.Guild, object_id=int(twEmbed.guild))
+                    roles, channels = twEmbed.guild.roles ,twEmbed.guild.channels
                     for roly in roles:
                         if roly.id == twEmbed.notifRole:
                             twEmbed.notifRole = roly
@@ -91,7 +88,7 @@ async def verifStreamingStreamers(bot:discord.Client):
                     twEmbed.embedTitle = formatTwitchTxt(twEmbed.embedTitle,twEmbed,potStreamEmb)
                     twEmbed.embedDesc = formatTwitchTxt(twEmbed.embedDesc,twEmbed,potStreamEmb)
 
-                    emb = discord.Embed(title=twEmbed.embedTitle,description=twEmbed.embedDesc,color=twEmbed.embedColor)
+                    emb = interactions.Embed(title=twEmbed.embedTitle,description=twEmbed.embedDesc,color=twEmbed.embedColor)
                     if twEmbed.showImage:
                         tablImage = []
                         for img in [twEmbed.image0,twEmbed.image1,twEmbed.image2]:
@@ -109,7 +106,7 @@ async def verifStreamingStreamers(bot:discord.Client):
                     emb.set_footer(icon_url=getStreamerAvatar(potStreamEmb.userId),text=potStreamEmb.streamer)
 
                     try:
-                        await twEmbed.notifChannel.send(content=twEmbed.notifMsg,embed=emb)
+                        await twEmbed.notifChannel.send(content=twEmbed.notifMsg,embeds=emb)
                     except:
                         print_exc()
         elif not(potStreamEmb) and alert["streamerName"] in isAllReadyStreaming:
@@ -118,12 +115,12 @@ async def verifStreamingStreamers(bot:discord.Client):
             except:
                 print_exc()
 
-addAlertButton = create_button(ButtonStyle.green,"Ajouter une alerte","➕","add")
-confirmButton = create_button(ButtonStyle.green,"Confirmer","✅","confirm")
-rejectButton = create_button(ButtonStyle.grey,"Refuser","❌","reject")
-deleteButton = create_button(ButtonStyle.red,"Supprimer l'alerte","🗑️","delete")
-exempleButton = create_button(ButtonStyle.gray,"Essai (dans ce salon)","🔬","try")
-cancelButton = create_button(ButtonStyle.gray,"Retour","◀️","goback")
+addAlertButton = interactions.Button(type=2, style=ButtonStyle.SUCCESS, label="Ajouter une alerte",emoji=Emoji(name="➕"),custom_id="add")
+confirmButton = interactions.Button(type=2, style=ButtonStyle.SUCCESS, label="Confirmer",emoji=Emoji(name="✅"),custom_id="confirm")
+rejectButton = interactions.Button(type=2, style=2, label="Refuser",emoji=Emoji(name="❌"),custom_id="reject")
+deleteButton = interactions.Button(type=2, style=ButtonStyle.DANGER, label="Supprimer l'alerte",emoji=Emoji(name="🗑️"),custom_id="delete")
+exempleButton = interactions.Button(type=2, style=ButtonStyle.SECONDARY, label="Essai dans ce salon",emoji=Emoji(name="🔬"),custom_id="try")
+cancelButton = interactions.Button(type=2, style=ButtonStyle.SECONDARY, label="Retour",emoji=Emoji(name="◀️"),custom_id="goback")
 
 tablSelectEmbed = [
 	["Messsage de noctification","Le message qui s'affiche lors d'une alerte.\nLes mentions de rôles ne fonctionnent dans ce message"],
@@ -137,7 +134,7 @@ tablSelectEmbed = [
 	["Afficher l'image ?","Permet d'afficher ou non l'une des images paramétrées ou la miniature du stream sur l'alerte"]
 ]
 
-async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:SlashContext):
+async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guild,ctx:interactions.CommandContext):
 	user, msg = ctx.author, None
 	userPerms = ctx.channel.permissions_for(user)
 
@@ -159,7 +156,7 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 					msg = await ctx.channel.send(content="Chargement des alertes...")
 			else:
 				await msg.edit(content="Chargement des alertes...",components=[])
-			roles, channels = await guild.fetch_roles(), await guild.fetch_channels()
+			roles, channels = guild.roles, guild.channels
 			desc = "__Liste des alertes :__"
 			for alerte in guildAlerteList:
 				chan, role = None, None
@@ -188,47 +185,47 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 				else:
 					chan = "???"
 				desc += "\n{0} ({1}) | {2} | {3}".format(userName,userLogin,chan,role)
-				listOption.append(create_select_option(userName,userLogin))
+				listOption.append(interactions.SelectOption(userName,userLogin))
 			
-		emb = discord.Embed(title="__Alertes Twitch ({0})__".format(guild.name),color=light_blue,description=desc)
+		emb = interactions.Embed(title="__Alertes Twitch ({0})__".format(guild.name),color=light_blue,description=desc)
 		
 		comp = []
 		if len(guildAlerteList) < 10:
-			comp = comp + [create_actionrow(addAlertButton)]
+			comp = comp + [interactions.ActionRow(components=[addAlertButton])]
 
 		if len(listOption) > 0:
-			comp = comp + [create_actionrow(create_select(listOption,placeholder="Modifier / Supprimer une alerte"))]
+			comp = comp + [interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "listAlert", options=listOption,placeholder="Modifier / Supprimer une alerte")])]
 		
 		if msg == None:
 			try:
-				msg = await ctx.send(embed=emb,components=comp)
+				msg = await ctx.send(embeds=emb,components=comp)
 			except:
-				msg = await ctx.channel.send(embed=emb,components=comp)
+				msg = await ctx.channel.send(embeds=emb,components=comp)
 		else:
-			await msg.edit(content="",embed=emb,components=comp)
+			await msg.edit(content="",embeds=emb,components=comp)
 
 		def check(m):
-			return m.author_id == ctx.author_id
+			return m.author.id == ctx.author.id
 
 		try:
-			rep = await wait_for_component(bot,msg,check=check,timeout=360)
+			rep = await bot.wait_for_component(msg,check=check,timeout=360)
 		except asyncio.TimeoutError:
-			await msg.edit(content="",embed=emb,components=[])
+			await msg.edit(content="",embeds=emb,components=[])
 			return 1
 
-		if rep.component_type == ComponentType.button:
-			await msg.edit(content="",embed=emb,components=[])
+		if rep.data.component_type == 2:
+			await msg.edit(content="",embeds=emb,components=[])
 			newAlert, paramMsg = gestion.streamEmbed(guild.id), None
 
 			def check2(m):
-				return m.author.id == ctx.author.id and m.channel.id == ctx.channel.id
+				return m.author.id == ctx.author.id and m.channel_id == ctx.channel_id
 
 			while 1:
-				paramEmb = discord.Embed(title="__Nouvelle alerte__",color=light_blue,description="Veuillez renseigner le nom d'utilisateur ou le liens vers la chaîne twitch à cibler.\n\n__Exemples :__\naliceko\nhttps://www.twitch.tv/aliceko")
+				paramEmb = interactions.Embed(title="__Nouvelle alerte__",color=light_blue,description="Veuillez renseigner le nom d'utilisateur ou le liens vers la chaîne twitch à cibler.\n\n__Exemples :__\naliceko\nhttps://www.twitch.tv/aliceko")
 				if paramMsg == None:
-					paramMsg = await rep.send(embed=paramEmb)
+					paramMsg = await rep.send(embeds=paramEmb)
 				else:
-					await paramMsg.edit(embed=paramEmb,components=[])
+					await paramMsg.edit(embeds=paramEmb,components=[])
 
 				try:
 					paramRep = await bot.wait_for(event='message',check=check2,timeout=360)
@@ -240,12 +237,12 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 				if twUser != None:
 					print(paramRep.content,"https://www.twitch.tv/","https://www.twitch.tv/" not in paramRep.content)
 					if "https://www.twitch.tv/" not in paramRep.content:
-						paramEmb = discord.Embed(title="__Nouvelle alerte__",color=light_blue,description="Cette chaîne est-elle bien votre chaîne ciblée ?\n{0} ({1})".format(twUser.name,twUser.login))
+						paramEmb = interactions.Embed(title="__Nouvelle alerte__",color=light_blue,description="Cette chaîne est-elle bien votre chaîne ciblée ?\n{0} ({1})".format(twUser.name,twUser.login))
 						paramEmb.set_thumbnail(url=twUser.avatar)
 
-						confirmMsg = await paramRep.channel.send(embed=paramEmb,components=[create_actionrow(confirmButton,rejectButton)])
+						confirmMsg = await paramRep.channel.send(embeds=paramEmb,components=[interactions.ActionRow(components=[confirmButton,rejectButton])])
 						try:
-							confirmRep = await wait_for_component(bot,confirmMsg,check=check,timeout=60)
+							confirmRep = await bot.wait_for_component(confirmMsg,check=check,timeout=60)
 						except asyncio.TimeoutError:
 							await paramMsg.delete()
 							return 1
@@ -276,8 +273,8 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 					await paramRep.channel.send(content="❌ Aucune chaîne n'a été trouvée.\nVérifiez bien que vous entrez le nom d'utilisateur et non le nom de chaîne (les nom d'utilisateurs sont toujours en minuscules) ou envoyez directement le lien de votre chaîne ciblée",delete_after=5)
 
 			while 1:
-				paramEmb = discord.Embed(title="__Nouvelle alerte__",color=light_blue,description="__Chaîne :__ {0}\n\nVeuillez mentionner le role qui sera notifié lors qu'une alerte sera envoyé.".format(twUser.name))
-				await paramMsg.edit(embed=paramEmb,components=[])
+				paramEmb = interactions.Embed(title="__Nouvelle alerte__",color=light_blue,description="__Chaîne :__ {0}\n\nVeuillez mentionner le role qui sera notifié lors qu'une alerte sera envoyé.".format(twUser.name))
+				await paramMsg.edit(embeds=paramEmb,components=[])
 				try:
 					paramRep = await bot.wait_for(event='message',check=check2,timeout=60)
 				except asyncio.TimeoutError:
@@ -302,8 +299,8 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 					await paramRep.channel.send(content="❌ Vous n'avez mentionné aucun rôle",delete_after=5)
 
 			while 1:
-				paramEmb = discord.Embed(title="__Nouvelle alerte__",color=light_blue,description="__Chaîne :__ {0}\n__Rôle :__ {1}\n\nVeuillez mentionner le salon où seront envoyés les alertes.".format(twUser.name,newRole.mention))
-				await paramMsg.edit(embed=paramEmb,components=[])
+				paramEmb = interactions.Embed(title="__Nouvelle alerte__",color=light_blue,description="__Chaîne :__ {0}\n__Rôle :__ {1}\n\nVeuillez mentionner le salon où seront envoyés les alertes.".format(twUser.name,newRole.mention))
+				await paramMsg.edit(embeds=paramEmb,components=[])
 				try:
 					paramRep = await bot.wait_for(event='message',check=check2,timeout=60)
 				except asyncio.TimeoutError:
@@ -329,42 +326,42 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 
 			try:
 				gestion.globalVar.updateStreamEmbed(newAlert)
-				await paramMsg.edit(embed=discord.Embed(title="__Nouvelle alerte enregistrée__",color=green,description="✅ Votre nouvelle alerte a été enregistrée avec succès.\nVous pouvez dorénavant la personnaliser depuis la liste des alertes du serveur.\n\n__Streamer :__ {0} ({1})\n__Salon :__ {2}\n__Rôle notifié :__ {3}".format(twUser.name,twUser.login,newChannel.mention,newRole.mention),components=[],delete_after=10))
+				await paramMsg.edit(embeds=interactions.Embed(title="__Nouvelle alerte enregistrée__",color=green,description="✅ Votre nouvelle alerte a été enregistrée avec succès.\nVous pouvez dorénavant la personnaliser depuis la liste des alertes du serveur.\n\n__Streamer :__ {0} ({1})\n__Salon :__ {2}\n__Rôle notifié :__ {3}".format(twUser.name,twUser.login,newChannel.mention,newRole.mention),components=[],delete_after=10))
 			except Exception as e :
-				await paramMsg.edit(embed=discord.Embed(title="__Erreur lors de l'enregistrement de l'alerte__",color=red,description="Une erreur est survenue lors de l'enregistrement de l'alerte :\n{0}".format(e),components=[],delete_after=10))
+				await paramMsg.edit(embeds=interactions.Embed(title="__Erreur lors de l'enregistrement de l'alerte__",color=red,description="Une erreur est survenue lors de l'enregistrement de l'alerte :\n{0}".format(e),components=[],delete_after=10))
 
 		else:
 			newMsg = await rep.send(content="Chargement des paramètres de l'alerte <a:loading:862459118912667678>...",components=[])
-			user = getStreamerUser(rep.values[0])
+			user = getStreamerUser(rep.data.values[0])
 			while 1:
-				selectAlert = gestion.globalVar.getStreamAlertEmbed(guild.id,rep.values[0])
+				selectAlert = gestion.globalVar.getStreamAlertEmbed(guild.id,rep.data.values[0])
 				tablSettings = [selectAlert.notifMsg,selectAlert.embedTitle,selectAlert.embedDesc, selectAlert.embedColor, selectAlert.hyperlinkTxt, [selectAlert.image0,"-"][selectAlert.image0 == None], [selectAlert.image1,"-"][selectAlert.image1 == None], [selectAlert.image2,"-"][selectAlert.image2 == None]]
 				tablSettings2 = [bool(selectAlert.showImage)]
 				allTabl = tablSettings+tablSettings2
 				desc, tablOption = "__Paramètres de l'alerte :__\n",[]
 				for cmpt in range(len(allTabl)):
 					desc += "\n__**{0}** :__\n{1}\n*> {2}*".format(tablSelectEmbed[cmpt][0],allTabl[cmpt],tablSelectEmbed[cmpt][1].replace("\n","\n> "))
-					tablOption.append(create_select_option(tablSelectEmbed[cmpt][0],str(cmpt),description=tablSelectEmbed[cmpt][1].splitlines()[0]))
+					tablOption.append(interactions.SelectOption(tablSelectEmbed[cmpt][0],str(cmpt),description=tablSelectEmbed[cmpt][1].splitlines()[0]))
 
-				mainEmb = discord.Embed(title="__Alerte de stream ({0} - {1})__".format(guild.name,user.name),color=light_blue,description=desc)
+				mainEmb = interactions.Embed(title="__Alerte de stream ({0} - {1})__".format(guild.name,user.name),color=light_blue,description=desc)
 				mainEmb.set_thumbnail(url=user.avatar)
 
 				comp = [
-						create_actionrow(create_select(tablOption,placeholder="Sélectionnez une catégorie à modifier")),
-						create_actionrow(exempleButton,deleteButton)
+						interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "selectSomethingToModify", options=tablOption,placeholder="Sélectionnez une catégorie à modifier")]),
+						interactions.ActionRow(components=[exempleButton,deleteButton])
 					]
 				
-				await newMsg.edit(content="",embed=mainEmb,components=comp)
+				await newMsg.edit(content="",embeds=mainEmb,components=comp)
 				try:
-					customRep = await wait_for_component(bot,newMsg,comp,check,180)
+					customRep = await bot.wait_for_component(newMsg,comp,check,180)
 				except asyncio.TimeoutError:
 					await newMsg.delete()
 					return 1
 					
-				if customRep.component_type == ComponentType.button:
+				if customRep.data.component_type == 2:
 					if customRep.custom_id == exempleButton["custom_id"]:
 						tempMsg = await customRep.send(content="Génération de la fausse alerte <a:loading:862459118912667678>...",components=[])
-						roles = await guild.fetch_roles()
+						roles = await guild.roles()
 						for roly in roles:
 							if roly.id == selectAlert.notifRole:
 								selectAlert.notifRole = roly
@@ -386,7 +383,7 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 						selectAlert.embedTitle = formatTwitchTxt(selectAlert.embedTitle,selectAlert,fakeStream)
 						selectAlert.embedDesc = formatTwitchTxt(selectAlert.embedDesc,selectAlert,fakeStream)
 
-						emb = discord.Embed(title=selectAlert.embedTitle,description=selectAlert.embedDesc,color=selectAlert.embedColor)
+						emb = interactions.Embed(title=selectAlert.embedTitle,description=selectAlert.embedDesc,color=selectAlert.embedColor)
 						if selectAlert.showImage:
 							tablImage = []
 							for img in [selectAlert.image0,selectAlert.image1,selectAlert.image2]:
@@ -404,14 +401,14 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 						emb.set_footer(icon_url=user.avatar,text=fakeStream.streamer)
 
 						try:
-							await tempMsg.edit(content=selectAlert.notifMsg,embed=emb)
+							await tempMsg.edit(content=selectAlert.notifMsg,embeds=emb)
 						except Exception as e:
 							await tempMsg.edit(content="Une erreur est survenue durant le test : {0}".format(e))
 					elif customRep.custom_id == deleteButton["custom_id"]:
-						comp = [create_actionrow(cancelButton,deleteButton)]
-						deleteMsg = await customRep.send(content="",embed=discord.Embed(title="__Supprimer cette alerte ?__",color=red,description="Si vous voudrez la réactiver il faudra tout recommencer !"),components=comp)
+						comp = [interactions.ActionRow(components=[cancelButton,deleteButton])]
+						deleteMsg = await customRep.send(content="",embeds=interactions.Embed(title="__Supprimer cette alerte ?__",color=red,description="Si vous voudrez la réactiver il faudra tout recommencer !"),components=comp)
 						try:
-							deleteRep = await wait_for_component(bot,deleteMsg,comp,check,60)
+							deleteRep = await bot.wait_for_component(deleteMsg,comp,check,60)
 						except asyncio.TimeoutError:
 							await newMsg.delete()
 							await deleteMsg.delete()
@@ -435,11 +432,11 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 								break
 				else:
 					def check2(m):
-						return m.author.id == int(ctx.author_id) and m.channel.id == ctx.channel.id
-					customRep.values[0] = int(customRep.values[0])
-					if customRep.values[0] in [0,1,2,4]:
-						desc = ["Veillez écrire le nouveau message.\nVous pouvez rajouter des balises de formatage pour dynamiser un peu votre annonce !\n\n__{streamerName}__ : Nom du streamer\n__{streamTitle}__ : Titre du stream\n__{gameName}__ : Nom du jeu\n__{hyperlink}__ : Lien vers le stream\n> Ne fonctionne que dans la description de l'embed\n__{notifRole}__ : Mentionne le role\n> Ne fonctionne que dans le message d'annonce\n\nEntrez \"Retour\" pour annuler","Veuillez entrer le nouveau texte du lien.\n\nEntrez \"Retour\" pour annuler"][customRep.values[0] == 4]
-						editMsg = await customRep.send(embed=discord.Embed(title="__Personnalisation de l'alerte__",color=light_blue,description=desc))
+						return m.author.id == int(ctx.author.id) and m.channel_id == ctx.channel_id
+					customRep.data.values[0] = int(customRep.data.values[0])
+					if customRep.data.values[0] in [0,1,2,4]:
+						desc = ["Veillez écrire le nouveau message.\nVous pouvez rajouter des balises de formatage pour dynamiser un peu votre annonce !\n\n__{streamerName}__ : Nom du streamer\n__{streamTitle}__ : Titre du stream\n__{gameName}__ : Nom du jeu\n__{hyperlink}__ : Lien vers le stream\n> Ne fonctionne que dans la description de l'embed\n__{notifRole}__ : Mentionne le role\n> Ne fonctionne que dans le message d'annonce\n\nEntrez \"Retour\" pour annuler","Veuillez entrer le nouveau texte du lien.\n\nEntrez \"Retour\" pour annuler"][customRep.data.values[0] == 4]
+						editMsg = await customRep.send(embeds=interactions.Embed(title="__Personnalisation de l'alerte__",color=light_blue,description=desc))
 						
 						try:
 							editRep = await bot.wait_for(event='message',check=check2,timeout=60)
@@ -456,25 +453,25 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 							except:
 								pass
 						else:
-							if customRep.values[0] == 0:
+							if customRep.data.values[0] == 0:
 								selectAlert.notifMsg = editRep.content
-							elif customRep.values[0] == 1:
+							elif customRep.data.values[0] == 1:
 								selectAlert.embedTitle = editRep.content 
-							elif customRep.values[0] == 4:
+							elif customRep.data.values[0] == 4:
 								selectAlert.hyperlinkTxt = editRep.content
 
 							gestion.globalVar.updateStreamEmbed(selectAlert)
 							try:
-								await editRep.clear_reactions()
+								await editRep.remove_all_reactions()
 							except:
 								pass
 							await editRep.add_reaction('✅')
 							await editMsg.delete()
-					elif customRep.values[0] == 3:
-						colorMsg = await customRep.send(embed = discord.Embed(title="__Couleur de l'embed__",description="Veillez entrer le code hexadecimal de votre nouvelle couleur :\n\nExemples :\n94d4e4\n#94d4e4",color = light_blue))
+					elif customRep.data.values[0] == 3:
+						colorMsg = await customRep.send(embeds = interactions.Embed(title="__Couleur de l'embed__",description="Veillez entrer le code hexadecimal de votre nouvelle couleur :\n\nExemples :\n94d4e4\n#94d4e4",color = light_blue))
 						while 1:
 							try:
-								respond = await bot.wait_for("message",check=check2,timeout=60)
+								respond = await bot.wait_for("on_message_create",check=check2,timeout=60)
 							except asyncio.TimeoutError:
 								await newMsg.delete()
 								await colorMsg.delete()
@@ -497,10 +494,10 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 								else:
 									break
 						if not(respond.content == "Retour"):
-							comp = [create_actionrow(confirmButton,rejectButton)]
-							await colorMsg.edit(embed = discord.Embed(title = "Couleur personnalisée",description="Est-ce que cette couleur vous va ?",color = color),components=comp)
+							comp = [interactions.ActionRow(components=[confirmButton,rejectButton])]
+							await colorMsg.edit(embeds = interactions.Embed(title = "Couleur personnalisée",description="Est-ce que cette couleur vous va ?",color = color),components=comp)
 							try:
-								react = await wait_for_component(bot,colorMsg,comp,check,timeout=60)
+								react = await bot.wait_for_component(colorMsg,comp,check,timeout=60)
 							except asyncio.TimeoutError:
 								await newMsg.delete()
 								await colorMsg.delete()
@@ -510,9 +507,9 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 								selectAlert.color = color
 								gestion.globalVar.updateStreamEmbed(selectAlert)
 								await colorMsg.delete()
-					elif customRep.values[0] in [5,6,7]:
+					elif customRep.data.values[0] in [5,6,7]:
 						desc = "Veillez entrer l'URL de votre image\nEntrez \"None\" pour supprimer l'image actuelle.\nEntrez \"Retour\" pour annuler\nNote : Une image peut ne pas s'afficher si l'url ne correspond pas à une image"
-						editMsg = await customRep.send(embed=discord.Embed(title="__Personnalisation de l'alerte__",color=light_blue,description=desc))
+						editMsg = await customRep.send(embeds=interactions.Embed(title="__Personnalisation de l'alerte__",color=light_blue,description=desc))
 
 						try:
 							editRep = await bot.wait_for(event='message',check=check2,timeout=60)
@@ -532,31 +529,31 @@ async def streamSettingsFunction(bot:discord.Client,guild:discord.Guild,ctx:Slas
 							if editRep.content == "None":
 								editRep.content = None
 							
-							if customRep.values[0] == 5:
+							if customRep.data.values[0] == 5:
 								selectAlert.image0 = editRep.content
-							elif customRep.values[0] == 6:
+							elif customRep.data.values[0] == 6:
 								selectAlert.image1 = editRep.content 
 							else:
 								selectAlert.image2 = editRep.content
 
 							gestion.globalVar.updateStreamEmbed(selectAlert)
 							try:
-								await editRep.clear_reactions()
+								await editRep.remove_all_reactions()
 							except:
 								pass
 							await editRep.add_reaction('✅')
 							await editMsg.delete()
 					else:
-						comp = [create_actionrow(create_select([create_select_option("Afficher","1"),create_select_option("Cacher","0")]))]
-						editMsg = await customRep.send(embed=discord.Embed(title="__Personnalisation de l'alerte__",color=light_blue,description="Voulez-vous afficher ou cacher les images ?"),components=comp)
+						comp = [interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "listOptionsiGuess", options=[interactions.SelectOption(label="Afficher",value="1"),interactions.SelectOption(label="Cacher",value="0")])])]
+						editMsg = await customRep.send(embeds=interactions.Embed(title="__Personnalisation de l'alerte__",color=light_blue,description="Voulez-vous afficher ou cacher les images ?"),components=comp)
 						try:
-							editRep = await wait_for_component(bot,editMsg,comp,check,60)
+							editRep = await bot.wait_for_component(editMsg,comp,check,60)
 						except asyncio.TimeoutError:
 							await newMsg.delete()
 							await editMsg.delete()
 							return 1
 
-						selectAlert.showImage = bool(int(editRep.values[0]))
+						selectAlert.showImage = bool(int(editRep.data.values[0]))
 						gestion.globalVar.updateStreamEmbed(selectAlert)
 						await editMsg.delete()
 

@@ -1,7 +1,7 @@
-import os,discord,random,sqlite3
+import os,random,sqlite3
 from traceback import print_exc
 from typing import Union
-import discord_slash
+import interactions
 from classes import *
 from adv import findWeapon,findOther,findSkill,findStuff
 """
@@ -368,7 +368,7 @@ def existFile(path : str):
     else: 
         return True
 
-def commandArgs(ctx : discord.Message):
+def commandArgs(ctx : interactions.Message):
     """A function for auto cut the ctx message content into multiples arguments.\n
     Mostly useless with slash commands now"""
     rep,temp = [],""
@@ -381,10 +381,10 @@ def commandArgs(ctx : discord.Message):
     rep = rep + [temp] + [None]
     return rep
 
-async def loadingEmbed(ctx : discord.Message):
+async def loadingEmbed(ctx : interactions.Message):
     """A function for send loading embed from a message command.\n
     Mostly useless with slash commands now"""
-    return await ctx.channel.send(embed = discord.Embed(title = commandArgs(ctx)[0], description = emoji.loading))
+    return await ctx.channel.send(embeds = interactions.Embed(title = commandArgs(ctx)[0], description = emLoading))
 
 def readSaveFiles(path : str):
     """Return a list with the saves files content, ready to be used in a Load function"""
@@ -431,7 +431,7 @@ def choice(liste : list):
 
 def errorEmbed(errorType : str, msgError : str):
     """Return a error embed ready to be send"""
-    rep = discord.Embed(title = errorType, description = msgError)
+    rep = interactions.Embed(title = errorType, description = msgError)
     rep.set_footer(text = "Fin de la commande")
     return rep
 
@@ -507,16 +507,20 @@ def saveCharFile(path : str = None, user : char = None):
     except:
         raise
 
-async def loadCharFile(path : str = None, user:char = None) -> char:
+def loadCharFile(path : str = None, user:char = None) -> char:
     """
         Return a ``char`` object loaded from the file at ``path``
     """
-    if path != None:
-        file = readSaveFiles(path)
-    elif user != None:
-        file = readSaveFiles("./userProfile/{0}.prof".format(user.owner))
-    else:
-        raise Exception("Argument error : No path or user given")
+    try:
+        if path != None:
+            file = readSaveFiles(path)
+        elif user != None:
+            file = readSaveFiles("./userProfile/{0}.prof".format(user.owner))
+        else:
+            raise Exception("Argument error : No path or user given")
+    except:
+        print_exc()
+        return None
     rep = char(owner = int(file[0][0]))                     # Owner
     rep.name = file[0][1]                                   # Name
     rep.level = int(file[0][2])                             # Level
@@ -708,11 +712,11 @@ def getEmojiInfo(emoji : str):
 
 def getEmojiObject(emoji : str):
     temp = getEmojiInfo(emoji)
-    return {"name":temp[0],"id":temp[1]}
+    return Emoji(name=temp[0],id=int(temp[1]))
 
-async def loadingSlashEmbed(ctx : discord_slash.SlashContext):
+async def loadingSlashEmbed(ctx : interactions.CommandContext):
     """Send a loading embed from a slash command"""
-    return await ctx.send(embed = discord.Embed(title = "slash_command", description = emoji.loading))
+    return await ctx.send(embeds = interactions.Embed(title = "slash_command", description = emLoading))
 
 def unhyperlink(text : str):
     """Return the text of Text without the hyperlink"""
@@ -1016,19 +1020,16 @@ class globalVarDb:
         
 globalVar = globalVarDb()
 
-async def botChannelVerif(bot:discord.Client,ctx:discord_slash.SlashContext):
+async def botChannelVerif(bot:interactions.Client,ctx:interactions.CommandContext):
     if globalVar.getGuildBotChannel(ctx.guild_id) in [0,ctx.channel_id]:
         return True
-    
+
     else:
-        chan = await bot.fetch_channel(globalVar.getGuildBotChannel(ctx.guild_id))
+        chan = await get(bot, interactions.Channel, parent_id=int(ctx.guild_id), object_id=globalVar.getGuildBotChannel(ctx.guild_id))
         try:
-            await ctx.send(embed=discord.Embed(title="__Paramètres__",color=light_blue,description="Désolée, mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),delete_after=5)
+            await ctx.send(embeds=interactions.Embed(title="__Paramètres__",color=light_blue,description="Je regrète mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),ephemeral=True)
         except:
-            try:
-                await ctx.channel.send(embed=discord.Embed(title="__Paramètres__",color=light_blue,description="Désolée, mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),delete_after=5)
-            except:
-                pass
+            pass
         return False
 
 def highlight(string : str):
@@ -1048,3 +1049,14 @@ class fightContext():
         self.giveEffToTeam2 = giveEffToTeam2
         self.objective = objective
 
+def getEmbedLength(emb = interactions.Embed):
+    if type(emb) == interactions.Embed:
+        toReturn = len(emb.title) + len(emb.description)
+        try:
+            for field in emb.fields:
+                toReturn = toReturn + len(field.name) + len(field.value)
+        except:
+            pass
+        return toReturn
+    else:
+        return 0
