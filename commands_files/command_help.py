@@ -1,6 +1,5 @@
 from gestion import getEmojiObject
-from discord_slash.utils.manage_components import create_actionrow, create_button, create_select, create_select_option, wait_for_component
-import discord
+import interactions
 from constantes import light_blue
 from advance_gestion import timeoutSelect
 
@@ -60,10 +59,10 @@ for a in allCommands:
 
 nameCat,tablCat = ["Utilitaire","Aventure"],[helpUtils,helpAdventure]
 
-categorieSelect = create_select(
+categorieSelect = interactions.SelectMenu(custom_id = "catSelect", 
     options=[
-        create_select_option("Utilitaire","0",description="Retrouvez toutes les commandes utilitaires du bot"),
-        create_select_option("Aventure","1",description="Retrouvez toutes les commandes en lien avec l'Aventure du bot"),
+        interactions.SelectOption(label="Utilitaire",value="0",description="Retrouvez toutes les commandes utilitaires du bot"),
+        interactions.SelectOption(label="Aventure",value="1",description="Retrouvez toutes les commandes en lien avec l'Aventure du bot"),
     ], 
     placeholder="Séléctionnez une catégorie"
 )
@@ -78,26 +77,26 @@ Vous vous trouvez actuellement sur la page d'acceuil de la commande /help.
 Pour obtenir plus d'informations sur les commandes du bot, veillez entrer une catégorie dans le menu déroulant ci-dessous
 """
 
-buttons = create_actionrow(
-    create_button(5,"GitHub",getEmojiObject('<:github:892369658429190166>'),url='https://github.com/lenaEla/lenapy-2.0'),
-    create_button(5,"Inviter le bot",getEmojiObject('<:lenapy:892372680777539594>'),url='https://canary.discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=1074129984&scope=bot%20applications.commands')
-)
+buttons = interactions.ActionRow(components=[
+    interactions.Button(type=2, style=5, label="GitHub", emoji=getEmojiObject('<:github:892369658429190166>'),url='https://github.com/lenaEla/lenapy-2.0'),
+    interactions.Button(type=2, style=5, value="Inviter le bot", emoji=getEmojiObject('<:lenapy:892372680777539594>'),url='https://discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=328565386304&scope=bot%20applications.commands')
+])
 
 async def helpBot(bot,ctx):
-    msg = await ctx.send(embed=discord.Embed(title="__/help__",color=light_blue,description=firstEmbedDesc),components=[create_actionrow(categorieSelect),buttons])
+    msg = await ctx.send(embeds=interactions.Embed(title="__/help__",color=light_blue,description=firstEmbedDesc),components=[interactions.ActionRow(components=[categorieSelect]),buttons])
 
     def check(m):
-        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+        return m.author.id == ctx.author.id and m.message.id == msg.id
 
     try:
-        respond = await wait_for_component(bot,components=categorieSelect,check=check,timeout=60)
+        respond = await bot.wait_for_component(components=categorieSelect,check=check,timeout=60)
         continu = True
     except:
         await msg.delete()
         continu = False
 
     if continu:
-        tablToSee,value = [], int(respond.values[0])
+        tablToSee,value = [], int(respond.data.values[0])
         for a in range(0,len(tablCat)):
             if value == a:
                 tablToSee = sorted(tablCat[a],key= lambda com: com["name"])
@@ -111,27 +110,27 @@ async def helpBot(bot,ctx):
         while 1:
             commandInfoOptions = []
             if page > 0:
-                commandInfoOptions.append(create_select_option("Page précédente","0",description="Retournez à la page précédente"))
+                commandInfoOptions.append(interactions.SelectOption(label="Page précédente",value="0",description="Retournez à la page précédente"))
             maxi,desc = (page+1)*10,"__Page **{0}** / {1}__\n".format(page+1,maxPage+1)
             if maxi > leni:
                 maxi = leni
             for a in tablToSee[page*10:maxi]:
                 desc += f'\n__/{a["name"]}__\n*{a["short"]}*\n'
-                commandInfoOptions.append(create_select_option(a["name"],a["name"],description=a["short"]))
+                commandInfoOptions.append(interactions.SelectOption(label=a["name"],value=a["name"],description=a["short"]))
 
             
             if page < maxPage:
-                commandInfoOptions.append(create_select_option("Page suivante","1",description="Allez à la page suivante"))
-            commandInfoSelect = create_select(commandInfoOptions,placeholder="Sélectionnez une commande pour avoir plus d'informations")
-            await msg.edit(embed = discord.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[create_actionrow(commandInfoSelect)])
+                commandInfoOptions.append(interactions.SelectOption(label="Page suivante",value="1",description="Allez à la page suivante"))
+            commandInfoSelect = interactions.SelectMenu(custom_id = "commandInfoSelect", options=commandInfoOptions,placeholder="Sélectionnez une commande pour avoir plus d'informations")
+            await msg.edit(embeds = interactions.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[interactions.ActionRow(components=[commandInfoSelect])])
             
             try:
-                respond = await wait_for_component(bot,components=commandInfoSelect,check=check,timeout=60)
+                respond = await bot.wait_for_component(components=commandInfoSelect,check=check,timeout=60)
             except:
-                await msg.edit(embed = discord.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[timeoutSelect])
+                await msg.edit(embeds = interactions.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[timeoutSelect])
                 break
 
-            value2 = respond.values[0]
+            value2 = respond.data.values[0]
             if value2 == "0":
                 page -= 1
             elif value2 == "1":
@@ -144,6 +143,6 @@ async def helpBot(bot,ctx):
                             break
 
                 if wanted != None:
-                    await respond.send(embed=discord.Embed(title="__/help {0}__".format(wanted["name"]),color=light_blue,description=wanted["long"]),delete_after=30)
+                    await respond.send(embeds=interactions.Embed(title="__/help {0}__".format(wanted["name"]),color=light_blue,description=wanted["long"]),delete_after=30)
                 else:
                     await respond.send("La commande n'a pas pu être retrouvée :/")

@@ -405,7 +405,7 @@ class successTabl:
             desti = "Vous avez "
             if int(user.owner) != int(ctx.author.id) :
                 desti = user.name + " a "
-            embed = discord.Embed(title=where.name,color=user.color,description=desti+"terminé le succès {0} !".format(where.name))
+            emb = interactions.Embed(title=where.name,color=user.color,description=desti+"terminé le succès {0} !".format(where.name))
 
             recompenseMsg = ""
             if where.recompense != [None]:
@@ -456,9 +456,9 @@ class successTabl:
                 if len(where.recompense) > 1:
                     pluriel = "s"
                     pluriel2 = "es "
-                embed.add_field(name=desti + "obtenu l{1}objet{0} suivant{0} :".format(pluriel,pluriel2),value=recompenseMsg)
+                emb.add_field(name=desti + "obtenu l{1}objet{0} suivant{0} :".format(pluriel,pluriel2),value=recompenseMsg)
 
-            await ctx.channel.send(embed=embed)
+            await ctx.channel.send(embeds=emb)
             where.haveSucced = True
 
         achivement.updateSuccess(user,where)

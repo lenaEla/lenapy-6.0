@@ -1,17 +1,19 @@
-import discord,emoji,copy
-from discord_slash.utils.manage_components import create_actionrow, create_select_option, create_select, wait_for_component
+import copy
+from interactions import *
 from adv import *
 from constantes import *
 from gestion import getEmojiObject, whatIsThat
 from advance_gestion import infoStuff,infoWeapon,infoSkill,getUserIcon,infoAllie,infoEnnemi
 from commands_files.sussess_endler import *
-from commands_files.command_inventory import getSortSkillValue
+from commands_files.command_inventory import *
 
-async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, destination : int, user : char):
+ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL, ENC_ALLIES, ENC_ENEMIES, ENC_BOSS, ENC_LOCKED, ENC_ACHIV = tuple(range(10))
+
+async def encylopedia(bot : interactions.Client, ctx : interactions.CommandContext, destination : int, user : char):
     """The main function for the encyclopedia command"""
 
     def check(m):
-        return m.author_id == ctx.author.id and m.origin_message.id == msg.id
+        return m.author.id == ctx.author.id and m.message.id == msg.id
 
     msg = None
     stuffed = [[],[],[]]
@@ -37,61 +39,61 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
     while 1:
         destOptions = []
         for a in range(0,len(opValues)):
-            destOptions+=[create_select_option(fullValue[a],opValues[a],getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[destination])]
+            destOptions+=[interactions.SelectOption(label=fullValue[a],value=opValues[a],emoji=getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[destination])]
 
-        destSelect = create_actionrow(create_select(destOptions))
+        destSelect = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "destoptions", options=destOptions)])
 
         # The options for the filter menu. Change with the selected destination
         options = [
-            create_select_option("Ordre Alphabétique ↓","0",'🇦',default=0==tri),
-            create_select_option("Ordre Alphabétique ↑","1",'🇿',default=1==tri)
+            interactions.SelectOption(label="Ordre Alphabétique ↓",value="0",emoji=Emoji(name='🇦'),default=0==tri),
+            interactions.SelectOption(label="Ordre Alphabétique ↑",value="1",emoji=Emoji(name='🇿'),default=1==tri)
         ]
 
-        if destination in [0,1,2,3,4]:
+        if destination in [ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL]:
             options += [
-            create_select_option("Possédé","2",'🔓',default=2==tri),
-            create_select_option("Non possédé","3",'🔒',default=3==tri)
+            interactions.SelectOption(label="Possédé",value="2",emoji=Emoji(name='🔓'),default=2==tri),
+            interactions.SelectOption(label="Non possédé",value="3",emoji=Emoji(name='🔒'),default=3==tri)
             ]
         
-        if destination in [0,1,2,3]:
+        if destination in [ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP]:
             options+=[
-                create_select_option("Force","4",'💪',default=4==tri),
-                create_select_option("Endurance","5",'🏃',default=5==tri),
-                create_select_option("Charisme",'6','💃',default=6==tri),
-                create_select_option("Agilité","7",'🤸',default=7==tri),
-                create_select_option("Précision","8",'🏹',default=8==tri),
-                create_select_option("Intelligence","9",'🎓',default=9==tri),
-                create_select_option("Magie","10",'🧙',default=10==tri),
-                create_select_option("Résistance","11",'🛡️',default=11==tri),
-                create_select_option("Pénétration","12",'🗡️',default=12==tri),
-                create_select_option("Critique","13",'🎲',default=13==tri)]
+                interactions.SelectOption(label="Force",value="4",emoji=getEmojiObject(statsEmojis[0]),default=4==tri),
+                interactions.SelectOption(label="Endurance",value="5",emoji=getEmojiObject(statsEmojis[1]),default=5==tri),
+                interactions.SelectOption(label="Charisme",value='6',emoji=getEmojiObject(statsEmojis[2]),default=6==tri),
+                interactions.SelectOption(label="Agilité",value="7",emoji=getEmojiObject(statsEmojis[3]),default=7==tri),
+                interactions.SelectOption(label="Précision",value="8",emoji=getEmojiObject(statsEmojis[4]),default=8==tri),
+                interactions.SelectOption(label="Intelligence",value="9",emoji=getEmojiObject(statsEmojis[5]),default=9==tri),
+                interactions.SelectOption(label="Magie",value="10",emoji=getEmojiObject(statsEmojis[6]),default=10==tri),
+                interactions.SelectOption(label="Résistance",value="11",emoji=getEmojiObject(statsEmojis[7]),default=11==tri),
+                interactions.SelectOption(label="Pénétration",value="12",emoji=getEmojiObject(statsEmojis[8]),default=12==tri),
+                interactions.SelectOption(label="Critique",value="13",emoji=getEmojiObject(statsEmojis[9]),default=13==tri)]
 
-        elif destination == 4:
+        elif destination == ENC_SKILL:
             options += [
-                create_select_option("Dégâts","14",getEmojiObject('<:meteor:904164411990749194>'),default=tri==14),
-                create_select_option("Dégâts indirects","15",getEmojiObject('<:tentamissile:884757344397951026>'),default=tri==15),
-                create_select_option("Soins","16",getEmojiObject('<:AdL:873548073769533470>'),default=tri==16),
-                create_select_option("Armure","17",getEmojiObject('<:orbeDef:873725544427053076>'),default=tri==17),
-                create_select_option("Boost",'18',getEmojiObject('<:bpotion:867165268911849522>'),default=tri==18),
-                create_select_option("Malus","19",getEmojiObject('<:nostalgia:867162802783649802>'),default=tri==19),
-                create_select_option("Invocation","20",getEmojiObject('<:sprink1:887747751339757599>'),default=tri==20),
-                create_select_option("Passif","21",getEmojiObject('<:IdoOH:909278546172719184>'),default=tri==21)
+                interactions.SelectOption(label="Dégâts",value="14",emoji=getEmojiObject(statsEmojis[ACT_DIRECT_FULL]),default=tri==14),
+                interactions.SelectOption(label="Dégâts indirects",value="15",emoji=getEmojiObject(statsEmojis[ACT_INDIRECT_FULL]),default=tri==15),
+                interactions.SelectOption(label="Soins",value="16",emoji=getEmojiObject(statsEmojis[ACT_HEAL_FULL]),default=tri==16),
+                interactions.SelectOption(label="Armure",value="17",emoji=getEmojiObject(statsEmojis[ACT_SHIELD_FULL]),default=tri==17),
+                interactions.SelectOption(label="Boost",value='18',emoji=getEmojiObject(statsEmojis[ACT_BOOST_FULL]),default=tri==18),
+                interactions.SelectOption(label="Malus",value="19",emoji=getEmojiObject(statsEmojis[ACT_BOOST_FULL]),default=tri==19),
+                interactions.SelectOption(label="Invocation",value="20",emoji=getEmojiObject("<:sprink1:887747751339757599>"),default=tri==20),
+                interactions.SelectOption(label="Passif",value="21",emoji=getEmojiObject("<:stratageme:937370395605086229>"),default=tri==21)
             ]
 
-        elif destination in [5,6,7]:
+        elif destination in [ENC_ALLIES, ENC_ENEMIES, ENC_BOSS]:
             options += [
-                create_select_option("DPT - Mêlée","21",getEmojiObject('<:sworddance:894544710952173609>'),default=tri==21),
-                create_select_option("DPT - Distance","22",getEmojiObject('<:preciseShot:916561817969500191>'),default=tri==22),
-                create_select_option("Supports","23",getEmojiObject('<:alice:893463608716062760>'),default=tri==23),
-                create_select_option("Soigneur / Armuriers","24",getEmojiObject('<:absorb:971788658782928918>'),default=tri==24),
+                interactions.SelectOption(label="DPT - Mêlée",value="21",emoji=getEmojiObject('<:sworddance:894544710952173609>'),default=tri==21),
+                interactions.SelectOption(label="DPT - Distance",value="22",emoji=getEmojiObject('<:preciseShot:916561817969500191>'),default=tri==22),
+                interactions.SelectOption(label="Supports",value="23",emoji=getEmojiObject('<:alice:893463608716062760>'),default=tri==23),
+                interactions.SelectOption(label="Soigneur / Armuriers",value="24",emoji=getEmojiObject('<:absorb:971788658782928918>'),default=tri==24),
             ]
-        elif destination in [9]:
+        elif destination in [ENC_ACHIV]:
             options += [
-            create_select_option("Terminés","14",'🔓',default=13==tri),
-            create_select_option("Non terminés","15",'🔒',default=14==tri)
+            interactions.SelectOption(label="Terminés",value="14",emoji=Emoji(name='🔓'),default=13==tri),
+            interactions.SelectOption(label="Non terminés",value="15",emoji=Emoji(name='🔒'),default=14==tri)
             ]
 
-        sortOptions = create_select(options)
+        sortOptions = interactions.SelectMenu(custom_id = "sortMenue=", options=options)
     
         if needRemake:                          # The "TablToSee" generation
             tablToSee = []
@@ -145,7 +147,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
             elif destination==9:
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-                user = await loadCharFile(pathUserProfile)
+                user = loadCharFile(pathUserProfile)
                 tablToSee = achivement.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
 
@@ -198,117 +200,32 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             needRemake = False
 
         # Base description for the selected destination
-        if destination in [0,1,2,3,4,8]:                          # Stuffs, Weapons and Skills
+        if destination in [ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL, ENC_LOCKED]:                          # Stuffs, Weapons and Skills
             desc = f"{userIcon} : Vous possédez déjà cet objet\n<:coinsn_t:885921771071627304> : Cet ebjet ne peut pas être obtenu dans le Magasin ou en butin"
-        elif destination == 5:                                    # Alliés Temps
-            desc = "Les alliés temporaires rejoignent automatiquement un combat pour remplir les équipes en dessous de 4 membres"
-        elif destination == 6:                                    # Ennemis
+        elif destination == ENC_ALLIES:                                    # Alliés Temps
+            desc = "Les alliés temporaires rejoignent automatiquement un combat pour remplir les équipes n'ayant pas assez de membres"
+        elif destination == ENC_ENEMIES:                                    # Ennemis
             desc = "Les ennemis sont là pour vous opposer une petite résistance tout de même"
-        elif destination == 7:                                    # Boss's
+        elif destination == ENC_BOSS:                                    # Boss's
             desc = "Chaque combat a une chance sur trois de voir un Boss parmis les ennemis"
-        elif destination == 9:                                    # Sussess
+        elif destination == ENC_ACHIV:                                    # Sussess
             desc = "Liste des succès :"
 
         firstOptions = []
         if page != 0:
-            firstOptions+=[create_select_option("Page précédente","return",emoji.backward_arrow)]
+            firstOptions+=[interactions.SelectOption(label="Page précédente",value="return",emoji=Emoji(name="◀️"))]
 
         if lenTabl != 0: # Génération des pages
-            if destination < 5 or destination == 8:
-                mess=""
+            if destination <= ENC_SKILL or destination == ENC_LOCKED:
                 if page != maxPage:
                     maxi = (page+1)*10
                 else:
                     maxi = lenTabl
-                for a in tablToSee[(page)*10:maxi]:
-                    # Nom, posession
-                    mess += f"\n{a.emoji} **__{a.name}__** "
-                    temp=""
-                    if user.have(a):
-                        temp += userIcon
-                    if temp!="":
-                        temp = "("+temp+")"
+                
+                mess, tempFirstOptions = getInvMenu(tablToSee[(page)*10:maxi])
+                firstOptions = firstOptions + tempFirstOptions
 
-                    lock = ""
-                    if a not in listAllBuyableShop:
-                        lock = "(<:coinsn_t:885921771071627304>)"
-                    mess += temp+lock+"\n"
-
-                    # Première info utile
-                    if destination in [0,1,2,8] and type(a) == stuff:
-                        affinity = ""
-                        if type(a) == stuff and a.affinity != None:
-                            affinity = elemEmojis[a.affinity]
-                        elif type(a) == skill and a.condition != []:
-                            if a.condition[:2] == [0, 2]:
-                                affinity = elemEmojis[a.condition[2]]
-                            elif a.condition[:2] == [0, 1]:
-                                affinity = aspiEmoji[a.condition[2]]
-                        if affinity != "":
-                            affinity = " - "+affinity
-                        mess +="*"+a.orientation+affinity+"*\n"
-                    elif destination in [3,4,8] and type(a) != stuff:
-                        ballerine = tablTypeStr[a.type]+" "
-                        if a.use != None and a.use != HARMONIE:
-                            sandale = nameStats[a.use]
-                        elif a.use == None:
-                            sandale = "Fixe"
-                        elif a.use == HARMONIE:
-                            sandale = "Harmonie"
-
-                        if destination == 3:
-                            babie = ["Mêlée","Distance","Longue Distance"][a.range]+" - "
-                        else:
-                            babie=''
-
-                        affinity = ""
-                        if type(a) == stuff and a.affinity != None:
-                            affinity = elemEmojis[a.affinity]
-                        elif type(a) == skill and a.condition != []:
-                            if a.condition[:2] == [0, 2]:
-                                affinity = elemEmojis[a.condition[2]]
-                            elif a.condition[:2] == [0, 1]:
-                                affinity = aspiEmoji[a.condition[2]]
-                            elif a.condition[:2] == [0, 3]:
-                                affinity = secElemEmojis[a.condition[2]]
-                        if affinity != "":
-                            affinity = " - "+affinity
-                        mess += f"*{babie}{ballerine} - {sandale}{affinity}*\n"
-
-                    # Statistiques
-                    temp = ""
-                    if destination in [0,1,2,3,8]:
-                        if type(a) != skill:
-                            stats,abre = [a.strength,a.endurance,a.charisma,a.agility,a.precision,a.intelligence,a.magie,a.resistance,a.percing,a.critical,a.negativeHeal*-1,a.negativeBoost*-1,a.negativeShield*-1,a.negativeDirect*-1,a.negativeIndirect*-1],["For","End","Cha","Agi","Pre","Int","Mag","Rés","Pén","Cri","Soi","Boo","Arm","Dir","Ind"]
-                            for b in range(0,len(stats)):
-                                if stats[b] != 0:
-                                    form = ""
-                                    if b == tri-4:
-                                        form = "**"
-                                    if tri in [4,10] and b in [13,14]:
-                                        if (b == 13 and (stats[13] > stats[14] or stats[13] == stats[14])) or (b == 14 and (stats[14] > stats[13] or stats[13] == stats[14])):
-                                            form = "**"
-                                    elif tri == 6 and b in [10,11]:
-                                        if (b == 10 and (stats[10] > stats[11] or stats[10] == stats[11])) or (b == 11 and (stats[11] > stats[10] or stats[11] == stats[10])):
-                                            form = "**"
-                                    elif tri == 9 and b in [12,11]:
-                                        if (b == 12 and (stats[12] > stats[11] or stats[12] == stats[11])) or (b == 11 and (stats[11] > stats[12] or stats[11] == stats[12])):
-                                            form = "**"
-
-                                    temp+=f"{form}{abre[b]}: {stats[b]}{form}, "
-                            if a.affinity != None:
-                                nim = elemNames[a.affinity]
-                                if len(nim) > 3:
-                                    nim = nim[0:3]+"."
-                                temp += " Elem. : "+nim
-
-                            if a.effects != None:
-                                temp += " *{0}*".format(findEffect(a.effects).name)
-
-                    # Création de l'option
-                    mess += temp+"\n"
-                    firstOptions += [create_select_option(unhyperlink(a.name),a.id,getEmojiObject(a.emoji))]
-            elif destination != 9:
+            elif destination != ENC_ACHIV:
                 mess = ""
                 if page != maxPage:
                     maxi = (page+1)*10
@@ -317,13 +234,13 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 for a in tablToSee[(page)*10:maxi]:
                     if type(a) == octarien:
                         mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]}. | {a.weapon.emoji} |"
-                        firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
+                        firstOptions+=[interactions.SelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject(a.icon))]
                     else:
                         variantVar = ""
                         if a.variant:
                             variantVar = " (🔀)"
                         mess += f"{a.icon} __{a.name}__{variantVar}\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]} | {a.weapon.emoji} |"
-                        firstOptions+=[create_select_option(unhyperlink(a.name),a.name,getEmojiObject(a.icon))]
+                        firstOptions+=[interactions.SelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject(a.icon))]
 
                     for b in a.skills:
                         if type(b) == skill:
@@ -370,6 +287,7 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
 
                     mess+="\n\n"
 
+            mess = reducedEmojiNames(mess)
             if len(mess) > 4056: # Mess abrégé
                 mess = unemoji(mess)
 
@@ -377,32 +295,32 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             mess = "Il n'y a rien à afficher dans cette catégorie"
 
         if page < maxPage:
-            firstOptions+=[create_select_option("Page suivante","next",emoji.forward_arrow)]
+            firstOptions+=[interactions.SelectOption(label="Page suivante",value="next",emoji=Emoji(name="▶️"))]
 
         if len(firstOptions) > 0:
-            firstSelect = create_select(options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
+            firstSelect = interactions.SelectMenu(custom_id = "seeEquipPage", options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
         else:
-            firstSelect = create_select(options=[create_select_option("None","None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
+            firstSelect = interactions.SelectMenu(custom_id = "NothingToShow", options=[interactions.SelectOption(label="None",value="None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
 
-        embed = discord.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n\n".format(page+1,maxPage+1)+mess,color=user.color)
+        emb = interactions.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
 
         if msg == None:     # Send the message for the first loop
             try:
-                msg = await ctx.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+                msg = await ctx.send(embeds=emb,components=[destSelect,interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])])
             except:
-                msg = await ctx.channel.send(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+                msg = await ctx.channel.send(embeds=emb,components=[destSelect,interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])])
 
         else:
-            await msg.edit(embed=embed,components=[destSelect,create_actionrow(sortOptions),create_actionrow(firstSelect)])
+            await msg.edit(embeds=emb,components=[destSelect,interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])])
 
         try:
-            respond = await wait_for_component(bot,msg,check=check,timeout=180)
+            respond = await bot.wait_for_component(msg,check=check,timeout=180)
         except:
-            await msg.edit(embed=embed,components=[])
+            await msg.edit(embeds=emb,components=[])
             break
-    
-        if respond.values[0].isdigit():
-            respond = int(respond.values[0])
+
+        if respond.data.values[0].isdigit():
+            respond = int(respond.data.values[0])
 
             if respond in [0,1]:
                 needRemake = True
@@ -438,8 +356,8 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             tri=respond
 
         else:
-            inter = respond
-            respond = respond.values[0]
+            inter: ComponentContext = respond
+            respond = respond.data.values[0]
 
             if respond == "return":
                 page -= 1
@@ -453,12 +371,12 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         needRemake = True
                         break
             elif destination in [0,1,2]:
-                await inter.send(embed=infoStuff(findStuff(respond),user,ctx))
+                await inter.send(embeds=infoStuff(findStuff(respond),user,ctx))
             elif destination == 3:
-                await inter.send(embed=infoWeapon(findWeapon(respond),user,ctx))
+                await inter.send(embeds=infoWeapon(findWeapon(respond),user,ctx))
             elif destination == 4:
-                await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
-            elif destination == 5:
+                await inter.send(embeds=infoSkill(findSkill(respond),user,ctx))
+            elif destination == ENC_ALLIES:
                 lvl, tempMachin, addLvl = 50, None, 0
                 procurData = None
                 for procurName, procurStuff in procurTempStuff.items():
@@ -466,11 +384,32 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                         addLvl = procurStuff[0]
                         procurData = procurStuff
                         break
+                altBuildNb = -1
                 while 1:
                     lvlAdded = lvl + addLvl
                     ally = copy.deepcopy(findAllie(respond))
+
+                    if altBuildNb != -1:
+                        tempBuild = ally.changeDict[altBuildNb]
+                        initBuildProb = 100
+                        for chDict in ally.changeDict:
+                            initBuildProb = initBuildProb - chDict.proba
+                        ally.changeDict[altBuildNb] = tempAltBuilds(proba=initBuildProb,aspiration=ally.aspiration,weap=ally.weapon,stuffs=ally.stuff,skills=ally.skills,elements=[ally.element,ally.secElement],bonusPoints=ally.bonusPoints)
+                        
+                        if tempBuild.aspiration != None:
+                            ally.aspiration = tempBuild.aspiration
+                        if tempBuild.weapon != None:
+                            ally.weapon = tempBuild.weapon
+                        if tempBuild.stuff != None:
+                            ally.stuff = tempBuild.stuff
+                        if tempBuild.skills != None:
+                            ally.skills = tempBuild.skills
+                        if tempBuild.elements != None:
+                            ally.element, ally.secElement = tempBuild.elements[0], tempBuild.elements[1]
+                        if tempBuild.bonusPoints != None:
+                            ally.bonusPoints = tempBuild.bonusPoints
                     ally.changeLevel(lvl,changeDict=False)
-                    
+
                     if procurData == None:
                         ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
                     else:
@@ -480,45 +419,63 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                             stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[3][2])
                         ]
                     options, cmpt = [], 0
-                    for stuffy in [ally.weapon]+ally.skills+ally.stuff:
-                        if type(stuffy) in [skill,weapon,stuff]:
-                            options.append(create_select_option(stuffy.name,str(cmpt),getEmojiObject(stuffy.emoji)))
+                    for stuffy in [ally.weapon]+ally.skills:
+                        if type(stuffy) in [skill,weapon]:
+                            options.append(interactions.SelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
                         cmpt+=1
-                    returnButton = create_button(1,"Retour",custom_id="return")
-                    select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
+                    returnButton = interactions.ActionRow(components=[interactions.Button(style=1 ,label="Retour",custom_id="return")])
+                    select = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "seeMoreInfoMenue", options=options,placeholder="Voir plus d'informations sur les équipements")])
                     lvlSelectOption = []
-                    for a in range(1,12):
-                        lvlSelectOption.append(create_select_option("Niveau {0}".format(5*a),"lvl_{0}".format(5*a+addLvl),default=lvl==5*a))
-                    lvlSelect = create_actionrow(create_select(options=lvlSelectOption,placeholder="Choisir un niveau"))
-                    embed = infoAllie(ally)
+                    for a in range(1,6):
+                        lvlSelectOption.append(interactions.SelectOption(label="Niveau {0}".format(10*a),value="lvl_{0}".format(10*a+addLvl),default=lvl==10*a))
+                    lvlSelect = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "selectLvlMenu", options=lvlSelectOption,placeholder="Choisir un niveau")])
+                    emb = infoAllie(ally)
+
+                    if ally.changeDict != None:
+                        optionChDict, cmpt = [], 0
+                        for chDict in ally.changeDict:
+                            emo = getEmojiObject(aspiEmoji[ally.aspiration])
+                            if chDict.aspiration != None:
+                                emo = getEmojiObject(aspiEmoji[chDict.aspiration])
+                            optionChDict.append(SelectOption(label="Build Alternatif {0}".format(cmpt+1),value="altBuild_{0}".format(cmpt),emoji=emo))
+                            cmpt += 1
+
+                        chDictSelect = [ActionRow(components=[SelectMenu(custom_id="chDictSelect",options=optionChDict,placeholder="Voir un build alternatif")])]
+                    else:
+                        chDictSelect = []
                     if tempMachin == None:
                         try:
-                            tempMachin = await inter.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
-                        except:
-                            tempMachin = await inter.channel.send(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
+                            tempMachin = await inter.send(embeds=emb,components=[returnButton, select, lvlSelect]+chDictSelect)
+                        except Exception as e:
+                            print_exc()
+                            raise e
                     else:
-                        await tempMachin.edit(embed=embed,components=[create_actionrow(returnButton),create_actionrow(select),lvlSelect])
+                        await tempMachin.edit(embeds=emb,components=[returnButton,select,lvlSelect]+chDictSelect)
                     try:
-                        resp2 = await wait_for_component(bot,messages=tempMachin,timeout=60)
+                        resp2: ComponentContext = await bot.wait_for_component(messages=tempMachin,timeout=60)
                     except:
-                        await tempMachin.edit(embed=embed,components=[])
+                        await tempMachin.edit(embeds=emb,components=[])
                         break
                     try:
-                        if not(resp2.values[0].startswith("lvl_")):
-                            resp3 = int(resp2.values[0])
-                            tablStuff = [ally.weapon]+ally.skills+ally.stuff
-                            whatty = whatIsThat(tablStuff[resp3])
-                            if whatty == 0:
-                                await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
-                            elif whatty == 1:
-                                await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
-                            elif whatty == 2:
-                                await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                        if resp2.data.component_type == ComponentType.BUTTON:
+                            await tempMachin.delete()
+                            break
+                        elif resp2.data.values[0].startswith("lvl_"):
+                            lvl = int(resp2.data.values[0][4:])
+                        elif resp2.data.values[0].startswith("altBuild_"):
+                            altBuildNb = int(resp2.data.values[0].replace("altBuild_",""))
                         else:
-                            lvl = int(resp2.values[0][4:])
-                    except:
-                        await tempMachin.delete()
-                        break
+                            tablStuff = [ally.weapon]+ally.skills
+                            obj = tablStuff[int(resp2.data.values[0])]
+                            if type(obj) == weapon:
+                                await resp2.send(embeds=infoWeapon(obj,user,ctx))
+                            elif type(obj) == skill:
+                                await resp2.send(embeds=infoSkill(obj,user,ctx))
+                            elif type(obj) == stuff:
+                                await resp2.send(embeds=infoStuff(obj,user,ctx))
+                    except Exception as e:
+                        print_exc()
+                        await resp2.send("Une erreur est survenue lors de l'affichage de l'objet :\n{0}".format(e))
 
             elif destination in [6,7]:
                 options = []
@@ -526,29 +483,29 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
                 cmpt = 0
                 for stuffy in [ennemi.weapon]+ennemi.skills:
                     if type(stuffy) in [skill,weapon]:
-                        options.append(create_select_option(stuffy.name,str(cmpt),getEmojiObject(stuffy.emoji)))
+                        options.append(interactions.SelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
                     cmpt+=1
 
-                returnButton = create_button(1,"Retour",custom_id="return")
-                select = create_select(options,placeholder="Voir plus d'informations sur les équipements")
+                returnButton = interactions.Button(type=2, style=1,label="Retour",custom_id="return")
+                select = interactions.SelectMenu(custom_id = "seeMoreInfoMenue", options=options,placeholder="Voir plus d'informations sur les équipements")
 
-                tempMachin = await inter.send(embed=infoEnnemi(ennemi),components=[create_actionrow(returnButton),create_actionrow(select)])
+                tempMachin = await inter.send(embeds=infoEnnemi(ennemi),components=[interactions.ActionRow(components=[returnButton]),interactions.ActionRow(components=[select])])
 
                 while 1:
                     try:
-                        resp2 = await wait_for_component(bot,messages=tempMachin,timeout=60)
+                        resp2 = await bot.wait_for_component(messages=tempMachin,timeout=60)
                     except:
-                        await tempMachin.edit(embed=infoEnnemi(ennemi),components=[])
+                        await tempMachin.edit(embeds=infoEnnemi(ennemi),components=[])
                         break
                     try:
-                        resp3 = int(resp2.values[0])
+                        resp3 = int(resp2.data.values[0])
                         tablStuff = [ennemi.weapon]+ennemi.skills
                         if type(tablStuff[resp3]) == weapon:
-                            await resp2.send(embed=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
+                            await resp2.send(embeds=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
                         elif type(tablStuff[resp3]) == skill:
-                            await resp2.send(embed=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
+                            await resp2.send(embeds=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
                         else:
-                            await resp2.send(embed=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                            await resp2.send(embeds=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
                     except:
                         await tempMachin.delete()
                         break
@@ -556,8 +513,8 @@ async def encylopedia(bot : discord.Client, ctx : discord_slash.SlashContext, de
             elif destination == 8:
                 what = whatIsThat(respond)
                 if what == 0:
-                    await inter.send(embed=infoWeapon(findWeapon(respond),user,ctx))
+                    await inter.send(embeds=infoWeapon(findWeapon(respond),user,ctx))
                 elif what == 1:
-                    await inter.send(embed=infoSkill(findSkill(respond),user,ctx))
+                    await inter.send(embeds=infoSkill(findSkill(respond),user,ctx))
                 elif what == 2:
-                    await inter.send(embed=infoStuff(findStuff(respond),user,ctx))
+                    await inter.send(embeds=infoStuff(findStuff(respond),user,ctx))

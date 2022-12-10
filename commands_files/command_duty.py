@@ -1,5 +1,4 @@
-import discord
-from discord_slash.context import SlashContext
+from interactions import *
 from classes import *
 from commands_files.command_fight import fight
 from gestion import *
@@ -8,14 +7,15 @@ from commands_files.sussess_endler import *
 from commands_files.alice_stats_endler import *
 from index import *
 
-nextButton = create_button(ButtonStyle.green,"Suivant","▶️","next")
-fightButton = create_button(ButtonStyle.blue,"Combattre",getEmojiObject('<:turf:810513139740573696>'),"fight")
-endButton = create_button(ButtonStyle.green,"Terminer","▶️","end")
+
+nextButton = interactions.Button(type=2, style=ButtonStyle.SUCCESS,label="Suivant",emoji=Emoji(name="▶️"),value="next")
+fightButton = interactions.Button(type=2, style=ButtonStyle.PRIMARY,label="Combattre",emoji=getEmojiObject('<:turf:810513139740573696>'),value="fight")
+endButton = interactions.Button(type=2, style=ButtonStyle.SUCCESS,label="Terminer",emoji=Emoji(name="▶️"),value="end")
 
 DPT_MELEE,HEALER,BOOSTER,DPT_DIST = 0,1,2,3
 aspiRoleTabl = [[BERSERK,TETE_BRULE,POIDS_PLUME,ENCHANTEUR],[ALTRUISTE,PREVOYANT,PROTECTEUR,VIGILANT],[IDOLE,INOVATEUR],[OBSERVATEUR,MAGE,SORCELER,ATTENTIF]]
 
-async def playDuty(bot:discord.Client,msg:discord.Message,duty:duty,user:char,ctx:discord_slash.SlashContext):
+async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,user:char,ctx:interactions.CommandContext):
     """Play a duty"""
     # Loading / Generating phase
     playerTeam:List[Union[char,tmpAllie]] = [user]
@@ -67,31 +67,31 @@ async def playDuty(bot:discord.Client,msg:discord.Message,duty:duty,user:char,ct
             )
 
     def reactCheck(m):
-        return int(m.author_id) == user.owner
+        return int(m.author.id) == user.owner
 
     embedIndex, result = 0, False
     while 1:
-        embed, endButtons = discord.Embed(name = "__{0} ({1})__'".format(duty.serie,duty.numer),color=user.color,description=duty.embedTxtList[embedIndex]), []
+        emb, endButtons = interactions.Embed(name = "__{0} ({1})__'".format(duty.serie,duty.numer),color=user.color,description=duty.embedTxtList[embedIndex]), []
         if duty.eventIndex[embedIndex] == None:
-            endButtons = create_actionrow(nextButton)
+            endButtons = interactions.ActionRow(components=[nextButton])
         elif duty.eventIndex[embedIndex][0] == EVENT_CHOICE:
             endSelectOption = []
             for choice in range(1,len(duty.eventIndex[embedIndex])):
-                endSelectOption.append(create_select_option(label=duty.eventIndex[embedIndex][choice][0],value=choice))
-            endButtons = create_actionrow(create_select(options=endSelectOption))
+                endSelectOption.append(interactions.SelectOption(label=duty.eventIndex[embedIndex][choice][0],value=choice))
+            endButtons = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "endSelectOptions", options=endSelectOption)])
         elif duty.eventIndex[embedIndex][0] == EVENT_FIGHT:
-            endButtons = create_actionrow(fightButton)
+            endButtons = interactions.ActionRow(components=[fightButton])
         elif duty.eventIndex[embedIndex][0] == EVENT_END:
-            endButtons = create_actionrow(endButton)  
-        
-        await msg.edit(embed=embed,components=endButtons)
+            endButtons = interactions.ActionRow(components=[endButton])
+
+        await msg.edit(embeds=emb,components=endButtons)
 
         try:
-            react = await wait_for_component(bot,msg,endButtons,reactCheck,3+(len(duty.embedTxtList[embedIndex])/180))
-            if react.component_type == ComponentType.button:
+            react = await bot.wait_for_component(msg,endButtons,reactCheck,3+(len(duty.embedTxtList[embedIndex])/180))
+            if react.data.component_type == 2:
                 react = react.custom_id
             else:
-                react = react.values[0]
+                react = react.data.values[0]
         except TimeoutError:
             if duty.eventIndex[embedIndex] == None:
                 react = nextButton["customId"]

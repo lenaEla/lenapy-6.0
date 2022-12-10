@@ -30,8 +30,8 @@ aliceBatEarRing = other("Amulette chauve-souris","ql",350,invocBat.emoji,"Vous p
 birdup = other("Pigeon de compagnie","qm",350,'<:birdUp:930906195999473684>',"Vous permet de changer la forme de votre icone de personnage en Aviaire")
 Megalovania = other("Musique qui rentre dans la tête","qn",350,'<:lazyBones:930949502133747762>',"Vous permet de changer la forme de votre icone de personnage en Crâne")
 amary = other("Amaryllis",'qo',350,'<:amaryllis:935337538426642483>','Vous permet de changer la forme de votre icone en icone Féérique')
-autoPoint = other("Pai'rte de Nheur'o'Nes",'qp',3500,description="Une fois cette object activé, chaque point bonus obtenus en montant de niveau est automatiquement attribué selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
-autoStuff = other("Garde-robe de la Fée Niante",'qq',3500,description="Une fois cette object activé, à chaque fois que vous atteigné un pallié de niveau, modifie automatiquement votre équipement selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
+autoPoint = other("Pai'rte de Nheur'o'Nes",'qp',3500,emoji='<:autPoint:1041625800581066752>',description="Une fois cette object activé, chaque point bonus obtenus en montant de niveau est automatiquement attribué selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
+autoStuff = other("Garde-robe de la Fée Niante",'qq',3500,emoji='<:autStuff:1041625746340323330>',description="Une fois cette object activé, à chaque fois que vous atteigné un pallié de niveau, modifie automatiquement votre équipement selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
 
 others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint,autoStuff]
 
@@ -297,15 +297,83 @@ for obj in skills+tablVarAllies+tablUniqueEnnemies+tablBoss+tablBossPlus+tablRai
 if cmpt > 0:
     print("{0} effets ont été renommés".format(cmpt))
 
-"""skillsDict = {}
-for skilly in skills:
+class preDefSkillSet:
+    def __init__(self,element: Union[int, None] = None, skillList : List[skill] = []):
+        self.element = element
+        self.skillList = skillList
+
+dictPreDefSkillSet = {
+    BERSERK:[
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Danse des sabres"),findSkill("Combo Tempête de Fer"),findSkill("Conviction du Berserkeur"),findSkill("Choc Chromatique"),findSkill("Bain de Sang Avancé"),findSkill("Impact Justicier")]),
+        preDefSkillSet(element=ELEMENT_EARTH,skillList=[findSkill("Défi"),findSkill("Elipse Terrestre"),findSkill("Frappe Terre"),findSkill("Bain de Sang"),findSkill("Force de volonté"),findSkill("Frappe Convertissante Avancée"),findSkill("Pied Voltige")]),
+        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Frappe Air"),findSkill("Poussée Aviaire"),findSkill("Convertion élémentaire"),findSkill("Dernier Voyage"),findSkill("Soyokaze"),findSkill("Aer ferrum")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Linceuil de Lémure"),findSkill("Fétu Suppliant"),findSkill("Uppercut"),findSkill("Dernier Voyage"),findSkill("Ombre de la Mort"),findSkill("HighKick")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Invocation - Chauve-souris"),findSkill("Carnage"),findSkill("Choc Cardinal"),findSkill("Démolition"),findSkill("Voyage Ombral"),findSkill("Frappe Vangeresse")]),
+        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de plume"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")])
+    ],
+    POIDS_PLUME:[
+        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de plume"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Baleyette"),findSkill("Uppercut"),findSkill("Pied Voltige"),findSkill("Choc Ténébreux"),findSkill("Triple Attaque"),findSkill("Assaut du Crabe")]),
+        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Libération"),findSkill("Flèche aérienne"),findSkill("Convertion élémentaire"),findSkill("Démolition"),findSkill("Envolée féérique"),findSkill("Soyokaze")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Combo Eventails Célestes"),findSkill("Chorégraphie de l'éventail"),findSkill("Danse des sabres"),findSkill("Danse de la pluie étoilée"),findSkill("Final Classique"),findSkill("Final Technique")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Linceuil de Lémure"),findSkill("Fétu Suppliant"),findSkill("Uppercut"),findSkill("Dernier Voyage"),findSkill("Ombre de la Mort"),findSkill("HighKick")]),
+    ],
+}
+
+for cmpt in range(ASPI_NEUTRAL):
     try:
-        skillsDict[skilly.type][0] = skillsDict[skilly.type][0] + skilly.iaPow
-        skillsDict[skilly.type][1] = skillsDict[skilly.type][1] + 1
-    except:
-        skillsDict[skilly.type] = [skilly.iaPow,1]
+        dictPreDefSkillSet[cmpt]
+    except KeyError:
+        dictPreDefSkillSet[cmpt] = []
 
-for skillType, iaPowTT in skillsDict.items():
-    print("{0} : {1} moy IA pow".format(tablTypeStr[skillType],iaPowTT[0]//iaPowTT[1]))
-"""
+varAllies = [
+    findAllie("Shihu"),findAllie("Belle"),findAllie("Klironovia"),findAllie("Altikia"),findAllie("Luna"),findAllie("Chûri-Hinoro")
+]
 
+for ally in tablAllAllies+varAllies:
+    elem = None
+    for skilly in ally.skills:
+        skilly = findSkill(skilly)
+        if skilly != None and len(skilly.condition) > 1 and skilly.condition[1] == ELEMENT:
+            elem = skilly.condition[2]
+    dictPreDefSkillSet[ally.aspiration].append(preDefSkillSet(skillList=ally.skills,element=elem))
+
+    if ally.changeDict != None:
+        for chDict in ally.changeDict:
+            asp, elem = ally.aspiration, None
+            if chDict.aspiration != None:
+                asp = chDict.aspiration
+            if chDict.skills != None:
+                for skilly in chDict.skills:
+                    if len(skilly.condition) > 1 and skilly.condition[1] == ELEMENT:
+                        elem = skilly.condition[2]
+                dictPreDefSkillSet[asp].append(preDefSkillSet(skillList=chDict.skills,element=elem))
+
+listUseSkills = []
+for aspiCmpt in dictPreDefSkillSet:
+    for defSki in dictPreDefSkillSet[aspiCmpt]:
+        for skilly in defSki.skillList:
+            if skilly not in listUseSkills:
+                listUseSkills.append(skilly)
+
+for ally in tablAllAllies:
+    for skilly in ally.skills:
+        if type(skilly) == skill and skilly not in listUseSkills:
+            listUseSkills.append(skilly)
+    if ally.changeDict != None:
+        for cdi in ally.changeDict:
+            if type(cdi) == tempAltBuilds:
+                for skilly in cdi.skills:
+                    if type(skilly) == skill and skilly not in listUseSkills:
+                        listUseSkills.append(skilly)
+            else:
+                for cdi2 in cdi:
+                    for skilly in cdi2.skills:
+                        if type(skilly) == skill and skilly not in listUseSkills:
+                            listUseSkills.append(skilly)
+
+print("Used skills : {0}%".format(round(len(listUseSkills)/len(skills)*100,2)))
+for cmpt in range(ASPI_NEUTRAL):
+    print(inspi[cmpt],len(dictPreDefSkillSet[cmpt]))

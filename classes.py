@@ -2,7 +2,7 @@
 base classes module
 Here are grouped up the bases classes of the bot, and some very basic functions
 """
-import emoji,pathlib,copy,random
+import pathlib,copy,random
 from constantes import *
 from typing import List, Union
 
@@ -70,6 +70,21 @@ class option:
     def __init__(self,name,emoji):
         self.name = name
         self.emoji = emoji
+
+INC_START_FIGHT, INC_START_TURN, INC_KILL, INC_ENEMY_KILLED, INC_ALLY_KILLED, INC_DEAL_DAMAGE, INC_ENEMY_DAMAGED, INC_ALLY_DAMAGED, INC_DEAL_HEALING, INC_ENEMY_HEALED, INC_ALLY_HEALED, INC_USE_SKILL, INC_EFFECT_TRIGGERED, INC_ON_SELF_CRIT, INC_ON_ALLY_CRIT, INC_USE_ELEMENT_SKILL, INC_USE_GROUP_SKILL = tuple(range(17))
+
+incCondsStr = ["Au début du combat","En début de tour","Lorsque vous éliminez un adversaire","Lorsqu'un ennemi est éliminé","Lorsqu'un allié est éliminé","Lorsque vous infligez des dégâts par pourcentage de PV retiré à la cible","Par pourcentage de vie perdue par un ennemi","Par pourcentage de vie perdue par un allié","Par pourcentage de PV soigné par rapport aux PV Max de la cible","Par pourcentage de vie soignée d'un ennemi","Par pourcentage de vie soignée d'un allié","Lors de l'utilisation de certaines compétences","Lors du déclanchement de certains effets","Lorsque vous réalisez un coup critique","Lors d'un coup critique allié","En utilisant des compétences de l'élément suivant","En utilisant des compétences du groupe suivant"]
+
+class jaugeConds:
+    def __init__(self,type:int,value:int,add:Union[None,List]=None):
+        self.type = type
+        self.value = value
+        self.add = add
+
+class jaugeValue:
+    def __init__(self,emoji:List[str],conds:List[jaugeConds]):
+        self.emoji = emoji
+        self.conds = conds
 
 class effect:
     """The class for all skill's none instants effects and passive abilities from weapons and gears"""
@@ -299,8 +314,32 @@ class weapon:
         """Return a list with the mains stats of the weapon"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
-mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,31,45,0,strength=15,agility=15,repetition=5,emoji = emoji.fist)
-splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,agility=10,charisma=10,strength=10,repetition=5,emoji = emoji.splatJr)
+    def getSummary(self):
+        toReturn = ""
+        iconMsg = statsEmojis[[ACT_DIRECT_FULL,ACT_HEAL_FULL][self.type==TYPE_HEAL]]
+        toReturn += "{0} {1}{2} ({6}) <:targeted:912415337088159744> {5}% | {3} {4}\n".format(iconMsg,self.power,[" x{0}".format(self.repetition),""][self.repetition <= 1],rangeAreaEmojis[self.effectiveRange],areaEmojis[self.area],self.sussess,statsEmojis[self.use])
+        stats = [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical,self.negativeHeal*-1,self.negativeBoost*-1,self.negativeShield*-1,self.negativeDirect*-1,self.negativeIndirect*-1]
+        for cmpt in range(0,len(stats)):
+            if stats[cmpt] != 0:
+                toReturn += "{0}{1}{2}, ".format(statsEmojis[cmpt],["","+"][stats[cmpt]>0],stats[cmpt])
+        if len(toReturn)> 0 and toReturn[-1] == ", ":
+            toReturn = toReturn[:-1]
+        if self.affinity != None:
+            toReturn += elemEmojis[self.affinity]
+        toAdd = ""
+
+        if type(self.effects) == effect:
+                toAdd += "__Passif__ : {0} {1}".format(self.effects.emoji[0][0],self.effects.name)
+        if type(self.effectOnUse) == effect:
+                toAdd += "__Effet sur la cible__ : {0}{1} {2}".format(["","\n"][toAdd != ""],self.effectOnUse.emoji[0][0],self.effectOnUse.name)
+        
+        if toAdd != "":
+            toReturn += "\n" + toAdd
+
+        return toReturn
+
+mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,31,45,0,strength=15,agility=15,repetition=5,emoji = '<:fist:866368882784337941>')
+splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,agility=10,charisma=10,strength=10,repetition=5,emoji = '<:splattershotJR:866367630465433611>')
 
 class skill:
     """The main and only class for the skills"""
@@ -308,20 +347,20 @@ class skill:
         """rtfm"""
         if type(effects)!=list:
             effects = [effects]
-        self.effects = effects
+        self.effects: List[Union[None,effect]] = effects
         
-        self.name = name                                # Name of the skill
+        self.name:str = name                                # Name of the skill
 
-        self.repetition = repetition                    # The number of hits it does
+        self.repetition:int = repetition                    # The number of hits it does
         self.say:Union[str,List[str]] = say                                  # Does the attacker say something when the skill is used ?
-        self.id = id                                    # The id of the skill.  Idealy, unique
-        self.type = types                               # The type of the skill. See constante.types
-        self.replay = replay
+        self.id:str = id                                    # The id of the skill.  Idealy, unique
+        self.type:int = types                               # The type of the skill. See constante.types
+        self.replay:bool = replay
         self.tpCac:bool = tpCac
-        self.execution = execution
+        self.execution:bool = execution
         self.jumpBack:int = jumpBack
         self.setAoEDamage:bool = setAoEDamage
-        self.areaOnSelf = areaOnSelf
+        self.areaOnSelf:bool = areaOnSelf
         self.lifeSteal:int = lifeSteal
         self.erosion, self.pull = erosion, pull
         self.effBeforePow, self.jaugeEff, self.minJaugeValue, self.maxJaugeValue = effBeforePow, jaugeEff, minJaugeValue, [maxJaugeValue,minJaugeValue][minJaugeValue>= 0 and maxJaugeValue == 0]
@@ -332,9 +371,9 @@ class skill:
         if depl != None:
             self.depl.skills.emoji = emoji
         if needEffect == None or type(needEffect) == list:
-            self.needEffect=needEffect
+            self.needEffect: Union[None,List[effect]]=needEffect
         else:
-            self.needEffect=[needEffect]
+            self.needEffect: Union[None,List[effect]]=[needEffect]
 
         if rejectEffect == None or type(rejectEffect) == list:
             self.rejectEffect=rejectEffect
@@ -370,6 +409,12 @@ class skill:
         self.range = range
         self.group = group                      # Not used.
         self.cooldown = cooldown
+        if become !=None:
+            minCd = 99
+            for skilly in become:
+                if skilly.cooldown < minCd:
+                    minCd = skilly.cooldown
+            self.cooldown = minCd
         self.area = area
         self.maxHpCost, self.hpCost = maxHpCost, hpCost
         self.minTargetRequired = minTargetRequired
@@ -405,7 +450,14 @@ class skill:
                 self.use = self.effects[0].stat
             elif power == 0 and self.effectOnSelf != None and type(self.effectOnSelf) != str:
                 self.use = self.effectOnSelf.stat
-                
+            elif become !=None:
+                dictUse = [[STRENGTH,0],[ENDURANCE,0],[CHARISMA,0],[AGILITY,0],[PRECISION,0],[INTELLIGENCE,0],[MAGIE,0]]
+                for skilly in become:
+                    if type(skilly.use) == int and skilly.use <= MAGIE:
+                        dictUse[skilly.use][1] += 1
+                dictUse.sort(key=lambda ballerine: ballerine[1],reverse=True)
+                self.use = dictUse[0][0]
+
         self.onArmor = damageOnArmor
         self.invocation = invocation
         self.message = message
@@ -417,7 +469,7 @@ class skill:
             self.initCooldown=99
             if self.effectOnSelf == None:
                 self.effectOnSelf = effects
-                self.effects=None
+                self.effects=[None]
 
         if area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
             self.range = AREA_MONO
@@ -518,6 +570,7 @@ class skill:
         iaPow += (min(self.cooldown,10) * 5) + (self.ultimate * 15)
         self.iaPow = int(iaPow)
 
+
     def havConds(self,user):
         """Verify if the User have the conditions to equip the skill"""
         if self.condition != []:
@@ -546,51 +599,77 @@ class skill:
         return not(user.level < 10 and self.ultimate)
 
     def getSummary(self):
-        toReturn = ""
-        if self.type == TYPE_DAMAGE:
-            toReturn += "{0} {1} x{2}".format(statsEmojis[ACT_DIRECT_FULL],self.power,self.repetition)
-        elif self.type == TYPE_INDIRECT_DAMAGE:
-            if type(self.effects[0]) == effect:
-                toReturn += "{0} {1} x{2}".format(statsEmojis[ACT_INDIRECT_FULL],self.effects[0].power,self.effects[0].lvl)
+        toReturn, tpower, tcasttime, treplay, actSkill = "", 0, 0, 1, self
+        if actSkill.become == None:
+            while type(actSkill.effectOnSelf) == effect and type(actSkill.effectOnSelf.replica) == skill:
+                if actSkill.replay:
+                    treplay += 1
+                else:
+                    tcasttime += 1
+                tpower += actSkill.power
+                actSkill = actSkill.effectOnSelf.replica
+            if actSkill == self:
+                tpower = self.power
             else:
-                toReturn += "{0} ? x?".format(statsEmojis[ACT_INDIRECT_FULL])
-        elif self.type in [TYPE_BOOST,TYPE_MALUS]:
-            toReturn += statsEmojis[ACT_BOOST_FULL]
-        elif self.type == TYPE_ARMOR:
-            toReturn += statsEmojis[ACT_SHIELD_FULL]
-        elif self.type in [TYPE_HEAL]:
-            toReturn += "{0} {1}".format(statsEmojis[ACT_HEAL_FULL],self.power)
-        elif self.type in [TYPE_INDIRECT_HEAL]:
-            if type(self.effects[0]) == effect:
-                toReturn += "{0} {1} x{2}".format(statsEmojis[ACT_HEAL_FULL],self.effects[0].power,self.effects[0].lvl)
+                tpower += actSkill.power
+        else:
+            moyPow = 0
+            for skilly in actSkill.become:
+                actSkill2 = skilly
+                while type(actSkill2.effectOnSelf) == effect and type(actSkill2.effectOnSelf.replica) == skill:
+                    moyPow += actSkill.power
+                    actSkill2 = actSkill2.effectOnSelf.replica
+                if actSkill2 == actSkill:
+                    moyPow += actSkill.power
+                else:
+                    moyPow += actSkill2.power
+            tpower = int(moyPow)/len(actSkill.become)
+
+        if actSkill.type in [TYPE_DAMAGE,TYPE_HEAL]:
+            iconMsg = [statsEmojis[[ACT_DIRECT_FULL,ACT_HEAL_FULL][actSkill.type==TYPE_HEAL]], "{0} 🕑 - {1}".format(tcasttime, statsEmojis[[ACT_DIRECT_FULL,ACT_HEAL_FULL][actSkill.type==TYPE_HEAL]])][tcasttime>0]
+            if actSkill == self:
+                toReturn += "{0} {1}{2}".format(iconMsg,actSkill.power,[" x{0}".format(actSkill.repetition),""][actSkill.repetition <= 1])
             else:
-                toReturn += "{0} ? x?".format(statsEmojis[ACT_HEAL_FULL])
-        elif self.type in [TYPE_SUMMON,TYPE_DEPL]:
+                toReturn += "{0} {1}{2}{3}".format(iconMsg,tpower,[" x{0}".format(actSkill.repetition),""][actSkill.repetition <= 1],["","/{0}".format(treplay)][treplay>1])
+        elif actSkill.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL]:
+            iconMsg = [statsEmojis[[ACT_INDIRECT_FULL,ACT_HEAL_FULL][actSkill.type==TYPE_INDIRECT_HEAL]], "{0} 🕑 - {1}".format(tcasttime, statsEmojis[[ACT_INDIRECT_FULL,ACT_HEAL_FULL][actSkill.type==TYPE_INDIRECT_HEAL]])][tcasttime>0]
+            if type(actSkill.effects[0]) == effect:
+                if actSkill == self:
+                    toReturn += "{0} {1}/{2}".format(iconMsg,actSkill.effects[0].power*actSkill.effects[0].lvl,actSkill.effects[0].lvl)
+                else:
+                    toReturn += "{0} {1}/{2}".format(iconMsg,actSkill.effects[0].power*actSkill.effects[0].lvl,actSkill.effects[0].lvl,["","/{0}".format(treplay)][treplay>1])
+            else:
+                toReturn += "{0} ?/?".format(iconMsg)
+        elif actSkill.type in [TYPE_BOOST,TYPE_MALUS]:
+            toReturn += [statsEmojis[ACT_BOOST_FULL], "{0} 🕑 - {1}".format(tcasttime, statsEmojis[ACT_BOOST_FULL])][tcasttime>0]
+        elif actSkill.type == TYPE_ARMOR:
+            toReturn += [statsEmojis[ACT_SHIELD_FULL], "{0} 🕑 - {1}".format(tcasttime, statsEmojis[ACT_SHIELD_FULL])][tcasttime>0]
+        elif actSkill.type in [TYPE_SUMMON,TYPE_DEPL]:
             toReturn += "<:sprink1:887747751339757599>"
-        elif self.type == TYPE_RESURECTION:
+        elif actSkill.type == TYPE_RESURECTION:
             toReturn += '<:renisurection:873723658315644938>'
         else:
             toReturn += "<:i1b:866828199156252682>"
 
         toAdd = ""
-        if self.use != None and self.use <= MAGIE:
-            toAdd += statsEmojis[self.use]
-        if self.useActionStats != None:
-            toAdd += statsEmojis[self.useActionStats+CRITICAL+1]
+        if actSkill.use != None and actSkill.use <= MAGIE:
+            toAdd += statsEmojis[actSkill.use]
+        if actSkill.useActionStats != None:
+            toAdd += statsEmojis[actSkill.useActionStats+CRITICAL+1]
         if toAdd != "":
             toReturn += " ({0})".format(toAdd)
 
-        if self.condition != []:
-            tabl = [None,aspiEmoji,elemEmojis][self.condition[1]]
-            toReturn += " | {0}".format(tabl[self.condition[2]])
+        if actSkill.condition != []:
+            tabl = [None,aspiEmoji,elemEmojis][actSkill.condition[1]]
+            toReturn += " | {0}".format(tabl[actSkill.condition[2]])
         
         effarea = ""
-        if self.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL] and type(self.effects[0]) == effect:
-            effarea = " ({0})".format(areaEmojis[self.effects[0].area])
+        if actSkill.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL] and type(actSkill.effects[0]) == effect:
+            effarea = " ({0})".format(areaEmojis[actSkill.effects[0].area])
 
-        toReturn += " | {0} {1}{4} | 🕓 {2}{3}".format(rangeAreaEmojis[self.range],areaEmojis[self.area],self.cooldown,[""," ⭐"][self.ultimate],effarea)
-        if self.description not in [None,'']:
-            lines = self.description.splitlines()
+        toReturn += " | {0} {1}{4} | 🕓 {2}{3}".format(rangeAreaEmojis[actSkill.range],areaEmojis[actSkill.area],actSkill.cooldown,[""," ⭐"][actSkill.ultimate],effarea)
+        if actSkill.description not in [None,'']:
+            lines = actSkill.description.splitlines()
             toReturn += "\n> " + lines[0]
             if len(lines)>1:
                 toReturn += "\n> (...)"
@@ -599,7 +678,7 @@ class skill:
 
 class stuff:
     """The main and only class for all the gears"""
-    def __init__(self,name,id,types,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effects=None,orientation = [],position=0,affinity = None,negativeShield=0,negativeHeal=0,negativeDirect=0,negativeIndirect=0,negativeBoost=0):
+    def __init__(self,name,id,types,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effects=None, orientation = [],position=0,affinity = None,negativeShield=0,negativeHeal=0,negativeDirect=0,negativeIndirect=0,negativeBoost=0):
         """rdtm"""
         self.name = name
         self.id = id
@@ -686,11 +765,28 @@ class stuff:
     def havConds(self,user):
         return user.level >= self.minLvl
 
+    def getSummary(self):
+        stats, temp = [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical,self.negativeHeal*-1,self.negativeBoost*-1,self.negativeShield*-1,self.negativeDirect*-1,self.negativeIndirect*-1], ""
+        for cmpt in range(0,len(stats)):
+            if stats[cmpt] != 0:
+                temp += "{0}{1}{2}, ".format(statsEmojis[cmpt],["","+"][stats[cmpt]>0],stats[cmpt])
+        if len(temp)> 0 and temp[-1] == ",":
+            temp = temp[:-1]
+        if self.affinity != None:
+            temp += elemEmojis[self.affinity]
+
+        if self.orientation not in [None,""]:
+            temp += "\n{0}".format(self.orientation)
+
+        if type(self.effects) == effect:
+            temp += "\n{1} {0}".format(self.effects.name, self.effects.emoji[0][0])
+        return temp
+
 emojiMalus = [['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
 
 class other:
     """The class for all the "specials objets" categorie"""
-    def __init__(self,name,id,price=1000,emoji=emoji.loading,description="Léna est féniant"):
+    def __init__(self,name,id,price=1000,emoji=emLoading,description="Léna est féniant"):
         self.name = name
         self.id = id
         self.price = price
@@ -868,7 +964,7 @@ for num in range(0,10):
     shareTemp.description="En revecant des soins monocibles, les alliés dans la zone d'effet en reçoivent **{0}**% bonus.\n\nSi plusieurs effets Partages sont présent sur la même cible, uniquement le plus puissant sont pris en compte".format(10*num)
     shareTabl.append(shareTemp)
 
-healDoneBonus = effect("Soins réalisés augmentés","healBonus",description="Augmente les soins réalisés par le lanceur d'une valeur équivalante à la puissance de cet effet",emoji='<:temperance:982349348992081960>')
+healDoneBonus = effect("Soins réalisés augmentés","healBonus",description="Augmente les soins réalisés par le lanceur d'une valeur équivalante à la puissance de cet effet",emoji='<:largesse:1042929208395038850>')
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement",turnInit=2)
 
 textBaliseAtReplace = ["Ã©","Ã","à§"]

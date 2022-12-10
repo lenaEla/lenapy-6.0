@@ -1,15 +1,12 @@
 import copy
 import os, io
 from sys import maxsize
-from typing import List
-
-import discord
-from discord_slash.utils.manage_components import create_actionrow, create_select, create_select_option, create_button
+from typing import List, Union
 import requests
+import interactions
 from async_timeout import asyncio
-from PIL import Image, ImageColor, ImageOps
-
-import emoji
+from PIL import ImageColor, ImageOps
+import PIL.Image
 from adv import *
 from classes import *
 from commands_files.alice_stats_endler import *
@@ -19,12 +16,12 @@ from gestion import *
 stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
 
-timeoutSelect = create_select(
-    options=[create_select_option(
-        "Timeout", "Parfois je me demande ce que ferais Lena si elle pensais par elle même", emoji='🕛', default=True)],
+timeoutSelect = interactions.SelectMenu(custom_id = "timeoutSelect", 
+    options=[interactions.SelectOption(
+        label="Timeout", value="Parfois je me demande ce que ferais Lena si elle pensais par elle même", emoji= interactions.Emoji(name='🕛'), default=True)],
     disabled=True
 )
-timeoutSelect = create_actionrow(timeoutSelect)
+timeoutSelect = interactions.ActionRow(components=[timeoutSelect])
 
 lvlUpUnlock = {
     5: "- Emplacement de compétence n°4",
@@ -36,6 +33,8 @@ lvlUpUnlock = {
     35: "- Emplacement de compétence n°7",
     55: "- Prestige"
 }
+
+
 
 def remove_accents(input_str: str):
     temp = ""
@@ -503,12 +502,11 @@ def visuArea(area: int, wanted, ranged=True, fromDir=FROM_LEFT) -> list:
 
     return temp
 
-def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, txt: str = "",powerPurcent=100) -> discord.Embed:
-    effTmp, boucle, iteration, fieldname, powerPurcent = "", True, False, "__Effet :__", [powerPurcent,100][powerPurcent==None]
-    eff = findEffect(effId)
-
+def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, self=False, txt: str = "",powerPurcent=100) -> interactions.Embed:
+    effTmp, boucle, iteration, powerPurcent = "", True, False, [powerPurcent,100][powerPurcent==None]
     while boucle:
         eff = findEffect(effId)
+        fieldname = "__{0} {1} :__".format(eff.name,eff.emoji[user.species-1][0])
         if eff.id == kikuRaiseEff.id:
             eff = copy.deepcopy(eff)
             eff.callOnTrigger = kikuUnlifeGift
@@ -535,14 +533,13 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         cumu = ""
         if eff.stackable:
             cumu = "\n\nCet effet est **cumulable**"
-        effTmp += f"__Nom :__ {eff.name}\n__Icone de l'effet :__ {eff.emoji[user.species-1][0]}\n__Durée :__ {tamp}\n__Statistique prise en compte :__ **{Stat}**{Powa}{cumu}"
+        effTmp += f"__Durée :__ {tamp}\n__Statistique :__ **{Stat}**\n__Zone d'effet :__ {areaEmojis[eff.area]} {areaNames[eff.area]}{Powa}{cumu}"
         effTmp += "\nCet effet se délanche {0}\n".format(triggersTxt[eff.trigger])
 
         if eff.lvl != 1:
-            effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(
-                eff.lvl)
-        stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge]
-        names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage","Prob. Esquive"]
+            effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
+        stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge, eff.critDmgUp, eff.critHealUp, eff.dmgUp, eff.healUp]
+        names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage","Prob. Esquive", "Dégâts Critiques","Soins Critiques", "Dégâts non critiques","Soins non critiques"]
 
         if eff.redirection > 0:
             effTmp += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(
@@ -582,32 +579,19 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
         if eff.callOnTrigger != None and not(iteration):
             effId = eff.callOnTrigger
             iteration = eff.id != kikuMechExplain.id
-            embed.add_field(name=fieldname, value=effTmp, inline=False)
+            emb.add_field(name=fieldname, value=effTmp, inline=False)
             effTmp = ""
-            fieldname = "<:empty:866459463568850954>\n__À l'activation, cet effet donne un autre effet :__"
         elif eff.callOnTrigger != None and iteration:
             effId = findEffect(eff.callOnTrigger)
-            embed.add_field(name=fieldname, value=effTmp, inline=False)
-            fieldname = "<:empty:866459463568850954>\n__À l'activation, cet effet donne un autre effet :__"
+            emb.add_field(name=fieldname, value=effTmp, inline=False)
             if eff.area != AREA_MONO:
-                embed.add_field(name="__Zone d'effet :__", value="{0} {1}".format(areaEmojis[eff.area],areaNames[eff.area]))
+                emb.add_field(name="__Zone d'effet :__", value="{0} {1}".format(areaEmojis[eff.area],areaNames[eff.area]))
             break
         else:
             if not(self):
-                embed.add_field(name="<:empty:866459463568850954>\n" +fieldname + txt, value=effTmp, inline=False)
+                emb.add_field(name="<:empty:866459463568850954>\n" +fieldname + txt, value=effTmp, inline=True)
             else:
-                embed.add_field(name="<:empty:866459463568850954>\n**__Effet sur soi :__**", value=effTmp, inline=False)
-
-            if eff.area != AREA_MONO:
-                if eff.type in [TYPE_ARMOR, TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ, TYPE_RESURECTION, TYPE_HEAL]:
-                    embed.add_field(name="__Zone d'effet :__", value=visuArea(
-                        eff.area, wanted=ALLIES, ranged=False))
-                    break
-
-                elif eff.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]:
-                    embed.add_field(name="__Zone d'effet :__", value=visuArea(
-                        eff.area, wanted=ENEMIES, ranged=False))
-
+                emb.add_field(name="<:empty:866459463568850954>\n" + fieldname + " (effet sur le lanceur)", value=effTmp, inline=True)
             break
 
     if eff.id == cardsDeck.id:
@@ -626,12 +610,13 @@ def infoEffect(effId: str, user: char, embed: discord.Embed, ctx, self=False, tx
                 else:
                     cardDesc += "\n"
         
-        embed.add_field(name="<:empty:866459463568850954>\n__Effets des cartes :__",value=cardDesc,inline=False)
+        emb.add_field(name="<:empty:866459463568850954>\n__Effets des cartes :__",value=cardDesc,inline=False)
 
-    return embed
+    return emb
 
 def infoSkill(skill: skill, user: char, ctx):
-    skil, cast, multiPower, multiSkill, guide = skill, 0, [], [], 0
+    skil: classes.skill = skill
+    cast, multiPower, multiSkill, guide =  0, [], [], 0
     while skil.effectOnSelf != None:
         eff = findEffect(skil.effectOnSelf)
         if eff.replica != None:
@@ -646,7 +631,7 @@ def infoSkill(skill: skill, user: char, ctx):
             guide += 1
             break
         cast += 1
-    
+
     if multiSkill != []:
         multiSkill.append(skil)
     if multiPower != []:
@@ -661,7 +646,7 @@ def infoSkill(skill: skill, user: char, ctx):
             skil = mageUlt
 
     if skil.become != None:
-        desc, listConds = "Cette compétence permet d'utiliser :\n", []
+        desc, listConds = "Cette compétence regroupe les compétences suivantes :\n", []
         for cmpt in range(len(skil.become)):
             desc += "{1} __{0}__".format(
                 skil.become[cmpt].name, skil.become[cmpt].emoji)
@@ -676,9 +661,10 @@ def infoSkill(skill: skill, user: char, ctx):
                     temp2 += "{0} {1}".format(temp.emoji[0][0], temp.name)
                 listConds.append(temp2)
 
-        desc += "\nLorsque leurs conditions sont réunies. Leurs temps de rechargement sont syncronisés"
+        desc += "\nLeurs temps de rechargement sont syncronisés"
     else:
         desc = ""
+    
     # Cooldown ---------------------------
     if skil.type != TYPE_PASSIVE:
         if skil.become != None:
@@ -775,11 +761,6 @@ def infoSkill(skill: skill, user: char, ctx):
                     multi = " x{0}".format(skil.become[cmpt].repetition)
                 temp += "__{0}__{2} ({1})\n".format(skil.become[cmpt].power, skil.become[cmpt].name, multi)
 
-        temp += "\n__Zone d'effet :__\n"
-        for cmpt in range(len(skil.become)):
-            temp += "{0} ({1})\n".format(
-                areaNames[skil.become[cmpt].area], skil.become[cmpt].name)
-
         temp += "\n__Précisions :__\n"
         for cmpt in range(len(skil.become)):
             temp += "{0}% ({1})\n".format(
@@ -802,6 +783,27 @@ def infoSkill(skill: skill, user: char, ctx):
             temp += f"\nCette compétence se lance sur **soi-même**"
         else:
             temp += f"\nLes compétences passives se déclanchent au début du combat"
+
+    if skil.effects != [None]:
+        effDesc = "\n__Effet{0} octroyé{0} {1} :__\n".format(["","s"][len(skil.effects)>0],["à la cible",'aux cibles'][skil.type != TYPE_DAMAGE])
+        if skil.effPowerPurcent != 100:
+            if skil.jaugeEff == None or (skil.type not in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_DAMAGE,TYPE_MALUS]):
+                effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.effPowerPurcent)
+            else:
+                effDesc += "*Puissance et statistiques : de {0}% à {1}%*\n".format(skil.effPowerPurcent//2,skil.effPowerPurcent)
+        for eff in skil.effects:
+            if type(eff) == effect:
+                effDesc += "{0} {1}".format(eff.emoji[0][0], eff.name)
+
+        temp += effDesc + "\n"
+
+    if skil.effectOnSelf != None:
+        effDesc = "\n__Effet octroyé au lanceur :__\n"
+        if skil.effPowerPurcent != 100 or skil.selfEffPurcent != 100:
+            effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.effPowerPurcent)
+        effDesc += "{0} {1}".format(skil.effectOnSelf.emoji[0][0], skil.effectOnSelf.name)
+
+        temp += effDesc + "\n"
 
     if skil.become == None and skil.type in friendlyTypes+hostilesTypes and not(skil.range == skil.area == AREA_MONO):
         temp += "\nCette compétence {1} les **{0}**".format(["alliés","ennemis"][skil.type in hostilesTypes],["affecte","cible"][skil.range != AREA_MONO])
@@ -849,9 +851,6 @@ def infoSkill(skill: skill, user: char, ctx):
                 reject = findSkill(skil.condition[2])
                 temp += f"la compétence **{reject.name}** ({reject.emoji})"
 
-    if skil.effPowerPurcent != 100:
-        temp += "\nLes effets donnés par cette compétence ont une puissance équivalente à **{0}%** de leur puissance initiale".format(
-            skil.effPowerPurcent)
     if skil.replay:
         temp += "\nCette compétence permet de rejouer son tour"
 
@@ -861,7 +860,7 @@ def infoSkill(skill: skill, user: char, ctx):
         temp += "\nCette compétence consome **{0}%** des **PV actuels** du lanceur lors de son utilisation".format(skil.hpCost)
 
     if skil.ultimate:
-        temp += "\nCette compétence est une compétence **ultime**."
+        temp += "\nCette compétence est une compétence **ultime**"
     if skil.execution :
         temp += "\nCette compétence est une **exécution**. Les cibles exécutées sont immédiatement misent hors-jeu et ne peuvent pas être réanimés"
     if skil.group != 0:
@@ -873,20 +872,34 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.armorConvert > 0:
         temp += "\nCette compétence octroi au lanceur de l'équivalent de **{0}%** des dégâts infligés en tant qu'armure légère".format(skil.armorConvert)
     if skil.erosion != 0:
-        temp += "\nCette compétence a **{0}%** d'Erosion Spirituelle.'".format(skil.erosion)
+        temp += "\nCette compétence réduits les PV maximums de la cible de l'équivalent de **{0}%** des dégâts infligés".format(skil.erosion)
     temp2 = ""
     if skil.tpCac:
-        temp2 += "\n__Téléportation :__\nCette compétence téléporte le lanceur au corps à corps de la cible\n> - Si aucune case n'est libre, le lanceur subit des dégâts indirects Harmonie\n"
+        temp2 += "\nCette compétence téléporte le lanceur au corps à corps de la cible\n> - Si aucune case n'est libre, le lanceur subit des dégâts indirects Harmonie\n"
 
     if skil.knockback > 0 and skil.become == None:
-        temp2 += "\n__Repoussement :__\nCette compétence repousse la cible de **{0}** case{1}\n> - Si la cible percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.knockback, ["", "s"][int(skil.knockback > 1)])
+        temp2 += "\nCette compétence repousse la cible de **{0}** case{1}\n> - Si la cible percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.knockback, ["", "s"][int(skil.knockback > 1)])
     if skil.pull > 0 and skil.become == None:
-        temp2 += "\n__Attraction :__\nCette compétence attire les cibles sur **{0}** case{1}".format(skil.pull,["","s"][skil.pull>1])
+        temp2 += "\nCette compétence attire les cibles sur **{0}** case{1}".format(skil.pull,["","s"][skil.pull>1])
     if skil.jumpBack:
-        temp2 += "\n__Saut :__\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack, ["", "s"][int(skil.jumpBack > 1)])
+        temp2 += "\nCette compétence fait reculer le lanceur de **{0}** case{1}\n> - Si le lanceur percute une autre entité ou le bord du terrain, les entités affectées reçoivent des dégâts indirects Harmonie\n".format(skil.jumpBack, ["", "s"][int(skil.jumpBack > 1)])
 
-    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf).jaugeValue != None) or (skil.jaugeEff != None):
-        temp2 = "\nCette compétence octroi et utilise {0} **{1}**.\n> Un combattant ne peut pas cumuler plusieurs types de jauges différents, mais plusieurs compétences peuvent utiliser la même jauge.".format(skil.jaugeEff.emoji[0][0],skil.jaugeEff.name)
+    if skil.jaugeEff != None:
+        temp2 = "\nCette compétence octroi et utilise {0} **{1}**. La valeur de cette jauge augmente dans les conditions suivantes :\n".format(skil.jaugeEff.emoji[0][0],skil.jaugeEff.name)
+        jaugeVal: jaugeValue = skil.jaugeEff.jaugeValue
+        for conds in jaugeVal.conds:
+            temp2 += " - "+incCondsStr[conds.type] + "** +{0}**\n".format(conds.value)
+            if conds.type == INC_USE_SKILL:
+                for condSkill in conds.add:
+                    temp2 += "> - {0} {1}\n".format(condSkill.emoji, condSkill.name)
+            elif conds.type == INC_EFFECT_TRIGGERED:
+                for condEff in conds.add:
+                    temp2 += "> - {0} {1}\n".format(condEff.emoji[0][0], condEff.name)
+            elif conds.type == INC_USE_ELEMENT_SKILL:
+                temp2 += "> - {0} {1}\n".format(elemEmojis[conds.add],elemNames[conds.add])
+            elif conds.type == INC_USE_GROUP_SKILL:
+                temp2 += "> - {0} Compétences {1}\n".format(["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][conds.add],["Normales","Divines","Démoniaques"])
+
     if temp2 != "":
         temp += "\n"+temp2
 
@@ -900,11 +913,23 @@ def infoSkill(skill: skill, user: char, ctx):
                 temp += "\n__{1}__ repousse la cible de **{0}** case{2}".format(
                     becomeName.knockback, becomeName.name, ["", "s"][becomeName.knockback > 1])
 
-    repEmb = discord.Embed(title="__{1}__\n(ID:{0})".format(skil.id,skil.name), color=user.color,description=desc+"\n\n__Statistiques :__\n"+temp)
-    
+    repEmb = interactions.Embed(title="__{1}__\n(ID:{0})".format(skil.id,skil.name), color=user.color,description=desc+"\n\n__Statistiques :__\n"+temp)
+
+    if skil.become == None: # AREA
+        if skil.type != TYPE_PASSIVE:
+            repEmb.add_field(name="<:em:866459463568850954>\n__Portée et air d'effet :__", value="__Portée :__ {0} {1}\n__Zone d'effet :__ {2} {3}".format(rangeAreaEmojis[skil.range],areaNames[skil.range],areaEmojis[skil.area],areaNames[skil.area]))
+    else:
+        tempValuesRange, tempValuesArea = "", ""
+        for skilly in skil.become:
+            tempValuesRange += "__{0} {1}__ : {2} {3}\n".format(skilly.emoji, skilly.name, rangeAreaEmojis[skilly.range], areaNames[skilly.range])
+            tempValuesArea += "__{0} {1}__ : {2} {3}\n".format(skilly.emoji, skilly.name, areaEmojis[skilly.area], areaNames[skilly.area])
+
+        repEmb.add_field(name="<:empty:866459463568850954>\n__Portées :__", value=tempValuesRange,inline=False)
+        repEmb.add_field(name="<:empty:866459463568850954>\n__Zones d'Effets :__", value=tempValuesArea,inline=False)
+
     if skil.effectAroundCaster != None:
         if type(skil.effectAroundCaster[2]) == effect:
-            toAdd = "__Effet :__ {0}".format(skil.effectAroundCaster[2].name, skil.effectAroundCaster[2].emoji[0][0])
+            toAdd = "__Effet :__ {1} {0}".format(skil.effectAroundCaster[2].name, skil.effectAroundCaster[2].emoji[0][0])
         else:
             toAdd = "__Puissance :__ {0}".format(skil.effectAroundCaster[2])
         
@@ -928,30 +953,14 @@ def infoSkill(skill: skill, user: char, ctx):
         repEmb.add_field(name="<:empty:866459463568850954>\n__Effet supplémentaire autour du lanceur :__",inline=False,value="__Type :__ {3} {0}\n__Zone d'effet :__ {4} {1}\n{2}".format(tablTypeStr[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd, typeEmoji,areaEmojis[skil.effectAroundCaster[1]]))
 
     if skil.emoji[1] == "a":
-        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji).id))
     else:
-        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji).id))
 
-    if skil.become == None: # AREA
-        if skil.range not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5]:
-            repEmb.add_field(name="__Portée :__", value=visuArea(skil.range, wanted=[ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]]))
-
-        if skil.area not in [AREA_MONO, AREA_RANDOMENNEMI_1, AREA_RANDOMENNEMI_2, AREA_RANDOMENNEMI_3, AREA_RANDOMENNEMI_4, AREA_RANDOMENNEMI_5, AREA_ALL_ALLIES, AREA_ALL_ENEMIES, AREA_ALL_ENTITES]:
-            repEmb.add_field(name="__Zone d'effet :__", value=visuArea(skil.area, wanted=[ALLIES, ENEMIES][skil.type in [TYPE_INDIRECT_DAMAGE, TYPE_MALUS, TYPE_DAMAGE]], ranged=False))
-
-    else:
-        tempValuesRange, tempValuesArea = "", ""
-        for skilly in skil.become:
-            tempValuesRange += "__{0} {1}__ : {2} {3}\n".format(skilly.emoji, skilly.name, rangeAreaEmojis[skilly.range], areaNames[skilly.range])
-            tempValuesArea += "__{0} {1}__ : {2} {3}\n".format(skilly.emoji, skilly.name, areaEmojis[skilly.area], areaNames[skilly.area])
-
-        repEmb.add_field(name="__Portées :__", value=tempValuesRange,inline=False)
-        repEmb.add_field(name="__Zones d'Effets :__", value=tempValuesArea,inline=False)
-
-    if skil.effects != [None]:
-        allReadySeen, effToSee = [], []
-        for a in skil.effects:
-            eff = findEffect(a)
+    allReadySeen, effToSee = [], []
+    for eff in skil.effects:
+        if eff != None:
+            eff = findEffect(eff)
             if eff not in allReadySeen:
                 allReadySeen.append(eff)
                 effToSee.append(1)
@@ -960,9 +969,9 @@ def infoSkill(skill: skill, user: char, ctx):
                     if allReadySeen[cmpt].id == eff.id:
                         effToSee[cmpt] += 1
 
-        for a in range(len(allReadySeen)):
-            txt = ["", " x{0}".format(effToSee[a])][effToSee[a] > 1]
-            repEmb = infoEffect(allReadySeen[a], user, repEmb, ctx, txt=txt,powerPurcent=skil.effPowerPurcent)
+    for cmpt in range(len(allReadySeen)):
+        txt = ["", " x{0}".format(effToSee[cmpt])][effToSee[cmpt] > 1]
+        repEmb = infoEffect(allReadySeen[cmpt], user, repEmb, txt=txt, powerPurcent=skil.effPowerPurcent)
 
     if skil.become != None:
         for skilly in skil.become:
@@ -975,30 +984,32 @@ def infoSkill(skill: skill, user: char, ctx):
 
     if skil.effectOnSelf != None:
         if skil.type != TYPE_PASSIVE:
-            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx, True ,powerPurcent=skil.selfEffPurcent)
+            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, True ,powerPurcent=skil.selfEffPurcent)
         else:
-            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, ctx,True," (passif)",powerPurcent=skil.selfEffPurcent)
+            repEmb = infoEffect(skil.effectOnSelf, user, repEmb, True," (passif)",powerPurcent=skil.selfEffPurcent)
+
     if skil.effectAroundCaster != None and type(skil.effectAroundCaster[2])==effect:
-        repEmb = infoEffect(skil.effectAroundCaster[2], user, repEmb, ctx, powerPurcent=[skil.effPowerPurcent,int(liaLB.effPowerPurcent/5)][skil==liaLB],txt = " *(autour du lanceur)*")
-    
-    if (skil.effectOnSelf != None and findEffect(skil.effectOnSelf).jaugeValue != None) or (skil.jaugeEff != None):
-        repEmb = infoEffect([skil.effectOnSelf,skil.jaugeEff][skil.jaugeEff != None], user, repEmb, ctx,txt = " *(Jauge)*")
-    
+        repEmb = infoEffect(skil.effectAroundCaster[2], user, repEmb, powerPurcent=[skil.effPowerPurcent,int(liaLB.effPowerPurcent/5)][skil==liaLB],txt = " *(autour du lanceur)*")
+
     if skil.invocation != None:
         repEmb = infoInvoc(findSummon(skil.invocation), repEmb)
     if skil.depl != None:
         repEmb.add_field(name="<:em:866459463568850954>\n__Déployable__",value="Cette compétence permet de déployer {0} __{1}__\n\"{2}\"".format(skil.depl.icon[0],skil.depl.name,skil.depl.description),inline=False)
         repEmb.add_field(name="<:em:866459463568850954>\n__Zone d'effet ({0}) :__".format(skil.depl.name), value=visuArea(skil.depl.skills.area, wanted=[ALLIES, ENEMIES][skil.depl.skills.type in hostilesTypes], ranged=False))
 
-    if repEmb.__len__() > 6000:
-        repEmb = discord.Embed(title=skil.name, color=user.color, description=desc +
-                               "\n__Statistiques :__\n"+temp+"\n\nCertaines infromations n'ont pas pu être affichées.")
+    repEmb.description = reducedEmojiNames(repEmb.description)
+    for cmpt in range(len(repEmb.fields)):
+        repEmb.fields[cmpt].name = reducedEmojiNames(repEmb.fields[cmpt].name)
+        repEmb.fields[cmpt].value = reducedEmojiNames(repEmb.fields[cmpt].value)
+
+    if getEmbedLength(repEmb) > 4000:
+        repEmb = interactions.Embed(title=skil.name, color=user.color, description=desc + "\n__Statistiques :__\n"+temp+"\n\nCertaines infromations n'ont pas pu être affichées.")
         if skil.emoji[1] == "a":
             repEmb.set_thumbnail(
-                url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji)["id"]))
+                url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji).id))
         else:
             repEmb.set_thumbnail(
-                url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji)["id"]))
+                url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji).id))
 
     if skil.url != None:
         repEmb.set_image(url=skil.url)
@@ -1037,8 +1048,8 @@ def infoSkill(skill: skill, user: char, ctx):
     return repEmb
 
 def infoWeapon(weap: weapon, user: char, ctx):
-    repEmb = discord.Embed(title=weap.emoji + "**__"+ unhyperlink(weap.name)+ "__**", color=user.color)
-    repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
+    repEmb = interactions.Embed(title=weap.emoji + "**__"+ unhyperlink(weap.name)+ "__**", color=user.color)
+    repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji).id))
 
     portee = ["Mêlée", "Dist.", "L. Dist."][weap.range]
 
@@ -1096,14 +1107,10 @@ def infoWeapon(weap: weapon, user: char, ctx):
                 break
 
     if weap.effects != None:
-        repEmb.add_field(name="<:empty:866459463568850954>\n__Effet Passif :__",
-                         value="Cette arme accorde un effet passif à son porteur", inline=False)
-        infoEffect(weap.effects, user, repEmb, ctx)
+        infoEffect(weap.effects, user, repEmb,txt=" (effet passif)")
 
     if weap.effectOnUse != None:
-        repEmb.add_field(name="<:empty:866459463568850954>\n__Effet à l'utilisation :__",
-                         value="Cette arme donne un effet à la cible", inline=False)
-        infoEffect(weap.effectOnUse, user, repEmb, ctx)
+        infoEffect(weap.effectOnUse, user, repEmb,txt=" (effet sur la cible)")
     return repEmb
 
 def infoStuff(stuff: stuff, user: char, ctx):
@@ -1120,10 +1127,10 @@ def infoStuff(stuff: stuff, user: char, ctx):
     if weap.affinity != None:
         element = f"\nAffinité : {elemEmojis[weap.affinity]} {elemNames[weap.affinity]}"
 
-    repEmb = discord.Embed(title=unhyperlink(weap.name), color=user.color,
+    repEmb = interactions.Embed(title=unhyperlink(weap.name), color=user.color,
                            description=f"Niveau : {weap.minLvl}\nType : {temp}\nOrientation : {weap.orientation}{element}")
     repEmb.set_thumbnail(
-        url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji)["id"]))
+        url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji).id))
 
     bonus, malus = "", ""
     stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical] + [weap.negativeHeal*-1, weap.negativeBoost*-1,weap.negativeShield*-1, weap.negativeDirect*-1, weap.negativeIndirect*-1]
@@ -1141,13 +1148,13 @@ def infoStuff(stuff: stuff, user: char, ctx):
                          value=malus, inline=True)
 
     if weap.effects != None:
-        infoEffect(weap.effects, user, repEmb, ctx)
+        infoEffect(weap.effects, user, repEmb, txt= " (effet passif)")
 
     return repEmb
 
 def infoOther(other: other, user: char):
     weap = other
-    repEmb = discord.Embed(title=weap.name, color=user.color,
+    repEmb = interactions.Embed(title=weap.name, color=user.color,
                            description=f"Icone : { weap. emoji}")
     repEmb.add_field(name="Description :", value=weap.description)
 
@@ -1185,9 +1192,9 @@ def silentRestats(user: char):
 
     return userMajStats(user, stats)
 
-async def addExpUser(bot: discord.Client, path: Union[str,char], ctx: Union[discord.Message, discord_slash.SlashContext], exp=3, coins=0, send=True):
+async def addExpUser(bot: interactions.Client, path: Union[str,char], ctx: Union[interactions.Message, interactions.CommandContext], exp=3, coins=0, send=True):
     if type(path) == str:
-        user = await loadCharFile(path)
+        user = loadCharFile(path)
     else:
         user = path
 
@@ -1213,7 +1220,7 @@ async def addExpUser(bot: discord.Client, path: Union[str,char], ctx: Union[disc
         user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6]
 
         level, ballerine = str(user.level+1) + ["", "<:littleStar:925860806602682369>{0}".format(user.stars)][user.stars > 0], await getUserIcon(bot, user)
-        lvlEmbed = discord.Embed(title=f"__Montée de niveau__", color=user.color,description=f"{ballerine} {user.name} est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande /points\.")
+        lvlEmbed = interactions.Embed(title=f"__Montée de niveau__", color=user.color,description=f"{ballerine} {user.name} est passé au niveau {level} !\n\nForce : {user.strength} (+{up[0]})\nEndurance : {user.endurance} (+{up[1]})\nCharisme : {user.charisma} (+{up[2]})\nAgilité : {user.agility} (+{up[3]})\nPrécision : {user.precision} (+{up[4]})\nIntelligence : {user.intelligence} (+{up[5]})\nMagie : {user.magie} (+{up[6]})\n\nVous avez {user.points} bonus à répartir en utilisant la commande /points\.")
 
         for lvl in lvlUpUnlock:
             if user.level+1 == lvl:
@@ -1242,9 +1249,9 @@ async def addExpUser(bot: discord.Client, path: Union[str,char], ctx: Union[disc
 
         if send:
             if globalVar.getGuildBotChannel(ctx.guild.id) not in [0, None]:
-                await ctx.guild.get_channel(globalVar.getGuildBotChannel(ctx.guild.id)).send(embed=lvlEmbed)
+                await ctx.guild.get_channel(globalVar.getGuildBotChannel(ctx.guild.id)).send(embeds=lvlEmbed)
             else:
-                await ctx.channel.send(embed=lvlEmbed)
+                await ctx.channel.send(embeds=lvlEmbed)
 
         user.exp = user.exp - upLvl
         user.level = user.level + 1
@@ -1276,7 +1283,7 @@ def getChoisenSelect(select: dict, value: str):
         temp["disabled"] = True
     return temp
 
-async def downloadAllHeadGearPng(bot: discord.Client, msg=None, lastTime=None):
+async def downloadAllHeadGearPng(bot: interactions.Client, msg=None, lastTime=None):
     listEmojiHead = []
     for stuffy in stuffs:
         if stuffy.type == 0:
@@ -1287,22 +1294,18 @@ async def downloadAllHeadGearPng(bot: discord.Client, msg=None, lastTime=None):
         emojiObject = getEmojiInfo(a)
         if emojiObject[0] + ".png" not in listDir:
             guildStuff = stuffIconGuilds
-
             emoji_2 = None
             for b in guildStuff:
                 try:
-                    guild = await bot.fetch_guild(b)
-                    emoji_2 = await guild.fetch_emoji(emojiObject[1])
+                    emoji_2 = await get(bot, interactions.Emoji, parent_id=int(b), object_id= int(emojiObject[1]))
                 except:
                     pass
 
             if emoji_2 != None:
                 image = requests.get(emoji_2.url, stream=True)
                 image.raw.decode_content = True
-                open(
-                    f"./data/images/headgears/{emojiObject[0]}.png", "wb").write(image.content)
-                image = Image.open(
-                    f"./data/images/headgears/{emojiObject[0]}.png")
+                open(f"./data/images/headgears/{emojiObject[0]}.png", "wb").write(image.content)                
+                image = PIL.Image.open(f"./data/images/headgears/{emojiObject[0]}.png")
                 image = image.resize((70, 70))
                 image.save(f"./data/images/headgears/{emojiObject[0]}.png")
                 print(emojiObject[0] + " downloaded")
@@ -1314,9 +1317,9 @@ async def downloadAllHeadGearPng(bot: discord.Client, msg=None, lastTime=None):
             now = datetime.now().second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
-                await msg.edit(embed=discord.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'accessoires ({0}%)".format(round(cmpt/num*100, 1))))
+                await msg.edit(embeds=interactions.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'accessoires ({0}%)".format(round(cmpt/num*100, 1))))
 
-async def downloadAllWeapPng(bot: discord.Client, msg=None, lastTime=None):
+async def downloadAllWeapPng(bot: interactions.Client, msg=None, lastTime=None):
     listEmojiWeapon = []
     for weap in weapons:
         listEmojiWeapon.append(weap.emoji)
@@ -1330,8 +1333,7 @@ async def downloadAllWeapPng(bot: discord.Client, msg=None, lastTime=None):
             emoji_2 = None
             for b in guildStuff:
                 try:
-                    guild = await bot.fetch_guild(b)
-                    emoji_2 = await guild.fetch_emoji(emojiObject[1])
+                    emoji_2 = await get(bot, interactions.Emoji, parent_id=int(b), object_id= int(emojiObject[1]))
                 except:
                     pass
 
@@ -1356,7 +1358,7 @@ async def downloadAllWeapPng(bot: discord.Client, msg=None, lastTime=None):
             now = datetime.now().second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
-                await msg.edit(embed=discord.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100, 1))))
+                await msg.edit(embeds=interactions.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100, 1))))
 
     for a in etInkBases+etInkLines:
         emojiObject = getEmojiInfo(a)
@@ -1366,8 +1368,7 @@ async def downloadAllWeapPng(bot: discord.Client, msg=None, lastTime=None):
             emoji_2 = None
             for b in guildStuff:
                 try:
-                    guild = await bot.fetch_guild(b)
-                    emoji_2 = await guild.fetch_emoji(emojiObject[1])
+                    emoji_2 = await get(bot, interactions.Emoji, parent_id=int(b), object_id= int(emojiObject[1]))
                 except:
                     pass
 
@@ -1392,7 +1393,7 @@ async def downloadAllWeapPng(bot: discord.Client, msg=None, lastTime=None):
             now = datetime.now().second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
-                await msg.edit(embed=discord.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100, 1))))
+                await msg.edit(embeds=interactions.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100, 1))))
 
     if not(os.path.exists("./data/images/weapons/akifaux.png")):
         image = requests.get(
@@ -1407,8 +1408,8 @@ async def downloadAllWeapPng(bot: discord.Client, msg=None, lastTime=None):
         background.save(f"./data/images/weapons/akifaux.png")
         print("akifaux downlowded")
 
-async def downloadAllIconPng(bot: discord.Client):
-    listEmojiHead = emoji.icon
+async def downloadAllIconPng(bot: interactions.Client):
+    listEmojiHead = EmIcon
     listDir = os.listdir("./data/images/char_icons/")
     for a in (1, 2, 4):
         for b in range(0, len(listEmojiHead[a])):
@@ -1420,8 +1421,7 @@ async def downloadAllIconPng(bot: discord.Client):
                 emoji_2 = None
                 for c in guildStuff:
                     try:
-                        guild = await bot.fetch_guild(c)
-                        emoji_2 = await guild.fetch_emoji(emojiObject[1])
+                        emoji_2 = await get(bot, interactions.Emoji, parent_id=int(c), object_id= int(emojiObject[1]))
                     except:
                         pass
 
@@ -1442,7 +1442,7 @@ async def downloadAllIconPng(bot: discord.Client):
                 else:
                     print(emojiObject[0] + " not found")
 
-async def makeCustomIcon(bot: discord.Client, user: char, returnImage: bool = False):
+async def makeCustomIcon(bot: interactions.Client, user: char, returnImage: bool = False):
     # Paramètres de l'accessoire ----------------------------------
     if user.apparaAcc == None:
         accessoire, pos = Image.open("./data/images/headgears/{0}.png".format(
@@ -1804,10 +1804,10 @@ async def makeCustomIcon(bot: discord.Client, user: char, returnImage: bool = Fa
     if not(customIconDB.haveCustomIcon(user)):
         for icGuild in iconGuildList:
             try:
-                icGuild = await bot.fetch_guild(icGuild)
+                icGuild = await get(bot, interactions.Guild, object_id=int(icGuild))
                 if len(icGuild.emojis) < 50:
                     try:
-                        new_icon = await asyncio.wait_for(icGuild.create_custom_emoji(name=remove_accents(user.name), image=background), timeout=1)
+                        new_icon = await asyncio.wait_for(icGuild.create_emoji(name=remove_accents(user.name), image=background), timeout=1)
                         customIconDB.editCustomIcon(user, new_icon)
                         print(f"{user.name}'s new emoji uploaded")
                     except asyncio.TimeoutError:
@@ -1818,26 +1818,26 @@ async def makeCustomIcon(bot: discord.Client, user: char, returnImage: bool = Fa
                 print_exc()
 
     else:
-        customId = getEmojiObject(customIconDB.getCustomIcon(user))["id"]
+        customId = getEmojiObject(customIconDB.getCustomIcon(user)).id
         custom = None
         for icGuild in iconGuildList:
-            icGuild = await bot.fetch_guild(icGuild)
+            icGuild: interactions.Guild = await get(bot, interactions.Guild, object_id=int(icGuild))
             try:
-                custom = await icGuild.fetch_emoji(customId)
+                custom: interactions.Emoji = await get(bot, interactions.Emoji, parent_id=int(icGuild.id), object_id=customId)
             except:
                 pass
 
             if custom != None:
                 try:
-                    new_icon = await asyncio.wait_for(icGuild.create_custom_emoji(name=remove_accents(user.name), image=background), timeout=1)
+                    new_icon = await asyncio.wait_for(icGuild.create_emoji(name=remove_accents(user.name), image=background), timeout=1)
                     customIconDB.editCustomIcon(user, new_icon)
                     print(f"{user.name}'s emoji updated")
-                    await custom.delete()
+                    await custom.delete(guild_id=int(icGuild.id))
                 except asyncio.TimeoutError:
                     print("{0}'s emoji took to long to upload".format(user.name))
                 break
 
-async def getUserIcon(bot: discord.Client, user: char):
+async def getUserIcon(bot: interactions.Client, user: char):
     """Function for get the user custom icon\nIf a (re)make is needed, remake the icon"""
     fun, toReturn = random.randint(0, 9999), None
     if fun == 666:
@@ -1859,7 +1859,7 @@ async def getUserIcon(bot: discord.Client, user: char):
     else:
         return toReturn
 
-def infoInvoc(invoc: invoc, embed: discord.Embed):
+def infoInvoc(invoc: invoc, emb: interactions.Embed):
     rep = f"__Aspiration de l'invocation :__ {aspiEmoji[invoc.aspiration]} {inspi[invoc.aspiration]}\n__Elément de l'invocation :__ {elemEmojis[invoc.element]} {elemNames[invoc.element]}\n__Description :__\n{invoc.description}\n\n__Statistique principale :__ **{nameStats[invoc.weapon.use]}**\n\n**__Statistiques :__**\n*\"Invoc\" est un raccourci pour \"Statistique de l'Invocateur\"*\n"
 
     stats = invoc.allStats()+[invoc.resistance, invoc.percing, invoc.critical]
@@ -1873,7 +1873,7 @@ def infoInvoc(invoc: invoc, embed: discord.Embed):
         else:
             rep += f"\n__{names[a]} :__ {stats[a]}"
 
-    embed.add_field(name="<:empty:866459463568850954>\n__" +
+    emb.add_field(name="<:empty:866459463568850954>\n__" +
                     invoc.name+"__", value=rep, inline=False)
     rep = ""
     ranged = ["Mêlée", "Distance", "Longue Distance"][invoc.weapon.range]
@@ -1887,55 +1887,41 @@ def infoInvoc(invoc: invoc, embed: discord.Embed):
                 rep += f"\n{a.emoji} __{a.name} :__\n> " + \
                     a.description.replace("\n", "\n> ") + "\n"
 
-    embed.add_field(
+    emb.add_field(
         name="<:empty:866459463568850954>\n__Armes et compétences :__", value=rep, inline=False)
-    return embed
+    return emb
 
 def infoAllie(allie: tmpAllie):
     var = ""
     if allie.variant:
         var = "Cet allié temporaire est une variante d'un autre allié temporaire\n\n"
     rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]} ({elemEmojis[allie.secElement]} {elemNames[allie.secElement]})\n__Description :__\n{allie.description}"
-    allMaxStats, accStats, dressStats, flatsStats, statsWeapon = allie.allStats(), allie.stuff[0].allStats(
-    ), allie.stuff[1].allStats(), allie.stuff[2].allStats(), allie.weapon.allStats()
+    allMaxStats, accStats, dressStats, flatsStats, statsWeapon = allie.allStats(), allie.stuff[0].allStats(), allie.stuff[1].allStats(), allie.stuff[2].allStats(), allie.weapon.allStats()
     stats = ""
     for a in range(0, len(allMaxStats)):
-        tempi = accStats[a]+dressStats[a]+flatsStats[a]+statsWeapon[a]
-        stats += f"__{nameStats[a]}__ : {allMaxStats[a]} ({tempi})\n"
+        allyStat = int((allMaxStats[a]+accStats[a]+dressStats[a]+flatsStats[a]+statsWeapon[a]) * ((100+allie.limitBreaks[a])/100))
+        stats += f"{statsEmojis[a]} __{nameStats[a]}.__ : {allyStat}\n"
 
     stats2 = ""
-    accStats = [allie.stuff[0].resistance,
-                allie.stuff[0].percing, allie.stuff[0].critical]
-    dressStats = [allie.stuff[1].resistance,
-                  allie.stuff[1].percing, allie.stuff[1].critical]
-    flatsStats = [allie.stuff[2].resistance,
-                  allie.stuff[2].percing, allie.stuff[2].critical]
-    weaponStats = [allie.weapon.resistance,
-                   allie.weapon.percing, allie.weapon.critical]
+    accStats = [allie.stuff[0].resistance,allie.stuff[0].percing, allie.stuff[0].critical]
+    dressStats = [allie.stuff[1].resistance,allie.stuff[1].percing, allie.stuff[1].critical]
+    flatsStats = [allie.stuff[2].resistance,allie.stuff[2].percing, allie.stuff[2].critical]
+    weaponStats = [allie.weapon.resistance,allie.weapon.percing, allie.weapon.critical]
     statsPlusName = nameStats2
     for num in range(3):
-        summation = accStats[num] + dressStats[num] + \
-            flatsStats[num] + weaponStats[num]
-        if summation > 0:
-            stats2 += f"__{statsPlusName[num]}__ : +{summation}\n"
-        else:
-            stats2 += f"__{statsPlusName[num]}__ : {summation}\n"
+        summation = accStats[num] + dressStats[num] + flatsStats[num] + weaponStats[num]
+        stats2 += f"{statsEmojis[num+RESISTANCE]} __{statsPlusName[num]}__ : {summation}\n"
 
-    accStats = [allie.stuff[0].negativeHeal, allie.stuff[0].negativeBoost,
-                allie.stuff[0].negativeShield, allie.stuff[0].negativeDirect, allie.stuff[0].negativeIndirect]
-    dressStats = [allie.stuff[1].negativeHeal, allie.stuff[1].negativeBoost,
-                  allie.stuff[1].negativeShield, allie.stuff[1].negativeDirect, allie.stuff[1].negativeIndirect]
-    flatsStats = [allie.stuff[2].negativeHeal, allie.stuff[2].negativeBoost,
-                  allie.stuff[2].negativeShield, allie.stuff[2].negativeDirect, allie.stuff[2].negativeIndirect]
-    statsPlusName = ["Soins", "Bonus/Malus",
-                     "Armure", "Dégâts directs", "Dégâts indirect"]
+
+    accStats = [allie.stuff[0].negativeHeal, allie.stuff[0].negativeBoost,allie.stuff[0].negativeShield, allie.stuff[0].negativeDirect, allie.stuff[0].negativeIndirect]
+    dressStats = [allie.stuff[1].negativeHeal, allie.stuff[1].negativeBoost,allie.stuff[1].negativeShield, allie.stuff[1].negativeDirect, allie.stuff[1].negativeIndirect]
+    flatsStats = [allie.stuff[2].negativeHeal, allie.stuff[2].negativeBoost,allie.stuff[2].negativeShield, allie.stuff[2].negativeDirect, allie.stuff[2].negativeIndirect]
+    statsPlusName = ["Soins", "Bonus/Malus","Armure", "Dégâts directs", "Dégâts indirect"]
     stats2 += "\n"
     for num in range(5):
         summation = accStats[num]*-1 + dressStats[num]*-1 + flatsStats[num]*-1
-        if summation > 0:
-            stats2 += f"__{statsPlusName[num]}__ : +{summation}\n"
-        else:
-            stats2 += f"__{statsPlusName[num]}__ : {summation}\n"
+        stats2 += f"{statsEmojis[num+ACT_HEAL_FULL]} __{statsPlusName[num]}__ : {summation}\n"
+
 
     rep += f"\n\n__**Arme et compétences** :__\n{allie.weapon.emoji} {allie.weapon.name}\n"
     for a in allie.skills:
@@ -1944,12 +1930,10 @@ def infoAllie(allie: tmpAllie):
 
     rep += f"\n\n__**Equipement :**__\n__Accessoire__ : {allie.stuff[0].emoji} {allie.stuff[0].name}\n__Vêtements__ : {allie.stuff[1].emoji} {allie.stuff[1].name}\n__Chaussures__ : {allie.stuff[2].emoji} {allie.stuff[2].name}"
 
-    embed = discord.Embed(title="__Allié temporaire : "+allie.name+"__",
-                          color=allie.color, description=rep+"\n<:empty:866459463568850954>")
-    embed.add_field(
-        name="__**Statistiques au niveau {0} :**__".format(allie.level), value=stats)
-    embed.add_field(name="__**Statistiques secondaires :**__", value=stats2)
-    embed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.{1}".format(getEmojiObject(allie.icon)["id"],["png","gif"][allie.icon[1] == "a"]))
+    emb = interactions.Embed(title="__Allié temporaire : "+allie.name+"__", color=allie.color, description= reducedEmojiNames(rep)+"\n<:em:866459463568850954>")
+    emb.add_field(name="__**Statistiques au niveau {0} :**__".format(allie.level), value=reducedEmojiNames(stats),inline=True)
+    emb.add_field(name="__**Statistiques secondaires :**__", value=reducedEmojiNames(stats2),inline=True)
+    emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.{1}".format(getEmojiObject(allie.icon).id,["png","gif"][allie.icon[1] == "a"]))
 
     if allie.changeDict != None:
         for altBuild in allie.changeDict:
@@ -1978,37 +1962,36 @@ def infoAllie(allie: tmpAllie):
                 if type(skilly) == skill:
                     fieldValue += skilly.emoji
      
-            embed.add_field(name="<:empty:866459463568850954>\n__Build alternatif ({0}%) :__".format(altBuild.proba), value=fieldValue, inline=False)
+            emb.add_field(name="<:empty:866459463568850954>\n__Build alternatif ({0}%) :__".format(altBuild.proba), value=fieldValue, inline=False)
 
     for allyTmpName, allyBalancingEff in tmpBalancingDict.items():
         if allie.name.lower() == allyTmpName.lower():
-            embed.add_field(name="<:empty:866459463568850954>\n__Equilibrage :__",value="Lorsqu'{0} se trouve dans l'équipe rouge sans conditions particulières, cet{1} allié{4} temporaire subit l'effet {5} __{2}__ :\n{3}".format(["il","elle"][allie.gender==GENDER_FEMALE],["","te"][allie.gender==GENDER_FEMALE],allyBalancingEff.name,allyBalancingEff.description,["","e"][allie.gender==GENDER_FEMALE],allyBalancingEff.emoji[0][0]),inline=False)
+            emb.add_field(name="<:empty:866459463568850954>\n__Equilibrage :__",value="Lorsqu'{0} se trouve dans l'équipe rouge sans conditions particulières, cet{1} allié{4} temporaire subit l'effet {5} __{2}__ :\n{3}".format(["il","elle"][allie.gender==GENDER_FEMALE],["","te"][allie.gender==GENDER_FEMALE],allyBalancingEff.name,allyBalancingEff.description,["","e"][allie.gender==GENDER_FEMALE],allyBalancingEff.emoji[0][0]),inline=False)
             break
 
-    return embed
+    return emb
 
 def infoEnnemi(ennemi: octarien):
-    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]} {elemNames[ennemi.element]}\n\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n*Entre parenthèse : Les bonus donnés par l'équipement*\n"
+    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]} {elemNames[ennemi.element]}\n\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n"
     allMaxStats, accStats, dressStats, flatsStats, weapStats = ennemi.allStats(), ennemi.stuff[0].allStats(
     ), ennemi.stuff[1].allStats(), ennemi.stuff[2].allStats(), ennemi.weapon.allStats()
     for a in range(0, len(allMaxStats)):
-        temp, tempi = allMaxStats[a], accStats[a] + \
-            dressStats[a]+flatsStats[a]+weapStats[a]
-        rep += f"\n__{nameStats[a]}__ : {temp} ({tempi})"
+        enStat = allMaxStats[a]+ accStats[a] + dressStats[a]+flatsStats[a]+weapStats[a]
+        rep += f"\n{statsEmojis[a]} __{nameStats[a]}__ : {enStat}"
 
     rep += f"\n\n__**Arme et compétences** :__\n{ennemi.weapon.emoji} {ennemi.weapon.name}\n"
     for skilly in ennemi.skills:
         if type(skilly) == skill:
             rep += "\n{0} __{1}__\n{2}\n".format(skilly.emoji,skilly.name,skilly.getSummary())
 
-    embed = discord.Embed(title="__Ennemis : "+ennemi.name +"__", color=ennemi.color, description=rep)
+    emb = interactions.Embed(title="__Ennemi : "+ennemi.name +"__", color=ennemi.color, description=rep)
     if ennemi.icon[1] == "a":
-        embed.set_thumbnail(
-            url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(ennemi.icon)["id"]))
+        emb.set_thumbnail(
+            url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(ennemi.icon).id))
     else:
-        embed.set_thumbnail(
-            url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(ennemi.icon)["id"]))
-    return embed
+        emb.set_thumbnail(
+            url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(ennemi.icon).id))
+    return emb
 
 def getAutoStuff(object: stuff, user: char, tablStats = None):
     if user.level//5 == object.minLvl//5 or (object.minLvl == 50 and user.level >= 50):
@@ -2081,7 +2064,7 @@ def getAutoStuff(object: stuff, user: char, tablStats = None):
         else:
             return [bbandeau, bshirt, bshoes][object.type]
 
-async def downloadElementIcon(bot: discord.Client):
+async def downloadElementIcon(bot: interactions.Client):
     listEmojiHead = elemEmojis+secElemEmojis
     listDir = os.listdir("./data/images/elemIcon/")
     for b in range(len(listEmojiHead)):
@@ -2093,8 +2076,7 @@ async def downloadElementIcon(bot: discord.Client):
             emoji_2 = None
             for c in guildStuff:
                 try:
-                    guild = await bot.fetch_guild(c)
-                    emoji_2 = await guild.fetch_emoji(emojiObject[1])
+                    emoji_2 = await get(bot, interactions.Emoji, parent_id=int(c), object_id=emojiObject[1])
                 except:
                     pass
 
@@ -2111,7 +2093,7 @@ async def downloadElementIcon(bot: discord.Client):
             else:
                 print(emojiObject[0] + " not found")
 
-async def getRandomStatsEmbed(bot: discord.Client, team: List[classes.char], text="Chargement...") -> discord.Embed:
+async def getRandomStatsEmbed(bot: interactions.Client, team: List[classes.char], text="Chargement...") -> interactions.Embed:
     if random.randint(0, 99) < 50:
         desc = "<:alice:908902054959939664> :\n\""
         whatRandomStat = random.randint(0, len(tablAdd)-1)
@@ -2154,7 +2136,7 @@ async def getRandomStatsEmbed(bot: discord.Client, team: List[classes.char], tex
                             desc += "\n\nC'est d'ailleurs le record tiens"
                         else:
                             try:
-                                recorder = await loadCharFile(
+                                recorder = loadCharFile(
                                     absPath + "/userProfile/" + str(records["owner"]) + ".prof")
                                 desc += "\n\n"+randomRecordMsg[random.randint(0, len(randomRecordMsg)-1)].format(icon=await getUserIcon(bot, recorder), value=separeUnit(int(records["value"])), name=recorder.name, il=["il", "elle"][recorder.gender == GENDER_FEMALE], e=["", "e"][recorder.gender == GENDER_FEMALE])
                             except:
@@ -2173,12 +2155,12 @@ async def getRandomStatsEmbed(bot: discord.Client, team: List[classes.char], tex
             rand = [0, len(aliceStatsNothingToShow[whatRandomStat]) -
                     1][len(aliceStatsNothingToShow[whatRandomStat]) > 1]
             desc += aliceStatsNothingToShow[whatRandomStat][rand]
-        return discord.Embed(title="__{0}__".format(text), color=aliceColor, description=desc+"\"")
+        return interactions.Embed(title="__{0}__".format(text), color=aliceColor, description=desc+"\"")
     else:
-        return discord.Embed(title="__{0}__".format(text), color=light_blue, description="<:lena:909047343876288552> :\n\""+lenaTipsMsgTabl[random.randint(0, len(lenaTipsMsgTabl)-1)]+"\"")
+        return interactions.Embed(title="__{0}__".format(text), color=light_blue, description="<:lena:909047343876288552> :\n\""+lenaTipsMsgTabl[random.randint(0, len(lenaTipsMsgTabl)-1)]+"\"")
 
-async def getFullteamEmbed(bot: discord.Client, team: List[char], mainUser: char) -> discord.Embed:
-    toReturn, tablFullCat, maxLenght = discord.Embed(title="__Equipe de {0} :__".format(
+async def getFullteamEmbed(bot: interactions.Client, team: List[char], mainUser: char) -> interactions.Embed:
+    toReturn, tablFullCat, maxLenght = interactions.Embed(title="__Equipe de {0} :__".format(
         mainUser.name), color=mainUser.color), ["Arme", "Acc.", "Vêt.", "Chaus."], 25 - (5*len(team)//4)
 
     for user in team:
@@ -2256,7 +2238,7 @@ async def getFullteamEmbed(bot: discord.Client, team: List[char], mainUser: char
 
     if len(toReturn) > 6000:
         print("To much ({0})".format(len(toReturn)))
-        tempEmb = discord.Embed(title=toReturn.title, color=toReturn.color)
+        tempEmb = interactions.Embed(title=toReturn.title, color=toReturn.color)
         for fields in toReturn.fields:
             tempEmb.add_field(name=fields.name,
                               value=completlyRemoveEmoji(fields.value))
@@ -2277,14 +2259,14 @@ async def updateHaveProcurOn():
     dictHaveProcur = dict(dictHaveProcur)
 
     for temp in listUserId:
-        user = await loadCharFile("./userProfile/"+str(temp)+".prof")
+        user = loadCharFile("./userProfile/"+str(temp)+".prof")
         for procur in user.procuration:
             if int(procur) != user.owner:
                 dictHaveProcur[int(procur)].append(user.owner)
     
     for userId in dictHaveProcur:
         if dictHaveProcur[userId] != []:
-            user = await loadCharFile("./userProfile/"+str(userId)+".prof")
+            user = loadCharFile("./userProfile/"+str(userId)+".prof")
             user.haveProcurOn = dictHaveProcur[userId]
             saveCharFile(user=user)
             print("Les procurations de {0} ont bien été mise à jour".format(user.name))

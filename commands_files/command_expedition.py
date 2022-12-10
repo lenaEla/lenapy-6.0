@@ -1,5 +1,5 @@
 from datetime import datetime
-import discord
+import interactions
 from gestion import saveCharFile, whatIsThat
 from advance_gestion import addExpUser, getAutoStuff, getUserIcon
 from data.expedition import *
@@ -55,8 +55,8 @@ def formatingExpeditionText(text: str, team: List[char], allWomens: bool, sucess
         alice=aliceIcon
     )
 
-async def generateExpeditionReport(bot: discord.Client, team: List[char], mainUser: char, starting: datetime, ctx):
-    listEmbed: List[discord.Embed] = []
+async def generateExpeditionReport(bot: interactions.Client, team: List[char], mainUser: char, starting: datetime, ctx):
+    listEmbed: List[interactions.Embed] = []
     selectedExpedition, title, now, loot = copy.deepcopy(
         listExpedition[0]), "__Expédition__", datetime.now(), 25
     title = "__Expedition : {0}__".format(selectedExpedition.name)
@@ -105,7 +105,7 @@ async def generateExpeditionReport(bot: discord.Client, team: List[char], mainUs
         desc = selectedExpedition.intro[random.randint(
             0, len(selectedExpedition.intro)-1)]
 
-    listEmbed.append(discord.Embed(title=title, color=mainUser.color,description=formatingExpeditionText(desc, team, allWomens)))
+    listEmbed.append(interactions.Embed(title=title, color=mainUser.color,description=formatingExpeditionText(desc, team, allWomens)))
 
     for nbEvent in range(hoursSpend):
         if len(selectedExpedition.events) > 1:
@@ -211,7 +211,7 @@ async def generateExpeditionReport(bot: discord.Client, team: List[char], mainUs
                 if allWomens and alea.gender != GENDER_FEMALE:
                     allWomens = False
 
-        listEmbed.append(discord.Embed(title=title, color=[0x9FFFBC, 0xFF9FB2][not(haveSucced)], description=formatingExpeditionText(desc, team, allWomens)))
+        listEmbed.append(interactions.Embed(title=title, color=[0x9FFFBC, 0xFF9FB2][not(haveSucced)], description=formatingExpeditionText(desc, team, allWomens)))
 
     recExp, recCoins = 40 * hoursSpend, 50 * hoursSpend
     desc, listLvlUp = "__Résultats :__\n__Expérience__ <:exp:926106339799887892> : +{0}, __Pièces__ <:coins:862425847523704832> : +{1}\n".format(
@@ -278,5 +278,5 @@ async def generateExpeditionReport(bot: discord.Client, team: List[char], mainUs
             temp += a
         desc += "\n\n__Montée de niveau :__\nLe{0} personnage{0} suivant{0} {1} monté de niveau !\n".format(["", "s"][len(listLvlUp) > 1], ["a", "ont"][len(listLvlUp) > 1])+temp
 
-    listEmbed.append(discord.Embed(title=title, color=mainUser.color, description=desc))
+    listEmbed.append(interactions.Embed(title=title, color=mainUser.color, description=desc))
     return listEmbed
