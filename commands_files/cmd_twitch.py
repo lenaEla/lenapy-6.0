@@ -63,15 +63,15 @@ async def verifStreamingStreamers(bot:interactions.Client):
             isAllReadyStreaming.append(alert["streamerName"])
             for nowStreaming in listallAlertes:
                 if nowStreaming["streamerName"] == alert["streamerName"].lower():
-                    twEmbed = gestion.globalVar.getStreamAlertEmbed(nowStreaming["guild"], nowStreaming["streamerName"])
+                    twEmbed = gestion.globalVar.getStreamAlertEmbed(int(nowStreaming["guild"]), nowStreaming["streamerName"])
                     twEmbed.guild = await get(bot, interactions.Guild, object_id=int(twEmbed.guild))
-                    roles, channels = twEmbed.guild.roles ,twEmbed.guild.channels
+                    roles, channels = twEmbed.guild.roles , twEmbed.guild.channels
                     for roly in roles:
-                        if roly.id == twEmbed.notifRole:
+                        if int(roly.id) == twEmbed.notifRole:
                             twEmbed.notifRole = roly
                             break
                     for channy in channels:
-                        if channy.id == twEmbed.notifChannel:
+                        if int(channy.id) == twEmbed.notifChannel:
                             twEmbed.notifChannel = channy
                             break
 
@@ -247,7 +247,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 							await paramMsg.delete()
 							return 1
 					
-						if confirmRep.custom_id == confirmButton["custom_id"]:
+						if confirmRep.custom_id == confirmButton.custom_id:
 							newAlert.streamerName = paramRep.content.replace("https://www.twitch.tv/","")
 							await confirmMsg.edit(content=" ✅Cette alerte portera sur la chaîne de {0}".format(twUser.name),components=[])
 							await asyncio.sleep(3)
@@ -269,8 +269,8 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 						break
 
 				else:
-					await paramRep.add_reaction("❌")
-					await paramRep.channel.send(content="❌ Aucune chaîne n'a été trouvée.\nVérifiez bien que vous entrez le nom d'utilisateur et non le nom de chaîne (les nom d'utilisateurs sont toujours en minuscules) ou envoyez directement le lien de votre chaîne ciblée",delete_after=5)
+					await paramRep.create_reaction("❌")
+					await paramRep.channel.send(content="❌ Aucune chaîne n'a été trouvée.\nVérifiez bien que vous entrez le nom d'utilisateur et non le nom de chaîne (les nom d'utilisateurs sont toujours en minuscules) ou envoyez directement le lien de votre chaîne ciblée")
 
 			while 1:
 				paramEmb = interactions.Embed(title="__Nouvelle alerte__",color=light_blue,description="__Chaîne :__ {0}\n\nVeuillez mentionner le role qui sera notifié lors qu'une alerte sera envoyé.".format(twUser.name))
@@ -295,8 +295,8 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 						pass
 					break
 				else:
-					await paramRep.add_reaction("❌")
-					await paramRep.channel.send(content="❌ Vous n'avez mentionné aucun rôle",delete_after=5)
+					await paramRep.create_reaction("❌")
+					await paramRep.channel.send(content="❌ Vous n'avez mentionné aucun rôle")
 
 			while 1:
 				paramEmb = interactions.Embed(title="__Nouvelle alerte__",color=light_blue,description="__Chaîne :__ {0}\n__Rôle :__ {1}\n\nVeuillez mentionner le salon où seront envoyés les alertes.".format(twUser.name,newRole.mention))
@@ -321,14 +321,14 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 						pass
 					break
 				else:
-					await paramRep.add_reaction("❌")
-					await paramRep.channel.send(content="❌ Vous n'avez mentionné aucun salon",delete_after=5)
+					await paramRep.create_reaction("❌")
+					await paramRep.channel.send(content="❌ Vous n'avez mentionné aucun salon")
 
 			try:
 				gestion.globalVar.updateStreamEmbed(newAlert)
-				await paramMsg.edit(embeds=interactions.Embed(title="__Nouvelle alerte enregistrée__",color=green,description="✅ Votre nouvelle alerte a été enregistrée avec succès.\nVous pouvez dorénavant la personnaliser depuis la liste des alertes du serveur.\n\n__Streamer :__ {0} ({1})\n__Salon :__ {2}\n__Rôle notifié :__ {3}".format(twUser.name,twUser.login,newChannel.mention,newRole.mention),components=[],delete_after=10))
+				await paramMsg.edit(embeds=interactions.Embed(title="__Nouvelle alerte enregistrée__",color=green,description="✅ Votre nouvelle alerte a été enregistrée avec succès.\nVous pouvez dorénavant la personnaliser depuis la liste des alertes du serveur.\n\n__Streamer :__ {0} ({1})\n__Salon :__ {2}\n__Rôle notifié :__ {3}".format(twUser.name,twUser.login,newChannel.mention,newRole.mention),components=[]))
 			except Exception as e :
-				await paramMsg.edit(embeds=interactions.Embed(title="__Erreur lors de l'enregistrement de l'alerte__",color=red,description="Une erreur est survenue lors de l'enregistrement de l'alerte :\n{0}".format(e),components=[],delete_after=10))
+				await paramMsg.edit(embeds=interactions.Embed(title="__Erreur lors de l'enregistrement de l'alerte__",color=red,description="Une erreur est survenue lors de l'enregistrement de l'alerte :\n{0}".format(e),components=[]))
 
 		else:
 			newMsg = await rep.send(content="Chargement des paramètres de l'alerte <a:loading:862459118912667678>...",components=[])
@@ -359,7 +359,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 					return 1
 					
 				if customRep.data.component_type == 2:
-					if customRep.custom_id == exempleButton["custom_id"]:
+					if customRep.custom_id == exempleButton.custom_id:
 						tempMsg = await customRep.send(content="Génération de la fausse alerte <a:loading:862459118912667678>...",components=[])
 						roles = await guild.roles()
 						for roly in roles:
@@ -404,7 +404,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 							await tempMsg.edit(content=selectAlert.notifMsg,embeds=emb)
 						except Exception as e:
 							await tempMsg.edit(content="Une erreur est survenue durant le test : {0}".format(e))
-					elif customRep.custom_id == deleteButton["custom_id"]:
+					elif customRep.custom_id == deleteButton.custom_id:
 						comp = [interactions.ActionRow(components=[cancelButton,deleteButton])]
 						deleteMsg = await customRep.send(content="",embeds=interactions.Embed(title="__Supprimer cette alerte ?__",color=red,description="Si vous voudrez la réactiver il faudra tout recommencer !"),components=comp)
 						try:
@@ -414,7 +414,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 							await deleteMsg.delete()
 							return 1
 
-						if deleteRep.custom_id == deleteButton["custom_id"]:
+						if deleteRep.custom_id == deleteButton.custom_id:
 							try:
 								gestion.globalVar.removeAlert(guild.id,selectAlert.streamerName)
 								tempMsg = await deleteRep.send("🗑️ L'alerte à bien été supprimée")
@@ -440,7 +440,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 						
 						try:
 							editRep = await bot.wait_for(event='message',check=check2,timeout=60)
-							await editRep.add_reaction('<a:loading:862459118912667678>')
+							await editRep.create_reaction('<a:loading:862459118912667678>')
 						except asyncio.TimeoutError:
 							await newMsg.delete()
 							await editMsg.delete()
@@ -465,7 +465,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 								await editRep.remove_all_reactions()
 							except:
 								pass
-							await editRep.add_reaction('✅')
+							await editRep.create_reaction('✅')
 							await editMsg.delete()
 					elif customRep.data.values[0] == 3:
 						colorMsg = await customRep.send(embeds = interactions.Embed(title="__Couleur de l'embed__",description="Veillez entrer le code hexadecimal de votre nouvelle couleur :\n\nExemples :\n94d4e4\n#94d4e4",color = light_blue))
@@ -489,8 +489,8 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 								color = int(respond.content,16)
 
 								if color == None:
-									await respond.add_reaction('❌')
-									await colorMsg.channel.send(content="Le code donné n'est pas un code hexadecimal valide",delete_after=5)
+									await respond.create_reaction('❌')
+									await colorMsg.channel.send(content="Le code donné n'est pas un code hexadecimal valide")
 								else:
 									break
 						if not(respond.content == "Retour"):
@@ -503,7 +503,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 								await colorMsg.delete()
 								return 1
 
-							if react.custom_id == confirmButton["custom_id"]:
+							if react.custom_id == confirmButton.custom_id:
 								selectAlert.color = color
 								gestion.globalVar.updateStreamEmbed(selectAlert)
 								await colorMsg.delete()
@@ -513,7 +513,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 
 						try:
 							editRep = await bot.wait_for(event='message',check=check2,timeout=60)
-							await editRep.add_reaction('<a:loading:862459118912667678>')
+							await editRep.create_reaction('<a:loading:862459118912667678>')
 						except asyncio.TimeoutError:
 							await newMsg.delete()
 							await editMsg.delete()
@@ -541,7 +541,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 								await editRep.remove_all_reactions()
 							except:
 								pass
-							await editRep.add_reaction('✅')
+							await editRep.create_reaction('✅')
 							await editMsg.delete()
 					else:
 						comp = [interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "listOptionsiGuess", options=[interactions.SelectOption(label="Afficher",value="1"),interactions.SelectOption(label="Cacher",value="0")])])]

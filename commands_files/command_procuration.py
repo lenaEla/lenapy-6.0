@@ -100,7 +100,7 @@ async def roulette(bot: interactions.Client, ctx: interactions.Message, user: ch
 
         listPossibleEmojis=["<a:giveup:902383022354079814>",'<a:CHAOS:762276118224961556>','<a:spamton:892749040205316138>','<:ConfusedStonks:782072496693706794>','<a:menacing:917007335220711434>','<a:PhoenixMarteauPiqueur:800831991389749249>','<:descartes:885240392860188672>']
         for cmpt in range(len(listPossibleEmojis)):
-            listPossibleEmojis.append('<:empty:866459463568850954>')
+            listPossibleEmojis.append('<:em:866459463568850954>')
         if random.randint(0,99) == 66:
             listPossibleEmojis.append('<a:lostSilver:917783593441456198>')
 
@@ -265,12 +265,12 @@ async def userSettings(bot:interactions.Client, user:char, ctx:interactions.Comm
             temp = ""
             for cmpt in range(len(charsetCatNamesTarget)):
                 temp += "__{0} :__ {1}\n".format(charsetCatNamesTarget[cmpt],charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]])
-            emb.add_field(name="<:empty:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
+            emb.add_field(name="<:em:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
 
             temp, iconSet, iconSetNames, iconSetOption = "", [user.handed,user.showElement,user.showWeapon,user.showAcc], ["Main dominante","Elément","Arme","Accessoire"], [["Gauche","Droite"],["Masqué","Affiché"],["Masquée","Affichée"],["Masqué","Affiché"]]
             for cmpt in range(len(iconSet)):
                 temp += "__{0} :__ {1}\n".format(iconSetNames[cmpt],iconSetOption[cmpt][iconSet[cmpt]])
-            emb.add_field(name="<:empty:866459463568850954>\n__Paramètres d'icon :__",value=temp,inline=False)
+            emb.add_field(name="<:em:866459463568850954>\n__Paramètres d'icon :__",value=temp,inline=False)
             emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
 
             changeIAOptions = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "changeIaSelect", options=[
@@ -341,7 +341,7 @@ async def userSettings(bot:interactions.Client, user:char, ctx:interactions.Comm
                         temp = ""
                         for cmpt in range(len(charsetCatNamesTarget)):
                             temp += "__{0} :__ {1}\n".format(charsetCatNamesTarget[cmpt],charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]])
-                        emb.add_field(name="<:empty:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
+                        emb.add_field(name="<:em:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
                         emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
                         selectIAOptions = []
                         for cmpt in range(len(charsetCatNamesUse)):

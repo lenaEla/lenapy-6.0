@@ -263,7 +263,7 @@ if not(isLenapy):
             raise Exception("Identifiant doublon : {0}({1})".format(what,obj.id))
 
 #print(seeSimilarStuffNameMinLvl("papillon rose"))
-#print(seeAllStuffAtMinLvl(50))
+#print(seeAllStuffAtMinLvl(0))
 
 """for stuffy in stuffs:
     if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:
@@ -374,6 +374,43 @@ for ally in tablAllAllies:
                         if type(skilly) == skill and skilly not in listUseSkills:
                             listUseSkills.append(skilly)
 
-print("Used skills : {0}%".format(round(len(listUseSkills)/len(skills)*100,2)))
-for cmpt in range(ASPI_NEUTRAL):
-    print(inspi[cmpt],len(dictPreDefSkillSet[cmpt]))
+if False:
+    print("Used skills : {0}%".format(round(len(listUseSkills)/len(skills)*100,2)))
+    for cmpt in range(ASPI_NEUTRAL):
+        print(inspi[cmpt],len(dictPreDefSkillSet[cmpt]))
+
+#exclusiveRepartition()
+
+dictSmallReticens = {
+    "Clémence":["Gwendoline","Klironovia","Altikia","Lena","Luna","Ruby","Julie"],
+    "Lena":["Clémence","Gwendoline","Klironovia","Altikia","Iliana"],
+    "Lohica":["Shehisa","Hélène","Astra","Hina","Ly"],
+    "Félicité":["Clémence","Lia","Lio"],
+    "Alice":["Lio"],
+    "Ruby":["Félicité","Sixtine","Alice","Shushi","Shihu"],
+    "Julie":["Félicité","Sixtine","Alice","Shushi","Shihu"],
+    "Ly":["Lohica"],
+    "Anna":["Shushi","Shihu"],
+    "Bénédicte":["Clémence"],
+    "Shehisa":["Icealia","Lohica"],
+    "Hélène":["Icealia","Lohica"]
+}
+
+dictMediumReticens = {
+    "Lena":["Félicité","Sixtine","Alice"],
+    "Gwendoline":["Félicité","Sixtine","Alice","Shushi","Shihu"],
+    "Clémence":["Félicité","Sixtine","Alice","Shushi","Shihu"],
+    "Alice":["Clémence","Bénédicte","Lily","Anna","Belle"],
+    "Shushi":["Lena","Gwendoline","Klironovia","Altikia","Luna","Félicité","Sixtine","Alice"],
+    "Shihu":["Lena","Gwendoline","Klironovia","Altikia","Luna","Félicité","Sixtine","Alice"],
+    "Hélène":["Shehisa","Astra","Amary"],
+    "Shehisa":["Amary","Astra","Hélène"],
+    "Astra":["Shehisa","Hélène","Icealia"],
+    "Félicité":["Sixtine","Lena","Gwendoline","Klironovia","Altikia","Luna","Iliana"],
+    "Sixtine":["Félicité","Lena","Gwendoline","Klironovia","Altikia","Luna","Iliana"],
+    "Icealia":["Shehisa","Lohica","Astra","Amary"],
+    "Ruby":["Julie","Clémence"],
+    "Julie":["Clémence"],
+    "Iliana":["Félicité","Sixtine","Alice","Gwendoline","Klironovia","Altikia"]
+}
+

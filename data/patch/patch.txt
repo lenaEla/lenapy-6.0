@@ -1,9 +1,16 @@
-```Mise à jour 4.P1.5.3```
-__Alliés Temporaires :__
-- __Kyrs / Anna / Belle :__
-> - Modification des compétences
+Mise à jour 4.2.7.2
+__Equilibrage :__
+- Diminution de la puissance de toutes les armes ayant 1 de portée (Alliés et Ennemis)
+> - En moyenne, la puissance a été diminuée de 4
 
-__Autres :__
-- Ajout d'emojis pour indiquer la portée et la zone d'effet des compétences
-- Un rapide résumé de la compétence est désormais affichée dans les résultats d'un combat lorsque l'utilisateur principal obtiens une compétence en butin
-- Réduction de la probabilté d'obtenir un jeton de roulette en butin en fonction du pourcentage d'objets possédés
+__Alliés Temporaires :__
+- __Lena :__
+> - Modification de ses builds alternatifs
+
+__Ia :__
+- Les compétences pouvant déplacer le lanceur ou la cible ont plus de probabilité d'être sélectionnées
+- Les compétences permettant de rejouer son tour ont plus de probabilité d'être sélectionnées
+
+__Autre :__
+- Ajout de messages de shop
+- Ajout de nouvelles compétences

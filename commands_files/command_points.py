@@ -31,14 +31,14 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
         pathUserProfile = absPath + "/userProfile/" + str(procuration.id) + ".prof"
     
     if not(os.path.exists(pathUserProfile)):
-        await ctx.send("Vous n'avez pas commencé l'aventure",delete_after=15)
+        await ctx.send("Vous n'avez pas commencé l'aventure",ephemeral = True)
         return 0
 
     user = loadCharFile(pathUserProfile)
 
     if int(user.owner) != int(ctx.author.id):
         if ctx.author.id not in user.procuration:
-            await ctx.send("{0} ne vous a pas donné procuration sur son inventaire".format(user.name),delete_after=15)
+            await ctx.send("{0} ne vous a pas donné procuration sur son inventaire".format(user.name),ephemeral = True)
             return 0
 
     msg = None
@@ -87,7 +87,7 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
             placeholder=["Utiliser vos points majeurs","Vous n'avez pas de points majeurs à répartir"][user.majorPointsCount == 0],
             disabled=user.majorPointsCount == 0
         )
-        emb = interactions.Embed(title = args[0],color = user.color,description = f"Vous avez {user.points} points et {user.majorPointsCount} points majeurs à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)")
+        emb = interactions.Embed(title = args[0],color = user.color,description = f"Vous avez {user.points} points et {user.majorPointsCount} points majeurs à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que {MAXBONUSPERSTAT} points bonus par catégorie)")
         emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id))
         if msg == None:
             msg = await ctx.send(embeds = emb,components=procurSelect+[[interactions.ActionRow(components=[select]),interactions.ActionRow(components=[select2])],[interactions.ActionRow(components=[select])]][user.stars == 0])
@@ -95,7 +95,7 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
             await msg.edit(embeds = emb,components=procurSelect+[[interactions.ActionRow(components=[select]),interactions.ActionRow(components=[select2])],[interactions.ActionRow(components=[select])]][user.stars == 0])
 
         try:
-            respond = await bot.wait_for_component(msg,timeout=30,check=check)
+            respond = await bot.wait_for_component(msg,timeout=60,check=check)
         except:
             await msg.edit(embeds = emb,components=[])
             return 0
@@ -112,7 +112,7 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
                 stat = temp[respond]
                 trueStat = stat-user.bonusPoints[respond]
                 dif = user.bonusPoints[respond]
-                if dif < 30:
+                if dif < MAXBONUSPERSTAT:
                     def checkIsAuthor(message: interactions.Message):
                         return int(message.channel_id) == int(ctx.channel_id) and int(message.author.id) == int(ctx.author.id)
 
@@ -130,7 +130,7 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
                             await msg.edit(embeds = errorEmbed(args[0],"La réponse donnée n'est pas un nombre"))
                         else:
                             resp = int(resp.content)
-                            if resp <= user.points and resp >= 0 and user.bonusPoints[respond]+resp <= 30:
+                            if resp <= user.points and resp >= 0 and user.bonusPoints[respond]+resp <= MAXBONUSPERSTAT:
                                 temp[respond] = temp[respond]+resp
                                 user.points -= resp
                                 user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0],temp[1],temp[2],temp[3],temp[4],temp[5],temp[6]
@@ -153,21 +153,20 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
                     await msg.edit(embeds = interactions.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = "Vous avez déjà attribué le maximum de points bonus possibles dans cette catégorie"))
 
             else:
-                respond = respond-7
                 dif = user.majorPoints[respond]
                 if dif == 0:
                     def check1(message):
                         return message.author.id == int(ctx.author.id)
 
                     conf = interactions.Button(type=2, style=ButtonStyle.SUCCESS,label="Utiliser votre point majeur",emoji=Emoji(name='✅'),custom_id='✅')
-                    await msg.edit(embeds=interactions.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond],[10,35][respond not in [RESISTANCE,PERCING,CRITICAL]])),components=[interactions.ActionRow(components=[conf])])
+                    await msg.edit(embeds=interactions.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond],[10,MAJORBONUS][respond not in [RESISTANCE,PERCING,CRITICAL]])),components=[interactions.ActionRow(components=[conf])])
                     try:
-                        await bot.wait_for_component(msg,check=check1,timeout=30)
+                        await bot.wait_for_component(msg,check=check1,timeout=60)
                     except:
-                        await msg.edit(embeds = interactions.Embed(title = "__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color = user.color,description = f"Vous avez {user.points} points à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que 30 points bonus par catégorie)"),components=[])
+                        await msg.edit(embeds = interactions.Embed(title = "__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color = user.color,description = f"Vous avez {user.points} points à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que {MAXBONUSPERSTAT} points bonus par catégorie)"),components=[])
                         return 0
                     
-                    user.majorPoints[respond] += [10,35][respond not in [RESISTANCE,PERCING,CRITICAL]]
+                    user.majorPoints[respond] += [10,MAJORBONUS][respond not in [RESISTANCE,PERCING,CRITICAL]]
                     user.majorPointsCount -= 1
                     saveCharFile(user=user)
                 else:

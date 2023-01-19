@@ -10,7 +10,7 @@ from advance_gestion import *
 from commands_files.command_start import chooseAspiration,chooseColor,changeCustomColor
 
 ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL, ENC_ALLIES, ENC_ENEMIES, ENC_BOSS, ENC_LOCKED, ENC_ACHIV = tuple(range(10))
-INV_GEAR, INV_WEAPON, INV_SKILL, INV_ELEMENT, INV_OBJ = tuple(range(5))
+INV_GEAR, INV_WEAPON, INV_SKILL, INV_OBJ, INV_ELEMENT = tuple(range(5))
 
 inventoryMenu = interactions.SelectMenu(custom_id = "inventoryFirstMenu", 
     options=[
@@ -178,9 +178,9 @@ async def compare(bot : interactions.Client, ctx : ComponentContext, user : char
             compMalus += "{2}{0} : {1}\n".format(allStaty[cmpt],diff,statsEmojis[cmpt])
 
     if compBonus != "":
-        emb.add_field(name="<:empty:866459463568850954>\n__Gains de statistiques :__",value=compBonus,inline=True)
+        emb.add_field(name="<:em:866459463568850954>\n__Gains de statistiques :__",value=compBonus,inline=True)
     if compMalus != "":
-        emb.add_field(name="<:empty:866459463568850954>\n__Pertes de statistiques :__",value=compMalus,inline=True)
+        emb.add_field(name="<:em:866459463568850954>\n__Pertes de statistiques :__",value=compMalus,inline=True)
 
     if type(see) == weapon:
         comp = ""
@@ -197,13 +197,13 @@ async def compare(bot : interactions.Client, ctx : ComponentContext, user : char
         if see.use != toCompare.use:
             comp += "Statistique de base : ~~{0}~~ -> {1}\n".format(allStatsNames[toCompare.use],allStatsNames[see.use])
 
-        emb.add_field(name="<:empty:866459463568850954>\n__Différences de puissance :__",value=comp,inline=False)
+        emb.add_field(name="<:em:866459463568850954>\n__Différences de puissance :__",value=comp,inline=False)
 
     # Send
     try:
-        await ctx.send(embeds=emb,delete_after=30)
+        await ctx.send(embeds=emb)
     except:
-        await ctx.channel.send(embeds=emb,delete_after=30)
+        await ctx.channel.send(embeds=emb)
 
 async def elements(bot : interactions.Client, ctx : interactions.Message, msg : interactions.Message, user : classes.char):
     """Function to call for inventory elements.\n
@@ -287,7 +287,7 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
                 else:
                     user.otherInventory.remove(dimentioCristal)
                 saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
-                await secondMsg.edit(embeds = interactions.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément principal a bien été modifié",color=user.color),components=[],delete_after=3)
+                await secondMsg.edit(embeds = interactions.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément principal a bien été modifié",color=user.color),components=[])
 
             elif respond.custom_id == "change2":
                 user.secElement = resp
@@ -296,7 +296,7 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
                 else:
                     user.otherInventory.remove(dimentioCristal)
                 saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
-                await secondMsg.edit(embeds = interactions.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément secondaire a bien été modifié",color=user.color),components=[],delete_after=3)
+                await secondMsg.edit(embeds = interactions.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément secondaire a bien été modifié",color=user.color),components=[])
 
             else:
                 await secondMsg.delete()
@@ -377,7 +377,7 @@ async def blablaEdit(bot : interactions.Client, ctx : interactions.Message, msg 
             await newMessage.delete()
         except:
             print("J'ai pas pu effacer le message :|")
-        await reply.edit(embeds=interactions.Embed(title = "/inventory says - {0}".format(tablCat[repValue]),color=user.color,description="Le message suivant a bien été enregistré pour cet événement :\n{0} : *\"{1}\"*".format(await getUserIcon(bot,user),new)),delete_after=10)
+        await reply.edit(embeds=interactions.Embed(title = "/inventory says - {0}".format(tablCat[repValue]),color=user.color,description="Le message suivant a bien été enregistré pour cet événement :\n{0} : *\"{1}\"*".format(await getUserIcon(bot,user),new)))
 
     try:
         user.otherInventory.remove(blablator)
@@ -426,9 +426,9 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
     if user.owner != ctx.author.id:
         if ctx.author.id not in user.procuration:
             try:
-                await ctx.send(embeds = errorEmbed("__/inventory__",f"{user.name} ne vous a pas donné procuration sur son inventaire"),delete_after=10)
+                await ctx.send(embeds = errorEmbed("__/inventory__",f"{user.name} ne vous a pas donné procuration sur son inventaire"))
             except:
-                await ctx.channel.send(embeds = errorEmbed("__/inventory__",f"{user.name} ne vous a pas donné procuration sur son inventaire"),delete_after=10)
+                await ctx.channel.send(embeds = errorEmbed("__/inventory__",f"{user.name} ne vous a pas donné procuration sur son inventaire"))
             return 0
 
     if oldMsg == None:
@@ -450,7 +450,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
             if not(trouv):
                 emb.set_footer(text = "Vous ne possédez pas cette arme")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
             elif weap == user.weapon:
@@ -487,7 +487,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
                     if rep.custom_id == "confirm":
                         user.weapon = weap
                         if saveCharFile(pathUserProfile,user):
-                            await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "validStuff", options=[interactions.SelectOption(label=unhyperlink(weap.name),value="bidule",emoji=getEmojiObject(weap.emoji),default=True)],disabled=True)])],delete_after=5)
+                            await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "validStuff", options=[interactions.SelectOption(label=unhyperlink(weap.name),value="bidule",emoji=getEmojiObject(weap.emoji),default=True)],disabled=True)])])
                         else:
                             await oldMsg.edit(embeds = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                         break
@@ -517,7 +517,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
             if invSkill not in user.skillInventory:
                 emb.set_footer(text = "Vous ne possédez pas cette compétence")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
             elif invSkill in user.skills:
@@ -543,7 +543,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
                             break
 
                     saveCharFile(pathUserProfile,user)
-                    await oldMsg.edit(embeds = interactions.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),delete_after=5,components=[])
+                    await oldMsg.edit(embeds = interactions.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),components=[])
                 else:
                     if delete:
                         await oldMsg.delete()
@@ -553,13 +553,13 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
             elif not(ballerine):
                 emb.set_footer(text = "Vous utilisez déjà une compétence du groupe opposé")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
             elif not(invSkill.havConds(user=user)):
                 emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
             else:
@@ -625,7 +625,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
                                 try:
                                     user.skills[a] = invSkill
                                     saveCharFile(pathUserProfile,user)
-                                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !",components=[interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "validSelect", options=[interactions.SelectOption(label=unhyperlink(invSkill.name),value="bidule",emoji=getEmojiObject(invSkill.emoji),default=True)],disabled=True)])]),delete_after=5)
+                                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !",components=[interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "validSelect", options=[interactions.SelectOption(label=unhyperlink(invSkill.name),value="bidule",emoji=getEmojiObject(invSkill.emoji),default=True)],disabled=True)])]))
                                 except:
                                     await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreur est survenue",components=[]))
                                 break
@@ -644,21 +644,21 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
             if not(trouv):
                 emb.set_footer(text = "Vous ne possédez pas cet équipement")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
 
             elif invStuff == user.stuff[invStuff.type]:
                 emb.set_footer(text = "Vous portez déjà cet équipement")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
                 
             elif invStuff.minLvl > user.level:
                 emb.set_footer(text = "Cet équipement donne trop de statistiques pour votre niveau")
                 if delete:
-                    await oldMsg.edit(embeds = emb,components=[],delete_after=60)
+                    await oldMsg.edit(embeds = emb,components=[])
                 else:
                     await oldMsg.edit(embeds = emb,components=[])
 
@@ -694,7 +694,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
                     if rep.custom_id == "confirm":
                         user.stuff[invStuff.type] = invStuff
                         if saveCharFile(pathUserProfile,user):
-                            await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "Idontrememberwhatthisissupposedtobe", options=[interactions.SelectOption(label=unhyperlink(invStuff.name),value="bidule",emoji=getEmojiObject(invStuff.emoji),default=True)],disabled=True)])],delete_after=5)
+                            await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),components=[interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "Idontrememberwhatthisissupposedtobe", options=[interactions.SelectOption(label=unhyperlink(invStuff.name),value="bidule",emoji=getEmojiObject(invStuff.emoji),default=True)],disabled=True)])])
                         else:
                             await oldMsg.edit(embeds = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"))
                         break
@@ -715,12 +715,12 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
             emb = infoOther(obj,user)
 
             if obj == autoPoint:
-                emb.add_field(name ='<:empty:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoPoint)],inline=False)
-                emb.add_field(name ='<:empty:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]]),inline=False)
+                emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoPoint)],inline=False)
+                emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]]),inline=False)
 
             if obj == autoStuff:
-                emb.add_field(name ='<:empty:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
-                emb.add_field(name ='<:empty:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]]),inline=False)
+                emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
+                emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]]),inline=False)
 
             trouv = False
             for a in user.otherInventory:
@@ -737,154 +737,155 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
                 else:
                     emb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Élément")
 
-                await oldMsg.edit(embeds = emb,components=[])
                 if obj not in [elementalCristal,dimentioCristal,mimique]:
-                    await oldMsg.add_reaction(obj.emoji)
+                    oldMsgCompo = ActionRow(components=[
+                        Button(style=ButtonStyle.SECONDARY,label="Retour",emoji=getEmojiObject("◀️"),custom_id="Return"),
+                        Button(style=ButtonStyle.SUCCESS,label="Utiliser l'objet",emoji=getEmojiObject(obj.emoji),custom_id="use")
+                    ])
+                else:
+                    oldMsgCompo = []
 
-                def checkisReaction(reaction, user):
-                    return int(user.id) == int(ctx.author.id) and str(reaction.emoji) ==  obj.emoji
-
+                await oldMsg.edit(embeds = emb,components=oldMsgCompo)
+                def checkisReaction(reaction:ComponentContext):
+                    return reaction.author.id == ctx.author.id
                 try:
-                    await bot.wait_for("reaction_add",timeout=60,check=checkisReaction)
-                    await oldMsg.remove_all_reactions()
+                    reaction:ComponentContext = await bot.wait_for_component(messages=oldMsg,timeout=60,check=checkisReaction)
                 except asyncio.TimeoutError:
-                    await oldMsg.remove_all_reactions()
                     return 0
 
-                if obj==changeAspi:
-                    try:
-                        user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user)
-                        if user.aspiration != None:
-                            user = restats(user)
-
-                            user.otherInventory.remove(changeAspi)
-                            if saveCharFile(pathUserProfile,user):
-                                
-                                await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
-                            else:
-                                await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue\n"))
-                                print_exc()
-                    except:
-                        await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue"))
-                        print_exc()
-                elif obj==changeAppa:
-                    
-                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
-                    await oldMsg.add_reaction('<:ikaLBlue:866459302319226910>')
-                    await oldMsg.add_reaction('<:takoLBlue:866459095875190804>')
-
-                    def checkIsAuthorReact1(reaction,user):
-                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
-
-                    respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
-
-                    if str(respond[0]) == '<:ikaLBlue:866459302319226910>':
-                        user.species = 1
-                    else:
-                        user.species = 2
-                    
-                    await oldMsg.remove_all_reactions()
-                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
-                    await oldMsg.add_reaction('♂️')
-                    await oldMsg.add_reaction('♀️')
-                    await oldMsg.add_reaction("▶️")
-
-                    def checkIsAuthorReact(reaction,user):
-                        return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) =="▶️")
-
-                    respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
-                    testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',"▶️"]
-                    for a in range(0,len(titouille)):
-                        if str(respond[0]) == titouille[a]:
-                            user.gender = testouille[a]
-
-                    user = await chooseColor(bot,oldMsg,ctx,user)
-
-                    if user != False:
-                        user.otherInventory.remove(changeAppa)
-                        saveCharFile(pathUserProfile,user)
-                        
-                        await oldMsg.edit(embeds = interactions.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
-                elif obj==changeName: 
-                    
-                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
-                    timeout = False
-                    def checkIsAuthor(message):
-                        return int(ctx.author.id) == int(message.author.id)
-                    try:
-                        respond = await bot.wait_for("on_message_create",timeout = 60,check = checkIsAuthor)
-                    except:
-                        timeout = True
-
-                    if not(timeout):    
-                        user.name = respond.content
-                        user.otherInventory.remove(changeName)
-
+                if reaction.data.custom_id == "use":
+                    if obj==changeAspi:
                         try:
-                            await respond.delete()
+                            user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user)
+                            if user.aspiration != None:
+                                user = restats(user)
+
+                                user.otherInventory.remove(changeAspi)
+                                if saveCharFile(pathUserProfile,user):
+                                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
+                                else:
+                                    await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue\n"))
+                                    print_exc()
                         except:
-                            pass
+                            await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue"))
+                            print_exc()
+                    elif obj==changeAppa:
+                        
+                        await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
+                        await oldMsg.create_reaction('<:ikaLBlue:866459302319226910>')
+                        await oldMsg.create_reaction('<:takoLBlue:866459095875190804>')
+
+                        def checkIsAuthorReact1(reaction,user):
+                            return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
+
+                        respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
+
+                        if str(respond[0]) == '<:ikaLBlue:866459302319226910>':
+                            user.species = 1
+                        else:
+                            user.species = 2
+                        
+                        await oldMsg.remove_all_reactions()
+                        await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
+                        await oldMsg.create_reaction('♂️')
+                        await oldMsg.create_reaction('♀️')
+                        await oldMsg.create_reaction("▶️")
+
+                        def checkIsAuthorReact(reaction,user):
+                            return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) =="▶️")
+
+                        respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
+                        testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',"▶️"]
+                        for a in range(0,len(titouille)):
+                            if str(respond[0]) == titouille[a]:
+                                user.gender = testouille[a]
+
+                        user = await chooseColor(bot,oldMsg,ctx,user)
+
+                        if user != False:
+                            user.otherInventory.remove(changeAppa)
+                            saveCharFile(pathUserProfile,user)
+                            
+                            await oldMsg.edit(embeds = interactions.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
+                    elif obj==changeName:
+                        await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"))
+                        timeout = False
+                        def checkIsAuthor(message):
+                            return int(ctx.author.id) == int(message.author.id)
+                        try:
+                            respond = await bot.wait_for("on_message_create",timeout = 60,check = checkIsAuthor)
+                        except:
+                            timeout = True
+
+                        if not(timeout):    
+                            user.name = respond.content
+                            user.otherInventory.remove(changeName)
+
+                            try:
+                                await respond.delete()
+                            except:
+                                pass
+
+                            saveCharFile(pathUserProfile,user)
+                            
+                            await oldMsg.edit(embeds = interactions.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !",components=[]))
+                        else:
+                            await oldMsg.create_reaction('🕛')
+                    elif obj==restat:
+                        restats(user)
+                        user.otherInventory.remove(restat)
 
                         saveCharFile(pathUserProfile,user)
                         
-                        await oldMsg.edit(embeds = interactions.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !",components=[]))
-                    else:
-                        await oldMsg.add_reaction('🕛')
-                elif obj==restat:
-                    
-                    restats(user)
-                    user.otherInventory.remove(restat)
-
-                    saveCharFile(pathUserProfile,user)
-                    
-                    await oldMsg.edit(embeds = interactions.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
-                elif obj==customColor:
-                    user = await changeCustomColor(bot,oldMsg,ctx,user)
-                    if user != None:
-                        user.otherInventory.remove(customColor)
-                        saveCharFile(pathUserProfile,user)
-                        
-                        await oldMsg.edit(embeds = interactions.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
-                elif obj==blablator:
-                    await blablaEdit(bot,ctx,oldMsg,user)
-                elif obj in changeIconForm:
-                    for cmpt in range(len(changeIconForm)):
-                        if changeIconForm[cmpt] == obj:
-                            if user.iconForm != cmpt:
-                                user.iconForm = cmpt
-                                user.otherInventory.remove(obj)
-                                saveCharFile(user=user)
-                                await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Votre {0} a bien été utilisé".format(obj.name)).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id)))
-                            else:
-                                await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
-                            break
-                elif obj==autoPoint:
-                    if user.autoPoint:
-                        user.autoPoint = False
-                        user.otherInventory.remove(obj)
-                        saveCharFile(user=user)
-                        await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a été désactivé"))
-                    elif user.stars > 0:
-                        user.autoPoint = True
-                        user.otherInventory.remove(obj)
-                        saveCharFile(user=user)
-                        await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivantes :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
-                    else:
-                        await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
-                elif obj==autoStuff:
-                    if user.autoStuff:
-                        user.autoStuff = False
-                        user.otherInventory.remove(obj)
-                        saveCharFile(user=user)
-                        await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a été désactivé"))
-                    elif user.stars > 0:
-                        user.autoStuff = True
-                        user.otherInventory.remove(obj)
-                        saveCharFile(user=user)
-                        await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]])))
-                    else:
-                        await oldMsg.edit(embeds=interactions.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
-                await oldMsg.remove_all_reactions()
+                        await oldMsg.edit(embeds = interactions.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
+                    elif obj==customColor:
+                        user = await changeCustomColor(bot,oldMsg,ctx,user)
+                        if user != None:
+                            user.otherInventory.remove(customColor)
+                            saveCharFile(pathUserProfile,user)
+                            
+                            await oldMsg.edit(embeds = interactions.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color))
+                    elif obj==blablator:
+                        await blablaEdit(bot,ctx,oldMsg,user)
+                    elif obj in changeIconForm:
+                        for cmpt in range(len(changeIconForm)):
+                            if changeIconForm[cmpt] == obj:
+                                if user.iconForm != cmpt:
+                                    user.iconForm = cmpt
+                                    user.otherInventory.remove(obj)
+                                    saveCharFile(user=user)
+                                    await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Votre {0} a bien été utilisé".format(obj.name)).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id)))
+                                else:
+                                    await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
+                                break
+                    elif obj==autoPoint:
+                        if user.autoPoint:
+                            user.autoPoint = False
+                            user.otherInventory.remove(obj)
+                            saveCharFile(user=user)
+                            await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a été désactivé"))
+                        elif user.stars > 0:
+                            user.autoPoint = True
+                            user.otherInventory.remove(obj)
+                            saveCharFile(user=user)
+                            await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivantes :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
+                        else:
+                            await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
+                    elif obj==autoStuff:
+                        if user.autoStuff:
+                            user.autoStuff = False
+                            user.otherInventory.remove(obj)
+                            saveCharFile(user=user)
+                            await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a été désactivé"))
+                        elif user.stars > 0:
+                            user.autoStuff = True
+                            user.otherInventory.remove(obj)
+                            saveCharFile(user=user)
+                            await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]])))
+                        else:
+                            await oldMsg.edit(embeds=interactions.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
+                else:
+                    await oldMsg.delete()
 
 async def inventoryV2(bot : interactions.Client,ctx : interactions.CommandContext ,destination : int ,user : classes.char):
     """New function for the user's inventory. Heavely copied from encyclopedia"""
@@ -1218,8 +1219,8 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.CommandContex
                 try:
                     await msg.edit(embeds=emb,components=procurSelect+[interactions.ActionRow(components=[catSelect]),interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])]+ultimateTemp)
                 except:
-                    await msg.edit(embeds=emb,components=procurSelect+[interactions.ActionRow(components=[catSelect]),interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])]+ultimateTemp)
-
+                    await msg.edit(embeds=[interactions.Embed(title="Une erreur est survenue",description=format_exc(limit=1000)),interactions.Embed(title="Variable",description="FirstSelect = {0}".format(firstSelect.__dict__))])
+                    return 0
             try:
                 respond: ComponentContext = await bot.wait_for_component(msg,check=check,timeout=180)
             except:
@@ -1392,7 +1393,7 @@ async def breakTheLimits(bot : interactions.Client, ctx : interactions.CommandCo
                 return int(m.author.id) == int(ctx.author.id)
 
             try:
-                respond = await bot.wait_for_component(msg,payButton,check=check,timeout=60)
+                respond = await bot.wait_for_component(messages=msg,components=payButton,check=check,timeout=60)
             except asyncio.exceptions.TimeoutError:
                 await msg.edit(embeds=interactions.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "En début de combats, votre personnage verra ses statistiques suivantes augmenter :\n{0}".format(actBonus)),components=[])
                 return 0

@@ -501,13 +501,14 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                         resp3 = int(resp2.data.values[0])
                         tablStuff = [ennemi.weapon]+ennemi.skills
                         if type(tablStuff[resp3]) == weapon:
-                            await resp2.send(embeds=infoWeapon(tablStuff[resp3],user,ctx),delete_after=60)
+                            await resp2.send(embeds=infoWeapon(tablStuff[resp3],user,ctx))
                         elif type(tablStuff[resp3]) == skill:
-                            await resp2.send(embeds=infoSkill(tablStuff[resp3],user,ctx),delete_after=60)
+                            await resp2.send(embeds=infoSkill(tablStuff[resp3],user,ctx))
                         else:
-                            await resp2.send(embeds=infoStuff(tablStuff[resp3],user,ctx),delete_after=60)
+                            await resp2.send(embeds=infoStuff(tablStuff[resp3],user,ctx))
                     except:
                         await tempMachin.delete()
+                        print_exc()
                         break
 
             elif destination == 8:

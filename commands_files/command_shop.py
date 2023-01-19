@@ -1,4 +1,4 @@
-import discord, os
+import os
 from adv import *
 from classes import *
 from donnes import *
@@ -19,32 +19,45 @@ allBuyButtonButAllreadyHaveM = interactions.Button(type=2, style=ButtonStyle.SEC
 allGiveButtonButAllreadyHaveM = interactions.Button(type=2, style=ButtonStyle.SECONDARY,label="Vous êtes un acheteur compulsif deluxe",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="buy'n'send all",disabled=True)
 allBuyButtonButAllreadyHaveF = interactions.Button(type=2, style=ButtonStyle.SECONDARY,label="Vous êtes une acheteuse compulsive",emoji=getEmojiObject('<:bought:906623435256504451>'),custom_id="buy all",disabled=True)
 allGiveButtonButAllreadyHaveF = interactions.Button(type=2, style=ButtonStyle.SECONDARY,label="Vous êtes une acheteuse compulsive deluxe",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="buy'n'send all",disabled=True)
+global shopMaraine
+shopMaraine = "iiiiii"
 
 haveIcon = "<:bought:906623435256504451>" 
 allTeamHaveIcon = "<:teamBought:906621631143743538>"
 
 def formatShop(txt:str) -> str:
+    baddyTabl = ["","","","",""]
+    if "baddy" in txt:
+        for cmpt in range(0,5):
+            baddyTabl[cmpt]=["<:baddy{0}:1003027064112287764>".format(cmpt),"<:baddy{0}:1003027102196572270>".format(cmpt)][random.randint(0,1)]
+    if "{maraine}" in txt:
+        global shopMaraine
+        shopMaraine = shopMaraine + "iii"
+
     return txt.format(
-        lena = tablAllAllies[0].icon,
-        alice = tablAllAllies[3].icon,
-        shushi = tablAllAllies[4].icon,
-        clemence = tablAllAllies[2].icon, john = '<:john:908887592756449311>',
+        lena = '<:lena:909047343876288552>',
+        alice = '<:alice:908902054959939664>',
+        shushi = '<:shushi:909047653524963328>',
+        clemence = '<:clemence:908902579554111549>', john = '<:john:908887592756449311>',
         luna = '<:luna:909047362868105227>',
         feli = '<:felicite:909048027644317706>',
-        icelia = '<:icealia:909065559516250112>',
+        icealia = '<:icealia:909065559516250112>',lohica='<:lohica:919863918166417448>',ly='<:ly:943444713212641310>',
         shihu = '<:shihu:909047672541945927>', stimeo = '<:stimeo:1028894772460531765>',
-        shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon,
+        shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, astra = "<:astra:1051825407466426430>",
         sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>',
         iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>',
         gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
-        lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>", kitsune = "<:kitsune:935552850686255195>",
+        lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>", kitsune = "<:kitsune:935552850686255195>", penelope = "<:penelope:1003027020277620836>",
         anna = "<:anna:943444730430246933>", belle = "<:belle:943444751288528957>",
         edelweiss = '<:edelweiss:918451422939451412>', epiphyllum = "<:epiphilium:1014094726351294484>",
         ruby='<:ruby:958786374759251988>', julie = '<:julie:910185448951906325>',
         akia = '<a:akia:993550766415564831>',
         nacialisla = "<:nacialisla:985933665534103564>", silicia = "<:silicia:1045109225615003729>",
         benedicte = "<:benedict:958786319776112690>", 
-        kiku = "<:kiku:962082466368213043>"
+        kiku = "<:kiku:962082466368213043>", churi = '<:churi:992941366537633914>',
+        akira = '<:akira:909048455828238347>', krys = "<:krys:916118008991215726>",
+        baddy1 = baddyTabl[0], baddy2 = baddyTabl[1], baddy3 = baddyTabl[2], baddy4 = baddyTabl[3], baddy5 = baddyTabl[4],
+        maraine = "mara{0}ne".format(shopMaraine)
     )
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
@@ -92,7 +105,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                     if a != int(ctx.author.id):
                         teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
 
-            shopEmb = interactions.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} '<:coins:862425847523704832>'.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*")
+            shopEmb = interactions.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} <:coins:862425847523704832>.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*")
 
             shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
             for a in shopping:
@@ -114,7 +127,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
             for a in [0,1,2,3]:
                 for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
                     if b != None:
-                        shopField[a] += f"\n{b.emoji} {b.name} ({b.price} '<:coins:862425847523704832>')"
+                        shopField[a] += f"\n{b.emoji} {b.name} ({b.price} <:coins:862425847523704832>)"
                         desc = ["Arme","Compétence","Equipement","Autre"][a]
                         desc2 = ""
 
@@ -140,9 +153,10 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                                 listNotAllTeamHave.append(b)
 
                         shopField[a] += icon
-                        options += [interactions.SelectOption(unhyperlink(b.name),b.id,getEmojiObject(b.emoji),desc+desc2)]
+                        options += [interactions.SelectOption(label=unhyperlink(b.name),value=b.id,emoji=getEmojiObject(b.emoji),description=desc+desc2)]
+                shopField[a] = reducedEmojiNames(shopField[a])
                 if len(shopField[a]) <= 1024:
-                    shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
+                    shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
                 else:
                     shopField[a] = ""
                     for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
@@ -178,7 +192,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                     if shopField[a] == "":
                         shopField[a] = "???"
 
-                    shopEmb.add_field(name="<:empty:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
+                    shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
 
             fcooldown,fseconds,fqcooldown,fqseconds,faccord,fqaccord,fsaccord,fqsaccord = teamWinDB.getFightCooldown(user.team)//60,teamWinDB.getFightCooldown(user.team)%60,teamWinDB.getFightCooldown(user.team,True)//60,teamWinDB.getFightCooldown(user.team,True)%60,"","","",""
             if fcooldown > 1:
@@ -397,7 +411,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                                             user.otherInventory.append(obj)
                                         user.currencies = user.currencies - obj.price
                                         saveCharFile(pathUserProfile,user)
-                                        await msg.edit(embeds = interactions.Embed(title="shop"+ " - " +obj.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"/inventory nom:{obj.id}\" pour l'équiper"),components=[],delete_after=5)
+                                        await msg.edit(embeds = interactions.Embed(title="shop"+ " - " +obj.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"/inventory nom:{obj.id}\" pour l'équiper"),components=[])
                                     except:
                                         await msg.edit(embeds = errorEmbed("shop","Une erreur s'est produite"))
 
@@ -405,7 +419,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                                     options = []
                                     for a in teamMember:
                                         if not(a.have(obj)) and a.owner != user.owner:
-                                            options += [interactions.SelectOption(a.name,str(a.owner),getEmojiObject(await getUserIcon(bot,a)))]
+                                            options += [interactions.SelectOption(label=a.name,value=str(a.owner),emoji=getEmojiObject(await getUserIcon(bot,a)))]
 
                                     if options == [] :
                                         select = interactions.SelectMenu(custom_id = "ohYouWantToSeeThis", options=[interactions.SelectOption(label="Vous n'avez pas à voir ça",value="Nani")],placeholder="Toute votre équipe a déjà cet objet",disabled=True)
@@ -439,7 +453,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                                                         saveCharFile(absPath + "/userProfile/" + str(teamMate.owner) + ".prof",teamMate)
                                                         saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof",user)
                                                         await temp.delete()
-                                                        await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [interactions.ActionRow(components=[getChoisenSelect(select,respond.data.values[0])])],delete_after=5)
+                                                        await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [interactions.ActionRow(components=[getChoisenSelect(select,respond.data.values[0])])])
                                                     except:
                                                         await msg.edit(embeds = errorEmbed("shop","Une erreur s'est produite"))
                                                     break
@@ -488,7 +502,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                                                 user.otherInventory += [obj]
                                                 user.currencies = user.currencies - obj.price
                                                 saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof",user)
-                                        await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Vos cadeaux ont bien été envoyés !"),components = [],delete_after=5)
+                                        await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Vos cadeaux ont bien été envoyés !"),components = [])
                                     else:
                                         await msg.delete()
 
@@ -497,7 +511,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                 except:
                     await msg.edit(embeds=interactions.Embed(title="Uncatch error in shop command",description=format_exc()),components=[])
     else:
-        await ctx.send(embeds = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),delete_after=15)
+        await ctx.send(embeds = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),ephemeral=True)
 
 if not(isLenapy):
     print("Shop message verification...")

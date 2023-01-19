@@ -1,4 +1,4 @@
-import discord, sqlite3, os
+import sqlite3, os
 from gestion import *
 from advance_gestion import *
 from advObjects.advSkills import *

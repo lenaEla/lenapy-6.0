@@ -9,7 +9,10 @@ from commands_files.alice_stats_endler import aliceStatsDb
 aspiOp = []
 for cmpt in range(len(inspi)-1):
     splited = chapter[2][cmpt+1][1].splitlines(False)
-    aspiOp.append(interactions.SelectOption(label=inspi[cmpt],value=str(cmpt),emoji=getEmojiObject(aspiEmoji[cmpt]),description=splited[0]))
+    desc = splited[0]
+    for em in statsEmojis[:ACT_INDIRECT_FULL+1]:
+        desc = desc.replace(em,"")
+    aspiOp.append(interactions.SelectOption(label=inspi[cmpt],value=str(cmpt),emoji=getEmojiObject(aspiEmoji[cmpt]),description=desc))
 
 aspirationMenu = interactions.SelectMenu(custom_id = "aspiSelectMenu", 
     options=aspiOp,
@@ -29,24 +32,23 @@ for a in range(0,len(colorChoice)):
     optionIka += [interactions.SelectOption(label=colorChoice[a],value=str(colorId[a]),emoji=getEmojiObject(EmIcon[1][a]))]
     optionTako += [interactions.SelectOption(label=colorChoice[a],value=str(colorId[a]),emoji=getEmojiObject(EmIcon[2][a]))]
 
-async def chooseAspiration(bot : interactions.Client, msg : interactions.Message,ctx : interactions.Message,user : char):
+async def chooseAspiration(bot : interactions.Client, msg : interactions.Message, ctx : interactions.CommandContext,user : char):
     choosed = False
     while not(choosed):
         action = interactions.ActionRow(components=[aspirationMenu])
-        await msg.remove_all_reactions()
         desc = "Le moment est venu de selectionnez l'aspiration de votre personnage.\n\nRéagissez aux emojis ci-dessus pour avoir plus d'informations sur les {0} aspirations qui sont :".format(len(inspi)-1)
         for cmpt in range(len(inspi)-1):
             desc += "\n"+aspiEmoji[cmpt]+ " "+inspi[cmpt]
         await msg.edit(embeds = interactions.Embed(title = "__Changement d'Aspiration__" + " : Aspiration",color = user.color,description = desc),components = [action])
 
         def check(m):
-            return m.author.id == ctx.author.id and m.message.id == msg.id
+            return m.author.id == ctx.author.id
 
         haveReaction = False
         try:
             respond = await bot.wait_for_component(components=aspirationMenu, check=check,timeout=60)
             haveReaction = True
-        except:
+        except asyncio.TimeoutError:
             pass
 
         if haveReaction:
@@ -55,24 +57,25 @@ async def chooseAspiration(bot : interactions.Client, msg : interactions.Message
             for cmpt in range(1,len(chapter[2])):
                 inspiDesc.append(chapter[2][cmpt][1])
 
-            msg2 = await respond.send(embeds = interactions.Embed(title = "__Changement d'Aspiration__ {0})".format(inspi[int(respond.data.values[0])]), color = user.color, description = f"{inspiDesc[int(respond.data.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"))
+            msg2Components = ActionRow(components=[
+                Button(style=ButtonStyle.SECONDARY,label="Retour",emoji=getEmojiObject("◀️"),custom_id="return"),
+                Button(style=ButtonStyle.SUCCESS,label="Choissir cette aspiration",emoji=getEmojiObject("✅"),custom_id="select")
+            ])
+            msg2 = await respond.send(embeds = interactions.Embed(title = "__Changement d'Aspiration__ {0})".format(inspi[int(respond.data.values[0])]), color = user.color, description = f"{inspiDesc[int(respond.data.values[0])]}\n\nPour choisir cette aspiration, cochez le check-ci dessous"),components=msg2Components)
 
-            await msg2.add_reaction("◀️")
-            await msg2.add_reaction("✅")
-            def checkIsAuthorReact(reaction,user):
-                return user == ctx.author and int(reaction.message.id) == int(msg2.id)
+            def checkIsAuthorReact(reaction):
+                return reaction.author.id == ctx.author.id
 
             try:
-                respondEmoji = await bot.wait_for("reaction_add",timeout = 60,check=checkIsAuthorReact)
-                if str(respondEmoji[0]) == "✅":
+                respondEmoji = await bot.wait_for_component(messages=msg2,timeout = 60,check=checkIsAuthorReact)
+                if respondEmoji.data.custom_id == "select":
                     await msg2.delete()
                     return int(respond.data.values[0])
                 else:
                     await msg2.delete()
-            except:
+            except asyncio.TimeoutError:
                 await msg2.delete()
         else:
-            await msg.remove_all_reactions()
             return None
 
 async def chooseName(bot : interactions.Client, msg : interactions.Message, ctx: interactions.Message,user : char):
@@ -139,13 +142,14 @@ async def chooseColor(bot : interactions.Client, msg : interactions.Message,ctx 
     else:
         return False
 
-async def changeCustomColor(bot,msg,ctx,user : char):
-    def check(param):
+async def changeCustomColor(bot: Client, msg: Message, ctx : CommandContext, user : char):
+    def check(param: Message):
         return param.author.id == ctx.author.id and param.channel_id == ctx.channel_id
-    def checkReact(param,second):
-        return second.id == ctx.author.id and param.message.id == msg.id and (str(param) in ["❌","✅"])
+
+    def checkReact(param: ComponentContext):
+        return param.author.id == ctx.author.id
+
     while 1:
-        await msg.remove_all_reactions()
         await msg.edit(embeds = interactions.Embed(title="Couleur personnalisée",description="Veillez entrer le code hexadecimal de votre nouvelle couleur :\n\nExemples :\n94d4e4\n#94d4e4",color = user.color))
         
         respond = await bot.wait_for("on_message_create",check=check,timeout=60)
@@ -161,15 +165,19 @@ async def changeCustomColor(bot,msg,ctx,user : char):
             await msg.edit(embeds = errorEmbed("__Couleur personnalisée__","Le code donné n'est pas un code hexadecimal valide"))
             break
 
-        await msg.edit(embeds = interactions.Embed(title = "Couleur personnalisée",description="Est-ce que cette couleur vous va ?",color = color))
-        await msg.add_reaction("❌")
-        await msg.add_reaction("✅")
+        msgComponents = ActionRow(components=[
+            Button(style=ButtonStyle.SECONDARY,label="Retour",emoji=getEmojiObject("❌"),custom_id="Return"),
+            Button(style=ButtonStyle.SUCCESS,label="Valider",emoji=getEmojiObject("✅"),custom_id="Success")
+        ])
+
+        await msg.edit(embeds = interactions.Embed(title = "Couleur personnalisée",description="Est-ce que cette couleur vous va ?",color = color),components=msgComponents)
+        
         try:
-            react = await bot.wait_for("reaction_add",check=checkReact,timeout=60)
+            react = await bot.wait_for_component(components=msgComponents,message=msg,check=checkReact,timeout=60)
         except:
-            await msg.remove_all_reactions()
+            await msg.edit(embeds = interactions.Embed(title = "Commande annulée (timeout)",color = color),components=MISSING)
             break
-        if str(react[0]) == "✅":
+        if react.data.custom_id == "Success":
             user.color = color
             user.customColor = True
             user.colorHex = "0x"+tempColor.replace("0x","").replace("#","")
@@ -177,12 +185,11 @@ async def changeCustomColor(bot,msg,ctx,user : char):
 
     return None
 
-async def start(bot : interactions.Client, ctx : interactions.Message):
+async def start(bot : interactions.Client, ctx : interactions.CommandContext):
     """Commande de création de personnage"""
     pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
 
     if not os.path.exists(pathUserProfile):
-
         still = True
         user = char(ctx.author.id)
         msg = await loadingSlashEmbed(ctx)
@@ -191,39 +198,50 @@ async def start(bot : interactions.Client, ctx : interactions.Message):
 
         if user == False:
             still = False
-        
+
         if still: #Espèce
-            await msg.edit(embeds = interactions.Embed(title = "__/start__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage."))
-            await msg.add_reaction('<:ikaLBlue:866459302319226910>')
-            await msg.add_reaction('<:takoLBlue:866459095875190804>')
+            msgComponents = ActionRow(components=[
+                Button(style=ButtonStyle.PRIMARY,label="Inkling",emoji=getEmojiObject('<:ikaLBlue:866459302319226910>'),custom_id="inkling"),
+                Button(style=ButtonStyle.PRIMARY,label="Octaling",emoji=getEmojiObject('<:takoLBlue:866459095875190804>'),custom_id="octaling")
+            ])
+            await msg.edit(embeds = interactions.Embed(title = "__/start__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage, et il vous sera possible de modifier la forme de votre personnage avec des objets spéciaux"),components=[msgComponents])
 
-            def checkIsAuthorReact1(reaction,user):
-                return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='<:ikaLBlue:866459302319226910>' or str(reaction) == '<:takoLBlue:866459095875190804>')
+            def checkIsAuthorReact1(reaction):
+                return reaction.author.id == ctx.author.id
 
-            respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact1)
+            try:
+                respond = await bot.wait_for_component(messages=msg ,timeout = 60, check = checkIsAuthorReact1)
+                if respond.data.custom_id == 'inkling':
+                    user.species = 1
+                else:
+                    user.species = 2
+            except asyncio.TimeoutError:
+                await msg.edit(embeds = interactions.Embed(title = "Commande annulée (Timeout)"),components=MISSING)
+                still = False
 
-            if str(respond[0]) == '<:ikaLBlue:866459302319226910>':
-                user.species = 1
-            else:
-                user.species = 2
-        
         if still: #Genre
             await msg.remove_all_reactions()
-            await msg.edit(embeds = interactions.Embed(title = "__/start__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques\n"))
-            await msg.add_reaction('♂️')
-            await msg.add_reaction('♀️')
-            await msg.add_reaction("▶️")
-            def checkIsAuthorReact(reaction,user):
-                return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(msg.id) and (str(reaction)=='♀️' or str(reaction) == '♂️' or str(reaction) =="▶️")
+            components = interactions.ActionRow(components=[
+                interactions.Button(style=ButtonStyle.PRIMARY,label="Masculin",emoji=getEmojiObject('♂️'),custom_id="male"),
+                interactions.Button(style=ButtonStyle.PRIMARY,label="Féminin",emoji=getEmojiObject('♀️'),custom_id="female"),
+                interactions.Button(style=ButtonStyle.PRIMARY,label="Autre / Passer",emoji=getEmojiObject("▶️"),custom_id="other")
+            ])
+            await msg.edit(embeds = interactions.Embed(title = "__/start__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques et ne sert qu'à des fins orthographiques"),components=components)
+    
+            def checkIsAuthorReact(reaction:interactions.ComponentContext):
+                return reaction.author.id == ctx.author.id
 
-            respond = await bot.wait_for("reaction_add",timeout = 60,check = checkIsAuthorReact)
-            testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],['♂️','♀️',"▶️"]
-            for a in range(0,len(titouille)):
-                if str(respond[0]) == titouille[a]:
-                    user.gender = testouille[a]
+            try:
+                respond: interactions.ComponentContext = await bot.wait_for_component(timeout=60,check=checkIsAuthorReact,messages=msg)
+                testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],["male","female","other"]
+                for a in range(0,len(titouille)):
+                    if str(respond.data.custom_id) == titouille[a]:
+                        user.gender = testouille[a]
+            except asyncio.TimeoutError:
+                still = False
+                await msg.edit(embeds=interactions.Embed(title="Commande annulée (timeout"))
 
         if still: #Couleur
-            await msg.remove_all_reactions()
             user = await chooseColor(bot,msg,ctx,user)
 
             if user == False:
@@ -237,12 +255,17 @@ async def start(bot : interactions.Client, ctx : interactions.Message):
                 existFile(pathUserProfile)
                 await msg.remove_all_reactions()
                 if saveCharFile(pathUserProfile,user):
-                    await msg.delete()
                     aliceStatsDb.addUser(user)
-                    await ctx.channel.send(embeds = interactions.Embed(title = "__/start__", color= user.color, description = f"Tout a bien été enregistré !\nN'hésite pas à utiliser la commande /help pour connaître les commandes de l'Aventure\nOu bien juste lire le manuel avec /manuel"))
+                    desc = "Vous avez terminé la création de votre personnage ! Rassurez-vous, vous pourrez modifier les paramètres renseignés au moyen d'objet spéciaux disponibles dans le shop.\n\nVoici quelques objets pour fêter votre recrutement :"
+                    for obj in baseWeapon+baseSkills+baseStuffs:
+                        desc += "\n{0} {1}".format(obj.emoji,obj.name)
+                        if obj in [baseWeapon[-1],baseSkills[-1],baseStuffs[-1]]:
+                            desc += "\n"
+                    desc += "\nPourquoi ne pas faire un tour vers **/inventory** pour voir ça ?"
+
+                    await msg.edit(embeds = interactions.Embed(title = "__/start__", color= user.color, description=desc))
                 else:
-                    await msg.delete()
-                    await ctx.channel.send(embeds = interactions.Embed(title = "__/start__", color= red, description = "Un truc c'est mal passé, l'aventure attendra"))
+                    await msg.edit(embeds = interactions.Embed(title = "__/start__", color= red, description = "Un truc c'est mal passé, l'aventure attendra"))
                     os.remove(pathUserProfile)
             else:
                 still = False
@@ -250,4 +273,4 @@ async def start(bot : interactions.Client, ctx : interactions.Message):
         if not(still):
             await msg.edit(embeds= errorEmbed("__/start__","Commande annulée (timeout)"))
     else:
-        await ctx.channel.send(embeds=errorEmbed("__/start__","Vous avez déjà commencé l'aventure"))
+        await ctx.send(embeds=errorEmbed("__/start__","Vous avez déjà commencé l'aventure"),ephemeral=True)

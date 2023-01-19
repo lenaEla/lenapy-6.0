@@ -1,21 +1,21 @@
-from inspect import stack
 from classes import *
 from constantes import *
 from advObjects.advSkills import *
+from advObjects.advWeapons import ironSword
 
 batWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,35,80,0,emoji='<:griffe:884889931359596664>',use=STRENGTH, ignoreAutoVerif=True)
-carbunTWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,70,80,0,emoji='<:griffe:884889931359596664>',use=ENDURANCE)
+carbunTWeap = weapon("Griffe","aaa",RANGE_MELEE,AREA_CIRCLE_1,65,80,0,emoji='<:griffe:884889931359596664>',use=ENDURANCE)
 carbunE = weapon("Coup de vent","aab",RANGE_LONG,AREA_CIRCLE_5,40,70,0,emoji='<:vent:884889843681853460>',area=AREA_CIRCLE_1,use=MAGIE)
 carbunSkill = skill("Eclat Emeraude","aac",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_2,sussess=55,emoji='<:rafale:884889889445912577>',use=MAGIE,cooldown=4,description="Inflige des dégâts dans une large zone autour de la cible\n__Puissance :__ **{power}**")
 carbunTSKill = skill("Eclat de Topaze","aad",TYPE_DAMAGE,0,100,AREA_MONO,area=AREA_CIRCLE_2,sussess=80,cooldown=4,emoji="<:eclattopaze:884889967397056512>",use=ENDURANCE,description="Inflige des dégâts dans une large zone autour du Carbuncle Topaze\n__Puissance :__ **{power}**")
 feeWeap = weapon("Embrassement","aae",RANGE_DIST,AREA_CIRCLE_4,20,100,0,type=TYPE_HEAL,use=CHARISMA,emoji="<:feerie:885076995522834442>",target=ALLIES,area=AREA_CIRCLE_1)
 feeEffect = effect("Murmure de l'aurore","aaf",CHARISMA,type=TYPE_INDIRECT_HEAL,power=10,emoji=uniqueEmoji('<:feerie:885076995522834442>'),trigger=TRIGGER_START_OF_TURN,turnInit=3,stackable=True)
 feeSkill = skill("Murmure de l'aurore","aag",TYPE_INDIRECT_HEAL,0,0,AREA_MONO,cooldown=3,area=AREA_CIRCLE_3,emoji="<:feerie:885076995522834442>",effects=feeEffect,description="Donne un effet régénérant aux alliés autours de la Fée Soignante\n__Puissance :__ **{power}**\n__Durée__ : {length} tours")
-titWeap = weapon("Rune de Malice","titaniaWeapo,n",RANGE_MELEE,AREA_CIRCLE_1,26,50,repetition=3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2,use=MAGIE) 
+titWeap = weapon("Rune de Malice","titaniaWeapo,n",RANGE_MELEE,AREA_CIRCLE_1,24,50,repetition=3,emoji='<:magicalBonk:886669168408137749>',area=AREA_CONE_2,use=MAGIE) 
 lapinoWeap = weapon("Murmure de guérison","aai",RANGE_DIST,AREA_CIRCLE_3,20,100,0,0,0,0,0,0,0,0,0,0,0,'<:defHeal:885899034563313684>',use=CHARISMA,type=TYPE_HEAL,target=ALLIES,message="{0} encourage doucement {1} :")
 lapinoSkill = skill("Murmure de dévoument","aaj",TYPE_HEAL,0,65,emoji='<:defHeal:885899034563313684>',cooldown=4,description="Soigne l'allié ciblé\n__Puissance :__ **{power}**")
 autoWeap = weapon("NoneWeap","NoneWeap",RANGE_MELEE,AREA_CIRCLE_1,0,0,0,emoji="<:noneWeap:917311409585537075>")
-autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus,silent=True)
+autoEff = effect("Explosé","aam",trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,power=9999,emoji=emojiMalus)
 autoSkill = skill("Explosion","aan",TYPE_DAMAGE,0,100,AREA_MONO,emoji='<:defDamage:885899060488339456>',area=AREA_CIRCLE_1,effectOnSelf=autoEff,sussess=200,setAoEDamage=True,description="Inflige des dégâts en zone autour de la Bombe Robot, puis s'auto détruit à la fin du tour\n__Puissance :__ **{power}**")
 lapinoSkill2 = skill("Murmure d'Abnégation","lapinoSkill2",TYPE_HEAL,power=100,use=CHARISMA,cooldown=3,description="Soigne l'allié ciblé mais le Lapino est vaincu par la suite\n__Puissance :__ **{power}**",effectOnSelf=autoEff)
 cutyBatSkill1Eff = effect("Motivé Bis","batMotivEff",stat=CHARISMA,strength=7,magie=7,charisma=7,intelligence=7)
@@ -25,7 +25,7 @@ cutyBatSkill2 = skill("Renforcement de la Chauve-Souris","batRenforce",TYPE_BOOS
 cutyBatSkill3Eff = effect("Echolocalisé","batEchoEff",CHARISMA,agility=-7,type=TYPE_MALUS)
 cutyBatSkill3 = skill("Echolocalisation","batEcho",TYPE_MALUS,0,0,AREA_MONO,area=AREA_DONUT_5,effects=cutyBatSkill3Eff,cooldown=3,description="Diminue l'Agilité des ennemis affectés")
 cutyBatWeap = weapon("Onde sonore","batWeap",RANGE_DIST,AREA_CIRCLE_5,32,100,effectOnUse=incur[1],use=CHARISMA)
-carbunRWeap = weapon("Griffe enflammé","rubyWeap",RANGE_MELEE,AREA_CIRCLE_1,56,100,use=MAGIE,emoji=batWeap.emoji)
+carbunRWeap = weapon("Griffe enflammé","rubyWeap",RANGE_MELEE,AREA_CIRCLE_1,52,100,use=MAGIE,emoji=batWeap.emoji)
 carbunRSkill1 = skill("Pyrotechnie du Carbuncle","rubySkill",TYPE_DAMAGE,0,75,AREA_CIRCLE_2,cooldown=3,use=MAGIE,description="Inflige des dégâts à l'ennemi ciblé\n__Puissance :__ **{power}**")
 curbunRSkill2Eff = effect("Flamme éternelle","fire",MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,power=35,lvl=3,turnInit=3)
 carbunRSkill2 = skill("Flammes éternelles","rubySkill2",TYPE_DAMAGE,0,70,AREA_CIRCLE_3,effects=curbunRSkill2Eff,cooldown=3,use=MAGIE,description="Inflige des dégâts à l'ennemi ciblé tout en lui infligeant un effet de dégâts indirects\n__Puissance :__ **{power}**\n__Puissance (indirect) :__ **35**\n__Durée (indirect) :__ 3 tours")
@@ -36,7 +36,7 @@ serafSkill = skill("Dictame","dictame",TYPE_ARMOR,0,0,range=AREA_MONO,area=AREA_
 GESLweap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0)
 GESLskill = skill("Piétinement Physique","TheGiantEnnemySpiderLeft",TYPE_DAMAGE,0,40)
 GESRskill = skill("Piétinement Magique","TheGiantEnnemySpiderRigth",TYPE_DAMAGE,0,GESLskill.power,use=MAGIE)
-carbOb = weapon("Griffe d'obsidienne","carObWeap",RANGE_MELEE,AREA_CIRCLE_1,33,70,repetition=3,emoji=batWeap.emoji)
+carbOb = weapon("Griffe d'obsidienne","carObWeap",RANGE_MELEE,AREA_CIRCLE_1,30,70,repetition=3,emoji=batWeap.emoji)
 carbObSkill = skill("Eclat d'Obsidenne","carbObsiSkill",TYPE_DAMAGE,0,75,AREA_CIRCLE_2,cooldown=3,emoji='<:carbSkill2:919859568685752350>',description="Inflige des dégâts autour du Carbuncle Obsidienne\n__Puissance :__ **{power}**")
 carbSa = weapon("Tir de glacée","carbSaWeap",RANGE_DIST,AREA_CIRCLE_6,56,80,0)
 carbSaSkill = skill("Eclat de Saphir","carbSaSkill",TYPE_DAMAGE,0,80,cooldown=2,emoji='<:carbSkill2:919859581381926933>',description="Inflige des dégâts à l'ennemi ciblé\n__Puissance :__ **{power}**")
@@ -70,7 +70,7 @@ mrLifeWeap = weapon("Sifflement","mrLifeWeap",RANGE_DIST,AREA_CIRCLE_4,power=30,
 mrLifeSkill1Eff = effect("Ralentisment","mrLifeSkill1Eff",CHARISMA,agility=-7,precision=-7,turnInit=3,type=TYPE_MALUS,stackable=True)
 mrLifeSkill1 = skill("Ralentissement","mrLifeSkill1",TYPE_MALUS,effects=mrLifeSkill1Eff,cooldown=3,description="Réduit l'agilité et la précision de la cible",range=AREA_CIRCLE_4)
 mrLifeSkill2 = skill("Ralentissement Avancé","mrLifeSkill2",TYPE_MALUS,effects=mrLifeSkill1Eff,cooldown=3,description="Réduit l'agilité et la précision des ennemis alentours",range=AREA_MONO,area=AREA_CIRCLE_4,effPowerPurcent=40)
-skeletonWeap = weapon("Epée nécromantique","skeletonWeap",RANGE_MELEE,AREA_CIRCLE_1,60,60,0,strength=10,magie=10,ignoreAutoVerif=True,use=MAGIE)
+skeletonWeap = weapon("Epée nécromantique","skeletonWeap",RANGE_MELEE,AREA_CIRCLE_1,60,60,0,strength=10,magie=10,ignoreAutoVerif=True,use=MAGIE,emoji=ironSword.emoji)
 
 
 batInvoc = invoc("Chauve-Souris",aspiration=POIDS_PLUME,strength=[HARMONIE,0.35],endurance=[PURCENTAGE,0.35],charisma=[PURCENTAGE,0.35],agility=[PURCENTAGE,0.35],precision=[PURCENTAGE,0.35],intelligence=[PURCENTAGE,0.35],magie=[PURCENTAGE,0.35],resistance=20,percing=0,critical=0,icon=["<:bat1:884519906819862568>","<:bat2:884519927208357968>"],gender=GENDER_FEMALE,weapon=batWeap,description="Une invocation de mêlée peu resistante, mais pouvant submerger les ennemis",element=ELEMENT_AIR)
