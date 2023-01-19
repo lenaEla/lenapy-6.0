@@ -18,7 +18,7 @@ octoSnipeWeap = weapon("Snipeur Octarien","aaa",2,AREA_CIRCLE_7,75,85,0,strength
 octoFly = weapon("Machinerie volante","aaa",RANGE_DIST,AREA_CIRCLE_5,50,75,-20,10,emoji=octoEm,ignoreAutoVerif=True)
 octoHeal = weapon("Octo heal","aaa",1,AREA_CIRCLE_3,35,50,0,use=CHARISMA,type=TYPE_HEAL,target=ALLIES,emoji='<:medic:882890887120699444>')
 octoDef = weapon('OctoDef',"aaa",1,AREA_CIRCLE_3,10,100,0,effectOnUse="md",use=INTELLIGENCE,target=ALLIES,type=TYPE_HEAL,intelligence=20)
-flyfishweap = weapon("Lance-Multi-Missiles","ffweap",2,AREA_CIRCLE_7,1,200,0,effectOnUse="mf",type=TYPE_DAMAGE,strength=30,ignoreAutoVerif=True,emoji='<:tentamissile:884757344397951026>')
+flyfishweap = weapon("Lance-Multi-Missiles","ffweap",2,AREA_CIRCLE_7,1,200,0,effectOnUse="mf",type=TYPE_DAMAGE,strength=30,ignoreAutoVerif=True,emoji='<:tentamissile:884757344397951026>',effPowerPurcent=65)
 octoBoumWeap = weapon("noneWeap","aaa",1,AREA_CIRCLE_1,0,0,0,effects="mg") 
 ruddinweap = weapon("Carreaux","aaa",RANGE_DIST,AREA_CIRCLE_5,23,70,0,0,0,0,0,0,0,0,repetition=3,emoji='<:chaos:892857755143127090>')
 ruddinweap2 = weapon("Carreaux","aaa",RANGE_MELEE,AREA_CIRCLE_3,28,70,0,0,0,0,0,0,0,0,repetition=3,emoji='<:chaos:892857755143127090>')
@@ -33,7 +33,7 @@ malusSkill3 = skill("Brise-Défense","malusSkill3",TYPE_DAMAGE,power=80,area=ARE
 kralamWeap = weapon("Décharge motivante","aaa",RANGE_DIST,AREA_DONUT_4,35,100,0,type=TYPE_HEAL,target=ALLIES,use=CHARISMA)
 kralamSkill2 = skill("Électrochoc","kralamSkill2",TYPE_DAMAGE,0,80,area=AREA_CIRCLE_1,use=CHARISMA,cooldown=3,initCooldown=2,emoji='<:electroShoc:912414625679695873>')
 kralamSkill3Eff = effect("Aura électrique","kralamSkill3Eff",CHARISMA,endurance=5,resistance=3,power=40,area=AREA_DONUT_2,lvl=3,turnInit=3,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE)
-kralamSkill3 = skill("Aura électrique","kralamSkill3",TYPE_BOOST,effects=kralamSkill3Eff,cooldown=5)
+kralamSkill3 = skill("Aura électrique","kralamSkill3",TYPE_BOOST,effects=kralamSkill3Eff,cooldown=5,range=AREA_DONUT_5)
 temNativTriggered = effect("Promue",'tem',magie=0,turnInit=-1,unclearable=True,emoji=uniqueEmoji('<:colegue:895440308257558529>'))
 temNativ = effect("College",'tem1',trigger=TRIGGER_ON_REMOVE,turnInit=3,unclearable=True,callOnTrigger=temNativTriggered)
 temWeap = weapon("Temmie flakes","aaa",RANGE_DIST,AREA_CIRCLE_5,42,75,0,use=MAGIE,effects=temNativ,emoji='<:temFlakes:919168887222829057>',say=["TEMMIE FLAKES ! An original breakfast !","TEMMIE FLAKES ! It's so good you can't taste it !","TEMMIE FLAKES ! Don't forget to digest it !","TEMMIE FLAKES in your mouth","Whouwhouwhouwhou !"],message="{0} donne des TEMMIE FLAKES à {1}")
@@ -54,7 +54,7 @@ veterHealSkill4 = skill("Théorie du complot","octaHealVet4",TYPE_DAMAGE,0,100,u
 veterHealWeap = copy.deepcopy(octoHeal)
 veterHealWeap.negativeHeal, veterHealWeap.power = -20, veterHealWeap.power + 10
 antiArmorShot = skill("Tir anti-matériel","antiArmorShot",TYPE_DAMAGE,0,100,ultimate=True,damageOnArmor=666,cooldown=7)
-zombieSkillEff = effect("Marcheur des limbes","zombaSkillArmor",ENDURANCE,overhealth=100,turnInit=-3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+zombieSkillEff = effect("Marcheur des limbes","zombaSkillArmor",ENDURANCE,overhealth=50,turnInit=-3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 zombieSkill = skill("Frappe d'outre-tombe","zombiSkill",TYPE_DAMAGE,0,100,use=ENDURANCE,effectOnSelf=zombieSkillEff,cooldown=5)
 zombieSkill2 = skill("Drainage Abyssal","zombieSkill2",TYPE_DAMAGE,power=80,area=AREA_CIRCLE_1,lifeSteal=100,emoji='<:abysalDrain:1042349734934892605>',cooldown=3)
 octoInvocWeap = weapon("Cristal d'Invocateur","OctoSummonerWeap",RANGE_LONG,AREA_CIRCLE_5,35,75,0,strength=10,endurance=10,charisma=10,agility=10,precision=10,intelligence=10,magie=10,emoji=octoEm,ignoreAutoVerif=True)
@@ -71,60 +71,71 @@ octoBoostSkill4 = skill(octoBoost4Eff.name,"octoBoostSkill4",TYPE_BOOST,0,range=
 
 octoBoostWeap = weapon("Fioles d'expérimentations","octoBoostWeap",RANGE_DIST,AREA_CIRCLE_4,35,65,intelligence=25,use=INTELLIGENCE,emoji=octoBallWeap.emoji,ignoreAutoVerif=True)
 
-octaStransEff = effect('Multi-Bras',"ocSt",aggro=15,resistance=10,turnInit = -1,unclearable=True,emoji=uniqueEmoji('<:octoStrans:900084603140853760>'))
+octaStransEff = effect('Multi-Bras',"ocSt",aggro=35,resistance=10,block=35,counterOnBlock=20,turnInit = -1,unclearable=True,emoji=uniqueEmoji('<:octoStrans:900084603140853760>'))
 octaStrans = skill("Multi-Bras","octaStrans",TYPE_PASSIVE,0,effectOnSelf=octaStransEff,emoji='<:multibras:900084714675785759>')
 
 # Kitsunes sist's spells
-charming = effect("Charmé (ennemi)","kitsuneSisterEff",CHARISMA,strength=-2,magie=-2,charisma=-2,intelligence=-2,resistance=-1,stackable=True,type=TYPE_MALUS,description="Vous devriez plutôt vous concentrer sur le combat plutôt que sur celles qui sont en train de vous tuer doucement...",emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"),turnInit=2)
+charming = effect("Charmé (ennemi)","kitsuneSisterEff",CHARISMA,strength=-2,magie=-2,charisma=-2,intelligence=-2,stackable=True,type=TYPE_MALUS,description="Vous devriez plutôt vous concentrer sur le combat plutôt que sur celles qui sont en train de vous tuer doucement...",emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"),turnInit=2)
 charming2 = effect("Charmé (allié)","kitsuneSisterEffBuff",CHARISMA,strength=5,magie=5,charisma=5,intelligence=5,stackable=True,type=TYPE_BOOST,description="Vous avez fortement envie d'impressioner l'une de vos alliés...",emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"),turnInit=2)
 
-liuWeapEff = effect("Kitsune de la terre","liuWeapEff",emoji=uniqueEmoji('<:earthKitsune:917670882586017792>'),stat=CHARISMA,aggro=15,endurance=10,agility=10,turnInit=-1,unclearable=True,description="La résistance de Liu en a épaté plus d'un.\nÀ chaque attaque subis, donne l'effet Sous le Charme II à l'attaquant",callOnTrigger=charming)
+liuWeapEff = effect("Kitsune de la terre","liuWeapEff",emoji=uniqueEmoji('<:earthKitsune:917670882586017792>'),stat=CHARISMA,aggro=35,endurance=10,agility=10,block=35,counterOnBlock=20,turnInit=-1,unclearable=True,description="La résistance de Liu en a épaté plus d'un.\nÀ chaque attaque subis, donne l'effet Sous le Charme II à l'attaquant",callOnTrigger=charming)
 liuWeap = weapon("Sable","liuWeap",RANGE_MELEE,AREA_CIRCLE_2,27,50,repetition=3,strength=10,magie=10,charisma=10,effects=liuWeapEff,effectOnUse=charming,use=ENDURANCE,emoji='<:liuWeap:908859892272611348>')
-liaWeapEff = effect("Kitsune des vents","liaWeapEff",CHARISMA,emoji=uniqueEmoji('<:airKitsune:917670912646602823>'),aggro=15,agility=10,precision=10,turnInit=-1,unclearable=True,description="L'agilité de Lia en a épaté plus d'un\nÀ chaque attaque esquivé, donne 2 fois l'effet Sous le Charme II à l'attaquant",callOnTrigger=charming)
+liaWeapEff = effect("Kitsune des vents","liaWeapEff",CHARISMA,emoji=uniqueEmoji('<:airKitsune:917670912646602823>'),aggro=35,agility=10,precision=10,turnInit=-1,unclearable=True,description="L'agilité de Lia en a épaté plus d'un\nÀ chaque attaque esquivé, donne 2 fois l'effet Sous le Charme II à l'attaquant",callOnTrigger=charming,dodge=20,counterOnDodge=35)
 liaWeap = weapon("Vent","liaWeap",RANGE_MELEE,AREA_CIRCLE_2,16,50,repetition=5,charisma=10,magie=10,agility=10,effects=liaWeapEff,effectOnUse=charming,use=MAGIE,emoji='<:liaWeap:908859908034793552>')
 lioWeapEff = effect("Kitsune de l'eau","lioWeapEff",CHARISMA,emoji=uniqueEmoji('<:waterKitsune:917670866626707516>'),intelligence=10,magie=10,turnInit=-1,unclearable=True,description="La douceur de Lio en a épaté plus d'un.\nÀ chaque soins réalisés par cette dernière, donne l'effet Sous le Charme III à l'allié soigné",callOnTrigger=charming2)
 lioWeap = weapon("Écume","lioWeap",RANGE_LONG,AREA_CIRCLE_5,35,50,charisma=20,effects=lioWeapEff,use=CHARISMA,emoji='<:lioWeap:908859876812415036>',type=TYPE_HEAL,target=ALLIES)
 lioRez = skill("Eau Mystique","lioRez",TYPE_RESURECTION,0,150,AREA_CIRCLE_7,ultimate=True,area=AREA_CIRCLE_2,use=CHARISMA,emoji='<:lioSkill:922328964926697505>',cooldown=3,say="Allez vous autre... C'est pas le moment de stagner...")
 lieWeapEff = effect("Kitsune du feu","lieWeapEff",CHARISMA,emoji=uniqueEmoji('<:fireKitsune:917670925904785408>'),intelligence=10,magie=10,turnInit=-1,unclearable=True,description="L'ardeur de Liz en a comblé plus d'un\nÀ chaque attaque réalisée, donne l'effet Sous le Charme II à la cible",callOnTrigger=charming)
-lieWeap = weapon("Braise","lieWeap",RANGE_LONG,AREA_CIRCLE_4,48,50,charisma=10,magie=10,area=AREA_CIRCLE_1,effects=lieWeapEff,use=MAGIE,emoji='<:lizWeap:908859856608460820>')
-lieSkillEff = effect("Combustion","lieSKillEff",MAGIE,resistance=-2,power=30,turnInit=4,lvl=4,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
-lieSkill = skill("Flamme intérieur","lizSkill",TYPE_DAMAGE,0,effects=lieSkillEff,cooldown=3,power=115,say="Voyons voir si tu va pouvoir résister longtemps...",use=MAGIE,emoji='<:lizSkill:922328829765242961>')
+lizWeapEffExplo = effect("Braise Explosive","lizWeapEffExplo",MAGIE,power=30,area=AREA_CIRCLE_1,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji='<:enemyFire:1042312985407930428>')
+lieWeap = weapon("Braise","lieWeap",RANGE_LONG,AREA_CIRCLE_4,25,95,area=AREA_CONE_2,charisma=10,magie=10,effects=lieWeapEff,use=MAGIE,emoji='<:lizWeap:908859856608460820>',effectOnUse=lizWeapEffExplo)
+LIESKILLEFFGAIN = 35
+lieSkillEff = effect("Combustion","lieSKillEff",MAGIE,power=50,turnInit=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji=uniqueEmoji('<:lizIndirect:917204753610571776>'))
+lieSkill = skill("Flamme intérieur","lizSkill",TYPE_DAMAGE,0,effects=lieSkillEff,cooldown=3,power=115,say="Voyons voir si tu va pouvoir résister longtemps...",use=MAGIE,emoji='<:lizSkill:922328829765242961>',description="Inflige des dégâts continus à l'ennemi ciblé. La puissance des dégâts augmente de **{0}%** après chaques déclanchement".format(LIESKILLEFFGAIN))
 liaSkill = skill("Douce caresse","liaSkill",TYPE_DAMAGE,0,power=70,range=AREA_CIRCLE_1,effects=charming,effPowerPurcent=300,knockback=1,cooldown=5,use=MAGIE,say="Roh allez, détent toi un peu !",emoji='<:liaSkill:922291249002709062>')
-liuSkillEff = effect("Armure Télurique","liuSkillEff",CHARISMA,overhealth=130,aggro=15,inkResistance=10,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:liuArmor:922292960886915103>'),turnInit=3)
+liuSkillEff = effect("Armure Télurique","liuSkillEff",CHARISMA,overhealth=100,aggro=15,inkResistance=10,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=uniqueEmoji('<:liuArmor:922292960886915103>'),turnInit=3)
 liuSkill = skill("Frappe Télurique","liuSkill",TYPE_DAMAGE,0,power=80,use=ENDURANCE,cooldown=3,effectOnSelf=liuSkillEff,say="Oh je suis pas encore finie tu va voir !",emoji='<:liuSkill:922328931502280774>')
 lioHealZone = skill("Giga Soins Aquatique","lioHealZone",TYPE_HEAL,power=70,area=AREA_CIRCLE_1,cooldown=5,emoji='<:extraHeal:952522927214051348>',use=CHARISMA)
 lioLBHot = effect("Purfication","lioLBHot",CHARISMA,power=20,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,turnInit=3,emoji='<:lioHot:1016788041785950250>',stackable=True)
 lioLB = skill("Riptide","lioLb",TYPE_HEAL,power=70,range=AREA_CIRCLE_4,area=AREA_CIRCLE_1,cooldown=7,initCooldown=3,effectAroundCaster=[TYPE_INDIRECT_HEAL,AREA_CIRCLE_3,lioLBHot],use=CHARISMA,description="Lio soigne ses alliés en zone et applique un effet de soins indirects à ses alliés alentours", url='https://media.discordapp.net/attachments/971788596401041480/979903178252374086/20220528_021252.gif',emoji='<:purge:979903342136422440>')
-liaLB = skill("Danse des Vents","liaLb",use=CHARISMA,types=TYPE_MALUS,range=AREA_MONO,area=AREA_DONUT_3,effects=charming,effectAroundCaster=[TYPE_BOOST,AREA_CIRCLE_2,charming2],effPowerPurcent=1000,cooldown=7,initCooldown=transObs.initCooldown,description="Réduit fortement les statistiques des ennemis autour de vous tout en augmentant celles des alliés autours de vous\nLa puissance du bonus sur les alliés est divisé par cinq\n\nCette compétence est une transcendance",url='https://media.discordapp.net/attachments/971788596401041480/979903177593880596/20220528_021716.gif',emoji='<:contredanse:979903303536230430>')
+liaLB = skill("Danse des Vents","liaLb",use=CHARISMA,types=TYPE_MALUS,range=AREA_MONO,area=AREA_DONUT_3,effects=charming,effectAroundCaster=[TYPE_BOOST,AREA_CIRCLE_2,charming2],effPowerPurcent=1000,cooldown=7,initCooldown=transObs.initCooldown,description="Réduit fortement les statistiques des ennemis autour de vous tout en augmentant celles des alliés autours de vous\nLa puissance du bonus sur les alliés est divisé par cinq",url='https://media.discordapp.net/attachments/971788596401041480/979903177593880596/20220528_021716.gif',emoji='<:contredanse:979903303536230430>')
 LIAMINDODGE = 25
-liaCounterSkillEff = effect("Kurrata Kaze","liaEnCounterEff",counterOnDodge=35,turnInit=-1,unclearable=True,emoji=windDanceEff.emoji,description="Octroi à Lia **35%** de chance d'effectuer une contre-attaque lorsqu'elle esquive un assaut venant d'un ennemi à 3 cases ou plus d'elle\nGarantie également à Lia un minimum de **{0}%** de chance d'esquiver une attaque".format(LIAMINDODGE))
-liaCounterSkill = skill("Kurrata Kaze","liaCounter",TYPE_PASSIVE,effectOnSelf=liaCounterSkillEff,emoji=windDanceEff.emoji[0][0])
 
-LIZLBPOWERGAINPERCHARM = 15
-lizLB = skill("Flamme Sentimentale","lizLb",TYPE_DAMAGE,use=CHARISMA,power=55,setAoEDamage=True,area=AREA_ALL_ENEMIES,cooldown=7,shareCooldown=True,effectAroundCaster=[TYPE_BOOST,AREA_DONUT_3,charming2],initCooldown=transObs.initCooldown,description="Inflige des dégâts à tous les ennemis en consommant leurs effet <:CharmeB:908793556435632158> __Sous le Charme II__. Pour chaque effet consummé, la puissance de cette compétence augmente de {0}\nAugmente également les statistiques des alliés autour de vous\n\nCette compétence est une transcendance".format(LIZLBPOWERGAINPERCHARM),url="https://media.discordapp.net/attachments/971788596401041480/979903177111515177/20220528_022438.gif",emoji='<:chocTermique:979903323094261771>')
+
+LIZLBPOWERGAINPERCHARM = 10
+lizLB_1 = skill("Flamme Sentimentale","lizLb_2",TYPE_DAMAGE,use=MAGIE,power=150,area=AREA_CIRCLE_3,cooldown=7,effectAroundCaster=[TYPE_BOOST,AREA_DONUT_3,charming2],description="Inflige des dégâts à tous les ennemis en consommant leurs effets {1} __{2}__. Pour chaque effet consummé sur une cible, les dégâts de cette compétence qu'elle reçoit sont augmentés de {0}%\nAugmente également les statistiques des alliés autour de Liz".format(LIZLBPOWERGAINPERCHARM,charming.emoji[0][0],charming.name),url="https://media.discordapp.net/attachments/971788596401041480/979903177111515177/20220528_022438.gif",emoji='<:chocTermique:979903323094261771>',ultimate=True,sussess=200)
+lizLb_c = effect("Cast - {replicaName}","lizLb",turnInit=2,silent=True,replique=lizLB_1)
+lizLB = copy.deepcopy(lizLB_1)
+lizLB.power, lizLB.effectOnSelf, lizLB.effectAroundCaster, lizLB.url, lizLB.id = 0, lizLb_c, None, None, "LizLb"
+lizQuadBoom_1 = skill("Boum Boum Boum Boum","lizBoomx4",TYPE_DAMAGE,use=MAGIE,power=60,area=AREA_CIRCLE_2,repetition=4,damageOnArmor=.65,condition=[EXCLUSIVE,ELEMENT,ELEMENT_FIRE],cooldown=7,emoji=fireCircle.emoji,description="Après un tour de chargement, Liz effectue 4 attaques autour de l'ennemi ciblé (dégâts réduits de 35% sur l'armure)")
+lizQuadBoom_c = effect("Cast - {replicaName}","lizBoomx4_c",replique=lizQuadBoom_1,turnInit=2,silent=True)
+lizQuadBoom = copy.deepcopy(lizQuadBoom_1)
+lizQuadBoom.effectOnSelf, lizQuadBoom.power = lizQuadBoom_c, 0
+
 liuLBEff = copy.deepcopy(defenseUp)
-liuLBEff.stat, liuLBEff.power = ENDURANCE, 22
-liuLB = skill("Mur Tectonique","liuLb",TYPE_ARMOR,range=AREA_MONO,area=AREA_ALL_ALLIES,cooldown=7,shareCooldown=True,effects=liuLBEff,effectAroundCaster=[TYPE_BOOST,AREA_DONUT_3,charming2],initCooldown=3,emoji=trans.emoji,url="https://cdn.discordapp.com/attachments/912137828614426707/957181011555397642/20220326_083047.gif")
+liuLBEff.stat, liuLBEff.power = ENDURANCE, 20
+liuLBEff2 = effect("Armure Tectonique","liuLbArmorEff",ENDURANCE,overhealth=35,turnInit=3,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,emoji=liuSkillEff.emoji[0][0])
+liuLB = skill("Mur Tectonique","liuLb",TYPE_ARMOR,range=AREA_MONO,area=AREA_ALL_ALLIES,cooldown=7,shareCooldown=True,effects=[liuLBEff2,liuLBEff],effectAroundCaster=[TYPE_BOOST,AREA_DONUT_3,charming2],initCooldown=3,emoji=trans.emoji,url="https://cdn.discordapp.com/attachments/912137828614426707/957181011555397642/20220326_083047.gif",description="Liu octroi une armure à ses alliés proche et elle-même tout en réduisant les dégâts qu'ils subissent")
 liaSkill1, liaSkill2, liaSkill1Eff = copy.deepcopy(airCircle), copy.deepcopy(storm2), copy.deepcopy(findEffect(airCircle.effects[0]))
 liaSkill1.use = liaSkill2.use = liaSkill1Eff.stat = AGILITY
 liaSkill1.effects = [liaSkill1Eff]
 liaSkill1.power = liaSkill1.power + 20
 liuMontBreaker = copy.deepcopy(cassMont)
 liuMontBreaker.use = liuMontBreaker.effects[0].stat = ENDURANCE
+liuMontBreaker.effects[0].power = int(liuMontBreaker.effects[0].power*1.3)
 liuAoEShieldEff = effect("Armure Rocheuse","liu",ENDURANCE,overhealth=50,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=liuSkillEff.emoji)
 liuAoEShieldOnHer = copy.deepcopy(defenseUp)
-liuAoEShieldOnHer.power = liuAoEShieldOnHer.aggro = 15
+liuAoEShieldOnHer.power = liuAoEShieldOnHer.aggro = 25
 liuAoEShieldSkill = skill("Cristalisation","liuAoEShieldSkill",TYPE_ARMOR,emoji='<:enemyStone:1042313085400133632>',effects=liuAoEShieldEff,cooldown=5,area=AREA_DONUT_2,range=AREA_MONO,effectOnSelf=liuAoEShieldOnHer,description="Liu octroi une armure à ses alliés alentours et réduit les dégâts qu'elle subit",use=ENDURANCE)
-lizDotAoEEff = effect("Combustion Explosive","lizDotAoE",MAGIE,power=28,area=AREA_CIRCLE_3,turnInit=3,lvl=3,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji='<:enemyFire:1042312985407930428>')
-lizDotAoE = skill("Braise Explosive","lizDotAoE",TYPE_DAMAGE,power=50,use=MAGIE,effects=lizDotAoEEff,cooldown=5,emoji='<:enemyFire:1042312985407930428>')
+lizDotAoEEff = effect("Combustion Explosive","lizDotAoE",MAGIE,power=32,area=AREA_CIRCLE_3,turnInit=3,lvl=3,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji='<:enemyFire:1042312985407930428>')
+lizDotAoE = skill("Braise Explosive","lizDotAoE",TYPE_DAMAGE,power=80,use=MAGIE,effects=lizDotAoEEff,cooldown=5,emoji='<:enemyFire:1042312985407930428>')
 
-lizAoELauch = skill("Déflagration","lizAoe",TYPE_DAMAGE,power=150,area=AREA_CIRCLE_2,range=AREA_CIRCLE_5,use=MAGIE,cooldown=5,emoji="<:majorFire2:1042349795353825320>")
+lizAoELauch = skill("Déflagration","lizAoe",TYPE_DAMAGE,power=180,area=AREA_CIRCLE_2,range=AREA_CIRCLE_5,use=MAGIE,cooldown=5,emoji="<:majorFire2:1042349795353825320>")
 lizAoeCast = effect("Cast - {replicaName}","lizAoeCast",turnInit=2,silent=True,replique=lizAoELauch)
 lizAoE = copy.deepcopy(lizAoELauch)
 lizAoE.power, lizAoE.effectOnSelf = 0, lizAoeCast
 
 liuFurTel = copy.deepcopy(earthUlt2Lanch)
-liuFurTelCastEff = effect("Cast - {replicaName}","liuFurTelCast",turnInit=2,replique=liuFurTel)
+liuFurTelCastEff, liuFurTel.effectOnSelf, liuFurTel.armorConvert = effect("Cast - {replicaName}","liuFurTelCast",turnInit=2,replique=liuFurTel), None, 50
 liuFurTelCast = skill("Glissement Tellurique",liuFurTel.id,TYPE_DAMAGE,power=20,effectOnSelf=liuFurTelCastEff,range=AREA_MONO,area=AREA_INLINE_4,emoji=liuFurTel.emoji,cooldown=liuFurTel.cooldown,pull=3,description="Attire sur vous les ennemis alignés puis inflige des dégâts au corps à corps lors du second tour")
 
 lioIndirectHeal_eff = copy.deepcopy(healDoneBonus)
@@ -146,7 +157,7 @@ bobSays.start = "Hello. I'm Bob"
 
 # Cliroptère skill
 clirHeal = skill("Clémence","stopSpamThatPls",TYPE_HEAL,0,70,cooldown=2,use=CHARISMA)
-clirWeap = weapon("Bouclier Nocturne","clirWeap",RANGE_MELEE,AREA_CIRCLE_1,80,70,charisma=10,resistance=10,endurance=10,use=CHARISMA)
+clirWeap = weapon("Bouclier Nocturne","clirWeap",RANGE_MELEE,AREA_CIRCLE_1,74,70,charisma=10,resistance=10,endurance=10,use=CHARISMA)
 clirSkill1 = skill("Frappe Nocturne","clirSkill1",TYPE_DAMAGE,power=85,use=CHARISMA,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_3,70],emoji=requiescat.emoji,cooldown=4)
 
 # Octa PomPom Skills
@@ -172,7 +183,7 @@ clirInfSkill1 = skill("Largesse","clirInfSkill1",TYPE_BOOST,effects=clirInfSkill
 octoSusSkill1 = skill("Vent",'octoSusSkill1',TYPE_DAMAGE,0,80,range=AREA_RANDOMENNEMI_1,cooldown=3,emoji='<:Vent:932241554125520957>',tpCac=True)
 octoSusSkill2Eff = effect("Saboté",'octoSusSkill2Eff',INTELLIGENCE,type=TYPE_MALUS,strength=-10,magie=-10,charisma=-10,intelligence=-10,emoji='<:Sabotage:932241553865465946>')
 octoSusSkill2 = skill('Sabotage','octoSusSkill2',TYPE_MALUS,0,effects=octoSusSkill2Eff,area=AREA_DONUT_1,range=AREA_MONO,emoji='<:Sabotage:932241553865465946>')
-octoSusWeap = weapon("Kill",'octoSusWeap',range=RANGE_LONG,effectiveRange=AREA_CIRCLE_1,power=77,sussess=90,emoji='<:Kill:932241554050023484>')
+octoSusWeap = weapon("Kill",'octoSusWeap',range=RANGE_LONG,effectiveRange=AREA_CIRCLE_1,power=72,sussess=90,emoji='<:Kill:932241554050023484>')
 
 # Unform Light A
 unformLightAWeapon = weapon("Lumière destructrice",'informLightAWeap',RANGE_MELEE,AREA_CIRCLE_2,108,60,strength=20,magie=20)
@@ -242,10 +253,6 @@ stellaLBGuide2.replica = stellaLB2
 stellaLB = copy.deepcopy(stellaLBFinal)
 stellaLB.id, stellaLB.effPowerPurcent, stellaLB.url, stellaLB.effectOnSelf = "stellaLB", 100, "https://media.discordapp.net/attachments/927195778517184534/960234772926455908/20220403_194702.gif",stellaLBGuide2
 
-basicMobShieltron = skill("Shieltron","genericShieltron",TYPE_PASSIVE,effectOnSelf=shieltron,emoji=shieltron.emoji[0][0])
-liuShieltron = copy.deepcopy(basicMobShieltron)
-liuShieltron.name, liuShieltron.effectOnSelf.block, liuShieltron.id = "Shieltron Rocheux", 35, "liuShieltron"
-
 # Octo Gazor
 octoGazTox = copy.deepcopy(lanceToxEff)
 octoGazTox.power = int(octoGazTox.power * 0.6)
@@ -279,26 +286,27 @@ sniperSonar.depl.description = sniperSonar.depl.description.replace("{0} __{1}__
 # Octo Bouclier Bubble
 shieldBubble = copy.deepcopy(bigBubbler)
 shieldBubble.use = shieldBubble.depl.skills.use = shieldBubble.depl.skills.effects[0].stat = ENDURANCE
+shieldBubble.depl.skills.effects[0].overhealth = int(shieldBubble.depl.skills.effects[0].overhealth*0.5)
 shieldBubble.name = shieldBubble.name + " (Endurance)"
 shieldBubble.depl.description = shieldBubble.depl.description.replace("{0} __{1}__".format(statsEmojis[sonarPaf.use],allStatsNames[sonarPaf.use]), "{0} __{1}__".format(statsEmojis[shieldBubble.depl.skills.use],allStatsNames[shieldBubble.depl.skills.use]))
 
-imeaDot = effect("Gelûres","imeaDot",MAGIE,emoji='<:imea1:1020057856772419605>',power=20,turnInit=3,lvl=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,dodge=-3,description="Le froid engourdit vos membres, vous infligeants des dégâts en début de tour et diminuant vos chances d'esquiver des attaques")
-imeaWeap = weapon("Pic de glace","imeaWeap",RANGE_LONG,AREA_CIRCLE_5,magie=20,power=42,emoji='<:iceArrow:980172688284876830>',sussess=75,effectOnUse=imeaDot,use=MAGIE)
-imeaSkill1 = skill("Stalactite","imeaSkill1",TYPE_DAMAGE,power=120,cooldown=5,effects=imeaDot,use=MAGIE,emoji='<:ice:941494417926270987>')
-imeaSkill2 = skill("Lames de glace","imeaSkill2",TYPE_DAMAGE,power=100,cooldown=5,effects=imeaDot,area=AREA_CIRCLE_2,use=MAGIE,emoji='<:imea3:1020057922190974997>')
-imeaSkill3 = skill("Tempête de neige","imeaSkill3",TYPE_INDIRECT_DAMAGE,cooldown=5,effects=imeaDot,area=AREA_CIRCLE_2,effPowerPurcent=150,emoji='<:imea2:1020057890209407088>')
-imeaSkill4Lauch = skill("Tombe gelée","imeaUlt",TYPE_DAMAGE,power=250,ultimate=True,cooldown=7,use=MAGIE,effects=imeaDot,effPowerPurcent=175,emoji='<:ice2:941494399337136208>')
+imeaDot = effect("Gelûres","imeaDot",MAGIE,emoji='<:imea1:1020057856772419605>',power=30,turnInit=3,lvl=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,dodge=-3,description="Le froid engourdit vos membres, vous infligeants des dégâts en début de tour et diminuant vos chances d'esquiver des attaques")
+imeaWeap = weapon("Pic de glace","imeaWeap",RANGE_LONG,AREA_CIRCLE_5,magie=20,power=53,emoji='<:iceArrow:980172688284876830>',sussess=60,effectOnUse=imeaDot,use=MAGIE)
+imeaSkill1 = skill("Stalactite","imeaSkill1",TYPE_DAMAGE,power=100,cooldown=5,effects=imeaDot,use=MAGIE,emoji='<:ice:941494417926270987>')
+imeaSkill2 = skill("Lames de glace","imeaSkill2",TYPE_DAMAGE,power=80,cooldown=5,effects=imeaDot,area=AREA_CIRCLE_2,use=MAGIE,emoji='<:imea3:1020057922190974997>',effPowerPurcent=75)
+imeaSkill3 = skill("Tempête de neige","imeaSkill3",TYPE_INDIRECT_DAMAGE,cooldown=7,effects=imeaDot,area=AREA_CIRCLE_2,effPowerPurcent=135,emoji='<:imea2:1020057890209407088>')
+imeaSkill4Lauch = skill("Tombe gelée","imeaUlt",TYPE_DAMAGE,power=200,ultimate=True,cooldown=7,use=MAGIE,effects=imeaDot,effPowerPurcent=150,emoji='<:ice2:941494399337136208>',sussess=200)
 imeaSkill4Cast = effect("Cast - {replicaName}","castSnowgrave",silent=True,turnInit=2,replique=imeaSkill4Lauch)
 imeaSkill4 = copy.deepcopy(imeaSkill4Lauch)
 imeaSkill4.power, imeaSkill4.effects, imeaSkill4.effectOnSelf = 0, [None], imeaSkill4Cast
-imeaSkill5 = skill("Croix gelée","imeaSkill5",TYPE_DAMAGE,power=125,cooldown=7,area=AREA_INLINE_5,use=MAGIE,emoji='<:imea1:1020057856772419605>',effects=imeaDot)
+imeaSkill5 = skill("Croix gelée","imeaSkill5",TYPE_DAMAGE,power=125,cooldown=7,area=AREA_INLINE_5,use=MAGIE,emoji='<:imea1:1020057856772419605>',effects=imeaDot,effPowerPurcent=85)
 
 # BigShot
 bigShotWeapon = weapon("Canon à gros boulets","noneweap",RANGE_LONG,AREA_BOMB_6,ignoreAutoVerif=True,power=0,sussess=0)
 bigShotSkill = skill("Tir de Gros Boulets","bigShotSkill",TYPE_DAMAGE,power=85,area=AREA_CIRCLE_2,cooldown=3,repetition=2,range=AREA_BOMB_6,damageOnArmor=2,sussess=65,emoji='<:bigShotShot:1030393123077095514>')
 
 # SteelHead
-steelHeadWeap = weapon("Salive Explosive","steelHealWeapon",RANGE_MELEE,AREA_CIRCLE_2,0,0,ignoreAutoVerif=True)
+steelHeadWeap = weapon("Salive Explosive","noneWeap",RANGE_MELEE,AREA_CIRCLE_2,0,0,ignoreAutoVerif=True)
 steelHeadSkill1_1 = skill("BigBomb","steelHeadSkill",TYPE_DAMAGE,power=120,area=AREA_CIRCLE_2,range=AREA_CIRCLE_3,cooldown=2,emoji='<:bigBomb:1042308669150343200>')
 steelHeadSkill1_c = effect("Cast - {replicaName}","steelHealSkillCast",silent=True,turnInit=2,replique=steelHeadSkill1_1,resistance=-100)
 steelHeadSkill1 = copy.deepcopy(steelHeadSkill1_1)
@@ -316,15 +324,55 @@ witchRageEff2 = copy.deepcopy(dmgUp)
 witchRageEff2.power, witchRageEff2.stat, witchRageEff2.turnInit = 3.5, MAGIE, 3
 witchRageSpell = skill("Sort de Rage","witchRageSpell",TYPE_BOOST,effects=[witchRageEff, witchRageEff2], emoji='<:rageSpell:1042307646100885514>',cooldown=5,area=AREA_CIRCLE_2, description="Augmente la force, la magie et les dégâts infligés des alliés ciblés")
 
+# Rocket Drone
+rocketWeap = weapon("Missile","rocketDroneWeap",RANGE_LONG,AREA_CIRCLE_5,power=43,sussess=80,area=AREA_CIRCLE_1,emoji='<:missile:1051436723252498462>',damageOnArmor=1.35,strength=15,precision=15)
+rocketSkill1 = skill("Salve de missiles","rocketSkill1",TYPE_DAMAGE,power=25,repetition=6,damageOnArmor=2,cooldown=5,emoji='<:miss2:1051436754101612585>',description="Inflige des dégâts à répétition sur une cible unique avec un bonus de dégâts sur l'armure")
+rocketSkill2 = skill("Pluie de missiles","rocketSkill2",TYPE_DAMAGE,power=40,setAoEDamage=True,range=AREA_CIRCLE_5,area=AREA_RANDOMENNEMI_3,repetition=3,emoji='<:miss3:1051436776721481879>',description="Envoi trois salves de missiles qui toucheront des ennemis aléatoires",cooldown=5)
+
+# GlyphidPreorian 
+glyphidArmor = effect("Armure Glyphique","glyphidArmor",ENDURANCE,overhealth=350,turnInit=35,resistance=15,type=TYPE_ARMOR,trigger=TRIGGER_START_OF_TURN,description="Le squelette externe du Prétorien Glyphique lui procure une grosse armure qui augmente également sa résistance")
+glyphidWeap = weapon("Morsure","glyphidPreWeap",RANGE_MELEE,AREA_CIRCLE_1,power=57,sussess=90,endurance=15,strength=15,effects=glyphidArmor,effectOnUse = glyphidPretorianAcidEff)
+critWeaknessEff = effect("Faiblesse Critique","critWeakNEss",power=35,turnInit=-1,type=TYPE_MALUS,description="Un point faible de l'ennemi augmente les dégâts qu'il reçoit de la part de coups critiques directs",emoji='<:critWeakness:1058021637624188958>')
+glyphidCritWeakness = skill("Point Faible","glyphidWeakness",TYPE_PASSIVE,effectOnSelf=critWeaknessEff,emoji="<:critWeakness:1058021637624188958>",description="Une faiblesse dans la carapace du Prétorien Glyphique augmente les dégâts critiques directs qu'il reçoit")
+glyphidDeathCloudEff = effect("Nuage Mortuaire","glyphidDeathCloudEff",trigger=TRIGGER_DEATH,type=TYPE_DEPL,turnInit=99,callOnTrigger=glyphidDeathCould,emoji=glyphidDeathCould.cellIcon[1],description="À sa mort, le Prétorien Glyphique laisse un nuage corrosif qui empoissonne les ennemis qui restent à l'intérieur durant 3 tours")
+glyphidDeathCloudPassif = skill("Nuage Mortuaire","glyphidDeathCloudPAssif",TYPE_PASSIVE,effectOnSelf=glyphidDeathCloudEff,description=glyphidDeathCloudEff.description,emoji=glyphidDeathCloudEff.emoji[0][0])
+glyphidSkill1 = skill("Coup de patte","glyphidSkill1",TYPE_DAMAGE,power=100,range=AREA_CIRCLE_1,damageOnArmor=2,cooldown=5,description="Inflige des dégâts à l'ennemi ciblé, doublés sur l'armure",emoji=batWeap.emoji)
+glyphidSkill2 = skill("Crachat Corrosif","glyphidSkill2",TYPE_INDIRECT_DAMAGE,effects=glyphidPretorianAcidEff,range=AREA_CIRCLE_2,area=AREA_LINE_3,effPowerPurcent=150,cooldown=5,emoji=glyphidPretorianAcidEff.emoji[0][0],description="Empoissone les ennemis ciblés")
+
+# Marinier Sabreur
+marSabWeap = weapon("Sabre","marSabWeap",RANGE_MELEE,AREA_CIRCLE_1,25,65,strength=10,endurance=10,resistance=10,emoji=ironSword.emoji,repetition=4)
+marSabSkill1 = skill("Lame Rapide","marSabSkill1",TYPE_DAMAGE,power=100,range=AREA_CIRCLE_2,cooldown=5,emoji='<:quickSword:1061384146397700096>')
+marSabSkill2 = skill("Irruption Brutale","marSabSkill2",TYPE_DAMAGE,replay=True,power=50,cooldown=3,range=AREA_CIRCLE_2,emoji='<:irruption:1061384198071533589>',tpCac=True,description="Vous téléporte au corps à corps de l'ennemi ciblé, lui inflige des dégâts et vous permet de rejouer votre tour")
+marSabSkill3_eff = effect("Couvert","cover",redirection=100,emoji='<:cover:1061384419212005417>')
+marSabSkill3_eff2 = copy.deepcopy(defenseUp)
+marSabSkill3_eff2.power = 20
+marSabSkill3 = skill("Gardien","marSabSkill3",TYPE_HEAL,power=40,effects=[marSabSkill3_eff2,marSabSkill3_eff],cooldown=5,tpCac=True,description="Vous téléporte au corps à corps de l'allié ciblé, le soigne, réduit les dégâts qu'il subis et redirige l'intégralité des dégâts directs qu'il reçoit sur vous",emoji='<:gardian:1061384121198317629>')
+
+# Marinier Tireur
+marGunWeap = weapon("Pistolet à silex","marGunWeap",RANGE_DIST,AREA_CIRCLE_4,84,65,strength=15,precision=10,agility=5,emoji=troublon.emoji)
+marGunSkill1_eff = effect("Oeuil de Linx","marGunSkill1_eff",STRENGTH,precision=10,critical=2,critDmgUp=15,turnInit=3,emoji=linx.emoji)
+marGunSkill1 = skill("Oeil de Linx","marGunSkill1",TYPE_BOOST,range=AREA_MONO,effects=marGunSkill1_eff,emoji=linx.emoji,cooldown=5,replay=True,description="Augmente votre précision, taux de coup critique et vos dégâts critiques pendant un instant et vous permet de rejouer votre tour")
+marGunSkill2 = skill("Tir Précis","marGunSkill2",TYPE_DAMAGE,power=105,cooldown=5,emoji=shot.emoji)
+marGunSkill3 = skill("Balle Fendue","marGunSkill3",TYPE_DAMAGE,power=85,area=AREA_CONE_2,emoji=fireShot.emoji)
+
+# Warden
+wardenWeap = weapon("Griffe","wardenWeap",RANGE_LONG,AREA_CIRCLE_1,power=50,sussess=100,ignoreAutoVerif=True,emoji=batWeap.emoji,use=INTELLIGENCE)
+wardenSkill1_eff2 = copy.deepcopy(defenseUp)
+wardenSkill1_eff2.power, wardenSkill1_eff2.stat = 4, INTELLIGENCE
+wardenSkill1_eff = effect("Aura Protectrice","wardenSkill1_eff",callOnTrigger=wardenSkill1_eff2,area=AREA_DONUT_2,emoji='<:glyphidProtect:1061392660159541389>',turnInit=-1,trigger=TRIGGER_END_OF_TURN)
+wardenSkill1 = skill("Protection Glyphique (Résistance)","wardenSkill1",TYPE_PASSIVE,effectOnSelf=wardenSkill1_eff,emoji=wardenSkill1_eff.emoji[0][0],description="À la fin de votre tour, réduit les dégâts subis de vos alliés autour de vous")
+wardenSkill2_eff = effect("Aura Protectrice","wardenSkill2_eff",area=AREA_CIRCLE_2,emoji='<:glyphidProtect:1061392660159541389>',turnInit=-1,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_HEAL,power=25,stat=INTELLIGENCE)
+wardenSkill2 = skill("Protection Glyphique (Soins)","wardenSkill2",TYPE_PASSIVE,effectOnSelf=wardenSkill2_eff,emoji=wardenSkill1_eff.emoji[0][0],description="À la fin de votre tour, vous soigne vous et vos alliés alentours")
+
 # --------------------------------------------------------- Tabl Unique Ennemis ---------------------------------------------------------
 tablUniqueEnnemies = [
-    octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement,basicMobShieltron,shieldBubble],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=MASCOTTE),
+    octarien("Octo Bouclier",50,350,20,45,45,20,10,50,0,0,octoShieldWeap,5,'<:OctoShield:881587820530139136>',[octaStrans,blindage,isolement,shieldBubble],description="Un octarien qui se cache derrière un gros et lourd bouclier",number=2,aspiration=MASCOTTE),
     octarien("Octo Tireur",150,55,50,95,155,35,0,20,0,20,octoBallWeap,3,'<:octoshooter:880151608791539742>',[chargeShot,ultraShot],description="Un tireur sans plus ni moins",number=3,aspiration=OBSERVATEUR),
     octarien("Octo Soigneur",30,100,250,35,15,50,50,25,0,0,octoHeal,4,"<:octohealer:880151652710092901>",[lightAura,cure,firstheal],aspiration=ALTRUISTE,description="Un octarien qui se spcésialise dans ~~passer son tour~~ soigner ses alliés",number=3),
     octarien("Rudinn",175,100,20,55,100,35,35,35,0,15,ruddinweap,6,"<a:rudinn:893246033226760232>",skill=[ultraShot],aspiration=TETE_BRULE,deadIcon='<:defeatrudeen:893246353415757824>',baseLvl=10,number=3),
     octarien("Rudinn Ranger",175,175,20,30,30,125,25,35,0,15,ruddinweap2,8,"<a:rudinnRanger:893248570742956072>",aspiration=POIDS_PLUME,deadIcon='<:defeatrudeen:893246353415757824>',skill=[octaStrans],baseLvl=10,number=3),
     octarien("Aéro-benne",200,50,50,60,150,35,20,20,0,0,flyfishweap,7,'<:flyFish:1034364608070291457>',description="Un Salmioche qui s'est passionné pour l'aviation",deadIcon='<:salmonnt:894551663950573639>',aspiration=OBSERVATEUR,baseLvl=10,number=2),
-    octarien("Mallus",25,30,20,20,25,200,200,20,0,15,malusWeapon,6,'<:mallus:895824636716130308>',skill=[malusSkill1,malusSkill2,zoneOctoInkRes,malusSkill3],aspiration=PREVOYANT,baseLvl=15,number=2),
+    octarien("Mallus",25,30,20,20,25,200,200,20,0,15,malusWeapon,6,'<:mallus:895824636716130308>',skill=[malusSkill1,malusSkill2,zoneOctoInkRes,malusSkill3],aspiration=INOVATEUR,baseLvl=15,number=2),
     octarien("Kralamour",10,50,250,50,0,200,30,30,0,0,kralamWeap,5,'<:kralamour:895443866189176842>',[kralamSkill,kralamSkill2,zoneOctoInkRes,kralamSkill3],PREVOYANT,baseLvl=15,number=2),
     octarien("Temmie",55,100,55,50,35,30,175,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=temSays,baseLvl=15,number=3),
     octarien("Bob",55,100,55,50,35,30,200,30,15,15,temWeap,4,'<:temmie:894546348324552724>',[temSkill1],deadIcon='<:temmient:894545999996014663>',aspiration=TETE_BRULE,say=bobSays,baseLvl=15),
@@ -341,25 +389,30 @@ tablUniqueEnnemies = [
     octarien("Octo Moine",175,125,30,35,75,75,50,30,0,20,mainLibre,5,'<:octoMonk:907723929882337311>',[airStrike,earthStrike,None,None,None,None,maitriseElementaire],BERSERK,baseLvl=15,number=2,element=ELEMENT_UNIVERSALIS_PREMO),
     octarien("Octo Scientifique",10,25,120,75,35,250,10,30,0,0,octoBoostWeap,7,"<:octoScience:915054617933541386>",[octoBoostSkill1,octoBoostSkill2,octoBoostSkill3,octoBoostSkill4,zoneOctoInkRes],INOVATEUR,number=2),
     octarien("Octo Sniper",250,30,20,100,120,20,15,15,10,20,octoSnipeWeap,7,'<:octotSniper:873118129398624287>',aspiration=OBSERVATEUR,description="Un octarien qui a passé des années à s'entrainer pour rivaliser avec une inkling qui faisait des ravages conséquents parmis les siens",baseLvl=15,skill=[antiArmorShot,sniperSonar]),
-    octarien("Liu",30,300,155,0,50,20,0,65,0,0,liuWeap,10,'<:liu:908754674449018890>',[liuSkill,shieldBubble,liuShieltron,liuMontBreaker,liuAoEShieldSkill,liuFurTelCast],PROTECTEUR,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH),
-    octarien("Lia",20,50,150,250,30,30,20,30,0,0,liaWeap,10,'<:lia:908754741226520656>',[liaSkill1, liaSkill2,liaSkill,liaCounterSkill,windBal,liaLB,sillage],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays,element=ELEMENT_AIR),
-    octarien("Lio",20,70,250,75,50,35,80,35,0,0,lioWeap,10,'<:lio:908754690769043546>',[asile,lioRez,veterHealSkill2,lioHealZone,lioLB,misery,lioIndirectHeal],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays,element=ELEMENT_WATER),
-    octarien("Liz",10,55,135,35,20,35,205,35,20,0,lieWeap,10,'<:lie:908754710121574470>',[pyro,lizBoomCast,lieSkill,lizDotAoE,lizAoE,lizDespairFire,lizLB],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays,element=ELEMENT_FIRE),
+    octarien("Liu",30,300,155,0,50,20,0,65,0,0,liuWeap,10,'<:liu:908754674449018890>',[liuSkill,shieldBubble,liuMontBreaker,liuAoEShieldSkill,liuFurTelCast, liuLB],PROTECTEUR,GENDER_FEMALE,"La plus sportive de sa fratterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liuSays,element=ELEMENT_EARTH,elemAffinity=True),
+    octarien("Lia",20,50,150,250,30,30,20,30,0,0,liaWeap,10,'<:lia:908754741226520656>',[liaSkill1, liaSkill2,liaSkill,windBal,liaLB,sillage],POIDS_PLUME,GENDER_FEMALE,"La plus rapide et agile de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=liaSays,element=ELEMENT_AIR,elemAffinity=True),
+    octarien("Lio",20,70,250,75,50,35,80,35,0,0,lioWeap,10,'<:lio:908754690769043546>',[asile,lioRez,veterHealSkill2,lioHealZone,lioLB,misery,lioIndirectHeal],ALTRUISTE,GENDER_FEMALE,"La plus calme et tranquille de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lioSays,element=ELEMENT_WATER,elemAffinity=True),
+    octarien("Liz",10,55,135,35,20,35,205,35,20,0,lieWeap,10,'<:lie:908754710121574470>',[pyro,lizQuadBoom,lieSkill,lizDotAoE,lizAoE,lizDespairFire,lizLB],MAGE,GENDER_FEMALE,"La plus impulsive de sa fraterie\n\nChaque attaque à l'arme des Soeurs Kitsune applique l'état \"Sous le charme II\" qui diminue légèrement les statistiques de la cible","<:kitsuSisterDead:908756093101015100>",baseLvl=20,say=lizSays,element=ELEMENT_FIRE,elemAffinity=True),
     octarien("Benjamin Hunter",30,100,100,30,50,250,0,35,20,0,hunterWeap,8,'<a:HunterNo:800841356502237225>',[hunterSkill1,hunterSkill2,hunterSkill3,hunterSkill4],IDOLE,GENDER_MALE,deadIcon='<:AutopsyReport:800839396151656469>',baseLvl=15),
     octarien("Octo Invocateur",135,80,45,75,75,45,135,25,0,0,octoInvocWeap,7,'<:octoSummoner:919862854683873331>',[invocCarbunR,invocCarbE,invocCarbSaphir,invocCarbObsi,invocCarbT],baseLvl=20),
-    octarien("Citoptère Pal. Cor.",0,200,200,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[ironWillSkill,clirHeal,lightAura2,renisurection,basicMobShieltron,clirSkill1],VIGILANT,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
+    octarien("Citoptère Pal. Cor.",0,200,200,50,50,35,50,45,0,0,clirWeap,8,'<:cliropPal:921910882009759764>',[octaStrans,clirHeal,lightAura2,renisurection,clirSkill1],VIGILANT,deadIcon='<:cliroOut:921912637103698010>',baseLvl=15,number=2,gender=GENDER_FEMALE),
     octarien("Octaling PomPomGirl",10,70,300,100,45,35,10,20,0,0,octaPomWeapon,7,"<:octaPomPom:921910868097257472>",[octoPomSkill1,octoPomSkill2,octoPomSkill3,octoPomSkill4,zoneOctoInkRes],IDOLE,number=2,gender=GENDER_FEMALE),
     octarien("Citoptère Inf. Cor.",0,50,275,75,100,20,20,35,0,0,clirInfWeap,6,'<:cliroInfirm:921915716435836968>',[lightHeal2,lightBigHealArea,renisurection,clirInfSkill1],ALTRUISTE,baseLvl = 15, deadIcon = '<:cliroOut:921912637103698010>',number=2),
     octarien("OctoSUS",200,75,0,35,50,200,0,35,20,0,octoSusWeap,5,'<:octoSus:932220811828412456>',[octoSusSkill1,octoSusSkill2],BERSERK,deadIcon='<:dead:932243831104102450>', baseLvl = 15, number=3),
-    octarien("Lueur informe A",135,150,20,20,50,25,200,50,20,0,unformLightAWeapon,10,'<:aformLight:931881464302284871>',[unformLightASkill1,unformLightASkill2,unformLightASkill3,unformLightASkill4],MASCOTTE,description="Une lueur instable qui cherche à éliminer tous les éléments autre que Lumière de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],baseLvl=30),
-    octarien("Ombre informe A",100,150,20,20,50,25,235,50,20,0,unformDarknessAWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessASkill1,unformDarknessASkill2,unformDarknessASkill3],ENCHANTEUR,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
-    octarien("Ombre informe B",100,80,35,35,50,35,250,20,15,15,unformDarknessBWeapon,10,'<:unformDark:934406341588561941>',[unformDarknessBSkill1,unformDarknessBSkill2,unformDarknessBSkill3],SORCELER,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:empty:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
+    octarien("Lueur informe A",135,150,20,20,50,25,200,50,20,0,unformLightAWeapon,10,'<:aformLight:931881464302284871>',[unformLightASkill1,unformLightASkill2,unformLightASkill3,unformLightASkill4],MASCOTTE,description="Une lueur instable qui cherche à éliminer tous les éléments autre que Lumière de ce monde. Menace pour tout être vivant",deadIcon='<:em:866459463568850954>',rez=False,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],baseLvl=30),
+    octarien("Ombre informe A",100,150,20,20,50,25,235,50,20,0,unformDarknessAWeapon,10,'<:unformShadow:1059462530046636103>',[unformDarknessASkill1,unformDarknessASkill2,unformDarknessASkill3],ENCHANTEUR,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:em:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
+    octarien("Ombre informe B",100,80,35,35,50,35,250,20,15,15,unformDarknessBWeapon,10,'<:unformShadow:1059462530046636103>',[unformDarknessBSkill1,unformDarknessBSkill2,unformDarknessBSkill3],SORCELER,description="Une ombre instable qui cherche à éliminer tous les éléments autre que Ténèbres de ce monde. Menace pour tout être vivant",deadIcon='<:em:866459463568850954>',rez=False,element=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],baseLvl=30),
     octarien("Octo Gazeur",200,70,10,50,35,200,0,50,35,0,octoGazWeap,6,'<:octogazeur:972160938104979516>',[octoGazSkill1,octoGazSkill2,octoGazSkill3],ATTENTIF,baseLvl=10,element=ELEMENT_DARKNESS,number=2),
     octarien("Lime Cookie",150,80,150,100,70,20,20,25,0,0,limeWeapon,8,"<a:limeCookieRun:1004092989557186570>",[limeSkill1,limeSkill2,limeSkill3,limeSkill4,limeSkill5,limeSkill6,limeSkill7],MASCOTTE,GENDER_FEMALE,deadIcon="<:limeCookieTripped:1004093087569694790>",baseLvl=5,element=[ELEMENT_SPACE,ELEMENT_AIR]),
     octarien("Imea",0,50,50,35,100,50,300,15,10,10,imeaWeap,10,"<:imea:1020058293982470144>",[imeaSkill1,imeaSkill2,imeaSkill3,imeaSkill4,imeaSkill5],MAGE,GENDER_FEMALE,"Une elfe des neiges qui cherche à extérioriser son pouvoir qu'elle refoule en elle depuis trop longtemps","<:spIka:866465882540605470>",baseLvl=25,element=[ELEMENT_WATER,ELEMENT_LIGHT]),
     octarien("Gros Boulet",200,200,0,0,100,50,0,30,20,15,bigShotWeapon,7,"<:bigShot:1034364630233001994>",[bigShotSkill],OBSERVATEUR,GENDER_OTHER,"Un gros salmonoides qui bombarde les positions adverses à bonne distance","<:salmonnt:894551663950573639>",baseLvl=20,number=2),
-    octarien("Tête de Pneu",200,235,0,0,35,35,0,150,0,0,steelHeadWeap,7,"<:steelHead:1034364546573402113>",[steelHeadSkill1],TETE_BRULE,deadIcon="<:salmonnt:894551663950573639>",description="Un gros salmonoïde à la salive explive. Sa résistance diminue fortement lorsqu'un charge son attaque",baseLvl=20,number=2),
-    octarien("Sorcière",20,100,25,50,75,135,200,35,10,0,witchWeapon,7,"<:witch:1034363858262949918>",[witchSkill,strengthOfDesepearance,witchPoisonSpell,witchRageSpell],SORCELER,GENDER_FEMALE,"Une sorcière ayant étudié la magie noir pour pouvoir ramener temporairement les morts à la vie","<:ghost:894550239204220958>",baseLvl=15,rez=False,number=2)
+    octarien("Tête de Pneu",200,235,0,0,35,35,0,150,0,0,steelHeadWeap,7,"<:steelHead:1034364546573402113>",[octaStrans,steelHeadSkill1],TETE_BRULE,deadIcon="<:salmonnt:894551663950573639>",description="Un gros salmonoïde à la salive explive. Sa résistance diminue fortement lorsqu'un charge son attaque",baseLvl=20,number=2),
+    octarien("Sorcière",20,100,25,50,75,135,200,35,10,0,witchWeapon,7,"<:witch:1034363858262949918>",[witchSkill,strengthOfDesepearance,witchPoisonSpell,witchRageSpell],SORCELER,GENDER_FEMALE,"Une sorcière ayant étudié la magie noir pour pouvoir ramener temporairement les morts à la vie","<:ghost:894550239204220958>",baseLvl=15,rez=False,number=2),
+    octarien("Drône Lance-Missiles",350,35,0,35,150,0,0,0,20,20,rocketWeap,7,"<:missLauncher:1051436919646588988>",[rocketSkill1,rocketSkill2],OBSERVATEUR,description="Un drône de la mafia locale",baseLvl=30,number=2),
+    octarien("Prétorien Glyphique",250,270,0,20,50,10,0,30,0,0,glyphidWeap,7,"<:glyphidPretorian:1055001044909838397>",[glyphidCritWeakness,glyphidDeathCloudPassif,glyphidSkill1,glyphidSkill2],ATTENTIF,description="Une grosse créature dotté d'un squelette externe résistant",baseLvl=25,rez=False,element=[ELEMENT_EARTH,ELEMENT_DARKNESS],number=2),
+    octarien("Marinier Sabreur",225,125,25,50,75,35,0,50,0,0,marSabWeap,5,"<:marSab1:1059519565693993060>",[marSabSkill1,marSabSkill2,marSabSkill3],TETE_BRULE,deadIcon="<:spIka:866465882540605470>",baseLvl=5,number=4),
+    octarien("Marinier Tireur",225,35,25,50,135,50,0,50,0,0,marGunWeap,5,"<:marGun1:1059519589979017337>",[marGunSkill1,marGunSkill2,marGunSkill3],OBSERVATEUR,deadIcon="<:spIka:866465882540605470>",baseLvl=5,number=3),
+    octarien("Protecteur Glyphique",50,150,20,50,65,225,0,40,0,0,wardenWeap,7,"<:warden:1061392165999222885>",[wardenSkill1,wardenSkill2],PREVOYANT,baseLvl=10)
 ]
 
 # --------------------------------------------------------- Tabl All Ennemis ---------------------------------------------------------
@@ -388,7 +441,7 @@ spamSKill5 = copy.deepcopy(spamSkill5_1)
 spamSKill5.power, spamSKill5.effectOnSelf, spamSKill5.effectAroundCaster = 0, spamSkill5_cast, [TYPE_BOOST,AREA_MONO,spamSkill5_eff]
 
 # Serena
-serenaSpe = skill("Libération","SerenaLibe",TYPE_INDIRECT_DAMAGE,0,200,AREA_MONO,ultimate=True,cooldown=7,area=AREA_ALL_ENEMIES,description="Séréna fait imploser toutes les poudres de fées d'Estialba, infligeant des dégâts en fonction du nombre d'effets \"Poison d'Estialba\" et de leurs durées restantes",emoji=estal.emoji[0][0])
+serenaSpe = skill("Libération","SerenaLibe",TYPE_INDIRECT_DAMAGE,0,125,AREA_MONO,ultimate=True,cooldown=7,area=AREA_ALL_ENEMIES,description="Séréna fait imploser toutes les poudres de fées d'Estialba, infligeant des dégâts en fonction du nombre d'effets \"Poison d'Estialba\" et de leurs durées restantes",emoji=estal.emoji[0][0])
 serenaSkill = skill("Propagation","SeranaPropa",TYPE_INDIRECT_DAMAGE,0,0,AREA_MONO,area=AREA_ALL_ENEMIES,cooldown=3,effects=estal,emoji="<:propa2:993801072630046811>",effPowerPurcent=120)
 serenaFocal, serenaCloud = copy.deepcopy(focal), copy.deepcopy(poisonus)
 serenaFocal.effectOnSelf, serenaFocal.area, serenaFocal.cooldown, serenaCloud.area = None, AREA_CIRCLE_2, serenaFocal.cooldown +2, AREA_CIRCLE_2
@@ -409,7 +462,7 @@ jevilSkill2 = skill("Final Chaos","jevilSkill2",TYPE_DAMAGE,0,75,AREA_MONO,setAo
 jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:902383022354079814>'),turnInit=-1,unclearable=True,description="Confuse confusing confusion",effPrio=10)
 
 # Luna (Oh it's will be funny)
-lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_LONG,AREA_CIRCLE_1,35,40,strength=20,agility=20,precision=20,repetition=5,emoji='<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True)
+lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_LONG,AREA_CIRCLE_1,35,40,strength=20,agility=10,precision=10,repetition=3,emoji='<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True)
 lunaInfiniteDarknessStun = effect("Lumière Éternelle","ilianaInfiniteLigthEff",None,type=TYPE_MALUS,stun=True,silent=True,emoji=uniqueEmoji("<:iliEff:929705167853604895>"))
 
 lunaVulne = effect("Vulnérabilité ombrale","lunaVulné",STRENGTH,resistance=-3,turnInit=-1,emoji=vulneEmoji,type=TYPE_MALUS,stackable=True)
@@ -425,16 +478,16 @@ lunaSkill4Eff = copy.deepcopy(innerdarknessEff)
 lunaSkill4Eff.stat,lunaSkill4Eff.power , lunaSkill4Eff.id, lunaSkill4Eff.emoji = STRENGTH, 40, "lunaSkill4Eff", uniqueEmoji('<:lunaIndi:932447879786823730>')
 lunaSkill4EffAlt = copy.deepcopy(lunaSkill4Eff)
 lunaSkill4EffAlt.power, lunaSkill4EffAlt.area, lunaSkill4EffAlt.id = 75 , AREA_MONO, "lunaSkill4Eff2"
-lunaSkill4_1 = skill("Convertion rapprochée",'lunaSkill4',TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_CIRCLE_2,effects=lunaSkill4EffAlt,cooldown=3,emoji=lunaSkill4Eff.emoji[0][0],say=['Vous tenez tant à voir les Ténèbres de plus près ? Voilà pour vous !','Votre Lumière ne vous protègera pas éternellement.'],description="Donne un effet de dégâts indirect monocible aux ennemis proches")
-lunaSkill4_2 = skill("Convertion externe",'lunaSkill4',TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effects=lunaSkill4Eff,cooldown=3,emoji=lunaSkill4Eff.emoji[0][0],say=["C'est pas parceque vous restez loin que vous serez épargné !","Votre Lumière sucombera à mes Ténèbres."],description="Inflige un effet de dégâts indirect en zone aux ennemis éloignés")
+lunaSkill4_1 = skill("Convertion rapprochée",'lunaSkill4',TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_CIRCLE_2,effects=lunaSkill4EffAlt,cooldown=5,emoji=lunaSkill4Eff.emoji[0][0],say=['Vous tenez tant à voir les Ténèbres de plus près ? Voilà pour vous !','Votre Lumière ne vous protègera pas éternellement.'],description="Donne un effet de dégâts indirect monocible aux ennemis proches")
+lunaSkill4_2 = skill("Convertion externe",'lunaSkill4',TYPE_INDIRECT_DAMAGE,0,range=AREA_MONO,area=AREA_DIST_7,effects=lunaSkill4Eff,cooldown=5,emoji=lunaSkill4Eff.emoji[0][0],say=["C'est pas parceque vous restez loin que vous serez épargné !","Votre Lumière sucombera à mes Ténèbres."],description="Inflige un effet de dégâts indirect en zone aux ennemis éloignés")
 lunaSkill4 = skill("Convertion","lunaSkill4",TYPE_INDIRECT_DAMAGE,0,range=AREA_CIRCLE_7,use=STRENGTH,say="Votre Lumière ne vous protègera pas éternellement !",emoji=lunaSkill4Eff.emoji[0][0],become=[lunaSkill4_1,lunaSkill4_2])
 lunaSkill5_1 = skill("Reverse roundhouse-kick","lunaSkill5",TYPE_DAMAGE,0,100,AREA_CIRCLE_1,area=AREA_ARC_1,emoji='<:luna4inOne:919260128698589184>',damageOnArmor=2,description='Inflige des dégâts en zone à un ennemi au corps à corps')
 lunaSkill5_2 = skill("Side-kick fouetté","lunaSkill5",TYPE_DAMAGE,0,135,AREA_CIRCLE_1,emoji='<:luna4inOne:919260128698589184>',say="Hmf !",damageOnArmor=3,description='Inflige des dégâts à une cible unique au corps à corps\nDégâts triplé sur de l\'armure')
 lunaSkill5_3_eff = effect("Destabilisé","lunaSkill5_3Eff",type=TYPE_MALUS,emoji='<:stun:882597448898474024>',stun=True)
 lunaSkill5_3 = skill("Sweeping into Backflip","lunaSkill5",TYPE_DAMAGE,0,80,AREA_CIRCLE_1,repetition=2,effects=lunaSkill5_3_eff,knockback=1,emoji='<:luna4inOne:919260128698589184>',say="C'est que tu es colant toi !",description='Inflige des dégâts, étourdit pendant un tour et repousse un ennemi au corps à corps')
 lunaSkill5_4 = skill("Double High roundhouse-kick into Side-kick","lunaSkill5",TYPE_DAMAGE,0,40,AREA_CIRCLE_1,repetition=3,knockback=3,emoji='<:luna4inOne:919260128698589184>',say="Hé vous derrière ! Cadeau !",damageOnArmor=2,description='Inflige des dégats et repousse de 3 cases un ennemi au corps à corps')
-lunaSkill6 = skill("Vitesse ombrale","lunaSkill6",TYPE_DAMAGE,0,50,AREA_INLINE_4,emoji='<:lunaDash:932286143884566528>',cooldown=2,replay=True,tpCac=True,sussess=200,description='Se téléporte au corps à corps d\'un ennemi et vous permet de rejouer votre tour')
-lunaSkill7 = skill("Ultimawashi","lunaSkill7",TYPE_DAMAGE,0,150,AREA_CIRCLE_1,cooldown=3,knockback=10,sussess=200,emoji='<:ultimawashi:932378739327787078>',description="Inflige de lourd dégâts et repousse violament un ennemi au corps à corps")
+lunaSkill6 = skill("Vitesse ombrale","lunaSkill6",TYPE_DAMAGE,0,50,AREA_INLINE_4,emoji='<:lunaDash:932286143884566528>',cooldown=3,replay=True,tpCac=True,sussess=200,description='Se téléporte au corps à corps d\'un ennemi et vous permet de rejouer votre tour')
+lunaSkill7 = skill("Ultimawashi","lunaSkill7",TYPE_DAMAGE,0,150,AREA_CIRCLE_1,cooldown=5,knockback=10,sussess=200,emoji='<:ultimawashi:932378739327787078>',description="Inflige de lourd dégâts et repousse violament un ennemi au corps à corps")
 lunaQuickFightEff = effect('Enchaînement',"lunaQuickFight",emoji=uniqueEmoji('<:qqLuna:932318030380302386>'))
 lunaSkill5Base = skill("Corps à corps","lunaSkill5",TYPE_DAMAGE,0,0,AREA_CIRCLE_1,description="Cette compétence peut avoir 4 effets différents, sélectionné de manière aléatoire",emoji='<:luna4inOne:919260128698589184>',become=[lunaSkill5_1,lunaSkill5_2,lunaSkill5_3,lunaSkill5_4])
 
@@ -463,12 +516,12 @@ TGESWeap = weapon("noneWeap","TheGiantEnemySpiderWeapon",RANGE_DIST,AREA_CIRCLE_
 TGESSkill1 = skill("Projectile","TheGiantEnemySpiderSkill1",TYPE_DAMAGE,0,int(GESLskill.power*1.5))
 
 # Matt from WiiSport
-mattWeapon = weapon("Direct !","mattWeapon",RANGE_DIST,AREA_CIRCLE_1,50,70,repetition=3,emoji='<:boxe:922064460326244384>',ignoreAutoVerif=True)
-mattSkill1 = skill("Home Run !","mattSkill1",TYPE_DAMAGE,0,120,AREA_CIRCLE_1,cooldown=4,knockback=5,description="Quel magnifique coup de batte !",emoji='<:homerun:922064424708239360>')
+mattWeapon = weapon("Direct !","mattWeapon",RANGE_DIST,AREA_CIRCLE_1,60,70,repetition=3,emoji='<:boxe:922064460326244384>',ignoreAutoVerif=True)
+mattSkill1 = skill("Home Run !","mattSkill1",TYPE_DAMAGE,0,150,AREA_CIRCLE_1,cooldown=4,knockback=5,description="Quel magnifique coup de batte !",emoji='<:homerun:922064424708239360>')
 mattSkill2 = skill("Tir à trois points","mattSkill2",TYPE_DAMAGE,0,80,AREA_DIST_5,cooldown=3,description="Quel tir ! Qui aurait cru qu'il ferait un panier d'ici ?",emoji='<:basket:922064483688513567>')
 mattSkill3 = skill("Strike !","mattSkill3",TYPE_DAMAGE,0,135,AREA_CIRCLE_1,area=AREA_LINE_6,cooldown=3,description="Non vous pouvez pas appuyer sur A pour passer la cinématique",emoji='<:bowling:922064440201969724>')
 mattSkill4Eff = effect("Gardé","matt(en)Garde",STRENGTH,power=25,lvl=99,onDeclancher=True,immunity=True,description="Une vision accru vous permet de contrer les dégâts et de contre attaquer !")
-mattSkill4 = skill("Garde","mattSkill4",TYPE_DAMAGE,0,cooldown=5,range=AREA_CIRCLE_1,power=0,effectOnSelf=mattSkill4Eff)
+mattSkill4 = skill("Garde","mattSkill4",TYPE_DAMAGE,0,cooldown=5,range=AREA_CIRCLE_1,power=100,effectOnSelf=mattSkill4Eff,description="Inflige des dégâts à l'ennemi ciblé et vous immunise contre tous dégâts jusqu'à votre prochain tour. Si vous êtes attaqué pendant cette durée, inflige des dégâts indirects à l'attaquant")
 
 # Kiku
 kikuRaiseEff = effect("Mors Vita Est","kikuBossRaiseEff",power=20,type=TYPE_MALUS,trigger=TRIGGER_DEATH,turnInit=-1,description="\n__Sur les vivants :__\nAugmente les dégâts reçus de **{0}%**, qui augmente de 20% à chaque de tour de table\nLorsque le porteur est vaincu, celui-ci est immédiatement réanimé avec **75%** de ses PVs max et ces derniers sont augmenté d'un pourcentage équivalant à l'augmentation de dégâts\n\n__Sur les morts, en début de combat :__\nOctroi <:un:984241071397670912> __Cadeau de la Non-Vie__\n\nAugmente les dégâts infligés d'une valeur égale à la augmentation de dégâts jusqu'à la fin du combat lors de son déclanchement\nL'augmentation de dégâts est capée à 200%\nSi l'effet est toujours actif au tour **16**, le porteur est immédiatement exécuté",emoji='<:mortVitaEst:916279706351968296>')
@@ -530,7 +583,7 @@ unformBossSkill2Eff.power = 50
 unformBossSKill2 = skill("Anéantissement accéléré","unformBossSKill2",TYPE_BOOST,range=AREA_MONO,area=AREA_CIRCLE_3,effects=unformBossSkill2Eff,cooldown=5)
 unformBossSkill3 = skill("Pulsion spaciale","unformBossSkill3",TYPE_HEAL,power=250,use=MAGIE,range=AREA_MONO,area=AREA_CIRCLE_5,cooldown=5)
 
-unformBoss = octarien("Aformité incarnée",300,250,200,50,50,200,350,25,15,0,unformBossWeapon,15,'<:uShadow:938530004319477821>',[unformBossSkill1,unformBossSKill2,unformBossSkill3],description="Un leader de l'assaut des aformités, qui cherchent à détruire le multivers",deadIcon='<:empty:866459463568850954>')
+unformBoss = octarien("Aformité incarnée",300,250,200,50,50,200,350,25,15,0,unformBossWeapon,15,'<:uShadow:938530004319477821>',[unformBossSkill1,unformBossSKill2,unformBossSkill3],description="Un leader de l'assaut des aformités, qui cherchent à détruire le multivers",deadIcon='<:em:866459463568850954>')
 
 # Iliana Ex.
 ILIREGENPOWER = 50
@@ -564,16 +617,16 @@ kitsuneExCharmEff = effect("Charme exalté","kitsuneExCharmEff",CHARISMA,strengt
 # Tabl Boss ----------------------------------------------------
 tablBoss = [
     octarien("[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]",435,200,100,45,45,200,200,30,33,15,spamWeap,80,'<a:spamton:892749040205316138>',skill=[spamSkill1,spamSkill2,spamSkill3,spamSkill4,spamSKill5],description="NOW IT'S YOUR CHANCE TO BE A [Big shot] !",deadIcon='<:spamblocked:892750635315912746>',oneVAll=True,say=spamtonSays,element=ELEMENT_DARKNESS),
-    octarien("Jevil",450,200,100,60,75,120,120,10,25,15,jevilWeap,80,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays,element=ELEMENT_DARKNESS),
-    octarien("Séréna",50,220,-50,70,50,50,335,60,0,15,armilame,15,'<:serena:897912402354511894>',[serenaCloud,serenaSkill,serenaSpe,serenaSkill2,serenaFocal,serenaSkill3,serenaSkill4],SORCELER,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
-    octarien("Luna ex.",550,85,80,185,75,80,0,25,35,0,lunaWeap,80,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4,lunaSkill6,lunaSkill7],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
-    octarien("OctoTour",0,350,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,canMove=False,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés"),
-    octarien("Clémence pos.",100,165,50,50,80,150,550,35,20,0,clemWeapon,80,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4,clemSkill5,clemSkill6],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
-    octarien("The Giant Enemy Spider",280,280,0,80,100,50,280,70,10,20,TGESWeap,80,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True),
+    octarien("Jevil",450,185,100,60,75,120,120,10,25,15,jevilWeap,80,'<a:CHAOS:762276118224961556>',[chaos,jevilSkill1,jevilSkill2],description="I CAN DO ANYTHING !",deadIcon='<:chaosnt:892857736642064455>',oneVAll=True,say=jevilSays,element=ELEMENT_DARKNESS),
+    octarien("Séréna",50,200,-50,70,50,50,335,60,0,15,armilame,15,'<:serena:897912402354511894>',[serenaCloud,serenaSkill,serenaSpe,serenaSkill2,serenaFocal,serenaSkill3,serenaSkill4],SORCELER,GENDER_FEMALE,rez=False,deadIcon='<:flowernt:894550324705120266>'),
+    octarien("Luna ex.",550,80,80,185,75,80,0,25,35,0,lunaWeap,80,'<:luna:909047362868105227>',[lunaSpeCast,lunaSkill,lunaSkill5Base,lunaSkill2,lunaSkill4,lunaSkill6,lunaSkill7],POIDS_PLUME,GENDER_FEMALE,lunaDesc,'<:spIka:866465882540605470>',True,say=lunaBossSays,element=ELEMENT_DARKNESS),
+    octarien("OctoTour",0,500,0,0,0,0,0,50,0,0,octoTour,12,'<:tower:905169617163538442>',[octoTourSkill],PROTECTEUR,canMove=False,rez=False,description="Une tour de siège. Tant qu'elle est en vie, tous les dégâts directs reçu par ses alliés lui sont redirigés"),
+    octarien("Clémence pos.",100,150,50,50,80,150,550,35,20,0,clemWeapon,80,'<a:clemPos:914709222116175922>',[clemSkill1,clemSkill2,clemUltCast,clemSkill3,clemSkill4,clemSkill5,clemSkill6],MAGE,GENDER_FEMALE,"Durant l'une de ses aventures, Clémence a commis l'erreur de baisser sa garde, et une entité malveillante en a profiter pour se loger dans son esprit, perturbant sa vision de la réalitée et manipulant ses émotions",oneVAll=True,deadIcon='<:clemence:908902579554111549>',say=clemPosSays,element=ELEMENT_DARKNESS),
+    octarien("The Giant Enemy Spider",280,260,0,80,100,50,280,70,10,20,TGESWeap,80,'<:TGES:917302938785968148>',[TGESSkill1],description="En début de combat, invoque 8 __\"Patte de The Giant Enemy Spider\"__ autour de lui",oneVAll=True),
     octarien("Matt",450,150,100,100,100,100,0,35,20,0,mattWeapon,80,'<:matt:922064304793059340>',[mattSkill1,mattSkill2,mattSkill3,mattSkill4],BERSERK,GENDER_MALE,"L'ultime adversaire. Dans les jeux Wii Sports en tous cas",'<:matt:922064304793059340>',True),
-    octarien("Kiku",0,100,50,120,100,5,250,25,35,0,kikuBossWeap,15,'<:kiku:962082466368213043>',[undead,kikuUltimaFerrum,kikuSkill2,kikuSkill3,witchSkill,kikuSkill4],gender=GENDER_FEMALE,deadIcon ='<:kiku:962082466368213043>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
-    octarien("Akira H.",450,120,80,50,120,100,100,30,0,10,akikiWeap,80,'<:akiraH:1007049315056881704>',[akikiSkill1,akikiSkill2_1_1,akikiSkill2_2,akikiSkill3_1_2,akikiSkill3_2_2,akikiSkill4,akikiEnrageCastInit],BERSERK,GENDER_MALE,description="Bah bravo, vous avez réussi à le mettre en colère. Maintenant battez vous pour votre dignité ou fuyez pour votre vie.",deadIcon='<:spTako:866465864399323167>',oneVAll=True,baseLvl=15,element=ELEMENT_DARKNESS),
-    octarien("Iliana ex.",10,100,400,50,100,100,15,80,35,15,iliExWeapon,80,'<:Iliana:926425844056985640>',[iliExSkill1,iliExSkill2,iliExSkill3,iliExSkill4,iliExSKill5,iliExSkill6],VIGILANT,GENDER_FEMALE,"Voyant que vous aviez du mal à trouver un adveraire à votre taille, Iliana a décidé de se confronter à vous en utilisant 1% de sa vrai puissance",'<:oci:930481536564879370>',True,baseLvl=25,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],say=iliExSay),
+    octarien("Kiku",0,125,50,120,100,5,250,25,35,0,kikuBossWeap,15,'<:kiku:962082466368213043>',[undead,kikuUltimaFerrum,kikuSkill2,kikuSkill3,witchSkill,kikuSkill4],gender=GENDER_FEMALE,deadIcon ='<:kiku:962082466368213043>',baseLvl=15,rez=False,element=ELEMENT_EARTH),
+    octarien("Akira H.",450,115,80,50,120,100,100,30,0,10,akikiWeap,80,'<:akiraH:1007049315056881704>',[akikiSkill1,akikiSkill2_1_1,akikiSkill2_2,akikiSkill3_1_2,akikiSkill3_2_2,akikiSkill4,akikiEnrageCastInit],BERSERK,GENDER_MALE,description="Bah bravo, vous avez réussi à le mettre en colère. Maintenant battez vous pour votre dignité ou fuyez pour votre vie.",deadIcon='<:spTako:866465864399323167>',oneVAll=True,baseLvl=15,element=ELEMENT_DARKNESS),
+    octarien("Iliana ex.",10,105,400,50,100,100,15,80,35,15,iliExWeapon,80,'<:Iliana:926425844056985640>',[iliExSkill1,iliExSkill2,iliExSkill3,iliExSkill4,iliExSKill5,iliExSkill6],VIGILANT,GENDER_FEMALE,"Voyant que vous aviez du mal à trouver un adveraire à votre taille, Iliana a décidé de se confronter à vous en utilisant 1% de sa vrai puissance",'<:oci:930481536564879370>',True,baseLvl=25,element=[ELEMENT_LIGHT,ELEMENT_LIGHT],say=iliExSay,splashIcon="<:iliEx:1053017742757855293>"),
     octarien("Stella",0,100,70,80,50,50,250,20,20,20,stellaWeap,12,'<:stella:958786101940736061>',[stellaSkill1,stellaSkill2,stellaSkill3,stellaSkill4,stellaLB,solarEruption],IDOLE,GENDER_FEMALE,"Représentation astrale du Soleil, Stella aime pas qu'on lui fasse de l'ombre et a un léger complexe de supporiorité\nSa seule présence suffit à réchauffer l'ambiance et fait gagner quelques degrés de luminosité",'<:spIka:866465882540605470>',baseLvl=25,element=[ELEMENT_SPACE,ELEMENT_LIGHT])
 ]
 
@@ -583,12 +636,6 @@ for en in tablBoss:
 tablBossPlus = [unformBoss,
 ]
 # ====================================== Raid Boss ======================================
-nookWeapon = weapon("Dettes","nookWeapon",RANGE_DIST,AREA_CIRCLE_1,120,65,area=AREA_ARC_1,ignoreAutoVerif=True)
-nookSkill1 = skill("Fissure temporelle","nookSkill1",TYPE_DAMAGE,0,135,range=AREA_MONO,area=AREA_ALL_ENEMIES,sussess=80,initCooldown=2,cooldown=5)
-nookSkill2 = skill("Stonks","nookSkill2",TYPE_DAMAGE,0,250,range=AREA_CIRCLE_1,area=AREA_CIRCLE_1,repetition=3,cooldown=6,initCooldown=2)
-nookSkill3 = skill("Habitat naturel","nookSkill3",TYPE_DAMAGE,0,150,area=AREA_CIRCLE_2,range=AREA_MONO,cooldown=5,initCooldown=2)
-nookSkill4 = skill("Déluge insulaire","nookSkill4",TYPE_DAMAGE,0,40,AREA_MONO,area=AREA_DIST_7,cooldown=6,setAoEDamage=True,initCooldown=3)
-
 ailillSkill = skill("Décapitage","headnt",TYPE_DAMAGE,0,5000,AREA_RANDOMENNEMI_1,tpCac=True,ultimate=True,cooldown=5,execution=True,damageOnArmor=500,emoji='<:decapitage:897846515979149322>',say=["J'en ai assez de ta tête.","Pff, j'en ai assez de jouer avec toi, t'es pas drôle","Laisse moi libérer tes épaules d'un poids beaucoup trop grand pour elles"],description="Ailill exécute un ennemi au hasard à interval réguliers")
 ailillWeap = copy.deepcopy(depha)
 ailillEffBleeding = copy.deepcopy(bleeding)
@@ -605,7 +652,7 @@ ailillSkill2_3.power, ailillSkill2_3.effectOnSelf, ailillSkill2_3.say, ailillSki
 ailillSkill2_3_cast = effect("Cast - Attaques Successives","ailillSkill2Cast3",silent=True,replique=ailillSkill2_3)
 ailillSkill2_2 = copy.deepcopy(ailillSkill2_3)
 ailillSkill2_2.power, ailillSkill2_2.effectOnSelf, ailillSkill2_2.area = 150, ailillSkill2_3_cast, AREA_LINE_3
-ailillSkill2_2_cast = effect("Cast - Attaques Successives","ailillSkill2Cast2",silent=True,turnInit=True,replique=ailillSkill2_2)
+ailillSkill2_2_cast = effect("Cast - Attaques Successives","ailillSkill2Cast2",silent=True,replique=ailillSkill2_2,turnInit=2)
 ailillSkill2 = copy.deepcopy(ailillSkill2_2)
 ailillSkill2.power, ailillSkill2.effectOnSelf, ailillSkill2.area, ailillSkill2.tpCac, ailillSkill2.replay = 0, ailillSkill2_2_cast, AREA_MONO, False, False
 ailillSkill3Eff = effect("Double Tranchant","ailillSkill3Eff",STRENGTH,power=255,trigger=TRIGGER_ON_REMOVE,type=TYPE_INDIRECT_DAMAGE,effPrio=1,emoji='<:ailillTwoStrikeRep:1044491016679460885>')
@@ -645,22 +692,23 @@ kitsuneSkill4Water = skill("Anneau Hydro","kitsuneSkill4",TYPE_DAMAGE,power=100,
 kitsuneSkill4Cast3 = effect("Cast - {replicaName}","kitsuneSkill4Cast4",replique=kitsuneSkill4Water,silent=True,turnInit=2)
 kitsuneSkill4 = skill("Danse Quadra-Elémentaire","kitsuneSkill4",TYPE_DAMAGE,range=AREA_MONO,effectOnSelf=kitsuneSkill4Cast3,cooldown=8,emoji='<:univ:936302039456165898>',ultimate=True,use=MAGIE)
 
+naciaWaterRegenEff = effect("Aqua-Purification","naciaRegen",MAGIE,power=100,turnInit=3,lvl=3,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji=lioLBHot.emoji[0][0])
 naciaWeap = weapon("Lame Pangéenne","noneWeap",RANGE_DIST,AREA_CIRCLE_1,200,100,ignoreAutoVerif=True)
 naciaEarthEff = effect("Puissance Tellurique","naciaEarthEff",turnInit=10,emoji=liuWeap.effects.emoji,description="Nacialisa a galvanisé les alentours avec une grande puissance élémentaire")
-naciaEarthSkill1 = skill("Séisme de la génitrice","naciaSkill1",TYPE_DAMAGE,power=175,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=4,effectOnSelf=naciaEarthEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
-naciaEarthSkill2 = skill("Lames Rocheuses","naciaSkill1",TYPE_DAMAGE,power=180,range=AREA_MONO,area=AREA_INLINE_5,cooldown=4,effectOnSelf=naciaEarthEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
-naciaEarthSkill3Eff = effect("Enlisé","naciaQuickSandEff",ENDURANCE,agility=-10,dodge=-15,turnInit=4,description="Réduit l'agilité pendant 4 tours",stackable=True)
-naciaEarthSkill3 = skill("Sables Mouvants","naciaSkill1",TYPE_DAMAGE,power=85,range=AREA_MONO,setAoEDamage=True,area=AREA_CIRCLE_3,cooldown=4,effectOnSelf=naciaEarthEff,effectAroundCaster=[TYPE_MALUS,AREA_CIRCLE_3,naciaEarthSkill3Eff],condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
+naciaEarthSkill1 = skill("Séisme de la génitrice","naciaSkill1",TYPE_DAMAGE,emoji="<:stone4:1053730609685602344>",power=175,range=AREA_MONO,area=AREA_CIRCLE_2,cooldown=4,effectOnSelf=naciaEarthEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH],damageOnArmor=0.8)
+naciaEarthSkill2 = skill("Lames Rocheuses","naciaSkill1",TYPE_DAMAGE,emoji='<:enemyStone:1042313085400133632>',power=180,range=AREA_MONO,area=AREA_INLINE_5,cooldown=4,effectOnSelf=naciaEarthEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH],damageOnArmor=0.8)
+naciaEarthSkill3Eff = effect("Enlisé","naciaQuickSandEff",ENDURANCE,emoji='<:stone1:1053730561648246804>',agility=-10,dodge=-15,turnInit=4,description="Réduit l'agilité pendant 4 tours",stackable=True,type=TYPE_MALUS)
+naciaEarthSkill3 = skill("Sables Mouvants","naciaSkill1",TYPE_DAMAGE,emoji='<:stone2:1053730589049618462>',power=85,range=AREA_MONO,setAoEDamage=True,area=AREA_CIRCLE_3,cooldown=4,effectOnSelf=naciaEarthEff,effectAroundCaster=[TYPE_MALUS,AREA_CIRCLE_3,naciaEarthSkill3Eff],condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH],damageOnArmor=0.8)
 naciaEarthSkill = skill("Conviction de la planète","naciaSkill1",TYPE_DAMAGE,emoji=liuWeap.effects.emoji[0][0],become=[naciaEarthSkill1,naciaEarthSkill2,naciaEarthSkill3],cooldown=4,description="Nacialisla utilise des compétences terrestres pour infliger des dégâts autour d'elle",condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
 naciaFireEff = effect("Puissance Volcanique","naciaFireEff",turnInit=10,emoji=lieWeap.effects.emoji,description="Nacialisa a galvanisé les alentours avec une grande puissance élémentaire")
-naciaFireSkill1Eff = effect("Brûlure volcanique","naciaDot",MAGIE,power=40,turnInit=3,trigger=TRIGGER_START_OF_TURN,emoji='<:enemyFire:1042312985407930428>',type=TYPE_INDIRECT_DAMAGE,lvl=3,description="Des braises infligent des dégâts périodiquements",stackable=True)
+naciaFireSkill1Eff = effect("Brûlure volcanique","naciaDot",MAGIE,power=30,turnInit=3,trigger=TRIGGER_START_OF_TURN,emoji='<:enemyFire:1042312985407930428>',type=TYPE_INDIRECT_DAMAGE,lvl=3,description="Des braises infligent des dégâts périodiquements",stackable=True)
 naciaFireSkill1 = skill("Eruption Explosive","naciaSkill2",TYPE_INDIRECT_DAMAGE,range=AREA_MONO,area=AREA_CIRCLE_5,effects=naciaFireSkill1Eff,emoji=fireCircle.emoji,effPowerPurcent=100,cooldown=4,effectOnSelf=naciaFireEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_FIRE])
 naciaFireSkill2 = skill("Eruption Effusive","naciaSkill2",TYPE_INDIRECT_DAMAGE,range=AREA_CIRCLE_3,area=AREA_CIRCLE_3,effects=naciaFireSkill1Eff,emoji='<:majorFire2:1042349795353825320>',effPowerPurcent=125,cooldown=4,effectOnSelf=naciaFireEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_FIRE])
 naciaFireSkill3 = skill("Frappe Eruptive","naciaSkill2",TYPE_DAMAGE,power=350,effects=naciaFireSkill1Eff,effPowerPurcent=300,cooldown=4,effectOnSelf=naciaFireEff,use=MAGIE,emoji='<:fire3:1042349767411376148>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_FIRE])
 naciaFireSkill = skill("Ardeur de la planète","naciaSkill2",TYPE_INDIRECT_DAMAGE,emoji=lieWeap.effects.emoji[0][0],become=[naciaFireSkill1,naciaFireSkill2,naciaFireSkill3],cooldown=4,description="Nacialisla utilise des compétences emflammées magiques pour infliger des dégâts sur la durée",condition=[EXCLUSIVE,ELEMENT,ELEMENT_FIRE])
 naciaAirEff = effect("Puissance Aérienne","naciaAirEff",turnInit=10,emoji=liaWeap.effects.emoji,description="Nacialisa a galvanisé les alentours avec une grande puissance élémentaire")
-naciaAirSkill1 = skill("Ouragant de la génitrice","naciaSkill3",TYPE_DAMAGE,power=120,knockback=3,range=AREA_MONO,area=AREA_CIRCLE_2,emoji=airCircle.emoji,effectOnSelf=naciaAirEff,cooldown=4,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR])
-naciaAirSkill2 = skill("Oeuil de la Tempette","naciaSkill3",TYPE_DAMAGE,power=80,setAoEDamage=True,knockback=1,emoji='<:verAero3:1042350960321769503>',range=AREA_MONO,area=AREA_DIST_5,effectOnSelf=naciaAirEff,cooldown=4,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR])
+naciaAirSkill1 = skill("Ouragant de la génitrice","naciaSkill3",TYPE_DAMAGE,power=120,knockback=3,range=AREA_MONO,area=AREA_CIRCLE_2,emoji=airCircle.emoji,effectOnSelf=naciaAirEff,cooldown=4,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],damageOnArmor=0.8)
+naciaAirSkill2 = skill("Oeuil de la Tempette","naciaSkill3",TYPE_DAMAGE,power=80,setAoEDamage=True,knockback=1,emoji='<:verAero3:1042350960321769503>',range=AREA_MONO,area=AREA_DIST_5,effectOnSelf=naciaAirEff,cooldown=4,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],damageOnArmor=0.7)
 naciaAirSkill3_3 = skill("Vitesse Aérienne","naciaSkill3",TYPE_DAMAGE,power=80,setAoEDamage=True,area=AREA_RANDOMENNEMI_4,effectOnSelf=naciaAirEff,cooldown=4,emoji='<:enemyAer:1042313031926947920>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR])
 naciaAirSkill3_cast_3 = effect("Cast - Vitesse Aérienne","naciaVitCast1",replique=naciaAirSkill3_3,silent=True)
 naciaAirSkill3_2 = skill("Vitesse Aérienne","naciaSkill3",TYPE_DAMAGE,power=70,setAoEDamage=True,area=AREA_RANDOMENNEMI_4,effectOnSelf=naciaAirSkill3_cast_3,emoji='<:enemyAer:1042313031926947920>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],replay=True)
@@ -668,26 +716,28 @@ naciaAirSkill3_cast_2 = effect("Cast - Vitesse Aérienne","naciaVitCast1",repliq
 naciaAirSkill3 = skill("Vitesse Aérienne","naciaSkill3",TYPE_DAMAGE,power=60,setAoEDamage=True,area=AREA_RANDOMENNEMI_4,effectOnSelf=naciaAirSkill3_cast_2,emoji='<:enemyAer:1042313031926947920>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],replay=True)
 naciaAirSkill = skill("Souffle de la planète","naciaSkill3",TYPE_DAMAGE,emoji=liaWeap.effects.emoji[0][0],become=[naciaAirSkill1,naciaAirSkill2,naciaAirSkill3],cooldown=4,description="Nacialisla utilise des compétences aérienne pour infliger des dégâts tout en repoussant ses ennemis",condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR])
 naciaWaterEff = effect("Puissance Aquatique","naciaWaterEff",turnInit=10,emoji=lioWeap.effects.emoji,description="Nacialisa a galvanisé les alentours avec une grande puissance élémentaire")
-naciaWaterSkill1 = skill("Pluie diluvienne","naciaSkill4",TYPE_DAMAGE,power=85,setAoEDamage=True,range=AREA_MONO,area=AREA_ALL_ENEMIES,cooldown=4,effectOnSelf=naciaWaterEff,use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER])
-naciaWaterSkill2 = skill("Déluge","naciaSkill4",TYPE_DAMAGE,power=150,setAoEDamage=True,range=AREA_MONO,area=AREA_CIRCLE_4,knockback=2,cooldown=4,effectOnSelf=naciaWaterEff,use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER])
-naciaWaterSkill3 = skill("Grèle","naciaSkill4",TYPE_DAMAGE,power=100,setAoEDamage=True,range=AREA_MONO,area=AREA_DIST_7,cooldown=4,effectOnSelf=naciaWaterEff,use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER])
+naciaWaterSkill1 = skill("Pluie diluvienne","naciaSkill4",TYPE_DAMAGE,power=85,setAoEDamage=True,range=AREA_MONO,area=AREA_ALL_ENEMIES,cooldown=4,effectOnSelf=naciaWaterEff,use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER],effectAroundCaster=[TYPE_HEAL,AREA_MONO,50],damageOnArmor=0.6)
+naciaWaterSkill2 = skill("Déluge","naciaSkill4",TYPE_DAMAGE,power=150,range=AREA_MONO,area=AREA_CIRCLE_4,knockback=2,cooldown=4,effectOnSelf=naciaWaterEff,use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER],effectAroundCaster=[TYPE_HEAL,AREA_MONO,50],damageOnArmor=0.7)
+naciaWaterSkill3 = skill("Grèle","naciaSkill4",TYPE_DAMAGE,power=80,setAoEDamage=True,range=AREA_MONO,area=AREA_DIST_7,cooldown=4,effectOnSelf=naciaWaterEff,use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER],effectAroundCaster=[TYPE_HEAL,AREA_MONO,50],damageOnArmor=0.7)
 naciaWaterSkill = skill("Tempéralité de la planète","naciaSkill4",TYPE_DAMAGE,emoji=lioWeap.effects.emoji[0][0],become=[naciaWaterSkill1,naciaWaterSkill2,naciaWaterSkill3],cooldown=4,description="Nacialisla utilise des compétences aquatique magique pour infliger des dégâts à un grand nombre d'ennemis",use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER])
-naciaNoneSkill = skill("Méditation","naciaMultiElemSkill",TYPE_BOOST,effects=tablElemEff[ELEMENT_UNIVERSALIS_PREMO],range=AREA_MONO,cooldown=3,effPowerPurcent=200,rejectEffect=[naciaEarthEff,naciaFireEff,naciaAirEff,naciaWaterEff])
-naciaEarthFire = skill("Terre Brûlée","naciaMultiElemSkill",TYPE_DAMAGE,power=135,range=AREA_MONO,area=AREA_CIRCLE_3,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_CIRCLE_3,naciaFireSkill1Eff],effPowerPurcent=80,cooldown=3,needEffect=[naciaEarthEff,naciaFireEff])
-naciaEarthWater = skill("Marécage","naciaMultiElemSkill",TYPE_DAMAGE,power=120,range=AREA_MONO,area=AREA_CIRCLE_3,effectAroundCaster=[TYPE_MALUS,AREA_CIRCLE_3,naciaEarthSkill3Eff],effPowerPurcent=80,cooldown=3,needEffect=[naciaEarthEff,naciaWaterEff])
-naciaEarthAir = skill("Tempette de sable","naciaMultiElemSkill",TYPE_DAMAGE,power=120,range=AREA_MONO,area=AREA_CIRCLE_3,knockback=7,cooldown=3,needEffect=[naciaEarthEff,naciaAirEff])
-naciaFireWaterEff = effect("Geyser","naciaFWEff",MAGIE,power=70,area=AREA_CIRCLE_1,trigger=TRIGGER_ON_REMOVE,type=TYPE_INDIRECT_DAMAGE)
-naciaFireWater = skill("Pulsation phréatique","naciaMultiElemSkill",TYPE_INDIRECT_DAMAGE,range=AREA_MONO,area=AREA_RANDOMENNEMI_5,cooldown=3,needEffect=[naciaFireEff,naciaWaterEff])
-naciaFireAir = skill("Vent enflammé","naciaMultiElemSkill",TYPE_DAMAGE,range=AREA_MONO,area=AREA_ALL_ENEMIES,power=100,setAoEDamage=True,cooldown=3,needEffect=[naciaFireEff,naciaAirEff],use=MAGIE)
+naciaEarthFire = skill("Terre Brûlée","naciaMultiElemSkill",TYPE_DAMAGE,power=135,emoji='<:nasElem1:1048532399451033640>',range=AREA_MONO,area=AREA_CIRCLE_3,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_CIRCLE_3,naciaFireSkill1Eff],effPowerPurcent=80,cooldown=3,needEffect=[naciaEarthEff,naciaFireEff],condition=[EXCLUSIVE,ELEMENT,ELEMENT_UNIVERSALIS_PREMO])
+naciaEarthWater = skill("Marécage","naciaMultiElemSkill",TYPE_DAMAGE,power=120,emoji='<:nasElem2:1048532444783058944>',range=AREA_MONO,area=AREA_CIRCLE_3,effectAroundCaster=[TYPE_MALUS,AREA_CIRCLE_3,naciaEarthSkill3Eff],effPowerPurcent=80,cooldown=3,needEffect=[naciaEarthEff,naciaWaterEff],effectOnSelf=naciaWaterRegenEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_UNIVERSALIS_PREMO])
+naciaEarthAir = skill("Tempette de sable","naciaMultiElemSkill",TYPE_DAMAGE,power=120,emoji='<:nasElem3:1048532480468205711>',range=AREA_MONO,area=AREA_CIRCLE_3,knockback=7,cooldown=3,needEffect=[naciaEarthEff,naciaAirEff],condition=[EXCLUSIVE,ELEMENT,ELEMENT_UNIVERSALIS_PREMO])
+naciaFireWaterEff = effect("Geyser","naciaFWEff",MAGIE,power=50,area=AREA_CIRCLE_1,trigger=TRIGGER_ON_REMOVE,type=TYPE_INDIRECT_DAMAGE)
+naciaFireWater = skill("Pulsation phréatique","naciaMultiElemSkill",TYPE_INDIRECT_DAMAGE,effects=naciaFireWaterEff,emoji='<:nasElem5:1048537048149151764>',range=AREA_MONO,area=AREA_RANDOMENNEMI_5,cooldown=3,needEffect=[naciaFireEff,naciaWaterEff],effectOnSelf=naciaWaterRegenEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_UNIVERSALIS_PREMO])
+naciaFireAir = skill("Vent enflammé","naciaMultiElemSkill",TYPE_DAMAGE,emoji='<:nasElem4:1048537010543017994>',range=AREA_MONO,area=AREA_ALL_ENEMIES,power=80,setAoEDamage=True,cooldown=3,needEffect=[naciaFireEff,naciaAirEff],use=MAGIE,condition=[EXCLUSIVE,ELEMENT,ELEMENT_UNIVERSALIS_PREMO])
 naciaAirWaterEff = effect("Trempé","naciaAWEff",STRENGTH,strength=-10,magie=-10,charisma=-10,intelligence=-10,turnInit=3,type=TYPE_MALUS)
-naciaAirWater = skill("Tempette","naciaMultiElemSkill",TYPE_DAMAGE,range=AREA_MONO,area=AREA_ALL_ENEMIES,power=85,setAoEDamage=True,cooldown=3,needEffect=[naciaWaterEff,naciaAirEff],effectAroundCaster=[TYPE_MALUS,AREA_ALL_ENEMIES,naciaAirWaterEff])
-naciaMultiElemSkill = skill("Volonté de la planète","naciaMultiElemSkill",TYPE_DAMAGE,become=[naciaNoneSkill,naciaEarthFire,naciaEarthWater,naciaEarthAir,naciaFireWater,naciaFireAir,naciaAirWater],cooldown=3,description="Nacialisla utilise les énergies élémentaires dispersés par ses autre compétences pour en utiliser de nouvelles")
+naciaAirWater = skill("Tempette","naciaMultiElemSkill",TYPE_DAMAGE,emoji='<:nasElem6:1048540760909303818>',range=AREA_MONO,area=AREA_ALL_ENEMIES,power=65,setAoEDamage=True,cooldown=3,needEffect=[naciaWaterEff,naciaAirEff],effectAroundCaster=[TYPE_MALUS,AREA_ALL_ENEMIES,naciaAirWaterEff],effectOnSelf=naciaWaterRegenEff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_UNIVERSALIS_PREMO])
+naciaMultiElemSkill = skill("Volonté de la planète","naciaMultiElemSkill",TYPE_DAMAGE,emoji='<:nasElemBundle:1048541047485104258> ',become=[naciaEarthFire,naciaEarthWater,naciaEarthAir,naciaFireWater,naciaFireAir,naciaAirWater],cooldown=3,description="Nacialisla utilise les énergies élémentaires dispersés par ses autre compétences pour en utiliser de nouvelles")
+
+GIANTESSHPBONUS, GIANTESSSTATBONUS = 50, 50
+naciaGiantEff = effect("Puissance originelle","giantess",type=TYPE_UNIQUE,emoji='<:naciaGiant:1052323784562049185>',description="Augmente de **{0}%** les PV max et actuels de Nacialisla ainsi de **{1}%** sa Force, son Endurance, sa Précision et sa Magie, mais réduit de 100% sa probabilité d'esquive une attaque".format(GIANTESSHPBONUS,GIANTESSSTATBONUS),turnInit=15,trigger=TRIGGER_ON_REMOVE)
+naciaGiant = skill("Gigantification","naciaGiant",TYPE_PASSIVE,effectOnSelf=naciaGiantEff,description="Lorsque Nacialisla tombe en dessous de **60%** de ses PV maximums, cette dernière prend une forme gigantesque, augmentant toutes ses statistiques",emoji='<:naciaGiant:1052323784562049185>')
 
 tablRaidBoss = [
-    octarien("Tom Nook",335,450,100,20,50,250,0,35,10,0,nookWeapon,135,'<:nook:927252158141849670>',[nookSkill1,nookSkill2,nookSkill3,nookSkill4],oneVAll=True,baseLvl=25),
-    octarien("Ailill",565,435,0,100,350,50,30,35,33,0,ailillWeap,135,'<a:Ailill:882040705814503434>',[ailillSkill,ailillSkill2,ailillSkill3,ailillSkill4,ailillSkill5,ailillSkill6,ailillSkill7],BERSERK,GENDER_FEMALE,description="Une humaine à qui la vie n'a pas vraiment souris. Du coup elle passe ses nerfs sur les autres.\nEnfin les autres plus faibles qu'elle évidamment. Si c'est le cas, il y a de bonne chance pour votre dernière vision dans ce monde soit de la voir en train de lécher votre sang sur son épée ou bien en train d'essuyer ses semelles sur votre tête",say=ailillSays,oneVAll=True,deadIcon='<:aillilKill1:898930720528011314>'),
-    octarien("Kitsune",50,500,500,125,125,350,650,25,35,0,kitsuneWeap,135,'<:kitsune:935552850686255195>',element=ELEMENT_UNIVERSALIS_PREMO,aspiration=MAGE,gender=GENDER_FEMALE,deadIcon='<:kitsuSisterDead:908756093101015100>',oneVAll=True,skill=[kitsuneSkill1,kitsuneSkill2,kitsuneSkill3,kitsuneSkill4],say=kitsuneSays),
-    octarien("Nacialisla",500,550,200,100,150,150,450,50,10,10,naciaWeap,135,'<:nacialisla:985933665534103564>',[naciaEarthSkill,naciaFireSkill,naciaAirSkill,naciaWaterSkill,naciaMultiElemSkill],gender=GENDER_FEMALE,description="Représentation Astrale de la Terre et de la Vie, Nacialisla a pour habitude et réputation de concerver une position de neutralité dans les conflits\nDu moins c'était jusqu'à qu'elle finisse par admettre que les Humains en avait rien a faire d'elle et de ses autres créations et qu'elle décide de les élimier, même si cela va à contre-sens de tous ses principes",deadIcon="<:spIka:866465882540605470>",oneVAll=True,baseLvl=25,element=[ELEMENT_UNIVERSALIS_PREMO,ELEMENT_UNIVERSALIS_PREMO])
+    octarien("Ailill",450,375,0,100,350,50,30,35,33,0,ailillWeap,135,'<a:Ailill:882040705814503434>',[ailillSkill,ailillSkill2,ailillSkill3,ailillSkill4,ailillSkill5,ailillSkill6,ailillSkill7],BERSERK,GENDER_FEMALE,description="Une humaine à qui la vie n'a pas vraiment souris. Du coup elle passe ses nerfs sur les autres.\nEnfin les autres plus faibles qu'elle évidamment. Si c'est le cas, il y a de bonne chance pour votre dernière vision dans ce monde soit de la voir en train de lécher votre sang sur son épée ou bien en train d'essuyer ses semelles sur votre tête",say=ailillSays,oneVAll=True,deadIcon='<:aillilKill1:898930720528011314>'),
+    octarien("Kitsune",50,400,500,125,125,350,350,25,35,0,kitsuneWeap,135,'<:kitsune:935552850686255195>',element=ELEMENT_UNIVERSALIS_PREMO,aspiration=MAGE,gender=GENDER_FEMALE,deadIcon='<:kitsuSisterDead:908756093101015100>',oneVAll=True,skill=[kitsuneSkill1,kitsuneSkill2,kitsuneSkill3,kitsuneSkill4],say=kitsuneSays),
+    octarien("Nacialisla",450,300,250,100,150,200,450,45,15,10,naciaWeap,150,'<:nacialisla:985933665534103564>',[naciaEarthSkill,naciaFireSkill,naciaAirSkill,naciaWaterSkill,naciaMultiElemSkill,naciaGiant],gender=GENDER_FEMALE,description="Représentation Astrale de la Terre et de la Vie, Nacialisla a pour habitude et réputation de concerver une position de neutralité dans les conflits\nDu moins c'était jusqu'à qu'elle finisse par admettre que les Humains en avait rien a faire d'elle et de ses autres créations et qu'elle décide de les élimier, même si cela va à contre-sens de tous ses principes",deadIcon="<:spIka:866465882540605470>",oneVAll=True,baseLvl=25,element=[ELEMENT_UNIVERSALIS_PREMO,ELEMENT_UNIVERSALIS_PREMO],splashArt='https://media.discordapp.net/attachments/1033700658009866274/1052321774475423774/Sans_titre_13_20221213212226.png?width=404&height=676',splashIcon='<:nacialisla:1052321649346748417>')
 ]
 
 for en in tablRaidBoss:

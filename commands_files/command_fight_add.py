@@ -20,6 +20,14 @@ hiddenIcons = ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:90516
 altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
 
 HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.2
+BASEHP_PLAYER, BASEHP_ENNEMI, BASEHP_SUMMON, BASEHP_BOSS = 130, 90 , 70, 550
+HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 15, 10, 8, 130
+
+MELEE_END_CONVERT = 35
+END_NEEDED_10_INDRES, MAX_END_10_INDRES = 175, 25
+END_NEEDED_10_HEAL, MAX_END_10_HEAL = 150, 20
+
+statEmbedFieldNames = ["__Liste des effets :__","__Statistiques :__","<:em:866459463568850954>\n__Timeline__","__Jauges :__","__Déployables :__","__Équipe Bleue :__","__Équipe Rouge :__"]
 
 tablIsNpcName = []
 for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]","Nacialisla"]:
@@ -51,26 +59,36 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
             if stats[cmpt] > maxi:
                 maxi, use = stats[cmpt], cmpt 
     if use not in [FIXE,None]:
-        dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,MASCOTTE] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.15 +1
         enemyPercing = [caster.percing+skillPercing, min(caster.percing+skillPercing,15)][target.isNpc("Clémence Exaltée") or target.isNpc("Luna prê.")]
-        resistFactor = (1-(min(95,target.resistance*(1-(caster.percing+skillPercing)/100))/100))
+        resistFactor = (1-(min(95,target.resistance*(1-(enemyPercing)/100))/100))
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
             lvlBonus = 2.5
-        dmg = round(basePower * (max(-65,caster.allStats()[use]+100-caster.actionStats()[actionStat]))/100 *(danger/100)*caster.getElementalBonus(target=target,area=area,type=typeDmg)*lvlBonus*dmgBonusMelee)
+        elemBonus = caster.getElementalBonus(target=target,area=area,type=typeDmg)
+
+        stat = caster.allStats()[use]
+        if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
+            stat += int(caster.endurance * MELEE_END_CONVERT/100)
+
+        dmg = round(basePower * (max(-65,stat+100-caster.actionStats()[actionStat]))/100 *(danger/100)*elemBonus*lvlBonus)
         target.stats.damageResisted += dmg - (dmg*resistFactor)
-        return max(1,round(dmg*resistFactor))
+
+        logs = "> {0} [basePower] * ({1} [AtkStats] / 100) * {2} [dangerMul] * {3} [elemBonus] * {4} [lvlBonus]  * {5} [resistFactor]".format(
+            basePower,caster.allStats()[use]+100-caster.actionStats()[actionStat],danger/100,elemBonus,lvlBonus,round(resistFactor,2))
+        return max(1,round(dmg*resistFactor)), logs
     else:
-        return basePower
+        return basePower, "> Fixe"
 
 def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActionStat = ACT_INDIRECT):
-    damage = basePower
-    dmgBonusMelee = int(caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR] and caster.char.weapon.range == RANGE_MELEE) * caster.endurance/150*0.1 +1
-    if use not in [None,FIXE]:
+    damage, logs = basePower, "FIXE"
+    if use not in [None,FIXE,PURCENTAGE]:
         if use != HARMONIE:
             stat = caster.allStats()[use]-[caster.negativeHeal, caster.negativeShield, caster.negativeBoost, caster.negativeDirect, caster.negativeIndirect][useActionStat]
         else:
             stat = max(caster.allStats())
+
+        if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
+            stat += int(caster.endurance * MELEE_END_CONVERT/100)
 
         effMultiplier = 100 + 5*int(not(caster.auto))
         for eff in caster.effects:
@@ -85,7 +103,12 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
                 effMultiplier -= eff.effects.power
             elif eff.effects.inkResistance != 0:
                 effMultiplier -= eff.effects.inkResistance
-            
+
+        effMultiplier -= min((target.endurance/END_NEEDED_10_INDRES*10),MAX_END_10_INDRES)
+
+        if target.char.aspiration == MASCOTTE:
+            effMultiplier -= 10
+
         effMultiplier = max(effMultiplier, 5)
         effMultiplier = min(effMultiplier, 200)
 
@@ -93,9 +116,11 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
             lvlBonus = 2.5
-        damage = basePower * (1+(stat/100)) *  (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * lvlBonus * effMultiplier/100 * dangerMul/100 * dmgBonusMelee
-
-    return damage
+        damage = basePower * (1+(stat/100)) * (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * lvlBonus * effMultiplier/100 * dangerMul/100
+        logs = "{0} [basePower] * (1 + ( {1} [stats] / 100)) * {2} [targetResistance] * {3} [lvlBonus] * {4} [indDamMul] * {5} [dangerMul]".format(basePower,stat,round(1-(min(95,target.resistance*(1-caster.percing/100))/100),2),lvlBonus,effMultiplier/100,dangerMul/100)
+    elif use in [PURCENTAGE]:
+        damage = int(target.maxHp*basePower/100)
+    return damage, logs
 
 class timeline:
     """Classe de la timeline"""
@@ -212,7 +237,7 @@ class timeline:
             whereToInsert = 1
         
         self.timeline.insert(whereToInsert,entToInsert)
-        
+
 def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numberEmoji=None,fullArea=[],deplTabl=[]):
     """Renvoie un str contenant la carte du combat"""
     line1,line2,line3,line4,line5 = [None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None],[None,None,None,None,None,None]
@@ -391,10 +416,17 @@ def probCritHeal(ent,target) -> int:
 def calHealPower(ent,target,power,secElemMul,statUse,useActionStats,danger):
     if ent.team == 0:
         danger = 100
-    return round(power * secElemMul * (1+(max(-65,statUse-ent.actionStats()[useActionStats]))/100+(target.endurance/1500))*ent.valueBoost(target = target,heal=True)*ent.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL) * danger/100)
+    vigilBonus = [1,1.1][target.char.aspiration == VIGILANT]
+
+    if ent.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
+        statUse += int(ent.endurance * MELEE_END_CONVERT/100)
+
+    END_NEEDED_10_HEAL, MAX_END_10_HEAL
+    endHealReciveBonus = min((target.endurance/END_NEEDED_10_HEAL*10),MAX_END_10_HEAL)
+    return round(power * secElemMul * (1+(max(-65,statUse-(ent.actionStats()[useActionStats])))/100)*(1+endHealReciveBonus/100)*ent.valueBoost(target = target,heal=True)*ent.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL) * danger/100 * vigilBonus)
 
 def getBuffAggro(caster,target,effect:classes.effect):
-    if (caster == target and effect.turnInit < 2) or type(effect) != classes.effect:
+    if type(effect) != classes.effect or (caster == target and effect.turnInit < 2):
         return 0
     toReturn, targetStats, maxEffStats, effStats = 0, target.allStats(), [], effect.allStats()
     for cmpt in range(len(effStats)):
@@ -462,14 +494,15 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
     if stats.numberAttacked > 0:
         dodgePurcent = str(round(stats.dodge/stats.numberAttacked*100)) +"%"
 
-    statsCatNames = ["__Statistiques offensives <:sgladio2:968479144293855252> :__","<:empty:866459463568850954>\n__Statistiques défensives <:renfAv:989529323063107605> :__","<:empty:866459463568850954>\n__Statistiques de soutiens <:finalFloralR:956715234842791937>  :__","<:empty:866459463568850954>\n__Autres :__"]
+    statsCatNames = ["__Statistiques offensives <:sg:968479144293855252> :__","<:em:866459463568850954>\n__Statistiques défensives <:re:989529323063107605> :__","<:em:866459463568850954>\n__Statistiques de soutiens <:fF:956715234842791937>  :__","<:em:866459463568850954>\n__Autres :__"]
 
+    pvRestant = "{0} ({1}%)".format(highlight(separeUnit(max(ent.hp,0))),round(max(ent.hp,0)/ent.maxHp*100,2))
     allStatsTabl = [
         {
             "Dégâts totaux infligés":ent.stats.damageDeal,
             "> - Dégâts indirects":ent.stats.indirectDamageDeal,
             "> - Dégâts sous boost":ent.stats.underBoost,
-            "> - Dégâts sur armure":ent.stats.damageOnShield,
+            "> - Dégâts sur armure":int(ent.stats.damageOnShield),
             "Coups de grâce":ent.stats.ennemiKill,
             "Précision":precisePurcent,
             "Coups critiques":critPurcent
@@ -486,6 +519,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
         {
             "{0} réamimés".format(["Combattants","Alliés"][not(ent.isNpc("Kiku"))]):ent.stats.allieResurected,
             "Soins effectués":ent.stats.heals,
+            "> - Vol de vie":ent.stats.lifeSteal,
             "Armures données":ent.stats.shieldGived,
             "> - Dégâts protégés":ent.stats.armoredDamage,
             "Points Supports":ent.stats.damageBoosted+ent.stats.damageDodged,
@@ -498,6 +532,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
         {
             "Tours passés":ent.stats.turnSkipped,
             "Dégâts sur soi-même":ent.stats.selfBurn,
+            "PV restants":pvRestant,
             "Invocation / Déployables invoqués":ent.stats.nbSummon,
             "> - Dégâts (Invoc./Depl.)":ent.stats.summonDmg,
             "> - Soins / Armures (Invoc./Depl.)":ent.stats.summonHeal
@@ -510,7 +545,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
             tempDesc = ""
             for catName, catValue in catDict.items():
                 if not(catName.startswith("> -")):
-                    tempDesc += "__{0}__ : {1}\n".format(catName,highlight(separeUnit(catValue)))
+                    tempDesc += "__{0}__ : {1}\n".format(catName,[highlight(separeUnit(catValue)),catValue][type(catValue)==str])
                 elif catValue > 0:
                     tempDesc += "{0} : {1}\n".format(catName,highlight(separeUnit(catValue)))
             statsEm.add_field(name=statsCatNames[cmpt],value=tempDesc,inline=False)
@@ -518,3 +553,11 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
             print_exc()
     statsEm.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
     return statsEm
+
+class cellPath:
+    def __init__(self,startCell,toTarget,tabl):
+        self.cell = startCell
+        self.target = toTarget
+        self.path = tabl
+        self.allReadyCheck = []
+        self.movingAway = 0

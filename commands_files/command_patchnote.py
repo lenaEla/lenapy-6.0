@@ -1,5 +1,5 @@
 from gestion import existFile
-import discord
+from constantes import light_blue
 import interactions
 
 async def new_patch(bot : interactions.Client, ctx : interactions.Message):
@@ -23,24 +23,21 @@ async def new_patch(bot : interactions.Client, ctx : interactions.Message):
     
     await ctx.channel.send(toSend)
 
-async def send_patchnote(ctx):
+async def send_patchnote(ctx: interactions.CommandContext):
     """Permet d'envoyer le patchnote enregistré"""
+    await ctx.defer()
     patchView = open("./data/patch/patch.txt","r")
-    toSend = ""
     view = patchView.readlines()
     patchView.close()
-    msg = 0
-    for a in view:
-        if len(toSend+a) <= 2000: 
-            toSend += a
-        else: # If the message is to long, send it
-            if msg == 0:
-                msg = await ctx.send(toSend)
-            else:
-                await msg.channel.send(toSend)
-            toSend = a
+    lastTxt, embedList, tempEmbDesc = "", [], ""
+    for txt in view[1:]:
+        if txt.startswith("__"):
+            if tempEmbDesc != "":
+                embedList.append(interactions.Embed(title=lastTxt,description=tempEmbDesc,color=light_blue))
+            lastTxt, tempEmbDesc = txt, ""
+        else:
+            tempEmbDesc = tempEmbDesc + txt
+        if txt == view[-1]:
+            embedList.append(interactions.Embed(title=lastTxt,description=tempEmbDesc,color=light_blue))
 
-    if msg == 0:
-        msg = await ctx.send(toSend)
-    else:
-        await msg.channel.send(toSend)
+    await ctx.send(content="```"+view[0]+"```",embeds=embedList)

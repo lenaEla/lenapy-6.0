@@ -1,4 +1,4 @@
-import sqlite3, classes, adv, discord
+import sqlite3, classes, adv, interactions
 from typing import List, Union
 from datetime import datetime, timedelta
 
@@ -343,13 +343,12 @@ class dbHandler():
 
     def haveCustomIcon(self,user):
         cursor = self.con.cursor()
-        query = f"SELECT owner_id FROM custom_icon WHERE owner_id = ?;"
-        cursor.execute(query,(user.owner,))
+        cursor.execute("SELECT owner_id FROM custom_icon WHERE owner_id = ?;",(user.owner,))
         result = cursor.fetchall()
         cursor.close()
         return len(result) > 0
 
-    def editCustomIcon(self,user:classes.char,emoji:discord.Emoji):
+    def editCustomIcon(self,user:classes.char,emoji:interactions.Emoji):
         cursor = self.con.cursor()
         if user.apparaAcc != None:
             blbl1 = user.apparaAcc.id
@@ -360,13 +359,13 @@ class dbHandler():
         else:
             blbl2 = None
         if self.haveCustomIcon(user):
-            params = (user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm, user.owner)
+            params = (user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm, user.owner,)
             query = "UPDATE custom_icon SET espece = ?, couleur = ?, accessoire = ?, arme = ?, emoji = ?, appaWeap = ?, appaAcc = ?, iconForm = ? WHERE owner_id = ?;"
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
         else:
-            params = (user.owner,user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm)
+            params = (user.owner,user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm,)
             query = "INSERT INTO custom_icon VALUES (?,?,?,?,?,?,?,?,?)"
             cursor.execute(query,params)
             cursor.close()
@@ -456,8 +455,8 @@ class dbHandler():
             return win
 
         else:
-            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
+            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
+            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0,";",0)
             cursor.execute(query,params)
             cursor.close()
             self.con.commit()
@@ -552,6 +551,8 @@ class dbHandler():
     def changeFighting(self,team : int,value:int, channel:int = 0, ennemis:List[Union[classes.char,classes.tmpAllie,classes.octarien]] = []):
         cursor = self.con.cursor()
         ennemiNames = ""
+        value = int(value)
+        channel = int(value)
         for a in ennemis:
             ennemiNames += "{0};".format(a.name)
 
@@ -589,10 +590,12 @@ class dbHandler():
         else:
             return 0
 
-    def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime] = None):
+    def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime,int] = None):
         cursor = self.con.cursor()
         if fromTime == None:
             now = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+        elif fromTime == 0:
+            now = datetime.strptime("01/19/2001, 19:26:57","%m/%d/%Y, %H:%M:%S")
         else:
             now = fromTime.strftime("%m/%d/%Y, %H:%M:%S")
         if quickFight:

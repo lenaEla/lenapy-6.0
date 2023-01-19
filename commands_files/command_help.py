@@ -143,6 +143,6 @@ async def helpBot(bot,ctx):
                             break
 
                 if wanted != None:
-                    await respond.send(embeds=interactions.Embed(title="__/help {0}__".format(wanted["name"]),color=light_blue,description=wanted["long"]),delete_after=30)
+                    await respond.send(embeds=interactions.Embed(title="__/help {0}__".format(wanted["name"]),color=light_blue,description=wanted["long"]))
                 else:
                     await respond.send("La commande n'a pas pu être retrouvée :/")

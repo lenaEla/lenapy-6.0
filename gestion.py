@@ -107,13 +107,18 @@ class userTeamDbEndler:
         self.con.row_factory = sqlite3.Row
         self.database = "aliceStats.db"
 
-    def updateTeam(self,team:int,members:Union[List[int],List[char]]):
+    def updateTeam(self,team:int,members:Union[List[int],List[char]]=None):
         cursory, listToAdd, listToAdd2 = self.con.cursor(), "" , ""
         
         # Allready Exist ?
         cursory.execute("SELECT teamMember0 FROM userTeams WHERE teamId = {0};".format(team))
         result = cursory.fetchone()
-
+        if members == None:
+            cursory.execute("DELETE FROM userTeams WHERE teamId = {0};".format(team))
+            self.con.commit()
+            cursory.close()
+            print("The team number {0} have been removed from the database".format(team))
+            return 0
         if result == None:
             for a in range(len(members)):
                 if type(members[a]) in [int,str]:
@@ -441,6 +446,8 @@ def randRep(liste : list):
     return liste[random.randint(0,len(liste)-1)]
 
 def saveCharFile(path : str = None, user : char = None):
+    if user.owner.__class__ != int:
+        user.owner = int(user.owner)
     try:
         if user == None:
             raise Exception("Attribut Error : No user gave")
@@ -566,6 +573,9 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     while cmpt < len(file[4]):                              # Weapon Inventort
         temp += [findWeapon(file[4][cmpt])]
         cmpt += 1
+    for weap in baseWeapon:
+        if weap not in temp:
+            temp.append(weap)
     rep.weaponInventory = sorted(temp,key=lambda weapon : weapon.name)
     try:                                                    # Equiped Skills
         cmpt,temp = 0,[]
@@ -586,14 +596,17 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         cmpt,temp = 0,[]
         while cmpt < len(file[6]):
             tempFind = findSkill(file[6][cmpt].replace("\n",""))
-            if type(tempFind) != None:
+            if tempFind != None:
                 temp += [tempFind]
             cmpt += 1
+        for ski in baseSkills:
+            if ski not in temp:
+                temp.append(ski)
         rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
     except:
         rep.skillInventory = []
 
-    try:                        # Equiped Stuff
+    try:                        #Eqquiped Stuff
         cmpt,temp = 0,[]
         while cmpt < 3:
             temp += [findStuff(file[7][cmpt].replace("/n",""))]
@@ -624,6 +637,9 @@ def loadCharFile(path : str = None, user:char = None) -> char:
         if tempFind != None:
             temp += [tempFind]
         cmpt += 1
+    for stuffy in baseStuffs:
+        if stuffy not in temp:
+            temp.append(stuffy)
     rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
 
     cmpt,temp = 0,[]
@@ -711,8 +727,13 @@ def getEmojiInfo(emoji : str):
     return rep
 
 def getEmojiObject(emoji : str):
-    temp = getEmojiInfo(emoji)
-    return Emoji(name=temp[0],id=int(temp[1]))
+    if type(emoji) == interactions.Emoji:
+        return emoji
+    try:
+        temp = getEmojiInfo(emoji)
+        return Emoji(name=temp[0],id=int(temp[1]))
+    except ValueError:
+        return Emoji(name=emoji)
 
 async def loadingSlashEmbed(ctx : interactions.CommandContext):
     """Send a loading embed from a slash command"""
@@ -1017,7 +1038,7 @@ class globalVarDb:
         cursor.execute("DELETE FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(guild_id,streamer_login))
         cursor.close()
         self.con.commit()
-        
+
 globalVar = globalVarDb()
 
 async def botChannelVerif(bot:interactions.Client,ctx:interactions.CommandContext):

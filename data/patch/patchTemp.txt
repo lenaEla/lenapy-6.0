@@ -1,0 +1,14 @@
+__Iliana Ex :__
+- La puissance de soins personnels de toutes ses compétences offensives passent à 50
+- L'effet "Flashé" (Flash Lumineux) est renommé "Corruption de Lumière, ne réduit plus la précision mais inflige des dégâts durant désormais 3 tours
+- Le temps de rechargement de Flash Lumineux est augmenté à 5 tours
+- La zone d'effet de Vague de Lumière devient Cône 3
+- Vitesse Lumière est désormais enchaînée avec Ardeur Lumineuse (dégâts à cibles unique) et voit son temps de rechargement augmenté à 5 tours
+- Révolution Lumineuse est désormais enchaînée avec Champ Lumineux (dégâts indirects) et voit son temps de rechargement augmenté à 5 tours
+- Fragmentation est désormais divisé en deux tours :
+> - Le bash et le stun sont désormais infligés au prmier tour, puis au second est enchaînés les trois coups à cible unique
+> - Les soins personnels d'Iliana se déclanche aux deux tours de la compétence
+- Améliorations visuelles
+
+__Iliana Prê :__
+- Améliorations visuelles

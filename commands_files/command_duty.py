@@ -60,7 +60,7 @@ async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,us
             lena = tablAllAllies[0].icon, shushi = tablAllAllies[4].icon, luna = '<:luna:909047362868105227>', shihu = '<:shihu:909047672541945927>',
             alice = tablAllAllies[3].icon, sixtine = '<:sixtine:908819887059763261>', feli = '<:felicite:909048027644317706>',
             clemence = tablAllAllies[2].icon,
-            shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, icelia = '<:icealia:909065559516250112>',
+            shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, icealia = '<:icealia:909065559516250112>',
             iliana = '<:Iliana:926425844056985640>',
             gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
             lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>"
