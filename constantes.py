@@ -64,11 +64,12 @@ AREA_INLINE_5 = 45
 AREA_BOMB_5 = 46
 AREA_BOMB_6 = 47
 AREA_BOMB_7 = 48
+AREA_LOWEST_HP_ALLIE = 49
 
 areaMelee = [AREA_MONO,AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CONE_2,AREA_CONE_3,AREA_LINE_2,AREA_LINE_3,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_INLINE_2,AREA_INLINE_3]
 areaDist = [AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7]
 areaMixte = []
-notOrientedAreas = [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7]
+notOrientedAreas = [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7,AREA_LOWEST_HP_ALLIE]
 
 EmIcon = [None,['<:ikaRed:866459224664702977>','<:ikaOrange:866459241886646272>','<:ikaYellow:866459268520607775>','<:ikaGreen:866459285982937108>','<:ikaLBlue:866459302319226910>','<:ikaBlue:866459319049650206>','<:ikaPurple:866459331254550558>','<:ikaPink:866459344173137930>','<:ikaWhite:871149538554044466>','<:ikaBlack:871149560284741632>'],['<:takoRed:866459004439756810>','<:takoOrange:866459027562954762>','<:takoYellow:866459052132532275>','<:takoGreen:866459073910145025>','<:takoLBlue:866459095875190804>','<:takoBlue:866459141077860352>','<:takoPurple:866459162716536892>','<:takoPink:866459203949166593>','<:takoWhite:871149576965455933>','<:takoBlack:871151069193969714>'],['<:octarian:866461984018137138>'],['<:baseIka:913847108640047174>',"<:baseTako:913847092835930172>","<:empty_squid:913911277548601344>","<:empty_octo:913911290299289632>",'<:littleStar:925860806602682369>','<:ikaCatLine:930383582898315284>','<:ikaCatBody:930383603026776064>','<:takoCatLine:930383560630734848>','<:takoCatBody:930397525888880711>','<:komoriLine:930804436861857872>','<:komoriBody:930798973386641448>','<:birdLine:930906003967443034>','<:birdColor:930908372969095248>','<:skeletonLine:930910501691588658>','<:skeletonColor:931190496427139112>','<:fairyLine:935335398094274621>','<:fairyColor:935335413005037600>','<:fairy2Line:935336370774351902>','<:fairy2Color:935336353284096040>']]
 EmCount = ('0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🇦','🇧','🇨','🇩','🇪','🇫')
@@ -77,12 +78,12 @@ for cmpt in range(AREA_INLINE_5+1):
     if cmpt not in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES] + areaMelee + areaDist:
         areaMixte.append(cmpt)
 
-areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon","Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases","Lobbée de 5 cases","Lobbée de 6 cases","Lobbée de 7 cases"]
+areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon","Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases","Lobbée de 5 cases","Lobbée de 6 cases","Lobbée de 7 cases","Allié le plus blessé"]
 allArea = range(0, AREA_BOMB_7)
 listNumberEmoji = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟","▶️","⏸️","⏯️","⏹️","⏺️","⏭️","⏮️","⏩","⏪","⏫","⏬","◀️","🔼","🔽","➡️","⬅️","⬆️","⬇️","↗️","↘️","↙️","↖️","↕️","↔️"]
 
-rangeAreaEmojis = ["<:rangeMono:1032293272783179796>", "<:rangeCircle:1032293347869593691>(1)", "<:rangeCircle:1032293347869593691>(2)", "<:rangeCircle:1032293347869593691>(3)", "<:rangeCircle:1032293347869593691>(4)", "<:rangeCircle:1032293347869593691>(5)", "<:rangeCircle:1032293347869593691>(6)", "<:rangeCircle:1032293347869593691>(7)", "<:rangeAllAllies:1032512884351172668>", "<:rangeAllEnemies:1032512939992809502>", "<:rangeAllEntities:1032512991859576933>", "<:rangeCone:1032293500093480970>(1)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(3)", "<:rangeCone:1032293500093480970>(4)", "<:rangeCone:1032293500093480970>(5)", "<:rangeLine:1032293431298494595>(2)", "<:rangeLine:1032293431298494595>(3)", "<:rangeLine:1032293431298494595>(4)", "<:rangeLine:1032293431298494595>(5)", "<:rangeLine:1032293431298494595>(6)", "<:rangeDonut:1032294133219459103>(1)", "<:rangeDonut:1032294133219459103>(2)", "<:rangeDonut:1032294133219459103>(3)", "<:rangeDonut:1032294133219459103>(4)","<:rangeDonut:1032294133219459103>(5)", "<:rangeDonut:1032294133219459103>(6)", "<:rangeDonut:1032294133219459103>(7)", "<:rangeDist:1032294217415921726>(1)", "<:rangeDist:1032294217415921726>(2)", "<:rangeDist:1032294217415921726>(3)", "<:rangeDist:1032294217415921726>(4)", "<:rangeDist:1032294217415921726>(5)", "<:rangeArc:1033268272285614080>(1)", "<:rangeArc:1033268272285614080>(2)", "<:rangeArc:1033268272285614080>(3)", "<:rangeRdmEnemie:1032513037351010335>(1)", "<:rangeRdmEnemie:1032513037351010335>(2)", "<:rangeRdmEnemie:1032513037351010335>(3)", "<:rangeRdmEnemie:1032513037351010335>(4)", "<:rangeRdmEnemie:1032513037351010335>(5)", "<:rangeCross:1032294049027194940>(2)", "<:rangeCross:1032294049027194940>(3)", "<:rangeCross:1032294049027194940>(4)", "<:rangeCross:1032294049027194940>(5)","<:rangeLob:1032294266988408833>(5)","<:rangeLob:1032294266988408833>(6)","<:rangeLob:1032294266988408833>(7)"]
-areaEmojis = ["<:areaMono:1032293314130616400>", "<:areaCircle:1032293380379656192>(1)", "<:areaCircle:1032293380379656192>(2)", "<:areaCircle:1032293380379656192>(3)", "<:areaCircle:1032293380379656192>(4)", "<:areaCircle:1032293380379656192>(5)", "<:areaCircle:1032293380379656192>(6)", "<:areaCircle:1032293380379656192>(7)", "<:areaAllAllies:1032512909982564443>", "<:areaAllEnemies:1032512965850710026>", "<:areaAllEntities:1032513013879681095>", "<:areaCone:1032293578858307624>(1)", "<:areaCone:1032293578858307624>(2)", "<:areaCone:1032293578858307624>(3)", "<:areaCone:1032293578858307624>(4)", "<:areaCone:1032293578858307624>(5)", "<:areaCone:1032293578858307624>(6)", "<:areaLine:1032293461803675708>(2)", "<:areaLine:1032293461803675708>(3)", "<:areaLine:1032293461803675708>(4)", "<:areaLine:1032293461803675708>(5)", "<:areaLine:1032293461803675708>(6)", "<:areaDonut:1032294180451520552>(1)", "<:areaDonut:1032294180451520552>(2)", "<:areaDonut:1032294180451520552>(3)", "<:areaDonut:1032294180451520552>(4)","<:areaDonut:1032294180451520552>(5)", "<:areaDonut:1032294180451520552>(6)", "<:areaDonut:1032294180451520552>(7)", "<:areaDist:1032294242783080518>(1)", "<:areaDist:1032294242783080518>(2)", "<:areaDist:1032294242783080518>(3)", "<:areaDist:1032294242783080518>(4)", "<:areaDist:1032294242783080518>(5)", "<:areaArc:1033268300412616747>(1)", "<:areaArc:1033268300412616747>(2)", "<:areaArc:1033268300412616747>(3)", "<:areaRdmEnemie:1032513060524539904>(1)", "<:areaRdmEnemie:1032513060524539904>(2)", "<:areaRdmEnemie:1032513060524539904>(3)", "<:areaRdmEnemie:1032513060524539904>(4)", "<:areaRdmEnemie:1032513060524539904>(5)", "<:areaCross:1032294077653328004>(2)", "<:areaCross:1032294077653328004>(3)", "<:areaCross:1032294077653328004>(4)", "<:areaCross:1032294077653328004>(5)","<:areaLob:1032294287657934910>(5)","<:areaLob:1032294287657934910>(6)","<:areaLob:1032294287657934910>(7)"]
+rangeAreaEmojis = ["<:rangeMono:1032293272783179796>", "<:rangeCircle:1032293347869593691>(1)", "<:rangeCircle:1032293347869593691>(2)", "<:rangeCircle:1032293347869593691>(3)", "<:rangeCircle:1032293347869593691>(4)", "<:rangeCircle:1032293347869593691>(5)", "<:rangeCircle:1032293347869593691>(6)", "<:rangeCircle:1032293347869593691>(7)", "<:rangeAllAllies:1032512884351172668>", "<:rangeAllEnemies:1032512939992809502>", "<:rangeAllEntities:1032512991859576933>", "<:rangeCone:1032293500093480970>(1)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(3)", "<:rangeCone:1032293500093480970>(4)", "<:rangeCone:1032293500093480970>(5)", "<:rangeLine:1032293431298494595>(2)", "<:rangeLine:1032293431298494595>(3)", "<:rangeLine:1032293431298494595>(4)", "<:rangeLine:1032293431298494595>(5)", "<:rangeLine:1032293431298494595>(6)", "<:rangeDonut:1032294133219459103>(1)", "<:rangeDonut:1032294133219459103>(2)", "<:rangeDonut:1032294133219459103>(3)", "<:rangeDonut:1032294133219459103>(4)","<:rangeDonut:1032294133219459103>(5)", "<:rangeDonut:1032294133219459103>(6)", "<:rangeDonut:1032294133219459103>(7)", "<:rangeDist:1032294217415921726>(1)", "<:rangeDist:1032294217415921726>(2)", "<:rangeDist:1032294217415921726>(3)", "<:rangeDist:1032294217415921726>(4)", "<:rangeDist:1032294217415921726>(5)", "<:rangeArc:1033268272285614080>(1)", "<:rangeArc:1033268272285614080>(2)", "<:rangeArc:1033268272285614080>(3)", "<:rangeRdmEnemie:1032513037351010335>(1)", "<:rangeRdmEnemie:1032513037351010335>(2)", "<:rangeRdmEnemie:1032513037351010335>(3)", "<:rangeRdmEnemie:1032513037351010335>(4)", "<:rangeRdmEnemie:1032513037351010335>(5)", "<:rangeCross:1032294049027194940>(2)", "<:rangeCross:1032294049027194940>(3)", "<:rangeCross:1032294049027194940>(4)", "<:rangeCross:1032294049027194940>(5)","<:rangeLob:1032294266988408833>(5)","<:rangeLob:1032294266988408833>(6)","<:rangeLob:1032294266988408833>(7)","<:INeedHealing:881587796287057951>"]
+areaEmojis = ["<:areaMono:1032293314130616400>", "<:areaCircle:1032293380379656192>(1)", "<:areaCircle:1032293380379656192>(2)", "<:areaCircle:1032293380379656192>(3)", "<:areaCircle:1032293380379656192>(4)", "<:areaCircle:1032293380379656192>(5)", "<:areaCircle:1032293380379656192>(6)", "<:areaCircle:1032293380379656192>(7)", "<:areaAllAllies:1032512909982564443>", "<:areaAllEnemies:1032512965850710026>", "<:areaAllEntities:1032513013879681095>", "<:areaCone:1032293578858307624>(1)", "<:areaCone:1032293578858307624>(2)", "<:areaCone:1032293578858307624>(3)", "<:areaCone:1032293578858307624>(4)", "<:areaCone:1032293578858307624>(5)", "<:areaCone:1032293578858307624>(6)", "<:areaLine:1032293461803675708>(2)", "<:areaLine:1032293461803675708>(3)", "<:areaLine:1032293461803675708>(4)", "<:areaLine:1032293461803675708>(5)", "<:areaLine:1032293461803675708>(6)", "<:areaDonut:1032294180451520552>(1)", "<:areaDonut:1032294180451520552>(2)", "<:areaDonut:1032294180451520552>(3)", "<:areaDonut:1032294180451520552>(4)","<:areaDonut:1032294180451520552>(5)", "<:areaDonut:1032294180451520552>(6)", "<:areaDonut:1032294180451520552>(7)", "<:areaDist:1032294242783080518>(1)", "<:areaDist:1032294242783080518>(2)", "<:areaDist:1032294242783080518>(3)", "<:areaDist:1032294242783080518>(4)", "<:areaDist:1032294242783080518>(5)", "<:areaArc:1033268300412616747>(1)", "<:areaArc:1033268300412616747>(2)", "<:areaArc:1033268300412616747>(3)", "<:areaRdmEnemie:1032513060524539904>(1)", "<:areaRdmEnemie:1032513060524539904>(2)", "<:areaRdmEnemie:1032513060524539904>(3)", "<:areaRdmEnemie:1032513060524539904>(4)", "<:areaRdmEnemie:1032513060524539904>(5)", "<:areaCross:1032294077653328004>(2)", "<:areaCross:1032294077653328004>(3)", "<:areaCross:1032294077653328004>(4)", "<:areaCross:1032294077653328004>(5)","<:areaLob:1032294287657934910>(5)","<:areaLob:1032294287657934910>(6)","<:areaLob:1032294287657934910>(7)","<:INeedHealing:881587796287057951>"]
 
 # Weapon's range
 RANGE_MELEE = 0
@@ -99,8 +100,9 @@ TRIGGER_INSTANT = 5
 TRIGGER_START_OF_TURN = 6
 TRIGGER_ON_REMOVE = 7
 TRIGGER_AFTER_DAMAGE = 8
+TRIGGER_HP_ENDER_70 = 9
 
-allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE]
+allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE,TRIGGER_HP_ENDER_70]
 triggersTxt = [
     "passivement",
     "lorsque le porteur reçoit des dégâts directs",
@@ -110,10 +112,11 @@ triggersTxt = [
     "lors de la pose de cet effet",
     "au début du tour du porteur",
     "lors du retrait de cet effet",
-    "après que le porteur ai infligé des dégâts directs"
+    "après que le porteur ai infligé des dégâts directs",
+    "lorsque les PV du porteur tombent en dessous de 70%"
 ]
 
-DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 65, 15, 30, 20
+DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 50, 15, 15, 20
 DMGBONUSPERLEVEL, HEALBONUSPERLEVEL, ARMORLBONUSPERLEVEL = DMGBONUSATLVL50/50/100, HEALBONUSATLVL50/50/100, ARMORBONUSATLVL50/50/100
 SUDDENDEATHDMG = 20
 
@@ -132,7 +135,7 @@ TYPE_SUMMON = 10
 TYPE_PASSIVE = 11
 TYPE_DEPL = 12
 
-tablTypeStr = ["Armure", "Dégâts indirects", "Soins Indirects", "Résurection indirecte","Boost", "Resurection", "Dégâts", "Malus", "Soins", "Unique", "Invocation", "Passif", "Déployable"]
+allTypeNames = ["Armure", "Dégâts indirects", "Soins Indirects", "Résurection indirecte","Boost", "Resurection", "Dégâts", "Malus", "Soins", "Unique", "Invocation", "Passif", "Déployable"]
 friendlyTypes, hostilesTypes = [TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_HEAL,TYPE_BOOST,TYPE_RESURECTION], [TYPE_INDIRECT_DAMAGE,TYPE_DAMAGE,TYPE_MALUS]
 allTypes = range(0, 12)
 
@@ -395,7 +398,7 @@ weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434,9
 
 # For some time related stuff. Time from server != time from France
 if not(os.path.exists("../Kawi")):
-    horaire = timedelta(hours=1)
+    horaire = timedelta(hours=2)
 else:
     horaire = timedelta(hours=0)
 
@@ -448,7 +451,7 @@ iconSetCatNames = ["hand","affElem","affAcc","affWeap"]
 
 class says:
     """A class for storing the says message from a entity"""
-    def __init__(self, start=None, ultimate=None, limiteBreak=None, onKill=None, onDeath=None, onResurect=None, blueWinAlive=None, blueWinDead=None, blueLoose=None, redWinAlive=None, redWinDead=None, redLoose=None, blockBigAttack=None, reactBigRaiseAllie=None, reactBigRaiseEnnemy=None, bigRaise=None, reactEnnemyKilled=None, reactAllyKilled=None, reactAllyLb=None, reactEnemyLb=None):
+    def __init__(self, start=None, ultimate=None, limiteBreak=None, onKill=None, onDeath=None, onResurect=None, blueWinAlive=None, blueWinDead=None, blueLoose=None, redWinAlive=None, redWinDead=None, redLoose=None, blockBigAttack=None, reactBigRaiseAllie=None, reactBigRaiseEnnemy=None, bigRaise=None, reactEnnemyKilled=None, reactAllyKilled=None, reactAllyLb=None, reactEnemyLb=None, onHit=None, onMiss=None, takeHit=None, dodge=None, getHealed = None, specKill={}, specDeath={}, specReact={}):
         self.start = start
         self.ultimate = ultimate
         self.limiteBreak = limiteBreak
@@ -469,6 +472,12 @@ class says:
         self.reactAllyKilled = reactAllyKilled
         self.reactAllyLb = reactAllyLb
         self.reactEnemyLb = reactEnemyLb
+        self.onHit = onHit
+        self.onMiss = onMiss
+        self.takeHit = takeHit
+        self.dodge = dodge
+        self.getHealed = getHealed
+        self.specKill, self.specDeath, self.specReact = specKill, specDeath, specReact
 
     def tabl(self):
         return [
@@ -493,6 +502,10 @@ class says:
         ]
 
     def fromTabl(self, tabl: list):
+        for cmpt in range(len(tabl)):
+            if type(tabl[cmpt]) == str:
+                tabl[cmpt] = tabl[cmpt].replace("\\","")
+
         self.start = tabl[0]
         self.ultimate = tabl[1]
         self.limiteBreak = tabl[2]
@@ -520,7 +533,7 @@ lenaSays = says(
     limiteBreak="C'est mainteant ou jamais !",
     onDeath="Tps.",
     onResurect="J'te revaudrais ça {target}",
-    blueWinAlive="Une victoire en bonne uniforme",
+    blueWinAlive="Bien joué",
     redWinAlive="Va falloir faire mieux que ça, là prochaine fois.",
     redWinDead="Pas mal. Mais pas suffisant",
     redLoose="Ahah, pas trop mal cette fois-ci. Mais ce n'était qu'un entrainement",
@@ -529,7 +542,9 @@ lenaSays = says(
     reactEnnemyKilled="Pas trop mal {killer}",
     reactAllyKilled="T'en fais pas {downed}, je m'en charge.",
     blockBigAttack="Hé Luna ! Un brisage de l'Espace Temps ça te dis ?\"*\n<:luna:909047362868105227> : \*\"C'est pas déjà ce que l'on était en train de faire ?",
-    reactEnemyLb="`Ricane` Si ça vous chante",reactAllyLb="Belle {skill}, {caster}"
+    reactEnemyLb="`Ricane` Si ça vous chante",reactAllyLb="Belle {skill}, {caster}",
+    onHit = ["On va bien voir comment tu prendras la prochaine.","Tu prendras pas toutes te les prendre sans broncher.","La prochaine portera ton nom, {target}."],
+    onMiss = ["T'en fais pas je te raterais pas la prochaine fois.","Pas la peine de prendre la grosse tête, {target}.","Juste un coup de chance."]
 )
 
 aliceSays = says(
@@ -545,9 +560,25 @@ aliceSays = says(
     bigRaise="Alors alors (〃▽〃)?",
     reactEnnemyKilled="En voilà un qui sera pas là pour mon final",
     reactAllyKilled="T'en fais pas {downed} !",
-    reactAllyLb="Mow, je voulais terminer en apothéose moi :<",
+    reactAllyLb="Mow, je voulais terminer en apothéose moi :(",
     reactEnemyLb="Pff, tu appelles ça une démonstration, {caster} ?",
-    limiteBreak="C'est l'heure de terminer en apothéose !"
+    limiteBreak="C'est l'heure de terminer en apothéose !",
+    specReact={"Stella":"J'ai même pas envie d'exprimer une once d'empatie.","Bénédicte":"You go down just like Holy Mary...\"*\n{alice} : *\"Mary on a, Mary on a cross...".format(alice="<:alice:1069700207345946715>"),"Liu":"Comment je vais expliquer ça à Pénélope moi...","Sixtine":"Oh heu...","Félicité":"J'en connais une qui aura besoin d'un câlin ce soir..."},
+    specDeath={"Nacialisla":["Ça c'est pour toutes les fourmilières que tu as éradiqué.","À ton tour d'être écrasée comme une fulgaire fourmis."]}
+)
+
+stellaSays = says(
+    specReact={
+        "Alice":"Et bah alors c'est tout ?",
+        "Powehi":"Tu l'a un peu cherché non ?"
+        },
+    start="J'espère que vous avez prévu des lunettes parceque ça va chauffer !",
+    reactEnnemyKilled="Et c'est pas fini !",
+    reactEnemyLb="Ow on a envie de briller ?",
+)
+
+serenaSays = says(
+    specReact={"Lohica":"J'espère que tu passeras bien le restant de tes jours à croupir aux enfers."}
 )
 
 clemSays = says(
@@ -560,7 +591,9 @@ clemSays = says(
     reactEnnemyKilled="Pas trop {killer}",
     redLoose="Pas la peine de prendre la grosse tête.",
     limiteBreak="Vous commencez sérieusement à m'ennuyer.",
-    reactAllyLb="J'aurais pû le faire moi-même {caster}."
+    reactAllyLb="J'aurais pû le faire moi-même {caster}.",
+    getHealed="Merci",
+    specDeath={"John":"Clémence !","Alice":"Voilà un combat que tu n'as pas sû gagner","Ruby":"Tu aurais pas oublié quelques principes de ta formation ?","Félicité":"Huh, ça va aller Clémence ?","Bénédicte":"À moitié surprise..."}
 )
 
 ailillSays = says(
@@ -599,12 +632,12 @@ Cependant, puisqu'elle n'avait été crée que dans un seul but, la réalisation
 Bien que Lena soit parcevenu à reprendre le contrôle, Luna n'en a pas abandonné des dessins pour autant, et son manque de consistance ainsi que son caractère têtu et compulsif l'empêche de vraiment se concentrer très longtemps sur autre chose, au dame de sa propre fille"""
 
 shushiAltSays = says(
-    start="Dézolé Miman... Mais on peut pa ti laizer fire.",
+    start="Désolé Miman... Mais on peut pa ti laizer fire.",
     onKill="Zi te plait...",
     onDeath="D-Dézolée !",
     blueLoose="Ze ferais miheu... la prozaine fois...",
     blueWinAlive="Wiiii !",
-    reactBigRaiseAllie="Bien zoué {caster}"
+    reactBigRaiseAllie="Bien joué {caster}"
 )
 
 shushiSays = says(
@@ -613,12 +646,15 @@ shushiSays = says(
     onKill="Tu m'en voudras pas hein ? ?",
     onDeath="Miman !",
     onResurect="Ze veux encore dodo...",
-    blueWinAlive="`Petite danse de la victoire` ?",
+    blueWinAlive="`Petite danse de la victoire et s'arrête brusquement lorsqu'elle remarque qu'on la regarde`  Heh !?",
     blueWinDead="Bien zoué !",
     blueLoose="Je vais devoir faire mieux la prochaine fois !",
     redWinAlive="Alors alors ?",
     redWinDead="Peux mieux faire !",
-    redLoose="Oh..."
+    redLoose="Oh...",
+    getHealed="Merciiiii",
+    takeHit="Mhf...",
+    specDeath={"Lena":"Shushi !","Félicité":"Lena va pas être contente...","Iliana":"Huh, tiens bon calamar !","Alice":"Mow, qui a osé mettre K.O. une enfant cute comme Shuhsi ?"}
 )
 
 lunaSays = says(
@@ -634,12 +670,16 @@ shihuSays = says(
     start="J'essayerai de pas tout casser !",
     redWinAlive="Boum Boum",
     ultimate="Préparez vous à ressentir le pouvoir des Ténèbes !",
-    onKill="Tu risques de broyer du noir pendant un moment, dézolée !"
+    onKill="Tu risques de broyer du noir pendant un moment, dézolée !",
+    blueWinAlive="Haha ! C'était marrant ^^ On remet ça quand vous voulez !",
+    specDeath={"Lena":"Shihu !","Félicité":"Lena va pas être contente...","Iliana":"Huh, tiens Shihu !"}
 )
 
 temSays = says(
     start="HoIIII !",
-    onDeath="Ayayaya !"
+    onDeath="Ayayaya !",
+    specDeath={"Lena":"Du miel pour les oreilles..."},
+    specKill={"Lena":"C'est ça, la ferme."}
 )
 
 spamtonSays = says(
@@ -656,7 +696,10 @@ powehiSays = says(
     onDeath="Kya !",
     onResurect="Mourir, c'est toujours pas drôle",
     reactBigRaiseAllie="On peut dire que tu sais y faire {caster}",
-    reactEnemyLb="C'est beau de s'acharner inutilement..."
+    reactEnemyLb="C'est beau de s'acharner inutilement...",
+    getHealed="Merci bien",
+    specDeath={"Stella":"Et bien on a eu du mal à tout absorber cette fois ?"},
+    specKill={"Nacialisla":"Tiens donc, tu décide de laisser tomber ?"}
 )
 
 randomWaitingMsg = [
@@ -669,7 +712,8 @@ randomWaitingMsg = [
 ]
 
 johnSays = says(
-    start="(Courage John. Montre lui que tu as appris à devenir un combattant.)"
+    start="(Courage John. Montre lui que tu as appris à devenir un combattant.)",
+    specDeath={"Clémence":"Hé ! Qui s'est permis de mettre mon John à terre !?"}
 )
 
 liaSays = says(
@@ -679,7 +723,10 @@ liaSays = says(
     redWinAlive="C'était marrant !",
     redLoose="Vous savez pas rire...",
     reactBigRaiseAllie="Toujours aussi jouissif {caster}",
-    reactEnemyLb="Mow, je crois qu'ils sont un peu en colère"
+    reactEnemyLb="Mow, je crois qu'ils sont un peu en colère",
+    dodge=["T'es sûr d'avoir les yeux en face des trous {caster} ?","Bien essayé","Pas cette fois !"],
+    getHealed=["Arigatō","Domo","Merci {caster}"],
+    specDeath={"Liu":"Hé bah on l'a pas esquivé celle-là","Liz":"Ça te ressemble pas d'abandonner comme ça Lia"}
 )
 
 liuSays = says(
@@ -688,7 +735,10 @@ liuSays = says(
     onResurect="Une seconde course ?",
     redLoose="Hé bah... Finalement c'est moi qui ai mordu la poussière",
     limiteBreak="Pas si vite !",
-    reactEnemyLb="C'est bon tu as fini {caster} ?"
+    reactEnemyLb="C'est bon tu as fini {caster} ?",
+    getHealed="Go kyōryoku itadaki arigatōgozaimasu",
+    takeHit=["C'est tout ce que tu peux faire {caster} ?","Va falloir taper plus fort que ça"],
+    specDeath={"Lia":"Et bah alors, on dirais que tu as atteint ta limite Liu"}
 )
 
 lioSays = says(
@@ -700,6 +750,8 @@ lioSays = says(
     bigRaise="On lache rien...",
     reactBigRaiseEnnemy="Je peux faire ça aussi, tu sais...",
     reactAllyKilled="Vous commencez à me taper sur les nerfs...",
+    getHealed="Arigato gozaimasu...",
+    specDeath={"Lia":"Huh, ça va être compliqué...","Liu":"Hé Lio c'est pas trop trop le moment de faire la sieste là !","Liz":"Lio !"}
 )
 
 lizSays = says(
@@ -708,7 +760,11 @@ lizSays = says(
     onKill="Woops, j'y suis allé trop fort manifestement",
     onDeath="Pff, vous êtes pas drôle",
     redLoose="Waw, je me suis jamais faite autant refroidir rapidement...",
-    reactEnemyLb="T'enflamme pas trop vite {caster}."
+    reactEnemyLb="T'enflamme pas trop vite {caster}.",
+    redWinAlive="Va falloir apprendre à pas trop vous consummer trop vite, vous savez ?",
+    onHit="Oh je viens qu'on tiens plutôt bien debout",
+    onMiss="Ne tente pas trop ta chance...",
+    specDeath={"Lia":"Waw, quelqu'un a réussi à calmer tes ardeurs ?"}
 )
 
 julieSays = says(
@@ -722,18 +778,22 @@ julieSays = says(
 
 sixtineSays = says(
     start="`Baille en s'étirant`",
-    ultimate="Laissez moi tranquille...",
+    ultimate="Soit...",
     redWinAlive="Je retourne dessiner maintenant...",
     redLoose="Zzz...",
     reactBigRaiseAllie="Waw...",
-    reactAllyLb="C'était joli à regarder..."
+    reactAllyLb="C'était joli à regarder...",
+    getHealed="Merci {caster}...",
+    takeHit="Mfh !",
+    specDeath={"Alice":"Hé !","Félicité":"Huh, ça va aller Sixtine ?"}
 )
 
 clemPosSays = says(
     start="J'en ai ma claque des gens de votre genre.",
     onKill="Un de plus, un de moins. Quelle importance",
     redWinAlive="Restez à votre place.",
-    redLoose="Que..."
+    redLoose="Que...",
+    takeHit=["Si tu crois que je vais laisser tomber pour si peu {caster}, tu te met le doigts dans l'oeuil.","Rassure moi, tu appelles pas ça une attaque quand même ?","C'était sensé faire quelque chose ?","{caster} utilise Trempette. Mais rien ne se passe."]
 )
 
 aliceExSays = says(
@@ -753,7 +813,112 @@ lilySays = says(
     redLoose="C'est pas vrai, ça a encore viré au cauchemar...",
     reactAllyKilled="Ça commence à virer au cauchemar...",
     reactAllyLb="Faisons que cette réalité un doux rêve !",
-    onKill="Heu... Je... je crois que j'y suis allé trop fort, désolée !"
+    onKill="Heu... Je... je crois que j'y suis allé trop fort, désolée !",
+    getHealed="Merci, je risque d'en avoir besoin..."
+)
+
+ilianaSaysNormal = says(
+    start="Puisse ce combat être bénéfique pour tous !",
+    ultimate="Qu'est-ce que vous pensez du pouvoir de la Lumière ?",
+    limiteBreak="Que la Lumière nous protège !",
+    onKill="Je décline toute responsabilité en cas de tache blanche incrustée dans ta rénite",
+    onDeath="Humf !",
+    reactAllyKilled="J'aurais du faire plus attention, désolée",
+    reactBigRaiseAllie="On reprend ses esprits et on y retourne",
+    takeHit=["C'est tout ce que tu as {caster} ?","Tu peux mieux faire quand même {caster}, non ?","Toujours debout !"],
+    specDeath={"Luna":"Hé chaton, c'est pas le moment de faire la sieste !"}
+)
+
+ilianaSaysVsLuna = says(
+    start="Tu nous fais encore une crise ?",
+    ultimate="On tiens le bon bou, lachez rien !",
+    onKill="T'en fait pas Luna !",
+    onDeath="Ish...",
+    onResurect="Merci bien",
+    blueWinAlive="`S'assoit à côté de Luna, qui est trop fatiguée pour bouger, lui met la tête sur ses genoux puis caresse cette dernière en ronronnant`\"\n<:luna:909047362868105227> : \"Ili'...\"\n<:Iliana:926425844056985640> : \"Tu ferais la même chose si c'était moi, et tu t'es faite battre à plate couture, tu es pas en droit de contester\"\n<:luna:909047362868105227> : \"... `Ferme les yeux et s'endort peut de temps après`",
+    blockBigAttack="Si tu crois que tu va m'avoir avec ça !",
+    reactBigRaiseAllie="Je m'occupe des Ténèbres qui paralyse votre âme vous en faites pas !"
+)
+
+kitsuneSays = says(
+    start="Mais c'est que vous êtes bien nombreux dites donc ^^",
+    onKill="C'était trop intense pour toi ? Mais on a même pas encore commencé !",
+    redWinAlive="C'était amusant, vous trouvez pas ?",
+    reactBigRaiseEnnemy="Vos âmes m'appartiennent déjà, pourquoi résister ?",
+    takeHit=["Tu essayes vraiment là ?","`Soupire` C'est vraiment tout ce que tu peux faire... ?"],
+    onHit=["Pourquoi résister ?","Ahah, j'ai pas encore révélé tout l'étendu de mon pouvoir !"],
+    dodge="Hum... Rater un adversaire de mon gabari quand même..."
+)
+
+lySays = says(
+    start="Arf, mon truc c'est plutôt les squelettes et les zombies, vous savez ?",
+    ultimate="Prêts pour le feu d'artifice ?",
+    onDeath="Je suis pas assez bien payée pour ce genre de trucs...",
+    onResurect="Je savais que j'aurais du prendre un totem de résurection... Mais merci",
+    blueWinAlive="J'ai le droit de garder le loot ?",
+    redWinAlive="Vous avez un lit qui vous attend",
+    reactBigRaiseAllie="Si on doit en arriver à cette extremité, ça n'a pas vraiment l'air d'être bien parti...",
+    reactBigRaiseEnnemy="Je doute que ça suffira à inverser la tendance !",
+    reactEnnemyKilled="Tu as oublié ton totem de résurrection, {downed} ?"
+)
+
+gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimate="Ok ça suffit là !",limiteBreak="Ok là vous m'avez énervée !",reactAllyLb="Espéront que ça changera la donne",reactAllyKilled="Je suppose que j'ai une nouvelle cible maintenant",reactBigRaiseEnnemy="En quoi c'est juste ça Lena !?\"*\n<:lena:909047343876288552> : \"*Vous pouvez le faire aussi, arrête de te plaindre",onKill="Tu m'en diras des nouvelles.",redWinAlive="Vous en revoulez ?")
+klikliSays = says(start="Ok. Je vais m'en occuper rapidement",limiteBreak="OK, VOILÀ POUR VOUS !",onKill="Si tu veux revenir, j't'ai pas encore montrer tout ce dont je suis capable.",reactEnnemyKilled="Pff, j'peux le faire toute seule tu sais ?",ultimate="J'espère que tu as les yeux grands ouverts {target} !",redWinAlive="J'espère que vous en avez pris de la graine.")
+altySays = says(start="'K, je vais faire de mon mieux",onKill="Désolée...",onResurect="Ok, second round !",reactAllyKilled="{downed} !",redWinAlive="Oulà, ça va aller ? Je crois qu'on y est allé un peu fort...",redWinDead="`Rigole` Bien joué tout le monde !")
+
+shehisaSays = says(start="Ok, si on suit le plan, tout se passera bien",onKill="Tu aurais pu attendre que je soit partie avant de creuver quand même.",onDeath="Humf, c'était pas prévu ça...",reactAllyKilled="On lache rien !",reactBigRaiseEnnemy="C'était trop beau pour être vrai",reactAllyLb="Wowowo tu nous as fait quoi là {caster} ?",blueWinAlive="Tout s'est déroulé comme prévu",redWinAlive="Tout s'est déroulé selon le plan")
+
+churiSays = says(
+    start="Ça n'a rien de personnel mais... Je dois devenir plus forte.",
+    ultimate="À moi Hinoro !",
+    limiteBreak="Je dois y arriver !",
+    onKill = "T'en fais pas, je t'assure que l'au-delà n'est pas si terrible qu'il n'y parait",
+    onResurect="Si c'est pas ironique...",
+    bigRaise="Merci du coup de main Hinoro",
+    reactAllyKilled="Ça se complique...",
+    reactAllyLb="Pas trop mal"
+)
+
+lunaPreSays = says(
+    start="C'est votre dernière chance de prendre la poudre d'escampette.",
+    onKill="Quoi tu es surpris ? C'est pas faute d'avoir prévenu pourtant.",
+    blueWinAlive="Pas la peine de revenir me faire chier, le résulta sera le même",
+    reactBigRaiseEnnemy="Vous me faites une fleur vous savez, que vais pouvoir vous maraver la gueule une seconde fois sans ménagement",
+    blockBigAttack="Chaton, c'est pas à toi de le faire d'habitude ?"
+)
+
+ilianaPreSays = says(
+    start="J'espère que tu es en forme Luna...\"\n<:luna:909047362868105227> : \"Je suis toujours prête pour ce genre de trucs",
+    ultimate="Oh on en a pas encore terminé !",
+    reactEnnemyKilled="On a pas encore fini",
+    blueWinAlive="`S'étire` Ce genre d'informités deviens de plus en plus récurrent...\"\n<:luna:909047362868105227> : \"Ca ne présage rien de bon..."
+)
+
+feliSays = says(
+    start="Hoi !",
+    ultimate="Prend toi donc ça {target} !",
+    limiteBreak="Tu tomberas avant moi {target} !!",
+    onKill="Wesh alors ?",
+    blueWinAlive="`Sourit en faisant un V avec sa main gauche`",
+    redWinAlive="Wesh alors ? C'est tout ?",
+    onHit="Et ce n'est que le début {target} !",
+    specDeath={"Alice":'Féli ! On se retrouve à la maison !'}
+)
+
+hinaSays = says(
+    specDeath={"Lohica":[
+        "Tss, encore par terre toi ?",
+        "Un jour il va falloir que tu apprenne à voler de tes propres ailes tu sais ?",
+        "À trop vouloir toucher le ciel on fini par se brûler les ailes."
+        ]}
+)
+
+edelweissSays = says(
+    specDeath={"Lohica":"Am-"}
+)
+
+lohicaSays=says(
+    specReact={"Séréna":"T'en fais pas, je me rappellerais de comment tu as vainnement essayé de me tenir tête quand je consulterais ta fleur déséchée dans mon herbier"}
 )
 
 def createTmpChangeDict(level: int, changeWhat: int, change: list, to: list, proba=100):
@@ -786,77 +951,6 @@ limitBeakGif = [
     'https://cdn.discordapp.com/attachments/927195778517184534/932777330605178920/20220118_002344.gif',  # Att
 ]
 
-ilianaSaysNormal = says(
-    start="Puisse ce combat être bénéfique pour tous !",
-    ultimate="Qu'est-ce que vous pensez du pouvoir de la Lumière ?",
-    limiteBreak="Que la Lumière nous protège !",
-    onKill="Je décline toute responsabilité en cas de tache blanche incrustée dans ta rénite",
-    onDeath="Humf !",
-    reactAllyKilled="J'aurais du faire plus attention, désolée",
-    reactBigRaiseAllie="On reprend ses esprits et on y retourne"
-)
-
-ilianaSaysVsLuna = says(
-    start="Tu nous fais encore une crise ?",
-    ultimate="On tiens le bon bou, lachez rien !",
-    onKill="T'en fait pas Luna !",
-    onDeath="Ish...",
-    onResurect="Merci bien",
-    blueWinAlive="`S'assoit à côté de Luna, qui est trop fatiguée pour bouger, lui met la tête sur ses genoux puis caresse cette dernière en ronronnant`\"\n<:luna:909047362868105227> : \"Ili'...\"\n<:Iliana:926425844056985640> : \"Tu ferais la même chose si c'était moi, et tu t'es faite battre à plate couture, tu es pas en droit de contester\"\n<:luna:909047362868105227> : \"... `Ferme les yeux et s'endort peut de temps après`",
-    blockBigAttack="Si tu crois que tu va m'avoir avec ça !",
-    reactBigRaiseAllie="Je m'occupe des Ténèbres qui paralyse votre âme vous en faites pas !"
-)
-
-kitsuneSays = says(
-    start="Mais c'est que vous êtes bien nombreux dites donc ^^",
-    onKill="C'était trop intense pour toi ? Mais on a même pas encore commencé !",
-    redWinAlive="C'était amusant, vous trouvez pas ?",
-    reactBigRaiseEnnemy="Vos âmes m'appartiennent déjà, pourquoi résister ?"
-)
-
-lySays = says(
-    start="Arf, mon truc c'est plutôt les squelettes et les zombies, vous savez ?",
-    ultimate="Prêts pour le feu d'artifice ?",
-    onDeath="Je suis pas assez bien payée pour ce genre de trucs...",
-    onResurect="Je savais que j'aurais du prendre un totem de résurection... Mais merci",
-    blueWinAlive="J'ai le droit de garder le loot ?",
-    redWinAlive="Vous avez un lit qui vous attend",
-    reactBigRaiseAllie="Si on doit en arriver à cette extremité, ça n'a pas vraiment l'air d'être bien parti...",
-    reactBigRaiseEnnemy="Je doute que ça suffira à inverser la tendance !",
-    reactEnnemyKilled="Tu as oublié ton totem de résurrection, {downed} ?"
-)
-gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimate="Ok ça suffit là !",limiteBreak="Ok là vous m'avez énervée !",reactAllyLb="Espéront que ça changera la donne",reactAllyKilled="Je suppose que j'ai une nouvelle cible maintenant",reactBigRaiseEnnemy="En quoi c'est juste ça Lena !?\"*\n<:lena:909047343876288552> : \"*Vous pouvez le faire aussi, arrête de te plaindre",onKill="Tu m'en diras des nouvelles.",redWinAlive="Vous en revoulez ?")
-klikliSays = says(start="Ok. Je vais m'en occuper rapidement",limiteBreak="OK, VOILÀ POUR VOUS !",onKill="Si tu veux revenir, j't'ai pas encore montrer tout ce dont je suis capable.",reactEnnemyKilled="Pff, j'peux le faire toute seule tu sais ?",ultimate="J'espère que tu as les yeux grands ouverts {target} !",redWinAlive="J'espère que vous en avez pris de la graine.")
-altySays = says(start="'K, je vais faire de mon mieux",onKill="Désolée...",onResurect="Ok, second round !",reactAllyKilled="{downed} !",redWinAlive="Oulà, ça va aller ? Je crois qu'on y est allé un peu fort...",redWinDead="`Rigole` Bien joué tout le monde !")
- 
-shehisaSays = says(start="Ok, si on suit le plan, tout se passera bien",onKill="Tu aurais pu attendre que je soit partie avant de creuver quand même.",onDeath="Humf, c'était pas prévu ça...",reactAllyKilled="On lache rien !",reactBigRaiseEnnemy="C'était trop beau pour être vrai",reactAllyLb="Wowowo tu nous as fait quoi là {caster} ?",blueWinAlive="Tout s'est déroulé comme prévu",redWinAlive="Tout s'est déroulé selon le plan")
-
-churiSays = says(
-    start="Ça n'a rien de personnel mais... Je dois devenir plus forte.",
-    ultimate="À moi Hinoro !",
-    limiteBreak="Je dois y arriver !",
-    onKill = "T'en fais pas, je t'assure que l'au-delà n'est pas si terrible qu'il n'y parait",
-    onResurect="Si c'est pas ironique...",
-    bigRaise="Merci du coup de main Hinoro",
-    reactAllyKilled="Ça se complique...",
-    reactAllyLb="Pas trop mal"
-)
-
-lunaPreSays = says(
-    start="C'est votre dernière chance de prendre la poudre d'escampette.",
-    onKill="Quoi tu es surpris ? C'est pas faute d'avoir prévenu pourtant.",
-    blueWinAlive="Pas la peine de revenir me faire chier, le résulta sera le même",
-    reactBigRaiseEnnemy="Vous me faites une fleur vous savez, que vais pouvoir vous maraver la gueule une seconde fois sans ménagement",
-    blockBigAttack="Chaton, c'est pas à toi de le faire d'habitude ?"
-)
-
-ilianaPreSays = says(
-    start="J'espère que tu es en forme Luna...\"\n<:luna:909047362868105227> : \"Je suis toujours prête pour ce genre de trucs",
-    ultimate="Oh on en a pas encore terminé !",
-    reactEnnemyKilled="On a pas encore fini",
-    blueWinAlive="`S'étire` Ce genre d'informités deviens de plus en plus récurrent...\"\n<:luna:909047362868105227> : \"Ca ne présage rien de bon..."
-)
-
 # ============ Procur Temp stuff =============
 procurTempStuff = {
     "Shushi Cohabitée":[0,
@@ -871,11 +965,11 @@ procurTempStuff = {
         ["Ballerines ombrales",'lunaDarkFlats','<:linaflats:890598400624586763>'],
         [[1.2,2.55],[1.15,0.4],[0.8,0.5],[1,1.2],[1,0.6],[0.2,0.3],[0,0],[0.25,0.35],[0.25,0.35],[0,0]]
     ],
-    "Iliana prê.":[250,
+    "Iliana prê.":[350,
         ["Casque de la neko de la lueur ultime", 'ilianaPreHead','<:zenithHead:913170464581484554>'],
         ["Armure de la neko de la lueur ultime", 'ilianaPreArmor','<:zenithArmor:913170492452646922>'],
         ["Sorolets de la neko de la lueur ultime", 'ilianaPreBoots','<:zenithBoots:913170512564334623>'],
-        [[0.2,0.1],[1,2.5],[1,3],[0.5,0.9],[1.2,0.3],[3,0.05],[5,0.05],[1.2,0.2],[1,0.05],[1,0.05]]
+        [[0.2,0.1],[1,2.5],[1,3],[0.5,0.9],[1.2,0.7],[3,0.05],[5,0.05],[1.0,0.15],[1,0.03],[1,0]]
     ],
     "Clémence Exaltée":[500,
         ["Boucles d'oreilles runiques","clemRune",'<:clemEarRings:920297359848636458>'],

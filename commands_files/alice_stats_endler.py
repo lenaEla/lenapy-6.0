@@ -1,7 +1,7 @@
 """The module for the database that keeps the User's fighting stats, and their progress in the Adventure"""
 
-import sqlite3, os
-from adv import findAllie, tmpAllie
+import sqlite3, os, interactions
+from adv import findAllie, tmpAllie, findEnnemi, tablUniqueEnnemies, tablBoss, tablRaidBoss
 from gestion import *
 from classes import char, statTabl
 from typing import Union, List
@@ -265,6 +265,7 @@ enemyStatCreate ="""
     AllyRaiseMoy        DEFAULT (0)
     );
 """
+
 maj4 = """PRAGMA foreign_keys = 0;
 
     CREATE TABLE sqlitestudio_temp_table AS SELECT *
@@ -885,6 +886,14 @@ class aliceStatsdbEndler:
     def resetRecords(self):
         cursory = self.con.cursor()
         try:
+            try:
+                cursory.execute("DROP TABLE lastMouthUsers")
+                self.con.commit()
+            except:
+                print_exc()
+            
+            cursory.execute("CREATE TABLE lastMouthUsers AS SELECT * FROM userStats")
+
             cursory.execute("UPDATE records SET owner = 0, value = 0;")
             temp = ""
             for a in tablAdd:
@@ -893,8 +902,34 @@ class aliceStatsdbEndler:
                     temp += ", "
             cursory.execute("UPDATE userStats SET {0};".format(temp))
             self.con.commit()
+
+            try:
+                cursory.execute("DROP TABLE lastMouthEnemy")
+                self.con.commit()
+            except:
+                print_exc()
+            
+            cursory.execute("CREATE TABLE lastMouthEnemy AS SELECT * FROM enemyStats")
+            self.con.commit()
+
+            try:
+                cursory.execute("DROP TABLE enemyStats")
+                self.con.commit()
+            except:
+                print_exc()
+
+            temp = ""
+            for a in enemyStatCreate:
+                if a != ";":
+                    temp+=a
+                else:
+                    cursory.execute(temp)
+                    temp = ""
+            self.con.commit()
+
             cursory.close()
             return "Opération réussie"
+
         except:
             cursory.close()
             return format_exc()
@@ -937,3 +972,4 @@ class aliceStatsdbEndler:
             print_exc()
             return False
 aliceStatsDb = aliceStatsdbEndler()
+

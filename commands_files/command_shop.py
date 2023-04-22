@@ -29,7 +29,7 @@ def formatShop(txt:str) -> str:
     baddyTabl = ["","","","",""]
     if "baddy" in txt:
         for cmpt in range(0,5):
-            baddyTabl[cmpt]=["<:baddy{0}:1003027064112287764>".format(cmpt),"<:baddy{0}:1003027102196572270>".format(cmpt)][random.randint(0,1)]
+            baddyTabl[cmpt]=["<:baddy{0}:1003027064112287764>".format(cmpt),"<:baddy{0}:1003027102196572270>".format(cmpt)][int(random.randint(0,99)//50)]
     if "{maraine}" in txt:
         global shopMaraine
         shopMaraine = shopMaraine + "iii"
@@ -40,12 +40,12 @@ def formatShop(txt:str) -> str:
         shushi = '<:shushi:909047653524963328>',
         clemence = '<:clemence:908902579554111549>', john = '<:john:908887592756449311>',
         luna = '<:luna:909047362868105227>',
-        feli = '<:felicite:909048027644317706>',
-        icealia = '<:icealia:909065559516250112>',lohica='<:lohica:919863918166417448>',ly='<:ly:943444713212641310>',
-        shihu = '<:shihu:909047672541945927>', stimeo = '<:stimeo:1028894772460531765>',
+        feli = '<:felicite:909048027644317706>', felicite = '<:felicite:909048027644317706>',
+        icealia = '<:icealia:909065559516250112>',lohica='<:lohica:919863918166417448>',ly='<:ly:943444713212641310>',amary='<:amary:979441677460713502>',pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirCar1:1059519866714988594>',pirate3='<:pirGun2:1059519760284528640>',
+        shihu = '<:shihu:909047672541945927>', stimeo = '<:stimeo:1089164206336647168>',
         shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, astra = "<:astra:1051825407466426430>",
         sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>',
-        iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>',
+        iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = "Aurora", suivant = "Suivant d'Aurora",
         gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
         lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>", kitsune = "<:kitsune:935552850686255195>", penelope = "<:penelope:1003027020277620836>",
         anna = "<:anna:943444730430246933>", belle = "<:belle:943444751288528957>",
@@ -57,7 +57,7 @@ def formatShop(txt:str) -> str:
         kiku = "<:kiku:962082466368213043>", churi = '<:churi:992941366537633914>',
         akira = '<:akira:909048455828238347>', krys = "<:krys:916118008991215726>",
         baddy1 = baddyTabl[0], baddy2 = baddyTabl[1], baddy3 = baddyTabl[2], baddy4 = baddyTabl[3], baddy5 = baddyTabl[4],
-        maraine = "mara{0}ne".format(shopMaraine)
+        maraine = "Mara{0}ne".format(shopMaraine), chauvesouris = "🦇", thomas = "Thomas"
     )
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
@@ -105,7 +105,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                     if a != int(ctx.author.id):
                         teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
 
-            shopEmb = interactions.Embed(title = "shop" +" - Céphalochic",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} <:coins:862425847523704832>.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n*{shopRdMsg}*")
+            shopEmb = interactions.Embed(title = "__Shop__",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} <:coins:862425847523704832>.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n{shopRdMsg}")
 
             shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
             for a in shopping:
@@ -271,7 +271,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
             try:
                 respond = await bot.wait_for_component(messages=initMsg,check=check,timeout=60)
             except:
-                timeoutEmbed = interactions.Embed(title="__/shop__",color=user.color,description=shopRdMsg)
+                timeoutEmbed = interactions.Embed(title="__Shop__",color=user.color,description=shopRdMsg)
                 shopField = ["","",""]
                 for a in [0,1,2]:
                     for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
@@ -585,3 +585,13 @@ async def seeSkillsRep(ctx : interactions.CommandContext, skillType:int, aspirat
                     desc = ""
     else:
         await ctx.send(embeds=interactions.Embed(title="__Aucune correspondance__",description="-",color=light_blue))
+
+async def testShopMsgFunction(ctx: interactions.CommandContext):
+    listEmbed: List[interactions.Embed] = []
+    dateNow, started = datetime.now(), False
+    for cmpt in range(len(shopMonthlyMsg[dateNow.month-1])):
+        if not(started):
+            await ctx.send(embeds=[interactions.Embed(title=str(cmpt),description=formatShop(shopMonthlyMsg[dateNow.month-1][cmpt]))])
+            started = True
+        else:
+            await ctx.channel.send(embeds=[interactions.Embed(title=str(cmpt),description=formatShop(shopMonthlyMsg[dateNow.month-1][cmpt]))])

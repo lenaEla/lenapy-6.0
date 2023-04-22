@@ -55,7 +55,7 @@ julieWeapEff = effect("Régénération vampirique","julieWeapEff",CHARISMA,type=
 julieWeap = weapon("Réceptacle vampirique","cb",RANGE_LONG,AREA_CIRCLE_6,20,100,500,charisma=15,type=TYPE_HEAL,target=ALLIES,taille=0,use=CHARISMA,emoji='<:vampBall:916199488891273276>',effectOnUse=julieWeapEff)
 
 blueButterFlyEff = effect("Bouclier du papillon bleu","blueButterflyShield",INTELLIGENCE,overhealth=35,trigger=TRIGGER_DAMAGE,type=TYPE_ARMOR,lightShield=True,description="Armure Légère\nLes armures légères absorbent pas de dégâts supplémentaire en disparaissant")
-blueButterfly = weapon("Papillon bleu","cf",RANGE_DIST,price=500,taille=0,effectiveRange=AREA_CIRCLE_4,needRotate=False,effectOnUse=blueButterFlyEff,use=INTELLIGENCE,target=ALLIES,type=TYPE_HEAL,power=0,emoji='<:bluebutterfly:910586341614567425>',sussess=100,intelligence=15)
+blueButterfly = weapon("Papillon bleu","cf",RANGE_DIST,price=500,taille=0,effectiveRange=AREA_CIRCLE_4,needRotate=False,effectOnUse=blueButterFlyEff,use=INTELLIGENCE,target=ALLIES,type=TYPE_HEAL,power=0,emoji='<:bluebutterfly:910586341614567425>',accuracy=100,intelligence=15)
 butterflyRed = weapon("Papillon Rouge","cg",RANGE_LONG,AREA_CIRCLE_5,50,80,150,magie=20,precision=10,taille=0,emoji='<:redbuterfly:912441401508233226>',use=MAGIE,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
 
 luth = weapon("Luth",'ch',RANGE_DIST,AREA_CIRCLE_4,62,70,1,intelligence=15,charisma=15,use=INTELLIGENCE,emoji='<:luth:911647678037905458>')
@@ -106,8 +106,8 @@ cardAspi = [cardBer,cardObs,cardPlume,cardIdo,cardPre,cardTet,cardMag,cardAlt,ca
 
 astroGlobe = weapon("Globe céleste",'cy',RANGE_LONG,AREA_CIRCLE_5,40,80,1,charisma=7,intelligence=7,endurance=1,priority=WEAPON_PRIORITY_LOW,effects=cardsDeck,use=CHARISMA,emoji='<:globe:932399865110093884>')
 
-infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=48,sussess=85,strength=5,agility=10,effects=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
-infLightSword = weapon("Épée de la Lueur Éternelle","cx",RANGE_MELEE,AREA_CIRCLE_1,power=48,sussess=85,resistance=5,charisma=10,effects=shareTabl[2],use=CHARISMA,emoji='<:lumSword:926874664175816735>')
+infDarkSword = weapon("Épée de l'Ombre Éternelle","cw",RANGE_MELEE,AREA_CIRCLE_1,power=48,accuracy=85,strength=5,agility=10,effects=shareTabl[2],use=AGILITY,emoji='<:lunaWeap:915358834543968348>')
+infLightSword = weapon("Épée de la Lueur Éternelle","cx",RANGE_MELEE,AREA_CIRCLE_1,power=48,accuracy=85,resistance=5,charisma=10,effects=shareTabl[2],use=CHARISMA,emoji='<:lumSword:926874664175816735>')
 magicWood = weapon("Baguette en argent",'dc',RANGE_LONG,AREA_CIRCLE_5,80,50,1,taille=0,magie=20,precision=10,use=MAGIE,emoji='<:magicWand:934585282907488307>')
 magicMass = weapon("Masse argentée",'cz',RANGE_DIST,AREA_CIRCLE_3,80,60,1,magie=30,use=MAGIE,emoji='<:magicMasse:934585301463072778>')
 magicSwordnShield = weapon("Bouclier Runique",'da',RANGE_MELEE,AREA_CIRCLE_1,58,70,1,magie=5,resistance=10,use=MAGIE,emoji='<:magicShield:934585318508736532>',needRotate=False,effects=shieltron)
@@ -165,14 +165,14 @@ dflumShield = weapon("Epée et Bouclier de la Fleur Ténèbreuse","ef",RANGE_MEL
 dflumWand = weapon("Canne de la Fleur Ténèbreuse","eg",RANGE_LONG,AREA_CIRCLE_5,35,90,1,magie=15,effects="nt",use=MAGIE,affinity=ELEMENT_DARKNESS,emoji='<:darkWand:964465066860761088>')
 constShield = weapon("Bouclier Constitutionnel",'eh',RANGE_MELEE,AREA_CIRCLE_1,45,90,1,endurance=10,resistance=5,use=ENDURANCE,emoji='<:constShield:964463485968859137>',effects="mk")
 aliceFan = weapon("Eventail","ei",RANGE_MELEE,AREA_CIRCLE_2,56,80,1,strength=10,charisma=10,endurance=10,area=AREA_ARC_1,emoji='<:aliceFan:986989072318861363>')
-dSixtineWeap = weapon("Rapière Onirique","ej",RANGE_MELEE,AREA_CIRCLE_1,power=51,sussess=70,price=1,area=AREA_LINE_2,magie=15,agility=10,resistance=5,emoji='<:dsixtRap:987009911097540710>',use=MAGIE)
+dSixtineWeap = weapon("Rapière Onirique","ej",RANGE_MELEE,AREA_CIRCLE_1,power=51,accuracy=70,price=1,area=AREA_LINE_2,magie=15,agility=10,resistance=5,emoji='<:dsixtRap:987009911097540710>',use=MAGIE)
 phenixLeath = weapon("Plumes de Phénix","ek",RANGE_DIST,AREA_CIRCLE_4,36,65,1,magie=10,endurance=5,effects=dtsword.effects,emoji='<:phenpl:992946043161411694>',area=AREA_CONE_2,use=MAGIE)
 plume2 = copy.deepcopy(plume)
 plume2.effectOnUse = plumRemEff
 liaKatanaEff = effect("Akashi","liaKatanaEff",None,turnInit=-1,unclearable=True,emoji='<:liaCounter:998001563379437568>',counterOnDodge=15,description="Vous octroi **15%** de chance d'effectuer une **contre-attaque** en esquivant une attaque d'un adversaire se trouvant à 3 cases ou moins de vous",reject=["windDanceEff"])
 liaKatana = weapon("Akashi","el",RANGE_MELEE,AREA_CIRCLE_1,27,50,repetition=3,effects=liaKatanaEff,agility=10,endurance=5,use=AGILITY,emoji='<:liaKat:998001500267749448>',price=1)
 epiEff = effect("Armure","epiphyllumArmor",INTELLIGENCE,overhealth=20,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
-epiphyllum = weapon("Epiphyllum","em",RANGE_LONG,AREA_CIRCLE_5,power=15,type=TYPE_HEAL,effectOnUse=epiEff,area=AREA_CIRCLE_1,target=ALLIES,taille=0,emoji='<:flower:1014636465239629918>',sussess=100,price=250,use=INTELLIGENCE,intelligence=15)
+epiphyllum = weapon("Epiphyllum","em",RANGE_LONG,AREA_CIRCLE_5,power=15,type=TYPE_HEAL,effectOnUse=epiEff,area=AREA_CIRCLE_1,target=ALLIES,taille=0,emoji='<:flower:1014636465239629918>',accuracy=100,price=250,use=INTELLIGENCE,intelligence=15)
 
 ascendance = effect("Ascendance","ascendance",unclearable=True,turnInit=-1,power=35,block=shieltron.block,description="Réduit les pertes de PV dues à l'utilisation des compétences Divines d'un pourcentage équivalent à la puissance de l'effet et augmente votre taux de blocage",emoji='<:ascendance:1051510131105464370>')
 sacredSword = weapon("Epée et Bouclier sacrés","en",RANGE_MELEE,AREA_CIRCLE_1,68,60,1,use=MAGIE,magie=10,resistance=5,effects=ascendance,emoji='<:sacredSword:1051510648359628811>')

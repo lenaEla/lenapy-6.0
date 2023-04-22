@@ -24,7 +24,7 @@ from commands_files.command_points import *
 from commands_files.command_procuration import *
 from commands_files.command_shop import *
 from commands_files.command_start import *
-from commands_files.sussess_endler import *
+from commands_files.achievement_handler import *
 from commands_files.cmd_twitch import *
 from data.bot_tokens import lenapy, shushipy
 from data.database import *
@@ -578,6 +578,31 @@ async def on_ready():
     await downloadAllIconPng(slash)
     await downloadElementIcon(slash)
 
+    print("\nSkill cost verif...")
+    tempTablSkills:List[skill] = skills[:]
+    tempSuc:List[success] = successTabl().tablAllSuccess()
+    for achivment in tempSuc:
+        if achivment.recompense != None:
+            for recompense in achivment.recompense:
+                skilly = findSkill(recompense)
+                if skilly != None:
+                    try:
+                        for skilly2 in tempTablSkills:
+                            if skilly2.id == skilly.id:
+                                tempTablSkills.remove(skilly2)
+                                break
+                    except:
+                        pass
+
+    listConflictingSkills = []
+    for skilly in tempTablSkills:
+        if skilly.price == 0:
+            listConflictingSkills.append(skilly)
+
+    if len(listConflictingSkills) > 0:
+        for skilly in listConflictingSkills:
+            print("La compétence {0} coûte 0 !".format(skilly.name))
+
     print("\n------- End of the initialisation -------")
     if not(isLenapy):
         print(datetime.now().strftime('%H:%M'))
@@ -766,77 +791,94 @@ async def normal(ctx):
         teamLvl = max(ent.level,teamLvl)
         starLvl = max(ent.stars,starLvl)
 
+    fightCtx = fightContext()
+
     if fun < 0:                # For testing purposes
         temp = copy.deepcopy(findAllie("Lena"))
         temp.changeLevel(50)
         await fight(slash, [temp], [], ctx, False, procurFight=True, msg=msg)
 
-    elif fun < 10:              # All OctoHeals ! Yes, it's for you H
+    elif fun < 10:              # Specials fights
         temp = team1
         temp.sort(key=lambda overheal: overheal.level, reverse=True)
         maxLvl = temp[0].level
 
-        tablPreDefTeam = ["OctoHeal","Temmie","OctoBooms","Kitsunes","Aéro-Bennes"]
+        tablPreDefTeam = ["All One Ennemis","Kitsunes","Helping Kitsune"]
         roll = random.randint(0,len(tablPreDefTeam)-1)
-        fightCtx = fightContext()
-        roll = 3
-        
+
         if roll == 0:
-            team2, lenBoucle, cmpt = [],8,0
-            octoHealVet = findEnnemi("Octo Soigneur Vétéran")
-            octoHeal = findEnnemi("Octo Soigneur")
+            roll2, totalRoll = random.randint(0,99),4
+            if roll2 < 100/totalRoll:
+                team2, lenBoucle, cmpt = [],8,0
+                octoHealVet = findEnnemi("Octo Soigneur Vétéran")
+                octoHeal = findEnnemi("Octo Soigneur")
 
-            if maxLvl < octoHealVet.baseLvl:
-                alea = copy.deepcopy(octoHeal)
-            else:
-                alea = copy.deepcopy(octoHealVet)
+                if maxLvl < octoHealVet.baseLvl:
+                    alea = copy.deepcopy(octoHeal)
+                else:
+                    alea = copy.deepcopy(octoHealVet)
 
-            alea.changeLevel(maxLvl)
-            while cmpt < lenBoucle:
+                alea.changeLevel(maxLvl)
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
+            elif roll2 < (100/totalRoll + (100/totalRoll)*1):
+                team2, lenBoucle, cmpt = [],8,1
+                alea = copy.deepcopy(findEnnemi("Bob"))
+                alea.changeLevel(maxLvl)
+                alea.magie = alea.magie // 2
                 team2.append(alea)
-                cmpt += 1
+                
+                alea = copy.deepcopy(findEnnemi("Temmie"))
+                alea.changeLevel(maxLvl)
+
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
+            elif roll2 < (100/totalRoll + (100/totalRoll)*2):
+                team2, lenBoucle, cmpt = [],8,1
+                alea = copy.deepcopy(findEnnemi("OctoBOUM"))
+                alea.changeLevel(maxLvl)
+                alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCast, None, None, None, None, None, None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
+
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
+            elif roll2 < (100/totalRoll + (100/totalRoll)*3):
+                team2, lenBoucle, cmpt = [],8,1
+
+                alea = copy.deepcopy(findEnnemi("Aéro-benne"))
+                alea.changeLevel(maxLvl)
+
+                while cmpt < lenBoucle:
+                    team2.append(alea)
+                    cmpt += 1
         elif roll == 1:
-            team2, lenBoucle, cmpt = [],8,1
-
-            alea = copy.deepcopy(findEnnemi("Bob"))
-            alea.changeLevel(maxLvl)
-            alea.magie = alea.magie // 2
-            team2.append(alea)
-            
-            alea = copy.deepcopy(findEnnemi("Temmie"))
-            alea.changeLevel(maxLvl)
-
-            while cmpt < lenBoucle:
-                team2.append(alea)
-                cmpt += 1
-        elif roll == 2:
-            team2, lenBoucle, cmpt = [],8,1
-            alea = copy.deepcopy(findEnnemi("OctoBOUM"))
-            alea.changeLevel(maxLvl)
-            alea.skills, alea.weapon, alea.magie, alea.exp = [totalAnnilCast, None, None, None, None, None, None], BOUMBOUMBOUMBOUMweap, int(alea.magie * 2), 12
-
-            while cmpt < lenBoucle:
-                team2.append(alea)
-                cmpt += 1
-        elif roll == 3:
             team2 = [copy.deepcopy(findEnnemi("Lia")),copy.deepcopy(findEnnemi("Liu")),copy.deepcopy(findEnnemi("Liz")),copy.deepcopy(findEnnemi("Lio"))]
             team2[2].magie = int(team2[2].magie * 1.50)
             team2[0].agility = int(team2[0].agility * 1.35)
             team2[1].endurance = int(team2[0].endurance * 1.35)
             team2[3].charisma = int(team2[0].charisma * 1.35)
+            kitsuneAbs = copy.deepcopy(constEff)
+            kitsuneAbs.power, kitsuneAbs.turnInit, kitsuneAbs.unclearable, kitsuneAbs.stat = 20, -1, True, PURCENTAGE
+            fightCtx.giveEffToTeam2 = [kitsuneAbs]
             for cmpt in range(len(team2)):
                 team2[cmpt].changeLevel(maxLvl)
-
-        elif roll == 4:
-            team2, lenBoucle, cmpt = [],8,1
-
-            alea = copy.deepcopy(findEnnemi("Aéro-benne"))
-            alea.changeLevel(maxLvl)
-
-            while cmpt < lenBoucle:
-                team2.append(alea)
-                cmpt += 1
-
+        elif roll == 2:
+            kitsuneTabl = [findEnnemi("Lia"),findEnnemi("Liu"),findEnnemi("Liz"),findEnnemi("Lio")]
+            kitsuneStuffIcon = [
+                [rubButGreen.emoji,greenChemVeste.emoji,greenbutterflysandals.emoji],
+                [BatEarRingsorange.emoji,orangeBatshirt.emoji,orangeBatBoots.emoji],
+                [foulard.emoji,chemAndJupeRed.emoji,redHeels.emoji],
+                [butterflyPendantDarkBlue.emoji,chemRubButDBlue.emoji,balRubButDBlue.emoji]
+            ]
+            randomNumber = random.randint(0,len(kitsuneTabl))
+            for randomNumber in range(len(kitsuneTabl)):
+                toAdd = getAllieFromEnemy(kitsuneTabl[randomNumber],maxLvl,kitsuneStuffIcon,color=[green,orange,red,blue][randomNumber])
+                toAdd.changeLevel(level=maxLvl,stars=user.stars)
+                team1.append(toAdd)
+            team2 = []
+            fightCtx.removeEnemy, fightCtx.nbAllies = ["Lia","Liu","Liz","Lio"], 12
         await fight(slash, team1, team2, ctx, False, contexte=fightCtx, msg=msg, teamSettings=teamSettings)
 
     elif fun < 20 and teamLvl >= 25:             # Raid
@@ -875,21 +917,24 @@ async def normal(ctx):
             maxLvl = temp[0].level
             team2 = []
             alea = copy.deepcopy(tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
-            #alea = copy.deepcopy(findEnnemi("Nacialisla"))
+            #alea = copy.deepcopy(findEnnemi("Ailill"))
 
             alea.changeLevel(maxLvl)
             team2.append(alea)
 
-            await fight(slash, team1, team2, ctx, False, bigMap=True, msg=msg, teamSettings=teamSettings)
+            fightCtx.nbAllies=16
+            await fight(slash, team1, team2, ctx, False, bigMap=True, msg=msg, teamSettings=teamSettings, contexte=fightCtx)
         except:
             await msg.edit(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
 
     elif fun < 30:              # Procu Fight
         level = team1[0].level
-        team1, team2, randomRoll = [], [], random.randint(0, 99)
+        team1, team2, randomRoll = [], [], random.randint(0,len(["ClemClem","Luna","Iliana","Lia"])-1)
         procurFight = []
-        if randomRoll < 35: # ClemClem
+        #randomRoll = 2
+
+        if randomRoll == 0: # ClemClem
             procurData = procurTempStuff["Clémence Exaltée"]
             ent = copy.deepcopy(findAllie("Clémence Exaltée"))
             level += random.randint(0, 100)
@@ -902,7 +947,8 @@ async def normal(ctx):
 
             team1.append(ent)
             procurFight.append(ent)
-        elif randomRoll < 55:  # Luna
+            fightCtx.reduceEnemyLevel, fightCtx.allowTemp, fightCtx.nbEnnemis = 200, False, 12
+        elif randomRoll == 1: # Luna
             ent = copy.deepcopy(findAllie("Luna prê."))
             procurData = procurTempStuff["Luna prê."]
             level += random.randint(0, 50)
@@ -916,10 +962,12 @@ async def normal(ctx):
 
             team1.append(ent)
             procurFight.append(ent)
+            fightCtx.reduceEnemyLevel, fightCtx.allowTemp = 150, False
 
             if random.randint(0, 99) < 50:               # Eclipse Eternelle
                 ent2 = copy.deepcopy(findAllie('Iliana prê.'))
                 procurData = procurTempStuff["Iliana prê."]
+                ent2.skills[0] = ent2.skills[0].become[0]
                 ent2.changeLevel(level,stars=starLvl)
 
                 ent2.stuff = [
@@ -933,17 +981,23 @@ async def normal(ctx):
 
                 boss = copy.deepcopy(unformBoss)
                 boss.changeLevel(level + random.randint(300, 350))
-                team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur informe A'), findEnnemi('Ombre informe A'), findEnnemi('Ombre informe B')], 1
+                team2, listDangerous, cmpt = [boss], [findEnnemi('Lueur Aforme'), findEnnemi('Lueur Aforme'), findEnnemi('Espace Aforme'), findEnnemi('Temporalté Aforme')], 1
                 while cmpt < 8:
                     temp = copy.deepcopy(listDangerous[random.randint(0, len(listDangerous)-1)])
                     temp.changeLevel(level + random.randint(200, 300))
                     team2.append(temp)
                     cmpt += 1
-        elif randomRoll < 75: # Iliana Ex
+        elif randomRoll == 2: # Iliana Ex
             ent = copy.deepcopy(findAllie("Iliana prê."))
             procurData = procurTempStuff["Iliana prê."]
             level += random.randint(0, 50)
+            ent.skills[0] = ent.skills[0].become[1]
             ent.changeLevel(level,stars=starLvl)
+
+            ent.says = says(
+                start="Désolée pour vous, mais j'ai grand besoin de taper sur quelque chose.",
+                blueWinAlive="`Soupire` Bon Iliana calme toi, tu as suffisament tapé de trucs comme ça. Tout va- Oh ils sont tous aux portes de la mort"
+            )
 
             ent.stuff = [
                 stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[1][2]),
@@ -953,8 +1007,28 @@ async def normal(ctx):
 
             team1.append(ent)
             procurFight.append(ent)
+            fightCtx.reduceEnemyLevel, fightCtx.allowTemp, fightCtx.nbEnnemis = 100, False, 12
 
-        else:
+            if random.randint(0,100)<35:
+                team1[0].says=says(
+                    start="Encore et toujours...",
+                    ultimate="Voilà pour vous, de quoi bien vous exprimer ma façon de penser.",
+                    blueWinAlive="Pourquoi Luna a dit qu'elle ne ferait que me gêner c'était simple pourtant...",
+                    onKill='Retourne donc d\'où tu viens.'
+                )
+
+                ent.skills[0].effectOnSelf.power = ent.skills[0].effectOnSelf.power * 2
+                team2, listDangerous, cmpt = [], [findEnnemi('Lueur Aforme'), findEnnemi('Lueur Aforme'), findEnnemi('Espace Aforme'), findEnnemi('Temporalté Aforme')], 0
+                while cmpt < 12:
+                    temp = copy.deepcopy(listDangerous[random.randint(0, len(listDangerous)-1)])
+                    temp.changeLevel(ent.level)
+                    team2.append(temp)
+                    cmpt += 1
+
+                tempEff = copy.deepcopy(dmgUp)
+                tempEff.power, tempEff.turnInit, tempEff.unclearable = 50, -1, True
+                fightCtx.giveEffToTeam2 = [tempEff]
+        elif randomRoll == 3: # Lia Ex
             procurData = procurTempStuff["Lia Ex"]
             ent = copy.deepcopy(findAllie("Lia Ex"))
             level += random.randint(0, 50)
@@ -965,12 +1039,18 @@ async def normal(ctx):
                 stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*ent.level),int(procurData[4][1][0]*procurData[4][1][1]*ent.level),int(procurData[4][2][0]*procurData[4][2][1]*ent.level),int(procurData[4][3][0]*procurData[4][3][1]*ent.level),int(procurData[4][4][0]*procurData[4][4][1]*ent.level),int(procurData[4][5][0]*procurData[4][5][1]*ent.level),int(procurData[4][6][0]*procurData[4][6][1]*ent.level),int(procurData[4][7][0]*procurData[4][7][1]*ent.level),int(procurData[4][8][0]*procurData[4][8][1]*ent.level),int(procurData[4][9][0]*procurData[4][9][1]*ent.level),emoji=procurData[3][2])
             ]
 
+            ent.charSettings=createCharSettingsDict(
+                dmgSkillUse=CHARSET_DMGSKILL_HIGH,
+                healSkillUse=CHARSET_HEALSKILL_LOW,
+                armorSkillUse=CHARSET_ARMORSKILL_LOW
+            )
+
             team1.append(ent)
             procurFight.append(ent)
-
+            fightCtx.reduceEnemyLevel, fightCtx.removeEnemy, fightCtx.allowTemp, fightCtx.nbEnnemis = 50, ["Lia","Liz","Lio","Liu"], False, 8
 
         try:
-            await fight(slash, team1, team2, ctx, False, procurFight=procurFight, msg=msg, teamSettings=teamSettings)
+            await fight(slash, team1, team2, ctx, False, procurFight=procurFight, msg=msg, teamSettings=teamSettings, contexte=fightCtx)
         except:
             if msg == None:
                 await ctx.send(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
@@ -1063,7 +1143,7 @@ async def comQuickFight(ctx):
     for ent in team1:
         teamLvl = max(ent.level,teamLvl)
 
-    if fun < 10 and teamLvl >= 25:             # Raid
+    if fun < 5 and teamLvl >= 25:             # Raid
         await msg.edit(embeds=interactions.Embed(title="__Combat de raid__", color=light_blue, description="Les équipes sont en cours de génération..."))
         try:
             tablAllTeams, allReadySeen = userTeamDb.getAllTeamIds(), []
@@ -1080,7 +1160,6 @@ async def comQuickFight(ctx):
 
             moyTeam = moyTeam/len(team1)
 
-            
             for tempTeamId in tablAllTeams:
                 try:
                     tempTeam, moyTempTeam = [], 0
@@ -1102,12 +1181,12 @@ async def comQuickFight(ctx):
             maxLvl = temp[0].level
             team2 = []
             alea = copy.deepcopy(tablRaidBoss[random.randint(0, len(tablRaidBoss)-1)])
-            #alea = copy.deepcopy(findEnnemi("Nacialisla"))
+            #alea = copy.deepcopy(findEnnemi("Ailill"))
 
             alea.changeLevel(maxLvl)
             team2.append(alea)
 
-            await fight(slash, team1, team2, ctx, True, bigMap=True, msg=msg, teamSettings=teamSettings)
+            await fight(slash, team1, team2, ctx, True, bigMap=True, msg=msg, teamSettings=teamSettings, contexte=fightContext(nbAllies=16))
         except:
             await msg.edit(embeds=interactions.Embed(title="__Unknow error during fight__", description=format_exc()))
             teamWinDB.changeFighting(team1[0].team, value=False, channel=0)
@@ -1381,6 +1460,7 @@ async def invent2(ctx, destination="Equipement", procuration=None, nom=None):
         research = weapons[:]+skills[:]+stuffs[:]+others[:]+[token,trans]
         lastResarch = []
         nameTempCmpt, lenName, findId = 0, len(nom), False
+        await ctx.defer()
 
         for obj in research:
             if nom == obj.id or remove_accents(obj.name.lower()) == nom:
@@ -1842,6 +1922,11 @@ async def statsCmd(ctx, joueur=None):
         value = ""
         for cmpt in range(RESISTANCE,CRITICAL+1):
             value += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
+            if cmpt == RESISTANCE:
+                value += "\n> Réduction de dégâts : {0}%".format(round(getResistante(allStatsUser[RESISTANCE]+sumStatsBonus[RESISTANCE])))
+            elif cmpt == PERCING: 
+                value += "\n> Réduction de dégâts ignoré : {0}%".format(round(getPenetration(allStatsUser[PERCING]+sumStatsBonus[PERCING])))
+            getPenetration
         rep.add_field(name="<:em:866459463568850954>\n__Stats. secondaires :__",value=value, inline=True)
         value = ""
         for cmpt in range(ACT_HEAL_FULL,ACT_INDIRECT_FULL+1):
@@ -2044,7 +2129,7 @@ async def seeStuffRepartition(ctx):
 
 ssrTypeChoice = []
 for cmpt in range(TYPE_DEPL+1):
-    ssrTypeChoice.append(Choice(name=tablTypeStr[cmpt],value=cmpt))
+    ssrTypeChoice.append(Choice(name=allTypeNames[cmpt],value=cmpt))
 ssrAspiChoice = []
 for cmpt in range(MASCOTTE+1):
     ssrAspiChoice.append(Choice(name=inspi[cmpt],value=cmpt))
@@ -2275,35 +2360,11 @@ if isLenapy:
 else:
     tabl = adminServ
 
-@slash.command(name="kikimeter", description="Permet de voir le top 5 de chaques catégories", scope=tabl, options=[interactions.Option(name="what", description="Que regarder", type=3, required=True, choices=[interactions.Choice(name="total", value="total"), interactions.Choice(name="max", value="max")])])
-async def kikimeterCmd(ctx, what):
-    listAllChars = []
-    for text in os.listdir("./userProfile/"):
-        listAllChars.append(loadCharFile("./userProfile/" + text))
-
-    for cmpt in range(len(listAllChars)):
-        temp = aliceStatsDb.getUserStats(listAllChars[cmpt], "all")
-        listAllChars[cmpt] = {"char": listAllChars[cmpt], "{what}Damage".format(what=what): temp["{what}Damage".format(what=what)], "{what}Kill".format(what=what): temp["{what}Kill".format(what=what)], "{what}Resu".format(what=what): temp["{what}Resu".format(what=what)], "{what}RecivedDamage".format(
-            what=what): temp["{what}RecivedDamage".format(what=what)], "{what}Heal".format(what=what): temp["{what}Heal".format(what=what)], "{what}Armor".format(what=what): temp["{what}Armor".format(what=what)], "{what}Supp".format(what=what): temp["{what}Supp".format(what=what)]}
-
-    emb = interactions.Embed(
-        title="__Kikimeter__", description="=========================================================")
-    for cat in ["{what}Damage".format(what=what), "{what}Kill".format(what=what), "{what}Resu".format(what=what), "{what}RecivedDamage".format(what=what), "{what}Heal".format(what=what), "{what}Armor".format(what=what), "{what}Supp".format(what=what)]:
-        listAllChars.sort(
-            key=lambda character: character["{0}".format(cat)], reverse=True)
-        desc = ""
-
-        for cmpt in range(min(5, len(listAllChars)-1)):
-            if listAllChars[cmpt]["{0}".format(cat)] > 0:
-                desc += "{0} - {1} {2} ({3})\n".format(cmpt+1, await getUserIcon(slash, listAllChars[cmpt]["char"]), listAllChars[cmpt]["char"].name, separeUnit(int(listAllChars[cmpt]["{0}".format(cat)])))
-
-        if desc != "":
-            emb.add_field(
-                name="<:em:866459463568850954>\n__{0}__".format(cat), value=desc)
-    try:
-        await ctx.send(embeds=emb)
-    except:
-        await ctx.channel.send(embeds=emb)
+@slash.command(name="kikimeter", description="Allow to see players, allies and ennemies stats", scope=tabl, options=[
+    Option(type=OptionType.BOOLEAN,name="last",description="Show last mounth stats")
+])
+async def kikimeter(ctx,last=False):
+    await kikimerFunction(bot=slash,ctx=ctx,period=last)
 
 # -------------------------------------------- PROCURATION --------------------------------------------
 @slash.command(name="procuration", description="Permet de donner à un autre utilisateur procuration sur votre inventaire", options=[interactions.Option(name="utilisateur", description="L'utilisateur qui pourra modifier vos objets équipés", type=6, required=True)])
@@ -2423,6 +2484,7 @@ async def seeEnemy(ctx:CommandContext,name:str):
 
     else:
         await ctx.send(content="L'ennemi \"{0}\" n'a pas été trouvé".format(name))
+
 
 # ------------------------------------------- PRESTIGE ---------------------------------------------
 @slash.command(name="prestige", description="Permet de revenir au niveau 1, avec quelques bonus en primes")
@@ -2604,6 +2666,11 @@ async def emojiVerficition(ctx):
         await msg.edit(embeds=interactions.Embed(title="Vérification des émojis", description="__Progression :__ Terminé\n"+remaked, color=light_blue))
     except:
         await msg.edit(embeds=interactions.Embed(title="Vérification des émojis", description="__Interrompue__\n"+format_exc(), color=red))
+
+@groupComVerif.subcommand(name="shopmsg")
+async def cmdVerifShopMsg(ctx):
+    await ctx.defer()
+    await testShopMsgFunction(ctx)
 
 # ------------------------------------------ CHAR SETTINGS ----------------------------------------
 

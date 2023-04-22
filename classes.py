@@ -34,25 +34,21 @@ class statTabl:
             - selfBurn : The number of damage the entity have done on him-self
     """
     def __init__(self):
-        self.damageDeal = 0
-        self.indirectDamageDeal = 0
+        self.damageDeal, self.indirectDamageDeal = 0, 0
+        self.damageRecived = 0
         self.ennemiKill = 0
         self.allieResurected = 0
         self.shootHited = 0
         self.totalNumberShot = 0
         self.dodge = 0
         self.numberAttacked = 0
-        self.damageRecived = 0
-        self.heals, self.lifeSteal = 0, 0
+        self.heals, self.lifeSteal, self.shieldGived = 0, 0, 0
         self.crits = 0
         self.survival = 0
-        self.damageOnShield = 0
-        self.damageBoosted = 0
-        self.damageDodged = 0
-        self.shieldGived = 0
+        self.damageOnShield, self.damageBoosted, self.damageDodged, self.underBoost = 0, 0, 0, 0
+        self.summonBoost = 0
         self.estialba = 0
         self.bleeding = 0
-        self.underBoost = 0
         self.selfBurn = 0
         self.headnt = False
         self.friendlyfire = 0
@@ -64,6 +60,10 @@ class statTabl:
         self.nbLB, self.nbSummon = 0, 0
         self.summonDmg, self.summonHeal = 0, 0
         self.damageProtected = 0
+        self.lbDamage = 0
+
+    def __str__(self):
+        return self.__dict__.__str__().replace("{","{\n").replace(",",",\n")
 
 class option:
     """Very basic class. Only use in the "Select Option" window of manuals fights"""
@@ -73,16 +73,17 @@ class option:
 
 INC_START_FIGHT, INC_START_TURN, INC_KILL, INC_ENEMY_KILLED, INC_ALLY_KILLED, INC_DEAL_DAMAGE, INC_ENEMY_DAMAGED, INC_ALLY_DAMAGED, INC_DEAL_HEALING, INC_ENEMY_HEALED, INC_ALLY_HEALED, INC_USE_SKILL, INC_EFFECT_TRIGGERED, INC_ON_SELF_CRIT, INC_ON_ALLY_CRIT, INC_USE_ELEMENT_SKILL, INC_USE_GROUP_SKILL, INC_JUMP_PER_CASE, INC_PER_PUSH, INC_COLISION, INC_JUMP_BACK = tuple(range(21))
 
-incCondsStr = ["Au début du combat","En début de tour","Lorsque vous éliminez un adversaire","Lorsqu'un ennemi est éliminé","Lorsqu'un allié est éliminé","Lorsque vous infligez des dégâts par pourcentage de PV retiré à la cible","Par pourcentage de vie perdue par un ennemi","Par pourcentage de vie perdue par un allié","Par pourcentage de PV soigné par rapport aux PV Max de la cible","Par pourcentage de vie soignée d'un ennemi","Par pourcentage de vie soignée d'un allié","Lors de l'utilisation de certaines compétences","Lors du déclanchement de certains effets","Lorsque vous réalisez un coup critique","Lors d'un coup critique allié","En utilisant des compétences de l'élément suivant","En utilisant des compétences du groupe suivant",
-    "Par cases parcourue lors d'une téléportation au corps à crops d'un combattant","Par cases parcourues par un combattant que vous avez repoussé","En infligeant des dégâts de colisions","Par cases parcourues lors d'un saut en arrière"]
+incCondsStr = ["Au début du combat","En début de tour","Lorsque vous éliminez un adversaire","Lorsqu'un ennemi est éliminé","Lorsqu'un allié est éliminé","Lorsque vous infligez des dégâts par pourcentage de PV retiré à la cible","Par pourcentage de vie perdue par un ennemi","Par pourcentage de vie perdue par un allié","Par pourcentage de PV soigné par rapport aux PV Max de la cible","Par pourcentage de vie soignée d'un ennemi","Par pourcentage de vie soignée d'un allié","Lors de l'utilisation de certaines compétences","Lors du déclanchement de certains effets","Lorsque vous réalisez un coup critique","Lors d'un coup critique allié","En utilisant des compétences de l'élément suivant","En utilisant des compétences du groupe suivant","Par cases parcourue lors d'une téléportation au corps à crops d'un combattant","Par cases parcourues par un combattant que vous avez repoussé","En infligeant des dégâts de colisions","Par cases parcourues lors d'un saut en arrière"]
 
 class jaugeConds:
+    """A sub class for any jauge effects. Define conditions"""
     def __init__(self,type:int,value:int,add:Union[None,List]=None):
         self.type = type
         self.value = value
         self.add = add
 
 class jaugeValue:
+    """A stucturing class for any jauge effects. Define conditions"""
     def __init__(self,emoji:List[str],conds:List[jaugeConds]):
         self.emoji = emoji
         self.conds = conds
@@ -104,7 +105,7 @@ class effect:
         self.redirection = redirection      # Damage redirection ratio. Unuse yet
         self.block = block
         self.reject = copy.deepcopy(reject)                # A list of the rejected effects
-        self.description = description.format(power,power//2)      # A (quick) description of the effects
+        self.description = description      # A (quick) description of the effects
         self.turnInit = turnInit            # How many turn does the effects stay ?
         self.stat = stat                    # Wich stat is use by the effects ?
         if (overhealth > 0 or redirection > 0) and trigger==TRIGGER_PASSIVE:
@@ -136,12 +137,27 @@ class effect:
         self.counterOnDodge, self.dodge, self.counterOnBlock = counterOnDodge, dodge, counterOnBlock
         self.prio = effPrio
 
-        if iaPow == 0:
+        if iaPow == 0:          # Auto generate IA power if none is given
+            tstats = 0
             for staty in [strength,endurance,charisma,agility,precision,magie,resistance,percing,critical]:
-                iaPow += staty * [1,3][self.stat not in [None,FIXE,PURCENTAGE]]
+                iaPow += staty * [1,5][self.stat not in [None,FIXE,PURCENTAGE]]
+                tstats += staty
             iaPow += self.overhealth
-            iaPow += ((abs(self.inkResistance*[1,3][self.stat not in [None,FIXE,PURCENTAGE]]) + abs(self.aggro) + self.block + self.counterOnDodge + self.critDmgUp + self.critHealUp + self.dmgUp + self.healUp + self.redirection) // 3)
+            iaPow += ((abs((self.inkResistance+self.overhealth)*[1,3][self.stat not in [None,FIXE,PURCENTAGE]]) + abs(self.aggro) + self.block + self.counterOnDodge + self.critDmgUp + self.critHealUp + self.dmgUp + self.healUp + self.redirection) // 3)
             iaPow += self.power * self.lvl
+
+            if self.power > 0 and tstats == 0 and self.stat not in [None,FIXE,PURCENTAGE]:
+                iaPow += self.power * 5
+
+            try:
+                iaPow += self.callOnTrigger.iaPow
+            except:
+                pass
+            try:
+                iaPow += self.callOnTrigger.skills.iaPow * self.callOnTrigger.lifeTime
+            except:
+                pass
+
         self.iaPow = iaPow
 
         if replique != None and self.prio == 0:
@@ -151,6 +167,10 @@ class effect:
 
         if self.reject != None and self.id in self.reject:
             self.reject.remove(self.id)
+
+        # Set emoji. Emojis are build in a list
+        # [[str, str],[str, str],[str, str]]
+        # [[Inkling specie team 0, Inkling specie team 1],[Octoling specie team 0, Octoling specie team 1],[Enemy specie team 0, Enemy specie team 1]]
 
         if emoji == None and replique != None:
             self.emoji = uniqueEmoji(replique.emoji)
@@ -173,32 +193,25 @@ class effect:
                 self.emoji=[['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>'],['<:lenapy:892372680777539594>','<:lenapy:892372680777539594>']]
         else:
             self.emoji=emoji
-
         if self.emoji.__class__ == str:
             self.emoji = uniqueEmoji(self.emoji)
 
-        """for a in [0,1,2]:
-            for b in [0,1]:
-                try:
-                    self.emoji[a][b] = reducedEmojiNames(self.emoji[a][b])
-                except Exception as e:
-                    print(self.name,e)"""
-
     def __str__(self) -> str:
         return self.name
+
     def setTurnInit(self,newTurn = 1):
         """Change the "turnInit" value. Why I need a function for that ?"""
         self.turnInit = newTurn
         return self
 
     def allStats(self):
-        """Return a list with the mains stats of the weapon"""
+        """Return a list with the mains stats of the effect"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
 WEAPON_PRIORITY_LOW, WEAPON_PRIORITY_DEFAULT, WEAPON_PRIORITY_HIGH = -1,0,1
 class weapon:
     """The main and only class for weapons"""
-    def __init__(self,name : str,id : str,range,effectiveRange,power : int,sussess : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effects:Union[None,effect]=None,effectOnUse=None,target=ENEMIES,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False,taille=1,effPowerPurcent=100,priority=WEAPON_PRIORITY_DEFAULT):
+    def __init__(self,name : str,id : str,range,effectiveRange,power : int,accuracy : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effects:Union[None,effect]=None,effectOnUse=None,target=ENEMIES,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False,taille=1,effPowerPurcent=100,priority=WEAPON_PRIORITY_DEFAULT):
         """rtfm"""
         self.name:str = name
         self.say:Union[str,List[str]] = say
@@ -209,25 +222,18 @@ class weapon:
         except:
             print(self.name)
         self.range = range
-        self.strength = strength
-        self.endurance = endurance
-        self.charisma = charisma
-        self.agility = agility
-        self.precision = precision
-        self.intelligence = intelligence
-        self.magie = magie
-        self.resistance = resistance
-        self.percing = percing
-        self.effPowerPurcent = effPowerPurcent
-        self.critical = critical
+        self.strength, self.endurance, self.charisma, self.agility, self.precision, self.intelligence, self.magie = strength, endurance, charisma, agility, precision, intelligence, magie
+        self.resistance, self.percing, self.critical = resistance, percing, critical
+
         self.power = power
         self.repetition = repetition
-        self.sussess = sussess
+        self.accuracy = accuracy
         self.price = price
         self.area = area
         self.effects = effects
         self.effectiveRange = effectiveRange
-        self.effectOnUse = effectOnUse
+        self.effectOnUse, self.effPowerPurcent = effectOnUse, effPowerPurcent
+
         self.target = target
         self.type = type
         self.needRotate = needRotate
@@ -249,6 +255,8 @@ class weapon:
             print("{0} : Wrong stat taken. Taken the Charisma stat insted".format(name))
 
         self.affinity = affinity
+
+        # Do I use it anymore ?
         orientation += [None]
         if len(orientation) < 2:
             if orientation[0] == None:
@@ -282,6 +290,7 @@ class weapon:
         else:
             self.emoji=emoji
 
+        # Price generation
         expectPrice = 100
         expectPrice += self.power * 4
         expectPrice += self.precision * 2
@@ -291,7 +300,7 @@ class weapon:
         if expectPrice != price and price != 0:
             self.price = expectPrice
 
-        if self.type == TYPE_DAMAGE and self.power != 0 and sussess != 0 and not(ignoreAutoVerif):
+        if self.type == TYPE_DAMAGE and self.power != 0 and accuracy != 0 and not(ignoreAutoVerif):
             expectation = 75 - 5*max(effectiveRange,AREA_CIRCLE_2)
 
             if self.area != AREA_MONO:
@@ -305,9 +314,9 @@ class weapon:
                     expectation = expectation * 0.9
             expectation = int(expectation)
 
-            reality = int(self.power * self.repetition * self.sussess/100)
+            reality = int(self.power * self.repetition * self.accuracy/100)
             if reality != expectation:
-                suggest = int(expectation / (self.repetition * self.sussess/100))
+                suggest = int(expectation / (self.repetition * self.accuracy/100))
                 if suggest != self.power:
                     print("{0} : Expected {1} finalPower, got {2}. Suggested basePower : {3}".format(self.name,expectation,reality,suggest))
 
@@ -316,9 +325,10 @@ class weapon:
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
     def getSummary(self):
+        """Return a strin gwith basic infos on the weapon"""
         toReturn = ""
         iconMsg = statsEmojis[[ACT_DIRECT_FULL,ACT_HEAL_FULL][self.type==TYPE_HEAL]]
-        toReturn += "{0} {1}{2} ({6}) <:targeted:912415337088159744> {5}% | {3} {4}\n".format(iconMsg,self.power,[" x{0}".format(self.repetition),""][self.repetition <= 1],rangeAreaEmojis[self.effectiveRange],areaEmojis[self.area],self.sussess,statsEmojis[self.use])
+        toReturn += "{0} {1}{2} ({6}) <:targeted:912415337088159744> {5}% | {3} {4}\n".format(iconMsg,self.power,[" x{0}".format(self.repetition),""][self.repetition <= 1],rangeAreaEmojis[self.effectiveRange],areaEmojis[self.area],self.accuracy,statsEmojis[self.use])
         stats = [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical,self.negativeHeal*-1,self.negativeBoost*-1,self.negativeShield*-1,self.negativeDirect*-1,self.negativeIndirect*-1]
         for cmpt in range(0,len(stats)):
             if stats[cmpt] != 0:
@@ -343,26 +353,23 @@ mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,28,45,0,strength=
 splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,34,35,0,agility=10,charisma=10,strength=10,repetition=5,emoji = '<:splattershotJR:866367630465433611>')
 novaShotter = weapon("Lanceur Spacial",getAutoId("eo"),RANGE_LONG,AREA_CIRCLE_5,25,40,0,precision=10,strength=10,intelligence=10,repetition=5,emoji='<:novaShotter:1064172067576090715>')
 
-baseWeapon = [
-    mainLibre, splattershotJR,novaShotter
-]
+baseWeapon = [mainLibre, splattershotJR,novaShotter]
 
 class skill:
     """The main and only class for the skills"""
-    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power:int= 0,range = AREA_CIRCLE_5,condition = [],ultimate = False,group = 0,emoji = None,effects:Union[None,effect]=None,cooldown=1,area = AREA_MONO,sussess = 100,effectOnSelf:effect=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamage=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100,effBeforePow=False,jaugeEff=None,pull=0,maxPower=0,minJaugeValue = 0, maxJaugeValue = 0, minTargetRequired = 1, quickDesc = "", depl=None, armorConvert=0, nbSummon = 1, firstSumIgnoreLimit=False, garCrit = False):
+    def __init__ (self,name : str, id : str, types : int ,price : int = 0, power:int= 0,range = AREA_CIRCLE_5,condition = [],ultimate = False,group = 0,emoji = None,effects:Union[None,effect]=None,cooldown=1,area = AREA_MONO,accuracy = 100,effectOnSelf:effect=None,use=STRENGTH,damageOnArmor = 1,invocation=None,description=None,initCooldown = 1,shareCooldown = False,message=None,say="",repetition=1,knockback=0,effPowerPurcent=100,become:Union[list,None]=None,replay:bool=False,maxHpCost=0,hpCost=0,tpCac = False,jumpBack=0,useActionStats = None,setAoEDamage=False,url=None,areaOnSelf=False, lifeSteal = 0, effectAroundCaster = None,needEffect=None,rejectEffect=None,erosion=0,percing=None,execution=False,selfEffPurcent=100,effBeforePow=False,jaugeEff=None,pull=0,maxPower=0,minJaugeValue = 0, maxJaugeValue = 0, minTargetRequired = 1, quickDesc = "", depl=None, armorConvert=0, nbSummon = 1, firstSumIgnoreLimit=False, garCrit = False, tpBehind = False):
         """rtfm"""
         if type(effects)!=list:
             effects = [effects]
         self.effects: List[Union[None,effect]] = effects
-        
         self.name:str = name                                # Name of the skill
-
         self.repetition:int = repetition                    # The number of hits it does
         self.say:Union[str,List[str]] = say                                  # Does the attacker say something when the skill is used ?
         self.id:str = id                                    # The id of the skill.  Idealy, unique
         self.type:int = types                               # The type of the skill. See constante.types
         self.replay:bool = replay
         self.tpCac:bool = tpCac
+        self.tpBehind:bool = tpBehind
         self.execution:bool = execution
         self.jumpBack:int = jumpBack
         self.setAoEDamage:bool = setAoEDamage
@@ -414,24 +421,28 @@ class skill:
         self.condition = condition
         self.ultimate = ultimate
         self.range = range
-        self.group = group                      # Not used.
+        self.group = group
         self.cooldown = cooldown
-        if become !=None:
-            minCd = 99
+        if become != None:
+            minCd,sumPowa = 99, 0
             for skilly in become:
                 if skilly.cooldown < minCd:
                     minCd = skilly.cooldown
+                sumPowa += skilly.iaPow
             self.cooldown = minCd
+            if self.power <= 0:
+                self.power = int(sumPowa/len(become))
+
         self.area = area
         self.maxHpCost, self.hpCost = maxHpCost, hpCost
         self.minTargetRequired = minTargetRequired
-        if sussess != 100 or types != TYPE_DAMAGE:
-            self.sussess = sussess
+        if accuracy != 100 or types != TYPE_DAMAGE:
+            self.accuracy = accuracy
         else:
             if area==AREA_MONO:
-                self.sussess = 120
+                self.accuracy = 120
             else:
-                self.sussess = 80
+                self.accuracy = 80
 
         self.effectOnSelf = effectOnSelf
         self.use = use
@@ -441,7 +452,11 @@ class skill:
             if self.effects != [None] and type(self.effects[0]) != str:
                 self.description = description.format(effIcon = self.effects[0].emoji[0][0],effName=self.effects[0].name,power=power,power2=power//2,length=self.effects[0].turnInit,armor=self.effects[0].overhealth)
             else:
-                self.description = description.format(power=power,power2=power//2)
+                try:
+                    self.description = description.format(power=power,power2=power//2)
+                except:
+                    self.description = "Error with the formatage of the description"
+                    print(self.name)
         else:
             self.description = None
         self.quickDesc = quickDesc
@@ -558,16 +573,18 @@ class skill:
 
         for eff in effToSee:
             if type(eff) == effect:
-                iaPow = eff.iaPow
+                iaPow += eff.iaPow
 
         iaPow += (min(self.cooldown,10) * 5) + (self.ultimate * 15)
         if self.replay:
             iaPow += 100
         for movingValue in [self.knockback, self.jumpBack, self.pull]:
             iaPow += 10*movingValue
+        if self.tpCac or self.tpBehind:
+            iaPow += 20
 
         if self.knockback >= 3:
-            iaPow = 20
+            iaPow += 20
 
         self.iaPow = int(iaPow)
 
@@ -599,6 +616,7 @@ class skill:
         return not(user.level < 10 and self.ultimate)
 
     def getSummary(self):
+        """Return a sting with basic infos"""
         toReturn, tpower, tcasttime, treplay, actSkill = "", 0, 0, 1, self
         if actSkill.become == None:
             while type(actSkill.effectOnSelf) == effect and type(actSkill.effectOnSelf.replica) == skill:
@@ -682,11 +700,9 @@ class skill:
 
 firstheal = skill("Premiers Secours","zj",TYPE_HEAL,35,emoji="<:bandage:873542442484396073>",description="Une compétence de soin peu puissance mais utilisable sans temps de rechargement",use=CHARISMA)
 armorPackEff = effect("Armure","armorPack",INTELLIGENCE,overhealth=firstheal.power,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
-armorPack = skill("Armure Portative",getAutoId("sfv",True),TYPE_ARMOR,effects=armorPackEff,emoji='<:armorPack:1063490980759748789>',description="Une compétence d'armure peu puissance mais utilisable sans temps de rechargement")
+armorPack = skill("Armure Portative",getAutoId("sfv",True),TYPE_ARMOR,price=1,effects=armorPackEff,emoji='<:armorPack:1063490980759748789>',description="Une compétence d'armure peu puissance mais utilisable sans temps de rechargement")
 
-baseSkills = [
-    firstheal,armorPack
-]
+baseSkills = [firstheal,armorPack]
 
 class stuff:
     """The main and only class for all the gears"""
@@ -778,6 +794,7 @@ class stuff:
         return user.level >= self.minLvl
 
     def getSummary(self):
+        """Return a string with the basics gear info"""
         stats, temp = [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical,self.negativeHeal*-1,self.negativeBoost*-1,self.negativeShield*-1,self.negativeDirect*-1,self.negativeIndirect*-1], ""
         for cmpt in range(0,len(stats)):
             if stats[cmpt] != 0:
@@ -959,40 +976,38 @@ class invoc:
     def isNpc(self,name : str):
         return False
 
-incurable = effect("Incurable","incur",type=TYPE_MALUS,power=100,replace=True,description="Diminue les soins reçus par la cible de **(puissance)**%.\n\nL'effet Incurable n'est pas cumulable\nSi un autre effet Incurable moins puissant est rajouté sur la cible, celui-ci est ignoré\nSi un autre effet Incurable plus puissant est rajouté, celui-ci remplace celui déjà présent",emoji=[['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>'],['<:healnt:903595333949464607>','<:healnt:903595333949464607>']])
+incurable = effect("Incurable","incur",type=TYPE_MALUS,power=100,replace=True,description="Diminue les soins reçus par la cible de **(0)**%.\nSeul l'effet Incurable le plus puissant est pris en compte",emoji='<:healnt:903595333949464607>',stackable=True)
 
 incur = []
 for num in range(0,10):
     incurTemp = copy.deepcopy(incurable)
     incurTemp.power = 10*num
     incurTemp.name = "Incurable ({0})".format(10*num)
-    incurTemp.description="Diminue les soins reçus par la cible de **{0}**%.\n\nEffet Remplaçable : Les effets remplaçables sont remplassés si le même effet avec une meilleure puissance est donné".format(10*num)
     incur.append(incurTemp)
 
-vulne = effect("Dégâts subis augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:defDebuffB:954544469649285232>","<a:defDebuffR:954544494110441563>"),type=TYPE_MALUS,stackable=True)
-defenseUp = effect("Dégâts subis réduits","defenseUp",stackable=True,emoji=sameSpeciesEmoji('<a:defBuffB:954537632543682620>','<a:defBuffR:954538558541148190>'),description="Réduit les dégâts reçus d'une valeur égalant la puissance de l'effet")
-dmgUp = effect("Dégâts infligés augmentés","dmgUp",stackable=True,emoji=sameSpeciesEmoji('<a:dmgBuffB:954429227657224272>','<a:dmgBuffR:954429157079654460>'),description="Augmente les dégâts infligés d'une valeur égalant la puissance de l'effet")
+vulne = effect("Dégâts subis augmentés","vulne",power=100,emoji=sameSpeciesEmoji("<a:defDebuffB:954544469649285232>","<a:defDebuffR:954544494110441563>"),type=TYPE_MALUS,stackable=True,description="Augmente les dégâts reçus par le porteur de **{0}%**")
+defenseUp = effect("Dégâts subis réduits","defenseUp",stackable=True,emoji=sameSpeciesEmoji('<a:defBuffB:954537632543682620>','<a:defBuffR:954538558541148190>'),description="Réduit les dégâts reçus par le porteur de **{0}%**")
+dmgUp = effect("Dégâts infligés augmentés","dmgUp",stackable=True,emoji=sameSpeciesEmoji('<a:dmgBuffB:954429227657224272>','<a:dmgBuffR:954429157079654460>'),description="Augmente les dégâts infligés par le porteur de **{0}%**")
 
 vulneTabl = []
 for num in range(0,10):
     vulneTemp = copy.deepcopy(vulne)
     vulneTemp.power = 10*num
     vulneTemp.name += " ({0})".format(10*num)
-    vulneTemp.description="Augmente les dégâts subis par le porteur de **{0}%**".format(10*num)
+    vulneTemp.description="Augmente les dégâts subis par le porteur de **{0}%**"
     vulneTabl.append(vulneTemp)
 
-dmgDown = effect("Dégâts infligés réduits","dmgDown",power=100,emoji=sameSpeciesEmoji("<a:dmgDebuffB:954431054654087228>","<a:dmgDebuffR:954430950668914748>"),type=TYPE_MALUS,stackable=True)
-partage = effect("Partage","share",type=TYPE_MALUS,power=100,turnInit=-1,description="",stackable=True,emoji=[["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"],["<:sharaB:931239879852032001>","<:shareR:931239900018278470>"]],area=AREA_DONUT_2)
+dmgDown = effect("Dégâts infligés réduits","dmgDown",power=100,emoji=sameSpeciesEmoji("<a:dmgDebuffB:954431054654087228>","<a:dmgDebuffR:954430950668914748>"),type=TYPE_MALUS,stackable=True,description="Réduit les dégâts infligés par le porteur de **{0}%**")
+partage = effect("Partage","share",type=TYPE_MALUS,power=100,turnInit=-1,stackable=True,emoji=sameSpeciesEmoji("<:sharaB:931239879852032001>","<:shareR:931239900018278470>"),area=AREA_DONUT_2,description="Lorsque le porteur reçoit des soins monocibles, cet effet soigne ses alliés proche de l'équivalent de **{0}%** des soins reçus par le porteur")
 
 shareTabl = []
 for num in range(0,10):
     shareTemp = copy.deepcopy(partage)
     shareTemp.power = 10*num
     shareTemp.name = "Partage ({0})".format(10*num)
-    shareTemp.description="En revecant des soins monocibles, les alliés dans la zone d'effet en reçoivent **{0}**% bonus.\n\nSi plusieurs effets Partages sont présent sur la même cible, uniquement le plus puissant sont pris en compte".format(10*num)
     shareTabl.append(shareTemp)
 
-healDoneBonus = effect("Soins réalisés augmentés","healBonus",description="Augmente les soins réalisés par le lanceur d'une valeur équivalante à la puissance de cet effet",emoji='<:largesse:1042929208395038850>')
+healDoneBonus = effect("Soins réalisés augmentés","healBonus",description="Augmente les soins réalisés par le lanceur de **{0}%**",emoji='<:largesse:1086390291055005736>')
 intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=uniqueEmoji('<:untargetable:899610264998125589>'),description="Cet entité deviens inciblable directement",turnInit=2)
 
 textBaliseAtReplace = ["Ã©","Ã","à§"]
@@ -1150,7 +1165,7 @@ class octarien:
         return self.name
 
 class tempAltBuilds():
-    def __init__(self,proba:int=30,aspiration:int=None,weap:weapon=None,stuffs:List[stuff]=None,skills:List[skill]=None,elements:Union[int,List[int]]=None,bonusPoints:List[int]=None):
+    def __init__(self,proba:int=30,aspiration:int=None,weap:weapon=None,stuffs:List[stuff]=None,skills:List[skill]=None,elements:Union[int,List[int]]=None,bonusPoints:List[int]=None,icon=None,splasIcon=None):
         self.proba = proba
         self.aspiration = aspiration
         self.weapon = weap
@@ -1164,6 +1179,7 @@ class tempAltBuilds():
         else:
             self.elements = None
         self.bonusPoints = bonusPoints
+        self.icon, self.splashIcon = icon, splasIcon
 
 class tmpAllie:
     """The class for the allies\n
@@ -1277,7 +1293,7 @@ class tmpAllie:
     def __str__(self):
         return self.name
 
-    def changeLevel(self,level=1,changeDict=True,stars=0):
+    def changeLevel(self,level=1,changeDict=True,stars=0,changeStuff=True):
         for procurName, procurStuff in procurTempStuff.items():
             if self.name == procurName:
                 level += procurStuff[0]
@@ -1310,6 +1326,10 @@ class tmpAllie:
                             self.secElement = altBuild.elements[1]
                         if altBuild.bonusPoints != None:
                             self.bonusPoints = altBuild.bonusPoints
+                        if altBuild.icon != None:
+                            self.icon = altBuild.icon
+                        if altBuild.splashIcon != None:
+                            self.splashIcon = altBuild.splashIcon
                         break
                     else:
                         roll = roll - altBuild.proba
@@ -1384,6 +1404,28 @@ class tmpAllie:
                 nbEmbed += 1
         return toReturn
 
+def getAllieFromBuild(ally:tmpAllie, build:tempAltBuilds):
+    """Generate a new Ally from one of their alt builds"""
+    ally = copy.deepcopy(ally)
+    if build.aspiration != None:
+        ally.aspiration = build.aspiration
+    if build.elements != None:
+        ally.elements = build.elements
+    if build.skills != None:
+        ally.skills = build.skills
+    if build.stuff != None:
+        ally.stuff = build.stuff
+    if build.weapon != None:
+        ally.weapon = build.weapon
+    if build.bonusPoints != None:
+        ally.bonusPoints = build.bonusPoints
+    if build.splashIcon != None:
+        ally.splashIcon = build.splashIcon
+    if build.icon != None:
+        ally.icon = build.icon
+
+    return ally
+
 silenceEff = effect("InCapacité","silenceEff",description="Empèche l'utilisation de compétence durant la durée de l'effet",type=TYPE_MALUS,emoji='<:silenced:975746154270691358>',effPrio = 1)
 absEff = effect("Absorbtion","absEff",description="Augmente les soins reçus par le porteur d'un pourcentage équivalant à la puissance de cet effet",emoji='<:absorb:971788658782928918>',stackable=True)
 chained = effect("Enchaîné","chained",emoji='<:chained:982710848487317575>',description="Empêche tous déplacements de la cible, que ce soit par elle-même que part une compétence",type=TYPE_MALUS,dodge=-35,effPrio = 1)
@@ -1438,6 +1480,7 @@ class depl():
 
 constEff = effect("Constitution","constEff",description="Augmente les PVs maximums de la cible.\nLe pourcentage de PV actuels est concervé lors de la pose de l'effet mais aucun PV est perdu lorsque l'effet est retiré, sauf si le nombre de PV exède les PV maximums",emoji=sameSpeciesEmoji('<:constB:1028695344059518986>','<:constR:1028695415966679132>'))
 aconstEff = effect("Anti-constitution","aconstEff",description="Réduit les PVs maximums de la cible\nLe pourcentage de PV actuels est concervé lors de la pose de l'effet mais aucun PV est perdu lorsque l'effet est retiré, sauf si le nombre de PV exède les PV maximums",emoji=sameSpeciesEmoji('<:ConB:1028695381447557210>','<ConR:1028695463651717200>'))
+armorGetMalus = effect("Friable","armorRecivedDown",type=TYPE_MALUS,description="Réduit de **{0}%** l'armure reçu par le porteur",stackable=True,emoji=sameSpeciesEmoji("<:abB:934600555916050452>","<:abR:934600570633867365>"))
 
 ELEMENT_FIRE, ELEMENT_WATER, ELEMENT_AIR, ELEMENT_EARTH
 elemResistanceEffects, elemStrength, elemWeakness = [None], [None,ELEMENT_AIR,ELEMENT_FIRE,ELEMENT_EARTH,ELEMENT_WATER], [None,ELEMENT_WATER,ELEMENT_EARTH,ELEMENT_FIRE,ELEMENT_AIR]

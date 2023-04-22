@@ -77,6 +77,24 @@ for a in weapons+skills+stuffs:
     if a.price > 0:
         listAllBuyableShop.append(a)
 
+for cmpt in range(len(skills)):
+    if skills[cmpt].invocation != None:
+        summon: invoc = findSummon(skills[cmpt].invocation)
+        timeLeft, iaPow, selfDestruc = 0, 0, False
+        for skil in summon.skills:
+            if type(skil) == skill:
+                iaPow += skil.iaPow
+                if not(skil.replay) or skil.type not in [TYPE_PASSIVE]:
+                    timeLeft += 1
+                if skil.effectOnSelf != None and skil.effectOnSelf.id == autoEff.id:
+                    iaPow -= autoEff.power
+                    selfDestruct = True
+        if timeLeft < 3 and not(selfDestruc):
+            iaPow += summon.weapon.power * (3-timeLeft)
+        skills[cmpt].iaPow += (iaPow * skills[cmpt].nbSummon)
+        if skills[cmpt].description in [None,""]:
+            skills[cmpt].description = "Permet d'invoquer (un{0}) {2} {1} : {3}".format(["","e"][summon.gender == GENDER_FEMALE], summon.icon[0], summon.name, summon.description)
+
 def userShopPurcent(user : char):
     totalShop = len(listAllBuyableShop)
     tablToSee = listAllBuyableShop[:]
@@ -414,3 +432,72 @@ dictMediumReticens = {
     "Iliana":["Félicité","Sixtine","Alice","Gwendoline","Klironovia","Altikia"]
 }
 
+def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,None],color=None) -> tmpAllie:
+    tablStats = [
+        int(enemy.strength*(max(10,lvl)/50)*1.5/3),
+        int(enemy.endurance*(max(10,lvl)/50)*1.5/3),
+        int(enemy.charisma*(max(10,lvl)/50)*1.5/3),
+        int(enemy.agility*(max(10,lvl)/50)*1.5/3),
+        int(enemy.precision*(max(10,lvl)/50)*1.5/3),
+        int(enemy.intelligence*(max(10,lvl)/50)*1.5/3),
+        int(enemy.strength*(max(10,lvl)/50)*1.5/3),
+        int(enemy.resistance*1.2/3),
+        int(enemy.percing*1.2/3),
+        int(enemy.critical*1.2/3)
+    ]
+    tempStuff = [
+        stuff("noName","noId",0,0,
+              strength=tablStats[0],
+              endurance=tablStats[1],
+              charisma=tablStats[2],
+              agility=tablStats[3],
+              precision=tablStats[4],
+              intelligence=tablStats[5],
+              magie=tablStats[6],
+              resistance=tablStats[7],
+              percing=tablStats[8],
+              critical=tablStats[9],
+              emoji=gearEmotes[0]),
+        stuff("noName","noId",1,0,
+              strength=tablStats[0],
+              endurance=tablStats[1],
+              charisma=tablStats[2],
+              agility=tablStats[3],
+              precision=tablStats[4],
+              intelligence=tablStats[5],
+              magie=tablStats[6],
+              resistance=tablStats[7],
+              percing=tablStats[8],
+              critical=tablStats[9],
+              emoji=gearEmotes[1]),
+        stuff("noName","noId",2,0,
+              strength=tablStats[0],
+              endurance=tablStats[1],
+              charisma=tablStats[2],
+              agility=tablStats[3],
+              precision=tablStats[4],
+              intelligence=tablStats[5],
+              magie=tablStats[6],
+              resistance=tablStats[7],
+              percing=tablStats[8],
+              critical=tablStats[9],
+              emoji=gearEmotes[2])
+        ]
+
+    toReturn = tmpAllie(
+        enemy.name,
+        1,
+        [color,light_blue][color==None],
+        enemy.aspiration,
+        enemy.weapon,
+        tempStuff,
+        enemy.gender,
+        enemy.skills,
+        enemy.description,
+        deadIcon=enemy.deadIcon,
+        icon=enemy.icon,
+        say=enemy.says,
+        splashArt=enemy.splashArt,
+        splashIcon=enemy.splashIcon)
+
+    return toReturn

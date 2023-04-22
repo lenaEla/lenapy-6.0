@@ -2,7 +2,7 @@ import requests
 from os import getcwd, path
 from io import BytesIO
 
-if path.exists("../Kawi"):
+if path.exists("../Kawi") and 1:
     url = "https://raw.githubusercontent.com/lenaEla/LenapyShopMsg/main/shopMsg.py"
     directory = getcwd()
     filename = directory + '\shopMsg.py'

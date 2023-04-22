@@ -28,7 +28,7 @@ dogmeEff.power, dogmeEff.stat = 3, INTELLIGENCE
 dogmeSkill = skill("Dogme de Survie","SacredSoilSkill",TYPE_BOOST,effects=dogmeEff,range=AREA_MONO,area=AREA_CIRCLE_2,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_2,20])
 dogmeDepl = depl("Dogme de survie",dogmeSkill,["<:ssb:1014093418600861767>","<:ssr:1014093444727193612>"], ["<:tssb:1014093472363462676>","<:tssr:1014093498116489216>"],description="Applique une zone sur la cellule ciblée qui réduit les dégâts subis par les alliés à l'intérieur (Puissance : **{0}%** non fixe) et les soignes légèrement (Puissance : **{1}**)".format(dogmeEff.power,dogmeSkill.effectAroundCaster[2]))
 
-glyphidPretorianAcidEff = effect("Acide Prétorien","pretorianGlyphid",STRENGTH,power=28,turnInit=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji='<:acideCloud:1055002950788988939>')
+glyphidPretorianAcidEff = effect("Acide Prétorien","pretorianGlyphid",STRENGTH,power=35,turnInit=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,stackable=True,emoji='<:acideCloud:1055002950788988939>')
 glypdDeatCloudSkill = skill("Nuage Corrosif","glyphidDeathCloud",TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_2,effects=glyphidPretorianAcidEff,range=AREA_MONO,emoji=glyphidPretorianAcidEff .emoji[0][0])
 glyphidDeathCould = depl("Nuage Corrosif",glypdDeatCloudSkill,[glyphidPretorianAcidEff.emoji[0][0],glyphidPretorianAcidEff.emoji[0][1]],["<:acideCloudR:1055002928647249930>","<:acideCloudR:1055002928647249930>"],"Un nuage corrosif laissé après la mort d'un Prétorien Glyphique")
 

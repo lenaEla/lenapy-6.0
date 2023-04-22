@@ -5,7 +5,7 @@ from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from commands_files.sussess_endler import *
+from commands_files.achievement_handler import *
 from commands_files.alice_stats_endler import *
 from typing import Union, List
 
@@ -20,11 +20,11 @@ hiddenIcons = ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:90516
 altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
 
 HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.2
-BASEHP_PLAYER, BASEHP_ENNEMI, BASEHP_SUMMON, BASEHP_BOSS = 130, 90 , 70, 550
-HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 15, 10, 8, 130
+BASEHP_PLAYER, BASEHP_ENNEMI, BASEHP_SUMMON, BASEHP_BOSS = 150, 120, 100, 600
+HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 20, 15, 10, 132
 
 MELEE_END_CONVERT = 35
-END_NEEDED_10_INDRES, MAX_END_10_INDRES = 175, 25
+END_NEEDED_10_INDRES, MAX_END_10_INDRES = 145, 35
 END_NEEDED_10_HEAL, MAX_END_10_HEAL = 150, 20
 
 statEmbedFieldNames = ["__Liste des effets :__","__Statistiques :__","<:em:866459463568850954>\n__Timeline__","__Jauges :__","__Déployables :__","__Équipe Bleue :__","__Équipe Rouge :__"]
@@ -52,15 +52,18 @@ def getPartnerValue(user : classes.char):
     else:
         return 4 + random.randint(-3,3)
 
-def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, typeDmg = TYPE_DAMAGE, skillPercing = 0):
+def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, typeDmg = TYPE_DAMAGE, skillPercing = 0, ignoreEff = None):
     if use == HARMONIE:
         maxi, stats = -100, caster.allStats()
         for cmpt in range(0,7):
             if stats[cmpt] > maxi:
                 maxi, use = stats[cmpt], cmpt 
     if use not in [FIXE,None]:
-        enemyPercing = [caster.percing+skillPercing, min(caster.percing+skillPercing,15)][target.isNpc("Clémence Exaltée") or target.isNpc("Luna prê.")]
-        resistFactor = (1-(min(95,target.resistance*(1-(enemyPercing)/100))/100))
+        enemyPercing, tarResi = caster.percing+skillPercing, target.resistance
+        if ignoreEff != None:
+            enemyPercing = getPenetration(caster.rawPercing-ignoreEff.percing)+skillPercing
+            tarResi = (target.rawResist-ignoreEff.resistance)
+        resistFactor = (1-(min(95,tarResi*(1-(enemyPercing)/100))/100))
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
             lvlBonus = 2.5
@@ -69,6 +72,9 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
         stat = caster.allStats()[use]
         if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
             stat += int(caster.endurance * MELEE_END_CONVERT/100)
+
+        if ignoreEff != None:
+            stat = stat - ignoreEff.allStats()[use]
 
         dmg = round(basePower * (max(-65,stat+100-caster.actionStats()[actionStat]))/100 *(danger/100)*elemBonus*lvlBonus)
         target.stats.damageResisted += dmg - (dmg*resistFactor)
@@ -128,8 +134,9 @@ class timeline:
         self.timeline = []
         self.initTimeline = []
         self.begin = None
+        entDict = {}
 
-    def init(self,tablEntTeam : list):
+    def init(self,tablEntTeam : list,entDict):
         timeline = []
 
         for tabl in (0,1):
@@ -169,6 +176,7 @@ class timeline:
         self.timeline = timeline
         self.initTimeline = copy.copy(timeline)
         self.begin = self.initTimeline[0]
+        entDict = entDict
 
         return self, tablEntTeam
 
@@ -184,7 +192,7 @@ class timeline:
                 temp += f"{a.icon} <- "
         return temp
 
-    def endOfTurn(self,tablEntTeam,tablAliveInvoc):
+    def endOfTurn(self,tablEntTeam,tablAliveInvoc,entDict):
         timelineTempo = self.timeline
         actTurn = timelineTempo[0]
 
@@ -196,35 +204,11 @@ class timeline:
                 inv = ent
                 timelineTempo.remove(inv)
                 inv.cell.on = None
-                for ent2 in tablEntTeam[inv.team]:
-                    if ent2.id == inv.summoner.id:
-                        smn = ent2
-                        smn.stats.damageDeal += inv.stats.damageDeal
-                        smn.stats.indirectDamageDeal += inv.stats.indirectDamageDeal
-                        smn.stats.ennemiKill += inv.stats.ennemiKill
-                        smn.stats.heals += inv.stats.heals
-                        smn.stats.shieldGived += inv.stats.shieldGived
-                        smn.stats.summonDmg += inv.stats.damageDeal + inv.stats.indirectDamageDeal
-                        smn.stats.summonHeal += inv.stats.shieldGived + inv.stats.heals
-
-                        for dictElem in inv.ownEffect:
-                            for on, effID in dictElem.items():
-                                for effOn in on.effects:
-                                    if effOn.id == effID:
-                                        effOn.caster = smn
-                                        effOn.effects.power = int(effOn.effects.power * 0.7)
-                                        break
-
-                                on.refreshEffects()
-
-                        smn.ownEffect += inv.ownEffect
-                        break
-
                 tablEntTeam[inv.team].remove(inv)
                 tablAliveInvoc[inv.team] -= 1
 
         self.timeline = timelineTempo
-        return tablEntTeam, tablAliveInvoc
+        return tablEntTeam, tablAliveInvoc, entDict
 
     def insert(self,entBefore,entToInsert):
         found = False
@@ -299,17 +283,18 @@ def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numb
 
 def getHealAggro(caster,target, skillToUse : Union[skill,weapon],armor=False):
     if type(target.char) == invoc or target.hp <= 0 or target.hp >= target.maxHp:
-        return -111
+        return -999
     else:
         prio = (1-(target.hp/target.maxHp))*100
         prio = prio * (1.2 - (0.1*target.char.weapon.range))                # If the entity is a melee, he is more important
         if not(target.auto):
             prio = prio * 1.1                                           # If the entity is a active player, he is a little more important, for reduce the use of the spoon
 
-        if (skillToUse.type == TYPE_HEAL and skillToUse.power >= 75 and target.maxHp - target.hp < target.char.level * 3) or (skillToUse.type == TYPE_INDIRECT_HEAL and target.hp/target.maxHp <= 0.35):
+        if (skillToUse.type == TYPE_HEAL and (type(skillToUse) == classes.skill and skillToUse.cooldown >= 7) and target.hp/target.maxHp >= 0.7) or (skillToUse.type == TYPE_INDIRECT_HEAL and target.hp/target.maxHp <= 0.35):
             prio = prio * 0.7                                           # If the skill is a big direct heal and the entity is not low Hp or if the skill is a HoT and the entity is low Hp
-        
-        prio = prio * (1-(target.healResist/2/100))                             # If the entity have a big healing resist, he is less important
+
+        if not(armor):
+            prio = prio * (1-(target.healResist/2/100))                             # If the entity have a big healing resist, he is less important
 
         incurValue, healAggroBonus = 0, 100
         for eff in target.effects:
@@ -318,21 +303,23 @@ def getHealAggro(caster,target, skillToUse : Union[skill,weapon],armor=False):
             elif eff.effects.id == undeadEff2.id:
                 healAggroBonus += undeadEff2.power
 
+            if eff.effects.name.startswith("⚠️ Cible - ") and armor:
+                prio += 35
         prio = prio * (1-(incurValue/2/100)) * (healAggroBonus/100)                              # Same with the healing reduce effects
         
         if (not(armor) and (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_DPT and target.char.aspiration in dptAspi) or (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_BUFF and target.char.aspiration in boostAspi) or (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_HEAL and target.char.aspiration in healAspi+armorAspi) or caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_MELEE and len(target.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=caster.team,wanted=ENEMIES,directTarget=False,fromCell=target.cell)) >= 2) or (armor and (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_DPT and target.char.aspiration in dptAspi) or (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_BUFF and target.char.aspiration in boostAspi) or (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_HEAL and target.char.aspiration in armorAspi+healAspi) or caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_MELEE and len(target.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=caster.team,wanted=ENEMIES,directTarget=False,fromCell=target.cell)) >= 2):
             prio = prio * 1.35
-        
+
         return prio
 
-def getHealTarget(caster,tablTeam : list, skillToUse : skill):
+def getHealTarget(caster,tablTeam : list, skillToUse : skill, armor=False):
     if len(tablTeam) == 1:
         return tablTeam[0]
     elif len(tablTeam) < 1:
         raise AttributeError("tablTeam is empty")
     
     temp = tablTeam
-    temp.sort(key=lambda funnyTempVarName:getHealAggro(caster,funnyTempVarName,skillToUse),reverse=True)
+    temp.sort(key=lambda funnyTempVarName:getHealAggro(caster,funnyTempVarName,skillToUse, armor),reverse=True)
     return temp[0]
 
 def getPrelimManWindow(actTurn, LBBars: List[List[int]], tablEntTeam : List):
@@ -503,6 +490,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
             "> - Dégâts indirects":ent.stats.indirectDamageDeal,
             "> - Dégâts sous boost":ent.stats.underBoost,
             "> - Dégâts sur armure":int(ent.stats.damageOnShield),
+            "> - Dégâts (Invoc./Depl.)":ent.stats.summonDmg,
             "Coups de grâce":ent.stats.ennemiKill,
             "Précision":precisePurcent,
             "Coups critiques":critPurcent
@@ -521,21 +509,21 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
             "Soins effectués":ent.stats.heals,
             "> - Vol de vie":ent.stats.lifeSteal,
             "Armures données":ent.stats.shieldGived,
+            "> - Soins / Armures (Invoc./Depl.)":ent.stats.summonHeal,
             "> - Dégâts protégés":ent.stats.armoredDamage,
             "Points Supports":ent.stats.damageBoosted+ent.stats.damageDodged,
             "> - Dégâts augmentés":ent.stats.damageBoosted,
             "> - Dégâts réduits":ent.stats.damageDodged,
             "> - Soins augmentés":ent.stats.healIncreased,
             "> - Soins réduits":ent.stats.healReduced,
+            "> - Points Supports (Invocation)":ent.stats.summonBoost,
             "Taux Critique (soins et armure)":"{0}%".format(round(ent.stats.critHeal/max(ent.stats.nbHeal,1)*100))
         },
         {
             "Tours passés":ent.stats.turnSkipped,
             "Dégâts sur soi-même":ent.stats.selfBurn,
             "PV restants":pvRestant,
-            "Invocation / Déployables invoqués":ent.stats.nbSummon,
-            "> - Dégâts (Invoc./Depl.)":ent.stats.summonDmg,
-            "> - Soins / Armures (Invoc./Depl.)":ent.stats.summonHeal
+            "Invocation / Déployables invoqués":ent.stats.nbSummon
         }
     ]
 

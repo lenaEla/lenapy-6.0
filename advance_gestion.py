@@ -237,6 +237,16 @@ class cell:
             for celly in self.tablAllCells:
                 if (celly.x == self.x or celly.y == self.y) and self.distance(celly) <= area + 2 - AREA_INLINE_2:
                     rep.append(celly)
+        elif area in [AREA_LOWEST_HP_ALLIE]:
+            lowest = None
+            for a in self.tablAllCells:
+                if a.on != None and a.on.team == team:
+                    if lowest == None:
+                        lowest = a.on
+                    elif lowest.hp < a.on.hp:
+                        lowest = a.on
+            
+            return [lowest.cell]
         return rep
 
     def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=99999,dead=False,effect=[None],ignoreInvoc = False, directTarget=True,ignoreAspiration = None,fromCell=None) -> list: 
@@ -323,22 +333,23 @@ class cell:
         for rejEff in effect: # Forbiden effects ?
             if rejEff != None:
                 aeff = findEffect(rejEff)
-                if aeff.reject != None:
-                    for b in aeff.reject:
-                        actEff = findEffect(b)
+                if aeff != None:
+                    if aeff.reject != None:
+                        for b in aeff.reject:
+                            actEff = findEffect(b)
+                            for tempEnt in tempToReturn:
+                                for d in tempEnt.effects:
+                                    if d.effects.id == actEff.id:
+                                        if tempEnt in rep:
+                                            rep.remove(tempEnt)
+                                            break
+                    if not(aeff.stackable):
                         for tempEnt in tempToReturn:
-                            for d in tempEnt.effects:
-                                if d.effects.id == actEff.id:
+                            for tempEff in tempEnt.effects:
+                                if tempEff.id == aeff.id:
                                     if tempEnt in rep:
                                         rep.remove(tempEnt)
                                         break
-                if not(aeff.stackable):
-                    for tempEnt in tempToReturn:
-                        for tempEff in tempEnt.effects:
-                            if tempEff.id == aeff.id:
-                                if tempEnt in rep:
-                                    rep.remove(tempEnt)
-                                    break
 
         if ignoreInvoc: # Ignorer les invocations ?
             for a in rep[:]:
@@ -511,30 +522,30 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         bonus, malus = "", ""
         Stat = ""
         if eff.stat == None:
-            Stat = "Aucune"
+            Stat = "- Aucune"
         elif eff.stat == PURCENTAGE:
-            Stat = "Pourcentage"
+            Stat = "% Pourcentage"
         elif eff.stat != HARMONIE:
             Stat = statsEmojis[eff.stat] + " " +allStatsNames[eff.stat]
         else:
             Stat = "Harmonie"
 
-        tamp = str(eff.turnInit) + \
-            " tour{0}".format(["", "s"][eff.turnInit > 1])
+        tamp = str(eff.turnInit) + " tour{0}".format(["", "s"][eff.turnInit > 1])
         if eff.turnInit == -1:
             tamp = "Infinie"
 
-        Powa = ""
+        Powa = "\n__Type :__ {0}".format(allTypeNames[eff.type])
         if eff.power > 0:
-            Powa = "\n__Puissance :__ "+str(int(max(eff.power, eff.overhealth)*(powerPurcent/100)))+[""," ({0}%)".format(powerPurcent)][powerPurcent!=100]
+            Powa += "\n__Puissance :__ **"+str(int(max(eff.power, eff.overhealth)*(powerPurcent/100)))+[""," ({0}%)".format(powerPurcent)][powerPurcent!=100]+"**"
 
         cumu = ""
         if eff.stackable:
             cumu = "\n\nCet effet est **cumulable**"
         effTmp += f"__Durée :__ {tamp}\n__Statistique :__ **{Stat}**\n__Zone d'effet :__ {areaEmojis[eff.area]} {areaNames[eff.area]}{Powa}{cumu}"
-        effTmp += "\nCet effet se délanche {0}\n".format(triggersTxt[eff.trigger])
+        if eff.trigger != TRIGGER_PASSIVE:
+            effTmp += "\nCet effet se délanche {0}\n".format(triggersTxt[eff.trigger])
 
-        if eff.lvl != 1 and eff.trigger != TRIGGER_PASSIVE:
+        if eff.lvl != 1 and eff.trigger not in [TRIGGER_PASSIVE] and eff.type not in [TYPE_PASSIVE,TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR]:
             effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
         stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge, eff.critDmgUp, eff.critHealUp, eff.dmgUp, eff.healUp, eff.counterOnBlock, eff.counterOnDodge]
         names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage","Prob. Esquive", "Dégâts Critiques","Soins Critiques", "Dégâts non critiques","Soins non critiques","Prob. Contre lors d'un blocage","Prob. Contre lors d'une esquive"]
@@ -542,15 +553,14 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         if eff.redirection > 0:
             effTmp += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(
                 eff.redirection)
-
         if eff.immunity:
             effTmp += "\nCet effect rend le porteur **invulnérable aux dégâts**\n"
 
         if eff.description != "Pas de description":
             if effTmp[-1] == "\n":
-                effTmp += f'\n__Description :__\n{eff.description}\n'
+                effTmp += "\n__Description :__\n{0}\n".format(eff.description.format(eff.power, eff.power//2))
             else:
-                effTmp += f'\n\n__Description :__\n{eff.description}\n'
+                effTmp += "\n\n__Description :__\n{0}\n".format(eff.description.format(eff.power, eff.power//2))
         for a in range(len(stats)):
             if stats[a] > 0:
                 bonus += "{2} __{0}__ : +{1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
@@ -567,16 +577,20 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         if eff.block > 0:
             effTmp += "\n__Blocage :__\nUne attaque bloquée réduit de **35%** les dégâts reçus"
         if eff.counterOnDodge > 0:
-            effTmp += "\n__Contre Attaque :__\n- Puissance : **{0}**, Agilité\n- Utilise la statistique d'action la plus élevée entre Direct et Indirect\n- Inflige des dégâts indirects\n- Vous ne pouvez effectuer qu'une seule contre-attaque par entité par tour de jeu".format(COUNTERPOWER)
+            effTmp += "\n__Contre Attaque :__\n- Puissance : **{0}**, Harmonie".format(COUNTERPOWER)
         if eff.reject != None:
             effTmp += "\n{0}__Cet effet n'est pas compatible avec les effets :__\n".format(["","\n"][effTmp[-1]!="\n"])
             for a in eff.reject:
                 rejected = findEffect(a)
                 effTmp += f"{rejected.emoji[user.species-1][0]} {rejected.name}\n"
 
+        effTmp = reducedEmojiNames(effTmp)
+        if len(effTmp) > 1024:
+            effTmp = completlyRemoveEmoji(effTmp)
         if eff.callOnTrigger != None and not(iteration) and type(eff.callOnTrigger) in [str,effect]:
             effId = eff.callOnTrigger
             iteration = eff.id != kikuMechExplain.id
+
             emb.add_field(name=fieldname, value=effTmp, inline=False)
             effTmp = ""
         elif eff.callOnTrigger != None and iteration and type(eff.callOnTrigger) in [str,effect]:
@@ -585,11 +599,14 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
             if eff.area != AREA_MONO:
                 emb.add_field(name="__Zone d'effet :__", value="{0} {1}".format(areaEmojis[eff.area],areaNames[eff.area]))
             break
+        elif eff.callOnTrigger != None and type(eff.callOnTrigger) == depl:
+            emb.add_field(name="__Cet effet invoque un Déployable :__",value="{0} __{1}__ : {2}".format(eff.callOnTrigger.icon[0],eff.callOnTrigger.name,eff.callOnTrigger.description),inline=False)
+            break
         else:
             if not(self):
-                emb.add_field(name="<:em:866459463568850954>\n" +fieldname + txt, value=effTmp, inline=True)
+                emb.add_field(name="<:em:866459463568850954>\n" +fieldname + txt, value=reducedEmojiNames(effTmp), inline=False)
             else:
-                emb.add_field(name="<:em:866459463568850954>\n" + fieldname + " (effet sur le lanceur)", value=effTmp, inline=True)
+                emb.add_field(name="<:em:866459463568850954>\n" + fieldname, value=reducedEmojiNames(effTmp), inline=False)
             break
 
     if eff.id == cardsDeck.id:
@@ -643,11 +660,11 @@ def infoSkill(skill: skill, user: char, ctx):
         else:
             skil = mageUlt
 
+    desc = "\n\n__Identifiant :__ **{0}**\n__Valeur IA :__ {1}".format(skil.id,skil.iaPow)
     if skil.become != None:
-        desc, listConds = "Cette compétence regroupe les compétences suivantes :\n", []
+        desc, listConds = desc + "\n\nCette compétence regroupe les compétences suivantes :\n", []
         for cmpt in range(len(skil.become)):
-            desc += "{1} __{0}__".format(
-                skil.become[cmpt].name, skil.become[cmpt].emoji)
+            desc += "{1} __{0}__".format(skil.become[cmpt].name, skil.become[cmpt].emoji)
             if cmpt < len(skil.become)-2:
                 desc += ", "
             elif cmpt == len(skil.become)-2:
@@ -660,9 +677,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 listConds.append(temp2)
 
         desc += "\nLeurs temps de rechargement sont syncronisés"
-    else:
-        desc = ""
-    
+
     # Cooldown ---------------------------
     if skil.type != TYPE_PASSIVE:
         if skil.become != None:
@@ -682,7 +697,7 @@ def infoSkill(skill: skill, user: char, ctx):
 
     if cast > 0:
         if multiSkill != []:
-            desc += "\nCette compétence permet d'enchaîner "
+            desc += "\n\nCette compétence permet d'enchaîner "
             lenMultiSkill = len(multiSkill)
             for cmpt in range(lenMultiSkill):
                 desc += "{1} __{0}__".format(multiSkill[cmpt].name, multiSkill[cmpt].emoji)
@@ -696,7 +711,7 @@ def infoSkill(skill: skill, user: char, ctx):
         else:
             desc += "\n__Tours de chargements__ : **{0} tour{1}**".format(cast, ["", "s"][int(cast > 1)])
 
-    temp = "__Type :__ " + tablTypeStr[skil.type] + "\n"
+    temp = "__Type :__ " + allTypeNames[skil.type] + "\n"
     if skil.use not in [None, HARMONIE]:
         temp += "__Stat. utilisé :__ {0} {1}".format(statsEmojis[skil.use],allStatsNames[skil.use])
         if skil.useActionStats != None:
@@ -718,7 +733,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 temp += "\n__Puissance :__ {0}".format([f"**{skil.power}**{nbShot}","**Execution**"][int(skil.execution)])
                 if skil.maxPower != 0 and skil.maxPower != skil.power:
                     temp += "\n__Puissance Max :__ {0}".format([f"**{skil.maxPower}**{nbShot}","**Execution**"][int(skil.execution)])
-                temp += "\n__Zone d'effet :__ "+ areaNames[skil.area] + "\n__Précision :__ {0}%\n".format(skil.sussess)
+                temp += "\n__Zone d'effet :__ "+ areaNames[skil.area] + "\n__Précision :__ {0}%\n".format(skil.accuracy)
             else:
                 temp += "\n__Puissance :__ **"
                 txtTmp,sumPowa,areaDict, preciDict, maxPowerCom = "(", 0, {}, {}, 0
@@ -738,12 +753,12 @@ def infoSkill(skill: skill, user: char, ctx):
                     if not(areaAlreadyAdded):
                         areaDict[multiPower[cmpt].area] = multiPower[cmpt].emoji
                     for precision in preciDict:
-                        if precision == multiPower[cmpt].sussess:
+                        if precision == multiPower[cmpt].accuracy:
                             preciDict[precision] += multiPower[cmpt].emoji
                             precisionAlreadyAdded = True
                             break
                     if not(precisionAlreadyAdded):
-                        preciDict[multiPower[cmpt].sussess] = multiPower[cmpt].emoji
+                        preciDict[multiPower[cmpt].accuracy] = multiPower[cmpt].emoji
                 temp += str(sumPowa) + "** " + txtTmp
                 if sumPowa != maxPowerCom and maxPowerCom != 0:
                     temp += "\n__Puissance maximale :__ **{0}** (".format(maxPowerCom)
@@ -772,7 +787,7 @@ def infoSkill(skill: skill, user: char, ctx):
         temp += "\n__Précisions :__\n"
         for cmpt in range(len(skil.become)):
             temp += "{0}% ({1})\n".format(
-                skil.become[cmpt].sussess, skil.become[cmpt].name)
+                skil.become[cmpt].accuracy, skil.become[cmpt].name)
 
     suppStats, temp3 = "", ""
     # Clem and Alice blood jauge skills
@@ -818,7 +833,7 @@ def infoSkill(skill: skill, user: char, ctx):
         suppStats += "{0} Cible les **{1}**\n".format([rangeAreaEmojis[AREA_ALL_ALLIES],areaEmojis[AREA_ALL_ENEMIES]][skil.type in hostilesTypes], ["alliés","ennemis"][skil.type in hostilesTypes])
 
     if skil.onArmor != 1 and skil.become == None:
-        suppStats += "{0} {1}%\n".format(["<:abB:934600555916050452>","<:abR:934600570633867365>"][skil.onArmor<0], skil.onArmor*100)
+        suppStats += "{0} Inflige **{1}%** de dégâts aux armures\n".format(["<:abB:934600555916050452>","<:abR:934600570633867365>"][skil.onArmor<0], skil.onArmor*100)
     elif skil.become != None:
         for becomeName in skil.become:
             if becomeName.onArmor != 1:
@@ -838,9 +853,9 @@ def infoSkill(skill: skill, user: char, ctx):
         suppStats += "<:qqLuna:932318030380302386> Permet de **rejouer son tour**\n"
 
     if skil.maxHpCost > 0:
-        suppStats += "<:dvin:1004737746377654383> **-{0}%** PV Max\n".format(skil.maxHpCost)
+        suppStats += "<:dvin:1004737746377654383> Réduit de **{0}%** les PV Max\n".format(skil.maxHpCost)
     if skil.hpCost > 0:
-        suppStats += "<:dmon:1004737763771433130> **-{0}%** PV\n".format(skil.hpCost)
+        suppStats += "<:dmon:1004737763771433130> Réduit de **{0}%** les PV actuels\n".format(skil.hpCost)
 
     if skil.ultimate:
         suppStats += "<:littleStar:925860806602682369> Compétence Ultime\n"
@@ -851,14 +866,18 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.setAoEDamage:
         suppStats += "Non affecté par le facteur de dégâts de zone\n"
     if skil.lifeSteal > 0:
-        suppStats += "<:vampire:900312789686571018> Vol de Vie : **{0}%**\n".format(skil.lifeSteal)
+        suppStats += "<:vampire:900312789686571018> Soigne de **{0}%** des dégâts infligés\n".format(skil.lifeSteal)
     if skil.armorConvert > 0:
-        suppStats += "<:converted:902527031663788032> Convertion Armurienne : **{0}%**\n".format(skil.armorConvert)
+        suppStats += "<:converted:902527031663788032> Convertis **{0}%** des dégâts infligés en armure\n".format(skil.armorConvert)
     if skil.erosion != 0:
-        suppStats += "<ConR:1028695463651717200> Erosion : **{0}%**\n".format(skil.erosion)
+        suppStats += "<ConR:1028695463651717200> Réduit les PVs Max de la cible de **{0}%** des dégâts infliés\n".format(skil.erosion)
     temp2 = ""
     if skil.tpCac:
-        suppStats += "<:iliLightSpeed:1046384202792308797> Téléporte au **corps à corps** de la cible\n"
+        suppStats += "<:iliLightSpeed:1046384202792308797> Téléporte **devant** de la cible\n"
+    if skil.tpBehind:
+        suppStats += "<:liaCounter:998001563379437568> Téléporte **derrière** de la cible\n"
+    if skil.percing > 0:
+        suppStats += "<:percing:1012309032867991613> Ignore **{0}%** de la Résistance de la cible\n".format(skil.percing)
 
     if skil.knockback > 0 and skil.become == None:
         suppStats += "<:piedVolt:1034208868068233348> Pousse les cibles de **{0} case{1}**\n".format(skil.knockback,["","s"][skil.knockback > 1])
@@ -895,7 +914,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 temp3 += "\n__{1}__ repousse la cible de **{0}** case{2}".format(
                     becomeName.knockback, becomeName.name, ["", "s"][becomeName.knockback > 1])
 
-    repEmb = interactions.Embed(title="__{1}__\n(ID:{0})".format(skil.id,skil.name), color=user.color,description=desc+"\n\n__Statistiques :__"+"\n"+temp+"\n"+suppStats+temp3)
+    repEmb:interactions.Embed = interactions.Embed(title="__{0}__".format(skil.name), color=user.color,description=desc+"\n\n__Statistiques :__"+"\n"+temp+"\n"+suppStats+temp3)
 
     if skil.become == None: # AREA
         if skil.type != TYPE_PASSIVE:
@@ -932,7 +951,7 @@ def infoSkill(skill: skill, user: char, ctx):
             typeEmoji += "'<:renisurection:873723658315644938>'"
         else:
             typeEmoji += "<:i1b:866828199156252682>"
-        repEmb.add_field(name="<:em:866459463568850954>\n__Effet supplémentaire autour du lanceur :__",inline=False,value="__Type :__ {3} {0}\n__Zone d'effet :__ {4} {1}\n{2}".format(tablTypeStr[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd, typeEmoji,areaEmojis[skil.effectAroundCaster[1]]))
+        repEmb.add_field(name="<:em:866459463568850954>\n__Effet supplémentaire autour du lanceur :__",inline=False,value="__Type :__ {3} {0}\n__Zone d'effet :__ {4} {1}\n{2}".format(allTypeNames[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd, typeEmoji,areaEmojis[skil.effectAroundCaster[1]]))
 
     if skil.emoji[1] == "a":
         repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji).id))
@@ -1062,7 +1081,7 @@ def infoWeapon(weap: weapon, user: char, ctx):
     else:
         nbShot = ""
 
-    repEmb.add_field(name="<:em:866459463568850954>\n__Informations Principales :__", value=f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {tablTypeStr[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision :__ {weap.sussess}%", inline=True)
+    repEmb.add_field(name="<:em:866459463568850954>\n__Informations Principales :__", value=f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {allTypeNames[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision :__ {weap.accuracy}%", inline=True)
     repEmb.add_field(name="<:em:866459463568850954>\n__Statistiques secondaires :__",value=f'{element}{info}', inline=True)
     bonus, malus = "", ""
     stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical]
@@ -1800,35 +1819,27 @@ async def getUserIcon(bot: interactions.Client, user: char):
         return toReturn
 
 def infoInvoc(invoc: invoc, emb: interactions.Embed):
-    rep = f"__Aspiration de l'invocation :__ {aspiEmoji[invoc.aspiration]} {inspi[invoc.aspiration]}\n__Elément de l'invocation :__ {elemEmojis[invoc.element]} {elemNames[invoc.element]}\n__Description :__\n{invoc.description}\n\n__Statistique principale :__ **{nameStats[invoc.weapon.use]}**\n\n**__Statistiques :__**\n*\"Invoc\" est un raccourci pour \"Statistique de l'Invocateur\"*\n"
+    emb.add_field(name="__"+invoc.name+"__", value=reducedEmojiNames(f"__Aspiration :__ {aspiEmoji[invoc.aspiration]} {inspi[invoc.aspiration]}\n__Elément :__ {elemEmojis[invoc.element]} {elemNames[invoc.element]}\n__Description :__\n{invoc.description}\n\n__Statistique principale :__ **{nameStats[invoc.weapon.use]}**"), inline=False)
+    stats, rep = invoc.allStats()+[invoc.resistance, invoc.percing, invoc.critical], ""
 
-    stats = invoc.allStats()+[invoc.resistance, invoc.percing, invoc.critical]
-    names = nameStats+nameStats2
     for a in range(0, len(stats)):
         if type(stats[a]) == list:
             if stats[a][0] == PURCENTAGE:
-                rep += f"\n__{names[a]} :__ Invoc x{stats[a][1]}"
+                rep += "\n__{0} {1} :__ {2}%".format(statsEmojis[a],allStatsNames[a],highlight(round(stats[a][1]*100)))
             elif stats[a][0] == HARMONIE:
-                rep += f"\n__{names[a]} :__ Invoc : Harmonie"
+                rep += "\n__{0} {1} :__ {2}%".format(statsEmojis[a],allStatsNames[a],"Harmonie")
         else:
-            rep += f"\n__{names[a]} :__ {stats[a]}"
+            rep += "\n__{0} {1} :__ {2} (Indépendant)".format(statsEmojis[a],allStatsNames[a],highlight(stats[a]))
 
-    emb.add_field(name="<:em:866459463568850954>\n__" +
-                    invoc.name+"__", value=rep, inline=False)
+    emb.add_field(name="<:em:866459463568850954>\n__Statistiques :__", value=reducedEmojiNames(rep), inline=False)
+    
     rep = ""
-    ranged = ["Mêlée", "Distance", "Longue Distance"][invoc.weapon.range]
-    rep += f"{invoc.weapon.emoji} {invoc.weapon.name} ({ranged})"
+    rep += "{0} __{1}__ :\n{2}".format(invoc.weapon.emoji,invoc.weapon.name,invoc.weapon.getSummary())
     for a in invoc.skills:
         if type(a) == skill:
-            if a.description == None:
-                ranged = ["Monocible", "Zone"][int(a.area != AREA_MONO)]
-                rep += f"\n{a.emoji} {a.name} ({tablTypeStr[a.type]}, {ranged})"
-            else:
-                rep += f"\n{a.emoji} __{a.name} :__\n> " + \
-                    a.description.replace("\n", "\n> ") + "\n"
+            rep += "\n{0} __{1}__ :\n> {2}\n".format(a.emoji,a.name,a.description.replace("\n","\n> "))
 
-    emb.add_field(
-        name="<:em:866459463568850954>\n__Armes et compétences :__", value=rep, inline=False)
+    emb.add_field(name="<:em:866459463568850954>\n__Armes et compétences :__", value=reducedEmojiNames(rep), inline=False)
     return emb
 
 def infoAllie(allie: tmpAllie):
@@ -2228,3 +2239,155 @@ def newTeam(user):
     user.team = rdm
     saveCharFile(user=user)
     return user
+
+async def kikimerFunction(bot:interactions.Client,ctx:interactions.CommandContext,period:bool=False):
+    catSelect = interactions.ActionRow(
+        components=
+            [interactions.SelectMenu(
+                custom_id="catSelect",
+                options=[
+                    SelectOption(label="Players",value="0",description="Show players"),
+                    SelectOption(label="Allies",value="1",description="Show allies"),
+                    SelectOption(label="Ennemis",value="2",description="Show ennemis"),
+                    SelectOption(label="Small Bosses",value="3",description="Show small bosses"),
+                    SelectOption(label="Stands Alones",value="4",description="Show stands alones bosses"),
+                    SelectOption(label="Raids",value="5",description="Show raids bosses")
+                ],
+                placeholder="Sort by entity category"
+            )]
+        )
+
+    destination, msg, sortValue, page = 0, None, 0, 0
+    await ctx.defer()
+    while 1:
+        tablResultDict = []
+        try:
+            if destination == 0: # Players
+                tempTablResultDict = []
+                cursory = aliceStatsDb.con.cursor()
+                if not(period):
+                    cursory.execute("SELECT * FROM userStats")
+                else:
+                    cursory.execute("SELECT * FROM lastMouthUsers")
+                tempTablResultDict = cursory.fetchall()
+                cursory.close()
+
+                for cmpt in range(len(tempTablResultDict)):
+                    try:
+                        if os.path.exists("./userProfile/{0}.prof".format(tempTablResultDict[cmpt]["id"])):
+                            tempUser = loadCharFile(path="./userProfile/{0}.prof".format(tempTablResultDict[cmpt]["id"]))
+                            if tempUser != None:
+                                tablResultDict.append([tempUser,tempTablResultDict[cmpt]])
+                    except:
+                        pass
+            else:
+                tempTablResultDict = []
+                cursory = aliceStatsDb.con.cursor()
+                if not(period):
+                    cursory.execute("SELECT * FROM enemyStats")
+                else:
+                    cursory.execute("SELECT * FROM lastMouthEnemy")
+                tempTablResultDict = cursory.fetchall()
+                cursory.close()
+
+                for cmpt in range(len(tempTablResultDict)):
+                    try:
+                        if destination == 1:
+                            tempEnt = findAllie(tempTablResultDict[cmpt]["name"])
+                            if tempEnt != None:
+                                tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
+                        else:
+                            tempEnt = findEnnemi(tempTablResultDict[cmpt]["name"])
+                            if tempEnt != None:
+                                if destination == 2:
+                                    for ent in tablUniqueEnnemies:
+                                        if tempEnt.name == ent.name:
+                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
+                                            break
+                                elif destination == 3:
+                                    for ent in tablBoss:
+                                        if tempEnt.name == ent.name and not(ent.oneVAll):
+                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
+                                            break
+                                elif destination == 4:
+                                    for ent in tablBoss:
+                                        if tempEnt.name == ent.name and ent.oneVAll:
+                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
+                                            break
+                                if destination == 5:
+                                    for ent in tablRaidBoss:
+                                        if tempEnt.name == ent.name:
+                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
+                                            break
+                        
+                    except:
+                        pass
+        except:
+            print_exc()
+
+        if len(tablResultDict) == 0:
+            if msg == None:
+                msg = await ctx.send(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[catSelect])
+            else:
+                await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[catSelect])
+
+            try:
+                respond: interactions.ComponentContext = await bot.wait_for_component(messages=msg,components=[catSelect,sortSelect,buttonsActRow],timeout=60)
+            except asyncio.TimeoutError:
+                await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[])
+                return 0
+
+            if respond.data.custom_id == catSelect.components[0].custom_id:
+                destination, sortValue, page = int(respond.data.values[0]), 0, 0
+        else:
+            selectSortOptions, cmpt, itemList = [], 0, tablResultDict[0][1].keys()
+            itemList = itemList[1:]
+
+            for ballerine in itemList:
+                selectSortOptions.append(interactions.SelectOption(label=ballerine,value=str(cmpt)))
+                cmpt += 1
+            sortSelect = interactions.ActionRow(
+                components=[
+                    interactions.SelectMenu(
+                        custom_id='selectMenu',
+                        options=selectSortOptions,
+                        placeholder="Sort by stat category"
+                    )
+                ]
+            )
+            tablResultDict.sort(key=lambda ballerine: ballerine[1][itemList[sortValue]],reverse=True)
+            description = ""
+            for cmpt in range(10*page,min((page+1)*10,len(tablResultDict))):
+                if type(tablResultDict[cmpt][0]) == char:
+                    icon = await getUserIcon(bot,tablResultDict[cmpt][0])
+                else:
+                    icon = [tablResultDict[cmpt][0].splashIcon,tablResultDict[cmpt][0].icon][tablResultDict[cmpt][0].splashIcon == None]
+                
+                description += "\n{0}. {1} {4}        [{2}] : {3}".format(cmpt,icon,itemList[sortValue],tablResultDict[cmpt][1][itemList[sortValue]],tablResultDict[cmpt][0].name)
+
+            buttonsActRow = interactions.ActionRow(
+                components=[
+                    interactions.Button(style=ButtonStyle.SECONDARY,custom_id="previous",label="Previous",emoji=Emoji(name="◀️"),disabled=page<=0),
+                    interactions.Button(style=ButtonStyle.SECONDARY,custom_id="next",label="Next",emoji=Emoji(name="▶️"),disabled=(page+1)*10>len(tablResultDict)-1)
+                ]
+            )
+
+            if msg == None:
+                msg = await ctx.send(embeds=interactions.Embed(title="============== Kikimeter ==============",description=reducedEmojiNames(description)),components=[catSelect,sortSelect,buttonsActRow])
+            else:
+                await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description=reducedEmojiNames(description)),components=[catSelect,sortSelect,buttonsActRow])
+
+            try:
+                respond: interactions.ComponentContext = await bot.wait_for_component(messages=msg,components=[catSelect,sortSelect,buttonsActRow],timeout=60)
+            except asyncio.TimeoutError:
+                await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description=reducedEmojiNames(description)),components=[])
+                return 0
+
+            if respond.data.custom_id == catSelect.components[0].custom_id:
+                destination, sortValue, page = int(respond.data.values[0]), 0, 0
+            elif respond.data.custom_id == sortSelect.components[0].custom_id:
+                sortValue, page = int(respond.data.values[0]), 0
+            elif respond.data.custom_id == buttonsActRow.components[0].custom_id:
+                page -= 1
+            elif respond.data.custom_id == buttonsActRow.components[1].custom_id:
+                page += 1

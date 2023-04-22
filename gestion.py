@@ -260,12 +260,21 @@ class userSettingsDbEndler:
                             toAdd += b
                     toAdd += ""
 
+                    tablSepcCar = ["-","*","_"]
+                    for character in tablSepcCar:
+                        toAdd = toAdd.replace(character,"\{0}".format(character))
+
                     toAddStr+= "{0}='{1}'".format(tempTabl[0][cmpt],toAdd)
                     if cmpt < len(tempTabl[0])-1:
                         toAddStr+=","
 
             if toAddStr != "":
-                cursory.execute("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
+                if toAddStr.endswith(","):
+                    toAddStr= toAddStr[:-1]
+                try:
+                    cursory.execute("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
+                except:
+                    print("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
             
             textUpdateSettings = ""
             for setName, setValue in user.charSettings.items():
@@ -281,7 +290,7 @@ class userSettingsDbEndler:
                 if result[iconSetCatNames[cmpt]] != iconSetValues[cmpt]:
                     textIconSet += "{0} {1} = {2}".format(["",","][textIconSet!=""],iconSetCatNames[cmpt],iconSetValues[cmpt])            
             if textIconSet != "":
-                cursory.execute("UPDATE userSettings SET {0} WHERE userId = ?;".format(textIconSet),(user.owner,))
+                cursory.execute("UPDATE userSettings SET ? WHERE userId = ?;",(user.owner,textIconSet,))
 
         cursory.close()
         self.con.commit()
@@ -298,7 +307,7 @@ class userSettingsDbEndler:
             tablTemp = []
             for cmpt in range(len(tablSaysDictCat)):
                 tablTemp.append(result[tablSaysDictCat[cmpt]])
-            
+
             tempSays = says()
             user.says = tempSays.fromTabl(tablTemp)
             user.handed,user.showElement,user.showAcc,user.showWeapon = result[iconSetCatNames[0]], result[iconSetCatNames[1]], result[iconSetCatNames[2]], result[iconSetCatNames[3]]
@@ -1065,10 +1074,16 @@ def getRandomTeamName() -> str:
 
 OBJECTIVE_WIN = 0
 class fightContext():
-    def __init__(self,giveEffToTeam1:list=[],giveEffToTeam2:list=[],objective=OBJECTIVE_WIN):
+    def __init__(self,giveEffToTeam1:list=[],giveEffToTeam2:list=[],objective=OBJECTIVE_WIN,nbEnnemis=8,nbAllies=8):
         self.giveEffToTeam1 = giveEffToTeam1
         self.giveEffToTeam2 = giveEffToTeam2
         self.objective = objective
+        self.allowBoss = True
+        self.allowTemp = True
+        self.removeEnemy = []
+        self.reduceEnemyLevel = 0
+        self.nbEnnemis = nbEnnemis
+        self.nbAllies = nbAllies
 
 def getEmbedLength(emb = interactions.Embed):
     if type(emb) == interactions.Embed:
@@ -1081,3 +1096,32 @@ def getEmbedLength(emb = interactions.Embed):
         return toReturn
     else:
         return 0
+
+INCREASED_RESIST, NORMAL_RESIST, REDUCED_1_RESIST, REDUCED_2_RESIST = 15, 30, 55, 75
+
+def getResistante(resist:int):
+    baseResist, resist = min(resist,10)*INCREASED_RESIST/10, resist - min(resist,10)
+    if resist > 0:
+        baseResist += resist
+    if baseResist > NORMAL_RESIST:
+        baseResist = NORMAL_RESIST + (baseResist-NORMAL_RESIST)*0.7
+    if baseResist > REDUCED_1_RESIST:
+        baseResist = REDUCED_1_RESIST + (baseResist-REDUCED_1_RESIST)*0.5
+    if baseResist > REDUCED_2_RESIST:
+        baseResist = REDUCED_2_RESIST + (baseResist-REDUCED_2_RESIST)*0.3
+
+    return baseResist
+
+INCREASED_PENE, NORMAL_PENE, REDUCED_1_PENE, REDUCED_2_PENE= 10, 15, 25, 35
+def getPenetration(pene:int):
+    baseResist, pene = min(pene,5)*INCREASED_PENE/5, pene - min(pene,5)
+    if pene > 0:
+        baseResist += pene
+    if baseResist > NORMAL_PENE:
+        baseResist = NORMAL_PENE + (baseResist-NORMAL_PENE)*0.5
+    if baseResist > REDUCED_1_PENE:
+        baseResist = REDUCED_1_PENE + (baseResist-REDUCED_1_PENE)*0.3
+    if baseResist > REDUCED_2_PENE:
+        baseResist = REDUCED_2_PENE + (baseResist-REDUCED_2_PENE)*0.1
+
+    return baseResist

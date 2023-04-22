@@ -185,7 +185,7 @@ async def compare(bot : interactions.Client, ctx : ComponentContext, user : char
     if type(see) == weapon:
         comp = ""
         tabl1 = ["Puissance","Précision","Nombre de tirs","Portée"]
-        tabl2 = [see.power - toCompare.power, see.sussess - toCompare.sussess, see.repetition - toCompare.repetition, see.effectiveRange - toCompare.effectiveRange]
+        tabl2 = [see.power - toCompare.power, see.accuracy - toCompare.accuracy, see.repetition - toCompare.repetition, see.effectiveRange - toCompare.effectiveRange]
 
         for cmpt in range(len(tabl1)):
             if tabl2[cmpt] > 0:
