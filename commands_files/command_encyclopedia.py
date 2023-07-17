@@ -148,7 +148,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
             elif destination==9:
                 pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
                 user = loadCharFile(pathUserProfile)
-                tablToSee = achivement.getSuccess(user)
+                tablToSee = achivementStand.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
 
             if destination in [0,1,2,3,9]:
@@ -232,15 +232,8 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                 else:
                     maxi = lenTabl
                 for a in tablToSee[(page)*10:maxi]:
-                    if type(a) == octarien:
-                        mess += f"{a.icon} __{a.name}__\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]}. | {a.weapon.emoji} |"
-                        firstOptions+=[interactions.SelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject(a.icon))]
-                    else:
-                        variantVar = ""
-                        if a.variant:
-                            variantVar = " (🔀)"
-                        mess += f"{a.icon} __{a.name}__{variantVar}\n{aspiEmoji[a.aspiration]} {inspi[a.aspiration][0:3]} | {a.weapon.emoji} |"
-                        firstOptions+=[interactions.SelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject(a.icon))]
+                    mess += "{0}{1} __{2}__\n{3} {4}. | {5} |".format(a.icon,["",a.splashIcon][a.splashIcon!=None],a.name,aspiEmoji[a.aspiration],inspi[a.aspiration][0:3],a.weapon.emoji)
+                    firstOptions+=[interactions.SelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject([a.icon,a.splashIcon][a.splashIcon!=None]))]
 
                     for b in a.skills:
                         if type(b) == skill:
@@ -287,7 +280,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
 
                     mess+="\n\n"
 
-            mess = reducedEmojiNames(mess)
+            mess = reduceEmojiNames(mess)
             if len(mess) > 4056: # Mess abrégé
                 mess = unemoji(mess)
 
@@ -408,6 +401,10 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                             ally.element, ally.secElement = tempBuild.elements[0], tempBuild.elements[1]
                         if tempBuild.bonusPoints != None:
                             ally.bonusPoints = tempBuild.bonusPoints
+                        if tempBuild.icon != None:
+                            ally.icon = tempBuild.icon
+                        if tempBuild.splashIcon != None:
+                            ally.splashIcon = tempBuild.splashIcon
                     ally.changeLevel(lvl,changeDict=False)
 
                     if procurData == None:

@@ -107,6 +107,15 @@ class userTeamDbEndler:
         self.con.row_factory = sqlite3.Row
         self.database = "aliceStats.db"
 
+        cursor = self.con.cursor()
+        try:
+            cursor.execute("SELECT teamMinLvl FROM userTeams;")
+        except:
+            cursor.execute("ALTER TABLE userTeams ADD teamMinLvl INTEGER DEFAULT (0)")
+            print("teamMinLvl added to userTeams")
+            self.con.commit()
+        cursor.close()
+
     def updateTeam(self,team:int,members:Union[List[int],List[char]]=None):
         cursory, listToAdd, listToAdd2 = self.con.cursor(), "" , ""
         
@@ -144,6 +153,23 @@ class userTeamDbEndler:
             self.con.commit()
             cursory.close()
 
+    def getTeamMinLvl(self,team:int):
+        cursory = self.con.cursor()
+        cursory.execute('SELECT teamMinLvl FROM userTeams WHERE teamId = {0};'.format(team))
+        rep = cursory.fetchone()
+        cursory.close()
+        return rep["teamMinLvl"]
+
+    def updateTeamMinLvl(self,listUser:List[char]):
+        moyLvl, cmpt = 0, 0
+        for ent in listUser:
+            moyLvl, cmpt = moyLvl+ent.level, cmpt+1
+        moyLvl = moyLvl / cmpt
+        cursory = self.con.cursor()
+        cursory.execute("UPDATE userTeams SET teamMinLvl = ? WHERE teamId = ?;",(moyLvl,int(listUser[0].team)))
+        self.con.commit()
+        cursory.close()
+
     def getTeamMember(self,team:int) -> List[int]:
         cursory = self.con.cursor()
         cursory.execute('SELECT teamMember0, teamMember1, teamMember2, teamMember3, teamMember4, teamMember5, teamMember6, teamMember7 FROM userTeams WHERE teamId = {0};'.format(team))
@@ -160,14 +186,20 @@ class userTeamDbEndler:
 
         return toReturn
 
-    def getAllTeamIds(self) -> List[int]:
+    def getAllTeamIds(self,withMinLvl=False) -> List[int]:
         cursory, toReturn = self.con.cursor(), []
-        cursory.execute("SELECT teamId FROM userTeams;")
-        result = cursory.fetchall()
-        cursory.close()
-        for a in result:
-            toReturn.append(a["teamId"])
-        
+        if withMinLvl:
+            cursory.execute("SELECT teamId, teamMinLvl FROM userTeams;")
+            result = cursory.fetchall()
+            cursory.close()
+            for a in result:
+                toReturn.append([a["teamId"],a["teamMinLvl"]])
+        else:
+            cursory.execute("SELECT teamId FROM userTeams;")
+            result = cursory.fetchall()
+            cursory.close()
+            for a in result:
+                toReturn.append([a["teamId"]])
         return toReturn
 
     def doesTeamExist(self,team:int):
@@ -1084,6 +1116,7 @@ class fightContext():
         self.reduceEnemyLevel = 0
         self.nbEnnemis = nbEnnemis
         self.nbAllies = nbAllies
+        self.setDanger = False
 
 def getEmbedLength(emb = interactions.Embed):
     if type(emb) == interactions.Embed:
@@ -1097,18 +1130,18 @@ def getEmbedLength(emb = interactions.Embed):
     else:
         return 0
 
-INCREASED_RESIST, NORMAL_RESIST, REDUCED_1_RESIST, REDUCED_2_RESIST = 15, 30, 55, 75
+INCREASED_RESIST, NORMAL_RESIST, REDUCED_1_RESIST, REDUCED_2_RESIST = 15, 30, 50, 70
 
 def getResistante(resist:int):
     baseResist, resist = min(resist,10)*INCREASED_RESIST/10, resist - min(resist,10)
     if resist > 0:
         baseResist += resist
     if baseResist > NORMAL_RESIST:
-        baseResist = NORMAL_RESIST + (baseResist-NORMAL_RESIST)*0.7
+        baseResist = NORMAL_RESIST + (baseResist-NORMAL_RESIST)*0.65
     if baseResist > REDUCED_1_RESIST:
-        baseResist = REDUCED_1_RESIST + (baseResist-REDUCED_1_RESIST)*0.5
+        baseResist = REDUCED_1_RESIST + (baseResist-REDUCED_1_RESIST)*0.45
     if baseResist > REDUCED_2_RESIST:
-        baseResist = REDUCED_2_RESIST + (baseResist-REDUCED_2_RESIST)*0.3
+        baseResist = REDUCED_2_RESIST + (baseResist-REDUCED_2_RESIST)*0.15
 
     return baseResist
 

@@ -20,8 +20,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
             slash : Does the command is slashed ? Default ``False``
         """
 
-        now, mainUser, skillToUse, naciaFlag, threadChan, alliedTreaded, entId = datetime.now(), loadCharFile("./userProfile/{0}.prof".format(ctx.author.id)), None, False, None, [], 0
-        teamJaugeDict, teamHealReistMul, teamArmorReducer, deplTabl, logsName, entDict = [{},{}], [1,1], [1,1], [], ctx.author.name.replace("/","_"), {}
+        now, mainUser, skillToUse, naciaFlag, threadChan, alliedTreaded, entId, selectWindowMsg = datetime.now(), loadCharFile("./userProfile/{0}.prof".format(ctx.author.id)), None, False, None, [], 0, None
+        teamJaugeDict, teamHealReistMul, teamArmorReducer, deplTabl, logsName, entDict, allieBDay = [{},{}], [1,1], [1,1], [], ctx.author.name.replace("/","_"), {}, ""
 
         if teamSettings == None:
             teamSettings = createTeamSettingsDict()
@@ -30,7 +30,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
             mainUser = team1[0]
 
         # Base vars declalation
-        listImplicadTeams, listFasTeam, tablAllieTemp, enableMiror, footerText, playOfTheGame, logs, haveError, dangerLevel, errorNb, optionChoice, kikuExect = [mainUser.team], [[],[]], copy.deepcopy(tablAllAllies), True, "", [1500,None,None], "[{0}]\n".format(now.strftime("%H:%M:%S, %d/%m/%Y")),False, [65,70,75,80,85,90,100,110,120,135,150], 0, None, False
+        listImplicadTeams, listFasTeam, tablAllieTemp, enableMiror, footerText, playOfTheGame, logs, haveError, dangerLevel, errorNb, optionChoice, kikuExect = [mainUser.team], [[],[]], copy.deepcopy(tablAllAllies), True, "", [1500,None,None,""], "[{0}]\n".format(now.strftime("%H:%M:%S, %d/%m/%Y")),False, [65,70,75,80,85,90,100,100,110,110,125], 0, None, False
         # dictIsNpcVar creation
         dictIsNpcVar = copy.deepcopy(primitiveDictIsNpcVar)
 
@@ -81,6 +81,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 self.chained = False
                 self.rawResist, self.rawPercing = 0,0
                 self.leftTurnAlive = 999
+                if summoner != None and type(summoner.char) in [invoc,depl]:
+                    summoner = summoner.summoner
                 if type(self.char) == invoc:
                     self.leftTurnAlive = 3
                 elif type(self.char) == depl:
@@ -106,7 +108,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     self.raiser = None
                 else:
                     self.raiser = "<:mortVitaEst:916279706351968296>"
-                self.specialVars = {"osPro":False,"osPre":False,"osIdo":False,"ohAlt":False,"ohPro":False,"ohIdo":False,"heritEstial":False,"heritLesath":False,"haveTrans":False,"tankTheFloor":False,"clemBloodJauge":None,"clemMemCast":False,"aspiSlot":None,"damageSlot":None,"summonerMalus":False,"finalTech":False,"foullee":False,"partner":None,"preci":False,"ironHealth":False,"fascination":None,"liaBaseDodge":False,"convicVigil":None,"convicPro":None,"exploHeal":False}
+                self.specialVars = {"osPro":False,"osPre":False,"osIdo":False,"ohAlt":False,"ohPro":False,"ohIdo":False,"heritEstial":False,"heritLesath":False,"haveTrans":False,"tankTheFloor":False,"clemBloodJauge":None,"clemMemCast":False,"aspiSlot":None,"damageSlot":None,"summonerMalus":False,"finalTech":False,"foullee":False,"partner":None,"preci":False,"ironHealth":False,"fascination":None,"liaBaseDodge":False,"convicVigil":None,"convicPro":None,"exploHeal":False,"squidRoll":False}
 
                 if self.char.aspiration in [OBSERVATEUR, POIDS_PLUME]:
                     self.specialVars["aspiSlot"] = 0
@@ -172,6 +174,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     self.level = summoner.level
                 self.dmgUp, self.critDmgUp, self.healUp, self.critHealUp = 0,0,0,0
                 self.dodge = 0
+                self.dualCast = None
 
                 finded = False
                 self.IA = AI_AVENTURE
@@ -255,22 +258,21 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     for actStats in [summoner.baseStats[ACT_HEAL_FULL],summoner.baseStats[ACT_BOOST_FULL],summoner.baseStats[ACT_SHIELD_FULL],summoner.baseStats[ACT_DIRECT_FULL],summoner.baseStats[ACT_INDIRECT_FULL]]:
                         actionsStats = max(actionsStats,actStats)
                     actionsStats = int(actionsStats)
-                    baseStats = {STRENGTH:self.char.majorPoints[0],ENDURANCE:self.char.majorPoints[1],CHARISMA:self.char.majorPoints[2],AGILITY:self.char.majorPoints[3],PRECISION:self.char.majorPoints[4],INTELLIGENCE:self.char.majorPoints[5],MAGIE:self.char.majorPoints[6],RESISTANCE:self.char.majorPoints[7],PERCING:self.char.majorPoints[8],CRITICAL:self.char.majorPoints[9],10:actionsStats,11:actionsStats,12:actionsStats,13:actionsStats,14:actionsStats}
-                    temp = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
-                    temp2 = self.summoner.allStats()+[self.summoner.resistance,self.summoner.percing,self.summoner.critical]
-                    adv = 0
-                    for a in range(0,len(temp)):
-                        if type(temp[a]) == list:
-                            if temp[a][0] == PURCENTAGE:
-                                baseStats[a] += int(temp2[a]*(temp[a][1]+adv))
-                            elif temp[a][0] == HARMONIE:
+                    baseStats = {STRENGTH:self.summoner.char.majorPoints[0],ENDURANCE:self.summoner.char.majorPoints[1],CHARISMA:self.summoner.char.majorPoints[2],AGILITY:self.summoner.char.majorPoints[3],PRECISION:self.summoner.char.majorPoints[4],INTELLIGENCE:self.summoner.char.majorPoints[5],MAGIE:self.summoner.char.majorPoints[6],RESISTANCE:self.summoner.char.majorPoints[7],PERCING:self.summoner.char.majorPoints[8],CRITICAL:self.summoner.char.majorPoints[9],10:actionsStats,11:actionsStats,12:actionsStats,13:actionsStats,14:actionsStats}
+                    summonStats = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
+                    summonerStats = self.summoner.baseStats
+                    for cmpt in range(len(summonStats)):
+                        if type(summonStats[cmpt]) == list:
+                            if summonStats[cmpt][0] == PURCENTAGE:
+                                baseStats[cmpt] += int(summonerStats[cmpt]*(summonStats[cmpt][1]))
+                            elif summonStats[cmpt][0] == HARMONIE:
                                 harmonie = 0
-                                for b in temp2:
-                                    harmonie = max(harmonie,b)
-                                baseStats[a] += harmonie*adv
+                                for b, c in summonerStats.items():
+                                    harmonie = max(harmonie,c)
+                                baseStats[cmpt] += harmonie
                         else:
-                            baseStats[a] = temp[a]
-                
+                            baseStats[cmpt] = summonStats[cmpt]
+
                 else:
                     baseStats = summoner.baseStats
                     baseStats[ACT_HEAL_FULL] = baseStats[ACT_BOOST_FULL] = baseStats[ACT_SHIELD_FULL] = baseStats[ACT_DIRECT_FULL] = baseStats[ACT_INDIRECT_FULL] = int(max(summoner.baseStats[ACT_HEAL_FULL],summoner.baseStats[ACT_BOOST_FULL],summoner.baseStats[ACT_SHIELD_FULL],summoner.baseStats[ACT_DIRECT_FULL],summoner.baseStats[ACT_INDIRECT_FULL])*0.7)
@@ -307,31 +309,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 elif self.char.aspiration in [PROTECTEUR,VIGILANT,ENCHANTEUR,MASCOTTE]:
                     self.specialVars["aspiSlot"] = []
 
-                # Specials interractions ---------------------------------------------------
-                # Kitsunes Sisters
-                if self.char.isNpc("Liu") or self.char.isNpc("Lia") or self.char.isNpc("Liz") or self.char.isNpc("Lio"):
-                    baseStats[CHARISMA] = int(baseStats[CHARISMA] * (0.9 + 0.1 * (dictInteraction["Liu"]+dictInteraction["Lia"]+dictInteraction["Liz"]+dictInteraction["Lio"])))
-
-                # Alice : Increase stats by sisters in the fight
-                elif self.char.isNpc("Alice"):
-                    baseStats[CHARISMA] = int(baseStats[CHARISMA] * (1 + 0.05 * (dictInteraction["Sixtine"]+dictInteraction["Félicité"]+dictInteraction["Clémence"])))
-
-                # Félicité : Increase stats by sisters in the fight
-                elif self.char.isNpc("Félicité"):
-                    baseStats[STRENGTH] = int(baseStats[STRENGTH] * (1 + 0.05 * (dictInteraction["Sixtine"]+dictInteraction["Alice"]+dictInteraction["Clémence"])))
-
-                # Sixtine : Increase stats by sisters in the fight
-                elif self.char.isNpc("Sixtine"):
-                    baseStats[INTELLIGENCE] = int(baseStats[INTELLIGENCE] * (1 + 0.05 * (dictInteraction["Félicité"]+dictInteraction["Alice"]+dictInteraction["Clémence"])))
-
-                # Clémence : Increase stats by sisters in the fight
-                elif self.char.isNpc("Clémence"):
-                    baseStats[MAGIE] = int(baseStats[MAGIE] * (1 + 0.05 * (dictInteraction["Sixtine"]+dictInteraction["Alice"]+dictInteraction["Félicité"])))
-
-                # John : Increase stats if Clemence is in the figth
-                elif self.char.isNpc("John"):
-                    baseStats[STRENGTH], baseStats[ENDURANCE] = int(baseStats[STRENGTH] * (1 + 0.1 * dictInteraction["Clémence"])), int(baseStats[ENDURANCE] * (1 + 0.1 * dictInteraction["Clémence"]))
-
                 if (self.char.level >= 40 or self.char.stars > 0) and type(self.char) not in [invoc, depl]:
                     for cmpt in range(len(self.char.limitBreaks)):
                         if self.char.limitBreaks[cmpt] != 0:
@@ -344,7 +321,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     for skilly in self.char.skills:
                         if type(skilly) == skill:
                             nbSkills += 1
-                    
 
                     if type(self.char) != octarien:
                         for cmpt in range(len(lvlToUnlockSkill)):
@@ -367,8 +343,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             baseStats[cmpt] = int(baseStats[cmpt] * 1.05)
 
                 self.baseStats = baseStats
-                self.maxHp = round((baseHP+perso.level*HPparLevel)*((baseStats[ENDURANCE])/100+1))
 
+                self.maxHp = round((baseHP+perso.level*HPparLevel)*((baseStats[ENDURANCE])/100+1))
                 if type(self.char) in [octarien,tmpAllie] and team == 1:
                     self.maxHp = round(self.maxHp * danger / 100)
                 self.hp = copy.deepcopy(self.maxHp)
@@ -382,6 +358,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     self.specialVars["ohAlt"] = summoner.specialVars["ohAlt"]
                     self.specialVars["ohPro"] = summoner.specialVars["ohPro"]
                     self.specialVars["ohIdo"] = summoner.specialVars["ohIdo"]
+                    nonlocal logs
+                    logs += "\n[Summon : {0}]\n[Stats : {1}]\n".format(self.name,self.baseStats)
 
             def allStats(self):
                 """Return the mains 7 stats"""
@@ -497,7 +475,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 for deplEnt in deplTabl:
                     if self.cell in deplEnt[2]:
                         temp += '{0} {1}\n'.format(deplEnt[0].char.cellIcon[deplEnt[0].team],deplEnt[0].char.name)
-                temp = reducedEmojiNames(temp)
+                temp = reduceEmojiNames(temp)
                 if len(temp) > 1024:
                     temp = completlyRemoveEmoji(temp)
                 if len(temp) > 1024:
@@ -512,7 +490,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 """
                 self.dmgUp, self.critDmgUp, self.healUp, self.critHealUp, self.silent, self.translucide, self.untargetable, self.invisible, self.immune, self.stun, baseStats, self.dodge = 0,0,0,0, False, False, False, False, False, False, self.baseStats, [0,10][self.char.aspiration == POIDS_PLUME]
                 sumStatsBonus, self.chained = copy.deepcopy(baseStats), False
-                self.counterOnDodge, self.counterEmoji, self.blockRate, self.counterOnBlock = 0, "", 0, 0
+                self.counterOnDodge, self.counterEmoji, self.blockRate, self.counterOnBlock, self.dualCast = 0, "", 0, 0, None
 
                 for eff in self.effects:
                     if eff != ignore:
@@ -560,7 +538,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         self.counterOnBlock += eff.effects.counterOnBlock
                     if eff.effects.block > 0:
                         self.blockRate += eff.effects.block
-
+                    if eff.effects.id in [dualCastEff.id]:
+                        self.dualCast = eff
                 if type(self.char) not in [invoc, depl]:
                     tRes = sumStatsBonus[7]+self.char.resistance
                 else:
@@ -605,9 +584,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                         if eff.effects.id == lunaInfiniteDarknessShield.id:
                             self.specialVars["clemBloodJauge"] = None
-                        
-                        elif eff.effects.id in [clemStunEffect.id,aliceStunEffect.id]:
-                            self.specialVars["clemBloodJauge"].value = 100
 
                         if eff.effects.id == constEff.id:
                             self.maxHp = int(max(self.maxHp - eff.value,1))
@@ -704,7 +680,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             name = ' ({0})'.format(name)
 
                         if target.hp <= 0 and len(tablEntTeam[target.team]) == 1 and self.isNpc("Lia Ex"):
-                            popopo += "{0}{1} : \"*お前はもう死んでいる*\"\n{2} : \"*なに- !?*\"\n".format(["","\n"][len(popopo) > 0 and popopo[-1] != "\n"],self.icon,target.icon)
+                            popopo += "{0}{1} : \"*お前はもう死んでいる*\"\n{2} : \"*なに- !?*\"\n".format(["","\n"][len(popopo) > 0 and popopo[-2:-1] != "\n"],self.icon,target.icon)
                         if not(hideAttacker):
                             popopo += f"{self.icon} {icon} → {target.icon} -{value} PV{hasCrit}{name}\n"
                         else:
@@ -715,8 +691,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             if self == target:
                                 self.stats.sufferingFromSucess = True
 
-                        if self.isNpc("Clémence pos."):
-                            self.specialVars["clemBloodJauge"].value = min(100,self.specialVars["clemBloodJauge"].value+int(value * (0.03*(1+self.level/100))))
                         
                         for team in [0,1]:
                             for jaugeEnt, jaugeEff in teamJaugeDict[team].items():
@@ -751,7 +725,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         elif eff.effects.id == undeadEff.id:
                             self.hp = 1
                             ballerine = add_effect(caster=self, target=self, effect=undeadEff2, start=eff.effects.name, danger=danger, skillIcon=eff.icon)
-                            chocolatine, latinechoco = self.heal(target=self, icon=eff.icon, statUse=None, power = self.maxHp, effName = eff.effects.name)
+                            chocolatine, latinechoco = self.heal(target=self, icon=eff.icon, statUse=None, power = round(self.maxHp*eff.effects.power/100), effName = eff.effects.name)
                             ballerine += chocolatine
                             eff.decate(value=1)
                             return ballerine
@@ -834,14 +808,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     pipistrelle += "{0} : *\"{1}\"*\n".format(self.icon,"Tss... J'aurais du tous vous écraser quand je l'aurais pu...")
                     alicePing = True
 
-                elif self.isNpc("Alice Exaltée") and killer.isNpc("Clémence pos."):
-                    pipistrelle += "<a:aliceExalte:914782398451953685> : \"Clé...\"\n<a:clemPos:914709222116175922> : \"... ?\""
-                    effect = classes.effect("Réveil subconsicent","clemAwakening",magie=-int((killer.baseStats[MAGIE]*0.3)),turnInit=-1,unclearable=True,type=TYPE_MALUS)
-                    pipistrelle += add_effect(killer,killer,effect)
-                    killer.char.exp = 35
-
                 elif self.isNpc("Lohica") and killer != self:
-                    pipistrelle += "{0} : *\"Ok {1}, qu'est-ce que tu dis de ça ?\"*\n".format(self.icon,killer.char.name) + add_effect(self,killer,estal)
+                    pipistrelle += "{0} : *\"Ok {1}, qu'est-ce que tu dis de ça ?\"*\n".format(self.icon,killer.char.name) + add_effect(self,killer,estial)
                     killer.refreshEffects()
 
                 elif self.isNpc("Amary") and killer != self and dictIsNpcVar["Lohica"]:
@@ -853,7 +821,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 break
 
                     if lohica != None:
-                        pipistrelle += "{0} : *\"Tu vas payer pour ça.\"*\n".format(lohica.icon) + add_effect(lohica,killer,estal,effPowerPurcent=[100,150][lohica.team != killer.team])
+                        pipistrelle += "{0} : *\"Tu vas payer pour ça.\"*\n".format(lohica.icon) + add_effect(lohica,killer,estial,effPowerPurcent=[100,150][lohica.team != killer.team])
                         killer.refreshEffects()
 
                 try:
@@ -928,10 +896,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     if fEffect.trigger == TRIGGER_DEATH:
                         pipistrelle += fEffect.triggerDeath(killer)
 
-                    if fEffect.effects.id == estal.id and fEffect.caster.char.weapon.id == secretum.id and not(allreadyexplose):
+                    if fEffect.effects.id == estial.id and fEffect.caster.char.weapon.id == secretum.id and not(allreadyexplose):
                         summationPower = 0
                         for eff in self.effects:
-                            if eff.effects.id == estal.id and eff.turnLeft > 0:
+                            if eff.effects.id == estial.id and eff.turnLeft > 0:
                                 summationPower += eff.effects.power * secretum.effects.power / 100 * eff.turnLeft
                                 eff.decate(turn=99,value=99)
                         self.refreshEffects()
@@ -1027,7 +995,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     
                     self.refreshEffects()
 
-                elif self.status == STATUS_TRUE_DEATH and killer.isNpc("Kitsune"):
+                elif self.status == STATUS_TRUE_DEATH and killer.isNpc("Kitsune") and type(self.char) not in [invoc,depl]:
                     pipistrelle += killer.heal(killer,"",CHARISMA,60, effName = "Âme consummée",danger=100, mono = True, useActionStats = ACT_HEAL)[0]
 
                 if type(self.char) not in [invoc, depl]: 
@@ -1077,7 +1045,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     if danger != None and self.team: # get danger value
                         dangerMul = danger/100
 
-                    popipo,aoeFactor,dmgUpPower,eroTxt, damageMul, isDepha, lifeStealBonus = "",1, 0+5*int(not(self.auto)),["",aspiEmoji[TETE_BRULE]][self.char.aspiration == TETE_BRULE], 1, False, 0
+                    popipo,aoeFactor,dmgUpPower,eroTxt, damageMul, isDepha, lifeStealBonus = "",1, 0+5*int(not(self.auto)),"", 1, False, 0
                     if erosion != 0:
                         eroTxt += icon
                     if self.char.aspiration == TETE_BRULE:
@@ -1148,6 +1116,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     if self.char.aspiration in [POIDS_PLUME,OBSERVATEUR]: # Apply "Poids Plume" critical bonus
                                         pp = self.specialVars["aspiSlot"]
 
+                                    if skillUsed != None and skillUsed.id == trans.id and type(entityInArea.char) in [tmpAllie,char]:
+                                        value = int(value*0.65)
+
                                     # Get the stat used
                                     if use == HARMONIE:
                                         temp = 0
@@ -1200,8 +1171,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                     tablRedirect.append(a)
                                                     blocked = True
 
-                                            if a.effects.id in [vulne.id,kikuRaiseEff.id,kitsuneExCharmEff.id]:
+                                            if a.effects.id in [vulne.id,kikuRaiseEff.id]:
                                                 vulnePower += a.effects.power
+                                            elif a.effects.id in [charming.id,kitsuneExCharmEff.id,charmingHalf.id] and self.char.npcTeam == NPC_KITSUNE:
+                                                vulnePower += {charming.id:KITCHARMVULNE, kitsuneExCharmEff.id:KITCHARM2VULNE,charmingHalf.id:KITCHARMVULNE//2}[a.effects.id]
                                             elif a.effects.id == kikuUnlifeGift.id:
                                                 defenseUpPower += min(80,kikuUnlifeGift.power/2 * tour)
                                             elif a.effects.id in [defenseUp.id,iliStans1_1.id]:
@@ -1210,8 +1183,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 reaperDmgBoost = 0.1
                                             elif a.effects.id in [deterEff1.id,zelianR.id,fairyGardeEff.id]:
                                                 lifeSavor.append(a)
-                                            elif a.effects.id == charming.id and (type(skillUsed) == classes.skill and skillUsed.id == lizLB_1.id):
-                                                vulnePower += LIZLBPOWERGAINPERCHARM
+                                            elif a.effects.id in [charming.id,charmingHalf.id] and (type(skillUsed) == classes.skill and skillUsed.id == lizLB_1.id):
+                                                vulnePower += {charming.id:LIZLBPOWERGAINPERCHARM,charmingHalf.id:LIZLBPOWERGAINPERCHARM//2}[a.effects.id]
                                                 a.decate(turn=99)
                                             elif a.effects.id == critWeaknessEff.id:
                                                 critVulne += a.effects.power
@@ -1224,7 +1197,16 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 vulnePower += 15
                                             elif a.effects.id == justiceEnigmaEff.id:
                                                 justEnig = a
+                                            elif a.effects.id == krysWaterWeakness.id and (type(skillUsed) == classes.skill and skillUsed.condition==[EXCLUSIVE,ELEMENT,ELEMENT_WATER]):
+                                                vulnePower += a.effects.power
                                     entityInArea.refreshEffects()
+
+                                    if (type(skillUsed) == classes.skill and skillUsed.group == SKILL_GROUP_HOLY and entityInArea.char.npcTeam in [NPC_UNDEAD,NPC_DEMON]):
+                                        vulnePower += UNDEAD_WEAKNESS
+                                    elif (type(skillUsed) == classes.skill and skillUsed.group == SKILL_GROUP_DEMON and entityInArea.char.npcTeam in [NPC_HOLY]):
+                                        vulnePower += UNDEAD_WEAKNESS
+                                    elif (use==MAGIE and entityInArea.char.npcTeam in [NPC_FAIRY]):
+                                        defenseUpPower += FAIRYMAGICRESIST
                                     vulnePower -= defenseUpPower
                                     vulnePower = max(vulnePower,-90)
 
@@ -1232,6 +1214,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     critRoll, critDmgMul = random.randint(0,99), 1
                                     critMsg, hasCrit = "", False
                                     critRate = probCritDmg(self) + pp
+                                    if type(skillUsed) == classes.skill and skillUsed.garCrit:
+                                        critRate += 100
                                     logs += "\n- Crit Rate : {0}% -> ".format(round(critRate,2))
                                     if critRoll < critRate and damage > 0:
                                         logs += "Success"
@@ -1249,7 +1233,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         hasCrit = True
 
                                         if critRate > 100:
-                                            critDmgMul = critDmgMul * critRate/100
+                                            critDmgMul += (critRate-100)/3/100
+                                        logs += " - Crit. Mul : {0}%".format(critDmgMul)
 
                                     else:
                                         logs += "Failure"
@@ -1330,6 +1315,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         self.stats.selfBurn += effectiveDmg
 
                                     sumDamage += effectiveDmg
+                                    if type(entityInArea.char) in [invoc,depl]:
+                                        sumDamage -= effectiveDmg / 2
                                     entityInArea.stats.numberAttacked += 1
                                     if not execution:
                                         if lifeSavor != []:
@@ -1437,7 +1424,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                     # Damage message
                                     if entityInArea.hp <= 0 and len(tablEntTeam[entityInArea.team]) == 1 and self.isNpc("Lia Ex"):
-                                        popipo += "{0}{1} : \"*お前はもう死んでいる*\"\n{2} : \"*なに- !?*\"\n".format(["","\n"][len(popipo) > 0 and popipo[-1] != "\n"],self.icon,entityInArea.icon)
+                                        popipo += "{0}{1} : \"*お前はもう死んでいる*\"\n{2} : \"*なに- !?*\"\n".format(["","\n"][len(popipo) > 0 and popipo[-2:-1] != "\n"],self.icon,entityInArea.icon)
                                     popipo += noneArmorMsg
                                     if not(execution):
                                         if effectiveDmg > 0 and tempToReturn == "":
@@ -1496,15 +1483,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 if conds.type == INC_ON_ALLY_CRIT and jaugeEnt.hp > 0:
                                                     jaugeEff.value = min(jaugeEff.value+conds.value,100)
 
-                                            if jaugeEff.effects.id == eventFas.id and jaugeEnt.hp > 0 and jaugeEff.value >= 100:
-                                                popipo += add_effect(jaugeEnt,jaugeEnt,jaugeEff.effects.callOnTrigger,skillIcon=eventFas.emoji[0][0],setReplica=entityInArea)
-                                                jaugeEnt.refreshEffects()
-                                                for cmpt in range(len(jaugeEnt.char.skills)):
-                                                    tempi = findSkill(jaugeEnt.char.skills[cmpt])
-                                                    if tempi != None and findSkill(jaugeEnt.char.skills[cmpt]).id == fascination.id:
-                                                        jaugeEnt.cooldowns[cmpt] = 0
-                                                jaugeEff.value = 0
-
                                     # After damage
                                     if entityInArea.char.aspiration in [PROTECTEUR,VIGILANT,ENCHANTEUR,MASCOTTE] and self.id not in entityInArea.specialVars["aspiSlot"]:
                                         nbIt, cmpt = [1,5][type(self.char) == octarien and self.char.oneVAll], 0
@@ -1521,29 +1499,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                     astraEarth = False
                                     for eff in entityInArea.effects:
-                                        if eff.effects.id in [lightAura2ActiveEff.id, tintabuleEff.id]:                                 # Aura de lumière 2
-                                            sumHeal, sumEnt = 0,[]
-                                            for ent in entityInArea.cell.getEntityOnArea(area=eff.effects.area,team=entityInArea.team,wanted=ALLIES,directTarget=False,fromCell=actTurn.cell):
-                                                useless, tempi = eff.caster.heal(ent,eff.icon,eff.effects.stat,eff.effects.power,eff.effects.name,danger)
-                                                if tempi > 0:
-                                                    sumHeal += tempi
-                                                    sumEnt.append(ent.icon)
-
-                                            temp = ""
-                                            for i in sumEnt:
-                                                temp += i
-                                            if len(sumEnt) > 0:
-                                                popipo += "{0} {1} → {5} +{2} {3} PV ({4})\n".format(eff.caster.icon,eff.icon,["","≈"][len(sumEnt)>1],int(sumHeal/len(sumEnt)),eff.effects.name, temp)
-                                            popipo += eff.decate(value=1)
-                                            entityInArea.refreshEffects()
-                                        elif eff.effects.id == flambe.id and use in [STRENGTH,ENDURANCE,AGILITY,PRECISION]:                         # Flambage
+                                        if eff.effects.id == flambe.id and use in [STRENGTH,ENDURANCE,AGILITY,PRECISION]:                         # Flambage
                                             eff.effects.power += flambe.power
                                         elif eff.effects.id == magAch.id and use == [MAGIE,CHARISMA,INTELLIGENCE,HARMONIE]:                            # Magia
                                             eff.effects.power += magAch.power
-                                        elif eff.effects.id == rosesPhysiEff.id and use == STRENGTH:
-                                            popipo += eff.triggerDamage(value = damage,declancher=self,icon=icon,onArmor=onArmor)[1]
-                                        elif eff.effects.id == rosesMagicEff.id and use == MAGIE:
-                                            popipo += eff.triggerDamage(value = damage,declancher=self,icon=icon,onArmor=onArmor)[1]
                                         elif eff.effects.id in [haimaEffect.id,pandaimaEff.id]:
                                             finded = False
                                             for sndEff in entityInArea.effects:
@@ -1569,11 +1528,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         elif eff.effects.id == naciaGiantEff.id:
                                             if entityInArea.hp/entityInArea.maxHp <= 0.6 and entityInArea.specialVars["clemBloodJauge"] == None:
                                                 popipo += eff.decate(turn=20)
-                                        elif eff.effects.id == darkFlumEff.id:
-                                            popipo += add_effect(entityInArea,self,eff.effects.callOnTrigger)
-                                        elif eff.effects.id == kralamSkillEff1.id:
-                                            popipo += add_effect(eff.caster,entityInArea,eff.effects.callOnTrigger)
-
+                                        elif eff.effects.trigger == TRIGGER_AFTER_DAMAGE:
+                                            popipo = [popipo[:-1],popipo][popipo[-1]=="\n"]+ eff.triggerDamage(value = damage,declancher=self,icon=icon,onArmor=onArmor)[1]
+                                        
                                         if eff.effects.trigger == TRIGGER_HP_ENDER_70 and entityInArea.hp/entityInArea.maxHp <= 0.7:
                                             if eff.effects.type == TYPE_INDIRECT_HEAL:
                                                 popipo += eff.triggeredIndHeal(decate=True)
@@ -1593,13 +1550,16 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         else:
                                             popipo += "*{0} : \"{1}\"*\n".format(entityInArea.icon,entityInArea.char.says.dodge[random.randint(0,len(entityInArea.char.says.dodge)-1)].format(caster=self.name,target=entityInArea.name))
 
+                                    if entityInArea.specialVars["squidRoll"] and random.randint(0,99) < squidRollEff.power:
+                                        popipo += add_effect(caster=entityInArea, target=entityInArea ,effect=squidRollEff.callOnTrigger, skillIcon=squidRollEff.emoji[0][0])
+
                                     entityInArea.stats.dodge += 1
                                     entityInArea.stats.numberAttacked += 1
                                     if entityInArea.char.aspiration == POIDS_PLUME:
                                         entityInArea.specialVars["aspiSlot"] += 3
                                     elif self.char.aspiration == OBSERVATEUR:
                                         self.specialVars["aspiSlot"] = int(self.specialVars["aspiSlot"] * 0.5)
-                                    if (entityInArea.isNpc("Lia") or (entityInArea.isNpc("Kitsune") or entityInArea.isNpc("Lia Ex")) and type(self.char) not in [invoc,depl]):
+                                    if (entityInArea.isNpc(["Lia","Kitsune","Lia Ex"]) and type(self.char) not in [invoc,depl]):
                                         popipo += add_effect(entityInArea,actTurn,charming,skillIcon = entityInArea.weapon.effects.emoji[0][0])
                                         entityInArea.refreshEffects()
 
@@ -1611,38 +1571,35 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                 logs += "\n\n"
                         if len(tablTarget) > 0 and (self.isNpc(["Liz","Kitsune"])) and ((type(skillUsed) == classes.skill and skillUsed.id != kitsuneSkill4.id) or skillUsed == None):
-                            popipo += ["","\n"][popipo[-1] != "\n"] + groupAddEffect(caster=self, target=target,area=tablTarget, effect=charming, skillIcon=self.weapon.effects.emoji[0][0])
+                            popipo += ["","\n"][popipo[-2:-1] != "\n"] + groupAddEffect(caster=self, target=target,area=tablTarget, effect=charming, skillIcon=self.weapon.effects.emoji[0][0])
 
                     if sumDamage > 0:
                         sumLifeSteal, lifeStealEmote, lifeStealCapBoost = 0, "", 0
                         for eff in self.effects:
                             if eff.effects.id == convertEff.id :                         # Convertion :
-                                armorConvert += convertEff.power/100
+                                armorConvert += convertEff.power
                             elif eff.effects.id in [vampirismeEff.id,aliceExWeapEff.id,undeadEff2.id,holmgangEff.id]:
                                 sumLifeSteal += eff.effects.power
                                 lifeStealEmote += eff.icon
                             elif eff.effects.id == upgradedLifeSteal.id:
                                 lifeStealCapBoost += eff.effects.power
+                            elif eff.effects.id == bloodButterFlyPassifEff.id and target.team != self.team and random.randint(0,99)<eff.effects.power:
+                                popipo += groupAddEffect(caster=self, target=target, area=AREA_MONO, effect=eff.effects.callOnTrigger,skillIcon=eff.icon)
                         if self.char.aspiration == BERSERK:
                             sumLifeSteal += self.specialVars["aspiSlot"]
                             lifeStealEmote += aspiEmoji[BERSERK]
                         if lifeSteal > 0:
                             sumLifeSteal += lifeSteal
                             lifeStealEmote += icon
-                        if self.isNpc("Clémence pos."):
-                            sumLifeSteal += 33
-                            lifeStealEmote += vampirismeEff.emoji[1][1]
-                            self.specialVars["clemBloodJauge"].value = min(100,self.specialVars["clemBloodJauge"].value+int(sumDamage * (0.01*(1+self.level/100))))
-                            if self.specialVars["clemMemCast"]:
-                                self.specialVars["clemMemCast"] = False
-                        elif self.isNpc("Clémence Exaltée"):
-                            sumLifeSteal += 30
+
+                        if self.isNpc("Clémence Exaltée"):
+                            sumLifeSteal += 50
                             if self.hp / self.maxHp <= 0.25:
                                 sumLifeSteal += 70
                             lifeStealEmote += vampirismeEff.emoji[1][1]
 
                         if sumLifeSteal > 0:
-                            supposedHealPowa, moreHealPowa = min(sumDamage * sumLifeSteal / 100,self.level*(45+lifeStealCapBoost)*(1+lifeStealBonus/100)), 0
+                            supposedHealPowa, moreHealPowa = min(sumDamage * (sumLifeSteal / 100),self.level*(45+lifeStealCapBoost)*(1+lifeStealBonus/100)), 0
                             if self.isNpc("Clémence Exaltée") and supposedHealPowa + self.hp > self.maxHp:
                                 moreHealPowa = supposedHealPowa - (self.maxHp - self.hp)
 
@@ -1653,20 +1610,85 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             if moreHealPowa > 0:
                                 clemExOvershield = classes.effect("Armure Sanguine","clemExOvershield",overhealth=int(moreHealPowa//2),turnInit=-1,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji=clemUltShield.emoji,absolutShield=True)
                                 popipo += groupAddEffect(self, self, AREA_MONO, clemExOvershield, vampirismeEff.emoji[1][1])
+                        if skillUsed != None and skillUsed.aoeLifeSteal > 0:
+                            tablTarget, tablEntTarget, supposedHealPowa = self.cell.getEntityOnArea(area=AREA_DONUT_2,team=self.team,wanted=ALLIES,directTarget=False,fromCell=actTurn.cell), [], min(sumDamage * skillUsed.aoeLifeSteal / 100,self.level*(45+lifeStealCapBoost)*(1+lifeStealBonus/100))
+                            for ent in tablTarget:
+                                if ent.hp > 0 and ent.hp < ent.maxHp:
+                                    healPowa = min(ent.maxHp - ent.hp, supposedHealPowa)
+                                    temp, useless = self.heal(self,lifeStealEmote,None,healPowa,lifeSteal=True)
+                                    tablEntTarget.append(ent)
+
+                            if tablEntTarget != []:
+                                tempMsg = ""
+                                for ent in tablEntTarget:
+                                    tempMsg += ent.icon
+                                popipo += "{0} {1} → {2} +{3} PV\n".format(self.icon, skillUsed.emoji+"<:aoeLifeSteal:1100770895846457376>",tempMsg,supposedHealPowa)
+
                         if armorConvert > 0:
                             haveEff = False
                             for eff in self.effects:
                                 if eff.effects.id == convertArmor.id:
                                     toAdd = int(sumDamage*(armorConvert/100))
                                     eff.value, eff.turnLeft = eff.value + toAdd, eff.effects.turnInit
-                                    popipo += "{0} {1} → {2} +{3} PAr\n".format(self.icon, icon, eff.icon, toAdd)
+                                    self.stats.shieldGived += toAdd 
+                                    popipo += "{0} {1} → {0} {2} +{3} PAr\n".format(self.icon, icon, eff.icon, toAdd)
                                     haveEff = True
                                     break
                             if not(haveEff):
                                 eff = copy.deepcopy(convertArmor)
                                 eff.overhealth = int(sumDamage*(armorConvert/100))
-                                popipo += add_effect(self,self,eff,ignoreEndurance=True,start=icon)
+                                
+                                popipo += add_effect(self,self,eff,ignoreEndurance=True,skillIcon=icon)
                                 self.refreshEffects()
+                        if skillUsed != None and skillUsed.aoeArmorConvert > 0:
+                            tablTarget, tablEntTarget, supposedArmor = self.cell.getEntityOnArea(area=AREA_DONUT_2,team=self.team,wanted=ALLIES,directTarget=False,fromCell=actTurn.cell), [], int(sumDamage * (skillUsed.aoeArmorConvert / 100))
+                            for ent in tablTarget:
+                                if ent.hp > 0:
+                                    haveEff = False
+                                    for eff in ent.effects:
+                                        if eff.effects.id == convertArmor.id:
+                                            eff.value, eff.turnLeft = eff.value + supposedArmor, eff.effects.turnInit
+                                            self.stats.shieldGived += supposedArmor
+                                            haveEff = True
+                                            break
+                                    if not(haveEff):
+                                        eff = copy.deepcopy(convertArmor)
+                                        eff.overhealth = supposedArmor
+                                        add_effect(self,ent,eff,ignoreEndurance=True,start=icon)
+                                        ent.refreshEffects()
+                                    tablEntTarget.append(ent)
+                            
+                            if tablEntTarget != []:
+                                tempMsg = ""
+                                for ent in tablEntTarget:
+                                    tempMsg += ent.icon
+                                popipo += "{0} {1} → {2} +{4} {3} PAr\n".format(self.icon, skillUsed.emoji+"<:aoeConvert:1100770918340497519>",tempMsg,supposedArmor,convertArmor.emoji[0][0])
+
+                        if skillUsed != None and skillUsed.id == clemSkill7.id:
+                            nbDpt = nbHeal = nbBoost = 0
+                            effList = []
+                            for ent in tablTarget:
+                                if ent.hp > 0 and type(ent.char) not in [invoc, depl]:
+                                    if ent.char.aspiration in dptAspi:
+                                        nbDpt += 1
+                                    elif ent.char.aspiration in healAspi+armorAspi:
+                                        nbHeal += 1
+                                    elif ent.char.aspiration in boostAspi:
+                                        nbBoost += 1
+                            if nbDpt > 0:
+                                eff = copy.deepcopy(dmgUp)
+                                eff.power, eff.turnInit = 5*nbDpt, skillUsed.cooldown
+                                effList.append(eff)
+                            if nbHeal > 0:
+                                eff = copy.deepcopy(vampirismeEff)
+                                eff.power, eff.turnInit, eff.stat = 5*nbHeal, skillUsed.cooldown, None
+                                effList.append(eff)
+                            if nbBoost > 0:
+                                eff = classes.effect("Prise de Sang","clemBoost",PURCENTAGE,magie=5*nbBoost, turnInit=skillUsed.cooldown, emoji='<:pacteDeSang:917096147452035102>')
+                                effList.append(eff)
+                            if len(effList) > 0:
+                                popipo += groupAddEffect(caster=self, target=self, area=AREA_MONO, effect=effList, skillIcon=skillUsed.emoji)
+
                 return popipo, deathCount
 
             def startOfTurn(self,tablEntTeam="tabl") -> str: 
@@ -1700,11 +1722,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 if temporaty != "":
                                     nbOfDecate += 1
 
-                        if nbOfDecate > 1:                      # Regrouping all the decate messages as well
-                            toReturn += "__{0}__ ne subit plus sous {1} effets de __{2}__\n".format(self.char.name,nbOfDecate,a.effects.name)
-                        elif nbOfDecate == 1:
-                            toReturn += temporaty
-
                         allReadySeen.append({a.caster.id:a.effects.id})
 
                     elif a.effects.id == gwenCoupeEff.id:
@@ -1714,12 +1731,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                     if a.effects.id == kikuRaiseEff.id and tour >= 16:
                         self.stats.lauthingAtTheFaceOfDeath = True
-                
-                    elif a.effects.id == clemUltShield.id:
-                        a.decate(turn=99)
-                        effect = copy.deepcopy(dmgUp)
-                        effect.power, effect.turnInit = 50, 2
-                        toReturn += add_effect(caster=self,target=self,effect=effect, start = a.name, danger=danger, skillIcon=a.icon)
 
                 allReadySeenID, unAffected, effNames, allReadySeenCharId = [], [], [], []
 
@@ -1728,7 +1739,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         for effOn in on.effects:
                             if effOn.id == eff:
                                 temp = effOn.decate(turn=1)
-                                if temp != "" and effOn.effects.trigger != TRIGGER_ON_REMOVE:
+                                if temp != "" and effOn.effects.trigger != TRIGGER_ON_REMOVE and effOn.effects.id not in [bloodButterfly.id]:
                                     if effOn.effects.id not in allReadySeenID:
                                         allReadySeenID.append(effOn.effects.id)
                                         unAffected.append([on.icon])
@@ -1870,11 +1881,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 if temporaty != "":
                                     nbOfDecate += 1
 
-                        if nbOfDecate > 1:                      # Regrouping all the decate messages as well
-                            toReturn += "__{0}__ ne subit plus sous {1} effets de __{2}__\n".format(self.char.name,nbOfDecate,eff.effects.name)
-                        elif nbOfDecate == 1:
-                            toReturn += temporaty
-
                         allReadySeen.append({eff.caster.id:eff.effects.id})
                     
                     if eff.effects.id == tablWeapExp[0].id:
@@ -1915,6 +1921,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     if self.leftTurnAlive <= 0:
                         self.hp = 0
                         toReturn += "\n{0} est désinvoqué{1}".format(self.char.name,self.accord())
+                        entDict[self.summoner.id].ownEffect = entDict[self.summoner.id].ownEffect+self.ownEffect
                 return toReturn
 
             def atRange(self):
@@ -2059,10 +2066,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     elif teamSettings["settingsAllyIcon"] == TEAM_SET_ALLY_ICON_WEAPON:
                         self.icon = self.char.weapon.emoji
                 elif type(self.char) not in [invoc,depl]:
-                    if self.isNpc("Chûri-Hinoro"):
-                        self.icon = ["<:churiHinoro:1088897850219450448>",'<:churHi:994045813175111811>'][teamSettings["settingsEnemyIcon"]==TEAM_SET_ENEMY_ICON_CLASSICAL or self.char.splashIcon == None]
-                    else:
-                        self.icon = [self.char.splashIcon,self.char.icon][teamSettings["settingsEnemyIcon"]==TEAM_SET_ENEMY_ICON_CLASSICAL or self.char.splashIcon == None]
+                    self.icon = [self.char.splashIcon,self.char.icon][teamSettings["settingsEnemyIcon"]==TEAM_SET_ENEMY_ICON_CLASSICAL or self.char.splashIcon == None]
                 else:
                     self.icon = self.char.icon[self.team]
                 return self.icon
@@ -2122,9 +2126,13 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         if type(skil) == classes.skill:
                             if skil.type == TYPE_PASSIVE:               # If the entity have a passive
                                 effect=findEffect(skil.effectOnSelf)
-                                funnyTempVarName += "\n"+ add_effect(sumEnt,sumEnt,findEffect(skil.effectOnSelf)," ({0})".format(skil.name),danger=danger)
+                                funnyTempVarName += add_effect(sumEnt,sumEnt,effect," ({0})".format(skil.name),danger=danger)
                                 sumEnt.refreshEffects()
                                 logs += "{0} get the {1} effect from {2}\n".format(ent.char.name,effect.name,skil.name)
+                    if sumEnt.char.weapon.effects != None:
+                        effect=findEffect(sumEnt.char.weapon.effects)
+                        funnyTempVarName += add_effect(sumEnt,sumEnt,effect," ({0})".format(sumEnt.char.weapon.name),danger=danger)
+                        sumEnt.refreshEffects()
 
                     return tablEntTeam,tablAliveInvoc,timeline,funnyTempVarName
 
@@ -2200,7 +2208,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     if target.char.weapon.id == grav.id:
                         aggro += self.stats.survival
 
-                    for eff in target.effects:                           # Change the aggro
+                    for eff in target.effects:                           # Change the aggrolizBoomCast
                         aggro += eff.effects.aggro
 
                         if eff.effects.replica != None and type(target.char) not in [char,tmpAllie]:
@@ -2239,9 +2247,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             aggro = aggro * 1.05
                     elif self.isNpc("Kiku") and target.status == STATUS_ALIVE:
                         aggro = aggro * 1.2
-                    elif (self.isNpc(["Edelweiss","Epiphyllum","Amary"] and target.isNpc(["Zombie","Kiku"]))) or (target.isNpc(["Edelweiss","Epiphyllum","Amary"]) and self.isNpc(["Zombie","Kiku"])):
+                    elif (self.char.npcTeam in [NPC_DRYADE,NPC_HOLY] and target.char.npcTeam == NPC_UNDEAD) or (target.char.npcTeam == NPC_DRYADE and self.char.npcTeam == NPC_UNDEAD):
                         aggro = aggro * 1.25
-
+                    if (self.char.npcTeam == NPC_KITSUNE and target.char.npcTeam == NPC_GOLEM) or (self.char.npcTeam == NPC_DEMON and target.char.npcTeam == NPC_HOLY) or (self.char.npcTeam == NPC_HOLY and target.char.npcTeam in [NPC_UNDEAD, NPC_DEMON]):
+                        aggro = aggro * 1.5
                     return int(aggro)
                 else:
                     return -111
@@ -2290,7 +2299,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         self.stats.nbHeal += 1
                         healPowaInit = copy.deepcopy(healPowa)
 
-                        incurableValue, healBonus, attIncurPower = 0, 1+(5/100*int(not(self.auto))), 0
+                        incurableValue, healBonus, attIncurPower, bloodButterflyFlag = 0, 1+(5/100*int(not(self.auto))), 0, None
+
                         for eff in target.effects:
                             if eff.effects.id == incurable.id:
                                 incurableValue = max(incurableValue,eff.effects.power)
@@ -2311,6 +2321,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 if not(finded):
                                     healBuffer[eff.caster] = [eff.effects.power,0]
                                 healBuffer["total"] += eff.effects.power
+                            elif eff.effects.id == bloodButterfly.id:
+                                bloodButterflyFlag = eff
                         for eff in self.effects:
                             if eff.effects.id == healReductionTmp.id:
                                 healBonus -= healReductionTmp.power/100
@@ -2337,9 +2349,15 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     healBuffer[eff.caster] = [0,diff]
 
                         healBonus -= (incurableValue/100 + min(attIncurPower/1000,0.3))
+                        
                         healBonus = max(healBonus,0.1)
 
                         healPowa = int(healPowa * (100-target.healResist)/100 * (1 + HEALBONUSPERLEVEL*self.level) * healBonus)
+                        if bloodButterflyFlag != None and healPowa > 0:
+                            reducedHeals = int(healPowa * (bloodButterflyFlag.effects.power / 100))
+                            entDict[bloodButterflyFlag.caster.id].stats.healReduced += reducedHeals
+                            bloodButterflyFlag.value += reducedHeals
+                            healPowa -= reducedHeals
                         overheath = max(0,healPowa - (target.maxHp-target.hp))
                         healPowa = min(target.maxHp-target.hp,healPowa)
 
@@ -2355,14 +2373,19 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         else:
                             target.healResist += int(healPowa/target.maxHp/1.5*100*teamHealReistMul[target.team])
 
-                        if self.isNpc("Alice Exaltée"):
-                            self.specialVars["clemBloodJauge"].value = min(100,self.specialVars["clemBloodJauge"].value+int(healPowa * 0.035))
                     elif statUse in [None,FIXE]:
-                        incurableValue = 0
+                        incurableValue, bloodButterflyFlag = 0, None
                         for eff in target.effects:
                             if eff.effects.id == incurable.id:
                                 incurableValue = max(incurableValue,eff.effects.power)
+                            elif eff.effects.id == bloodButterfly.id:
+                                bloodButterflyFlag = eff
                         healPowa = min(power*(100-incurableValue)/100,target.maxHp-target.hp)
+                        if bloodButterflyFlag != None and healPowa > 0:
+                            reducedHeals = int(healPowa * (bloodButterflyFlag.effects.power / 100))
+                            entDict[bloodButterflyFlag.caster.id].stats.healReduced += reducedHeals
+                            bloodButterflyFlag.value += reducedHeals
+                            healPowa -= reducedHeals
                         if lifeSteal:
                             healPowa = healPowa*(1-(self.healResist/100))
                             healPowaInit = copy.deepcopy(healPowa)
@@ -2375,6 +2398,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     else:
                         healPowa = round(target.maxHp*power/100)
                     healPowa = int(round(healPowa))
+
                     if not(lifeSteal):
                         if type(self.char) not in [invoc,depl]:
                             self.stats.heals += healPowa
@@ -2384,6 +2408,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     else:
                         self.stats.lifeSteal += healPowa
                     target.hp += healPowa
+                    target.stats.healingRecived += healPowa
 
                     add = ""
                     if effName != None:
@@ -2408,7 +2433,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                         try:
                             for conds in teamJaugeDict[self.team][self].effects.jaugeValue.conds:
-                                if conds.type == INC_DEAL_HEALING:
+                                if conds.type == INC_DEAL_HEALING or (conds.type == INC_LIFE_STEAL and lifeSteal):
                                     teamJaugeDict[self.team][self].value = min(teamJaugeDict[self.team][self].value+(conds.value*(healPowa/target.maxHp*100)),100)
                         except KeyError:
                             pass
@@ -2419,9 +2444,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             if tabla[carillon]:
                                 effect = tabli[carillon]
                                 effect.overhealth = int(overheath * ([idoOHEff.power,proOHEff.power,altOHEff.power][carillon]/100))
-                                toReturn += add_effect(self,target,effect,[idoOHEff.name,proOHEff.name,altOHEff.name][carillon],True)
+                                add_effect(self,target,effect,[idoOHEff.name,proOHEff.name,altOHEff.name][carillon],True)
+                                toReturn = toReturn[:-1] + " {0} +{1} PAr\n".format(effect.emoji[0][0],effect.overhealth)
                                 target.refreshEffects()
-                                return toReturn, 0
 
                     if self.isNpc(["Lio","Kitsune"]) and type(target.char != classes.invoc):
                         toReturn += add_effect(self,target,charming2,self.char.weapon.effects.emoji[0][0],skillIcon=self.char.weapon.effects.emoji[0][0],effPowerPurcent=[100,50][actTurn!=self])
@@ -2482,25 +2507,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                     else:
                         return None                                                     # Else, give up
-
-            """def getCellToMove(self,cellToMove:cell=None):
-                if self.path == None:
-                    if cellToMove == None:
-                        tablOfEnt = self.cell.getEntityOnArea(area=AREA_ALL_ENEMIES-int(self.char.weapon.target==ALLIES),team=self.team,wanted=self.char.weapon.target,lineOfSight=self.char.weapon.target==ENEMIES,fromCell=actTurn.cell,ignoreInvoc = True,directTarget=True)
-                        if len(tablOfEnt) == 0:
-                            return None
-                        tablOfEnt.sort(key=lambda ent:self.getAggroValue(ent))
-                        cellsToAim = tablOfEnt[0].cell.getArea(area=self.char.weapon.effectiveRange,team=self.team,fromCell=actTurn.cell)
-
-                        cellsToAim.sort(key=lambda ballerine: self.cell.distance(ballerine)+(1000*int((ballerine.on != None) and ballerine.id != self.cell.id)))
-                        cellToMove = cellsToAim[0]
-                    if cellToMove.id == self.cell.id:
-                        self.path = [self.cell]
-                    self.path = self.getPath(cellToMove)
-
-                if self.path != None and len(self.path.path) > 0:
-                    return self.path.path[0]
-            """
 
             def knockback(self, target, power:int):
                 toReturn = {}
@@ -2643,7 +2649,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 if cellToPush != target.cell:
                     target.move(cellToMove=cellToPush)
                 if cmpt > 0:
-                    toReturn = "\n__{0} ({1})__ est attiré{3} vers {4}\n".format(target.char.name,target.icon,power,target.accord(),self.char.name)
+                    toReturn = "\n__{0} ({1})__ est attiré{3} vers {4}".format(target.char.name,target.icon,power,target.accord(),self.char.name)
 
                 return toReturn
 
@@ -2680,7 +2686,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 except KeyError:
                     counterTracker[self] = []
                     canCounter = True
-                
+
                 if canCounter:
                     actStat, tablActStats = ACT_INDIRECT, [self.negativeHeal,self.negativeBoost,self.negativeShield,self.negativeDirect,self.negativeIndirect]
                     for cmpt in range(len(tablActStats)):
@@ -2688,6 +2694,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             actStat = cmpt 
 
                     counterDmgBuff = max(0,counterOnDodge/100)
+                    if self.cell.distance(target.cell) > 2:
+                        counterDmgBuff -= 0.5
                     if self.isNpc("Lia Ex"):
                         counterDmgBuff += 0.3
 
@@ -2740,6 +2748,254 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             print_exc()
                 return shorterPath
 
+            async def changeNpc(self,char: Union[classes.char,classes.octarien,classes.tmpAllie,classes.invoc]):
+                self.char = char
+                self.weapon = self.char.weapon
+                if type(self.char) not in [invoc, depl]:
+                    self.icon = await self.getIcon(bot)
+                else:
+                    self.icon = self.char.icon[team]
+
+                if self.char.aspiration in [OBSERVATEUR, POIDS_PLUME]:
+                    self.specialVars["aspiSlot"] = 0
+                if type(self.char) not in [invoc,octarien]:
+                    baseHP,HPparLevel = BASEHP_PLAYER, HPPERLVL_PLAYER
+                elif type(self.char) == invoc:
+                    baseHP, HPparLevel, self.char.level = BASEHP_SUMMON, HPPERLVL_SUMMON, self.summoner.char.level
+                elif not(self.char.oneVAll):
+                    baseHP,HPparLevel = BASEHP_ENNEMI, HPPERLVL_ENNEMI
+                elif type(self.char) == depl:
+                    baseHP,HPparLevel = 9999999,9999
+                else:
+                    baseHP,HPparLevel = BASEHP_BOSS, HPPERLVL_BOSS
+
+                self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
+                self.resistance,self.percing,self.critical = 0,0,0
+                self.negativeHeal, self.negativeBoost, self.negativeShield, self.negativeDirect, self.negativeIndirect = 0,0,0,0,0
+
+                if type(self.char) != depl: # Skill Verif
+                    for a in [0,1,2,3,4,5,6]:
+                        try:
+                            if type(self.char.skills[a]) == skill:
+                                if self.char.skills[a].id == mageUlt.id:
+                                    if self.char.element in [ELEMENT_FIRE,ELEMENT_AIR,ELEMENT_SPACE]:
+                                        temp = mageUltZone
+                                    elif self.char.element in [ELEMENT_WATER,ELEMENT_EARTH,ELEMENT_TIME]:
+                                        temp = mageUltMono
+                                    else:
+                                        temp = mageUlt
+
+                                    self.char.skills[a] = temp
+
+                                elif self.char.skills[a].id == finalTech.id:
+                                    self.specialVars["finalTech"] = True
+                                
+                                if self.char.element == ELEMENT_SPACE:
+                                    for cmpt in range(len(horoSkills)):
+                                        if self.char.skills[a] == horoSkills[cmpt]:
+                                            self.char.skills[a] = altHoroSkillsTabl[cmpt]
+                                self.cooldowns[a] = int(self.char.skills[a].ultimate)*2+self.char.skills[a].initCooldown
+                        except:
+                            self.char.skills.append(None)
+
+                self.name = self.char.name
+                self.aspiration = self.char.aspiration
+                if type(self.char) not in [depl,invoc]:
+                    self.level = self.char.level
+                else:
+                    self.level = self.summoner.level
+                
+                finded = False
+                self.IA = AI_AVENTURE
+                if self.char.aspiration in [BERSERK,OBSERVATEUR,POIDS_PLUME,TETE_BRULE,ATTENTIF]:
+                    self.IA = AI_DPT
+                elif self.char.aspiration in [IDOLE,INOVATEUR,MASCOTTE]:
+                    self.IA = AI_BOOST
+                elif self.char.aspiration in [ALTRUISTE,VIGILANT]:
+                    self.IA = AI_ALTRUISTE
+                elif self.char.aspiration in [MAGE,SORCELER]:
+                    self.IA = AI_MAGE
+                elif self.char.aspiration == ENCHANTEUR:
+                    self.IA = AI_ENCHANT
+                elif self.char.aspiration in [PREVOYANT,PROTECTEUR]:
+                    self.IA = AI_SHIELD
+                elif self.IA == AI_AVENTURE:
+                    offSkill,SuppSkill,healSkill,armorSkill,invocSkill, tablAllSkills = 0,0,0,0,0, [self.char.weapon]
+                    if type(self.char) == depl:
+                        tablAllSkills.append(self.char.skills)
+                    else:
+                        tablAllSkills = tablAllSkills + self.char.skills
+                    for b in tablAllSkills:
+                        if type(b) in [weapon,skill]:
+                            if b.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
+                                offSkill += 1
+                            elif b.type in [TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR]:
+                                SuppSkill += 1
+                            elif b.type in [TYPE_HEAL]:
+                                healSkill += 1
+                            elif b.type in [TYPE_SUMMON]:
+                                invocSkill += 1
+                        
+                    if max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == offSkill:
+                        self.IA = AI_OFFERUDIT
+                    elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == SuppSkill:
+                        self.IA = AI_BOOST
+                    elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == healSkill:
+                        self.IA = AI_ALTRUISTE
+                    elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == armorSkill:
+                        self.IA = AI_BOOST
+                    elif max(offSkill,SuppSkill,healSkill,armorSkill,invocSkill) == invocSkill:
+                        self.IA = AI_AVENTURE
+
+                if type(self.char) not in [invoc, depl]:
+                    baseStats = {STRENGTH:self.char.strength+self.char.majorPoints[0],ENDURANCE:self.char.endurance+self.char.majorPoints[1],CHARISMA:self.char.charisma+self.char.majorPoints[2],AGILITY:self.char.agility+self.char.majorPoints[3],PRECISION:self.char.precision+self.char.majorPoints[4],INTELLIGENCE:self.char.intelligence+self.char.majorPoints[5],MAGIE:self.char.magie+self.char.majorPoints[6],RESISTANCE:self.char.majorPoints[7],PERCING:self.char.majorPoints[8],CRITICAL:self.char.majorPoints[9],10:self.char.majorPoints[10],11:self.char.majorPoints[11],12:self.char.majorPoints[12],13:self.char.majorPoints[13],14:self.char.majorPoints[14]}
+                    for obj in [self.char.weapon,self.char.stuff[0],self.char.stuff[1],self.char.stuff[2]]:
+                        valueElem = 1
+                        if obj.affinity == self.char.element :
+                            valueElem = 1.1
+                        
+                        if type(self.char) == octarien and self.team == 1:
+                            dangerMul = (100 + (20*((danger-100)/50)))/100
+                        else:
+                            dangerMul = 1
+
+                        baseStats[0] += int(obj.strength*valueElem*dangerMul)
+                        baseStats[1] += int(obj.endurance*valueElem*dangerMul)
+                        baseStats[2] += int(obj.charisma*valueElem*dangerMul)
+                        baseStats[3] += int(obj.agility*valueElem*dangerMul)
+                        baseStats[4] += int(obj.precision*valueElem*dangerMul)
+                        baseStats[5] += int(obj.intelligence*valueElem*dangerMul)
+                        baseStats[6] += int(obj.magie*valueElem*dangerMul)
+                        baseStats[7] += int(obj.resistance*valueElem)
+                        baseStats[8] += int(obj.percing*valueElem)
+                        baseStats[9] += int(obj.critical*valueElem)
+                        baseStats[10] += int(obj.negativeHeal)
+                        baseStats[11] += int(obj.negativeBoost)
+                        baseStats[12] += int(obj.negativeShield)
+                        baseStats[13] += int(obj.negativeDirect)
+                        baseStats[14] += int(obj.negativeIndirect)
+                elif type(self.char) == invoc:
+                    actionsStats = 0
+                    for actStats in [self.summoner.baseStats[ACT_HEAL_FULL],self.summoner.baseStats[ACT_BOOST_FULL],self.summoner.baseStats[ACT_SHIELD_FULL],self.summoner.baseStats[ACT_DIRECT_FULL],self.summoner.baseStats[ACT_INDIRECT_FULL]]:
+                        actionsStats = max(actionsStats,actStats)
+                    actionsStats = int(actionsStats)
+                    baseStats = {STRENGTH:self.char.majorPoints[0],ENDURANCE:self.char.majorPoints[1],CHARISMA:self.char.majorPoints[2],AGILITY:self.char.majorPoints[3],PRECISION:self.char.majorPoints[4],INTELLIGENCE:self.char.majorPoints[5],MAGIE:self.char.majorPoints[6],RESISTANCE:self.char.majorPoints[7],PERCING:self.char.majorPoints[8],CRITICAL:self.char.majorPoints[9],10:actionsStats,11:actionsStats,12:actionsStats,13:actionsStats,14:actionsStats}
+                    temp = self.char.allStats()+[self.char.resistance,self.char.percing,self.char.critical]
+                    temp2 = self.self.summoner.allStats()+[self.self.summoner.resistance,self.self.summoner.percing,self.self.summoner.critical]
+                    adv = 0
+                    for a in range(0,len(temp)):
+                        if type(temp[a]) == list:
+                            if temp[a][0] == PURCENTAGE:
+                                baseStats[a] += int(temp2[a]*(temp[a][1]+adv))
+                            elif temp[a][0] == HARMONIE:
+                                harmonie = 0
+                                for b in temp2:
+                                    harmonie = max(harmonie,b)
+                                baseStats[a] += harmonie*adv
+                        else:
+                            baseStats[a] = temp[a]
+                else:
+                    baseStats = self.summoner.baseStats
+                    baseStats[ACT_HEAL_FULL] = baseStats[ACT_BOOST_FULL] = baseStats[ACT_SHIELD_FULL] = baseStats[ACT_DIRECT_FULL] = baseStats[ACT_INDIRECT_FULL] = int(max(self.summoner.baseStats[ACT_HEAL_FULL],self.summoner.baseStats[ACT_BOOST_FULL],self.summoner.baseStats[ACT_SHIELD_FULL],self.summoner.baseStats[ACT_DIRECT_FULL],self.summoner.baseStats[ACT_INDIRECT_FULL])*0.7)
+
+                if self.char.element in [ELEMENT_FIRE, ELEMENT_UNIVERSALIS_PREMO]:
+                    baseStats[7] += 5
+                elif self.char.element in [ELEMENT_WATER, ELEMENT_UNIVERSALIS_PREMO]:
+                    baseStats[PRECISION] += 10
+                elif self.char.element in [ELEMENT_AIR, ELEMENT_UNIVERSALIS_PREMO]:
+                    baseStats[AGILITY] += 10
+                elif self.char.element in [ELEMENT_EARTH, ELEMENT_UNIVERSALIS_PREMO]:
+                    baseStats[6] += 5
+
+                valueToBoost =  min(1,self.level / 50)
+                baseStats[ENDURANCE] += int(30*valueToBoost)
+                baseStats[RESISTANCE] += int(15*valueToBoost)
+
+                if danger > 100 and type(self.char) == octarien:
+                    add = int(danger/135 * 20)
+                    for cmpt in [AGILITY,PRECISION,RESISTANCE]:
+                        baseStats[cmpt] += add
+
+                if self.char.weapon.id in eternalInkWeaponIds:
+                    summation = 0
+                    for stat in range(10,15):
+                        if baseStats[stat] > 0:
+                            summation = int(baseStats[stat]*0.7)
+                            baseStats[stat] = 0
+
+                    baseStats[self.char.weapon.use] += summation
+
+                if self.char.aspiration == BERSERK:
+                    self.specialVars["aspiSlot"] = BERS_LIFE_STEAL
+                elif self.char.aspiration in [PROTECTEUR,VIGILANT,ENCHANTEUR,MASCOTTE]:
+                    self.specialVars["aspiSlot"] = []
+
+                if (self.char.level >= 40 or self.char.stars > 0) and type(self.char) not in [invoc, depl]:
+                    for cmpt in range(len(self.char.limitBreaks)):
+                        if self.char.limitBreaks[cmpt] != 0:
+                            baseStats[cmpt] = int(baseStats[cmpt] * (100+self.char.limitBreaks[cmpt])/100)
+                if type(self.char) not in [invoc, depl]:
+                    hasSkillUpdated, lvl = True, self.char.level - 5
+                    nbExpectedSkills, nbSkills = 0, 0
+
+                    for skilly in self.char.skills:
+                        if type(skilly) == skill:
+                            nbSkills += 1
+                    
+
+                    if type(self.char) != octarien:
+                        for cmpt in range(len(lvlToUnlockSkill)):
+                            if lvl >= lvlToUnlockSkill[cmpt]:
+                                nbExpectedSkills += 1
+                        hasSkillUpdated = nbSkills >= nbExpectedSkills
+                    else:
+                        hasSkillUpdated = nbSkills == self.char.baseSkillNb
+
+                    hasUpdatedStuff = True
+                    for stuffy in self.char.stuff:
+                        if stuffy.minLvl < self.char.level-10:
+                            hasUpdatedStuff = False
+                            break
+
+                    hasBonusPointsUpdated, updateBonus = self.char.points < 5, "\n\n"
+
+                    if (hasBonusPointsUpdated and hasSkillUpdated and hasUpdatedStuff):
+                        for cmpt in range(MAGIE+1):
+                            baseStats[cmpt] = int(baseStats[cmpt] * 1.05)
+
+                self.baseStats = baseStats
+
+                actHp = self.hp/self.maxHp
+                self.maxHp = round((baseHP+self.char.level*HPparLevel)*((baseStats[ENDURANCE])/100+1))
+                self.hp = int(self.maxHp*actHp)
+
+                if type(self.char) == invoc:
+                    self.specialVars["osPro"] = self.summoner.specialVars["osPro"]
+                    self.specialVars["osPre"] = self.summoner.specialVars["osPre"]
+                    self.specialVars["osIdo"] = self.summoner.specialVars["osIdo"]
+                    self.specialVars["ohAlt"] = self.summoner.specialVars["ohAlt"]
+                    self.specialVars["ohPro"] = self.summoner.specialVars["ohPro"]
+                    self.specialVars["ohIdo"] = self.summoner.specialVars["ohIdo"]
+
+            def summonMemoria(self,target):
+                if (self.char) == invoc and self.char.name == memoria.name:
+                    return ""
+                else:
+                    nonlocal time, tablEntTeam, tablAliveInvoc, logs
+                    smn, toReturn = copy.deepcopy(memoria), ""
+                    if target.char.team != NPC_UNDEAD:
+                        smn.strength, smn.endurance, smn.charisma, smn.agility, smn.precision, smn.intelligence, smn.magie, smn.percing, smn.critical = round(target.baseStats[STRENGTH]*MEMORIASTATCONVERT), round(target.baseStats[ENDURANCE]*MEMORIASTATCONVERT), round(target.baseStats[CHARISMA]*MEMORIASTATCONVERT), round(target.baseStats[AGILITY]*MEMORIASTATCONVERT), round(target.baseStats[PRECISION]*MEMORIASTATCONVERT), round(target.baseStats[INTELLIGENCE]*MEMORIASTATCONVERT), round(target.baseStats[MAGIE]*MEMORIASTATCONVERT), round(target.baseStats[PERCING]*MEMORIASTATCONVERT), round(target.baseStats[CRITICAL]*MEMORIASTATCONVERT)
+                        smn.aspiration, smn.element, smn.secElement, smn.says = target.char.aspiration, target.char.element, target.char.secElement, target.char.says
+                        smn.weapon.range, smn.skills = target.char.weapon.range, target.char.skills
+                        smn.level, smn.stars = target.char.level, target.char.stars
+
+                        cellToSummon = self.cell.getCellForSummon(AREA_CIRCLE_4,self.team,smn,self)
+                        if cellToSummon != None:
+                            tablEntTeam, tablAliveInvoc, time, funnyTempVarName = actTurn.summon(smn,time,cellToSummon,tablEntTeam,tablAliveInvoc,ignoreLimite=True)
+                            toReturn += funnyTempVarName+"\n"
+                            logs += "\n"+funnyTempVarName
+                    return toReturn
+
         class fightEffect:
             """Classe plus pousée que Effect pour le combat"""
             def __init__(self,id,effect : classes.effect, caster : entity, on : entity, turnLeft : int, trigger : int, type : int, icon : str, value=1, effReducPurcent:Union[None,int]=None):
@@ -2762,14 +3018,20 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 self.on:entity = on
                 if self.effects.type == TYPE_MALUS and self.on.char.__class__ == classes.octarien and self.on.char.oneVAll:
                     effReducPurcent = effReducPurcent//2
-                if self.effects.id == charming.id and self.caster.isNpc("Liz"):
+                if self.effects.id in [charming.id, charming2.id, charmingHalf.id, kitsuneExCharmEff.id] and self.caster.isNpc("Lia"):
                     turnLeft += 1
                 self.turnLeft = turnLeft
+                if self.turnLeft == None:
+                    print("Error with {0} : None left turn".format(self.effects.name))
+                    self.turnLeft = self.effects.turnInit
                 self.trigger = trigger
                 self.type = type
                 self.value = value
                 if effect.jaugeValue != None and effect.unclearable:
                     self.value = 0
+                    for conds in effect.jaugeValue.conds:
+                        if conds.type == INC_START_FIGHT:
+                            self.value = conds.value
 
                 if self.effects.id == deterEff1.id:
                     self.value = int(self.on.maxHp * self.effects.power / 100)
@@ -2901,15 +3163,16 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 temp = ""
 
                 if ((self.turnLeft <= 0 and self.effects.turnInit > 0) or self.value <= 0) and not(self.effects.unclearable):
-                    if self.trigger == TRIGGER_ON_REMOVE:
+                    self.remove = True
+                    if self.trigger == TRIGGER_ON_REMOVE or self.effects.id in [bloodButterfly.id]:
+                        
                         try:
                             temp += self.triggerRemove()
                         except:
                             print_exc()
                             print(self.effects.name, self.caster.name)
-                    self.remove = True
-                    if not(self.effects.silent) and self.on.hp > 0 and self.effects.id not in (astralShield.id,timeShield.id) and self.effects.trigger != TRIGGER_INSTANT:
-                        temp += f"__{self.on.char.name}__ n'est plus sous l'effet __{self.effects.name}__\n"
+                    elif not(self.effects.silent) and self.on.hp > 0 and self.effects.id not in (astralShield.id,timeShield.id) and self.effects.trigger != TRIGGER_INSTANT:
+                        temp += f"{self.on.icon} → ~~{self.effects.name}~~\n"
 
                     elif self.effects.id == elemShieldEff.id and self.value <= 0:
                         temp += groupAddEffect(self.caster, self.on, self.effects.callOnTrigger,self.effects.area,self.icon,ACT_SHIELD)
@@ -2927,12 +3190,18 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             onArmor += 0.05
                         if self.caster.char.secElement in [ELEMENT_EARTH, ELEMENT_UNIVERSALIS_PREMO]:
                             onArmor += 0.05
+                        for eff in self.caster.effects:
+                            if eff.effects.armorDmgBonus > 0:
+                                onArmor += eff.effects.armorDmgBonus
+                    else:
+                        onArmor = 1
                     dmgRecived = round(value * onArmor)
 
                     if dmgRecived >= shieldPAr:
                         declancher.stats.damageOnShield += shieldPAr
                         self.caster.stats.armoredDamage += shieldPAr
                         self.on.stats.damageProtected += shieldPAr
+                        self.on.stats.damageResisted -= shieldPAr
                         addedReduc = [self.on.char.level,0][self.effects.lightShield]
                         if self.caster.specialVars["osPre"]:
                             addedReduc += self.caster.char.level * (preOSEff.power/100)
@@ -2950,6 +3219,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         declancher.stats.damageOnShield += dmgRecived
                         self.caster.stats.armoredDamage += dmgRecived
                         self.on.stats.damageProtected += dmgRecived
+                        self.on.stats.damageResisted -= dmgRecived
                         returnDmg = value
                         toReturnTxt = self.icon + "-" + str(dmgRecived)+" PAr "
                         self.decate(value=dmgRecived)
@@ -2964,17 +3234,18 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     else:
                         return (0,"")
 
-                elif (self.type == TYPE_INDIRECT_DAMAGE or self.effects.id in [rosesPhysiEff.id,rosesMagicEff.id,lightLameEff.id,astralLameEff.id,timeLameEff.id,mattSkill4Eff.id]) and self.value>0:
-                    if self.effects.onDeclancher:
-                        target = declancher
-                    else:
-                        target = self.on
-
-                    temp2[1] = self.triggeredIndDamage([self.on,declancher][self.effects.onDeclancher])
+                elif (self.type == TYPE_INDIRECT_DAMAGE or self.effects.id in [lightLameEff.id,astralLameEff.id,timeLameEff.id,mattSkill4Eff.id]) and self.value>0:
+                    target = [self.on,declancher][self.effects.onDeclancher]
+                    if self.caster.id == self.on.id and self.caster.id == declancher.id:
+                        target = ennemi
+                    temp2[1] = self.triggeredIndDamage(target)
 
                 elif self.type == TYPE_UNIQUE:
                     if self.effects.id == enchant.id :
                         self.effects.magie += 5
+
+                elif self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:
+                    temp2[1] = self.triggeredIndHeal()
 
                 if self.effects.callOnTrigger != None:
                     temp2[1] = ""
@@ -2987,10 +3258,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             self.on.refreshEffects()
                         temp2[1] += f"{self.decate(value=1)}"
                     else:
-                        eff = findEffect(self.effects.callOnTrigger)
-                        add_effect(self.caster,declancher,eff)
-                        temp2[1] += "\n{1} +{0} {2}\n".format(eff.emoji[self.on.char.species-1][self.on.team],declancher.icon,eff.name)                        
-                        declancher.refreshEffects()
+                        eff, target = findEffect(self.effects.callOnTrigger), [self.on,declancher][self.effects.onDeclancher]
+                        temp2[1] += add_effect(self.caster,target,eff)
+                        target.refreshEffects()
 
                 return temp2
 
@@ -3057,9 +3327,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 add_effect(self.caster,ent,self.effects.reject[0])
                                 ent.refreshEffects()
 
-                elif self.type == TYPE_BOOST and self.on.hp > 0:                    # Indirect Armor
-                    funnyTempVarName += add_effect(self.caster,self.on,findEffect(self.effects.callOnTrigger),skillIcon= self.icon)
-                    self.on.refreshEffects()
+                elif self.type == TYPE_BOOST and self.on.hp > 0:                    # Indirect Armor / Buff
+                    return groupAddEffect(caster=self.caster, target=self.on, area=self.effects.area, effect=findEffect(self.effects.callOnTrigger),skillIcon=self.icon)
                 return funnyTempVarName
 
             def triggerEndOfTurn(self,danger,decate=True) -> str:
@@ -3110,11 +3379,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         message += self.triggeredIndDamage(self.on,decate=False)
                         self.effects.area = AREA_MONO
                         message += self.triggeredIndHeal(decate=False)
-
                 elif self.effects.id == deathMark.id and (self.value > 0 and self.turnLeft <= 0):
                     ballerine, babies = self.caster.attack(target=self.on, value = self.effects.power // 2, icon = self.icon, accuracy=999 ,use=self.effects.stat)
                     message += ballerine
-
+                elif self.effects.id == bloodButterfly.id:
+                    message, truc = self.caster.heal(self.caster, icon=self.icon, statUse=None, power=self.value, effName = self.name,danger=danger, mono = True, useActionStats = ACT_HEAL, lifeSteal = True)
                 elif self.type == TYPE_INDIRECT_DAMAGE:
                     message = self.triggeredIndDamage(self.on,decate=False)
                 elif self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:
@@ -3133,7 +3402,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
             def triggerInstant(self,danger) -> str:
                 """Déclanche l'effet"""
                 funnyTempVarName, decate ="", True
-                if self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:              # Heal Indirect
+                if self.effects.id == galvaniseEff.id:
+                    self.on.leftTurnAlive += self.effects.power
+
+                elif self.type == TYPE_INDIRECT_HEAL and self.on.hp > 0:              # Heal Indirect
                     return self.triggeredIndHeal()
 
                 elif self.type == TYPE_INDIRECT_DAMAGE and self.value > 0 and ((self.effects.area==AREA_MONO and self.on.hp > 0) or self.effects.area != AREA_MONO) and self.on != None:            # Damage indirect
@@ -3149,7 +3421,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     else:
                         funnyTempVarName += "\n"
 
-                elif self.effects.callOnTrigger != None:
+                if self.effects.callOnTrigger != None:
                     funnyTempVarName = groupAddEffect(caster=self.caster, target=self.on, area=self.effects.area, effect=self.effects.callOnTrigger, skillIcon=self.icon)
 
                 return funnyTempVarName
@@ -3158,33 +3430,64 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 return self.tablAllStats
 
             def triggeredIndDamage(self,target,decate=True):
-                toReturn = ""
+                toReturn, tempToReturnDmg, tempToReturnLifeSteal, tempNbDeath, hpAtStart, tempToReturn = "", "", "", 0, self.caster.hp, ""
                 if self.effects.area != AREA_MONO:
                     tablTarget = target.cell.getEntityOnArea(area=self.effects.area,team=self.caster.team,wanted=ENEMIES,directTarget=False,fromCell=self.caster.cell)
                 else:
                     tablTarget = [target]
 
                 nonlocal logs
+                dmgDict = {}
                 for secTarget in tablTarget:
                     if secTarget != None:
                         reduc = 1
                         if secTarget != secTarget:
                             reduc = max(AOEMINDAMAGE,1-secTarget.cell.distance(target.cell)*AOEDAMAGEREDUCTION)
 
-                        tempToReturn, tempLogs = indirectDmgCalculator(self.caster, secTarget, self.effects.power*reduc, self.effects.stat, danger, area=self.effects.area)
-                        toReturn += self.caster.indirectAttack(secTarget,value=tempToReturn,icon = self.icon, name=self.effects.name, canCrit=self.effects.stat!=None)
-                        logs += "\n[Indirect Damage ; Caster : {0} ; Target : {1};\n  Value : {2} ( {3} )]".format(self.name,secTarget.name,tempToReturn,tempLogs)
+                        tempToReturnDmg, tempLogs = indirectDmgCalculator(self.caster, secTarget, self.effects.power*reduc, self.effects.stat, danger, area=self.effects.area)
+                        tempToReturn += self.caster.indirectAttack(secTarget,value=tempToReturnDmg,icon = self.icon, name=self.effects.name, canCrit=self.effects.stat!=None)
+                        if secTarget.hp <= 0:
+                            tempNbDeath += 1
+                        dmgDict[secTarget] = tempToReturnDmg
+                        logs += "\n[Indirect Damage ; Caster : {0} ; Target : {1};\n  Value : {2} ( {3} )]".format(self.name,secTarget.name,tempToReturnDmg,tempLogs)
                         if self.effects.lifeSteal > 0 and self.caster.hp < self.caster.maxHp:
-                            healPowa = min(int(tempToReturn*self.effects.lifeSteal/100),self.caster.maxHp-self.caster.hp)
+                            healPowa = min(int(tempToReturnDmg*self.effects.lifeSteal/100),self.caster.maxHp-self.caster.hp)
                             ballerine, chocolatine = self.caster.heal(target=[self.caster,self.on][self.effects.lifeStealOnOn], icon=self.icon, statUse=None, power=healPowa, effName = self.effects.name,danger=danger, lifeSteal = True)
                             logs += ballerine
-                            toReturn += ballerine
+                            tempToReturnLifeSteal += ballerine
+
+                if tempToReturnDmg != "" and len(tablTarget) >= 2 and tempNbDeath == 0:
+                    tablDmg = []
+                    for ent, dmg in dmgDict.items():
+                        find = False
+                        for tempDmg in tablDmg:
+                            if tempDmg[0] <= dmg*1.35 and tempDmg[0] >= dmg*0.65:
+                                tempDmg[1].append(ent)
+                                tempDmg[2] += dmg
+                                find = True
+                                break
+                        if not(find):
+                            tablDmg.append([dmg,[ent],dmg])
+                    for tempDmg in tablDmg:
+                        icons, moyDmg = "", round(tempDmg[2]/len(tempDmg[1]))
+                        for ent in tempDmg[1]:
+                            icons += ent.icon
+                        toReturn += "{0} {1} → {2} -{3}{4} PV\n".format(self.caster.icon, self.icon, icons, ["≈",""][moyDmg==tempDmg[0] or len(tempDmg[1])==1], moyDmg)
+                else:
+                    toReturn += tempToReturn
+
+                if tempToReturnLifeSteal != "":
+                    if len(tablTarget) > 2:
+                        toReturn += "{0} {1} → {0} +{2} PV\n".format(self.caster.icon, self.icon, self.caster.hp-hpAtStart)
+                    else:
+                        toReturn += tempToReturnLifeSteal
+
                 if decate:
-                    toReturn += self.decate(value=1)
+                    self.decate(value=1)
 
                 if self.caster.isNpc("Liz") or (self.caster.isNpc("Kitsune") and type(self.on.char != classes.invoc) and ((skillToUse != None and skillToUse.id != kitsuneSkill4.id)or(skillToUse == None))):
-                    toReturn += groupAddEffect(caster=self.caster, target=self.on, area=tablTarget, effect=charming, skillIcon=self.caster.char.weapon.effects.emoji[0][0], effPurcent=50)
-                
+                    toReturn += groupAddEffect(caster=self.caster, target=self.on, area=tablTarget, effect=[charming,charmingHalf.id][self.caster.isNpc("Liz")], skillIcon=self.caster.char.weapon.effects.emoji[0][0])
+
                 if self.value > 0:
                     if self.effects.id == soulScealEff.id:
                         self.effects.power = round(self.effects.power*1.15,3)
@@ -3196,17 +3499,112 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 toReturn, tablTargets = "", self.on.cell.getEntityOnArea(area=self.effects.area,team=self.caster.team,wanted=ALLIES,directTarget=False,fromCell=self.on.cell)
 
                 if self.effects.power > 0 or self.effects.stat in [FIXE, None, PURCENTAGE]:
+                    tablHealed, tablRespond = [],[]
                     for target in tablTargets:
+                        targetHp = target.hp
                         funnyTempVarName, useless = self.caster.heal(target,self.icon,self.effects.stat,[self.effects.power,self.value][self.effects.trigger==TRIGGER_ON_REMOVE and self.effects.stat==None],self.effects.name,danger)
-                        toReturn += funnyTempVarName
+                        
+                        tablRespond.append(funnyTempVarName)
+                        tablHealed.append([target,target.hp - targetHp])
+                    
+                    if len(tablHealed) > 1:
+                        listIcon, sumHeal = "", 0
+                        for ent in tablHealed:
+                            listIcon += ent[0].icon
+                            sumHeal += ent[1]
+                        sumHeal = int(sumHeal / len(tablHealed))
+                        toReturn += "{0} {1} → {2} +≈{3} PV\n".format(self.caster.icon,self.icon,listIcon,sumHeal)
+                    elif len(tablHealed) == 1:
+                        toReturn += tablRespond[0]
 
                 if decate:
-                    toReturn += self.decate(value=1)
+                    self.decate(value=1)
 
                 if self.effects.callOnTrigger != None:
                     toReturn += groupAddEffect(caster=self.caster, target=self.on, area=self.effects.area, effect=findEffect(self.effects.callOnTrigger),skillIcon=self.icon,actionStats=ACT_HEAL)
 
                 return toReturn
+
+            def replaceEffect(self, effect: classes.effect):
+                self.effects= copy.deepcopy(effect)
+                self.name, self.turnLeft = effect.name, effect.turnInit
+                self.type = effect.type
+                self.value = effect.lvl
+                if effect.jaugeValue != None and effect.unclearable:
+                    self.value = 0
+                    for conds in effect.jaugeValue.conds:
+                        if conds.type == INC_START_FIGHT:
+                            self.value = conds.value
+                self.icon = effect.emoji[self.caster.char.species][self.caster.team]
+                tablTemp = []
+                for cmpt in range(CRITICAL+1):
+                    tablTemp += [0]
+
+                if self.caster.char.element == ELEMENT_TIME and self.effects.type == TYPE_INDIRECT_HEAL:
+                    self.effects.power = int(self.effects.power*1.2)
+
+                if self.effects.stat not in [None,FIXE,PURCENTAGE]:
+                    if self.effects.stat is not HARMONIE:
+                        temp = self.caster.allStats()[self.effects.stat]
+                    else:
+                        temp = -111
+                        for a in self.caster.allStats():
+                            temp = max(temp,a)
+
+                    if self.caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
+                        temp += int(self.caster.endurance * MELEE_END_CONVERT/100)
+
+                    valueBoost, valueResis = min(self.caster.char.level,200)/100 + self.caster.valueBoost(self.on) * (temp+100-self.caster.negativeBoost)/100, self.caster.valueBoost(self.on) * (temp+100-self.caster.negativeShield)/100
+
+                else:
+                    valueBoost, valueResis = 1, 1
+
+                secElemMul = 1
+
+                if self.caster.char.secElement in [ELEMENT_AIR, ELEMENT_UNIVERSALIS_PREMO]:
+                    secElemMul += 0.05
+                if self.on.char.secElement in [ELEMENT_AIR, ELEMENT_UNIVERSALIS_PREMO]:
+                    secElemMul += 0.05
+
+                if self.caster.char.element in [ELEMENT_SPACE]:
+                    secElemMul += 0.1
+                elif self.on.char.element in [ELEMENT_SPACE] and self.caster.team == self.on.team:
+                    secElemMul += 0.05
+                elif self.on.char.element in [ELEMENT_SPACE] and self.caster.team != self.on.team:
+                    secElemMul -= 0.05
+
+                valueBoost = valueBoost*secElemMul
+
+                if self.effects.stat not in [PURCENTAGE]:
+                    tablTemp[0] += self.effects.strength * valueBoost * 0.01
+                    tablTemp[1] += self.effects.endurance * valueBoost * 0.01
+                    tablTemp[2] += self.effects.charisma * valueBoost * 0.01
+                    tablTemp[3] += self.effects.agility * valueBoost * 0.01
+                    tablTemp[4] += self.effects.precision * valueBoost * 0.01
+                    tablTemp[5] += self.effects.intelligence * valueBoost * 0.01
+                    tablTemp[6] += self.effects.magie * valueBoost * 0.01
+                    tablTemp[7] += self.effects.resistance * valueBoost * 0.01
+                    tablTemp[8] += self.effects.percing * valueBoost * 0.01
+                    tablTemp[9] += self.effects.critical * valueBoost * 0.01
+                else:
+                    tablTemp[0] += self.effects.strength / 100 * self.caster.baseStats[0]
+                    tablTemp[1] += self.effects.endurance / 100 * self.caster.baseStats[1]
+                    tablTemp[2] += self.effects.charisma / 100 * self.caster.baseStats[2]
+                    tablTemp[3] += self.effects.agility / 100 * self.caster.baseStats[3]
+                    tablTemp[4] += self.effects.precision / 100 * self.caster.baseStats[4]
+                    tablTemp[5] += self.effects.intelligence / 100 * self.caster.baseStats[5]
+                    tablTemp[6] += self.effects.magie / 100 * self.caster.baseStats[6]
+                    tablTemp[7] += self.effects.resistance / 100 * self.caster.baseStats[7]
+                    tablTemp[8] += self.effects.percing / 100 * self.caster.baseStats[8]
+                    tablTemp[9] += self.effects.critical / 100 * self.caster.baseStats[9]
+
+                for cmpt in range(8):
+                    tablTemp[cmpt] = [min(tablTemp[cmpt],0),max(tablTemp[cmpt],0)][self.effects.type == TYPE_BOOST]
+
+                self.inkResistance = min(effect.inkResistance * valueResis,effect.inkResistance*3)
+
+                self.tablAllStats = tablTemp
+                self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical = tuple(tablTemp)
 
         def add_effect(caster: entity,target: entity,effect: classes.effect,start: str = "", ignoreEndurance=False, danger=danger, setReplica : Union[None,entity] = None, effPowerPurcent=100, useActionStats = ACT_SHIELD, skillIcon=""):
             """Méthode qui rajoute l'effet Effet à l'entity Target lancé par Caster dans la liste d'attente des effets"""
@@ -3290,8 +3688,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         target.maxHp = int(target.maxHp + boostHp)
                         target.hp = int(target.maxHp * actPVPurcent)
                         toAppend = fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,boostHp,effPowerPurcent)
-                        addEffect.append(toAppend)
-                        target.refreshEffects()
+                        if not(effect.turnInit < 0 and effect.unclearable):
+                            addEffect.append(toAppend)
+                            target.refreshEffects()
 
                         if not(effect.silent):
                             return f"{caster.icon} {skillIcon} → {target.icon} +{icon} __{effect.name}__ ({int(boostHp)})\n"
@@ -3306,7 +3705,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         else:
                             if useActionStats == None:
                                 useActionStats = ACT_BOOST
-                            boostHp = effect.power * (100+(caster.allStats()[effect.stat]+[caster.negativeHeal,caster.negativeBoost,caster.negativeShield,caster.negativeDirect,caster.negativeIndirect][useActionStats]))/100
+                            boostHp = int(effect.power * (100+(caster.allStats()[effect.stat]+[caster.negativeHeal,caster.negativeBoost,caster.negativeShield,caster.negativeDirect,caster.negativeIndirect][useActionStats]))/100)
 
                         target.maxHp = target.maxHp - boostHp
                         target.hp = int(target.maxHp * actPVPurcent)
@@ -3343,7 +3742,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         elif target.char.secElement in [ELEMENT_WATER, ELEMENT_UNIVERSALIS_PREMO]:
                             secElemMul += 0.05
 
-                        if effect.stat != None:   # Classical armor effect
+                        if effect.stat not in [None,FIXE,PURCENTAGE]:   # Classical armor effect
                             if effect.stat == HARMONIE:
                                 maxi = -100
                                 for randomVar in caster.allStats():
@@ -3364,6 +3763,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 value = int(value*critBonus)
                                 caster.stats.critHeal += 1
                             caster.stats.nbHeal += 1
+                        elif effect.stat == PURCENTAGE:
+                            value = round(target.maxHp*effect.overhealth/100)
                         else:                                                           # Fixe armor effect
                             value = round(effect.overhealth)
 
@@ -3392,7 +3793,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             popipo = f"{caster.icon} {skillIcon} → {target.icon} {icon} +{separeUnit(value)} PAr{critMsg}\n"
 
                     else:                                                           # Any other effect
-                        if effect.id == kikuRaiseEff.id and ((type(target.char)==octarien and (not(target.char.rez) or target.status == STATUS_RESURECTED)) or target.isNpc("Chûri")):
+                        if effect.id == kikuRaiseEff.id and target.char.npcTeam == NPC_UNDEAD:
                             effect = kikuUnlifeGift
                         
                         if (effect.type == TYPE_INDIRECT_DAMAGE and effect.trigger in [TRIGGER_START_OF_TURN,TRIGGER_END_OF_TURN] and caster.char.element == ELEMENT_DARKNESS):
@@ -3409,7 +3810,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         toAppend = fightEffect(id,effect,caster,target,effect.turnInit,effect.trigger,effect.type,icon,effect.lvl,effPowerPurcent)
                         if effect.id == undeadEff2.id:
                             toAppend.effects.power = int(target.maxHp * 0.3)
-                        if effect.trigger != TRIGGER_INSTANT:
+                        if effect.trigger != TRIGGER_INSTANT and not(effect.trigger == [TRIGGER_HP_ENDER_70] and target.hp/target.maxHp <= 0.7):
                             if setReplica != None:
                                 toAppend.replicaTarget = setReplica
 
@@ -3427,8 +3828,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 addEffect.append(toAppend)
                             target.refreshEffects()
 
-                            tablTemp = [altOHEff.id,proOHEff.id,idoOHEff.id,idoOSEff.id,proOSEff.id,preOSEff.id,heriteEstialbaEff.id,heriteLesathEff.id,floorTanking.id,summonerMalus.id,foulleeEff.id,preciChiEff.id,ironHealthEff.id,exploHealMarkEff.id]
-                            nameTemp = ["ohAlt","ohPro","ohIdo","osIdo","osPro","osPre","heritEstial","heritLesath","tankTheFloor","summonerMalus","foullee","preci","ironHealth","liaBaseDodge","exploHeal"]
+                            tablTemp = [altOHEff.id,proOHEff.id,idoOHEff.id,idoOSEff.id,proOSEff.id,preOSEff.id,heriteEstialbaEff.id,heriteLesathEff.id,floorTanking.id,summonerMalus.id,foulleeEff.id,preciChiEff.id,ironHealthEff.id,exploHealMarkEff.id,squidRollEff.id]
+                            nameTemp = ["ohAlt","ohPro","ohIdo","osIdo","osPro","osPre","heritEstial","heritLesath","tankTheFloor","summonerMalus","foullee","preci","ironHealth","liaBaseDodge","exploHeal","squidRoll"]
                             tablTempEff = [physicRuneEff.id,magicRuneEff.id, eventFas.id, convictionVigilantEff.id,convicProEff.id,convictEnchtEff.id,convictTetEff.id]
                             nameTempEff = ["damageSlot","damageSlot","fascination","convicVigil","convicPro","convicVigil","convicPro"]
 
@@ -3442,7 +3843,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     target.specialVars["{0}".format(nameTempEff[funnyVarName])] = toAppend
                                     break
 
-                            if effect.id == estal.id and caster.specialVars["heritEstial"]:                               # If is the Estialba effect
+                            if effect.id == estial.id and caster.specialVars["heritEstial"]:                               # If is the Estialba effect
                                 effect = estal2
                                 icon = effect.emoji[caster.char.species-1][caster.team]
 
@@ -3534,7 +3935,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     popipo = f"{caster.icon} {skillIcon} → {target.icon} {icon} +{separeUnit(value)} PAr{critMsg}\n"
                         else:
                             popipo = toAppend.triggerInstant(danger)
-                if target.hp > 0:
+                if target.hp > 0 or effect.trigger == TRIGGER_INSTANT:
                     return popipo
                 else:
                     return ''
@@ -3555,7 +3956,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         tablToSee = area
                     for ent in tablToSee:
                         if type(ent) != None:
-                            if eff.id == charming.id and caster.isNpc(["Kitsune","Lia Ex"]):
+                            if eff.id == charming.id and caster.isNpc(["Kitsune","Lia Ex","Lio Ex"]):
                                 eff = kitsuneExCharmEff
                             ballerine = add_effect(caster,ent,eff,useActionStats=actionStats,skillIcon=skillIcon,effPowerPurcent=effPurcent)
                             if eff.type == TYPE_ARMOR or eff.trigger==TRIGGER_INSTANT:
@@ -3604,17 +4005,31 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 starLevel += ent.stars
             starLevel = round(starLevel / len(team1))
 
+        # Temp Anniversary Add
+        if not(octogone) and procurFight == None:
+            today = (now.day,now.month)
+            for tmp in tablAllAllies:
+                if today == tmp.birthday:
+                    ent = copy.deepcopy(tmp)
+                    ent.changeLevel(55+random.randint(0,14))
+                    team1.append(ent)
+                    allieBDay = ent.name
+                    break
+
         if len(team1) < contexte.nbAllies and not(octogone) and procurFight == None: # Remplisage de la team1
-            aleaMax = len(tablAllAllies)-1
-            alreadyFall = []
+            tempAlliesTabl = tablAllieTemp[:]
             lvlMax = 0
             for a in team1:
                 lvlMax = max(lvlMax,a.level)
-            for ally in tablAllieTemp[:]:
-                if ally.changeDict != None:
+            for ally in tablAllieTemp:
+                if ally.name == allieBDay:
+                    try:
+                        tempAlliesTabl.remove(ally)
+                    except:
+                        pass
+                elif ally.changeDict != None:
                     for tempDict in ally.changeDict:
-                        tablAllAllies.append(getAllieFromBuild(ally, tempDict))
-
+                        tempAlliesTabl.append(getAllieFromBuild(ally, tempDict))
 
             while len(team1) < contexte.nbAllies:
                 vacantRole = ["DPT1","DPT2","Healer","Booster"]
@@ -3719,56 +4134,21 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                 random.shuffle(tablTeamOctaPos)
                 if len(team2) < len(team1) and lvlMax >= 15:
-                    if random.randint(0,99) < 20 and contexte.allowBoss:               # Boss ?
+                    if random.randint(0,99) < 25 and contexte.allowBoss:               # Boss ?
                         temp = random.randint(0,len(tablBoss)-1)
                         alea = copy.deepcopy(tablBoss[temp])
                         while team1[0].isNpc("Clémence Exaltée") and alea.isNpc("Clémence pos."):
                             temp = random.randint(0,len(tablBoss)-1)
                             alea = copy.deepcopy(tablBoss[temp])
 
-                        #alea = copy.deepcopy(findEnnemi("Lia"))
+                        if random.randint(0,99) < 20:
+                            alea = copy.deepcopy(findEnnemi("Clémence pos."))
 
                         oneVAll = alea.oneVAll
 
                         alea.changeLevel(lvlMax)
                         team2.append(alea)
                         logs += "{0} have been added into team2\n".format(alea.name)
-
-                        if alea.isNpc("Luna ex."):
-                            alea = copy.deepcopy(findAllie("Shushi Cohabitée"))
-                            procurData = procurTempStuff["Shushi Cohabitée"]
-                            alea.changeLevel(lvlMax)
-
-                            alea.stuff = [
-                                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlMax),int(procurData[4][1][0]*procurData[4][1][1]*lvlMax),int(procurData[4][2][0]*procurData[4][2][1]*lvlMax),int(procurData[4][3][0]*procurData[4][3][1]*lvlMax),int(procurData[4][4][0]*procurData[4][4][1]*lvlMax),int(procurData[4][5][0]*procurData[4][5][1]*lvlMax),int(procurData[4][6][0]*procurData[4][6][1]*lvlMax),int(procurData[4][7][0]*procurData[4][7][1]*lvlMax),int(procurData[4][8][0]*procurData[4][8][1]*lvlMax),int(procurData[4][9][0]*procurData[4][9][1]*lvlMax),emoji=procurData[1][2]),
-                                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlMax),int(procurData[4][1][0]*procurData[4][1][1]*lvlMax),int(procurData[4][2][0]*procurData[4][2][1]*lvlMax),int(procurData[4][3][0]*procurData[4][3][1]*lvlMax),int(procurData[4][4][0]*procurData[4][4][1]*lvlMax),int(procurData[4][5][0]*procurData[4][5][1]*lvlMax),int(procurData[4][6][0]*procurData[4][6][1]*lvlMax),int(procurData[4][7][0]*procurData[4][7][1]*lvlMax),int(procurData[4][8][0]*procurData[4][8][1]*lvlMax),int(procurData[4][9][0]*procurData[4][9][1]*lvlMax),emoji=procurData[2][2]),
-                                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlMax),int(procurData[4][1][0]*procurData[4][1][1]*lvlMax),int(procurData[4][2][0]*procurData[4][2][1]*lvlMax),int(procurData[4][3][0]*procurData[4][3][1]*lvlMax),int(procurData[4][4][0]*procurData[4][4][1]*lvlMax),int(procurData[4][5][0]*procurData[4][5][1]*lvlMax),int(procurData[4][6][0]*procurData[4][6][1]*lvlMax),int(procurData[4][7][0]*procurData[4][7][1]*lvlMax),int(procurData[4][8][0]*procurData[4][8][1]*lvlMax),int(procurData[4][9][0]*procurData[4][9][1]*lvlMax),emoji=procurData[2][2])
-                            ]
-
-                            team1.append(alea)
-                            logs += "{0} have been added into team1\n".format(alea.name)
-
-                            alea = copy.deepcopy(findAllie("Iliana"))
-                            alea.changeLevel(lvlMax)
-                            alea.stuff = [getAutoStuff(alea.stuff[0],alea),getAutoStuff(alea.stuff[1],alea),getAutoStuff(alea.stuff[2],alea)]
-                            alea.says = ilianaSaysVsLuna
-
-                            team1.append(alea)
-                            logs += "{0} have been added into team1\n".format(alea.name)
-
-                        elif alea.isNpc("Clémence pos."):
-                            alea = copy.deepcopy(findAllie("Alice Exaltée"))
-                            procurData = procurTempStuff["Alice Exaltée"]
-                            alea.changeLevel(lvlMax)
-
-                            alea.stuff = [
-                                stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlMax),int(procurData[4][1][0]*procurData[4][1][1]*lvlMax),int(procurData[4][2][0]*procurData[4][2][1]*lvlMax),int(procurData[4][3][0]*procurData[4][3][1]*lvlMax),int(procurData[4][4][0]*procurData[4][4][1]*lvlMax),int(procurData[4][5][0]*procurData[4][5][1]*lvlMax),int(procurData[4][6][0]*procurData[4][6][1]*lvlMax),int(procurData[4][7][0]*procurData[4][7][1]*lvlMax),int(procurData[4][8][0]*procurData[4][8][1]*lvlMax),int(procurData[4][9][0]*procurData[4][9][1]*lvlMax),emoji=procurData[1][2]),
-                                stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlMax),int(procurData[4][1][0]*procurData[4][1][1]*lvlMax),int(procurData[4][2][0]*procurData[4][2][1]*lvlMax),int(procurData[4][3][0]*procurData[4][3][1]*lvlMax),int(procurData[4][4][0]*procurData[4][4][1]*lvlMax),int(procurData[4][5][0]*procurData[4][5][1]*lvlMax),int(procurData[4][6][0]*procurData[4][6][1]*lvlMax),int(procurData[4][7][0]*procurData[4][7][1]*lvlMax),int(procurData[4][8][0]*procurData[4][8][1]*lvlMax),int(procurData[4][9][0]*procurData[4][9][1]*lvlMax),emoji=procurData[2][2]),
-                                stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlMax),int(procurData[4][1][0]*procurData[4][1][1]*lvlMax),int(procurData[4][2][0]*procurData[4][2][1]*lvlMax),int(procurData[4][3][0]*procurData[4][3][1]*lvlMax),int(procurData[4][4][0]*procurData[4][4][1]*lvlMax),int(procurData[4][5][0]*procurData[4][5][1]*lvlMax),int(procurData[4][6][0]*procurData[4][6][1]*lvlMax),int(procurData[4][7][0]*procurData[4][7][1]*lvlMax),int(procurData[4][8][0]*procurData[4][8][1]*lvlMax),int(procurData[4][9][0]*procurData[4][9][1]*lvlMax),emoji=procurData[2][2])
-                            ]
-
-                            team1.append(alea)
-                            logs += "{0} have been added into team1\n".format(alea.name)
 
                 for octa in tablOctaTemp[:]:
                     if octa.baseLvl > lvlMax:
@@ -3849,7 +4229,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         if len(tablOctaTemp) > 1:
                             alea = tablOctaTemp[random.randint(0,len(tablOctaTemp)-1)]
                         else:
-                            alea = tablOctaTemp[0]              
+                            alea = tablOctaTemp[0]
                         tablOctaTemp.remove(alea)
 
                         if alea.isNpc("Octaling"):
@@ -3864,15 +4244,14 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             alea.element = random.randint(0,len(elemNames)-1)
 
                         alea.changeLevel(lvlMax)
-                        
+
                         team2.append(alea)
                         logs += "{0} have been added into team2\n".format(alea.name)
 
-            else: # Vs temp ally team
-                lvlMax, temp =  0, team1
-                temp.sort(key=lambda funnyTempVarName: funnyTempVarName.level,reverse=True)
-
-                leniAllie, danger, lvlMax =  len(team1), altDanger[winStreak], min(temp[0].level,55)
+                del tablOctaTemp
+            else: # Vs ally team
+                team1.sort(key=lambda funnyTempVarName: funnyTempVarName.level,reverse=True)
+                danger, lvlMax =  altDanger[winStreak], min(team1[0].level,55)
                 
                 tablTeamAlliePos = [0,0,1,1,2,2]+[random.randint(0,2),random.randint(0,2)]
                 tablTeamAllieComp = [4,2,2]
@@ -3925,7 +4304,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     except:
                         rdmAspi = random.randint(0,ASPI_NEUTRAL-1)
                         tablTempAspi = []
-                        for ally in tablAllAllies:
+                        for ally in tempAlliesTabl:
                             if ally.aspiration == rdmAspi:
                                 tablTempAspi.append(ally)
                         
@@ -3960,6 +4339,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     team2.append(alea)
                     logs += "{0} have been added into team2\n".format(alea.name)
 
+                del allieRolesNPos
             for enemy in team2:
                 for cmpt in tablIsNpcName:
                     if enemy.isNpc(cmpt):
@@ -3976,14 +4356,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
             winStreak = teamWinDB.getVictoryStreak(team1[0])
             danger = dangerLevel[winStreak] + (starLevel * DANGERUPPERSTAR)
 
-        # Temp Anniversary Add
-        if not(octogone) and procurFight == None:
-            today = (now.day,now.month)
-            for tmp in tablAllAllies:
-                if today == tmp.birthday:
-                    ent = copy.deepcopy(tmp)
-                    ent.changeLevel(55+random.randint(0,14))
-                    team1.append(ent)
+        if contexte.setDanger:
+            danger= 100
+
 
         # Updating the Danger and Team Fighting status
         if octogone:
@@ -4211,12 +4586,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 lineVal += 1
 
         if not(auto):                       # Edit the Vs embed for his message
-            initTeamEmbed = interactions.Embed(title = "__Ce combat oppose :__",color = light_blue, description=reducedEmojiNames("{0}\n\n__Carte__ :\n{1}".format(versus,map(tablAllCells,bigMap))))
+            initTeamEmbed = interactions.Embed(title = "__Ce combat oppose :__",color = light_blue, description=reduceEmojiNames("{0}\n\n__Carte__ :\n{1}".format(versus,map(tablAllCells,bigMap))))
             initTeamEmbed.add_field(name = "__Taux de danger :__",value=str(danger),inline=False)
             if footerText != "":
                 initTeamEmbed.set_footer(text=footerText,icon_url=ctx.author.avatar_url)
 
-        choiceEmbed = []
         if not(auto):                       # User there ?
             allReady = False
             already, awaited, awaitedChar = [],[],[]
@@ -4257,7 +4631,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                     readyEm.add_field(name = "Prêts :",value = temp2)
                     readyEm.add_field(name = "En attente de :",value = temp)
-                    await msg.edit(embeds = [initTeamEmbed,readyEm]+choiceEmbed, components=[readyButton])
+                    await msg.edit(embeds = [initTeamEmbed,readyEm], components=[readyButton])
 
                     def checkIsIntendedUser(reaction:ComponentContext):
                         for a in awaited:
@@ -4272,11 +4646,31 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                     awaited.remove(react.author)
                     already.append(react.author)
-                    await react.send("✅ Vous avez rejoint le combat avec votre personnage",ephemeral=True)
                     allAuto = False
 
-                    if choiceEmbed == []:
-                        choiceEmbed = [await getRandomStatsEmbed(bot,team1,"Fenêtre de sélection de l'action")]
+                    try:
+                        for team in (0,1):
+                            for ent in tablEntTeam[team]:
+                                if int(ent.char.owner) == int(react.author.id):
+                                    if threadChan == None:
+                                        threadChan: interactions.Channel = await msg.create_thread(name = "Fight : {0}".format(ctx.author.name),invitable=False)
+                                        selectWindowMsg = await threadChan.send(embeds=await getRandomStatsEmbed(bot,team1,"Fenêtre de sélection de l'action"))
+                                        await threadChan.add_member(react.author)
+                                        await threadChan.send("__Description de personnage :__",embeds=ent.char.getSkillsDescription())
+                                    else:
+                                        thMembers: List[ThreadMember] = await threadChan.get_members()
+                                        finded = False
+                                        for member in thMembers:
+                                            if member.id == react.id:
+                                                finded = True
+                                                break
+
+                                        if not(finded):
+                                            await threadChan.add_member(react.author)
+                                        await threadChan.send("__Description de personnage :__",embeds=ent.char.getSkillsDescription())
+                                    await react.send("✅ Vous avez rejoint le combat avec votre personnage\n{0}".format(selectWindowMsg.url),ephemeral=True)
+                    except:
+                        print_exc()
 
                     if awaited == []:
                         allReady = True
@@ -4308,7 +4702,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     
                     procSelect = SelectMenu(custom_id="tempProcurSelect",options=procSelectOptions,placeholder="Choisissez un Allié Temporaire à jouer")
                     readyEm.add_field("__Allié Temporaires :__",fieldValue)
-                    await msg.edit(embeds = [initTeamEmbed,readyEm]+choiceEmbed, components=[procSelect])
+                    await msg.edit(embeds = [initTeamEmbed,readyEm], components=[procSelect])
 
                     try:
                         timeLimite = (dateLimite - datetime.now()).total_seconds()
@@ -4318,6 +4712,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                     for ent in tablEntTeam[0]:
                         if react.data.values[0] == ent.name:
+                            allAuto = False
                             if ent.char.owner == 0:
                                 ent.char.owner = int(react.author.id)
                                 ent.auto = False
@@ -4330,6 +4725,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     if ent.name not in alliedTreaded:
                                         if threadChan == None:
                                             threadChan: interactions.Channel = await msg.create_thread(name = "Fight : {0}".format(ctx.author.name),invitable=False)
+                                            selectWindowMsg = await threadChan.send(embeds=await getRandomStatsEmbed(bot,team1,"Fenêtre de sélection de l'action"))
                                             await threadChan.add_member(react.author)
                                             await threadChan.send("__Description de personnage :__",embeds=ent.char.getSkillsDescription())
                                         else:
@@ -4361,6 +4757,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 if ent.name not in alliedTreaded:
                                                     if threadChan == None:
                                                         threadChan: interactions.Channel = await msg.create_thread(name = "Fight : {0}".format(ctx.author.name),invitable=False)
+                                                        selectWindowMsg = await threadChan.send(embeds=await getRandomStatsEmbed(bot,team1,"Fenêtre de sélection de l'action"))
                                                         await threadChan.add_member(react.author)
                                                         await threadChan.send("__Description de personnage :__",embeds=ent.char.getSkillsDescription())
                                                     else:
@@ -4393,6 +4790,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                     if ent.name not in alliedTreaded:
                                                         if threadChan == None:
                                                             threadChan: interactions.Channel = await msg.create_thread(name = "Fight : {0}".format(ctx.author.name),invitable=False)
+                                                            selectWindowMsg = await threadChan.send(embeds=await getRandomStatsEmbed(bot,team1,"Fenêtre de sélection de l'action"))
                                                             await threadChan.add_member(react.author)
                                                             await threadChan.send("__Description de personnage :__",embeds=ent.char.getSkillsDescription())
                                                         else:
@@ -4431,7 +4829,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 temp2 = f"\n\n{temp} seront considérés comme combattants automatiques"
             statingEmb = interactions.Embed(title = "Initialisation",color = light_blue,description = f"Le combat va commencer {emLoading}{temp2}")
 
-            await msg.edit(embeds = [initTeamEmbed,statingEmb]+choiceEmbed)
+            if threadChan != None and selectWindowMsg != None:
+                await threadChan.send(content=selectWindowMsg.url)
+
+            await msg.edit(embeds = [initTeamEmbed,statingEmb])
 
             for z in awaitedChar:
                 for b in awaited:
@@ -4509,11 +4910,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             tempTurnMsg += "\n{0} : *\"Oh Madame Ruby, j'espère que vous comptez pas juger mes compétences durant ce combat\"*".format(ent.icon)
                             randy = random.randint(0,99)
                             if randy < 33:
-                                tempTurnMsg += "\n<:ruby:958786374759251988> : *\"`Ricane` Tu as peur que je pense que tu as régréssé ?\"*"
+                                tempTurnMsg += "\n<:ruby:1112519724799103037> : *\"`Ricane` Tu as peur que je pense que tu as régréssé ?\"*"
                             elif randy < 66:
-                                tempTurnMsg += "\n<:ruby:958786374759251988> : *\"Tu sais bien que je suis toujours interresée par tes progrès\"*"
+                                tempTurnMsg += "\n<:ruby:1112519724799103037> : *\"Tu sais bien que je suis toujours interresée par tes progrès\"*"
                             elif dictIsNpcVar["John"]:
-                                tempTurnMsg += "\n<:ruby:958786374759251988> : *\"Je suis plutôt là pour surveiller un certain loup garou aujourd'hui\"*"
+                                tempTurnMsg += "\n<:ruby:1112519724799103037> : *\"Je suis plutôt là pour surveiller un certain loup garou aujourd'hui\"*"
                                 if random.randint(0,99) < 60:
                                     tempTurnMsg += "\n<:john:908887592756449311> : *`Ne se sens pas vraiment à l'aise avec les auras des deux puissantes vampires cotes à cotes`*"
                         else:
@@ -4566,10 +4967,13 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             listEffGiver.append('<:lenapy:979953598807031918>')
 
                 if ent.char.elemAffinity:
-                    temp = add_effect(ent,ent,elemResistanceEffects[ent.char.element],danger=danger)
-                    listEffGiven.append(elemResistanceEffects[ent.char.element].emoji[ent.char.species-1][ent.team])
-                    listEffGiver.append(elemEmojis[ent.char.element])
-                    logs += "{0} get the {1} effect\n".format(ent.char.name,elemResistanceEffects[ent.char.element].name)
+                    try:
+                        temp = add_effect(ent,ent,elemResistanceEffects[ent.char.element],danger=danger)
+                        listEffGiven.append(elemResistanceEffects[ent.char.element].emoji[ent.char.species-1][ent.team])
+                        listEffGiver.append(elemEmojis[ent.char.element])
+                        logs += "{0} get the {1} effect\n".format(ent.char.name,elemResistanceEffects[ent.char.element].name)
+                    except:
+                        pass
 
                 for skil in ent.char.skills:
                     if type(skil) == skill:
@@ -4587,25 +4991,24 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             ent.char.weapon = plume2
                 for equip in [ent.char.weapon]+ent.char.stuff:       # Look at the entity stuff to see if their is a passive effect
                     if equip.effects != None:
-                        if equip.effects == "mk":            # Constitution
-                            effect=const
+                        effect=findEffect(equip.effects)
+                        if effect.id == "mk":            # Constitution
                             for z in tablEntTeam[ent.team]:
-                                z.maxHp = int(z.maxHp*(1+const.power/100))
+                                z.maxHp = int(z.maxHp*(1+(effect.power/100)))
                                 z.hp = z.maxHp
-
-                                add_effect(ent,z,effect," ({0} - {1})".format(equip.name,ent.char.name))
-                                
                                 logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(ent.char.name,effect.name,z.char.name,effect.turnInit)
-                                z.refreshEffects()
 
-                            tempTurnMsg += "\n{0} ({1}) a donné l'effet de __{2}__ (<:co:888746214999339068>) à son équipe ({3})".format(ent.char.name,ent.icon,effect.name,equip.name)
+                            tempTurnMsg += ["","\n"][tempTurnMsg[-1]!="\n"]+"{0} ({1}) a donné l'effet de __{2}__ (<:co:888746214999339068>) à son équipe ({3})".format(ent.char.name,ent.icon,effect.name,equip.name)
                         else:                           # Any other effects
-                            effect=findEffect(equip.effects)
-                            temp = add_effect(ent,ent,effect," ({0})".format(equip.name),danger=danger)
-                            if '🚫' not in temp:
-                                listEffGiven.append(effect.emoji[ent.char.species-1][ent.team])
-                                listEffGiver.append(equip.emoji)
-                                logs += "{0} get the {1} effect from {2}\n".format(ent.char.name,effect.name,equip.name)
+                            if effect != None:
+                                temp = add_effect(ent,ent,effect," ({0})".format(equip.name),danger=danger)
+                                if '🚫' not in temp:
+                                    listEffGiven.append(effect.emoji[ent.char.species-1][ent.team])
+                                    listEffGiver.append(equip.emoji)
+                                    logs += "{0} get the {1} effect from {2}\n".format(ent.char.name,effect.name,equip.name)
+                            else:
+                                print(equip.name,ent.name,equip.effects)
+                            
 
                 if ent.char.name in upLifeStealNames:
                     for cmpt in range(len(upLifeStealNames)):
@@ -4640,14 +5043,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 except KeyError:
                     pass
 
-        if tablEntTeam[0][0].isNpc("Luna prê.") and len(tablEntTeam[0]) <= 1:
-            lunaDmgRes = copy.deepcopy(defenseUp)
-            lunaDmgRes.power, lunaDmgRes.turnInit, lunaDmgRes.unclearable = 50, -1, True
-            groupAddEffect(tablEntTeam[0][0], tablEntTeam[0][0], AREA_MONO, lunaDmgRes)
-            lunaLifeSteal = copy.deepcopy(vampirismeEff)
-            lunaLifeSteal.power, lunaLifeSteal.turnInit, lunaLifeSteal.unclearable = 30, -1, True
-            groupAddEffect(tablEntTeam[0][0], tablEntTeam[0][0], AREA_MONO, lunaLifeSteal)
-
         if tablEntTeam[1][0].isNpc("The Giant Enemy Spider"):           # Giant Enemy Spider's legs summoning
             surrondingsCells = [findCell(tablEntTeam[1][0].cell.x-1,tablEntTeam[1][0].cell.y-1,tablAllCells),findCell(tablEntTeam[1][0].cell.x-1,tablEntTeam[1][0].cell.y,tablAllCells),findCell(tablEntTeam[1][0].cell.x-1,tablEntTeam[1][0].cell.y+1,tablAllCells),findCell(tablEntTeam[1][0].cell.x,tablEntTeam[1][0].cell.y-1,tablAllCells),findCell(tablEntTeam[1][0].cell.x,tablEntTeam[1][0].cell.y+1,tablAllCells),findCell(tablEntTeam[1][0].cell.x+1,tablEntTeam[1][0].cell.y-1,tablAllCells),findCell(tablEntTeam[1][0].cell.x+1,tablEntTeam[1][0].cell.y,tablAllCells),findCell(tablEntTeam[1][0].cell.x+1,tablEntTeam[1][0].cell.y+1,tablAllCells)]
             tablTemp = [TGESL1,TGESL2]
@@ -4663,30 +5058,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     add_effect(tablEntTeam[1][0],ent,jevilEff)
                     ent.refreshEffects()
 
-        elif dictIsNpcVar["Kiku"]:
-            kikuEnt = None
-            for ent in tablEntTeam[1]:
-                if ent.isNpc("Kiku"):
-                    kikuEnt=ent
-                    break
-            for teamCmpt in [0,1]:
-                for ent in tablEntTeam[teamCmpt]:
-                    add_effect(kikuEnt,ent,kikuRaiseEff)
-                    ent.refreshEffects()
-
-        elif dictIsNpcVar["OctoTour"]:
-            octoTour = None
-            for ent in tablEntTeam[1]:
-                if ent.isNpc("OctoTour"):
-                    octoTour = ent
-                    break
-
-            for ent in tablEntTeam[1]:
-                if ent != octoTour:
-                    add_effect(octoTour,ent,octoTourEff2)                                        
-                    logs += "{0} gave the {1} effect at {2} for {3} turn(s)\n".format(octoTour.char.name,effect.name,ent.char.name,effect.turnInit)
-                    ent.refreshEffects()
-    
         if dictIsNpcVar["Lena"] and (dictIsNpcVar["Shushi"] or dictIsNpcVar["Shihu"]):
             lenaEnt = None
             targetEnt = None
@@ -4728,11 +5099,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
         if not(auto):                               # Send the turn 0 msg
             if tempTurnMsg == "__Début du combat :__":
                 tempTurnMsg += "\n -"
-            emby = interactions.Embed(title=f"__Tour {tour}__",description= reducedEmojiNames(tempTurnMsg),color = light_blue)
+            emby = interactions.Embed(title=f"__Tour {tour}__",description= reduceEmojiNames(tempTurnMsg),color = light_blue)
             if footerText != "":
                 emby.set_footer(text=footerText,icon_url=ctx.author.avatar_url)
-            embInfo = interactions.Embed(title = "__Combat (D.{0})__".format(danger), color = mainUser.color, description=reducedEmojiNames("__Carte__ :\n{0}\n__Timeline__ :\n{1}".format(map(tablAllCells,bigMap,deplTabl=deplTabl),time.icons())))
-            await msg.edit(embeds = [embInfo,emby]+choiceEmbed)
+            embInfo = interactions.Embed(title = "__Combat (D.{0})__".format(danger), color = mainUser.color, description=reduceEmojiNames("__Carte__ :\n{0}\n__Timeline__ :\n{1}".format(map(tablAllCells,bigMap,deplTabl=deplTabl),time.icons())))
+            await msg.edit(embeds = [embInfo,emby])
             await asyncio.sleep(2+(min(len(tempTurnMsg),2000)/2000*3))
 
         fight, ennemi, counterTracker = True, tablEntTeam[1][0], {}
@@ -4746,11 +5117,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 nextNotAuto,lastNotAuto = 0,0
 
                 everyoneStillThere = False
-                for a in time.timeline : # Looking for the next not auto player
-                    if not(a.auto):
+                for ent in time.timeline : # Looking for the next not auto player
+                    if not(ent.auto):
                         everyoneStillThere = True
-                        if a.hp > 0:
-                            nextNotAuto = a
+                        if ent.hp > 0:
+                            nextNotAuto = ent
                             break
 
                 if not(everyoneStillThere):
@@ -4759,17 +5130,24 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 if nextNotAuto != actTurn and not(auto) and not(allAuto):
                     if lastNotAuto != nextNotAuto:
                         choiceEmbDesc = nextNotAuto.quickEffectIcons()
-                        choiceEmbed = [interactions.Embed(title = "Fenêtre de selection de l'action", color=nextNotAuto.char.color,description = f"En attente du tour de {nextNotAuto.char.name} {emLoading}\n{choiceEmbDesc}")]
+                        await selectWindowMsg.edit(embeds=interactions.Embed(title = "Fenêtre de selection de l'action", color=nextNotAuto.char.color,description = f"En attente du tour de {nextNotAuto.char.name} {emLoading}\n{choiceEmbDesc}"))
                         lastNotAuto = nextNotAuto
                     elif nextNotAuto == 0:
-                        choiceEmbed = [interactions.Embed(title = "Fenêtre de selection de l'action", color=light_blue,description = f"Il n'y a plus de combattants manuels en vie")]
+                        await selectWindowMsg.edit(embeds=interactions.Embed(title = "Fenêtre de selection de l'action", color=light_blue,description = f"Il n'y a plus de combattants manuels en vie"))
                         lastNotAuto = nextNotAuto
 
-                if allAuto and choiceEmbed != []:
-                    choiceEmbed = []
+                if allAuto and selectWindowMsg != None and threadChan != None:
+                    print(allAuto,selectWindowMsg != None,threadChan != None)
+                    selectWindowMsg = None
+                    try:
+                        await threadChan.delete()
+                    except:
+                        print_exc()
+                    threadChan = None
 
                 if actTurn.hp > 0:
                     tempTurnMsg = f"__Début du tour de {actTurn.char.name} :__\n"
+                    random.seed(int(ctx.id)/(actTurn.id+1)/(tour+1)/10)
 
                 # Sudden death verifications and damages ----------------------------
                 if actTurn == time.begin:
@@ -4816,32 +5194,29 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 funnyTempVarName += ballerine
 
                             if not(auto):
-                                tempTurnMsg = reducedEmojiNames(tempTurnMsg)
+                                tempTurnMsg = reduceEmojiNames(tempTurnMsg)
                                 emby = interactions.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color)
                                 if optionChoice == OPTION_SKILL and skillToUse.url != None:
                                     emby.set_image(url=skillToUse.url)
 
-                                toAdd = 0
-                                if len(choiceEmbed) > 1:
-                                    toAdd = getEmbedLength(choiceEmbed[0])
                                 tried, cmpt = 0, 0
-                                while getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd > 5500:
+                                while getEmbedLength(embInfo)+getEmbedLength(emby) > 5500:
                                     if tried == 0:
                                         finded = False
                                         for field in embInfo.fields:
-                                            if cmpt < len(statEmbedFieldNames) and field.name == statEmbedFieldNames[cmpt]:
+                                            if cmpt < len(statEmbedFieldNames) and statEmbedFieldNames[cmpt] in field.name:
                                                 field.value, finded, cmpt = "[...]", True, cmpt + 1
                                         if cmpt == len(statEmbedFieldNames)-1 or not(finded):
                                             tried += 1
                                     elif tried == 1:
-                                        emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd):]
+                                        emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)):]
                                         if len(emby.description) > 4050:
                                             emby.description = emby.description[len(emby.description)-4050]
                                         tried += 1
                                     else:
                                         emby.description = "OVERLOAD"
                                         break
-                                await msg.edit(embeds = [embInfo,emby]+choiceEmbed,components=[infoSelect])
+                                await msg.edit(embeds = [embInfo,emby],components=[infoSelect])
                                 await asyncio.sleep(2+(min(len(funnyTempVarName),2000)/2000*3))
 
                     if tour >= 21:
@@ -4867,7 +5242,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 funnyTempVarName = unemoji(funnyTempVarName)
                                 if len(funnyTempVarName) > 4096:
                                     funnyTempVarName = "OVERLOAD"
-                            await msg.edit(embeds = [embInfo,interactions.Embed(title=f"__Tour {tour}__",description=funnyTempVarName)]+choiceEmbed,components=[infoSelect])
+                            await msg.edit(embeds = [embInfo,interactions.Embed(title=f"__Tour {tour}__",description=funnyTempVarName)],components=[infoSelect])
                             await asyncio.sleep(2+(min(len(funnyTempVarName),2000)/2000*3))
 
                         logs += funnyTempVarName
@@ -4949,25 +5324,22 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 entDepl[1].depl = None
                                 entDepl[1], entDepl[2] = None, []
                             if not(auto):
-                                tempMsg = reducedEmojiNames(tempMsg)
+                                tempMsg = reduceEmojiNames(tempMsg)
                                 emby = interactions.Embed(title=f"__Tour {tour}__",description=tempMsg,color = actTurn.char.color)
                                 if optionChoice == OPTION_SKILL and skillToUse.url != None:
                                     emby.set_image(url=skillToUse.url)
 
-                                toAdd = 0
-                                if len(choiceEmbed) > 1:
-                                    toAdd = getEmbedLength(choiceEmbed[0])
                                 tried, cmpt = 0, 0
-                                while getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd > 5500:
+                                while getEmbedLength(embInfo)+getEmbedLength(emby) > 5500:
                                     if tried == 0:
                                         finded = False
                                         for field in embInfo.fields:
-                                            if cmpt < len(statEmbedFieldNames) and field.name == statEmbedFieldNames[cmpt]:
+                                            if cmpt < len(statEmbedFieldNames) and statEmbedFieldNames[cmpt] in field.name:
                                                 field.value, finded, cmpt = "[...]", True, cmpt + 1
                                         if cmpt == len(statEmbedFieldNames)-1 or not(finded):
                                             tried += 1
                                     elif tried == 1:
-                                        emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd):]
+                                        emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)):]
                                         if len(emby.description) > 4050:
                                             emby.description = emby.description[len(emby.description)-4050]
                                         tried += 1
@@ -4975,7 +5347,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         emby.description = "OVERLOAD"
                                         break
 
-                                await msg.edit(embeds = [embInfo,emby]+choiceEmbed,components=[infoSelect])
+                                await msg.edit(embeds = [embInfo,emby],components=[infoSelect])
                                 await asyncio.sleep(2+(min(len(tempMsg),2000)/2000*3))
 
                     if auto and tour in [1,6,11,16] and not(testFight):
@@ -5021,7 +5393,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     addText = ent.getMedals(listClassement)+raised+nbLB+nbSummon
                                     if addText != "":
                                         addText = " "+addText
-                                    resultMsg = reducedEmojiNames("{0} {1}{2}\n".format(ent.icon,ent.char.name,addText))
+                                    resultMsg = reduceEmojiNames("{0} {1}{2}\n".format(ent.icon,ent.char.name,addText))
                                     
                                     if type(ent.char) != tmpAllie or ent.team == 1:
                                         try:
@@ -5050,7 +5422,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     elif not(haveStarted):
                                         temp2+=letter
                                 
-                                if len(temp2)>0 and temp2[-1] != "\n":
+                                if len(temp2)>0 and temp2[-2:-1] != "\n":
                                     temp += temp2
                                 endResultRep[indexTeam] = temp
 
@@ -5097,18 +5469,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 nbTargetAtRange = len(atRange)
                 if wasAlive:
                     logs += "\n\nTurn {0} - {1}:".format(tour,actTurn.char.name)
-                potgDamages,potgKills,potgHeal,potgRaises, potgArmored = [], [], [], [], []
-                for cmpt in (0,1,2,3,4):
-                    for team in (0,1):
-                        temp = []
-                        for ent in tablEntTeam[team]:
-                            if type(ent.char)!=invoc:
-                                temp.append((ent.id,copy.deepcopy([ent.stats.damageDeal,ent.stats.ennemiKill,ent.stats.heals,ent.stats.allieResurected,ent.stats.armoredDamage][cmpt])))
-                        temp = dict(temp)
-                        [potgDamages,potgKills,potgHeal,potgRaises,potgArmored][cmpt].append(temp)
 
                 funnyTempVarName = actTurn.startOfTurn(tablEntTeam=tablEntTeam)
-                tempTurnMsg += reducedEmojiNames(funnyTempVarName)
+                tempTurnMsg += reduceEmojiNames(funnyTempVarName)
                 logs += "\n"+funnyTempVarName
                 deathCount = bigRaiseCount = 0
 
@@ -5182,7 +5545,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         if teamView2[0] == "":
                             teamView += "Pas d'effets sur l'équipe"
                         else:
-                            teamView = reducedEmojiNames(teamView)
+                            teamView = reduceEmojiNames(teamView)
                             if len(teamView2[0]) <= (1024-len(teamView)):
                                 teamView += teamView2[0]
                             elif len(teamView2[1]) <= (1024-len(teamView)):
@@ -5207,47 +5570,78 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                     if jaugeEff.value - nbPointPerField * (cmpt-1) < (nbPointPerField * cmpt/2) and cmpt > 0:
                                         cmpt -= 1
-                                    
+
                                     jaugeField += jaugeEff.effects.jaugeValue.emoji[jaugeEff.value > 25][0]+jaugeEff.effects.jaugeValue.emoji[jaugeEff.value>=65][1]+jaugeEff.effects.jaugeValue.emoji[jaugeEff.value>=90][2]
-                                    
                                     jaugeField += " **{0}**\n".format(round(jaugeEff.value,2))
-                            
+
+                        jaugeField = reduceEmojiNames(jaugeField)
+                        if len(jaugeField) > 1000:
+                            jaugeField = ""
+                            for team in [0,1]:
+                                for jaugeEnt, jaugeEff in teamJaugeDict[team].items():
+                                    if jaugeEnt.hp > 0:
+                                        jaugeField += "{0} : {1} ".format(jaugeEnt.icon,jaugeEff.name)
+                                        jaugeField += " **{0}**\n".format(round(jaugeEff.value,2))
+
+                            jaugeField = reduceEmojiNames(jaugeField)
+                        
                         if jaugeField:
                             embInfo.add_field(name="__Jauges :__",value=jaugeField,inline=False)
-                    
+
                     for deplEnt in deplTabl:
                         if deplEnt[0].leftTurnAlive > 0:
                             on = ""
                             if deplEnt[1].on != None:
                                 on = " ({0})".format(deplEnt[1].on.icon)
-                            deplMsg += "{0}{1} {2}:{3}{4}\n".format(deplEnt[0].summoner.icon, deplEnt[0].icon, deplEnt[1].x, deplEnt[1].y, on)
-                    
+                            deplMsg += reduceEmojiNames("{0}{1} {2}:{3}{4}\n".format(deplEnt[0].summoner.icon, deplEnt[0].icon, deplEnt[1].x, deplEnt[1].y, on))
+
+                    if len(deplMsg) > 1000:
+                        deplMsg = ""
+                        for deplEnt in deplTabl:
+                            if deplEnt[0].leftTurnAlive > 0:
+                                deplMsg += reduceEmojiNames("{0} {1} {2}:{3}\n".format(deplEnt[0].summoner.icon, deplEnt[0].name, deplEnt[1].x, deplEnt[1].y, on))
+                        deplMsg += reduceEmojiNames("{0}{1} {2}:{3}{4}\n".format(deplEnt[0].summoner.icon, deplEnt[0].icon, deplEnt[1].x, deplEnt[1].y, on))
                     if deplMsg != "":
                         embInfo.add_field(name="__Déployables :__",value=deplMsg,inline=embInfo.fields[-1].name=="__Jauges :__")
 
                     if nextNotAuto == actTurn:
-                        await msg.edit(embeds = [embInfo,interactions.Embed(title=f"__Tour {tour}__",description=reducedEmojiNames(tempTurnMsg),color = actTurn.char.color)]+choiceEmbed,components=[infoSelect])
+                        await msg.edit(embeds = [embInfo,interactions.Embed(title=f"__Tour {tour}__",description=reduceEmojiNames(tempTurnMsg),color = actTurn.char.color)],components=[infoSelect])
 
                 # Turn actions --------------------------------------------------------------------------------------
-                nowStartOfTurn = datetime.now()
+                statsTurnDict = {}
+                for team in [0,1]:
+                    for ent in tablEntTeam[team]:
+                        if type(ent.char) not in [classes.invoc, classes.depl]:
+                            entPAR = 0
+                            for eff in ent.effects:
+                                if eff.effects.overhealth > 0:
+                                    entPAR += eff.value
+                            statsTurnDict[ent.id] = {
+                                "hp":ent.hp,
+                                "par":entPAR,
+                                "damage":ent.stats.damageDeal,
+                                "kill":ent.stats.ennemiKill,
+                                "heal":ent.stats.heals,
+                                "raise":ent.stats.allieResurected,
+                                "armoredDamage":ent.stats.armoredDamage,
+                            }
+
                 if wasAlive and actTurn.hp <= 0:        # Died from indirect damages at the startinfoSelect
                     if not(auto):
-                        tempTurnMsg = reducedEmojiNames(tempTurnMsg)
+                        tempTurnMsg = reduceEmojiNames(tempTurnMsg)
                         emby = interactions.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color)
                         toAdd = 0
-                        if len(choiceEmbed) > 1:
-                            toAdd = getEmbedLength(choiceEmbed[0])
                         tried, cmpt = 0, 0
-                        while getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd > 5500:
+                        while getEmbedLength(embInfo)+getEmbedLength(emby) > 5500:
                             if tried == 0:
                                 finded = False
                                 for field in embInfo.fields:
-                                    if cmpt < len(statEmbedFieldNames) and field.name == statEmbedFieldNames[cmpt]:
+                                    if cmpt < len(statEmbedFieldNames) and statEmbedFieldNames[cmpt] in field.name:
                                         field.value, finded, cmpt = "[...]", True, cmpt + 1
                                 if cmpt == len(statEmbedFieldNames)-1 or not(finded):
                                     tried += 1
                             elif tried == 1:
-                                emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd):]
+                                emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)):]
                                 if len(emby.description) > 4050:
                                     emby.description = emby.description[len(emby.description)-4050]
                                 tried += 1
@@ -5255,7 +5649,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 emby.description = "OVERLOAD"
                                 break
 
-                        await msg.edit(embeds = [embInfo,emby]+choiceEmbed,components=[infoSelect])
+                        await msg.edit(embeds = [embInfo,emby],components=[infoSelect])
                         if type(actTurn.char) not in [invoc, depl]:
                             await asyncio.sleep(2+(min(len(tempTurnMsg),1500)/1500*5))
                         else:
@@ -5265,7 +5659,12 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     for team in (0,1):
                         for ent in tablEntTeam[team]:
                             try:
-                                tempPotgValue = ent.stats.damageDeal-potgDamages[team][ent.id]+(ent.stats.ennemiKill-potgKills[team][ent.id])*ent.char.level*10+ent.stats.heals-potgHeal[team][ent.id]+(ent.stats.allieResurected-potgRaises[team][ent.id])*ent.char.level*10
+                                potgDamages = (ent.stats.damageDeal-statsTurnDict[ent.id]["damage"])*0.7
+                                potgHeals = (ent.stats.heals-statsTurnDict[ent.id]["heal"])*0.6
+                                potgKills = (ent.stats.ennemiKill-statsTurnDict[ent.id]["kill"])*ent.char.level*10
+                                potgRaises = (ent.stats.allieResurected-statsTurnDict[ent.id]["raise"])*ent.char.level*15
+                                potgArmor = (ent.stats.armoredDamage-statsTurnDict[ent.id]["armoredDamage"])*0.7
+                                tempPotgValue = potgDamages + potgHeals + potgKills + potgRaises + potgArmor + 200*int(optionChoice==OPTION_SKILL and (skillToUse.id == "lb" or skillToUse.ultimate)) - 1000*int(type(actTurn.char)==octarien)
                             except KeyError:
                                 pass
                             if tempPotgValue > potgValue[1]:
@@ -5282,6 +5681,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     if not(actTurn.stun):                   # The entity isn't stun, so he can play his turn
                         allReadyMove = False
                         while 1:
+                            nowStartOfTurn = datetime.now()
                             atRange, nbTargetAtRange = actTurn.atRange(), len(actTurn.atRange())
                             onReplica = False
                             for eff in actTurn.effects:
@@ -5305,7 +5705,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 if not(actTurn.auto) :                      # Manual Fighter - Action select window
                                     haveOption,unsuccess, waitingSelect, haveIterate, lbSkill = False,False, interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "anotherWaitingSelect", options=[interactions.SelectOption(label="Veillez patienter...",value="PILLON!",emoji=Emoji(name='🕑'),default=True)],disabled=True)]), False, None
                                     def check(m):
-                                        return int(m.author.id) == int(actTurn.char.owner) and m.message.id == msg.id
+                                        return int(m.author.id) == int(actTurn.char.owner) and m.message.id == selectWindowMsg.id
 
                                     if LBBars[actTurn.team][0]> 0 and LBBars[actTurn.team][1]//3 >= 1:
                                         if LBBars[actTurn.team][1]//3 == 1:
@@ -5320,6 +5720,23 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     while not(haveOption) and not(unsuccess):
                                         choiceMsgTemp,tempTabl,tabltabl,canBeUsed = getPrelimManWindow(actTurn, LBBars, tablEntTeam)+"\n\n__Options disponibles :__\n",[actTurn.char.weapon],[0]+actTurn.cooldowns,[]
 
+                                        cmpt, tried = 0, 0
+                                        while getEmbedLength(embInfo)+getEmbedLength(emby) > 5900:
+                                            if tried == 0:
+                                                finded = False
+                                                for field in embInfo.fields:
+                                                    if cmpt < len(statEmbedFieldNames) and statEmbedFieldNames[cmpt] in field.name:
+                                                        field.value, finded, cmpt = "[...]", True, cmpt + 1
+                                                if cmpt == len(statEmbedFieldNames)-1 or not(finded):
+                                                    tried += 1
+                                            elif tried == 1:
+                                                emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)):]
+                                                if len(emby.description) > 4000:
+                                                    emby.description = emby.description[len(emby.description)-4000:]
+                                                tried += 1
+                                            else:
+                                                emby.description = "OVERLOAD"
+                                                break
                                         if not(actTurn.silent):
                                             for a in actTurn.char.skills:
                                                 if type(a) == skill:
@@ -5417,39 +5834,25 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         if footerText != "":
                                             emby.set_footer(text=footerText,icon_url=ctx.author.avatar_url)
 
-                                        choiceEmbed = interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = reducedEmojiNames(choiceMsgTemp))
-
-                                        cmpt, tried = 0, 0
-                                        while getEmbedLength(embInfo)+getEmbedLength(emby)+getEmbedLength(choiceEmbed) > 6000:
-                                            if tried == 0:
-                                                finded = False
-                                                for field in embInfo.fields:
-                                                    if cmpt < len(statEmbedFieldNames) and field.name == statEmbedFieldNames[cmpt]:
-                                                        field.value, finded, cmpt = "[...]", True, cmpt + 1
-                                                if cmpt == len(statEmbedFieldNames)-1 or not(finded):
-                                                    tried += 1
-                                            elif tried == 1:
-                                                emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+getEmbedLength(choiceEmbed)):]
-                                                if len(emby.description) > 4000:
-                                                    emby.description = emby.description[len(emby.description)-4000:]
-                                                tried += 1
-                                            else:
-                                                emby.description = "OVERLOAD"
-                                                break
-
                                         if haveIterate:                         # Time limite stuff
-                                            await msg.edit(embeds = [embInfo,emby,choiceEmbed],components=[infoSelect,waitingSelect])
+                                            await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = reduceEmojiNames(choiceMsgTemp)),components=[infoSelect,waitingSelect])
                                             await asyncio.sleep(3)
-                                        
-                                        await msg.edit(embeds = [embInfo,emby,choiceEmbed],components=[infoSelect,interactions.ActionRow(components=[mainSelect])])
+
+                                        await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = reduceEmojiNames(choiceMsgTemp)),components=[infoSelect,interactions.ActionRow(components=[mainSelect])])
                                         haveIterate = True
 
                                         validoption = False
                                         def checkMainOption(m):
-                                            return int(m.author.id) == actTurn.char.owner
+                                            return int(m.author.id) == int(actTurn.char.owner)
                                         while not(validoption):
                                             try:
-                                                react = await bot.wait_for_component(messages=msg,check=checkMainOption,timeout = 30)
+                                                try:
+                                                    react = await bot.wait_for_component(messages=selectWindowMsg,check=checkMainOption,timeout = 30)
+                                                except asyncio.TimeoutError:
+                                                    print("C'est là que ça crash")
+                                                    print_exc()
+                                                    unsuccess = True
+                                                    break
                                             except asyncio.TimeoutError:
                                                 unsuccess = True
                                                 break
@@ -5500,26 +5903,26 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 weapOptions += [interactions.SelectOption(label=listNumberEmoji[a] + " "+unhyperlink(atRange[a].char.name),value=str(a),emoji=getEmojiObject(atRange[a].icon),description=desc)]
 
                                             weapOptions += [interactions.SelectOption(label="Retour",value=str(a+1),emoji=Emoji(name='◀️'))]
-                                            weapSelect = [interactions.SelectMenu(custom_id = "weapSelect", options=weapOptions,placeholder="Sélectionnez une cible :")]
+                                            weapSelect = interactions.SelectMenu(custom_id = "weapSelect", options=weapOptions,placeholder="Sélectionnez une cible :")
                                             mainSelect = ActionRow(components=[mainSelect])
-                                            mainSelectEmbed = interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = reducedEmojiNames(choiceMsgTemp))
+                                            mainSelectEmbed = interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = reduceEmojiNames(choiceMsgTemp))
 
                                             if len(weapOptions) == 2:
-                                                weapSelect = [interactions.ActionRow(components=[
-                                                    interactions.Button(style=ButtonStyle.SECONDARY, label=weapOptions[1].label, emoji=weapOptions[1].emoji, custom_id=weapOptions[1].value),
-                                                    interactions.Button(style=ButtonStyle.SUCCESS, label=weapOptions[0].label, emoji=weapOptions[0].emoji, custom_id=weapOptions[0].value)
-                                                    ])]
+                                                weapSelect = interactions.ActionRow(components=[
+                                                    interactions.Button(style=ButtonStyle.SUCCESS, label=weapOptions[0].label, emoji=weapOptions[0].emoji, custom_id=weapOptions[0].value),
+                                                    interactions.Button(style=ButtonStyle.SECONDARY, label=weapOptions[1].label, emoji=weapOptions[1].emoji, custom_id=weapOptions[1].value)
+                                                    ])
                                                 
-                                                await msg.edit(embeds = [embInfo,emby,mainSelectEmbed],components=[mainSelect]+interactions.ActionRow(components=weapSelect))
+                                                await selectWindowMsg.edit(embeds=mainSelectEmbed,components=[mainSelect,weapSelect])
 
                                             elif choiceMsgTemp != "":
-                                                choiceMsgTemp = reducedEmojiNames(choiceMsgTemp)
-                                                await msg.edit(embeds = [embInfo,emby,mainSelectEmbed],components=[mainSelect,waitingSelect])
+                                                choiceMsgTemp = reduceEmojiNames(choiceMsgTemp)
+                                                await selectWindowMsg.edit(embeds=mainSelectEmbed,components=[mainSelect,waitingSelect])
                                                 await asyncio.sleep(3)
-                                                await msg.edit(embeds = [embInfo,emby,mainSelectEmbed],components=[mainSelect,interactions.ActionRow(components=weapSelect)])
+                                                await selectWindowMsg.edit(embeds=mainSelectEmbed,components=[mainSelect,weapSelect])
 
                                             try:
-                                                react = await bot.wait_for_component(messages=msg,check=check,timeout=timeLimite)
+                                                react = await bot.wait_for_component(messages=selectWindowMsg,check=check,timeout=timeLimite)
                                             except:
                                                 unsuccess = True
                                                 break
@@ -5599,7 +6002,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                                     except:
                                                                         pass
 
-                                            skillOptions, choiceMsgTemp = [], reducedEmojiNames("__Carte :__\n{0}\n\n__Combattants à portée :__\n".format(map(tablAllCells,bigMap,viArea,fromEnt=actTurn,wanted=[ENEMIES,ALLIES][skillToUse.type in funnyTempVarName],numberEmoji=targetAtRangeSkill,fullArea=altViArea)))
+                                            skillOptions, choiceMsgTemp = [], reduceEmojiNames("__Carte :__\n{0}\n\n__Combattants à portée :__\n".format(map(tablAllCells,bigMap,viArea,fromEnt=actTurn,wanted=[ENEMIES,ALLIES][skillToUse.type in funnyTempVarName],numberEmoji=targetAtRangeSkill,fullArea=altViArea)))
 
                                             if skillToUse.type not in [TYPE_SUMMON,TYPE_DEPL]:
                                                 nbTargetAtRangeSkill = len(targetAtRangeSkill)
@@ -5651,35 +6054,15 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                     cmpt += 1
                                                 skillSelect = [interactions.ActionRow(components=temp)]
 
-                                                choiceEmbed = interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp)
-                                                cmpt, tried = 0, 0
-                                                while getEmbedLength(embInfo)+getEmbedLength(emby)+getEmbedLength(choiceEmbed) > 6000:
-                                                    if tried == 0:
-                                                        finded = False
-                                                        for field in embInfo.fields:
-                                                            if cmpt < len(statEmbedFieldNames) and field.name == statEmbedFieldNames[cmpt]:
-                                                                field.value, finded, cmpt = "[...]", True, cmpt + 1
-                                                        cmpt += 1
-                                                        if cmpt == len(statEmbedFieldNames)-1 or not(finded):
-                                                            tried += 1
-                                                    elif tried == 1:
-                                                        emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+getEmbedLength(choiceEmbed)):]
-                                                        if len(emby.description) > 4000:
-                                                            emby.description = emby.description[len(emby.description)-4000:]
-                                                        tried += 1
-                                                    else:
-                                                        emby.description = "OVERLOAD"
-                                                        break
-
-                                                await msg.edit(embeds = [embInfo,emby,choiceEmbed],components=[infoSelect,mainSelect]+skillSelect)
+                                                await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect]+skillSelect)
 
                                             elif choiceMsgTemp != "":
-                                                await msg.edit(embeds = [embInfo,emby,interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp)],components=[infoSelect,mainSelect,waitingSelect])
+                                                await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect,waitingSelect])
                                                 await asyncio.sleep(3)
-                                                await msg.edit(embeds = [embInfo,emby,interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp)],components=[infoSelect,mainSelect]+[interactions.ActionRow(components=[skillSelect])])
+                                                await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {react.name}",color = actTurn.char.color,description = choiceMsgTemp),components=[mainSelect]+[interactions.ActionRow(components=[skillSelect])])
 
                                             try:
-                                                react = await bot.wait_for_component(messages=msg,timeout = 30,check=check)
+                                                react = await bot.wait_for_component(messages=selectWindowMsg,timeout = 30,check=check)
                                             except:
                                                 unsuccess = True
                                                 break
@@ -5745,13 +6128,13 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                             mapLike += "|"
                                                     mapLike += "\n"
 
-                                                mapLike = reducedEmojiNames(mapLike)
-                                                await msg.edit(embeds = [embInfo,emby,interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Dans quelle direction voulez vous aller ?\n\n"+mapLike)],components=[infoSelect,cancelButton,allMouvementOptions])
+                                                mapLike = reduceEmojiNames(mapLike)
+                                                await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Dans quelle direction voulez vous aller ?\n\n"+mapLike),components=[infoSelect,cancelButton,allMouvementOptions])
 
                                                 choiceToMove = None
                                                 while choiceToMove == None:
                                                     try:
-                                                        choiceMove = await bot.wait_for_component(messages=msg,timeout=30,check=check)
+                                                        choiceMove = await bot.wait_for_component(messages=selectWindowMsg,timeout=30,check=check)
                                                     except:
                                                         unsuccess = True
                                                         break
@@ -5772,7 +6155,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         logs += "\nManual fighter. Option selected : {0}".format(["Use Weapon","Use Skill","Move","Skip"][optionChoice])
                                     except:
                                         logs += "\nManual fighter, but no option selected"
-                                    choiceEmbed = [interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emLoading)]
+                                    await selectWindowMsg.edit(embeds=interactions.Embed(title = f"Choix de l'option - {actTurn.icon} {actTurn.char.name}",color = actTurn.char.color,description = "Tour en cours "+emLoading))
 
                                 if not(actTurn.auto) and unsuccess:
                                     if actTurn.missedLastTurn == False:
@@ -5819,7 +6202,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         poisonCount = 0
                                         for ent in tablEntTeam[int(not(actTurn.team))]:
                                             for eff in ent.effects:
-                                                if eff.effects.id == estal.id:
+                                                if eff.effects.id == estial.id:
                                                     poisonCount += 1
 
                                         if poisonCount >= 8:
@@ -5850,12 +6233,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             atRange = actTurn.cell.getEntityOnArea(area=AREA_ALL_ENEMIES,fromCell=actTurn.cell,team=actTurn.team,wanted=ENEMIES)
                                             atRange.sort(key=lambda ent:actTurn.getAggroValue(ent),reverse=True)
                                             ennemi = atRange[0]
-
-                                    elif actTurn.isNpc("Clémence pos.") and actTurn.cooldowns[2] == 0 and (tour >= 7 or actTurn.hp/actTurn.maxHp <= 0.35):
-                                        optionChoice = OPTION_SKILL
-                                        skillToUse: classes.skill = clemUltCast
-                                        ennemi = actTurn
-                                        optionChoisen = True
 
                                     elif actTurn.isNpc("Akira H.") and actTurn.hp/actTurn.maxHp <= 0.15:
                                         optionChoice = OPTION_SKILL
@@ -5918,7 +6295,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         ennemiCast, targetCast = False, None
                                         for ent in tablEntTeam[int(not(actTurn.team))]:
                                             for eff in ent.effects:
-                                                if eff.effects.replica != None and eff.effects.id != clemultCastEffect.id:
+                                                if eff.effects.replica != None:
                                                     skillFinded = findSkill(eff.effects.replica)
                                                     if (skillFinded.effectOnSelf == None and skillFinded.type in [TYPE_DAMAGE]) or (skillFinded.effectOnSelf != None and findEffect(skillFinded.effectOnSelf).replica == None) and skillFinded.area != AREA_MONO:
                                                         ennemiCast, targetCast = True, eff.replicaTarget
@@ -5952,16 +6329,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         surron = actTurn.cell.surrondings()
                                         if len(actTurn.atRange()) == 0 and (surron[0] != None and surron[0].on != None) and (surron[1] != None and surron[1].on != None) and (surron[2] != None and surron[2].on != None) and (surron[3] != None and surron[3].on != None):
                                             probaAtkWeap = [0,0,0,0,0,0,0,0]
-
-                                        try:
-                                            if actTurn.isNpc("Alice Exaltée") and actTurn.specialVars["clemBloodJauge"].value <= 40:
-                                                probaHealWeap[actTurn.IA] = int(probaHealWeap[actTurn.IA]*1.35)
-                                                probaBoost[actTurn.IA] = int(probaBoost[actTurn.IA]*0.6)
-                                                probaHealSkill[actTurn.IA] = int(probaHealSkill[actTurn.IA] * 0.9)
-                                                probaAtkSkill[actTurn.IA] = int(probaAtkSkill[actTurn.IA] * 0.7)
-                                        except Exception as e:
-                                            logs += "\n{0}".format(e)
-                                            tempTurnMsg += "\n{0}\n".format(e)
 
                                         if actTurn.isNpc("Luna ex.") and len(atRange) > 0:
                                             probaAtkSkill[actTurn.IA] = probaAtkSkill[actTurn.IA] * 2
@@ -6016,8 +6383,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                             if actTurn.cooldowns[a] == 0 and type(actSkill) == classes.skill and not(actTurn.silent) and actSkill.id != "lb":
                                                 if actSkill.become == None:
-                                                    tablToLook = [actSkill]
-
+                                                    if not(actSkill.id == selfMemoria.id and type(actTurn.char) == classes.invoc and actTurn.name == memoria.name):
+                                                        tablToLook = [actSkill]
                                                 else:
                                                     tablToLook, tablEffId = [], []
                                                     for eff in actTurn.effects:
@@ -6089,11 +6456,16 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                                 posTarget = None
 
                                                         if posTarget != None:
+                                                            nbDeadAllies = 0
                                                             if actSkill.area == AREA_MONO:
                                                                 tablHotEnemiesInArea = [posTarget]
                                                             else:
-                                                                tablHotEnemiesInArea = posTarget.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=ENEMIES,effect=actSkill.effects,fromCell=actTurn.cell,directTarget=False)
-                                                            nbHotTargetsInArea = len(tablHotEnemiesInArea)
+                                                                tablHotEnemiesInArea = posTarget.cell.getEntityOnArea(area=actSkill.area,team=actTurn.team,wanted=[ENEMIES,ALLIES][actSkill.type in friendlyTypes],effect=actSkill.effects,fromCell=actTurn.cell,directTarget=False,lifeUnderPurcentage=[99,99999][actSkill.type in hostilesTypes],dead=actSkill.type == TYPE_RESURECTION)
+                                                                if actSkill.id == inMemoria.id:
+                                                                    for ent in tablEntTeam[actTurn.team]:
+                                                                        if ent.hp < 0 and type(ent.char) not in [invoc,depl] or ent.isNpc("Anna"):
+                                                                            nbDeadAllies += 1
+                                                            nbHotTargetsInArea = len(tablHotEnemiesInArea) + [0,nbDeadAllies][nbDeadAllies>1]
 
                                                             if nbHotTargetsInArea >= actSkill.minTargetRequired:
                                                                 iaPow = actSkill.iaPow * nbHotTargetsInArea
@@ -6515,7 +6887,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                     atRange.sort(key=lambda ballerine:getBuffAggro(actTurn,ballerine,findEffect(randomSkill.effects[0])))
                                                     optionChoice = OPTION_SKILL
                                                     skillToUse: classes.skill = randomSkill
-                                                    ennemi = atRange[0]
+                                                    try:
+                                                        ennemi = atRange[0]
+                                                    except:
+                                                        ennemi = actTurn
 
                                                 else:
                                                     if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,effect=randomSkill.effects,directTarget=False)) > 0:
@@ -6569,11 +6944,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                     else:
                                                         tablAtRange = actTurn.cell.getEntityOnArea(area=randomSkill.range,team=actTurn.team,wanted=ALLIES,fromCell=actTurn.cell,effect=randomSkill.effects,ignoreAspiration=[ALTRUISTE,PREVOYANT,PROTECTEUR,IDOLE])
 
-                                                    tablAtRange.sort(key=lambda fepacho: getHealAggro(actTurn, fepacho, randomSkill, armor=True))
-
                                                     optionChoice = OPTION_SKILL
                                                     skillToUse: classes.skill = randomSkill
-                                                    ennemi = tablAtRange[0]
+                                                    ennemi = getHealTarget(actTurn,tablAtRange,skillToUse,True)
 
                                                 else:
                                                     if len(actTurn.cell.getEntityOnArea(area=randomSkill.area,team=actTurn.team,fromCell=actTurn.cell,wanted=ALLIES,effect=randomSkill.effects,directTarget=False)) > 0:
@@ -6626,6 +6999,22 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             else:
                                 logs += "\nReplica found"
                                 skilly = findSkill(onReplica.effects.replica)
+                                if onReplica.replicaTarget == None:
+                                    if skilly.range == AREA_MONO:
+                                        onReplica.replicaTarget = actTurn
+                                    else:
+                                        tablAtRangeTargets = actTurn.cell.getEntityOnArea(area=skilly.range,team=actTurn.team,wanted=[ENEMIES,ALLIES][skilly.type in friendlyTypes],effect=skilly.effects,fromCell=actTurn.cell,directTarget=skilly.type in hostilesTypes,lifeUnderPurcentage=[90,99999][skilly.type in hostilesTypes],dead=skilly.type == TYPE_RESURECTION)
+                                        if len(tablAtRangeTargets) > 0:
+                                            if skilly.type in hostilesTypes:
+                                                tablAtRangeTargets.sort(key=lambda ballerine: actTurn.getAggroValue(ballerine),reverse=True)
+                                            elif actSkill.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_ARMOR]:
+                                                tablAtRangeTargets.sort(key=lambda ballerine: getHealAggro(actTurn,ballerine,actSkill,armor=actSkill.type == TYPE_ARMOR),reverse=True)
+                                            elif actSkill.type in [TYPE_BOOST]:
+                                                tablAtRangeTargets.sort(key=lambda ballerine: getBuffAggro(actTurn,ballerine,findEffect(actSkill.effects[0])),reverse=True)
+                                            onReplica.replicaTarget = tablAtRangeTargets[0]
+                                        else:
+                                            onReplica.replicaTarget = actTurn
+
                                 if onReplica.replicaTarget.hp > 0:
                                     optionChoice = OPTION_SKILL
                                     skillToUse: classes.skill = skilly
@@ -6689,6 +7078,30 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             tempTurnMsg += "\n"
                                         power = actTurn.char.weapon.power
 
+                                        if actTurn.char.weapon.effects != None and findEffect(actTurn.char.weapon.effects).id == eclataDash.id and actTurn.cell.distance(ennemi.cell) > 1:
+                                            surrond = ennemi.cell.surrondings()
+                                            for a in surrond[:]:
+                                                if a == None or (a != None and a.on != None):
+                                                    surrond.remove(a)
+
+                                            if len(surrond) > 0:
+                                                initCell = actTurn.cell
+                                                surrond.sort(key=lambda celly:actTurn.cell.distance(celly))
+                                                actTurn.move(cellToMove=surrond[0])
+                                                try:
+                                                    for conds in teamJaugeDict[actTurn.team][actTurn].effects.jaugeValue.conds:
+                                                        if conds.type == INC_JUMP_PER_CASE:
+                                                            teamJaugeDict[actTurn.team][actTurn].value = min(teamJaugeDict[actTurn.team][actTurn].value+(conds.value*initCell.distance(actTurn.cell)),100)
+                                                except KeyError:
+                                                    pass
+                                                tempTurnMsg += "__{0}__ se téléporte au corps à corps de __{1}__\n".format(actTurn.name,ennemi.name)
+                                                power += int(actTurn.char.weapon.power * (100+actTurn.char.weapon.effects.power)/100)
+                                                if actTurn.specialVars["squidRoll"] and random.randint(0,99) < squidRollEff.power:
+                                                    tempTurnMsg += add_effect(caster=actTurn, target=actTurn ,effect=squidRollEff.callOnTrigger, skillIcon=squidRollEff.emoji[0][0])
+
+                                            else:
+                                                tempTurnMsg += "__{0}__ essaye de se téléporte au corps à corps de __{1}__, mais cela échoue\n".format(actTurn.name,ennemi.name)
+
                                         funnyTempVarName, deathCount = actTurn.attack(target=ennemi,value=power,icon=actTurn.char.weapon.emoji,area=actTurn.char.weapon.area,use=actTurn.char.weapon.use,onArmor=actTurn.char.weapon.onArmor,skillUsed=actTurn.char.weapon)
                                         logs+= funnyTempVarName
                                         tempTurnMsg += funnyTempVarName
@@ -6701,13 +7114,13 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             tempTurnMsg += funnyTempVarName
 
                                     if actTurn.char.weapon.power > 0 and actTurn.specialVars["damageSlot"] != None:
-                                        loose = int(actTurn.maxHp * (15/100))
-                                        tempTurnMsg += "{0} : -{1} PV ({2})\n".format(actTurn.icon,loose,actTurn.specialVars["damageSlot"].effects.name)
-                                        actTurn.hp -= loose
-                                        if actTurn.hp <= 0:
-                                            tempTurnMsg += actTurn.death(killer=actTurn)
-
-                                        actTurn.refreshEffects()
+                                            loose = min(actTurn.hp-1,int(actTurn.maxHp * (15/100)))
+                                            funnyTempVarName = "\n{0} {3} → {0} -{1} PV ({2})\n".format(actTurn.icon,loose,actTurn.specialVars["damageSlot"].effects.name,actTurn.specialVars["damageSlot"].icon)
+                                            tempTurnMsg += funnyTempVarName
+                                            logs + funnyTempVarName
+                                            actTurn.hp -= loose
+                                            actTurn.stats.selfBurn += loose
+                                            actTurn.refreshEffects()
 
                                 elif actTurn.char.weapon.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]: # None agressive Weapon
                                     logs += "\n\n{0} is healing {1} with their weapon\n".format(actTurn.char.name,ennemi.char.name)
@@ -6732,60 +7145,13 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                         ennemi.refreshEffects()
 
-                                if actTurn.char.weapon.id in [whiteSpiritWings.id,bleuSpiritWings.id]:
-                                    tempTabl = []
-                                    for ent in tablEntTeam[actTurn.team]:
-                                        if ent.hp > 0:
-                                            tempTabl.append(ent)
+                                for eff in actTurn.effects:
+                                    if eff.trigger == TRIGGER_WEAPON_USE:
+                                        funnyTempVarName = eff.triggerStartOfTurn(danger)
+                                        tempTurnMsg += funnyTempVarName
+                                        logs += funnyTempVarName
 
-                                    if len(tempTabl) > 0:
-                                        tempTabl.sort(key=lambda chaton: chaton.hp/chaton.maxHp)
-                                        if actTurn.char.weapon.id in [whiteSpiritWings.id]:
-                                            funnyTempVarName, useless = actTurn.heal(tempTabl[0], actTurn.char.weapon.effects.emoji[0][0], actTurn.char.weapon.use, actTurn.char.weapon.effects.power, danger=danger, effName = actTurn.char.weapon.effects.name, mono=actTurn.char.weapon.area == AREA_MONO)
-                                            tempTurnMsg += funnyTempVarName
-                                            logs += funnyTempVarName
-
-                                        else:
-                                            funnyTempVarName = add_effect(actTurn,tempTabl[0],findEffect(actTurn.char.weapon.effects.callOnTrigger),danger=danger,start=actTurn.char.weapon.effects.name,skillIcon = actTurn.weapon.effects.emoji[0][0])
-                                            logs+= funnyTempVarName
-                                            tempTurnMsg += funnyTempVarName
-                                            tempTabl[0].refreshEffects()
-
-                                elif actTurn.char.weapon.id == fleau.id:
-                                    tablName = []
-                                    for ent in actTurn.cell.getEntityOnArea(area=actTurn.char.weapon.effects.area,fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,directTarget=False):
-                                        eff = actTurn.char.weapon.effects.callOnTrigger
-                                        ballerine = add_effect(actTurn,ent,eff,danger=danger)
-                                        if '🚫' not in ballerine and ballerine != "":
-                                            tablName.append(ent.icon)
-                                            ent.refreshEffects()
-
-                                    if tablName != []:
-                                        temp = "{0} {1} → ".format(actTurn.icon,actTurn.weapon.effects.emoji[0][0])
-                                        for cmpt in tablName:
-                                            temp += cmpt
-
-                                        tempTurnMsg += temp + " +{0} __{1}__\n".format(actTurn.weapon.effects.emoji[0][0],actTurn.weapon.effects.name)
-                                        logs += temp
-
-                                elif actTurn.char.weapon.id in [micPurple.id,micRed.id,micPink.id]:
-                                    tablName, eff = [], actTurn.weapon.effects.callOnTrigger
-                                    for ent in actTurn.cell.getEntityOnArea(area=actTurn.weapon.effects.area,fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,directTarget=False):
-                                        ballerine = add_effect(actTurn,ent,eff,danger=danger,useActionStats=ACT_BOOST,skillIcon = actTurn.weapon.emoji)
-                                        if '🚫' not in ballerine and ballerine != "":
-                                            tablName.append(ent.icon)
-                                        ent.refreshEffects()
-
-                                    if tablName != []:
-                                        temp = ""
-                                        for cmpt2 in tablName:
-                                            temp += cmpt2
-
-                                        temp = "{1} {2} → {3} +{0} __{4}__\n".format(eff.emoji[actTurn.char.species-1][actTurn.team],actTurn.icon,actTurn.char.weapon.emoji,temp,eff.name)
-                                        tempTurnMsg += temp
-                                        logs += temp
-
-                                elif actTurn.isNpc("Iliana prê."):
+                                if actTurn.isNpc("Iliana prê."):
                                     funnyTempVarName, useless = actTurn.heal(actTurn, actTurn.char.skills[0].effectOnSelf.emoji[0][0], actTurn.char.skills[0].effectOnSelf.stat, actTurn.char.skills[0].effectOnSelf.power*1.25, danger=danger, mono = True, useActionStats = ACT_HEAL)
                                     tempTurnMsg += funnyTempVarName
                                     logs += funnyTempVarName
@@ -6810,7 +7176,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 tempTurnMsg += f"\n{actTurn.char.name} passe son tour\n"
                                 actTurn.stats.turnSkipped += 1
                             elif optionChoice == OPTION_SKILL: #Skill
-                                qCast, needRefresh, useEffElem = False, False, 0
+                                qCast, needRefresh, useEffElem, power = False, False, 0, skillToUse.power
 
                                 if skillToUse.id == finFloLaunchBase.id:
                                     skillToUse, listEff, allReadySeen, golden = copy.deepcopy(finFloLaunchBase), [], [], 0
@@ -6875,9 +7241,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     skillToUse: classes.skill = copy.deepcopy(findSkill(findEffect(skillToUse.effectOnSelf).replica))
 
                                 if skillToUse.effectOnSelf != None and findEffect(skillToUse.effectOnSelf).replica != None and actTurn.auto:
-                                    for cmpt in (0,1,2,3,4):
+                                    for cmpt in range(7):
                                         if type(actTurn.char.skills[cmpt]) == skill and actTurn.cooldowns[cmpt] == 0 and actTurn.char.skills[cmpt].id == quickCast.id:
-                                            skillToUse: classes.skill = quickCast
+                                            lastSkillToUse = skillToUse
+                                            skillToUse: classes.skill = copy.deepcopy(actTurn.char.skills[cmpt])
+                                            skillToUse.effects[0].replica = lastSkillToUse
                                             ennemi = actTurn
                                             break
 
@@ -6903,7 +7271,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             tempTurnMsg += "\n{0} : *\"{1}\"*".format(actTurn.icon,skillToUse.say[0])
 
                                 # Say Ultimate
-                                if actTurn.char.says.ultimate != None and skillToUse.ultimate and not(skillToUse.effectOnSelf != None and findEffect(skillToUse.effectOnSelf).replica != None and skillToUse.power == 0 and skillToUse.effects == [None]):
+                                if actTurn.char.says.ultimate != None and skillToUse.ultimate and not(skillToUse.effectOnSelf != None and findEffect(skillToUse.effectOnSelf).replica != None and skillToUse.power == 0 and skillToUse.effects == [None]) and skillToUse.affSkillMsg:
                                     try:
                                         tempTurnMsg += "\n{0} : *\"{1}\"*".format(actTurn.icon,actTurn.char.says.ultimate.format(target=ennemi.char.name,caster=actTurn.char.name,skill=skillToUse.name))
                                     except:
@@ -6922,10 +7290,13 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         logs += "\n"+format_exc()
 
                                 # Skill base message
-                                if skillToUse.message == None:
-                                    tempTurnMsg += f"\n__{actTurn.char.name} utilise {skillToUse.name} :__\n"
-                                else: 
-                                    tempTurnMsg += "\n__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
+                                if skillToUse.affSkillMsg :
+                                    if skillToUse.message == None:
+                                        tempTurnMsg += f"\n__{actTurn.char.name} utilise {skillToUse.name} :__\n"
+                                    else: 
+                                        tempTurnMsg += "\n__"+ skillToUse.message.format(actTurn.char.name,skillToUse.name,ennemi.char.name)+"__\n"
+                                else:
+                                    tempTurnMsg += "\n"
 
                                 # Set the cooldown
                                 for a in range(7):
@@ -6964,12 +7335,30 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         except KeyError:
                                             pass
                                         tempTurnMsg += "__{0}__ se téléporte au corps à corps de __{1}__\n".format(actTurn.name,ennemi.name)
+                                        if actTurn.specialVars["squidRoll"] and random.randint(0,99) < squidRollEff.power:
+                                            tempTurnMsg += add_effect(caster=actTurn, target=actTurn ,effect=squidRollEff.callOnTrigger, skillIcon=squidRollEff.emoji[0][0])
 
                                     else:
                                         tempTurnMsg += "__{0}__ essaye de se téléporte au corps à corps de __{1}__, mais cela échoue\n".format(actTurn.name,ennemi.name)
                                
                                     if skillToUse.areaOnSelf:
                                         ennemi = actTurn
+
+                                jaugeConsumed = 0
+                                if skillToUse.jaugeEff != None:
+                                    skillToUse: classes.skill = copy.deepcopy(skillToUse)
+                                    try:
+                                        if teamJaugeDict[actTurn.team][actTurn].effects.id == skillToUse.jaugeEff.id:
+                                            jaugeMinValue, jaugeMaxValue = skillToUse.minJaugeValue, max(skillToUse.maxJaugeValue,skillToUse.minJaugeValue)
+                                            jaugeConsumed = [teamJaugeDict[actTurn.team][actTurn].value,jaugeMaxValue][jaugeMaxValue<teamJaugeDict[actTurn.team][actTurn].value]
+                                            teamJaugeDict[actTurn.team][actTurn].value -= jaugeConsumed
+                                            jaugeRatio, lastEffPower, lastPower = jaugeConsumed / jaugeMaxValue, skillToUse.effPowerPurcent, power
+                                            if skillToUse.maxJaugeValue != skillToUse.minJaugeValue and skillToUse.maxJaugeValue != 0:
+                                                power += (skillToUse.maxPower-skillToUse.power)*jaugeRatio
+                                            skillToUse.effPowerPurcent = round((skillToUse.effPowerPurcent/2) + (skillToUse.effPowerPurcent/2*jaugeRatio))
+                                            
+                                    except KeyError:
+                                                logs += "\n{0} hasn't any jauge eff"
 
                                 # Luna and Iliana Head to Head
                                 if skillToUse.id == lunaSpe.id:
@@ -7022,8 +7411,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             funnyTempVarName, deathCount = actTurn.attack(target=ennemi,value=secondaryPower,icon='<a:lunaHeadToHead:929707180943355914>',area=AREA_DONUT_7,accuracy=500,use=skillToUse.use,onArmor=skillToUse.onArmor,setAoEDamage=True)
                                             tempTurnMsg += funnyTempVarName
                                             logs += "\n"+funnyTempVarName
-
-                                            actTurn.specialVars["clemBloodJauge"] += 1
+                                            if actTurn.specialVars["clemBloodJauge"] != None:
+                                                actTurn.specialVars["clemBloodJauge"] += 1
 
                                             logs += "\n"+add_effect(actTurn,ennemi,lunaInfiniteDarknessStun)
                                             ennemi.refreshEffects()
@@ -7104,94 +7493,67 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         actTurn.stats.nbLB += 1
                                     
                                     if skillToUse.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ] and skillToUse.effects != [None]:
-                                        if skillToUse.id != clemUltCast.id:
-                                            if skillToUse.id == bolide.id:
-                                                tempTurnMsg += "{0} {1} → {0} -{2} PV\n".format(actTurn.icon,skillToUse.emoji,actTurn.hp -1)
-                                                actTurn.stats.selfBurn += actTurn.hp -1
-                                                actTurn.hp = 1
-                                            if skillToUse.jaugeEff != None:
-                                                skillToUse: classes.skill = copy.deepcopy(skillToUse)
-                                                try:
-                                                    if teamJaugeDict[actTurn.team][actTurn].effects.id == skillToUse.jaugeEff.id:
-                                                        jaugeConsumed = [teamJaugeDict[actTurn.team][actTurn].value,skillToUse.maxJaugeValue][skillToUse.maxJaugeValue<teamJaugeDict[actTurn.team][actTurn].value]
-                                                        teamJaugeDict[actTurn.team][actTurn].value -= jaugeConsumed
-                                                        if skillToUse.maxJaugeValue != skillToUse.minJaugeValue and skillToUse.maxJaugeValue != 0:
-                                                            skillToUse.effPowerPurcent = (skillToUse.effPowerPurcent//2) + (skillToUse.effPowerPurcent//2)*(jaugeConsumed/(skillToUse.maxJaugeValue-skillToUse.minJaugeValue))
-                                                    else:
-                                                        jaugeConsumed = 0
+                                        if skillToUse.id == bolide.id:
+                                            tempTurnMsg += "{0} {1} → {0} -{2} PV\n".format(actTurn.icon,skillToUse.emoji,actTurn.hp -1)
+                                            actTurn.stats.selfBurn += actTurn.hp -1
+                                            actTurn.hp = 1
 
-                                                except KeyError:
-                                                    logs += "\n{0} hasn't any jauge eff"
-                                                    jaugeConsumed = 0
-                                                except KeyError:
-                                                    logs += "\n{0} hasn't any jauge eff"
-                                        
-                                            ballerine = groupAddEffect(caster=actTurn, target=ennemi, area=skillToUse.area, effect=skillToUse.effects, skillIcon=skillToUse.emoji, actionStats=skillToUse.useActionStats, effPurcent = skillToUse.effPowerPurcent)
-                                            tempTurnMsg += ballerine
-                                            logs += ballerine
+                                    
+                                        ballerine = groupAddEffect(caster=actTurn, target=ennemi, area=skillToUse.area, effect=skillToUse.effects, skillIcon=skillToUse.emoji, actionStats=skillToUse.useActionStats, effPurcent = skillToUse.effPowerPurcent)
+                                        tempTurnMsg += ballerine
+                                        logs += ballerine
 
-                                            if skillToUse.type == TYPE_BOOST and skillToUse.range == AREA_MONO and actTurn.specialVars["partner"] != None and actTurn.specialVars["partner"].hp > 0:
-                                                initArea = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES,directTarget=False)
-                                                secondArea = actTurn.specialVars["partner"].cell.getEntityOnArea(area=skillToUse.area,fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,directTarget=False)
+                                        if skillToUse.type == TYPE_BOOST and skillToUse.range == AREA_MONO and actTurn.specialVars["partner"] != None and actTurn.specialVars["partner"].hp > 0:
+                                            initArea = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALLIES,directTarget=False)
+                                            secondArea = actTurn.specialVars["partner"].cell.getEntityOnArea(area=skillToUse.area,fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,directTarget=False)
 
-                                                for ent in secondArea[:]:
-                                                    if ent in initArea or ent == actTurn:
-                                                        secondArea.remove(ent)
+                                            for ent in secondArea[:]:
+                                                if ent in initArea or ent == actTurn:
+                                                    secondArea.remove(ent)
 
-                                                if len(secondArea) > 0:
-                                                    effPower = [skillToUse.effPowerPurcent,100][skillToUse.effPowerPurcent == None]
-                                                    ballerine = groupAddEffect(caster=actTurn, target=actTurn.specialVars["partner"], area=secondArea, effect=skillToUse.effects, skillIcon=partner.emoji, actionStats=skillToUse.useActionStats, effPurcent = [effPower * partnerIn.power * 0.01,effPower][findEffect(skillToUse.effects[0]).id == tangoEndEff.id])
-                                                    tempTurnMsg += ballerine
-                                                    logs += ballerine
-
-                                        else:
-                                            effect = skillToUse.effects[0]
-                                            tempVal, clemShieldBefore = max(actTurn.specialVars["clemBloodJauge"].value-1,30), actTurn.stats.shieldGived
-                                            effect.overhealth = tempVal * 2
-                                            tempTurnMsg += add_effect(actTurn,actTurn,effect,danger=danger)
-                                            logs += "\nClemClem gave herself her ult shield with {2} PAr (base power : {0} ({1} * 2))".format(effect.overhealth,tempVal, actTurn.stats.shieldGived-clemShieldBefore)
-                                            actTurn.refreshEffects()
-
-                                            actTurn.specialVars["clemBloodJauge"].value = 1
-                                            actTurn.specialVars["clemMemCast"] = True
+                                            if len(secondArea) > 0:
+                                                effPower = [skillToUse.effPowerPurcent,100][skillToUse.effPowerPurcent == None]
+                                                ballerine = groupAddEffect(caster=actTurn, target=actTurn.specialVars["partner"], area=secondArea, effect=skillToUse.effects, skillIcon=partner.emoji, actionStats=skillToUse.useActionStats, effPurcent = [effPower * partnerIn.power * 0.01,effPower][findEffect(skillToUse.effects[0]).id == tangoEndEff.id])
+                                                tempTurnMsg += ballerine
+                                                logs += ballerine
 
                                     elif skillToUse.type in [TYPE_INDIRECT_DAMAGE,TYPE_MALUS]:
-                                        if skillToUse.jaugeEff != None:
-                                            skillToUse: classes.skill = copy.deepcopy(skillToUse)
-                                            try:
-                                                if teamJaugeDict[actTurn.team][actTurn].effects.id == skillToUse.jaugeEff.id:
-                                                    jaugeConsumed = [teamJaugeDict[actTurn.team][actTurn].value,skillToUse.maxJaugeValue][skillToUse.maxJaugeValue<teamJaugeDict[actTurn.team][actTurn].value]
-                                                    teamJaugeDict[actTurn.team][actTurn].value -= jaugeConsumed
-                                                    if skillToUse.maxJaugeValue != skillToUse.minJaugeValue and skillToUse.maxJaugeValue != 0:
-                                                        skillToUse.effPowerPurcent = (skillToUse.effPowerPurcent//2) + (skillToUse.effPowerPurcent//2)*(jaugeConsumed/(skillToUse.maxJaugeValue-skillToUse.minJaugeValue))
-                                                else:
-                                                    jaugeConsumed = 0
-
-
-                                            except KeyError:
-                                                logs += "\n{0} hasn't any jauge eff"
-                                        
-                                        if skillToUse.id != serenaSpe.id:
+                                        if skillToUse.id not in [serenaSpe.id,fairyLiberation.id]:
                                             ballerine = groupAddEffect(caster=actTurn, target=ennemi, area=skillToUse.area, effect=skillToUse.effects, skillIcon=skillToUse.emoji, actionStats=skillToUse.useActionStats, effPurcent = skillToUse.effPowerPurcent)
                                             tempTurnMsg += ballerine
                                             logs += ballerine
-                                        else:
+                                        elif skillToUse.id == serenaSpe.id:
                                             for ent in tablEntTeam[int(not(actTurn.team))]:
                                                 if ent.hp > 0:
                                                     sumPower = 0
                                                     for eff in ent.effects:
-                                                        if eff.effects.id == estal.id:
+                                                        if eff.effects.id == estial.id:
                                                             sumPower += int(eff.effects.power*eff.turnLeft*(skillToUse.power/100))
                                                             eff.decate(value=100)
 
                                                     if sumPower > 0:
                                                         ent.refreshEffects()
-                                                        sumPower += estal.power * estal.turnInit * (skillToUse.power/100)
+                                                        sumPower += estial.power * estial.turnInit * (skillToUse.power/100)
                                                         temp = actTurn.indirectAttack(target=ent,value=indirectDmgCalculator(actTurn, ent, sumPower, skillToUse.use, danger, skillToUse.area),icon=skillToUse.emoji)
                                                     else:
                                                         temp = "Cela a aucun effet sur __{0}__\n".format(ent.name)
                                                     tempTurnMsg += temp
                                                     logs += temp
+                                        elif skillToUse.id == fairyLiberation.id:
+                                            tablEntEnnemis = ennemi.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENEMIES,directTarget=False,fromCell=actTurn.cell)
+                                            for ent in tablEntEnnemis:
+                                                effExplo, sumPow = copy.deepcopy(liberationEff), 0
+                                                for eff in ent.effects:
+                                                    if eff.effects.id == estial.id:
+                                                        sumPow += eff.effects.power * eff.value * (effExplo.power/100)
+                                                        eff.decate(turn=99)
+                                                effExplo.power = sumPow
+                                                if effExplo.power > 0:
+                                                    if effExplo.power < 10:
+                                                        effExplo.callOnTrigger = None
+                                                    ballerine = groupAddEffect(caster=actTurn, target=ent, area=AREA_MONO, effect=effExplo, skillIcon=skillToUse.emoji)
+                                                    tempTurnMsg += ballerine
+                                                    logs += ballerine
 
                                         if skillToUse.id == cwUlt.id:
                                             skillToUse.power = skillToUse.power + (skillToUse.maxPower-skillToUse.power)/(jaugeConsumed/[skillToUse.maxJaugeValue,skillToUse.minJaugeValue][skillToUse.maxJaugeValue==0])
@@ -7215,10 +7577,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             listTarget = []
                                             sumPower = 0
                                             for eff in ennemi.effects:
-                                                if eff.effects.id in [estal.id] and eff.value > 0:
+                                                if eff.effects.id in [estial.id] and eff.value > 0:
                                                     sumPower += eff.effects.power * ([propag.power,propag.power//2][int(eff.caster==actTurn)])/100
 
-                                            effTabl, tablName, effTabl2 = [estal],[[]],[estal2]
+                                            effTabl, tablName, effTabl2 = [estial],[[]],[estal2]
                                             for ent in ennemi.cell.getEntityOnArea(area=AREA_DONUT_2,team=actTurn.team,wanted=ENEMIES,fromCell=actTurn.cell,directTarget=False):
                                                 if sumPower > 0:
                                                     add_effect(actTurn,ent,effTabl[0],effPowerPurcent=int((sumPower/effTabl[0].power)*100))
@@ -7253,7 +7615,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                     elif skillToUse.type == TYPE_HEAL:
                                         logs += "\n"
-
                                         if skillToUse.id == healingSacrifice.id:
                                             skillToUse: classes.skill = copy.deepcopy(skillToUse)
                                             pvConsumed = actTurn.hp - 1
@@ -7261,7 +7622,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             tempTurnMsg += "{0} {1} → {0} -{2} PV\n\n".format(actTurn.icon,skillToUse.emoji,pvConsumed)
                                             skillToUse.use, skillToUse.power, skillToUse.effPowerPurcent = None, round(pvConsumed*skillToUse.power/100), int(100*pvConsumed/actTurn.maxHp)
 
-                                        if ennemi.hp > 0:
+                                        if ennemi.hp > 0 or skillToUse.area != AREA_MONO:
                                             elemPowBonus = 0
                                             if skillToUse.condition[:2] == [0,2]:
                                                 for eff in actTurn.effects:
@@ -7278,19 +7639,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 statUse = actTurn.allStats()[statUse]
 
                                             power = skillToUse.power * (1+(LIGHTHEALBUFF/100*actTurn.char.element == ELEMENT_LIGHT))
-                                            if skillToUse.jaugeEff != None:
-                                                try:
-                                                    if teamJaugeDict[actTurn.team][actTurn].effects.id == skillToUse.jaugeEff.id:
-                                                        jaugeConsumed = [teamJaugeDict[actTurn.team][actTurn].value,skillToUse.maxJaugeValue][skillToUse.maxJaugeValue<teamJaugeDict[actTurn.team][actTurn].value]
-                                                        if skillToUse.power != skillToUse.maxPower:
-                                                            power = power + (skillToUse.maxPower-skillToUse.power)/(jaugeConsumed/[skillToUse.maxJaugeValue,skillToUse.minJaugeValue][skillToUse.maxJaugeValue==0])
-
-                                                        teamJaugeDict[actTurn.team][actTurn].value -= jaugeConsumed
-                                                    else:
-                                                        jaugeConsumed = 0
-                                                except KeyError:
-                                                    logs += "\n{0} hasn't any jauge eff"
-
                                             power = power * (1+elemPowBonus * 0.05)
 
                                             if skillToUse.id == dissi.id:
@@ -7334,21 +7682,24 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                     elif skillToUse.type == TYPE_SUMMON:
                                         toSummon, cmpt, limit = findSummon(skillToUse.invocation), 0, skillToUse.nbSummon
-                                        if skillToUse.id == sumLightButterfly.id:
-                                            try:
-                                                if teamJaugeDict[actTurn.team][actTurn].effects.id == jaugeButLight.id:
-                                                    limit += teamJaugeDict[actTurn.team][actTurn].value//40
-                                                    teamJaugeDict[actTurn.team][actTurn].value = int(teamJaugeDict[actTurn.team][actTurn].value%40)
-                                            except KeyError:
-                                                pass
+                                        if skillToUse.id == selfMemoria.id:
+                                            tempTurnMsg += actTurn.summonMemoria(actTurn)
+                                        else:
+                                            if skillToUse.id == sumLightButterfly.id:
+                                                try:
+                                                    if teamJaugeDict[actTurn.team][actTurn].effects.id == jaugeButLight.id:
+                                                        limit += teamJaugeDict[actTurn.team][actTurn].value//40
+                                                        teamJaugeDict[actTurn.team][actTurn].value = int(teamJaugeDict[actTurn.team][actTurn].value%40)
+                                                except KeyError:
+                                                    pass
 
-                                        while cmpt < limit:
-                                            cellToSummon = actTurn.cell.getCellForSummon(skillToUse.range,actTurn.team,toSummon,actTurn)
-                                            if cellToSummon != None:
-                                                tablEntTeam, tablAliveInvoc, time, funnyTempVarName = actTurn.summon(toSummon,time,cellToSummon,tablEntTeam,tablAliveInvoc,ignoreLimite=True)
-                                                tempTurnMsg += funnyTempVarName+"\n"
-                                                logs += "\n"+funnyTempVarName
-                                            cmpt += 1
+                                            while cmpt < limit:
+                                                cellToSummon = actTurn.cell.getCellForSummon(skillToUse.range,actTurn.team,toSummon,actTurn)
+                                                if cellToSummon != None:
+                                                    tablEntTeam, tablAliveInvoc, time, funnyTempVarName = actTurn.summon(toSummon,time,cellToSummon,tablEntTeam,tablAliveInvoc,ignoreLimite=True)
+                                                    tempTurnMsg += funnyTempVarName+"\n"
+                                                    logs += "\n"+funnyTempVarName
+                                                cmpt += 1
 
                                     elif skillToUse.type == TYPE_RESURECTION:
                                         if skillToUse.id == aliceRez.id:
@@ -7375,10 +7726,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         for target in ennemi.cell.getEntityOnArea(area=skillToUse.area,fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,dead=True,directTarget=False,ignoreInvoc=True):
                                             if stat not in [PURCENTAGE,None,FIXE]:
                                                 healPowa = min(target.maxHp, calHealPower(actTurn,target,skillToUse.power,1,actTurn.allStats()[skillToUse.use],tempActStatsTabl[0][0],danger))
-
                                             elif stat == PURCENTAGE:
                                                 healPowa = round(target.maxHP * skillToUse.power/100)
-
                                             elif stat == None:
                                                 healPowa = skillToUse.power
 
@@ -7387,6 +7736,15 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             logs += funnyTempVarName
                                             resTabl.append(target)
 
+                                        if skillToUse.id == inMemoria.id:
+                                            for ent in tablEntTeam[actTurn.team]:
+                                                if ent.hp < 0 and type(ent.char) not in [invoc,depl] :
+                                                    tempTurnMsg += actTurn.summonMemoria(ent)
+                                                elif ent.isNpc("Anna"):
+                                                    belle = copy.deepcopy(findAllie("Belle"))
+                                                    belle.changeLevel(ent.char.level,False,ent.char.stars)
+                                                    belle = entity(ent.id, belle, ent.team, False, auto=True, danger=[100,danger][ent.team > 0])
+                                                    tempTurnMsg += actTurn.summonMemoria(belle)
 
                                         for eff in skillToUse.effects:
                                             if eff != None:
@@ -7403,6 +7761,10 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         else:
                                             tempTurnMsg += "\n"
 
+                                        if skillToUse.id == snowFall.id and ennemi.on == None:
+                                            actTurn.move(cellToMove=ennemi)
+                                            tempTurnMsg += "{0} se téléporte sur la cellule {1}:{2}\n".format(actTurn.name,ennemi.x,ennemi.y)
+
                                     elif type(ennemi) == entity: # Damage
                                         power, elemPowBonus, elemEffGet = skillToUse.power, 0, 0
 
@@ -7413,21 +7775,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                     elemEffGet += 1
                                         if elemPowBonus > 0:
                                             power = power * (1+(elemPowBonus/100))
-
-                                        if skillToUse.jaugeEff != None:
-                                            try:
-                                                if teamJaugeDict[actTurn.team][actTurn].effects.id == skillToUse.jaugeEff.id:
-                                                    jaugeConsumed = max([teamJaugeDict[actTurn.team][actTurn].value,skillToUse.maxJaugeValue][skillToUse.maxJaugeValue<teamJaugeDict[actTurn.team][actTurn].value],0)
-                                                    if skillToUse.power != skillToUse.maxPower:
-                                                        if jaugeConsumed == 0 or skillToUse.minJaugeValue == 0:
-                                                            pass
-                                                        elif jaugeConsumed > 0:
-                                                            power = power + (skillToUse.maxPower-skillToUse.power)/(jaugeConsumed/[skillToUse.maxJaugeValue,skillToUse.minJaugeValue][skillToUse.maxJaugeValue==0])
-                                                    teamJaugeDict[actTurn.team][actTurn].value -= jaugeConsumed
-                                                else:
-                                                    jaugeConsumed = 0
-                                            except KeyError:
-                                                logs += "\n{0} hasn't any jauge eff"
 
                                         if skillToUse.id == lowBlow.id and (type(ennemi.char) == octarien and (ennemi.char.oneVAll or ennemi.name in ENEMYIGNORELIGHTSTUN)):
                                             power += skillToUse.maxPower - skillToUse.power
@@ -7584,22 +7931,18 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 tempTurnMsg += "\n"
 
                                         if None not in skillToUse.effects and not(skillToUse.effBeforePow):
-                                            tempTurnMsg += "\n"
                                             for a in skillToUse.effects:
                                                 eff = findEffect(a)
                                                 tempTurnMsg += add_effect(actTurn,ennemi,eff,effPowerPurcent=skillToUse.effPowerPurcent, skillIcon=skillToUse.emoji)
-                                                logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,effect.name,ennemi.char.name,effect.turnInit)
+                                                logs += "\n{0} gave the {1} effect at {2} for {3} turn(s)".format(actTurn.char.name,eff.name,ennemi.char.name,eff.turnInit)
 
                                         if skillToUse.power > 0 and actTurn.specialVars["damageSlot"] != None:
-                                            loose = int(actTurn.maxHp * (15/100))
-                                            funnyTempVarName = "\n{0} : -{1} PV ({2})\n".format(actTurn.icon,loose,actTurn.specialVars["damageSlot"].effects.name)
+                                            loose = min(actTurn.hp-1,int(actTurn.maxHp * (15/100)))
+                                            funnyTempVarName = "\n{0} {3} → {0} -{1} PV ({2})\n".format(actTurn.icon,loose,actTurn.specialVars["damageSlot"].effects.name,actTurn.specialVars["damageSlot"].icon)
                                             tempTurnMsg += funnyTempVarName
                                             logs + funnyTempVarName
                                             actTurn.hp -= loose
                                             actTurn.stats.selfBurn += loose
-                                            if actTurn.hp <= 0:
-                                                tempTurnMsg += actTurn.death(killer=actTurn)
-
                                             actTurn.refreshEffects()
 
                                         if actTurn.isNpc("Ailill") and skillToUse.id == "headnt":
@@ -7612,6 +7955,30 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         if skillToUse.execution:
                                             ennemi.status = STATUS_TRUE_DEATH
 
+                                        if skillToUse.id == gemmes.id:
+                                            for ent in tablEntTeam[actTurn.team]:
+                                                if type(ent.char) == invoc and ent.char.name.startswith("Carbuncle"):
+                                                    power = [65,50][ent.char.element in [ELEMENT_AIR,ELEMENT_FIRE,ELEMENT_SPACE,ELEMENT_LIGHT]]
+                                                    area = [AREA_MONO,AREA_CIRCLE_1][ent.char.element in [ELEMENT_AIR,ELEMENT_FIRE,ELEMENT_SPACE,ELEMENT_LIGHT]]
+                                                    funnyTempVarName, temp = ent.attack(
+                                                        target=ennemi,
+                                                        value=power,
+                                                        icon=skillToUse.emoji,
+                                                        area=area,
+                                                        accuracy=skillToUse.accuracy,
+                                                        use=HARMONIE,
+                                                        onArmor=skillToUse.onArmor,
+                                                        useActionStats=actionStats,
+                                                        setAoEDamage = skillToUse.setAoEDamage,
+                                                        lifeSteal = skillToUse.lifeSteal,
+                                                        erosion = skillToUse.erosion,
+                                                        skillPercing = skillToUse.percing,
+                                                        execution=skillToUse.execution,
+                                                        armorConvert=skillToUse.armorConvert,
+                                                        skillUsed=skillToUse)
+                                                    tempTurnMsg += funnyTempVarName
+                                                    logs += "\n"+funnyTempVarName
+                                                    deathCount += temp
                                 # =================================================================
                                 # Knockback
                                 if skillToUse.knockback > 0:
@@ -7637,6 +8004,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 returnMsg += ", "
                                             elif ent == listEnt[-2]:
                                                 returnMsg += " et "
+                                            else:
+                                                returnMsg += " "
                                     returnMsg += " {0} repoussé{1} de {2} case{3}".format(["est","sont"][len(listEnt)>1],["","s"][len(listEnt)>1],skillToUse.knockback,["","s"][skillToUse.knockback>1])
                                     for ent, values in allDict.items():
                                         returnMsg += "\n{0} → ".format(ent.icon)
@@ -7646,7 +8015,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                         sumation = 0
                                         for damage in values[1]:
                                             sumation += damage
-                                        returnMsg += " - ≈{0} PV".format(round(sumation/len(values[1])))
+                                        returnMsg += " -≈ {0} PV".format(round(sumation/len(values[1])))
                                         try:
                                             if (len(listStuns[ent])) > 0:
                                                 returnMsg += "\n{0} → ".format(ent.icon)
@@ -7675,28 +8044,18 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
                                 # Does the skill give a effect on the caster ?
                                 if skillToUse.effectAroundCaster != None:
-                                    haveStarted = False
                                     if skillToUse.effectAroundCaster[0] == TYPE_HEAL:
                                         for a in actTurn.cell.getEntityOnArea(area=skillToUse.effectAroundCaster[1],fromCell=actTurn.cell,team=actTurn.team,wanted=ALLIES,directTarget=False):
                                             funnyTempVarName, useless = actTurn.heal(a, skillToUse.emoji, skillToUse.use, skillToUse.effectAroundCaster[2] * (1+LIGHTHEALBUFF/100*(actTurn.char.element == ELEMENT_LIGHT)),danger=danger, mono = skillToUse.area == skillToUse.effectAroundCaster[1], useActionStats = skillToUse.useActionStats)
-                                            if not(haveStarted) and funnyTempVarName != "":
-                                                haveStarted = True
-                                                tempTurnMsg += "\n"
-                                            tempTurnMsg += funnyTempVarName
+                                            tempTurnMsg += ["","\n"][tempTurnMsg[-1]!="\n" and len(funnyTempVarName)>0]+funnyTempVarName
                                             logs += funnyTempVarName
                                     elif skillToUse.effectAroundCaster[0] == TYPE_DAMAGE:
                                         funnyTempVarName, temp = actTurn.attack(target=actTurn,value=skillToUse.effectAroundCaster[2],icon=skillToUse.emoji,area=skillToUse.effectAroundCaster[1],accuracy=skillToUse.accuracy,use=skillToUse.use,onArmor=skillToUse.onArmor,useActionStats=actionStats,setAoEDamage=skillToUse.setAoEDamage,lifeSteal = skillToUse.lifeSteal)
-                                        if not(haveStarted) and funnyTempVarName != "":
-                                            haveStarted = True
-                                            tempTurnMsg += "\n"
-                                        tempTurnMsg += funnyTempVarName
+                                        tempTurnMsg += ["\n","\n\n"][tempTurnMsg[-1]!="\n" and len(funnyTempVarName)>0]+funnyTempVarName
                                         logs += "\n"+funnyTempVarName
                                     elif type(skillToUse.effectAroundCaster[2]) == classes.effect:
                                         ballerine = groupAddEffect(actTurn, actTurn, skillToUse.effectAroundCaster[1], skillToUse.effectAroundCaster[2], skillToUse.emoji, effPurcent=[skillToUse.effPowerPurcent,liaLB.effPowerPurcent/5][skillToUse.id == trans.id and actTurn.isNpc("Lia")])
-                                        if not(haveStarted) and ballerine != "":
-                                            haveStarted = True
-                                            tempTurnMsg += "\n"
-                                        tempTurnMsg += ballerine
+                                        tempTurnMsg += ["","\n"][tempTurnMsg[-1]!="\n" and len(ballerine)>0]+ballerine
                                         logs += ballerine
 
                                     elif skillToUse.effectAroundCaster[0] == TYPE_RESURECTION:
@@ -7714,10 +8073,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             healPowa = calHealPower(actTurn,a,skillToUse.effectAroundCaster[2],1,statUse,tempActStatsTabl[0][0],danger)
 
                                             funnyTempVarName = await actTurn.resurect(a,healPowa,skillToUse.emoji,danger=danger)
-                                            if not(haveStarted) and funnyTempVarName != "":
-                                                haveStarted = True
-                                                tempTurnMsg += "\n"
-                                            tempTurnMsg += funnyTempVarName
+                                            tempTurnMsg += ["","\n"][tempTurnMsg[-1] != "\n" and len(funnyTempVarName)>0]+funnyTempVarName
                                             logs += funnyTempVarName
                                             bigRaiseCount += 1
 
@@ -7736,22 +8092,17 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     logs += ballerine
 
                                 if skillToUse.effectOnSelf != None and not(skillToUse.effBeforePow):
-                                    if findEffect(skillToUse.effectOnSelf).id not in [triggerDeathMark.id]:
-                                        if not(findEffect(skillToUse.effectOnSelf).silent):
-                                            if tempTurnMsg[-1] == "\n":
-                                                tempTurnMsg += "\n"
-                                            else:
-                                                tempTurnMsg += "\n\n"
-                                        eff = findEffect(skillToUse.effectOnSelf)
+                                    eff = findEffect(skillToUse.effectOnSelf)
+                                    if eff != None and eff.id not in [triggerDeathMark.id]:
                                         if eff.replica != None:
-                                            tempTurnMsg += add_effect(actTurn,actTurn,eff,setReplica=ennemi)
+                                            tempTurnMsg += ["\n",""][eff.silent]+add_effect(actTurn,actTurn,eff,setReplica=ennemi)
                                             if ennemi != actTurn and not(skillToUse.replay):
                                                 eff2 = classes.effect("⚠️ Cible - {0}".format(eff.replica.name),"targeted{0}".format(eff.replica.id),effPrio=1,silent=True,turnInit=eff.turnInit-1,emoji=eff.replica.emoji)
                                                 add_effect(actTurn,ennemi,eff2)
                                                 ennemi.refreshEffects()
                                         else:
-                                            tempTurnMsg += add_effect(actTurn,actTurn,eff,skillIcon = skillToUse.emoji,effPowerPurcent=skillToUse.selfEffPurcent)
-                                            actTurn.refreshEffects()                                        
+                                            tempTurnMsg += ["\n",""][eff.silent]+add_effect(actTurn,actTurn,eff,skillIcon = skillToUse.emoji,effPowerPurcent=skillToUse.selfEffPurcent)
+                                            actTurn.refreshEffects()
                                     else:
                                         for eff in ennemi.effects:
                                             if eff.effects.id == deathMark.id and eff.caster.id == actTurn.id:
@@ -7814,37 +8165,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             if target.hp <= 0:
                                                 tablTargets.remove(target)
                                             cmpt += 1
-
-                                # Blood cost
-                                if actTurn.isNpc("Clémence pos.") or actTurn.isNpc("Alice Exaltée"):
-                                    for skillID, cost in clemBJcost.items():
-                                        if skillToUse.id == skillID:
-                                            actTurn.specialVars["clemBloodJauge"].value = max(0,actTurn.specialVars["clemBloodJauge"].value - cost)
-                                            if actTurn.specialVars["clemBloodJauge"].value == 0:
-                                                tempTurnMsg += "\nLa Jauge de Sang se brise !\n"
-                                                if actTurn.isNpc("Clémence pos."):
-                                                    tempTurnMsg += add_effect(actTurn, actTurn, clemStunEffect)
-                                                    temp = copy.deepcopy(vulneTabl[3])
-                                                    temp.turnInit = 3
-                                                    tempTurnMsg += add_effect(actTurn, actTurn, temp)
-                                                else:
-                                                    tempTurnMsg += add_effect(actTurn, actTurn, aliceStunEffect)
-                                                
-                                                loose = actTurn.maxHp // 10
-                                                tempTurnMsg += "{0} : -{1} PV\n".format(actTurn.icon,loose)
-                                                actTurn.hp -= loose
-                                                if actTurn.hp <= 0:
-                                                    tempTurnMsg += actTurn.death(killer=actTurn)
-
-                                                actTurn.refreshEffects()
-                                            break
-
-                                    if skillToUse.id == clemUltLauch.id:
-                                        for ent in tablEntTeam[int(not(actTurn.team))]:
-                                            if ent.isNpc("Alice Exaltée"):
-                                                for eff in ent.effects:
-                                                    if eff.effects.id == aliceStunEffect.id:
-                                                        tempTurnMsg += eff.decate(turn=99)
 
                                 # Max Hp cost
                                 if skillToUse.maxHpCost > 0:
@@ -7912,21 +8232,20 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             if ent.isNpc("Alice") and ent.hp > 0:
                                                 damage, tempLogs = indirectDmgCalculator(ent, actTurn, [15,25][skillToUse.id == onstage.id], CHARISMA, 100, area=AREA_MONO)
                                                 murcialago = "\n"+ent.indirectAttack(target=actTurn,value=damage,icon="",ignoreImmunity=True,name='Coup bas',hideAttacker=True)
-                                                tempTurnMsg += murcialago + "\n" + tempLogs
-                                                logs += "\nAlice wasn't verry happy about that\n"+murcialago
+                                                tempTurnMsg += murcialago + "\n"
+                                                logs += "\nAlice wasn't verry happy about that\n"+murcialago+tempLogs
                                                 break
 
                                 if skillToUse.effectOnSelf != None and findEffect(skillToUse.effectOnSelf).replica != None and skillToUse.power == 0 and skillToUse.effects == [None]:
                                     tempTurnMsg += "{0} charge la compétence __{1}__\n".format(actTurn.name,skillToUse.name)
 
-                                if skillToUse.id == unHolly.id and (ennemi.isNpc("Liu") or ennemi.isNpc("Lia") or ennemi.isNpc("Liz") or ennemi.isNpc("Lio") or ennemi.isNpc("Kitsune")):
+                                if skillToUse.id == unHolly.id and ennemi.char.npcTeam == NPC_KITSUNE:
                                     funnyMsg, funnyMsgTabl, tablKitsunes, tablEffectGiven = "", ["Oh tu veux jouer à ça ?","Oh ^^ Mon tour maintenant !","C'est mignon x) Mais tu va apprendre à un vieux singe à faire la grimace","Tu l'as cherché...","^^ Laisse moi te montrer comment il faut faire"], [ennemi.isNpc("Liu"),ennemi.isNpc("Lia"),ennemi.isNpc("Liz"),ennemi.isNpc("Lio"),ennemi.isNpc("Kitsune")], [3,5,5,3,10]
                                     for cmpt in range(5):
                                         if tablKitsunes[cmpt]:
                                             tempTurnMsg += "\n{0} : *\"{1}\"*".format(ennemi.icon,funnyMsgTabl[cmpt])
-                                            for cmpt2 in range(tablEffectGiven[cmpt]):
-                                                add_effect(ennemi,actTurn,charming)
-                                            tempTurnMsg += "\n{0} → {1} +{2} x{3}".format(ennemi.icon,actTurn.icon,charming.emoji[0][1],tablEffectGiven[cmpt])
+                                            tempTurnMsg += add_effect(ennemi,actTurn,charming,effPowerPurcent=tablEffectGiven[cmpt]*100)
+                                            ennemi.refreshEffects()
                                             break
 
                                 elif skillToUse.id in tablRosesSkillsId and skillToUse.effectOnSelf == None: # Final Floral On Self
@@ -7999,24 +8318,29 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             break
 
                                 elif skillToUse.id == raisingPheonixLaunch.id and skillToUse.power != 0 and actTurn.isNpc("Chûri"):
-                                    actTurn.icon = "<:churHi:994045813175111811>"
-                                    actTurn.char.name, actTurn.char.element = "Chûri-Hinoro", ELEMENT_FIRE
-                                    tempChurSkills = copy.deepcopy(churInoSkills)
-                                    for cmpt in range(len(lvlToUnlockSkill)):
-                                        if actTurn.level < lvlToUnlockSkill[cmpt]:
-                                            tempChurSkills[cmpt] = "0"
-                                    actTurn.char.skills = tempChurSkills
-
                                     for eff in actTurn.effects:
                                         if eff.effects.id == tablElemEff[ELEMENT_EARTH].id:
-                                            eff.effects, eff.icon = copy.deepcopy(tablElemEff[ELEMENT_FIRE]), tablElemEff[ELEMENT_EARTH].emoji[0][0]
-                                    if tempTurnMsg[-1] == "\n":
-                                        tempTurnMsg += "\n<:churi:992941366537633914> __Chûri__ prend sa forme de Demi-Phenix !"
-                                        tempTurnMsg += groupAddEffect(caster=actTurn, target=actTurn, area=AREA_CIRCLE_2, effect=phoenixFlight, skillIcon=skillToUse.emoji,effPurcent=60)
-                                    else:
-                                        tempTurnMsg += "\n\n<:churi:992941366537633914> __Chûri__ prend sa forme de Demi-Phenix !"
+                                            eff.replaceEffect(tablElemEff[ELEMENT_FIRE])
+                                    ally = copy.deepcopy(findAllie("Chûri-Hinoro"))
+                                    ally.changeLevel(level=team1[0].level,stars=team1[0].stars)
+                                    await actTurn.changeNpc(ally)
+                                    tempTurnMsg += "{0}\n{1} __{2}__ prend sa forme de Demi-Phenix !\n".format(["\n",""][tempTurnMsg[-1] == "\n"], actTurn.icon, actTurn.name)
+                                    tempTurnMsg += groupAddEffect(caster=actTurn, target=actTurn, area=AREA_CIRCLE_2, effect=phoenixFlight, skillIcon=skillToUse.emoji,effPurcent=60)
                                     logs += "\nChuri is ready to burn everything !\n"
 
+                                if actTurn.dualCast != None and skillToUse.type in hostilesTypes:
+                                    target = ennemi
+                                    if ennemi.id == actTurn.id:
+                                        tempTablTarget = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ENEMIES, directTarget=False, fromCell=actTurn.cell)
+                                        if len(tempTablTarget) > 0:
+                                            tempTablTarget.sort(key=lambda ballerine: actTurn.getAggroValue(ballerine),reverse=True)
+                                            target = tempTablTarget[0]
+                                    ballerine, babie = actTurn.attack(target=target,value = actTurn.dualCast.effects.power,icon =actTurn.dualCast.icon,area=actTurn.dualCast.effects.area,accuracy=300,use=actTurn.dualCast.effects.stat)
+                                    actTurn.dualCast.decate(value=1)
+                                    actTurn.refreshEffects()
+                                    tempTurnMsg += "\n"+ballerine
+                                    logs += ballerine
+                                    deathCount += babie
                                 else:
                                     for cmpt in range(len(horoSkills)):
                                         if skillToUse.id == horoSkills[cmpt].id:
@@ -8084,7 +8408,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             teamJaugeDict[actTurn.team][actTurn].value = min(teamJaugeDict[actTurn.team][actTurn].value+conds.value,100)
                                 except KeyError:
                                     pass
-                                
+
                                 # Skill React
                                 if skillToUse.name in [lb3Tabl[VIGILANT].name,lb3Tabl[ALTRUISTE].name] and dictIsNpcVar["Nacialisla"]:
                                     tempTurnMsg += "\n{0} : *\"{1}\"*".format("<:nacialisla:985933665534103564>","Si vous pensez que mettre mon nom sur vos sorts plus puissants va m'attendrir vous vous mettez le doigt dans l'oeuil.")
@@ -8099,6 +8423,11 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                 lunaUsedQuickFight += "\n"+lunaQFEff.decate(1)
                                 actTurn.refreshEffects()
 
+                            timeNow = (datetime.now() - nowStartOfTurn)/timedelta(microseconds=1000)
+                            logs += "Turn duration : {0} ms{1}\n ----------".format(timeNow,[" (Manual fighter)",""][int(actTurn.auto)])
+                            if timeNow > 500 and actTurn.auto:
+                                longTurn = True
+                                longTurnNumber.append({"turn":tour,"ent":actTurn.char.name,"duration":timeNow})
                             if not(replay or (optionChoice == OPTION_MOVE and not(allReadyMove))):
                                 if actTurn.isNpc("Epiphyllum"):
                                     if dictIsNpcVar["Amary"]:
@@ -8131,39 +8460,51 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                     allReadyMove = True
                                     logs += "\n"
 
-                                if not(auto) and not(actTurn.auto):   # Sending the Turn message
-                                    tempTurnMsg = reducedEmojiNames(tempTurnMsg)
+                                if not(auto) and not(optionChoice == OPTION_MOVE):   # Sending the Turn message
                                     emby = interactions.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color)
                                     if optionChoice == OPTION_SKILL and skillToUse.url != None:
                                         emby.set_image(url=skillToUse.url)
 
-                                    toAdd = 0
-                                    if len(choiceEmbed) > 1:
-                                        toAdd = getEmbedLength(choiceEmbed[0])
-                                    tried, cmpt = 0, 0
-                                    while getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd > 5500:
+                                    tried, cmpt, lenEmbeds = 0, 0, getEmbedLength(embInfo)+getEmbedLength(emby)
+                                    while lenEmbeds > 5500:
                                         if tried == 0:
                                             finded = False
                                             for field in embInfo.fields:
-                                                if cmpt < len(statEmbedFieldNames) and field.name == statEmbedFieldNames[cmpt]:
-                                                    field.value, finded, cmpt = "[...]", True, cmpt + 1
-                                            if cmpt == len(statEmbedFieldNames)-1 or not(finded):
+                                                if cmpt < len(statEmbedFieldNames) and statEmbedFieldNames[cmpt] in field.name:
+                                                    field.value, finded, cmpt = "[...]", True, cmpt+1
+                                                    break
+                                            if not(finded):
                                                 tried += 1
                                         elif tried == 1:
-                                            emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd):]
+                                            emby.description = emby.description[5500-lenEmbeds:]
                                             if len(emby.description) > 4050:
                                                 emby.description = emby.description[len(emby.description)-4050]
                                             tried += 1
                                         else:
                                             emby.description = "OVERLOAD"
                                             break
+                                        lenEmbeds = getEmbedLength(embInfo)+getEmbedLength(emby)
 
-                                    await msg.edit(embeds = [embInfo, emby]+choiceEmbed,components=[infoSelect])
-                                    if not(isCasting):
-                                        await asyncio.sleep(3)
-                                    else:
-                                        await asyncio.sleep(1)
-                    
+                                    nbTry = 0
+                                    while 1:
+                                        try:
+                                            await msg.edit(embeds = [embInfo,emby],components=[infoSelect])
+                                            break
+                                        except SocketError as e:
+                                            if e.errno not in [errno.ECONNRESET,503] or ('503: Service Unavailable' not in e.__str__) or ('500: Internal Server Error' not in e.__str__):
+                                                raise
+                                            else:
+                                                if nbTry < 5:
+                                                    await asyncio.sleep(1)
+                                                    nbTry += 1
+                                                    errorNb += 1
+                                                    logs += "\nConnexion error... retrying..."
+                                                else:
+                                                    logs += "\nConnexion lost"
+                                                    raise
+
+                                    await asyncio.sleep(1)
+
                                 for team in [0,1]:                      # Does a team is dead ?
                                     for ent in tablEntTeam[team]:
                                         if ent.hp > 0 and type(ent.char) not in [invoc, depl]:
@@ -8193,44 +8534,65 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     funnyTempVarName, ressurected = "\n__Fin du tour__\n"+actTurn.endOfTurn(danger), [[],[]]
                     logs += funnyTempVarName
                     tempTurnMsg += funnyTempVarName
-                    timeNow = (datetime.now() - nowStartOfTurn)/timedelta(microseconds=1000)
-                    logs += "Turn duration : {0} ms{1}\n ----------".format(timeNow,[" (Manual fighter)",""][int(actTurn.auto)])
-                    if timeNow > 500 and actTurn.auto:
-                        longTurn = True
-                        longTurnNumber.append({"turn":tour,"ent":actTurn.char.name,"duration":timeNow})
+
+
+                    tempTurnMsg = reduceEmojiNames(tempTurnMsg)
+                    if len(tempTurnMsg) > 4000 :
+                        tempTurnMsg = "__Tour de {0} :__".format(actTurn.name)
+                        if type(skillToUse) == classes.skill:
+                            tempTurnMsg = "\n__{0} utilise {1} {2} :__\n".format(actTurn.name, skillToUse.emoji, skillToUse.name)
+                        for team in [0,1]:
+                            for ent in tablEntTeam[team]:
+                                if type(ent.char) not in [classes.invoc, classes.depl]:
+                                    entPAR = 0
+                                    for eff in ent.effects:
+                                        if eff.effects.overhealth > 0:
+                                            entPAR += eff.value
+                                    tempMsg = ""
+                                    if statsTurnDict[ent.id]["par"] != entPAR:
+                                        tempMsg += " {0}{1} PAr".format(["","+"][entPAR>statsTurnDict[ent.id]["par"]],entPAR-statsTurnDict[ent.id]["par"])
+                                    if statsTurnDict[ent.id]["hp"] != ent.hp:
+                                        tempMsg += " {0}{1} PV".format(["","+"][ent.hp>statsTurnDict[ent.id]["hp"]],ent.hp-statsTurnDict[ent.id]["hp"])
+                                    if tempMsg != "":
+                                        tempMsg = "\n{0} →".format(ent.icon)+tempMsg
+                                    tempTurnMsg += tempMsg
+                        tempTurnMsg = reduceEmojiNames(tempTurnMsg)
 
                     if not(auto):   # Sending the Turn message
-                        tempTurnMsg = reducedEmojiNames(tempTurnMsg)
                         emby = interactions.Embed(title=f"__Tour {tour}__",description=tempTurnMsg,color = actTurn.char.color)
                         if optionChoice == OPTION_SKILL and skillToUse.url != None:
                             emby.set_image(url=skillToUse.url)
 
-                        toAdd = 0
-                        if len(choiceEmbed) > 1:
-                            toAdd = getEmbedLength(choiceEmbed[0])
-                        tried, cmpt = 0, 0
-                        while getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd > 5500:
+                        tried, cmpt, lenEmbeds = 0, 0, getEmbedLength(embInfo)+getEmbedLength(emby)
+                        while lenEmbeds > 5500:
                             if tried == 0:
                                 finded = False
                                 for field in embInfo.fields:
-                                    field.value, finded = "[...]", True
-                                tried += 1
+                                    if cmpt < len(statEmbedFieldNames) and statEmbedFieldNames[cmpt] in field.name:
+                                        field.value, finded, cmpt = "[...]", True, cmpt+1
+                                        break
+                                if not(finded):
+                                    tried += 1
                             elif tried == 1:
-                                emby.description = emby.description[5500-(getEmbedLength(embInfo)+getEmbedLength(emby)+toAdd):]
+                                embInfo.description = "[...]"
+                                tried += 1
+                            elif tried == 2:
+                                emby.description = emby.description[5500-lenEmbeds:]
                                 if len(emby.description) > 4050:
-                                    emby.description = emby.description[len(emby.description)-4050]
+                                    emby.description = emby.description[len(emby.description)-4050:]
                                 tried += 1
                             else:
                                 emby.description = "OVERLOAD"
                                 break
+                            lenEmbeds = getEmbedLength(embInfo)+getEmbedLength(emby)
 
                         nbTry = 0
                         while 1:
                             try:
-                                await msg.edit(embeds = [embInfo,emby]+choiceEmbed,components=[infoSelect])
+                                await msg.edit(embeds = [embInfo,emby],components=[infoSelect])
                                 break
                             except SocketError as e:
-                                if e.errno not in [errno.ECONNRESET,503]:
+                                if e.errno not in [errno.ECONNRESET,503] or '503: Service Unavailable' not in e.__str__:
                                     raise
                                 else:
                                     if nbTry < 5:
@@ -8246,26 +8608,67 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             await asyncio.sleep(2-([0,0.5][int(bigMap or not(allAuto))])+(min(len(tempTurnMsg),2500)/2500*5))
                         else:
                             await asyncio.sleep(1+(min(len(tempTurnMsg),3500)/3500*5))
+                    else:
+                        await asyncio.sleep(0.01)
 
                     # POTG
-                    potgValue = (None,0)
+                    potgValue, tempPotgValue = (None,0), 0
                     for team in (0,1):
                         for ent in tablEntTeam[team]:
                             try:
-                                potgDamages[team][ent.id]
-                                tempPotgValue = (ent.stats.damageDeal-potgDamages[team][ent.id])*0.7+(ent.stats.ennemiKill-potgKills[team][ent.id])*ent.char.level*10+(ent.stats.heals-potgHeal[team][ent.id])*0.6+(ent.stats.allieResurected-potgRaises[team][ent.id])*ent.char.level*15+(ent.stats.armoredDamage-potgArmored[team][ent.id])*0.7+200*int(optionChoice==OPTION_SKILL and skillToUse.id == "lb")-1000*int(type(actTurn.char)==octarien)
+                                potgDamages = (ent.stats.damageDeal-statsTurnDict[ent.id]["damage"])*0.7
+                                potgHeals = (ent.stats.heals-statsTurnDict[ent.id]["heal"])*0.6
+                                potgKills = (ent.stats.ennemiKill-statsTurnDict[ent.id]["kill"])*ent.char.level*10
+                                potgRaises = (ent.stats.allieResurected-statsTurnDict[ent.id]["raise"])*ent.char.level*15
+                                potgArmor = (ent.stats.armoredDamage-statsTurnDict[ent.id]["armoredDamage"])*0.7
+                                tempPotgValue = potgDamages + potgHeals + potgKills + potgRaises + potgArmor + 200*int(optionChoice==OPTION_SKILL and (skillToUse.id == "lb" or skillToUse.ultimate)) - (1000*int(type(actTurn.char)==octarien))
                             except KeyError:
                                 pass
                             if tempPotgValue > potgValue[1]:
                                 potgValue = (ent,tempPotgValue)
 
                     if potgValue[1] > playOfTheGame[0]:
+                        embAllStats, embMsg = potgValue[0].allStats(), "{0} __{1}__ :".format(potgValue[0].icon,potgValue[0].name)
+                        statValue, statDif = None, None
+                        if optionChoice == OPTION_SKILL:
+                            if skillToUse.use == HARMONIE:
+                                maxValue, maxStats = 0, 0
+                                for cmpt in range(MAGIE+1):
+                                    if embAllStats[cmpt] > maxValue:
+                                        maxValue, maxStats = embAllStats[cmpt], cmpt
+                                statValue, statDif = maxStats, potgValue[0].allStats()[maxStats] - potgValue[0].baseStats[maxStats]
+                            elif skillToUse.use not in [None,FIXE,PURCENTAGE] and skillToUse.use < MAGIE+1:
+                                statValue, statDif = skillToUse.use, potgValue[0].allStats()[skillToUse.use] - potgValue[0].baseStats[skillToUse.use]
+                        elif optionChoice == OPTION_WEAPON:
+                            statValue, statDif = potgValue[0].char.weapon.use, potgValue[0].allStats()[potgValue[0].char.weapon.use] - potgValue[0].baseStats[potgValue[0].char.weapon.use]
+
+                        if statValue != None and statDif not in [None,0]:
+                            embMsg += " {0} {3} ({2}{1})".format(statsEmojis[statValue], statDif, ["","+"][statDif>0], potgValue[0].baseStats[statValue])
+                        dmgValue, effEmojis = 0, {}
+                        for eff in potgValue[0].effects:
+                            if eff.effects.id == dmgUp.id:
+                                dmgValue += eff.effects.power
+                            elif eff.effects.id == dmgDown.id:
+                                dmgValue -= eff.effects.power
+                            try:
+                                effEmojis[eff.icon] = effEmojis[eff.icon]+1
+                            except KeyError:
+                                effEmojis[eff.icon] = 1
+                        
+                        if dmgValue != 0:
+                            embMsg += " {0} {2}{1}%".format([dmgDown.emoji[0][1],dmgUp.emoji[0][0]][dmgValue>0],round(dmgValue),["","+"][dmgValue>0])
+                        ballerine:str = "\n"
+                        for em, value in effEmojis.items():
+                            ballerine += "{0}{1}".format(em,["","({0})".format(value)][value>1])
+                        embMsg += ballerine
+
+                        potgEmb2 = Embed(description=embMsg,color=potgValue[0].char.color)
                         if optionChoice == OPTION_SKILL and skillToUse.url != None:
                             potgEmb = interactions.Embed(title=f"__Action du combat\nTour {tour}__",description=tempTurnMsg,color = potgValue[0].char.color)
                             potgEmb.set_image(url=skillToUse.url)
-                            playOfTheGame = [potgValue[1],potgValue[0],potgEmb]
+                            playOfTheGame = [potgValue[1],potgValue[0],potgEmb,potgEmb2]
                         else:
-                            playOfTheGame = [potgValue[1],potgValue[0],interactions.Embed(title=f"__Action du combat\nTour {tour}__",description=tempTurnMsg,color = potgValue[0].char.color)]
+                            playOfTheGame = [potgValue[1],potgValue[0],interactions.Embed(title=f"__Action du combat\nTour {tour}__",description=tempTurnMsg,color = potgValue[0].char.color),potgEmb2]
 
                         if getEmbedLength(playOfTheGame[2]) > 4000:
                             playOfTheGame[2] = interactions.Embed(title=f"__Action du combat\nTour {tour}__",description=unemoji(tempTurnMsg),color = potgValue[0].char.color)
@@ -8366,7 +8769,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
         # ===============================================================================================
         if not(haveError):
             print(logsName + " a fini son combat")
-            startMsg = globalVar.getRestartMsg() == 0 and waitEnd
+            startMsg, lootButtons, looted = globalVar.getRestartMsg() == 0 and waitEnd, [], []
 
             if not(everyoneDead[1] and everyoneDead[0]):        # The winning team. 0 -> Blue, 1 -> Red
                 winners, nullMatch = int(not(everyoneDead[1])), False
@@ -8550,7 +8953,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             elif not(haveStarted):
                                 temp2+=letter
                         
-                        if len(temp2)>0 and temp2[-1] != "\n":
+                        if len(temp2)>0 and temp2[-2:-1] != "\n":
                             temp += temp2
                         endResultRep[indexTeam] = temp
 
@@ -8677,6 +9080,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                                 gainMsg += f", {rand.emoji} {rand.name}"
                                             else:
                                                 gainMsg += "\n{0} → {1} {2}".format(usrIcon,rand.emoji,rand.name)
+                                            if ent.char.owner == mainUser.owner:
+                                                lootButtons.append(interactions.Button(style=ButtonStyle.SECONDARY,label=rand.name,emoji=getEmojiObject(rand.emoji),custom_id="loot_stuff"))
+                                                looted.append(rand)
 
                                         elif len(drop) == 0:
                                             gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
@@ -8719,6 +9125,9 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                                             
                                             if ent.char.owner == mainUser.owner:
                                                 gainMsg += "\n__{0}__ :\n{1}".format(rand.name,rand.getSummary())
+                                                if ent.char.owner == mainUser.owner:
+                                                    lootButtons.append(interactions.Button(style=ButtonStyle.SECONDARY,label=rand.name,emoji=getEmojiObject(rand.emoji),custom_id="loot_skill"))
+                                                    looted.append(rand)
 
                                         elif len(drop) == 0:
                                             gainTabl = [5,35,50,69,11,100,150,666,111,13,1,256,128,64,32]
@@ -8838,84 +9247,253 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         teamWinDB.changeFighting(team,0)
             # ------------ Succès -------------- #
             if not(octogone):
+                dictHadSucced, marineDealer = {}, 0
+                for ent in tablEntTeam[1]:
+                    if ent.char.npcTeam == NPC_MARINE and ent.hp < 0:
+                        marineDealer += 1
                 for team in [0,1]:
                     for ent in tablEntTeam[team]:
                         if type(ent.char) == char and ent.char.team == mainUser.team:
-                            achivements = achivement.getSuccess(ent.char)
+                            achivements = achivementStand.getSuccess(ent.char)
                             if not(ent.auto): # Ivresse du combat
-                                ent.char = await achivements.addCount(ctx,ent.char,"fight")
-
-                            tablAchivNpcName = ["Alice","Clémence","Akira","Gwendoline","Hélène","Icealia","Shehisa","Powehi","Félicité","Sixtine","Hina","Julie","Krys","Lio","Liu","Liz","Lia","Iliana","Stella","Kiku","Kitsune","Ailill","Altikia","Klironovia"]
-                            tablAchivNpcCode = ["alice","clemence","akira","gwen","helene","icea","sram","powehi","feli","sixtine","hina","julie","krys","lio","liu","liz","lia","light","stella","kiku1","momKitsune","ailill2","alty","klikli"]
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"fight")
+                                if succed:
+                                    try:
+                                        dictHadSucced["fight"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["fight"] = [ent.char.name]
 
                             for cmpt in range(len(tablAchivNpcName)):
                                 if dictIsNpcVar["{0}".format(tablAchivNpcName[cmpt])]: # Temp or enemy presence accuracys
-                                    ent.char = await achivements.addCount(ctx,ent.char,tablAchivNpcCode[cmpt])
+                                    ent.char, succed = await achivements.addCount(ctx,ent.char,tablAchivNpcCode[cmpt])
+                                    if succed:
+                                        try:
+                                            dictHadSucced[tablAchivNpcCode[cmpt]].append(ent.char.name)
+                                        except KeyError:
+                                            dictHadSucced[tablAchivNpcCode[cmpt]] = [ent.char.name]
 
                             if dictIsNpcVar["Iliana"] and (dictIsNpcVar["Luna"] or dictIsNpcVar["Shihu"]):
-                                ent.char = await achivements.addCount(ctx,ent.char,"lightNShadow")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"lightNShadow")
+                                if succed:
+                                    try:
+                                        dictHadSucced["lightNShadow"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["lightNShadow"] = [ent.char.name]
                             if dictIsNpcVar["Luna"] or dictIsNpcVar["Shihu"]:
-                                ent.char = await achivements.addCount(ctx,ent.char,"fullDark")
-                            if tablEntTeam[1][0].isNpc("Luna ex."):
-                                ent.char = await achivements.addCount(ctx,ent.char,"luna")
-                            if tablEntTeam[1][0].isNpc("Clémence pos."):
-                                ent.char = await achivements.addCount(ctx,ent.char,"clemMem")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"fullDark")
+                                if succed:
+                                    try:
+                                        dictHadSucced["fullDark"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["fullDark"] = [ent.char.name]
 
                             # Act achivements
                             tablStatToSee = [ent.stats.headnt,ent.stats.sufferingFromSucess,ent.stats.lauthingAtTheFaceOfDeath]
                             tablCode = ["ailill","suffering","kiku2"]
                             for cmpt in range(len(tablStatToSee)):
                                 if tablStatToSee[cmpt]:
-                                    ent.char = await achivements.addCount(ctx,ent.char,tablCode[cmpt])
+                                    ent.char, succed = await achivements.addCount(ctx,ent.char,tablCode[cmpt])
+                                    if succed:
+                                        try:
+                                            dictHadSucced[tablCode[cmpt]].append(ent.char.name)
+                                        except KeyError:
+                                            dictHadSucced[tablCode[cmpt]] = [ent.char.name]
 
                             if ent.stats.friendlyfire > 0:
-                                ent.char = await achivements.addCount(ctx,ent.char,"fratere")
-
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"fratere")
+                                if succed:
+                                    try:
+                                        dictHadSucced["fratere"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["fratere"] = [ent.char.name]
 
                             if auto and int(ctx.author.id) == int(ent.char.owner): # Le temps c'est de l'argent
-                                ent.char = await achivements.addCount(ctx,ent.char,"quickFight")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"quickFight")
+                                if succed:
+                                    try:
+                                        dictHadSucced["quickFight"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["quickFight"] = [ent.char.name]
 
                             # Je ne veux pas d'écolière pour défendre nos terres
-                            ent.char = await achivements.addCount(ctx,ent.char,"school")
+                            ent.char, succed = await achivements.addCount(ctx,ent.char,"school")
+                            if succed:
+                                try:
+                                    dictHadSucced["school"].append(ent.char.name)
+                                except KeyError:
+                                    dictHadSucced["school"] = [ent.char.name]
 
                             # Elementaire
                             if ent.char.level >= 10:
-                                ent.char = await achivements.addCount(ctx,ent.char,"elemental")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"elemental")
+                                if succed:
+                                    try:
+                                        dictHadSucced["elemental"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["elemental"] = [ent.char.name]
 
                             if not(winners) and ent.healResist >= 80 and ent.hp > 0:
-                                ent.char = await achivements.addCount(ctx,ent.char,"dangerous")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"dangerous")
+                                if succed:
+                                    try:
+                                        dictHadSucced["dangerous"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["dangerous"] = [ent.char.name]
 
                             if not(winners) and ent.stats.fullskip:
-                                ent.char = await achivements.addCount(ctx,ent.char,"still")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"still")
+                                if succed:
+                                    try:
+                                        dictHadSucced["still"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["still"] = [ent.char.name]
 
                             if winners and danger == (dangerLevel[0] + (starLevel * DANGERUPPERSTAR)):
-                                ent.char = await achivements.addCount(ctx,ent.char,"loose")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"loose")
+                                if succed:
+                                    try:
+                                        dictHadSucced["loose"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["loose"] = [ent.char.name]
 
                             # Dimentio
                             if ent.char.level >= 20:
-                                ent.char = await achivements.addCount(ctx,ent.char,"dimentio")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"dimentio")
+                                if succed:
+                                    try:
+                                        dictHadSucced["dimentio"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["dimentio"] = [ent.char.name]
 
                             # Soigneur de compette
-                            ent.char = await achivements.addCount(ctx,ent.char,"greatHeal",ent.stats.heals)
+                            ent.char, succed = await achivements.addCount(ctx,ent.char,"greatHeal",ent.stats.heals)
+                            if succed:
+                                try:
+                                    dictHadSucced["greatHeal"].append(ent.char.name)
+                                except KeyError:
+                                    dictHadSucced["greatHeal"] = [ent.char.name]
 
                             # La meilleure défense c'est l'attaque
-                            ent.char = await achivements.addCount(ctx,ent.char,"greatDps",ent.stats.damageDeal-ent.stats.indirectDamageDeal)
+                            ent.char, succed = await achivements.addCount(ctx,ent.char,"greatDps",ent.stats.damageDeal-ent.stats.indirectDamageDeal)
+                            if succed:
+                                try:
+                                    dictHadSucced["greatDps"].append(ent.char.name)
+                                except KeyError:
+                                    dictHadSucced["greatDps"] = [ent.char.name]
 
                             # Notre pire ennemi c'est nous même
-                            ent.char = await achivements.addCount(ctx,ent.char,"poison",ent.stats.indirectDamageDeal)
+                            ent.char, succed = await achivements.addCount(ctx,ent.char,"poison",ent.stats.indirectDamageDeal)
+                            if succed:
+                                try:
+                                    dictHadSucced["poison"].append(ent.char.name)
+                                except KeyError:
+                                    dictHadSucced["poison"] = [ent.char.name]
 
                             # Savoir utiliser ses atouts
-                            ent.char = await achivements.addCount(ctx,ent.char,"estialba",int(ent.stats.estialba))
+                            ent.char, succed = await achivements.addCount(ctx,ent.char,"estialba",int(ent.stats.estialba))
+                            if succed:
+                                try:
+                                    dictHadSucced["estialba"].append(ent.char.name)
+                                except KeyError:
+                                    dictHadSucced["estialba"] = [ent.char.name]
 
                             # Il faut que ça sorte
-                            ent.char = await achivements.addCount(ctx,ent.char,"lesath",int(ent.stats.bleeding))
+                            ent.char, succed = await achivements.addCount(ctx,ent.char,"lesath",int(ent.stats.bleeding))
+                            if succed:
+                                try:
+                                    dictHadSucced["lesath"].append(ent.char.name)
+                                except KeyError:
+                                    dictHadSucced["lesath"] = [ent.char.name]
 
                             if ent in dptClass[:3] and ent.stats.indirectDamageDeal == ent.stats.damageDeal:
-                                ent.char = await achivements.addCount(ctx,ent.char,"dirty")
-                            if ent == dptClass[0] and ent.stats.ennemiKill == 0:
-                                ent.char = await achivements.addCount(ctx,ent.char,"delegation")
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"dirty")
+                                if succed:
+                                    try:
+                                        dictHadSucced["dirty"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["dirty"] = [ent.char.name]
 
-                            saveCharFile(absPath + "/userProfile/"+str(ent.char.owner)+".prof",ent.char)
+                            if ent == dptClass[0] and ent.stats.ennemiKill == 0:
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,"delegation")
+                                if succed:
+                                    try:
+                                        dictHadSucced["delegation"].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced["delegation"] = [ent.char.name]
+
+                            if marineDealer > 0:
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,achivements.marineDealer.code,marineDealer)
+                                if succed:
+                                    try:
+                                        dictHadSucced[achivements.masterDamage.code].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced[achivements.masterDamage.code] = [ent.char.name]
+                            if achivements.masterDamage.count <= 0:
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,achivements.masterDamage.code,aliceStatsDb.getUserStats(ent.char,"totalDamage")/ent.maxHp)
+                                if succed:
+                                    try:
+                                        dictHadSucced[achivements.masterDamage.code].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced[achivements.masterDamage.code] = [ent.char.name]
+                            else:
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,achivements.masterDamage.code,ent.stats.damageDeal/ent.maxHp)
+                                if succed:
+                                    try:
+                                        dictHadSucced[achivements.masterDamage.code].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced[achivements.masterDamage.code] = [ent.char.name]
+                            
+                            if achivements.masterTank.count <= 0:
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,achivements.masterTank.code,aliceStatsDb.getUserStats(ent.char,"totalRecivedDamage")/ent.maxHp)
+                                if succed:
+                                    try:
+                                        dictHadSucced[achivements.masterTank.code].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced[achivements.masterTank.code] = [ent.char.name]
+                            else:
+                                ent.char, succed = await achivements.addCount(ctx,ent.char,achivements.masterTank.code,ent.stats.damageRecived/ent.maxHp)
+                                if succed:
+                                    try:
+                                        dictHadSucced[achivements.masterTank.code].append(ent.char.name)
+                                    except KeyError:
+                                        dictHadSucced[achivements.masterTank.code] = [ent.char.name]
+
+                achivTabl = achiveTabl()
+                for achivKey, achivValue in dictHadSucced.items():
+                    achiv, desc, lenAchivValue = achivTabl.where(achivKey), "", len(achivValue)
+                    if lenAchivValue == 1:
+                        desc = "__{0}__ a terminé le succès __{1}__ !".format(achivValue[0],achiv.name)
+                    else:
+                        for cmpt in range(lenAchivValue):
+                            desc += "__{0}__".format(achivValue[cmpt])
+                            if cmpt == lenAchivValue-2:
+                                desc += " et "
+                            elif cmpt < lenAchivValue-2:
+                                desc += ", "
+                        desc += " ont terminé le succes __{0}__ !".format(achiv.name)
+                    listRecompense = ""
+                    if achiv.recompense not in [None,[],[None]]:
+                        listRecompense = "\n\n__Récompense{0} :__\n".format(["","s"][len(achiv.recompense)>1])
+                        for objId in achiv.recompense:
+                            try:
+                                objType = whatIsThat(objId)
+                                if objType == 0:
+                                    objId = findWeapon(objId)
+                                elif objType == 1:
+                                    objId = findSkill(objId)
+                                elif objType == 2:
+                                    objId = findStuff(objId)
+                                if objType == 3:
+                                    objId = findOther(objId)
+                                if type(objId) != str:
+                                    listRecompense += "{0} {1}\n".format(objId.emoji, objId.name)
+                                    if type(objId) == classes.skill:
+                                        listRecompense += objId.getSummary()
+                                else:
+                                    listRecompense += "?? \"{0}\"\n".format(objId)
+                            except Exception as e:
+                                listRecompense += "?? \"{0}\"\n> {1}\n".format(objId,e)
+                    await ctx.channel.send(embeds=Embed(title="{0} __{1}__".format(["",str(achiv.emoji)+" "][achiv.emoji != None], achiv.name),description=desc+listRecompense,color=mainUser.color))
 
             timeout = False
             date, actuTeam, actuEntity, started, prec = datetime.now()+horaire,0,0,False,None
@@ -8969,7 +9547,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 opened.close()
 
             potgIcon = None
-            potg = []
+            potg:List[ActionRow] = []
 
             if playOfTheGame[1] != None:
                 try:
@@ -8982,7 +9560,12 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                 teamWinDB.addResultToStreak(mainUser,not(everyoneDead[0]))
             if isLenapy and not(octogone):
                 teamWinDB.refreshFightCooldown(mainUser.team,auto,fromTime=now)
-            
+
+            if lootButtons != []:
+                lootActRow = [interactions.ActionRow(components=lootButtons)]
+            else:
+                lootActRow = []
+
             while startMsg: # Tableau des statistiques
                 options = []
                 for team in [0,1]:
@@ -8991,7 +9574,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                         options.append(interactions.SelectOption(label=ent.name,value="{0}:{1}".format(team,num),emoji=getEmojiObject(await ent.getIcon(bot)),default=started and team == actuTeam and num == actuEntity))
 
                 select = interactions.SelectMenu(custom_id = "seeFighterStats", options=options, placeholder="Voir les statistiques d'un combattant")
-                await msg.edit(embeds = resultEmbed, components=[interactions.ActionRow(components=[select]),interactions.ActionRow(components=[logsButton])]+potg)
+
+                await msg.edit(embeds = resultEmbed, components=[interactions.ActionRow(components=[select]),interactions.ActionRow(components=[logsButton])]+lootActRow+potg)
 
                 try:
                     interact: ComponentContext = await bot.wait_for_component(msg,check=check,timeout=[0,180][waitEnd])
@@ -9000,7 +9584,6 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                     if prec != None:
                         await prec.delete()
                     return 1
-
 
                 if interact.data.component_type == 2:
                     if interact.custom_id == "📄":
@@ -9011,11 +9594,38 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
                             opened.close()
                         except:
                             await interact.send("Une erreur est survenue lors de l'affichage des logs :\n"+format_exc(1000),ephemeral=True)
+                    elif interact.custom_id in ["loot_stuff","loot_skill"]:
+                        obj, lootEmb = None, None
+                        for truc in looted:
+                            if truc.name == interact.label:
+                                obj = truc
+                                for cmpt in range(len(lootActRow[0].components)):
+                                    if lootActRow[0].components[cmpt].custom_id == interact.custom_id:
+                                        lootActRow[0].components[cmpt].disabled = True
+                                        break
+                                break
+                        if obj != None:
+                            if type(obj) == classes.weapon:
+                                lootEmb = infoWeapon(weap=obj, user=mainUser, ctx=ctx)
+                            elif type(obj) == classes.stuff:
+                                lootEmb = infoStuff(stuff=obj, user=mainUser, ctx=ctx)
+                            elif type(obj) == classes.skill:
+                                lootEmb = infoSkill(skill=obj, user=mainUser, ctx=ctx)
+
+                            if lootEmb != None:
+                                await interact.send(embeds=lootEmb)
+                            else:
+                                await interact.send(content="L'objet recherché n'a pas été trouvé",ephemeral=True)
+                        else:
+                            await interact.send(content="L'objet recherché n'a pas été trouvé",ephemeral=True)
                     else:
-                        emb: Embed = playOfTheGame[2]
-                        emb.set_footer(icon_url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(potgIcon).id),text="Action du combat")
-                        potgMsg = await interact.send(embeds = emb)
-                        potg = []
+                        playOfTheGame[2].set_footer(icon_url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(potgIcon).id),text="Action du combat")
+                        try:
+                            potgMsg = await interact.send(embeds = [playOfTheGame[3],playOfTheGame[2]])
+                        except:
+                            potgMsg = await interact.send(embeds = [playOfTheGame[2]])
+                        potg[0].components[0].disabled = True
+                        
                 else:
                     if prec == None:
                         await interact.defer()

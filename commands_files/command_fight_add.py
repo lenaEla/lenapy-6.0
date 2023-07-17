@@ -17,7 +17,7 @@ waitingSelect = interactions.ActionRow(components=[interactions.SelectMenu(custo
 
 hiddenIcons = ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:905169617163538442>','<:lo:887853918665707621>','<:co:895440308257558529>']+aspiEmoji
 
-altDanger = [65,70,70,70,75,75,75,80,85,90,95,100]
+altDanger = [65,70,70,70,75,75,80,80,85,85,90,90]
 
 HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.2
 BASEHP_PLAYER, BASEHP_ENNEMI, BASEHP_SUMMON, BASEHP_BOSS = 150, 120, 100, 600
@@ -27,10 +27,13 @@ MELEE_END_CONVERT = 35
 END_NEEDED_10_INDRES, MAX_END_10_INDRES = 145, 35
 END_NEEDED_10_HEAL, MAX_END_10_HEAL = 150, 20
 
-statEmbedFieldNames = ["__Liste des effets :__","__Statistiques :__","<:em:866459463568850954>\n__Timeline__","__Jauges :__","__Déployables :__","__Équipe Bleue :__","__Équipe Rouge :__"]
+statEmbedFieldNames = ["__Liste des effets :__","__Statistiques :__","<:em:866459463568850954>","__Jauges :__","__Déployables :__","__Équipe Bleue :__","__Équipe Rouge :__"]
+
+tablAchivNpcName = ["Alice","Clémence","Akira","Gwendoline","Hélène","Icealia","Shehisa","Powehi","Félicité","Sixtine","Hina","Julie","Krys","Lio","Liu","Liz","Lia","Iliana","Stella","Kiku","Kitsune","Ailill","Altikia","Klironovia","Lia Ex","Iliana prê.","Anna","Belle","Clémence Exaltée","Luna ex.","Clémence pos.","Céleste","Shushi"]
+tablAchivNpcCode = ["alice","clemence","akira","gwen","helene","icea","sram","powehi","feli","sixtine","hina","julie","krys","lio","liu","liz","lia","light","stella","kiku1","momKitsune","ailill2","alty","klikli","liaEx","catEx","anna","belle","clemEx","luna","clemMem","celeste","shushi"]
 
 tablIsNpcName = []
-for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]","Nacialisla"]:
+for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]","Nacialisla","Luna ex.","Clémence pos."]:
     if type(a) != str:
         tablIsNpcName.append(a.name)
     else:
@@ -53,6 +56,9 @@ def getPartnerValue(user : classes.char):
         return 4 + random.randint(-3,3)
 
 def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, typeDmg = TYPE_DAMAGE, skillPercing = 0, ignoreEff = None):
+    if caster.team == 0:
+        danger = 100
+
     if use == HARMONIE:
         maxi, stats = -100, caster.allStats()
         for cmpt in range(0,7):
@@ -62,7 +68,7 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
         enemyPercing, tarResi = caster.percing+skillPercing, target.resistance
         if ignoreEff != None:
             enemyPercing = getPenetration(caster.rawPercing-ignoreEff.percing)+skillPercing
-            tarResi = (target.rawResist-ignoreEff.resistance)
+            tarResi =  getResistante(target.rawResist-ignoreEff.resistance)
         resistFactor = (1-(min(95,tarResi*(1-(enemyPercing)/100))/100))
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
@@ -77,7 +83,8 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
             stat = stat - ignoreEff.allStats()[use]
 
         dmg = round(basePower * (max(-65,stat+100-caster.actionStats()[actionStat]))/100 *(danger/100)*elemBonus*lvlBonus)
-        target.stats.damageResisted += dmg - (dmg*resistFactor)
+        if ignoreEff == None:
+            target.stats.damageResisted += dmg - (dmg*resistFactor)
 
         logs = "> {0} [basePower] * ({1} [AtkStats] / 100) * {2} [dangerMul] * {3} [elemBonus] * {4} [lvlBonus]  * {5} [resistFactor]".format(
             basePower,caster.allStats()[use]+100-caster.actionStats()[actionStat],danger/100,elemBonus,lvlBonus,round(resistFactor,2))
@@ -117,6 +124,9 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
 
         effMultiplier = max(effMultiplier, 5)
         effMultiplier = min(effMultiplier, 200)
+
+        if (use==MAGIE and target.char.npcTeam in [NPC_FAIRY]):
+            effMultiplier += FAIRYMAGICRESIST
 
         dangerMul = [100, danger][caster.team == 1]
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
@@ -306,10 +316,12 @@ def getHealAggro(caster,target, skillToUse : Union[skill,weapon],armor=False):
             if eff.effects.name.startswith("⚠️ Cible - ") and armor:
                 prio += 35
         prio = prio * (1-(incurValue/2/100)) * (healAggroBonus/100)                              # Same with the healing reduce effects
-        
+
         if (not(armor) and (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_DPT and target.char.aspiration in dptAspi) or (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_BUFF and target.char.aspiration in boostAspi) or (caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_HEAL and target.char.aspiration in healAspi+armorAspi) or caster.char.charSettings["healTarget"] == CHARSET_HEALTARGET_MELEE and len(target.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=caster.team,wanted=ENEMIES,directTarget=False,fromCell=target.cell)) >= 2) or (armor and (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_DPT and target.char.aspiration in dptAspi) or (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_BUFF and target.char.aspiration in boostAspi) or (caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_HEAL and target.char.aspiration in armorAspi+healAspi) or caster.char.charSettings["armorTarget"] == CHARSET_ARMORTARGET_MELEE and len(target.cell.getEntityOnArea(area=AREA_CIRCLE_2,team=caster.team,wanted=ENEMIES,directTarget=False,fromCell=target.cell)) >= 2):
             prio = prio * 1.35
 
+        if (caster.char.npcTeam == NPC_KITSUNE and target.char.npcTeam == NPC_GOLEM) or (caster.char.npcTeam == NPC_DEMON and target.char.npcTeam == NPC_HOLY) or (caster.char.npcTeam == NPC_HOLY and target.char.npcTeam in [NPC_UNDEAD, NPC_DEMON]):
+            prio = prio * 0.6
         return prio
 
 def getHealTarget(caster,tablTeam : list, skillToUse : skill, armor=False):
@@ -501,6 +513,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
             "> - Dégâts réduits sur soi":int(ent.stats.damageResisted),
             "> - Dégâts sur armure reçus":ent.stats.damageProtected,
             "> - Dégâts bloqués":ent.stats.damageBlocks,
+            "> - Soins reçus":ent.stats.healingRecived,
             "Taux d'esquive":dodgePurcent,
             "Taux de blocage":"{0}%".format(round(ent.stats.blockCount/max(ent.stats.numberAttacked,1)*100))
         },

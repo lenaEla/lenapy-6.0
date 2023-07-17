@@ -2,313 +2,14 @@ import sqlite3, os
 from gestion import *
 from advance_gestion import *
 from advObjects.advSkills import *
-
-maj17="""
-    PRAGMA foreign_keys = 0;
-
-    CREATE TABLE sqlitestudio_temp_table AS SELECT *
-                                            FROM achivements;
-
-    DROP TABLE achivements;
-
-    CREATE TABLE achivements (
-        id              INTEGER PRIMARY KEY
-                                UNIQUE,
-        aliceCount      INTEGER DEFAULT (0),
-        aliceHave       BOOLEAN DEFAULT (0),
-        clemenceCount   INTEGER DEFAULT (0),
-        clemenceHave    BOOLEAN DEFAULT (0),
-        akiraCount      INTEGER DEFAULT (0),
-        akiraHave       BOOLEAN DEFAULT (0),
-        fightCount      INTEGER DEFAULT (0),
-        fightHave       BOOLEAN DEFAULT (0),
-        gwenCount       INTEGER DEFAULT (0),
-        gwenHave        BOOLEAN DEFAULT (0),
-        quickFightCount INTEGER DEFAULT (0),
-        quickFightHave  BOOLEAN DEFAULT (0),
-        heleneCount     INTEGER DEFAULT (0),
-        heleneHave      BOOLEAN DEFAULT (0),
-        schoolCount     INTEGER DEFAULT (0),
-        schoolHave      BOOLEAN DEFAULT (0),
-        elementalCount  INTEGER DEFAULT (0),
-        elementalHave   BOOLEAN DEFAULT (0),
-        notHealButCount INTEGER DEFAULT (0),
-        notHealButHave  BOOLEAN DEFAULT (0),
-        greatHealCount  INTEGER DEFAULT (0),
-        greatHealHave   BOOLEAN DEFAULT (0),
-        greatDpsCount   INTEGER DEFAULT (0),
-        greatDpsHave    BOOLEAN DEFAULT (0),
-        poisonCount     INTEGER DEFAULT (0),
-        poisonHave      BOOLEAN DEFAULT (0),
-        iceaCount       INTEGER DEFAULT (0),
-        iceaHave        BOOLEAN DEFAULT (0),
-        sramCount       INTEGER DEFAULT (0),
-        sramHave        BOOLEAN DEFAULT (0),
-        estialbaCount   INTEGER DEFAULT (0),
-        estialbaHave    BOOLEAN DEFAULT (0),
-        lesathCount     INTEGER DEFAULT (0),
-        lesathHave      BOOLEAN DEFAULT (0),
-        powehiCount     INTEGER DEFAULT (0),
-        powehiHave      BOOLEAN DEFAULT (0),
-        dimentioCount   INTEGER DEFAULT (0),
-        dimentioHave    BOOLEAN DEFAULT (0),
-        feliCount       INTEGER DEFAULT (0),
-        feliHave        BOOLEAN DEFAULT (0),
-        sixtineCount    INTEGER DEFAULT (0),
-        sixtineHave     BOOLEAN DEFAULT (0),
-        hinaCount       INTEGER DEFAULT (0),
-        hinaHave        BOOLEAN DEFAULT (0),
-        lunaCount       INTEGER DEFAULT (0),
-        lunaHave        BOOLEAN DEFAULT (0),
-        julieCount      INTEGER DEFAULT (0),
-        julieHave       BOOLEAN DEFAULT (0),
-        clemMemCount    INTEGER DEFAULT (0),
-        clemMemHave     BOOLEAN DEFAULT (0),
-        krysCount       INTEGER DEFAULT (0),
-        krysHave        BOOLEAN DEFAULT (0),
-        liuHave         BOOLEAN DEFAULT (0),
-        liuCount        INTEGER DEFAULT (0),
-        liaHave         BOOLEAN DEFAULT (0),
-        liaCount        INTEGER DEFAULT (0),
-        lioHave         BOOLEAN DEFAULT (0),
-        lioCount        INTEGER DEFAULT (0),
-        lizHave         BOOLEAN DEFAULT (0),
-        LizCount        INTEGER DEFAULT (0),
-        ailillHave      BOOLEAN DEFAULT (0),
-        ailillCount     INTEGER DEFAULT (0),
-        lightNShadowHave      BOOLEAN DEFAULT (0),
-        lightNShadowCount     INTEGER DEFAULT (0),
-        fullDarkHave      BOOLEAN DEFAULT (0),
-        fullDarkCount     INTEGER DEFAULT (0),
-        fratereHave      BOOLEAN DEFAULT (0),
-        fratereCount     INTEGER DEFAULT (0),
-        lightHave     INTEGER DEFAULT (0),
-        lightCount     INTEGER DEFAULT (0),
-        dangerousHave     INTEGER DEFAULT (0),
-        dangerousCount     INTEGER DEFAULT (0),
-        looseHave     INTEGER DEFAULT (0),
-        looseCount     INTEGER DEFAULT (0),
-        stillHave     INTEGER DEFAULT (0),
-        stillCount     INTEGER DEFAULT (0),
-        dirtyHave     INTEGER DEFAULT (0),
-        dirtyCount     INTEGER DEFAULT (0),
-        delegationHave     INTEGER DEFAULT (0),
-        delegationCount     INTEGER DEFAULT (0),
-        stellaHave     INTEGER DEFAULT (0),
-        stellaCount     INTEGER DEFAULT (0),
-        momKitsuneHave     INTEGER DEFAULT (0),
-        momKitsuneCount     INTEGER DEFAULT (0),
-        kiku1Have     INTEGER DEFAULT (0),
-        kiku1Count     INTEGER DEFAULT (0),
-        sufferingHave     INTEGER DEFAULT (0),
-        sufferingCount     INTEGER DEFAULT (0),
-        kiku2Have     INTEGER DEFAULT (0),
-        kiku2Count     INTEGER DEFAULT (0),
-        ailill2Have     INTEGER DEFAULT (0),
-        ailill2Count     INTEGER DEFAULT (0),
-        altyHave     INTEGER DEFAULT (0),
-        altyCount     INTEGER DEFAULT (0),
-        klikliHave     INTEGER DEFAULT (0),
-        klikliCount     INTEGER DEFAULT (0)
-    );
-
-    INSERT INTO achivements (
-                                id,
-                                aliceCount,
-                                aliceHave,
-                                clemenceCount,
-                                clemenceHave,
-                                akiraCount,
-                                akiraHave,
-                                fightCount,
-                                fightHave,
-                                gwenCount,
-                                gwenHave,
-                                quickFightCount,
-                                quickFightHave,
-                                heleneCount,
-                                heleneHave,
-                                schoolCount,
-                                schoolHave,
-                                elementalCount,
-                                elementalHave,
-                                notHealButCount,
-                                notHealButHave,
-                                greatHealCount,
-                                greatHealHave,
-                                greatDpsCount,
-                                greatDpsHave,
-                                poisonCount,
-                                poisonHave,
-                                iceaCount,
-                                iceaHave,
-                                sramCount,
-                                sramHave,
-                                estialbaCount,
-                                estialbaHave,
-                                lesathCount,
-                                lesathHave,
-                                powehiCount,
-                                powehiHave,
-                                dimentioCount,
-                                dimentioHave,
-                                feliCount,
-                                feliHave,
-                                sixtineCount,
-                                sixtineHave,
-                                hinaCount,
-                                hinaHave,
-                                lunaCount,
-                                lunaHave,
-                                julieCount,
-                                julieHave,
-                                clemMemCount,
-                                clemMemHave,
-                                krysCount,
-                                krysHave,
-                                liuHave,
-                                liuCount,
-                                liaHave,
-                                liaCount,
-                                lioHave,
-                                lioCount,
-                                lizHave,
-                                LizCount,
-                                ailillHave,
-                                ailillCount,
-                                lightNShadowHave,
-                                lightNShadowCount,
-                                fullDarkHave,
-                                fullDarkCount,
-                                fratereHave,
-                                fratereCount,
-                                lightHave,
-                                lightCount,
-                                dangerousHave,
-                                dangerousCount,
-                                looseHave,
-                                looseCount,
-                                stillHave,
-                                stillCount,
-                                dirtyHave,
-                                dirtyCount,
-                                delegationHave,
-                                delegationCount,
-                                stellaHave,
-                                stellaCount,
-                                momKitsuneHave,
-                                momKitsuneCount,
-                                kiku1Have,
-                                kiku1Count,
-                                sufferingHave,
-                                sufferingCount,
-                                kiku2Have,
-                                kiku2Count
-                            )
-                            SELECT id,
-                                aliceCount,
-                                aliceHave,
-                                clemenceCount,
-                                clemenceHave,
-                                akiraCount,
-                                akiraHave,
-                                fightCount,
-                                fightHave,
-                                gwenCount,
-                                gwenHave,
-                                quickFightCount,
-                                quickFightHave,
-                                heleneCount,
-                                heleneHave,
-                                schoolCount,
-                                schoolHave,
-                                elementalCount,
-                                elementalHave,
-                                notHealButCount,
-                                notHealButHave,
-                                greatHealCount,
-                                greatHealHave,
-                                greatDpsCount,
-                                greatDpsHave,
-                                poisonCount,
-                                poisonHave,
-                                iceaCount,
-                                iceaHave,
-                                sramCount,
-                                sramHave,
-                                estialbaCount,
-                                estialbaHave,
-                                lesathCount,
-                                lesathHave,
-                                powehiCount,
-                                powehiHave,
-                                dimentioCount,
-                                dimentioHave,
-                                feliCount,
-                                feliHave,
-                                sixtineCount,
-                                sixtineHave,
-                                hinaCount,
-                                hinaHave,
-                                lunaCount,
-                                lunaHave,
-                                julieCount,
-                                julieHave,
-                                clemMemCount,
-                                clemMemHave,
-                                krysCount,
-                                krysHave,
-                                liuHave,
-                                liuCount,
-                                liaHave,
-                                liaCount,
-                                lioHave,
-                                lioCount,
-                                lizHave,
-                                LizCount,
-                                ailillHave,
-                                ailillCount,
-                                lightNShadowHave,
-                                lightNShadowCount,
-                                fullDarkHave,
-                                fullDarkCount,
-                                fratereHave,
-                                fratereCount,
-                                lightHave,
-                                lightCount,
-                                dangerousHave,
-                                dangerousCount,
-                                looseHave,
-                                looseCount,
-                                stillHave,
-                                stillCount,
-                                dirtyHave,
-                                dirtyCount,
-                                delegationHave,
-                                delegationCount,
-                                stellaHave,
-                                stellaCount,
-                                momKitsuneHave,
-                                momKitsuneCount,
-                                kiku1Have,
-                                kiku1Count,
-                                sufferingHave,
-                                sufferingCount,
-                                kiku2Have,
-                                kiku2Count
-                            FROM sqlitestudio_temp_table;
-
-    DROP TABLE sqlitestudio_temp_table;
-
-    PRAGMA foreign_keys = 1;
-"""
+from advObjects.advAllies import findAllie
 
 if not(os.path.exists("./data/database/success.db")):
     temp = open("./data/database/success.db","bw")
     print("Création du fichier \"success.db\"")
     temp.close()
 
-class success:
+class achivement:
     """Classe des succès"""
     def __init__(self,name : str,countToSucced : int,code: str,recompense = None,description = "Pas de description",emoji=None):
         self.name:str = name
@@ -328,62 +29,74 @@ class success:
         rep = {"name":self.name,"count":self.count,"countToSucced":self.countToSucced,"haveSucced":self.haveSucced,"recompense":self.recompense,"description":self.description,"code":self.code}
         return rep
 
-class successTabl:
+class achiveTabl:
     def __init__(self):
-        self.alice = success("Oubliez pas qu'une rose a des épines",10,"alice",recompense="jz",description="Affrontez ou faites équipe avec Alice {0} fois",emoji='<:alice:908902054959939664>')
-        self.clemence = success("La quête de la nuit",10,"clemence",recompense="bg",description="Affrontez ou faites équipe avec Clémence {0} fois",emoji='<:clemence:908902579554111549>')
-        self.akira = success("Seconde impression",10,"akira",recompense="bh",description="Affrontez ou faites équipe avec Akira {0} fois",emoji='<:akira:909048455828238347>')
-        self.fight = success("L'ivresse du combat",1,"fight",recompense="ys",description="Faire {0} combat manuel",emoji='<:splattershotJR:866367630465433611>')
-        self.gwen = success("Une histoire de vangeance",3,"gwen",["ka","kb",gwenyStrike.id],"Affrontez ou faites équipe avec Gwendoline {0} fois",emoji='<:takoYellow:866459052132532275>')
-        self.quickFight = success("Le temps c'est de l'argent",10,"quickFight",None,"Lancez {0} combats rapides",'<:hourglass1:872181651801772052>')
-        self.helene = success("Là où mes ailes me porteront",10,"helene","yr","Affrontez ou faites équipe avec Hélène {0} fois",'<:takoWhite:871149576965455933>')
-        self.school = success("Je ne veux pas d'écolière pour défendre nos terres",30,"school",None,"Mi Miman tu es habiyée en écolière... Combatti {0} fois !",'<:splattershot:866367647113543730>')
-        self.elemental = success("Elémentaire mon cher Watson",1,"elemental","qe","Combattre {0} fois en étant niveau 10 ou plus",'<:neutral:887847377917050930>')
-        self.notHealBut = success("Situation désespérée Mesure désespérée",500,"notHealBut",None,"Sans être Altruiste, Idole ou Erudit, soignez un total de {0} PV",'<:bandage:873542442484396073>')
-        self.greatHeal = success("Soigneur de compétiton",5000,"greatHeal",["kc","kd"],"Soignez un total de {0} PV",'<:seringue:887402558665142343>')
-        self.greatDps = success("La meilleure défense c'est l'attaque",5000,"greatDps",None,"Infligez un total de {0} dégâts directs",'<:splatcharger:866367658752213024>')
-        self.poison = success("Notre pire ennemi, c'est nous même",5000,"poison",None,"Infligez un total de {0} dégâts indirects",'<:butterflyV:883627142615805962>')
-        self.icealia = success("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",'<:takoLBlue:866459095875190804>')
-        self.shehisa = success("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",'<:ikaPurple:866459331254550558>')
-        self.heriteEstialba = success("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"","<:lohica:919863918166417448>")
-        self.heriteLesath = success("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:ble:887743186095730708> Hémorragie__\"","<:dissimulation:900083085708771349>")
-        self.powehi = success("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois","<:powehi:909048473666596905>")
-        self.dimentio = success("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
-        self.feli = success("Ne jamais abandonner",10,"feli","tl","Affrontez ou faites équipe avec Félicité {0} fois","<:felicite:909048027644317706>")
-        self.sixtine = success("Tomber dans les bras de Morphée",10,"sixtine","tk","Affrontez ou faites équipe avec Sixtine {0} fois","<:sixtine:908819887059763261>")
-        self.hina = success("Voler à la recousse",10,"hina","tj","Affrontez ou faites équipe avec Hina {0} fois","<:hina:908820821185810454>")
-        self.luna = success("La prêtresse obsitnée",3,"luna",description="Vainquez {0} le boss \"Luna\"",emoji="<:luna:909047362868105227>",recompense=["oq","or","os","ot","ou","ov"])
-        self.julie = success("Être dans les temps",10,"julie","ti","Affrontez ou faites équipe avec Julie {0} fois","<:julie:910185448951906325>")
-        self.memClem = success("La Chauve-Souris Archaniste et la Rose",3,"clemMem","sv","Combattez Clémence Possédée {0} fois","<a:clemPos:914709222116175922><a:aliceExalte:914782398451953685>")
-        self.krys = success("Cris \"Staline\" !",10,"krys","st","Affrontez ou faites équipe avec Krys {0} fois","<:krys:916118008991215726>")
-        self.liu = success("Tochi no ai",10,"liu",description="Combattez Liu {0} fois",emoji='<:earthKitsune:917670882586017792>',recompense='zzc')
-        self.lia = success("Kaze no ai",10,"lia",description="Combattez Lia {0} fois",emoji='<:airKitsune:917670912646602823>',recompense='zzb')
-        self.lio = success("Mizu no ai",10,"lio",description="Combattez Lio {0} fois",emoji='<:waterKitsune:917670866626707516>',recompense='zza')
-        self.liz = success("Hi no ai",10,"liz",description="Combattez Liz {0} fois",emoji='<:fireKitsune:917670925904785408>',recompense='zyz')
-        self.head = success("À en perdre la tête",1,"ailill",description="???",emoji='<:blocked:897631107602841600>')
-        self.lightNShadow = success("L'Ombre et la Lumière",1,"lightNShadow",description="Affrontez ou faites équipe avec simultanément Iliana et Luna (ou Shihu)",emoji="<:Iliana:926425844056985640><:luna:909047362868105227>")
-        self.fullDarkness = success("Ténèbres Éternels",5,"fullDark",description="Affrontez ou faites équipe Luna ou Shihu {0} fois",emoji='<:luna:909047362868105227><:shihu:909047672541945927>',recompense="cw")
-        self.fraticide = success("Feu allié",1,"fratere",description="???",emoji='<a:meeting2:760186427119501312><a:meeting1:760186398401232916>')
-        self.fullLight = success("Lumière Éternelle",25,"light",description="Faite équipe ou combattez Iliana {0} fois",emoji='<:Iliana:926425844056985640>',recompense='cx')
-        self.dangerousFight = success("Jeu dangereux",1,"dangerous",description="Gagner un combat en ayant 80% de résistance soins ou plus",emoji='<:healnt:903595333949464607>')
-        self.loosing = success("Toucher le fond",1,"loose",description="Perdre un combat avec le plus faible taux de danger possible")
-        self.still = success("You win by doing absolutly nothing",1,"still",description="Gagner un combat en passant tous vos tours",recompense='hga')
-        self.dirty = success("Main propre",5,"dirty",description="Gagner {0} combats en étant dans les 3 meilleurs DPT sans infliger de dégâts directs")
-        self.delegation = success("Laisser le sale boulot aux autres",1,"delegation",description="Terminer un combat en atant meilleur DPT mais en ayant réalisé aucune élimination")
-        self.stella = success("Puissance solaire",10,"stella","srb",description="Affrontez Stella {0} fois",emoji=findEnnemi("Stella").icon)
-        self.momKitsune = success("La passion originelle",3,"momKitsune","sph",description="Affrontez Kitsune {0} fois",emoji=findEnnemi("Kitsune").icon)
-        self.kiku1 = success("Aux portes de la mort",5,"kiku1","spg",description="Affrontez Kiku {0} fois",emoji=findEnnemi("Kiku").icon)
-        self.kiku2 = success("Rire au visage de la mort",1,"kiku2",description="Être en vie en commençant son 16e tour tout en ayant l'effet \"Mors Vita Est\" de Kiku",emoji=findEnnemi("Kiku").icon)
-        self.suffering = success("Suffering form success",1,"suffering",description="Remplir l'une des conditions suivantes :\n- Être ciblé par la compétence Carapace à épines\n- Être vaincu pour son propre effet de dégâts indirect",emoji=blueShell.emoji)
-        self.ailill2 = success("Un résultat sanglant",3,"ailill2",bloodBath2.id,"Affrontez Ailill {0} fois",emoji='<a:Ailill:882040705814503434>')
-        self.alty = success("Laisser la vedette aux autres",3,"alty",altyCover.id,"Affrontez ou faites équipe avec Altikia {0} fois","<:alty:906303048542990347>")
-        self.klikli = success("Ne pas laissez les autres imposer leur volonté",3,"klikli",klikliStrike.id,"Affrontez ou faites équipe avec Klironovia {0} fois","<:klikli:906303031837073429>")
+        self.alice = achivement("Oubliez pas qu'une rose a des épines",10,"alice",recompense="jz",description="Affrontez ou faites équipe avec Alice {0} fois",emoji=findAllie("Alice").icon)
+        self.clemence = achivement("La quête de la nuit",10,"clemence",recompense="bg",description="Affrontez ou faites équipe avec Clémence {0} fois",emoji=findAllie("Clémence").icon)
+        self.akira = achivement("Seconde impression",10,"akira",recompense="bh",description="Affrontez ou faites équipe avec Akira {0} fois",emoji=findAllie("Akira").icon)
+        self.fight = achivement("L'ivresse du combat",1,"fight",recompense="ys",description="Faire {0} combat manuel",emoji='<:splattershotJR:866367630465433611>')
+        self.gwen = achivement("Une histoire de vangeance",3,"gwen",["ka","kb",gwenyStrike.id],"Affrontez ou faites équipe avec Gwendoline {0} fois",emoji=findAllie("Gwendoline").icon)
+        self.quickFight = achivement("Le temps c'est de l'argent",10,"quickFight",None,"Lancez {0} combats rapides",'<:hourglass1:872181651801772052>')
+        self.helene = achivement("Là où mes ailes me porteront",10,"helene","yr","Affrontez ou faites équipe avec Hélène {0} fois",findAllie("Hélène").icon)
+        self.school = achivement("Je ne veux pas d'écolière pour défendre nos terres",30,"school",None,"Combattre {0} fois !",'<:splattershot:866367647113543730>')
+        self.elemental = achivement("Elémentaire mon cher Watson",1,"elemental","qe","Combattre {0} fois en étant niveau 10 ou plus",'<:neutral:887847377917050930>')
+        self.notHealBut = achivement("Situation désespérée Mesure désespérée",500,"notHealBut",None,"Sans être Altruiste, Idole ou Erudit, soignez un total de {0} PV",'<:bandage:873542442484396073>')
+        self.greatHeal = achivement("Soigneur de compétiton",5000,"greatHeal",["kc","kd"],"Soignez un total de {0} PV",'<:seringue:887402558665142343>')
+        self.greatDps = achivement("La meilleure défense c'est l'attaque",5000,"greatDps",None,"Infligez un total de {0} dégâts directs",'<:splatcharger:866367658752213024>')
+        self.poison = achivement("Notre pire ennemi, c'est nous même",5000,"poison",None,"Infligez un total de {0} dégâts indirects",'<:butterflyV:883627142615805962>')
+        self.icealia = achivement("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",findAllie("Icealia").icon)
+        self.shehisa = achivement("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",findAllie("Shehisa").icon)
+        self.heriteEstialba = achivement("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"",findAllie("Lohica").icon)
+        self.heriteLesath = achivement("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:ble:887743186095730708> Hémorragie__\"","<:dissimulation:900083085708771349>")
+        self.powehi = achivement("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois",findAllie("Powehi").icon)
+        self.dimentio = achivement("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
+        self.feli = achivement("Ne jamais abandonner",10,"feli","tl","Affrontez ou faites équipe avec Félicité {0} fois",findAllie("Félicité").icon)
+        self.sixtine = achivement("Tomber dans les bras de Morphée",10,"sixtine","tk","Affrontez ou faites équipe avec Sixtine {0} fois",findAllie("Sixtine").icon)
+        self.hina = achivement("Voler à la recousse",10,"hina","tj","Affrontez ou faites équipe avec Hina {0} fois","<:hina:908820821185810454>")
+        self.luna = achivement("La prêtresse obsitnée",3,"luna",description="Vainquez {0} le boss \"Luna\"",emoji="<:luna:909047362868105227>",recompense=["oq","or","os","ot","ou","ov"])
+        self.julie = achivement("Être dans les temps",10,"julie","ti","Affrontez ou faites équipe avec Julie {0} fois","<:julie:910185448951906325>")
+        self.memClem = achivement("La Chauve-Souris Archaniste et la Rose",3,"clemMem","sv","Combattez Clémence Possédée {0} fois","<a:clemPos:914709222116175922>")
+        self.krys = achivement("Cris \"Staline\" !",10,"krys","st","Affrontez ou faites équipe avec Krys {0} fois","<:krys:916118008991215726>")
+        self.liu = achivement("Tochi no ai",10,"liu",description="Combattez Liu {0} fois",emoji='<:earthKitsune:917670882586017792>',recompense='zzc')
+        self.lia = achivement("Kaze no ai",10,"lia",description="Combattez Lia {0} fois",emoji='<:airKitsune:917670912646602823>',recompense='zzb')
+        self.lio = achivement("Mizu no ai",10,"lio",description="Combattez Lio {0} fois",emoji='<:waterKitsune:917670866626707516>',recompense='zza')
+        self.liz = achivement("Hi no ai",10,"liz",description="Combattez Liz {0} fois",emoji='<:fireKitsune:917670925904785408>',recompense='zyz')
+        self.head = achivement("À en perdre la tête",1,"ailill",description="???",emoji='<:blocked:897631107602841600>')
+        self.lightNShadow = achivement("L'Ombre et la Lumière",1,"lightNShadow",description="Affrontez ou faites équipe avec simultanément Iliana et Luna (ou Shihu)",emoji="<:Iliana:926425844056985640><:luna:909047362868105227>")
+        self.fullDarkness = achivement("Ténèbres Éternels",5,"fullDark",description="Affrontez ou faites équipe Luna ou Shihu {0} fois",emoji='<:luna:909047362868105227><:shihu:909047672541945927>',recompense="cw")
+        self.fraticide = achivement("Feu allié",1,"fratere",description="???",emoji='<a:meeting2:760186427119501312><a:meeting1:760186398401232916>')
+        self.fullLight = achivement("Lumière Éternelle",25,"light",description="Faite équipe ou combattez Iliana {0} fois",emoji='<:Iliana:926425844056985640>',recompense='cx')
+        self.dangerousFight = achivement("Jeu dangereux",1,"dangerous",description="Gagner un combat en ayant 80% de résistance soins ou plus",emoji='<:healnt:903595333949464607>')
+        self.loosing = achivement("Toucher le fond",1,"loose",description="Perdre un combat avec le plus faible taux de danger possible")
+        self.still = achivement("You win by doing absolutly nothing",1,"still",description="Gagner un combat en passant tous vos tours",recompense='hga')
+        self.dirty = achivement("Main propre",5,"dirty",description="Gagner {0} combats en étant dans les 3 meilleurs DPT sans infliger de dégâts directs")
+        self.delegation = achivement("Laisser le sale boulot aux autres",1,"delegation",description="Terminer un combat en atant meilleur DPT mais en ayant réalisé aucune élimination")
+        self.stella = achivement("Puissance solaire",10,"stella","srb",description="Affrontez Stella {0} fois",emoji=findEnnemi("Stella").icon)
+        self.momKitsune = achivement("La passion originelle",3,"momKitsune","sph",description="Affrontez Kitsune {0} fois",emoji=findEnnemi("Kitsune").icon)
+        self.kiku1 = achivement("Aux portes de la mort",5,"kiku1","spg",description="Affrontez Kiku {0} fois",emoji=findEnnemi("Kiku").icon)
+        self.kiku2 = achivement("Rire au visage de la mort",1,"kiku2",description="Être en vie en commençant son 16e tour tout en ayant l'effet \"Mors Vita Est\" de Kiku",emoji=findEnnemi("Kiku").icon)
+        self.suffering = achivement("Suffering form success",1,"suffering",description="Remplir l'une des conditions suivantes :\n- Être ciblé par la compétence Carapace à épines\n- Être vaincu pour son propre effet de dégâts indirect",emoji=blueShell.emoji)
+        self.ailill2 = achivement("Un résultat sanglant",3,"ailill2",bloodBath2.id,"Affrontez Ailill {0} fois",emoji='<a:Ailill:882040705814503434>')
+        self.alty = achivement("Laisser la vedette aux autres",3,"alty",altyCover.id,"Affrontez ou faites équipe avec Altikia {0} fois","<:alty:1112517632671875152>")
+        self.klikli = achivement("Ne pas laissez les autres imposer leur volonté",3,"klikli",klikliStrike.id,"Affrontez ou faites équipe avec Klironovia {0} fois","<:klikli:906303031837073429>")
+        self.liaEx = achivement("Filer comme le vent",3,"liaEx",Hauringusutomusodo.id,"Rencontrer {0} fois le combat de Lia Ex",'<:liaEx:1079115890437656598>')
+        self.ilianaEx = achivement("Qui continue de briller dans le Noir",3,"catEx",eternalLight,"Rencontrer {0} fois le combat de Iliana Prê.","<:iliPre:1053017768443785236>")
+        self.clemEx = achivement("Sang pitié",3,"clemEx",komoriHerit.id,description="Rencontrer {0} fois le combat de Clémence Ex",emoji=tablVarAllies[4].splashIcon)
+        self.anna = achivement("Moitié perdue",7,"anna",inMemoria.id,"Affrontez ou faites équipe avec Anna {0} fois",emoji="<:anna:943444730430246933>")
+        self.belle = achivement("Moitié brisée",3,"belle",description="Affrontez ou faites équipe avec Belle {0} fois",emoji="<:belle:943444751288528957>")
+        self.masterDamage = achivement("Quête de la puissance",500,"masterDamage",description="Infligez l'équivalent de **{0} fois** vos PV Max en dégâts",emoji='<a:dmgBuffB:954429227657224272>',recompense=[renforPhys.id,dualCast.id])
+        self.masterTank = achivement("Quête de la résistance",500,"masterTank",description="Recevoir l'équivalent de **{0} fois** vos PV Max de dégâts",emoji='<a:defBuffB:954537632543682620>')
+        self.marineDealer = achivement("Do what you want 'cause a pirate is free",50,"marineDealer",[fairyLiberation.id,exploPetal.id],description="Vaincre **{0} ennemis** ayant une affinité avec les **Marines**",emoji='<:pirSan2:1059519736347631696>')
+        self.celeste = achivement("Le début d'une aventure céleste",10,"celeste",selfMemoria.id,"Affrontez ou faites équipe avec Céleste {0} fois",emoji=findAllie("Céleste").icon)
+        self.shushi = achivement("Filer telle une anguille",10,"shushi",squidRoll.id,"Affrontez ou faites équipe avec Shushi {0} fois",emoji=findAllie("Shushi").icon)
 
-    def tablAllSuccess(self):
+    def tablAllSuccess(self)->List[achivement]:
         """Renvoie un tableau avec tous les objets success"""
-        return [self.alice,self.clemence,self.akira,self.fight,self.gwen,self.quickFight,self.helene,self.school,self.elemental,self.notHealBut,self.greatHeal,self.greatDps,self.poison,self.icealia,self.shehisa,self.heriteEstialba,self.heriteLesath,self.powehi,self.dimentio,self.feli,self.sixtine,self.hina,self.luna,self.julie,self.memClem,self.krys,self.liz,self.lio,self.lia,self.liu,self.head,self.lightNShadow,self.fullDarkness,self.fraticide,self.fullLight,self.dangerousFight,self.loosing,self.still,self.dirty,self.delegation,self.stella,
-        self.momKitsune,self.kiku1,self.kiku2,self.suffering,self.ailill2,self.alty,self.klikli]
-
+        toReturn = []
+        for a, b in self.__dict__.items():
+            toReturn.append(b)
+        return toReturn
+    
     def where(self,where : str):
         alls = self.tablAllSuccess()
         for a in range(0,len(alls)):
@@ -397,8 +110,8 @@ class successTabl:
         where.count = count
         where.haveSucced = haveSucced
 
-    async def addCount(self,ctx,user,where : str,add = 1):
-        where = self.where(where)
+    async def addCount(self,ctx,user,where : str,add = 1, sendEmbed = False):
+        where, hadSucced = self.where(where), False
         where.count += add
 
         if where.count >= where.countToSucced and not(where.haveSucced):
@@ -458,38 +171,43 @@ class successTabl:
                     pluriel2 = "es "
                 emb.add_field(name=desti + "obtenu l{1}objet{0} suivant{0} :".format(pluriel,pluriel2),value=recompenseMsg)
 
-            await ctx.channel.send(embeds=emb)
+            if sendEmbed:
+                await ctx.channel.send(embeds=emb)
             where.haveSucced = True
+            hadSucced = True
 
-        achivement.updateSuccess(user,where)
-        return user
+        achivementStand.updateSuccess(user,where)
+        return user, hadSucced
 
 class succesDb:
     def __init__(self, database : str):
         self.con = sqlite3.connect(f"./data/database/{database}",check_same_thread=False)
         self.con.row_factory = sqlite3.Row
-        self.database = database
+        self.database, tabl = database, achiveTabl()
 
-        cursor = self.con.cursor()
+        cursor, tabl = self.con.cursor(), tabl.tablAllSuccess()
 
         try:
-            cursor.execute("SELECT ailill2Have FROM achivements;")
+            cursor.execute("SELECT * from achivements;")
         except:
-            temp = ""
-            for a in maj17:
-                if a != ";":
-                    temp+=a
-                else:
-                    cursor.execute(temp)
-                    temp = ""
-
+            cursor.execute("CREATE TABLE achivements (id INTEGER PRIMARY KEY)")
+            print("Tabl Achivment créée")
             self.con.commit()
-            print("maj17 réalisée")
+
+        for achiv in tabl:
+            try:
+                cursor.execute("SELECT {0}Have FROM achivements;".format(achiv.code))
+            except:
+                cursor.execute("ALTER TABLE achivements ADD {0}Count INTEGER DEFAULT (0)".format(achiv.code))
+                cursor.execute("ALTER TABLE achivements ADD {0}Have BOOLEAN DEFAULT (0)".format(achiv.code))
+                cursor.execute("UPDATE achivements SET {0}Count = 0, {0}Have = 0;".format(achiv.code))
+                print("Achivement {0} ajouté à la base de donné".format(achiv.name))
+                self.con.commit()
 
         # Fin des majs
         cursor.close()
 
-    def getSuccess(self,user):
+    def getSuccess(self,user)->achiveTabl:
         cursor = self.con.cursor()
 
         # Vérification de si l'utilisateur est dans la base de donée :
@@ -505,7 +223,7 @@ class succesDb:
 
         result = result[0]
         cursor.close()
-        achivTabl = successTabl()
+        achivTabl = achiveTabl()
 
         for a in achivTabl.tablAllSuccess():
             b,c = "{0}Count".format(a.code),"{0}Have".format(a.code)
@@ -519,4 +237,4 @@ class succesDb:
         cursor.close()
         self.con.commit()
 
-achivement = succesDb("success.db")
+achivementStand = succesDb("success.db")

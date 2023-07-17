@@ -1,5 +1,6 @@
 from gestion import existFile
 from constantes import light_blue
+from typing import Union
 import interactions
 
 async def new_patch(bot : interactions.Client, ctx : interactions.Message):
@@ -23,9 +24,10 @@ async def new_patch(bot : interactions.Client, ctx : interactions.Message):
     
     await ctx.channel.send(toSend)
 
-async def send_patchnote(ctx: interactions.CommandContext):
+async def send_patchnote(ctx: Union[interactions.CommandContext, interactions.Channel]):
     """Permet d'envoyer le patchnote enregistré"""
-    await ctx.defer()
+    if type(ctx) == interactions.CommandContext:
+        await ctx.defer()
     patchView = open("./data/patch/patch.txt","r")
     view = patchView.readlines()
     patchView.close()

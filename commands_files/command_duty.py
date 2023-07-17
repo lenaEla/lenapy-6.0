@@ -62,7 +62,7 @@ async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,us
             clemence = tablAllAllies[2].icon,
             shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, icealia = '<:icealia:909065559516250112>',
             iliana = '<:Iliana:926425844056985640>',
-            gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
+            gweny = tablAllAllies[1].icon, alty = '<:alty:1112517632671875152>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
             lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>"
             )
 

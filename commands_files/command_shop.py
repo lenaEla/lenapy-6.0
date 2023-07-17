@@ -39,25 +39,26 @@ def formatShop(txt:str) -> str:
         alice = '<:alice:908902054959939664>',
         shushi = '<:shushi:909047653524963328>',
         clemence = '<:clemence:908902579554111549>', john = '<:john:908887592756449311>',
-        luna = '<:luna:909047362868105227>',
+        luna = '<:luna:909047362868105227>', stella = "<:stella:1116365644263333988>",
         feli = '<:felicite:909048027644317706>', felicite = '<:felicite:909048027644317706>',
-        icealia = '<:icealia:909065559516250112>',lohica='<:lohica:919863918166417448>',ly='<:ly:943444713212641310>',amary='<:amary:979441677460713502>',pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirCar1:1059519866714988594>',pirate3='<:pirGun2:1059519760284528640>',
-        shihu = '<:shihu:909047672541945927>', stimeo = '<:stimeo:1089164206336647168>',
+        icealia = '<:icealia:909065559516250112>',lohica='<:lohica:919863918166417448>',ly='<:ly:943444713212641310>',amary='<:amary:979441677460713502>',pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirGun1:1059519820376330351>',pirate3='<:pirGun2:1059519760284528640>',
+        shihu = '<:shihu:909047672541945927>', stimeo = '<:stimeo:1089164206336647168>', itimeo = "<:itimeo:1103217741172846614>",
         shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, astra = "<:astra:1051825407466426430>",
-        sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>',
-        iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = "Aurora", suivant = "Suivant d'Aurora",
-        gweny = tablAllAllies[1].icon, alty = '<:alty:906303048542990347>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
+        sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>', dSixtine = "<:dreamSixtine:1100793996483235851>",
+        iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = "<:aurora:1100791091483136133>", suivant = "Suivant d'Aurora", gaurora = "<:gaurora:1103332091594281050>",
+        gweny = tablAllAllies[1].icon, alty = '<:alty:1112517632671875152>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
         lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>", kitsune = "<:kitsune:935552850686255195>", penelope = "<:penelope:1003027020277620836>",
         anna = "<:anna:943444730430246933>", belle = "<:belle:943444751288528957>",
         edelweiss = '<:edelweiss:918451422939451412>', epiphyllum = "<:epiphilium:1014094726351294484>",
-        ruby='<:ruby:958786374759251988>', julie = '<:julie:910185448951906325>',
+        ruby='<:ruby:1112519724799103037>', julie = '<:julie:910185448951906325>',
         akia = '<a:akia:993550766415564831>',
         nacialisla = "<:nacialisla:985933665534103564>", silicia = "<:silicia:1045109225615003729>",
-        benedicte = "<:benedict:958786319776112690>", 
-        kiku = "<:kiku:962082466368213043>", churi = '<:churi:992941366537633914>',
+        benedicte = "<:benedict:1116416894426173520>", 
+        kiku = "<:kiku:962082466368213043>", churi = '<:churi:992941366537633914>', skeleton = "<a:smnMage:1054312154452471838>",
         akira = '<:akira:909048455828238347>', krys = "<:krys:916118008991215726>",
         baddy1 = baddyTabl[0], baddy2 = baddyTabl[1], baddy3 = baddyTabl[2], baddy4 = baddyTabl[3], baddy5 = baddyTabl[4],
-        maraine = "Mara{0}ne".format(shopMaraine), chauvesouris = "🦇", thomas = "Thomas"
+        maraine = "Mara{0}ne".format(shopMaraine), chauvesouris = "🦇", thomas = "Thomas",
+        surrin = "<:surin:1113685316319072297>", bow = "<:bow:1113685339400327198>", imea = "<:imea:1116364997073829998>",
     )
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
@@ -154,7 +155,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
 
                         shopField[a] += icon
                         options += [interactions.SelectOption(label=unhyperlink(b.name),value=b.id,emoji=getEmojiObject(b.emoji),description=desc+desc2)]
-                shopField[a] = reducedEmojiNames(shopField[a])
+                shopField[a] = reduceEmojiNames(shopField[a])
                 if len(shopField[a]) <= 1024:
                     shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
                 else:
@@ -253,15 +254,15 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                 temp1 = allBuyButton
 
             if len(teamList) <= 1:
-                temp2 = interactions.Button(type=2, style=ButtonStyle.SECONDARY, label="Vous n'avez pas d'amis", emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="buy'n'send all",disabled=True)
+                temp2 = []
             elif totalTeamCost > user.currencies:
-                temp2 = allGiveButtonButPoor
+                temp2 = [allGiveButtonButPoor]
             elif totalTeamCost == 0:
-                temp2 = [allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF,allGiveButtonButAllreadyHaveM][user.gender]
+                temp2 = [[allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF,allGiveButtonButAllreadyHaveM][user.gender]]
             elif user.currencies >= totalTeamCost:
-                temp2 = allGiveButton
+                temp2 = [allGiveButton]
 
-            tablAddPoorButtons = [interactions.ActionRow(components=[temp1,temp2])]
+            tablAddPoorButtons = [interactions.ActionRow(components=[temp1]+temp2)]
 
             await initMsg.edit(embeds = shopEmb,components=[interactions.ActionRow(components=[select])]+tablAddPoorButtons)
 

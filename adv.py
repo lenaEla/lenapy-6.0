@@ -56,10 +56,10 @@ totalAnnilCast = copy.deepcopy(totalAnnilLauch)
 totalAnnilCast.power, totalAnnilCast.effectOnSelf = 0, totalAnnilCastEff
 
 BOUMBOUMBOUMBOUMweap = weapon("noneWeap","noneweap",1,AREA_CIRCLE_1,0,0,0)
-fairyBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect("me"))
+fairyBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect(estial.id))
 fairyBomb.effects[0].callOnTrigger.power = int(fairyBomb.effects[0].callOnTrigger.power*0.4)
 
-hemoBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect("mx"))
+hemoBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect(bleeding.id))
 hemoBomb.effects[0].callOnTrigger.power = fairyBomb.effects[0].callOnTrigger.power//2
 
 def findOther(otherId : Union[str,other]) -> Union[other,None]:
@@ -220,7 +220,7 @@ if not(isLenapy):
     tabl = copy.deepcopy(tablAllEnnemies)
     alReadySeen = []
     tablTank = []
-    tablMid = []
+    tablMid = [] 
     tablBack = []
 
     for ennemi in tabl:
@@ -326,7 +326,7 @@ dictPreDefSkillSet = {
         preDefSkillSet(element=ELEMENT_EARTH,skillList=[findSkill("Défi"),findSkill("Elipse Terrestre"),findSkill("Frappe Terre"),findSkill("Bain de Sang"),findSkill("Force de volonté"),findSkill("Frappe Convertissante Avancée"),findSkill("Pied Voltige")]),
         preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Frappe Air"),findSkill("Poussée Aviaire"),findSkill("Convertion élémentaire"),findSkill("Dernier Voyage"),findSkill("Soyokaze"),findSkill("Aer ferrum")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Linceuil de Lémure"),findSkill("Fétu Suppliant"),findSkill("Uppercut"),findSkill("Dernier Voyage"),findSkill("Ombre de la Mort"),findSkill("HighKick")]),
-        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps / Déplacement"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Invocation - Chauve-souris"),findSkill("Carnage"),findSkill("Choc Cardinal"),findSkill("Démolition"),findSkill("Voyage Ombral"),findSkill("Frappe Vangeresse")]),
         preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de plume"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")])
     ],
@@ -335,7 +335,7 @@ dictPreDefSkillSet = {
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Baleyette"),findSkill("Uppercut"),findSkill("Pied Voltige"),findSkill("Choc Ténébreux"),findSkill("Triple Attaque"),findSkill("Assaut du Crabe")]),
         preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Libération"),findSkill("Flèche aérienne"),findSkill("Convertion élémentaire"),findSkill("Démolition"),findSkill("Envolée féérique"),findSkill("Soyokaze")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Combo Eventails Célestes"),findSkill("Chorégraphie de l'éventail"),findSkill("Danse des sabres"),findSkill("Danse de la pluie étoilée"),findSkill("Final Classique"),findSkill("Final Technique")]),
-        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
+        preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps / Déplacement"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Linceuil de Lémure"),findSkill("Fétu Suppliant"),findSkill("Uppercut"),findSkill("Dernier Voyage"),findSkill("Ombre de la Mort"),findSkill("HighKick")]),
     ],
 }
@@ -433,6 +433,8 @@ dictMediumReticens = {
 }
 
 def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,None],color=None) -> tmpAllie:
+    if type(enemy) == str:
+        enemy = copy.deepcopy(findEnnemi(enemy))
     tablStats = [
         int(enemy.strength*(max(10,lvl)/50)*1.5/3),
         int(enemy.endurance*(max(10,lvl)/50)*1.5/3),
@@ -440,7 +442,7 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
         int(enemy.agility*(max(10,lvl)/50)*1.5/3),
         int(enemy.precision*(max(10,lvl)/50)*1.5/3),
         int(enemy.intelligence*(max(10,lvl)/50)*1.5/3),
-        int(enemy.strength*(max(10,lvl)/50)*1.5/3),
+        int(enemy.magie*(max(10,lvl)/50)*1.5/3),
         int(enemy.resistance*1.2/3),
         int(enemy.percing*1.2/3),
         int(enemy.critical*1.2/3)
@@ -498,6 +500,22 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
         icon=enemy.icon,
         say=enemy.says,
         splashArt=enemy.splashArt,
-        splashIcon=enemy.splashIcon)
+        splashIcon=enemy.splashIcon,
+        team = ennemi.team)
+
+    if toReturn.name == "Marinier Sabreur":
+        toReturn.name = "Pirate Sabreur"
+        if random.randint(0,1) < 1:
+            toReturn.species, toReturn.icon = 1, "<:pirSab1:1059519845177249812>"
+        else:
+            toReturn.species, toReturn.icon = 2, "<:pirSan2:1059519736347631696>"
+    elif toReturn.name == "Marinier Tireur":
+        toReturn.name = "Pirate Tireur"
+        if random.randint(0,1) < 1:
+            toReturn.species, toReturn.icon = 1, "<:pirGun1:1059519820376330351>"
+        else:
+            toReturn.species, toReturn.icon = 2, "<:pirGun2:1059519760284528640>"
+
+    toReturn.changeLevel(lvl,False,0,False)
 
     return toReturn

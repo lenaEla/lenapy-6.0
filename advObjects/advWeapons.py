@@ -1,6 +1,6 @@
 from classes import *
 from constantes import *
-from advObjects.advSkills import tablElemEff, coroWind, plumRemEff
+from advObjects.advSkills import tablElemEff, coroWind, plumRemEff, estial, bleeding
 from advObjects.advStuffs import shieltron
 
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=10,strength=10,repetition=3,emoji = '<:splattershot:866367647113543730>',affinity=ELEMENT_NEUTRAL)
@@ -27,7 +27,7 @@ spellBook = weapon("Grimoire de feu","ay",RANGE_DIST,AREA_CIRCLE_4,40,75,200,mag
 legendarySword=weapon("Épée et Bouclier de Légende","az",RANGE_MELEE,AREA_CIRCLE_1,61,85,300,strength=10,resistance=5,emoji='<:masterSword:880008948445478962>',affinity=ELEMENT_LIGHT,effects=shieltron)
 depha = weapon("Lame Dimensionnelle","ba",RANGE_MELEE,AREA_CIRCLE_1,72,90,300,strength=20,resistance=10,emoji='<:ailSword:922696057350127697>')
 butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,50,80,150,taille=0,charisma=20,intelligence=10,emoji='<:butterflyR:883627168406577172>',use=CHARISMA,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
-butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,22,100,250,taille=0,area=AREA_CIRCLE_1,magie=15,effectOnUse="me",needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
+butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,22,100,250,taille=0,area=AREA_CIRCLE_1,magie=15,effectOnUse=estial.id,needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
 dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,61,85,500,strength=10,resistance=5,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL,effects="lg")
 magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,74,70,200,endurance=10,charisma=10,resistance=10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
 lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,61,85,250,endurance=10,intelligence=10,resistance=10,emoji="<:lunarBonk:887347614448746516>",use=MAGIE,affinity=ELEMENT_LIGHT)
@@ -40,7 +40,7 @@ waterspell = weapon("Grimoire de l'eau","bl",RANGE_LONG,AREA_CIRCLE_4,73,60,350,
 earthspell = weapon("Grimoire des terres","bm",RANGE_MELEE,AREA_CIRCLE_2,86,60,350,magie=10,endurance=10,taille=0,resistance=10,emoji='<:earthspellbook:892963483665174578>',affinity=ELEMENT_EARTH,use=MAGIE,message="{0} fait apparaitre des pics rocheux sous {1} :")
 airspell = weapon("Grimoire des vents","bn",RANGE_MELEE,AREA_CIRCLE_2,17,70,350,magie=10,resistance=10,taille=0,agility=10,emoji='<:airspellbook:892963551159922718>',affinity=ELEMENT_AIR,use=MAGIE,area=AREA_ARC_1,message="{0} forme des vents violents autour de {1}",repetition=3)
 airsword = weapon("Épée des vents","bo",RANGE_MELEE,AREA_CIRCLE_1,64,70,350,strength=15,agility=15,emoji='<:airsword:892963581031772170>',repetition=1,affinity=ELEMENT_AIR,area=AREA_ARC_2,use=STRENGTH,message="{0} file comme le vent !")
-armilame = weapon("Épée empoisonnée","bp",RANGE_MELEE,AREA_CIRCLE_1,54,75,350,magie=10,resistance=5,emoji='<:amirlame:894643896120918107>',effectOnUse="me",use=MAGIE)
+armilame = weapon("Épée empoisonnée","bp",RANGE_MELEE,AREA_CIRCLE_1,54,75,350,magie=10,resistance=5,emoji='<:amirlame:894643896120918107>',effectOnUse=estial.id,use=MAGIE)
 shehisa = weapon("Faux des ombres","bq",RANGE_MELEE,AREA_CIRCLE_1,69,75,350,strength=10,resistance=5,emoji='<:shefaux:896924311221305395>',effectOnUse='mx')
 machinist = weapon("Canon du machiniste fantaisiste","br",RANGE_LONG,AREA_CIRCLE_4,63,60,350,strength=20,precision=10,area=AREA_LINE_2,emoji='<:mach:896924290170093580>')
 ironSword = weapon("Épée en fer","bs",RANGE_MELEE,AREA_CIRCLE_1,75,60,350,endurance=20,resistance=10,emoji='<:ironSword:899994609504092171>',area=AREA_ARC_1)
@@ -74,16 +74,16 @@ eternalInkWeaponIds = [eternalInkSword.id,eternalInkStick.id,eternalInkShield.id
 etInkBases = ["<:BaseinkEtSword:918071336994230302>","<:BaseinkEtDague:918169899170426960>","<:BaseinkEtShield:918169963624292392>","<:BaseinkEtStick:918170006649458741>","<:BaseinkEtFan:918170045111226438>","<:BaseinkEtGlove:918170092678815744>","<:BaseinkEtBow:918170130041671720>"]
 etInkLines = ["<:LineinkEtSword:918071323618607144>","<:LineinkEtDague:918169920951418890>","<:LineinkEtShield:918169983152975893>","<:LineinkEtStick:918170024370380841>","<:LineinkEtFan:918170074400055317>","<:LineinkEtGlove:918170114984124426>","<:LineinkEtBow:918170144499466300>"]
 purpleSecretEff = effect("Sec. pur. prædi.","purpleSecrets",turnInit=-1,emoji=uniqueEmoji('<:sdf:919713870858317875>'),area=AREA_DONUT_2,description="Lorsqu'un adversaire meurt, s'il portait au moins 1 effet __Poison d'Estialba__ venant de votre part, une explosion **indirecte magique** dont la puissance dépend de celles de vos effets __Poison d'Estialba__ et de leur durée restante sur le porteur se produit\nTous les ennemis dans la zone d'effet reçoive un effet __Poison d'Estialba__ ayant une puissance équivalente à {0}% de celle de l'effet de base",reject=['np',"ns","pacteDeSang","pacteD'âme"],power=25)
-secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_3,47,80,750,emoji='<:sdf:919713870858317875>',magie=10,resistance=5,effects=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,effectOnUse="me",effPowerPurcent=50,priority=WEAPON_PRIORITY_LOW)
+secretum = weapon("Secretum purpureum prædictas","cq",RANGE_DIST,AREA_CIRCLE_3,47,80,750,emoji='<:sdf:919713870858317875>',magie=10,resistance=5,effects=purpleSecretEff,use=MAGIE,affinity=ELEMENT_DARKNESS,effectOnUse=estial.id,effPowerPurcent=50,priority=WEAPON_PRIORITY_LOW)
 critBonusEff = effect("Bonus critique","scopeCritBonus",turnInit=-1,unclearable=True,emoji=sameSpeciesEmoji('<:critB:925763298346033193>','<:critR:925763310383677490>'),critDmgUp=5,description="Augmente les dégâts de coup critique de 5%")
 ElitherScope = weapon("Extraceur Zoom +","cr",RANGE_LONG,AREA_CIRCLE_7,49,65,1,precision=15,effects=critBonusEff,emoji='<:elitherScope:925762142202921040>')
 gravEff = effect("Gravitation","grav",turnInit=-1,unclearable=True,description="Augmente progressivement votre agression au fur et à mesure du combat mais __empêche l'utilisation de votre arme principale__",emoji='<a:ble:925774688641228810>')
 grav = weapon("Gravité","cs",RANGE_MELEE,AREA_CIRCLE_1,54,75,1,endurance=10,taille=0,resistance=5,effects=gravEff,emoji='<:bl:925774629711282196>',use=ENDURANCE)
 darkbluebutterfly = weapon("Papillon bleu marine",'ct',RANGE_MELEE,AREA_CIRCLE_2,78,66,1,magie=10,endurance=10,taille=0,resistance=10,use=MAGIE,needRotate=False,emoji='<:dbb:926954332593725511>')
-kardia = effect("Kardia","kardia",type=TYPE_BOOST,power=25,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, soigne l'allié le plus blessé avec une puissance de **15**\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:kar:929860644461740133>',stat=CHARISMA)
+kardia = effect("Kardia","kardia",type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_WEAPON_USE,power=35,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, soigne l'allié le plus blessé avec une puissance de **15**\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:kar:929860644461740133>',stat=CHARISMA,area=AREA_LOWEST_HP_ALLIE)
 whiteSpiritWings = weapon("Ailes de l'esprit blanc","cu",RANGE_DIST,AREA_CIRCLE_4,46,75,1,taille=0,charisma=15,effects=kardia,use=CHARISMA,needRotate=False,emoji='<:wws:929847728077406279>',ignoreAutoVerif=True,priority=WEAPON_PRIORITY_HIGH)
-diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=25,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
-eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag)
+diag = effect('Diagnostique',"diagEuk",INTELLIGENCE,overhealth=35,emoji=sameSpeciesEmoji("<:ekb:929866306554056725>" ,"<:ekr:929866324153360394>"),type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
+eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,trigger=TRIGGER_WEAPON_USE,turnInit=-1,unclearable=True,description="Lorsque vous attaquez avec votre arme principale, donne l'effet __Diagnostique__ à l'allié le plus blssée\nAugmente la probabilité d'utiliser son arme principale de **50%** en mode automatique",emoji='<:ekr:929860664497942558>',stat=INTELLIGENCE,callOnTrigger=diag,area=AREA_LOWEST_HP_ALLIE)
 bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=15,effects=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True,priority=WEAPON_PRIORITY_HIGH)
 
 cardsDeck = effect("Deck de cartes","astro",CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration")
@@ -113,17 +113,17 @@ magicMass = weapon("Masse argentée",'cz',RANGE_DIST,AREA_CIRCLE_3,80,60,1,magie
 magicSwordnShield = weapon("Bouclier Runique",'da',RANGE_MELEE,AREA_CIRCLE_1,58,70,1,magie=5,resistance=10,use=MAGIE,emoji='<:magicShield:934585318508736532>',needRotate=False,effects=shieltron)
 keyblade = weapon("Keyblade",'db',RANGE_MELEE,AREA_CIRCLE_2,81,80,1,agility=10,strength=10,endurance=10,emoji='<:kb:934497052723929108>',ignoreAutoVerif=True)
 fleauHealEff = effect('Cicatrisation','altiWeapHealEff',CHARISMA,stackable=True,power=15,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,description="Soigne légèrement en début de tour",emoji=sameSpeciesEmoji('<:flB:934615447263916103>','<:flR:934615460157198346>'))
-fleauPassifEffect = effect('Bénidiction de la Compréhension','altiWeapPassifEff',callOnTrigger=fleauHealEff,turnInit=-1,unclearable=True,area=AREA_CIRCLE_2,emoji='<:flE:934615479732043776>',description="Lorsque vous attaquez avec votre arme, donne l'effet __Cicatrisation__ à tous vos alliés dans la zone d'effet\n\nAugmente de 50% la probabililté d'utiliser son arme principale en mode automatique")
+fleauPassifEffect = effect('Bénidiction de la Compréhension','altiWeapPassifEff',callOnTrigger=fleauHealEff,turnInit=-1,unclearable=True,area=AREA_CIRCLE_2,emoji='<:flE:934615479732043776>',description="Lorsque vous attaquez avec votre arme, donne l'effet __Cicatrisation__ à tous vos alliés dans la zone d'effet\n\nAugmente de 50% la probabililté d'utiliser son arme principale en mode automatique",trigger=TRIGGER_WEAPON_USE)
 fleau = weapon('Fléau de la Compréhension',"de",RANGE_MELEE,AREA_CIRCLE_2,58,50,1,charisma=10,resistance=5,priority=WEAPON_PRIORITY_HIGH,use=CHARISMA,effects=fleauPassifEffect,emoji='<:fleau:934615644622704641>',area=AREA_ARC_1)
 
 micPinkBoostEff = effect("Chanson rose",'micPinkBoostEff',CHARISMA,strength=3,magie=3,emoji='<:pinkMic:917838961236377690>')
-micPinkBoost = effect("Vocalises roses",'micPinkBoost',CHARISMA,turnInit=-1,unclearable=True,description="En attaquant avec votre arme principale, donne l'effet __Chanson rose__ aux alliés dans la zone d'effet",area=AREA_DONUT_2,callOnTrigger=micPinkBoostEff,emoji='<:pinkMic:917838961236377690>')
+micPinkBoost = effect("Vocalises roses",'micPinkBoost',CHARISMA,turnInit=-1,unclearable=True,trigger=TRIGGER_WEAPON_USE,description="En attaquant avec votre arme principale, donne l'effet __Chanson rose__ aux alliés dans la zone d'effet",area=AREA_DONUT_2,callOnTrigger=micPinkBoostEff,emoji='<:pinkMic:917838961236377690>')
 micPink = weapon("Micro rose","ax",RANGE_LONG,AREA_CIRCLE_5,42,75,300,charisma=15,emoji='<:pinkMic:917838961236377690>',needRotate=False,use=CHARISMA,message="{0} pousse la chansonnette !",taille=0,effects=micPinkBoost)
 micRedBoostEff = effect("Chanson rouge",'micRedBoostEff',CHARISMA,strength=5,emoji='<:redMic:936781924620451850>')
-micRedBoost = effect("Vocalises rouges",'micRedBoost',CHARISMA,turnInit=-1,unclearable=True,description="En attaquant avec votre arme principale, donne l'effet __Chanson rouge__ aux alliés dans la zone d'effet",area=AREA_DONUT_2,callOnTrigger=micRedBoostEff,emoji='<:redMic:936781924620451850>')
+micRedBoost = effect("Vocalises rouges",'micRedBoost',CHARISMA,turnInit=-1,trigger=TRIGGER_WEAPON_USE,unclearable=True,description="En attaquant avec votre arme principale, donne l'effet __Chanson rouge__ aux alliés dans la zone d'effet",area=AREA_DONUT_2,callOnTrigger=micRedBoostEff,emoji='<:redMic:936781924620451850>')
 micRed = weapon("Micro rouge","df",RANGE_LONG,AREA_CIRCLE_5,42,75,300,charisma=15,emoji='<:redMic:936781924620451850>',needRotate=False,use=CHARISMA,message="{0} pousse la chansonnette !",taille=0,effects=micRedBoost)
 micPurpleBoostEff = effect("Chanson violette",'micPurpleBoostEff',CHARISMA,magie=5,emoji='<:purpleMic:936781868127354900>')
-micPurpleBoost = effect("Vocalises violettes",'micPurpleBoost',CHARISMA,turnInit=-1,unclearable=True,description="En attaquant avec votre arme principale, donne l'effet __Chanson violette__ aux alliés dans la zone d'effet",area=AREA_DONUT_2,callOnTrigger=micPurpleBoostEff,emoji='<:purpleMic:936781868127354900>')
+micPurpleBoost = effect("Vocalises violettes",'micPurpleBoost',CHARISMA,turnInit=-1,trigger=TRIGGER_WEAPON_USE,unclearable=True,description="En attaquant avec votre arme principale, donne l'effet __Chanson violette__ aux alliés dans la zone d'effet",area=AREA_DONUT_2,callOnTrigger=micPurpleBoostEff,emoji='<:purpleMic:936781868127354900>')
 micPurple = weapon("Micro violet","dg",RANGE_LONG,AREA_CIRCLE_5,42,75,300,charisma=15,emoji='<:purpleMic:936781868127354900>',needRotate=False,use=CHARISMA,message="{0} pousse la chansonnette !",taille=0,effects=micRedBoost)
 explosher = weapon('Détoneur','dh',RANGE_LONG,AREA_CIRCLE_4,54,70,1,strength=15,precision=15,area=AREA_CIRCLE_1,emoji='<:explosher:936781519475855390>')
 explosher2 = weapon('Détoneur Modifié','di',RANGE_LONG,AREA_CIRCLE_4,25,70,1,charisma=15,precision=15,area=AREA_CIRCLE_1,use=CHARISMA,type=TYPE_HEAL,target=ALLIES,emoji='<:healExplo:936784243424645160>')
@@ -173,15 +173,25 @@ liaKatanaEff = effect("Akashi","liaKatanaEff",None,turnInit=-1,unclearable=True,
 liaKatana = weapon("Akashi","el",RANGE_MELEE,AREA_CIRCLE_1,27,50,repetition=3,effects=liaKatanaEff,agility=10,endurance=5,use=AGILITY,emoji='<:liaKat:998001500267749448>',price=1)
 epiEff = effect("Armure","epiphyllumArmor",INTELLIGENCE,overhealth=20,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 epiphyllum = weapon("Epiphyllum","em",RANGE_LONG,AREA_CIRCLE_5,power=15,type=TYPE_HEAL,effectOnUse=epiEff,area=AREA_CIRCLE_1,target=ALLIES,taille=0,emoji='<:flower:1014636465239629918>',accuracy=100,price=250,use=INTELLIGENCE,intelligence=15)
-
-ascendance = effect("Ascendance","ascendance",unclearable=True,turnInit=-1,power=35,block=shieltron.block,description="Réduit les pertes de PV dues à l'utilisation des compétences Divines d'un pourcentage équivalent à la puissance de l'effet et augmente votre taux de blocage",emoji='<:ascendance:1051510131105464370>')
+ascendance = effect("Ascendance","ascendance",unclearable=True,turnInit=-1,power=35,block=shieltron.block,description="Réduit les pertes de PV dues à l'utilisation des compétences Divines de **{0}%** et augmente votre taux de blocage",emoji='<:ascendance:1051510131105464370>')
 sacredSword = weapon("Epée et Bouclier sacrés","en",RANGE_MELEE,AREA_CIRCLE_1,68,60,1,use=MAGIE,magie=10,resistance=5,effects=ascendance,emoji='<:sacredSword:1051510648359628811>')
-
 triStringerEff = effect("Flèches exlosives","triStringerEff",STRENGTH,power=30,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,description="Inflige des dégâts au porteur et vos ennemis alentours à la fin de son tour",area=AREA_CIRCLE_1)
 triStringer = weapon("Tri-sperceur","eo",RANGE_LONG,AREA_CIRCLE_5,57,70,1,strength=10,intelligence=5,effectOnUse=triStringerEff,emoji='<:triStringer:1058334338065903669>')
+kWeapEff = effect("Représailles","kWeapEff",block=15,counterOnBlock=20,turnInit=-1,description="Augmente votre probabilité de blocade ainsi que celle d'effectuer une contre attaque lors d'un blocage",emoji='<:represailles:1101242340523397191>')
+kWeap = weapon("Pistolame Vangeresse",getAutoId("ep"),RANGE_MELEE,AREA_CIRCLE_1,69,75,1,strength=10,critical=5,effects=kWeapEff,emoji='<:kGunblade:1100679173980291082>')
+gWeap = weapon("Pistolame Justicière",getAutoId(kWeap.id),RANGE_MELEE,AREA_CIRCLE_1,54,75,1,intelligence=10,critical=5,effects=eukrasia,emoji='<:gGunblade:1100679196436594759>',use=INTELLIGENCE)
+aWeap = weapon("Pistolame Compatissante",getAutoId(gWeap.id),RANGE_MELEE,AREA_CIRCLE_1,54,75,1,charisma=10,critical=5,effects=kardia,emoji='<:aGunblade:1100679222453862473>',use=CHARISMA)
+
+dvinWandEff = effect("Ascendance","ascendance",unclearable=True,turnInit=-1,power=15,description="Réduit les pertes de PV dues à l'utilisation des compétences Divines de **{0}%**",emoji='<:ascendance:1051510131105464370>')
+dvinWand = weapon("Canne Divine",getAutoId(aWeap.id),RANGE_LONG,AREA_CIRCLE_4,50,100,price=1,effects=dvinWandEff,type=TYPE_HEAL,charisma=15,emoji='<:dvinWand:1104505507978432583>',use=CHARISMA)
+dvinSeptre = weapon("Sceptre Divin",getAutoId(dvinWand.id),RANGE_LONG,AREA_CIRCLE_4,41,85,price=1,effects=dvinWandEff,magie=15,emoji='<:dvinSeptre:1104505536092840026>',use=MAGIE)
+eclataDash = effect("Eclatadash","eclatadash",PURCENTAGE,power=15,turnInit=-1,agility=5,unclearable=True,emoji='<:splatana:1129775771410505819>',dodge=5,description="Si vous attaquez votre cible avec votre arme sans être à son corps à corps, vous téléporte au corps à corps de la cible. Si celle-ci est une réussite, augmente de **{0}%** la puissance de votre arme\nAugmente aussi de **5%** votre probabilité d'esquive et votre agilité")
+eclatana = weapon("Eclatana",getAutoId(dvinSeptre.id),RANGE_MELEE,AREA_CIRCLE_3,64,75,1,strength=10,agility=5,emoji='<:splatana:1129775771410505819>',effects=eclataDash)
+eclatanaDoto = weapon("Eclatana Chic",getAutoId(eclatana.id),RANGE_MELEE,AREA_CIRCLE_3,50,75,1,magie=10,agility=5,emoji='<:splatanaDeco:1129775782798049360>',effects=eclataDash,use=MAGIE)
+print(eclatanaDoto.id)
 
 # Weapon
-weapons = [triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
+weapons = [eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
     iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,aliceFan,
     fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,

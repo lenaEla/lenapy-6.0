@@ -1167,7 +1167,7 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.CommandContex
                 mess, tempFirstOptions = getInvMenu(tablToSee[(page)*10:maxi],user)
                 firstOptions = firstOptions + tempFirstOptions
 
-                mess = reducedEmojiNames(mess)
+                mess = reduceEmojiNames(mess)
 
                 if len(mess) > 4056: # Mess abrégé
                     mess = unemoji(mess)

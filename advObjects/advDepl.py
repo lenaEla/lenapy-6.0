@@ -36,3 +36,7 @@ corruptusAreaEff1, corruptusAreaEff2 = copy.deepcopy(incur[3]), copy.deepcopy(vu
 corruptusAreaEff2.power, corruptusAreaEff2.stat = 4, INTELLIGENCE
 corruptusAreaSkill = skill("Zone Corrompue","corruptusArea",TYPE_MALUS,0,range=AREA_MONO,area=AREA_CIRCLE_2,effects=[corruptusAreaEff2,corruptusAreaEff1],emoji='<:fa:1014081850257444874>')
 corruptusAreaDepl = depl("Zone Corrompue",corruptusAreaSkill,["<:fa:1014081850257444874>","<:fa:1014081850257444874>"],["<:tfaB:1014081879638556675>","<:tfaR:1014081919463464970>"],description="Une zone étrange qui augmente les dégâts subis par les ennemis à l'intérieur et réduit les soins qu'ils reçoivent")
+
+snowFallGlypheEff = effect("Avalanche","snowFallGlyphe",INTELLIGENCE,resistance=3)
+snowFallGlypheSkill = skill("Glyphe Avalanche","snowfallGlypheSkill",TYPE_DAMAGE,power=35,range=AREA_MONO,area=AREA_CIRCLE_2,use=INTELLIGENCE,emoji='<:imea1:1020057856772419605>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER],effectAroundCaster=[TYPE_BOOST,AREA_CIRCLE_2,snowFallGlypheEff])
+snowFallGlypheDepl = depl("Glyphe Avalanche",snowFallGlypheSkill,["<:snowfall:1116430780445495497>","<:snowfall:1116430780445495497>"],description="Un glyphe qui inflige des dégâts ({0}) aux ennemis et augmente la résistance ({1}) des alliés".format(statsEmojis[snowFallGlypheSkill.use],statsEmojis[snowFallGlypheEff.stat]))
