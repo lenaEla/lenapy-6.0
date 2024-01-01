@@ -58,7 +58,7 @@ def formatingExpeditionText(text: str, team: List[char], allWomens: bool, sucess
 async def generateExpeditionReport(bot: interactions.Client, team: List[char], mainUser: char, starting: datetime, ctx):
     listEmbed: List[interactions.Embed] = []
     selectedExpedition, title, now, loot = copy.deepcopy(
-        listExpedition[0]), "__Expédition__", datetime.now(), 25
+        listExpedition[0]), "__Expédition__", datetime.now(parisTimeZone), 25
     title = "__Expedition : {0}__".format(selectedExpedition.name)
     #hoursSpend = (now - starting).total_seconds()//3600
     hoursSpend = 3

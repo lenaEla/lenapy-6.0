@@ -1,4 +1,4 @@
-import os,random,sqlite3
+import os,random,sqlite3,json
 from traceback import print_exc
 from typing import Union
 import interactions
@@ -320,9 +320,11 @@ class userSettingsDbEndler:
             textIconSet = ""
             for cmpt in range(len(iconSetCatNames)):
                 if result[iconSetCatNames[cmpt]] != iconSetValues[cmpt]:
-                    textIconSet += "{0} {1} = {2}".format(["",","][textIconSet!=""],iconSetCatNames[cmpt],iconSetValues[cmpt])            
+                    textIconSet += ", {0} = {1}".format(iconSetCatNames[cmpt],int(iconSetValues[cmpt]))
             if textIconSet != "":
-                cursory.execute("UPDATE userSettings SET ? WHERE userId = ?;",(user.owner,textIconSet,))
+                textIconSet = textIconSet[2:]
+                print("UPDATE userSettings SET {0} WHERE userId = {1};".format(textIconSet,user.owner))
+                cursory.execute("UPDATE userSettings SET {0} WHERE userId = ?;".format(textIconSet),(user.owner,))
 
         cursory.close()
         self.con.commit()
@@ -612,7 +614,9 @@ def loadCharFile(path : str = None, user:char = None) -> char:
     rep.weapon = findWeapon(file[3][0])                     # Weapon
     cmpt,temp = 0,[]
     while cmpt < len(file[4]):                              # Weapon Inventort
-        temp += [findWeapon(file[4][cmpt])]
+        tempWeap = findWeapon(file[4][cmpt])
+        if tempWeap != None:
+            temp.append(tempWeap)
         cmpt += 1
     for weap in baseWeapon:
         if weap not in temp:
@@ -768,15 +772,15 @@ def getEmojiInfo(emoji : str):
     return rep
 
 def getEmojiObject(emoji : str):
-    if type(emoji) == interactions.Emoji:
+    if type(emoji) == interactions.CustomEmoji:
         return emoji
     try:
         temp = getEmojiInfo(emoji)
-        return Emoji(name=temp[0],id=int(temp[1]))
+        return PartialEmoji(name=temp[0],id=int(temp[1]))
     except ValueError:
-        return Emoji(name=emoji)
+        return PartialEmoji(name=emoji)
 
-async def loadingSlashEmbed(ctx : interactions.CommandContext):
+async def loadingSlashEmbed(ctx : interactions.SlashContext):
     """Send a loading embed from a slash command"""
     return await ctx.send(embeds = interactions.Embed(title = "slash_command", description = emLoading))
 
@@ -876,7 +880,11 @@ gbdmaj = """CREATE TABLE guildStreamSettings (
 listToChange = ["notifRole","streamerName","gameName","hyperlink","streamTitle","streamTitle"]
 class streamEmbed():
     def __init__(self, guild, notifRole=None, notifChannel=None, streamerName="alice_kohishu", notifMsg="Hey notifRole ! **streamerName** viens de commencer un live !", embedTitle="streamTitle", embedDesc="Viens donc le voir jouer à gameName hyperlink", embedColor=light_blue, hyperlinkTxt="ici", showImage=True, image0=None, image1=None, image2=None):
-        self.guild, self.notifRole, self.notifChannel, self.streamerName, self.embedTitle, self.embedDesc, self.showImage, self.image0, self.image1, self.image2 = guild, notifRole, notifChannel, streamerName, embedTitle, embedDesc, showImage, image0, image1, image2
+        self.guild, self.notifRole, self.notifChannel, self.streamerName, self.embedTitle, self.embedDesc, self.showImage, self.image0, self.image1, self.image2 = int(guild), notifRole, notifChannel, streamerName, embedTitle, embedDesc, showImage, image0, image1, image2
+        if self.notifRole != None:
+            self.notifRole = int(self.notifRole)
+        if self.notifChannel != None:
+            self.notifChannel = int(self.notifChannel)
         self.notifMsg = [notifMsg,"streamerName viens de commencer un stream !"][self.notifRole == None and notifMsg == "notifRole : streamerName viens de commencer un stream !"]
         if embedColor != None:
             if type(embedColor) != int:
@@ -1035,7 +1043,7 @@ class globalVarDb:
         return result
 
     def getStreamAlertEmbed(self, guild, streamerName):
-        cursor = self.con.cursor()
+        cursor, guild = self.con.cursor(), int(guild)
         cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(guild, streamerName,))
         result = cursor.fetchone()
         cursor.close()
@@ -1043,7 +1051,7 @@ class globalVarDb:
         return streamEmbed(result["guild"],result["notifRole"],result["notifChannel"],result["streamerName"],result["notifMsg"],result["embedTitle"],result["embedDesc"],result["embedColor"],result["hyperlinkTxt"],result["showImage"],result["image0"],result["image1"],result["image2"])
 
     def getStreamAlterPerGuild(self, guild):
-        cursor = self.con.cursor()
+        cursor, guild = self.con.cursor(), int(guild)
         cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ?;",(guild,))
         result = cursor.fetchall()
         cursor.close()
@@ -1055,6 +1063,10 @@ class globalVarDb:
 
     def updateStreamEmbed(self,streamEmbed:streamEmbed):
         cursor = self.con.cursor()
+        if type(streamEmbed.notifChannel) != int:
+            streamEmbed.notifChannel = int(streamEmbed.notifChannel.id)
+        if type(streamEmbed.notifRole) != int:
+            streamEmbed.notifRole = int(streamEmbed.notifRole.id)
         cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(streamEmbed.guild, streamEmbed.streamerName,))
         result = cursor.fetchall()
 
@@ -1063,7 +1075,6 @@ class globalVarDb:
             streamEmbed.notifMsg = streamEmbed.notifMsg.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
             streamEmbed.embedDesc = streamEmbed.embedDesc.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
             streamEmbed.embedTitle = streamEmbed.embedTitle.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
-
 
         if len(result) <= 0:
             cursor.execute("INSERT INTO guildStreamSettings VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);",(streamEmbed.guild,streamEmbed.streamerName,streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,))
@@ -1082,12 +1093,12 @@ class globalVarDb:
 
 globalVar = globalVarDb()
 
-async def botChannelVerif(bot:interactions.Client,ctx:interactions.CommandContext):
+async def botChannelVerif(bot:interactions.Client,ctx:interactions.SlashContext):
     if globalVar.getGuildBotChannel(ctx.guild_id) in [0,ctx.channel_id]:
         return True
 
     else:
-        chan = await get(bot, interactions.Channel, parent_id=int(ctx.guild_id), object_id=globalVar.getGuildBotChannel(ctx.guild_id))
+        chan = await bot.get_channel(globalVar.getGuildBotChannel(ctx.guild_id))
         try:
             await ctx.send(embeds=interactions.Embed(title="__Paramètres__",color=light_blue,description="Je regrète mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),ephemeral=True)
         except:
@@ -1158,3 +1169,23 @@ def getPenetration(pene:int):
         baseResist = REDUCED_2_PENE + (baseResist-REDUCED_2_PENE)*0.1
 
     return baseResist
+
+def getMinusPurcent(nb:int):
+    return (100-nb)/100
+
+def getPlusPurcent(nb:int):
+    return (100+nb)/100
+
+def getOsamodasJson() -> List[dict]:
+    jsonFile = json.load(open("./data/database/osamodas.json"))
+    return jsonFile["smnList"]
+
+def getNextLetter(letter:str=""):
+    if letter == "":
+        return "A"
+    else:
+        tablAlpha = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","X","Y","Z"]
+        for cmpt in range(len(tablAlpha)):
+            if tablAlpha[cmpt] == letter:
+                return tablAlpha[cmpt+1]
+        return ""

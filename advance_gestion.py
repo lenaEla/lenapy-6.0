@@ -16,12 +16,9 @@ from gestion import *
 stuffDB = dbHandler(database="stuff.db")
 customIconDB = dbHandler(database="custom_icon.db")
 
-timeoutSelect = interactions.SelectMenu(custom_id = "timeoutSelect", 
-    options=[interactions.SelectOption(
-        label="Timeout", value="Parfois je me demande ce que ferais Lena si elle pensais par elle même", emoji= interactions.Emoji(name='🕛'), default=True)],
-    disabled=True
+timeoutSelect = interactions.StringSelectMenu(interactions.StringSelectOption(label="Timeout", value="Parfois je me demande ce que ferais Lena si elle pensais par elle même", default=True),custom_id = "timeoutSelect",disabled=True
 )
-timeoutSelect = interactions.ActionRow(components=[timeoutSelect])
+timeoutSelect = interactions.ActionRow(timeoutSelect)
 
 lvlUpUnlock = {
     5: "- Emplacement de compétence n°4",
@@ -50,7 +47,7 @@ def remove_accents(input_str: str):
         elif a in ["É", "È", "Ë", "Ê"]:
             temp += "E"
         elif a in ["Ù", "Û", "Ü"]:
-            temp += "U"        
+            temp += "U"
         elif a in ["?", "!", ";", ",", "."," ","-"]:
             temp += "_"
         else:
@@ -227,12 +224,14 @@ class cell:
                             rep.append(cell2)
                     cmptx+=1
             rep.append(self)
-        elif area in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5]:
+        elif area in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_RANDOMALLIE_1,AREA_RANDOMALLIE_2,AREA_RANDOMALLIE_3,AREA_RANDOMALLIE_4,AREA_RANDOMALLIE_5]:
             for cell in self.tablAllCells:
-                if cell.on != None and cell.on.team != team:
+                if (cell.on != None and cell.on.team != team and area <= AREA_RANDOMENNEMI_5) or (cell.on != None and cell.on.team == team and area > AREA_RANDOMENNEMI_5):
                     rep.append(cell)
-            random.shuffle(rep)
-            return rep[0:min(area-AREA_RANDOMENNEMI_1+1,len(rep))]
+            nbToReturn = area-[AREA_RANDOMENNEMI_1,AREA_RANDOMALLIE_1][area>=AREA_RANDOMALLIE_1]+1
+            while len(rep) < nbToReturn-2:
+                rep.append(rep[random.randint(0,len(rep)-1)])
+            return rep[0:min(nbToReturn,len(rep))]
         elif area in [AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5]:
             for celly in self.tablAllCells:
                 if (celly.x == self.x or celly.y == self.y) and self.distance(celly) <= area + 2 - AREA_INLINE_2:
@@ -247,11 +246,19 @@ class cell:
                         lowest = a.on
             
             return [lowest.cell]
-        elif area in [AREA_SUMMON]:
+        elif area in [AREA_SUMMONS]:
             for a in self.tablAllCells:
                 if a.on != None and a.on.team == team and type(a.on.char) == classes.invoc:
                     rep.append(a)
-            
+        elif area in [AREA_SUMMONER]:
+            if self.on != None and type(self.on.char) in [depl, invoc]:
+                for cell in self.tablAllCells:
+                    if cell.on != None and cell.on.id == self.on.summoner.id:
+                        return cell
+        elif area in [AREA_BIGDONUT]:
+            for a in self.tablAllCells:
+                if self.distance(cell=a) == 2:
+                    rep.append(a)
         return rep
 
     def getEntityOnArea(self,area=AREA_MONO,team=0,wanted=ALLIES,lineOfSight=False,lifeUnderPurcentage=99999,dead=False,effect=[None],ignoreInvoc = False, directTarget=True,ignoreAspiration = None,fromCell=None) -> list: 
@@ -358,14 +365,20 @@ class cell:
                                 for d in tempEnt.effects:
                                     if d.effects.id == actEff.id:
                                         if tempEnt in rep:
-                                            rep.remove(tempEnt)
+                                            try:
+                                                rep.remove(tempEnt)
+                                            except:
+                                                pass
                                             break
                     if not(aeff.stackable):
                         for tempEnt in tempToReturn:
                             for tempEff in tempEnt.effects:
-                                if tempEff.id == aeff.id:
+                                if tempEff.effects.id == aeff.id:
                                     if tempEnt in rep:
-                                        rep.remove(tempEnt)
+                                        try:
+                                            rep.remove(tempEnt)
+                                        except:
+                                            pass
                                         break
 
         if ignoreInvoc: # Ignorer les invocations ?
@@ -524,28 +537,33 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
     effTmp, boucle, iteration, powerPurcent = "", True, False, [powerPurcent,100][powerPurcent==None]
     while boucle:
         eff = findEffect(effId)
-        fieldname = "__{0} {1} :__".format(eff.name,eff.emoji[user.species-1][0])
-        if eff.id == kikuRaiseEff.id:
-            eff = copy.deepcopy(eff)
-            eff.callOnTrigger = kikuUnlifeGift
-        bonus, malus = "", ""
-        Stat = ""
+        if eff.callOnTrigger != None and eff.trigger==TRIGGER_INSTANT and eff.type in [TYPE_BOOST,TYPE_MALUS]:
+            effSelf = findEffect(eff.callOnTrigger)
+            txt = " ({0} autour de la cible)".format(areaEmojis[eff.area])
+            eff: classes.effect = effSelf
+        fieldname, bonus, malus, Stat = "__{0} {1} :__".format(eff.name,eff.emoji[user.species-1][0]), "", "", ""
         if eff.stat == None:
             Stat = "- Fixe"
         elif eff.stat == PURCENTAGE:
             Stat = "% Pourcentage"
+        elif eff.stat == MISSING_HP:
+            Stat = "% Pourcentage PV Manquant"
         elif eff.stat != HARMONIE:
             Stat = statsEmojis[eff.stat] + " " +allStatsNames[eff.stat]
         else:
             Stat = "Harmonie"
 
         if eff.turnInit == -1:
-            initDur = "__Durée :__ Infinie\n"
+            initDur = "\n__Durée :__ Infinie\n"
         elif eff.trigger!=TRIGGER_INSTANT:
-            initDur = "__Durée :__ {0} tour{1}\n".format(eff.turnInit,["","s"][eff.turnInit>1])
+            initDur = "\n__Durée :__ {0} tour{1}\n".format(eff.turnInit,["","s"][eff.turnInit>1])
         else:
-            initDur = ""
-
+            initDur = "\n"
+        if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None:
+            effCalled = findEffect(eff.callOnTrigger)
+            called = "\nLorsqu'il se déclanche, cet effet {0} {1} __{2}__ aux cibles dans la zone d'effet".format(["octroi","inflige"][effCalled.type in hostilesTypes],effCalled.emoji[0][0], effCalled.name)
+        else:
+            called = ""
         typeEmoji = ""
 
         if eff.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION]:
@@ -561,38 +579,44 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         elif eff.type in [TYPE_DAMAGE]:
             typeEmoji = statsEmojis[ACT_DIRECT_FULL]
 
-        Powa = "\n__Type :__ {1} {0}".format(allTypeNames[eff.type],typeEmoji)
+        effTmp += "__Type :__ {1} {0}".format(allTypeNames[eff.type],typeEmoji)
         if eff.power > 0:
-            Powa += "\n__Puissance :__ **"+str(int(max(eff.power, eff.overhealth)*(powerPurcent/100)))+[""," ({0}%)".format(powerPurcent)][powerPurcent!=100]+"**"
+            effTmp += "\n__Puissance :__ **"+str([round(max(eff.power, eff.overhealth)*(powerPurcent/100),1),eff.power][type(eff.power)==int])+[""," ({0}%)".format(powerPurcent)][powerPurcent!=100]+"**"
 
-        cumu = ""
         if eff.stackable:
             cumu = "\n\nCet effet est **cumulable**"
         effTmp += "{0}__Statistique :__ **{1}**".format(initDur,Stat)
 
         if eff.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL] or eff.area != AREA_MONO:
             effTmp += "\n__Zone d'effet :__ {0} {1}".format(areaEmojis[eff.area],areaNames[eff.area])
+        
+        addTxt = ""
         if eff.trigger != TRIGGER_PASSIVE:
-            effTmp += "\nCet effet se délanche {0}\n".format(triggersTxt[eff.trigger])
-        effTmp += Powa+cumu
+            addTxt += "\nCet effet se délanche {0}".format(triggersTxt[eff.trigger])
+        if eff.stackable:
+            addTxt += "\nCet effet est **cumulable**"
+        if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None:
+            effCalled = findEffect(eff.callOnTrigger)
+            addTxt += "\nEn se déclanchant, {0} {1}".format(["octroi","inflige"][effCalled.type in hostilesTypes],effCalled)
 
-        if eff.lvl != 1 and eff.trigger not in [TRIGGER_PASSIVE] and eff.type not in [TYPE_PASSIVE,TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR]:
-            effTmp += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
+        if eff.lvl not in [1,99] and eff.trigger not in [TRIGGER_PASSIVE] and eff.type not in [TYPE_PASSIVE,TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR]:
+            addTxt += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
         stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge, eff.critDmgUp, eff.critHealUp, eff.dmgUp, eff.healUp, eff.counterOnBlock, eff.counterOnDodge]
         names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage","Prob. Esquive", "Dégâts Critiques","Soins Critiques", "Dégâts non critiques","Soins non critiques","Prob. Contre lors d'un blocage","Prob. Contre lors d'une esquive"]
 
         if eff.redirection > 0:
-            effTmp += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**\n".format(
-                eff.redirection)
+            addTxt += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**".format(eff.redirection)
         if eff.immunity:
-            effTmp += "\nCet effect rend le porteur **invulnérable aux dégâts**\n"
+            addTxt += "\nCet effect rend le porteur **invulnérable aux dégâts**"
 
+        if addTxt != "":
+            effTmp += "\n"+addTxt
         if eff.description != "Pas de description":
             if eff.stat not in [FIXE,None,PURCENTAGE]:
                 statEm = " ({})".format(statsEmojis[eff.stat])
             else:
                 statEm = ""
-            effTmp += "\n{1}__Description :__\n{0}\n".format(eff.description.format(str(eff.power)+statEm, str(eff.power//2)+statEm),["","\n"][effTmp[-1] == "\n"])
+            effTmp += "\n\n{1}__Description :__\n{0}\n".format(eff.description.format(str([round(eff.power*(powerPurcent/100),1),eff.power][type(eff.power)==int])+statEm, str(int(eff.power*powerPurcent/100)//2)+statEm),["","\n"][effTmp[-1] == "\n"])
         for a in range(len(stats)):
             if stats[a] > 0:
                 bonus += "{2} __{0}__ : +{1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
@@ -600,9 +624,9 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
                 malus += "{2} __{0}__ : {1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
 
         if bonus != "":
-            effTmp += "\n**__Bonus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + bonus
+            effTmp += ["\n",""][effTmp[-1]=="\n"]+"\n**__Bonus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + bonus
         if malus != "":
-            effTmp += "\n**__Malus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + malus
+            effTmp += ["\n",""][effTmp[-1]=="\n"]+"\n**__Malus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + malus
 
         if eff.inkResistance > 0 and eff.stat != None:
             effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base"
@@ -620,11 +644,12 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         if len(effTmp) > 1024:
             effTmp = completlyRemoveEmoji(effTmp)
         if eff.callOnTrigger != None and not(iteration) and type(eff.callOnTrigger) in [str,effect]:
-            effId = eff.callOnTrigger
-            iteration = eff.id != kikuMechExplain.id
+            lastName = effId.name
+            effId = findEffect(eff.callOnTrigger)
+            iteration = True
 
             emb.add_field(name=fieldname, value=effTmp, inline=False)
-            effTmp = ""
+            effTmp, txt = "", " ("+lastName+")"
         elif eff.callOnTrigger != None and iteration and type(eff.callOnTrigger) in [str,effect]:
             effId = findEffect(eff.callOnTrigger)
             emb.add_field(name=fieldname, value=effTmp, inline=False)
@@ -634,6 +659,17 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         elif eff.callOnTrigger != None and type(eff.callOnTrigger) == depl:
             emb.add_field(name="__Cet effet invoque un Déployable :__",value="{0} __{1}__ : {2}".format(eff.callOnTrigger.icon[0],eff.callOnTrigger.name,eff.callOnTrigger.description),inline=False)
             break
+        elif eff.callOnTrigger != None and type(eff.callOnTrigger) == invoc:
+            smn: invoc = findSummon(eff.callOnTrigger)
+            smnDesc = ""
+            for ski in smn.skills:
+                if type(ski) == classes.skill:
+                    smnDesc += "{0} {1}\n".format(ski.emoji, ski.name)
+                    if ski.description != None:
+                        smnDesc += "> {0}\n".format(ski.description.replace("\n","\n> "))
+
+            emb.add_field(name="__Cet effet invoque {0} {1} autour de la cible :__".format(smn.icon[0],smn.name),value=smnDesc,inline=False)
+            break
         else:
             if not(self):
                 emb.add_field(name="<:em:866459463568850954>\n" +fieldname + txt, value=reduceEmojiNames(effTmp), inline=False)
@@ -641,23 +677,24 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
                 emb.add_field(name="<:em:866459463568850954>\n" + fieldname, value=reduceEmojiNames(effTmp), inline=False)
             break
 
-    if eff.id == cardsDeck.id:
+    if eff.id == neutralCard.id:
         cardDesc = ''
-        for cmpt in range(len(cardAspi)):
+        for cmpt in range(len(cardAspi)-1):
             cardDesc += "{0} __{1}__ : ".format(cardAspi[cmpt].emoji[0][0],inspi[cmpt])
             tmpCardStat, cardStat = [], cardAspi[cmpt].allStats() + [cardAspi[cmpt].resistance, cardAspi[cmpt].percing, cardAspi[cmpt].critical]
             for statCmpt in range(len(cardStat)):
                 if cardStat[statCmpt] > 0:
                     tmpCardStat.append([statCmpt,cardStat[statCmpt]])
-            
+
             for statCmpt in range(len(tmpCardStat)):
-                cardDesc += "{2}{0} +{1}".format(allStatsNames[tmpCardStat[statCmpt][0]],tmpCardStat[statCmpt][1],statsEmojis[statCmpt])
+                cardDesc += "{1} +{0}".format(tmpCardStat[statCmpt][1],allStatsNames[statCmpt])
                 if statCmpt < len(tmpCardStat)-1:
                     cardDesc += ", "
                 else:
                     cardDesc += "\n"
-        
-        emb.add_field(name="<:em:866459463568850954>\n__Effets des cartes :__",value=cardDesc,inline=False)
+
+        cardDesc = reduceEmojiNames(cardDesc)
+        emb.add_field(name="__Cartes astrales :__",value=cardDesc,inline=False)
 
     return emb
 
@@ -755,7 +792,7 @@ def infoSkill(skill: skill, user: char, ctx):
     elif skil.type in [TYPE_BOOST,TYPE_MALUS]:
         typeEmoji = statsEmojis[ACT_BOOST_FULL]
     elif skil.type in [TYPE_SUMMON,TYPE_DEPL]:
-        typeEmoji = "<:Icn_Sprinkler:1080807633432350801>"
+        typeEmoji = "<:sprink1:887747751339757599>"
 
     temp = "__Type :__ " + typeEmoji + " " + allTypeNames[skil.type] + "\n"
     if skil.use not in [None, HARMONIE]:
@@ -765,74 +802,74 @@ def infoSkill(skill: skill, user: char, ctx):
         temp += "\n"
 
     if skil.description != None:
-        temp += "\n__Description :__\n"+skil.description+"\n"
+        temp += "\n__Description :__\n"+skil.quickDesc+["","\n"][len(skil.quickDesc)>0]+skil.description+"\n"
 
     # Power, Success and Damage Type
-    if skil.become == None:
-        if skil.power > 0:
-            if skil.repetition > 1:
-                nbShot = " x{0}".format(skil.repetition)
-            else:
-                nbShot = ""
+        if skil.become == None:
+            if skil.power > 0:
+                if skil.repetition > 1:
+                    nbShot = " x{0}".format(skil.repetition)
+                else:
+                    nbShot = ""
 
-            if multiPower == []:
-                temp += "\n__Puissance :__ {0}".format([f"**{skil.power}**{nbShot}","**Execution**"][int(skil.execution)])
-                if skil.effects != None:
-                    for eff in skil.effects:
-                        eff = findEffect(eff)
-                        if eff != None and eff.type == TYPE_INDIRECT_DAMAGE and eff.trigger == TRIGGER_INSTANT:
-                            indPow += (eff.power * skil.effPowerPurcent / 100)
-
-                if indPow > 0:
-                    temp += " **+ {0}{1}**".format(statsEmojis[ACT_INDIRECT_FULL],round(indPow))
-                if skil.maxPower != 0 and skil.maxPower != skil.power:
-                    temp += "\n__Puissance Max :__ {0}".format([f"**{skil.maxPower}**{nbShot}","**Execution**"][int(skil.execution)])
-                temp += "\n__Zone d'effet :__ "+ areaNames[skil.area] + "\n__Précision :__ {0}%\n".format(skil.accuracy)
-            else:
-                temp += "\n__Puissance :__ **"
-                txtTmp,sumPowa,areaDict, preciDict, maxPowerCom = "(", 0, {}, {}, 0
-                for cmpt in range(len(multiPower)):
-                    areaAlreadyAdded, precisionAlreadyAdded, maxPowerCom = False, False, maxPowerCom + multiPower[cmpt].maxPower
-                    sumPowa += (multiPower[cmpt].power * multiPower[cmpt].repetition)
-                    txtTmp += multiPower[cmpt].emoji + " " + str(int((multiPower[cmpt].power * multiPower[cmpt].repetition)))
-                    if cmpt < len(multiPower)-1:
-                        txtTmp += " + "
-                    else:
-                        txtTmp += ")"
-                    for areaId in areaDict:
-                        if areaId == multiPower[cmpt].area:
-                            areaDict[areaId] += multiPower[cmpt].emoji
-                            areaAlreadyAdded = True
-                            break
-                    if not(areaAlreadyAdded):
-                        areaDict[multiPower[cmpt].area] = multiPower[cmpt].emoji
-                    for precision in preciDict:
-                        if precision == multiPower[cmpt].accuracy:
-                            preciDict[precision] += multiPower[cmpt].emoji
-                            precisionAlreadyAdded = True
-                            break
-                    if not(precisionAlreadyAdded):
-                        preciDict[multiPower[cmpt].accuracy] = multiPower[cmpt].emoji
-                for cmpt in range(len(multiSkill)):
-                    if multiSkill[cmpt].effects != None:
-                        for eff in multiSkill[cmpt].effects:
+                if multiPower == []:
+                    temp += "\n__Puissance :__ {0}".format([f"**{skil.power}**{nbShot}","**Execution**"][int(skil.execution)])
+                    if skil.effects != None:
+                        for eff in skil.effects:
                             eff = findEffect(eff)
                             if eff != None and eff.type == TYPE_INDIRECT_DAMAGE and eff.trigger == TRIGGER_INSTANT:
-                                indPow += (eff.power * multiSkill[cmpt].effPowerPurcent / 100)
+                                indPow += (eff.power * skil.effPowerPurcent / 100)
 
-                temp += str(sumPowa) + [" + {0}{1} ".format(statsEmojis[ACT_INDIRECT_FULL],round(indPow)),""][indPow<=0] + "** " + txtTmp
-                if sumPowa != maxPowerCom and maxPowerCom != 0:
-                    temp += "\n__Puissance maximale :__ **{0}** (".format(maxPowerCom)
+                    if indPow > 0:
+                        temp += " **+ {0}{1}**".format(statsEmojis[ACT_INDIRECT_FULL],round(indPow))
+                    if skil.maxPower != 0 and skil.maxPower != skil.power:
+                        temp += "\n__Puissance Max :__ {0}".format([f"**{skil.maxPower}**{nbShot}","**Execution**"][int(skil.execution)])
+                    temp += "\n__Zone d'effet :__ "+ areaNames[skil.area] + "\n__Précision :__ {0}%\n".format(skil.accuracy)
+                else:
+                    temp += "\n__Puissance :__ **"
+                    txtTmp,sumPowa,areaDict, preciDict, maxPowerCom = "(", 0, {}, {}, 0
+                    for cmpt in range(len(multiPower)):
+                        areaAlreadyAdded, precisionAlreadyAdded, maxPowerCom = False, False, maxPowerCom + multiPower[cmpt].maxPower
+                        sumPowa += (multiPower[cmpt].power * multiPower[cmpt].repetition)
+                        txtTmp += multiPower[cmpt].emoji + " " + str(int((multiPower[cmpt].power * multiPower[cmpt].repetition)))
+                        if cmpt < len(multiPower)-1:
+                            txtTmp += " + "
+                        else:
+                            txtTmp += ")"
+                        for areaId in areaDict:
+                            if areaId == multiPower[cmpt].area:
+                                areaDict[areaId] += multiPower[cmpt].emoji
+                                areaAlreadyAdded = True
+                                break
+                        if not(areaAlreadyAdded):
+                            areaDict[multiPower[cmpt].area] = multiPower[cmpt].emoji
+                        for precision in preciDict:
+                            if precision == multiPower[cmpt].accuracy:
+                                preciDict[precision] += multiPower[cmpt].emoji
+                                precisionAlreadyAdded = True
+                                break
+                        if not(precisionAlreadyAdded):
+                            preciDict[multiPower[cmpt].accuracy] = multiPower[cmpt].emoji
                     for cmpt in range(len(multiSkill)):
-                        temp += "{0}{1}{2}".format(multiSkill[cmpt].maxPower,multiSkill[cmpt].emoji,[""," + "][cmpt < len(multiSkill)-1])
-                    temp += ")\n"
-                temp += "\n__Zones d'effets :__"
-                for cmpt in areaDict:
-                    temp += "\n{0} ({1})".format(areaEmojis[cmpt], areaNames[cmpt],areaDict[cmpt])
-                temp += "\n\n__Précisions :__"
-                for cmpt in preciDict:
-                    temp += "\n{0}% ({1})".format(cmpt,preciDict[cmpt])
-                temp += "\n"  
+                        if multiSkill[cmpt].effects != None:
+                            for eff in multiSkill[cmpt].effects:
+                                eff = findEffect(eff)
+                                if eff != None and eff.type == TYPE_INDIRECT_DAMAGE and eff.trigger == TRIGGER_INSTANT:
+                                    indPow += (eff.power * multiSkill[cmpt].effPowerPurcent / 100)
+
+                    temp += str(sumPowa) + [" + {0}{1} ".format(statsEmojis[ACT_INDIRECT_FULL],round(indPow)),""][indPow<=0] + "** " + txtTmp
+                    if sumPowa != maxPowerCom and maxPowerCom != 0:
+                        temp += "\n__Puissance maximale :__ **{0}** (".format(maxPowerCom)
+                        for cmpt in range(len(multiSkill)):
+                            temp += "{0}{1}{2}".format(multiSkill[cmpt].maxPower,multiSkill[cmpt].emoji,[""," + "][cmpt < len(multiSkill)-1])
+                        temp += ")\n"
+                    temp += "\n__Zones d'effets :__"
+                    for cmpt in areaDict:
+                        temp += "\n{0} ({1})".format(areaEmojis[cmpt], areaNames[cmpt],areaDict[cmpt])
+                    temp += "\n\n__Précisions :__"
+                    for cmpt in preciDict:
+                        temp += "\n{0}% ({1})".format(cmpt,preciDict[cmpt])
+                    temp += "\n" 
 
     else:
         temp += "\n__Puissances :__\n"
@@ -864,7 +901,7 @@ def infoSkill(skill: skill, user: char, ctx):
         suppStats += "{0} Se lance sur soi-même\n".format(rangeAreaEmojis[0])
 
     if skil.effects != [None]:
-        effDesc = "\n__Effet{0} octroyé{0} {1} :__\n".format(["","s"][len(skil.effects)>0],["à la cible",'aux cibles'][skil.type != TYPE_DAMAGE])
+        effDesc = "\n**__Effet{0} {2}{0} {1} :__**\n".format(["","s"][len(skil.effects)>1],["à la cible",'aux cibles'][skil.area != AREA_MONO], ["octroyé","infligé"][skil.type in hostilesTypes])
         if skil.effPowerPurcent != 100:
             if skil.jaugeEff == None or (skil.type not in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_DAMAGE,TYPE_MALUS]):
                 effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.effPowerPurcent)
@@ -876,7 +913,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 if len(skil.effects) > 1 and skil.effects[-1] != eff:
                     effDesc +=", "
 
-        temp3 += effDesc + "\n"
+        temp3 += effDesc + "\n<:em:866459463568850954>"
 
     if skil.effectOnSelf != None:
         effDesc = "\n__Effet octroyé au lanceur :__\n"
@@ -895,8 +932,7 @@ def infoSkill(skill: skill, user: char, ctx):
     elif skil.become != None:
         for becomeName in skil.become:
             if becomeName.onArmor != 1:
-                temp3 += "\n__{2} {1}__ inflige **{0}%** de ses dégâts aux armures".format(
-                    int(becomeName.onArmor*100), becomeName.name, becomeName.emoji)
+                temp3 += "\n__{2} {1}__ inflige **{0}%** de ses dégâts aux armures".format(int(becomeName.onArmor*100), becomeName.name, becomeName.emoji)
 
     if skil.shareCooldown:
         suppStats += "Cooldown Partagé"
@@ -932,14 +968,14 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.aoeArmorConvert > 0:
         suppStats += "<:aoeConvert:1100770918340497519> Octroi aux alliés alentours une armure équivalent à **{0}%** des dégâts infligés\n".format(skil.aoeArmorConvert)
     if skil.erosion != 0:
-        suppStats += "<ConR:1028695463651717200> Réduit les PVs Max de la cible de **{0}%** des dégâts infliés\n".format(skil.erosion)
+        suppStats += "<:ConR:1028695463651717200> Réduit les PVs Max de la cible de **{0}%** des dégâts infliés\n".format(skil.erosion)
     temp2 = ""
     if skil.tpCac:
-        suppStats += "<:iliLightSpeed:1046384202792308797> Téléporte **devant** de la cible\n"
+        suppStats += "<:iliLightSpeed:1046384202792308797> Saute **devant** de la cible\n"
     if skil.tpBehind:
-        suppStats += "<:liaCounter:998001563379437568> Téléporte **derrière** de la cible\n"
+        suppStats += "<:liaCounter:998001563379437568> Saute **derrière** de la cible\n"
     if skil.percing > 0:
-        suppStats += "<:percing:1012309032867991613> Ignore **{0}%** de la Résistance de la cible\n".format(skil.percing)
+        suppStats += "{1} Ignore **{0}%** de la Résistance de la cible\n".format(skil.percing,statsEmojis[PERCING])
 
     if skil.knockback > 0 and skil.become == None:
         suppStats += "<:piedVolt:1034208868068233348> Pousse les cibles de **{0} case{1}**\n".format(skil.knockback,["","s"][skil.knockback > 1])
@@ -948,7 +984,7 @@ def infoSkill(skill: skill, user: char, ctx):
     if skil.jumpBack:
         suppStats += "<:retPercu:1034210776703062057> Vous fait reculer de **{0} case{1}**\n".format(skil.jumpBack,["","s"][skil.jumpBack > 1])
     if skil.garCrit:
-        suppStats += "<:critical:1012309064824406116> Inflige forcément un coup critique\n"
+        suppStats += "{0} Inflige forcément un coup critique\n".format(statsEmojis[CRITICAL])
     
     if skil.jaugeEff != None:
         temp2 = "\nCette compétence octroi et utilise {0} **{1}**. La valeur de cette jauge augmente dans les conditions suivantes :\n".format(skil.jaugeEff.emoji[0][0],skil.jaugeEff.name)
@@ -1153,8 +1189,8 @@ def infoWeapon(weap: weapon, user: char, ctx):
     bonus, malus = "", ""
     stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical]
     for a in range(len(stats)):
-        if stats[a] > 0:
-            bonus += f"{statsEmojis[a]} __{allStatsNames[a]}__ : +{stats[a]}\n"
+        if stats[a] != 0:
+            bonus += "{0} __{1}__ : {2}{3}\n".format(statsEmojis[a],allStatsNames[a],["","+"][stats[a]>0],stats[a])
 
     if bonus != "":
         repEmb.add_field(name="<:em:866459463568850954>\n__Bonus de statistiques :__",value=bonus, inline=False)
@@ -1266,7 +1302,7 @@ def silentRestats(user: char):
 
     return userMajStats(user, stats)
 
-async def addExpUser(bot: interactions.Client, path: Union[str,char], ctx: Union[interactions.Message, interactions.CommandContext], exp=3, coins=0, send=True):
+async def addExpUser(bot: interactions.Client, path: Union[str,char], ctx: Union[interactions.Message, interactions.SlashContext], exp=3, coins=0, send=True):
     if type(path) == str:
         user = loadCharFile(path)
     else:
@@ -1345,7 +1381,7 @@ async def addExpUser(bot: interactions.Client, path: Union[str,char], ctx: Union
     saveCharFile(user=user)
     return user
 
-def getChoisenSelect(select: Union[SelectMenu, ActionRow], value: str):
+def getChoisenSelect(select: Union[StringSelectMenu, ActionRow], value: str):
     trouv = False
     if type(select) == ActionRow:
         select = select.data.components[0]
@@ -1368,27 +1404,54 @@ async def downloadAllHeadGearPng(bot: interactions.Client, msg=None, lastTime=No
     for a in listEmojiHead:
         emojiObject, finded = getEmojiObject(a), False
         if emojiObject.name + ".png" not in listDir:
-            for b in stuffIconGuilds:
-                guild = await get(bot, interactions.Guild, object_id=int(b))
+            print("Trying to find the emoji of {0} on the lasts guilds...".format(emojiObject.name))
+            for b in stuffIconGuilds[-5:]:
+                guild = bot.get_guild(b)
                 await asyncio.sleep(1)
-                for emoji_2 in guild.emojis:
-                    if emoji_2.id == emojiObject.id:
-                        image = requests.get(emoji_2.url, stream=True)
-                        image.raw.decode_content = True
-                        open(f"./data/images/headgears/{emojiObject.name}.png", "wb").write(image.content)
-                        image = PIL.Image.open(f"./data/images/headgears/{emojiObject.name}.png")
-                        image = image.resize((70, 70))
-                        image.save(f"./data/images/headgears/{emojiObject.name}.png")
-                        print(emojiObject.name + " downloaded")
-                        finded=True
-                        listDir = os.listdir("./data/images/headgears/")
-                        break
+                emojiList = await guild.fetch_all_custom_emojis()
+                for emoji_2 in emojiList:
+                    try:
+                        if emoji_2.id == emojiObject.id:
+                            image = requests.get("https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id), stream=True)
+                            image.raw.decode_content = True
+                            open(f"./data/images/headgears/{emojiObject.name}.png", "wb").write(image.content)
+                            image = PIL.Image.open(f"./data/images/headgears/{emojiObject.name}.png")
+                            image = image.resize((70, 70))
+                            image.save(f"./data/images/headgears/{emojiObject.name}.png")
+                            print(" - "+emojiObject.name + " downloaded")
+                            finded=True
+                            listDir = os.listdir("./data/images/headgears/")
+                            break
+                    except Exception as e:
+                        print("A error happened during the downloading of {0} :\nurl : {1}\n{2}\n=======".format(emoji_2.name,"https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id),e))
+            if not(finded):
+                print(" - {0}'s emoji not quick finded, looking more deeply...".format(emojiObject.name))
+                for b in stuffIconGuilds[:-5]:
+                    guild = bot.get_guild(b)
+                    await asyncio.sleep(1)
+                    emojiList = await guild.fetch_all_custom_emojis()
+                    for emoji_2 in emojiList:
+                        try:
+                            if emoji_2.id == emojiObject.id:
+                                image = requests.get("https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id), stream=True)
+                                image.raw.decode_content = True
+                                open(f"./data/images/headgears/{emojiObject.name}.png", "wb").write(image.content)
+                                image = PIL.Image.open(f"./data/images/headgears/{emojiObject.name}.png")
+                                image = image.resize((70, 70))
+                                image.save(f"./data/images/headgears/{emojiObject.name}.png")
+                                print(" - "+emojiObject.name + " downloaded")
+                                finded=True
+                                listDir = os.listdir("./data/images/headgears/")
+                                break
+                        except Exception as e:
+                            print("A error happened during the downloading of {0} :\nurl : {1}\n{2}\n=======".format(emoji_2.name,"https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id),e))
+            
             if not(finded):
                 print(emojiObject.name + " not found")
 
         if msg != None:
             cmpt += 1
-            now = datetime.now().second
+            now = datetime.now(parisTimeZone).second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
                 await msg.edit(embeds=interactions.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'accessoires ({0}%)".format(round(cmpt/num*100, 1))))
@@ -1404,29 +1467,32 @@ async def downloadAllWeapPng(bot: interactions.Client, msg=None, lastTime=None):
         emojiObject, finded = getEmojiObject(a), False
         if emojiObject.name + ".png" not in listDir:
             for b in weaponIconGuilds:
-                guild = await get(bot, interactions.Guild, object_id=int(b))
+                guild = bot.get_guild(b)
                 await asyncio.sleep(1)
-                for emoji_2 in guild.emojis:
-
-                    if int(emoji_2.id) == int(emojiObject.id):
-                        image = requests.get(emoji_2.url, stream=True)
-                        image.raw.decode_content = True
-                        open(f"./data/images/weapons/{emojiObject.name}.png", "wb").write(image.content)
-                        image = PIL.Image.open(f"./data/images/weapons/{emojiObject.name}.png")
-                        background = PIL.Image.new("RGBA", (120, 120), (0, 0, 0, 0))
-                        image = image.resize((100, 100))
-                        background.paste(image, (10, 10))
-                        background.save(f"./data/images/weapons/{emojiObject.name}.png")
-                        print(emojiObject.name + " downlowded")
-                        finded=True
-                        listDir = os.listdir("./data/images/weapons/")
-                        break
+                emojiList = await guild.fetch_all_custom_emojis()
+                for emoji_2 in emojiList:
+                    try:
+                        if int(emoji_2.id) == int(emojiObject.id):
+                            image = requests.get("https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id), stream=True)
+                            image.raw.decode_content = True
+                            open(f"./data/images/weapons/{emojiObject.name}.png", "wb").write(image.content)
+                            image = PIL.Image.open(f"./data/images/weapons/{emojiObject.name}.png")
+                            background = PIL.Image.new("RGBA", (120, 120), (0, 0, 0, 0))
+                            image = image.resize((100, 100))
+                            background.paste(image, (10, 10))
+                            background.save(f"./data/images/weapons/{emojiObject.name}.png")
+                            print(emojiObject.name + " downlowded")
+                            finded=True
+                            listDir = os.listdir("./data/images/weapons/")
+                            break
+                    except Exception as e:
+                        print("A error happened during the downloading of {0} :\nurl : {1}\n{2}\n=======".format(emoji_2.name,"https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id),e))
             if not(finded):
                 print(emojiObject.name + " not found")
 
         if msg != None:
             cmpt += 1
-            now = datetime.now().second
+            now = datetime.now(parisTimeZone).second
             if now >= lastTime + 3 or (now <= 3 and now >= lastTime + 3 - 60):
                 lastTime = now
                 await msg.edit(embeds=interactions.Embed(title="l!admin resetCustomEmoji", description="Téléchargement des images d'armes ({0}%)".format(round(cmpt/num*100, 1))))
@@ -1452,10 +1518,12 @@ async def downloadAllIconPng(bot: interactions.Client):
             emojiObject, finded = getEmojiObject(listEmojiHead[a][b]), False
             if emojiObject.name + ".png" not in listDir:
                 for b in [862320563590529056, 615257372218097691, 810212019608485918, 894528703185424425]:
-                    guild = await get(bot, interactions.Guild, object_id=int(b))
-                    for emoji_2 in guild.emojis:
+                    guild = bot.get_guild(b)
+                    emojiList = await guild.fetch_all_custom_emojis()
+                for emoji_2 in emojiList:
+                    try:
                         if emoji_2.id == emojiObject.id:
-                            image = requests.get(emoji_2.url, stream=True)
+                            image = requests.get("https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id), stream=True)
                             image.raw.decode_content = True
                             open(f"./data/images/char_icons/{emojiObject.name}.png", "wb").write(image.content)
                             image = PIL.Image.open(f"./data/images/char_icons/{emojiObject.name}.png")
@@ -1468,6 +1536,8 @@ async def downloadAllIconPng(bot: interactions.Client):
                             listDir = os.listdir("./data/images/char_icons/")
                             finded=True
                             break
+                    except Exception as e:
+                        print("A error happened during the downloading of {0} :\nurl : {1}\n{2}\n=======".format(emoji_2.name,"https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id),e))
 
                 if not(finded):
                     print(emojiObject[0] + " not found")
@@ -1830,15 +1900,16 @@ async def makeCustomIcon(bot: interactions.Client, user: char, returnImage: bool
     else:
         iconGuildList = LenaCustomIcons
 
-    background = interactions.Image(file="./data/images/temp.png")
+    background = "./data/images/temp.png"
 
     if not(customIconDB.haveCustomIcon(user)):
-        for icGuild in iconGuildList:
+        for icGuildID in iconGuildList:
             try:
-                icGuild = await get(bot, interactions.Guild, object_id=int(icGuild))
-                if len(icGuild.emojis) < 50:
+                icGuild = bot.get_guild(icGuildID)
+                emojiList = await icGuild.fetch_all_custom_emojis()
+                if len(emojiList) < icGuild.emoji_limit:
                     try:
-                        new_icon = await asyncio.wait_for(icGuild.create_emoji(name=remove_accents(user.name), image=background), timeout=1)
+                        new_icon = await asyncio.wait_for(icGuild.create_custom_emoji(name=remove_accents(user.name), imagefile=background), timeout=3)
                         customIconDB.editCustomIcon(user, new_icon)
                         print(f"{user.name}'s new emoji uploaded")
                     except asyncio.TimeoutError:
@@ -1851,18 +1922,22 @@ async def makeCustomIcon(bot: interactions.Client, user: char, returnImage: bool
         customId = getEmojiObject(customIconDB.getCustomIcon(user)).id
         custom = None
         for icGuild in iconGuildList:
-            icGuild: interactions.Guild = await get(bot, interactions.Guild, object_id=int(icGuild))
-            for custom in icGuild.emojis:
+            icGuild: interactions.Guild = bot.get_guild(icGuild)
+            emojiList = await icGuild.fetch_all_custom_emojis()
+            for custom in emojiList:
                 if custom.id == customId:
                     try:
-                        new_icon = await asyncio.wait_for(icGuild.create_emoji(name=remove_accents(user.name), image=background), timeout=1)
-                        print(f"{user.name}'s emoji updated")
-                        custom = await interactions.Emoji.get(icGuild,customId,bot._http)
-                        await custom.delete(guild_id=icGuild.id)
+                        userName = remove_accents(user.name)
+                        while len(userName) < 2:
+                            userName += "_"
+                        new_icon = await asyncio.wait_for(icGuild.create_custom_emoji(name=userName, imagefile=background), timeout=3)
                         customIconDB.editCustomIcon(user, new_icon)
+                        await custom.delete()
+                        print(f"{user.name}'s emoji updated")
                     except asyncio.TimeoutError:
                         print("{0}'s emoji took to long to upload".format(user.name))
                     except:
+                        print_exc()
                         print("{0} - {1}".format(custom.name,custom.id))
                     break
 
@@ -1904,7 +1979,7 @@ def infoInvoc(invoc: invoc, emb: interactions.Embed):
     emb.add_field(name="<:em:866459463568850954>\n__Statistiques :__", value=reduceEmojiNames(rep), inline=False)
     
     rep = ""
-    rep += "{0} __{1}__ :\n{2}".format(invoc.weapon.emoji,invoc.weapon.name,invoc.weapon.getSummary())
+    rep += "{0} __{1}__ :\n{2}\n".format(invoc.weapon.emoji,invoc.weapon.name,invoc.weapon.getSummary())
     for a in invoc.skills:
         if type(a) == skill:
             rep += "\n{0} __{1}__ :\n> {2}\n".format(a.emoji,a.name,a.description.replace("\n","\n> "))
@@ -1991,11 +2066,6 @@ def infoAllie(allie: tmpAllie):
      
             emb.add_field(name="<:em:866459463568850954>\n__Build alternatif ({0}%) :__".format(altBuild.proba), value=fieldValue, inline=False)
 
-    for allyTmpName, allyBalancingEff in tmpBalancingDict.items():
-        if allie.name.lower() == allyTmpName.lower():
-            emb.add_field(name="<:em:866459463568850954>\n__Equilibrage :__",value="Lorsqu'{0} se trouve dans l'équipe rouge sans conditions particulières, cet{1} allié{4} temporaire subit l'effet {5} __{2}__ :\n{3}".format(["il","elle"][allie.gender==GENDER_FEMALE],["","te"][allie.gender==GENDER_FEMALE],allyBalancingEff.name,allyBalancingEff.description.format(allyBalancingEff.power),["","e"][allie.gender==GENDER_FEMALE],allyBalancingEff.emoji[0][0]),inline=False)
-            break
-
     if allie.elemAffinity:
         emb = infoEffect(elemResistanceEffects[allie.element],allie,emb)
     for cmpt in range(len(upLifeStealNames)):
@@ -2007,7 +2077,7 @@ def infoEnnemi(ennemi: octarien):
     teamName = ""
     if ennemi.npcTeam != None:
         teamName = "__Affinité :__ {0}{1}\n".format(npcTeamEmojis[ennemi.npcTeam]+[""," "][npcTeamEmojis[ennemi.npcTeam]!=""], npcTeamNames[ennemi.npcTeam])
-    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]} {elemNames[ennemi.element]}\n{teamName}\n__Description :__\n{ennemi.description}\n__**Statistiques au niveau 50 :**__\n"
+    rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]} {elemNames[ennemi.element]}\n{teamName}\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n"
     allMaxStats, accStats, dressStats, flatsStats, weapStats = ennemi.allStats(), ennemi.stuff[0].allStats(), ennemi.stuff[1].allStats(), ennemi.stuff[2].allStats(), ennemi.weapon.allStats()
     for a in range(0, len(allMaxStats)):
         enStat = allMaxStats[a]+ accStats[a] + dressStats[a]+flatsStats[a]+weapStats[a]
@@ -2016,7 +2086,7 @@ def infoEnnemi(ennemi: octarien):
     rep += f"\n\n__**Arme et compétences** :__\n{ennemi.weapon.emoji} __{ennemi.weapon.name}__\n{ennemi.weapon.getSummary()}\n"
     for skilly in ennemi.skills:
         if type(skilly) == skill:
-            rep += "\n{0} __{1}__\n{2}\n".format(skilly.emoji,skilly.name,skilly.getSummary())
+            rep += "{3}{0} __{1}__\n{2}\n".format(skilly.emoji,skilly.name,skilly.getSummary(),["\n",""][rep[-2:] == "\n\n"])
 
     emb = interactions.Embed(title="__Ennemi : "+ennemi.name +"__", color=ennemi.color, description=rep)
     emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.{1}".format(getEmojiObject([ennemi.icon,ennemi.splashIcon][ennemi.splashIcon != None]).id,["png","gif"][ennemi.splashIcon != None and [ennemi.icon[1],ennemi.splashIcon[1]][ennemi.splashIcon != None] == "a"]))
@@ -2055,38 +2125,25 @@ def getAutoStuff(object: stuff, user: char, tablStats = None):
             statsMaxPlace = tablStats
 
         if type(user) == char:
-            tablToSee = copy.deepcopy(user.stuffInventory)
+            tablToSee = user.stuffInventory[:]
         elif type(user) == tmpAllie:
-            tablToSee = copy.deepcopy(stuffs)
+            tablToSee = stuffs[:]
 
-        def getSortValue(obj: stuff, statsMaxPlace=statsMaxPlace, aff=False):
+        def getSortValue(obj: stuff, statsMaxPlace: list[int]=statsMaxPlace, aff=False):
             if obj.effects != None and findEffect(obj.effects).id == summonerMalus.id and (object.effects == None or findEffect(object.effects).id != summonerMalus.id):
                 return -maxsize
-            objStats = obj.allStats()+[obj.resistance, obj.percing, obj.critical]+[obj.negativeHeal*-1, obj.negativeBoost*-1, obj.negativeShield*-1, obj.negativeDirect*-1, obj.negativeIndirect*-1]
-            value = []
+            objStats: list[int] = obj.allStats()+[obj.resistance, obj.percing, obj.critical]+[obj.negativeHeal*-1, obj.negativeBoost*-1, obj.negativeShield*-1, obj.negativeDirect*-1, obj.negativeIndirect*-1]
+            value: list[int] = []
             for a in statsMaxPlace:
                 value.append(objStats[a])
 
-            for a in range(len(value)):
-                if value[a] <= 0:
-                    if a == 0:
-                        for b in value:
-                            b = 0
-                        break
-                    elif a == 1:
-                        for b in value:
-                            b = b*0.75
-                        break
-                    elif a == 2:
-                        for b in value:
-                            b = b*0.5
-                        break
-            temp = 0
-            for a in value:
-                temp += a
+            for cmpt in range(len(statsMaxPlace)):
+                if cmpt < 3:
+                    value[cmpt] = value[cmpt] * [1,0.5,0.25][cmpt]
+
             if aff:
                 print(obj.name, temp)
-            return temp
+            return sum(value)
 
         for stuffy in tablToSee[:]:
             if (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 >= stuffy.minLvl//5):
@@ -2107,10 +2164,11 @@ async def downloadElementIcon(bot: interactions.Client):
         emojiObject, finded = getEmojiObject(listEmojiHead[b]), False
         if emojiObject.name + ".png" not in listDir:
             for c in [615257372218097691,932941135276560455, 862320563590529056]:
-                guild = await get(bot, interactions.Guild, object_id=int(c))
-                for emoji_2 in guild.emojis:
+                guild = bot.get_guild(c)
+                emojiList = await guild.fetch_all_custom_emojis()
+                for emoji_2 in emojiList:
                     if emoji_2.id == emojiObject.id:
-                        image = requests.get(emoji_2.url, stream=True)
+                        image = requests.get("https://cdn.discordapp.com/emojis/{0}.webp".format(emoji_2.id), stream=True)
                         image.raw.decode_content = True
                         open(f"./data/images/elemIcon/{emojiObject.name}.png", "wb").write(image.content)
                         image = PIL.Image.open(f"./data/images/elemIcon/{emojiObject.name}.png")
@@ -2191,93 +2249,47 @@ async def getRandomStatsEmbed(bot: interactions.Client, team: List[classes.char]
     else:
         return interactions.Embed(title="__{0}__".format(text), color=light_blue, description="<:lena:909047343876288552> :\n\""+lenaTipsMsgTabl[random.randint(0, len(lenaTipsMsgTabl)-1)]+"\"")
 
-async def getFullteamEmbed(bot: interactions.Client, team: List[char], mainUser: char) -> interactions.Embed:
-    toReturn, tablFullCat, maxLenght = interactions.Embed(title="__Equipe de {0} :__".format(
-        mainUser.name), color=mainUser.color), ["Arme", "Acc.", "Vêt.", "Chaus."], 25 - (5*len(team)//4)
+async def getFullTeamEmbed(bot: interactions.Client, team: List[char], mainUser: char, see = 0) -> interactions.Embed:
+    toReturn = Embed("__Equipe de {0}__".format(mainUser.name),color=mainUser.color)
+    for ent in team:
+        entDesc = ""
+        tablToSee = [ent.skills,[ent.weapon]+ent.stuff]
+        if see < 2:
+            for obj in tablToSee[see]:
+                if type(obj) in [classes.weapon, classes.stuff, classes.skill]:
+                    entDesc += "{0} {1}\n".format(obj.emoji,obj.name)
+                    if type(obj) == classes.weapon:
+                        entDesc += "\n"
 
-    for user in team:
-        tablAnsCat, tablAnsEmoji, temp = [user.weapon.name, user.stuff[0].name, user.stuff[1].name, user.stuff[2].name], [
-            user.weapon.emoji, user.stuff[0].emoji, user.stuff[1].emoji, user.stuff[2].emoji], ""
-
-        # Level
-        if user.stars < 1:
-            temp += "__Niv. :__ {0}".format(user.level)
         else:
-            temp += "__Niv. :__ {0}\\⭐{1}".format(user.level, user.stars)
+            sumStatsBonus = [ent.majorPoints[0], ent.majorPoints[1], ent.majorPoints[2], ent.majorPoints[3], ent.majorPoints[4], ent.majorPoints[5], ent.majorPoints[6], ent.majorPoints[7], ent.majorPoints[8], ent.majorPoints[9], ent.majorPoints[10], ent.majorPoints[11], ent.majorPoints[12], ent.majorPoints[13], ent.majorPoints[14]]
 
-        # Aspiration & Element
-        temp += "\n__Aspi. :__ {0} {1}\n__Elem. :__ {2} {3} ({4} {5})\n".format(
-            aspiEmoji[user.aspiration], inspi[user.aspiration], elemEmojis[user.element], elemNames[user.element], secElemEmojis[user.secElement], elemNames[user.secElement])
+            for a in [ent.weapon]+ent.stuff:
+                sumStatsBonus[0] += a.strength
+                sumStatsBonus[1] += a.endurance
+                sumStatsBonus[2] += a.charisma
+                sumStatsBonus[3] += a.agility
+                sumStatsBonus[4] += a.precision
+                sumStatsBonus[5] += a.intelligence
+                sumStatsBonus[6] += a.magie
+                sumStatsBonus[7] += a.resistance
+                sumStatsBonus[8] += a.percing
+                sumStatsBonus[9] += a.critical
+                sumStatsBonus[10] += a.negativeHeal * -1
+                sumStatsBonus[11] += a.negativeBoost * -1
+                sumStatsBonus[12] += a.negativeShield * -1
+                sumStatsBonus[13] += a.negativeDirect * -1
+                sumStatsBonus[14] += a.negativeIndirect * -1
 
-        # Weapon & Stuff
-        for cmpt in range(4):
-            if len(tablAnsCat[cmpt]) > maxLenght:
-                temp += "\n__{0} :__ {1}".format(
-                    tablFullCat[cmpt], tablAnsEmoji[cmpt])
-                tempTemp, tablWord = "", []
-                for letter in tablAnsCat[cmpt]:
-                    if letter == " ":
-                        if len(tempTemp) > 2:
-                            tablWord.append(tempTemp)
-                            tempTemp = ""
-                    else:
-                        tempTemp += letter
-                if len(tempTemp) > 2:
-                    tablWord.append(tempTemp)
+            estimPV = separeUnit(round((130+ent.level*15)*(int((ent.endurance+sumStatsBonus[ENDURANCE]*(1+ent.limitBreaks[ENDURANCE]/100)))/100+1)))
+            entDesc = "\n__PVs :__ {0}".format(estimPV)
+            allStatsUser = ent.allStats()+[ent.resistance,ent.percing,ent.critical,ent.majorPoints[ACT_BOOST_FULL],ent.majorPoints[ACT_HEAL_FULL],ent.majorPoints[ACT_SHIELD_FULL],ent.majorPoints[ACT_DIRECT_FULL],ent.majorPoints[ACT_INDIRECT_FULL]]
+            for cmpt in range(0,MAGIE+1):
+                userStats = int((allStatsUser[cmpt]+sumStatsBonus[cmpt]) * (1+ent.limitBreaks[cmpt]/100))
+                entDesc += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],userStats)
 
-                for word in tablWord:
-                    if len(word) > 4:
-                        temp += " {0}.".format(word[:3])
-                    elif len(word) > 2:
-                        temp += " {0}".format(word)
-            else:
-                temp += "\n__{0} :__ {1} {2}".format(
-                    tablFullCat[cmpt], tablAnsEmoji[cmpt], tablAnsCat[cmpt])
-
-        # Skill
-        for nbDispSkill in range(len(lvlToUnlockSkill)):
-            if user.level < lvlToUnlockSkill[nbDispSkill]:
-                break
-        temp += "\n\n__Compétences :__"
-        for cmpt in range(7):
-            skilly = findSkill(user.skills[cmpt])
-            if skilly != None:
-                temp += "\n{0}".format(skilly.emoji)
-                if len(skilly.name) < 25:
-                    temp += " "+skilly.name
-                else:
-                    tempTemp, tablWord = "", []
-                    for letter in skilly.name:
-                        if letter == " ":
-                            if len(tempTemp) > 2:
-                                tablWord.append(tempTemp)
-                                tempTemp = ""
-                        else:
-                            tempTemp += letter
-                    if len(tempTemp) > 2:
-                        tablWord.append(tempTemp)
-                    for word in tablWord:
-                        if len(word) > 6:
-                            temp += " {0}.".format(word[:5])
-                        elif len(word) > 2:
-                            temp += " {0}".format(word)
-            elif cmpt <= nbDispSkill:
-                temp += "\n -"
-
-        if len(temp) > 1024:
-            temp = completlyRemoveEmoji(temp)
-        toReturn.add_field(name="{0} __{1}__".format(await getUserIcon(bot, user), user.name), value=temp)
-
-    if len(toReturn) > 6000:
-        print("To much ({0})".format(len(toReturn)))
-        tempEmb = interactions.Embed(title=toReturn.title, color=toReturn.color)
-        for fields in toReturn.fields:
-            tempEmb.add_field(name=fields.name,
-                              value=completlyRemoveEmoji(fields.value))
-        toReturn = tempEmb
-        print(len(toReturn))
-
-    print(len(toReturn))
+        entDesc = reduceEmojiNames(entDesc)
+        toReturn.add_field("__{0} {1} :__\n".format(await getUserIcon(bot,ent),ent.name),inline=True,value=entDesc)
     return toReturn
 
 async def updateHaveProcurOn():
@@ -2312,23 +2324,8 @@ def newTeam(user):
     saveCharFile(user=user)
     return user
 
-async def kikimerFunction(bot:interactions.Client,ctx:interactions.CommandContext,period:bool=False):
-    catSelect = interactions.ActionRow(
-        components=
-            [interactions.SelectMenu(
-                custom_id="catSelect",
-                options=[
-                    SelectOption(label="Players",value="0",description="Show players"),
-                    SelectOption(label="Allies",value="1",description="Show allies"),
-                    SelectOption(label="Ennemis",value="2",description="Show ennemis"),
-                    SelectOption(label="Small Bosses",value="3",description="Show small bosses"),
-                    SelectOption(label="Stands Alones",value="4",description="Show stands alones bosses"),
-                    SelectOption(label="Raids",value="5",description="Show raids bosses")
-                ],
-                placeholder="Sort by entity category"
-            )]
-        )
-
+catSelect = interactions.ActionRow(interactions.StringSelectMenu([StringSelectOption(label="Players",value="0",description="Show players"),StringSelectOption(label="Allies",value="1",description="Show allies"),StringSelectOption(label="Ennemis",value="2",description="Show ennemis"),StringSelectOption(label="Small Bosses",value="3",description="Show small bosses"),StringSelectOption(label="Stands Alones",value="4",description="Show stands alones bosses"),StringSelectOption(label="Raids",value="5",description="Show raids bosses")],custom_id="catSelect",placeholder="Sort by entity category"))
+async def kikimerFunction(bot:interactions.Client,ctx:interactions.SlashContext,period:bool=False):
     destination, msg, sortValue, page = 0, None, 0, 0
     await ctx.defer()
     while 1:
@@ -2378,12 +2375,12 @@ async def kikimerFunction(bot:interactions.Client,ctx:interactions.CommandContex
                                             break
                                 elif destination == 3:
                                     for ent in tablBoss:
-                                        if tempEnt.name == ent.name and not(ent.oneVAll):
+                                        if tempEnt.name == ent.name and not(ent.standAlone):
                                             tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
                                             break
                                 elif destination == 4:
                                     for ent in tablBoss:
-                                        if tempEnt.name == ent.name and ent.oneVAll:
+                                        if tempEnt.name == ent.name and ent.standAlone:
                                             tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
                                             break
                                 if destination == 5:
@@ -2409,24 +2406,16 @@ async def kikimerFunction(bot:interactions.Client,ctx:interactions.CommandContex
                 await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[])
                 return 0
 
-            if respond.data.custom_id == catSelect.components[0].custom_id:
-                destination, sortValue, page = int(respond.data.values[0]), 0, 0
+            if respond.custom_id == catSelect.components[0].custom_id:
+                destination, sortValue, page = int(respond.values[0]), 0, 0
         else:
             selectSortOptions, cmpt, itemList = [], 0, tablResultDict[0][1].keys()
             itemList = itemList[1:]
 
             for ballerine in itemList:
-                selectSortOptions.append(interactions.SelectOption(label=ballerine,value=str(cmpt)))
+                selectSortOptions.append(interactions.StringSelectOption(label=ballerine,value=str(cmpt)))
                 cmpt += 1
-            sortSelect = interactions.ActionRow(
-                components=[
-                    interactions.SelectMenu(
-                        custom_id='selectMenu',
-                        options=selectSortOptions,
-                        placeholder="Sort by stat category"
-                    )
-                ]
-            )
+            sortSelect = interactions.ActionRow(interactions.StringSelectMenu(selectSortOptions,custom_id='selectMenu',placeholder="Sort by stat category"))
             tablResultDict.sort(key=lambda ballerine: ballerine[1][itemList[sortValue]],reverse=True)
             description = ""
             for cmpt in range(10*page,min((page+1)*10,len(tablResultDict))):
@@ -2437,12 +2426,7 @@ async def kikimerFunction(bot:interactions.Client,ctx:interactions.CommandContex
                 
                 description += "\n{0}. {1} {4}        [{2}] : {3}".format(cmpt,icon,itemList[sortValue],tablResultDict[cmpt][1][itemList[sortValue]],tablResultDict[cmpt][0].name)
 
-            buttonsActRow = interactions.ActionRow(
-                components=[
-                    interactions.Button(style=ButtonStyle.SECONDARY,custom_id="previous",label="Previous",emoji=Emoji(name="◀️"),disabled=page<=0),
-                    interactions.Button(style=ButtonStyle.SECONDARY,custom_id="next",label="Next",emoji=Emoji(name="▶️"),disabled=(page+1)*10>len(tablResultDict)-1)
-                ]
-            )
+            buttonsActRow = interactions.ActionRow(interactions.Button(style=ButtonStyle.SECONDARY,custom_id="previous",label="Previous",emoji=PartialEmoji(name="◀️"),disabled=page<=0),interactions.Button(style=ButtonStyle.SECONDARY,custom_id="next",label="Next",emoji=PartialEmoji(name="▶️"),disabled=(page+1)*10>len(tablResultDict)-1))
 
             if msg == None:
                 msg = await ctx.send(embeds=interactions.Embed(title="============== Kikimeter ==============",description=reduceEmojiNames(description)),components=[catSelect,sortSelect,buttonsActRow])
@@ -2451,15 +2435,49 @@ async def kikimerFunction(bot:interactions.Client,ctx:interactions.CommandContex
 
             try:
                 respond: interactions.ComponentContext = await bot.wait_for_component(messages=msg,components=[catSelect,sortSelect,buttonsActRow],timeout=60)
+                respond: interactions.ComponentContext = respond.ctx
             except asyncio.TimeoutError:
                 await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description=reduceEmojiNames(description)),components=[])
                 return 0
 
-            if respond.data.custom_id == catSelect.components[0].custom_id:
-                destination, sortValue, page = int(respond.data.values[0]), 0, 0
-            elif respond.data.custom_id == sortSelect.components[0].custom_id:
-                sortValue, page = int(respond.data.values[0]), 0
-            elif respond.data.custom_id == buttonsActRow.components[0].custom_id:
+            if respond.custom_id == catSelect.components[0].custom_id:
+                destination, sortValue, page = int(respond.values[0]), 0, 0
+            elif respond.custom_id == sortSelect.components[0].custom_id:
+                sortValue, page = int(respond.values[0]), 0
+            elif respond.custom_id == buttonsActRow.components[0].custom_id:
                 page -= 1
-            elif respond.data.custom_id == buttonsActRow.components[1].custom_id:
+            elif respond.custom_id == buttonsActRow.components[1].custom_id:
                 page += 1
+
+async def createOsaSmnEmojis(bot:interactions.Client):
+    osaSmnDict, cmpt2 = getOsamodasJson(), 0
+    emojiGuild:interactions.Guild = bot.get_guild(1171852774217093120)
+    emojiList = await emojiGuild.fetch_all_custom_emojis()
+    for smnDict in osaSmnDict[:]:
+        try:
+            smnDict["emojiStr"]
+        except KeyError:
+            imageUrl = smnDict["imageUrl"]
+            if ".w133h.png" not in imageUrl:
+                imageUrl = imageUrl.replace(".png",".w133h.png")
+            image = requests.get(imageUrl, stream=True)
+            image.raw.decode_content = True
+            open("./data/images/temp.png", "wb").write(image.content)
+            image = PIL.Image.open("./data/images/temp.png")
+            image = image.resize((128, 128))
+            image.save("./data/images/temp.png")
+            newEmoji = await emojiGuild.create_custom_emoji(name="osaSmn{0}".format(cmpt2),imagefile="./data/images/temp.png")
+            print("{0}'s emoji uploaded".format(smnDict["name"]))
+
+            for cmpt in range(len(osaSmnDict)):
+                if osaSmnDict[cmpt]["name"]==smnDict["name"]:
+                    osaSmnDict[cmpt]["emojiStr"] = "<:{0}:{1}>".format(newEmoji.name,newEmoji.id)
+            cmpt2 += 1
+        except:
+            print_exc()
+            print("{0} as encounter a error".format(smnDict["name"]))
+        await asyncio.sleep(0.15)
+
+    jsonFile = open("./data/database/osamodas.json","w")
+    json.dump({"smnList":osaSmnDict},jsonFile)
+    jsonFile.close()

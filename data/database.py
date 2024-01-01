@@ -1,6 +1,8 @@
 import sqlite3, classes, adv, interactions
 from typing import List, Union
 from datetime import datetime, timedelta
+from constantes import *
+from traceback import print_exc
 
 majTeamVic2 = """
     PRAGMA foreign_keys = 0;
@@ -348,7 +350,7 @@ class dbHandler():
         cursor.close()
         return len(result) > 0
 
-    def editCustomIcon(self,user:classes.char,emoji:interactions.Emoji):
+    def editCustomIcon(self,user:classes.char,emoji:interactions.CustomEmoji):
         cursor = self.con.cursor()
         if user.apparaAcc != None:
             blbl1 = user.apparaAcc.id
@@ -388,8 +390,10 @@ class dbHandler():
         cursor.execute(query,(user.owner,))
         result = cursor.fetchone()
         cursor.close()
+
         if result != None:
-            return not(result["espece"] == user.species and result["couleur"]==user.color and ((user.apparaAcc==None and result["accessoire"]==user.stuff[0].id) or (user.apparaAcc!=None and user.apparaAcc.id == result["appaAcc"])) and ((user.apparaWeap == None and result["arme"]==user.weapon.id) or (user.apparaWeap!=None and user.apparaWeap.id == result["appaWeap"])) and result["couleur"]==user.color and user.iconForm == result["iconForm"])
+            formVerif = [result["iconForm"],0][result["iconForm"] == None]
+            return not(result["espece"] == user.species and ((user.apparaAcc==None and result["accessoire"]==user.stuff[0].id) or (user.apparaAcc!=None and user.apparaAcc.id == result["appaAcc"])) and ((user.apparaWeap == None and result["arme"]==user.weapon.id) or (user.apparaWeap!=None and user.apparaWeap.id == result["appaWeap"])) and result["couleur"]==user.color and user.iconForm == formVerif)
         else:
             return True
 
@@ -493,19 +497,23 @@ class dbHandler():
         self.con.commit()
         cursor.close()
 
-    def addShop(self,shop : list):
-        cursor = self.con.cursor()
-        cursor.execute("DELETE FROM shop;")
-        self.con.commit()
-        cmpt = 1
-        for a in shop:
-            last = datetime.now()
-            last = last.strftime("%m/%d/%Y, %H:%M:%S")
-            cursor.execute(f"INSERT INTO shop VALUES ('{a.id}','{last}',{cmpt});")
-            cmpt += 1
+    def addShop(self,shop : list[Union[classes.weapon,classes.stuff,classes.skill,classes.other]]):
+        try:
+            cursor = self.con.cursor()
+            cursor.execute("DELETE FROM shop;")
             self.con.commit()
+            cmpt = 1
+            for a in shop:
+                last = datetime.now(parisTimeZone)
+                last = last.strftime("%m/%d/%Y, %H:%M:%S")
+                cursor.execute(f"INSERT INTO shop VALUES ('{a.id}','{last}',{cmpt});")
+                cmpt += 1
+                self.con.commit()
 
-        cursor.close()
+            cursor.close()
+            return True
+        except:
+            return False
     def remarkeCustomDB(self):
         cursor = self.con.cursor()
         cursor.execute("CREATE TABLE color_icon (\n    species,\n    color,\n    file     UNIQUE\n);")
@@ -565,7 +573,7 @@ class dbHandler():
         self.con.commit()
         cursor.close()
 
-    def getFightCooldown(self,team : int,quickFight = False):
+    def getFightCooldown(self,team : int,quickFight = False,timestamp=False):
         cursor = self.con.cursor()
         quickFight = int(quickFight)
         tabl = ["lastFight","lastQuickFight"]
@@ -580,24 +588,45 @@ class dbHandler():
             else:
                 result = result[0]["lastFight"]
             try:
-                result = datetime.strptime(result,"%m/%d/%Y, %H:%M:%S")
+                result = datetime.fromisoformat(result)
+                if result.tzinfo == None:
+                    result = result.replace(tzinfo=parisTimeZone)
+            except ValueError:
+                result = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
             except:
-                return 0
-            delta = result + timedelta(hours=1+2*quickFight)
-            now = datetime.now()
-            ballerine = delta - now
-            return max(0,int(ballerine.total_seconds()))
+                print_exc()
+                print("Error endled")
+                result = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
+
+            delta = result + timedelta(hours=1+(2*int(quickFight)))
+            if not(timestamp):
+                try:
+                    now = datetime.now(parisTimeZone)
+                    ballerine = delta - now
+                except:
+                    print_exc()
+                    print("Error endled")
+                    return 999
+                return max(0,int(ballerine.total_seconds()))
+            else:
+                timy = delta
+                if delta.year == delta.month == delta.day == 1:
+                    delta = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
+                    delta = delta.isoformat()
+                else:
+                    delta = timy.isoformat()
+                return ["✅ ","❌ "][(timy-datetime.now(parisTimeZone)).total_seconds()>0] + Timestamp.fromisoformat(delta).format(interactions.models.discord.timestamp.TimestampStyles.RelativeTime)
         else:
             return 0
 
     def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime,int] = None):
         cursor = self.con.cursor()
         if fromTime == None:
-            now = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+            now = datetime.now(parisTimeZone).isoformat()
         elif fromTime == 0:
-            now = datetime.strptime("01/19/2001, 19:26:57","%m/%d/%Y, %H:%M:%S")
+            now = datetime.strptime("01/19/2001, 19:26:57","%m/%d/%Y, %H:%M:%S").isoformat()
         else:
-            now = fromTime.strftime("%m/%d/%Y, %H:%M:%S")
+            now = fromTime.isoformat()
         if quickFight:
             cursor.execute("UPDATE teamVictory SET lastQuickFight = ? WHERE id = ?;",(now,team,))
         else:
@@ -624,3 +653,15 @@ class dbHandler():
         cursor.execute("DELETE FROM custom_icon WHERE owner_id = {0};".format(user.owner))
         self.con.commit()
         cursor.close()
+
+    def searchCustomIcon(self,emoji:Union[str,interactions.CustomEmoji]):
+        if type(emoji) != str:
+            emoji = '<:{0}:{1}>'.format(emoji.name,emoji.id)
+        cursor = self.con.cursor()
+        cursor.execute("SELECT owner_id FROM custom_icon WHERE emoji = '{0}';".format(emoji))
+        cursorReturn, toReturn = cursor.fetchall(), []
+        cursor.close()
+
+        for respond in cursorReturn:
+            toReturn.append(respond["owner_id"])
+        return toReturn

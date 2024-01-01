@@ -8,14 +8,14 @@ from commands_files.alice_stats_endler import *
 from index import *
 
 
-nextButton = interactions.Button(type=2, style=ButtonStyle.SUCCESS,label="Suivant",emoji=Emoji(name="▶️"),value="next")
-fightButton = interactions.Button(type=2, style=ButtonStyle.PRIMARY,label="Combattre",emoji=getEmojiObject('<:turf:810513139740573696>'),value="fight")
-endButton = interactions.Button(type=2, style=ButtonStyle.SUCCESS,label="Terminer",emoji=Emoji(name="▶️"),value="end")
+nextButton = interactions.Button(style=ButtonStyle.SUCCESS,label="Suivant",emoji=PartialEmoji(name="▶️"),value="next")
+fightButton = interactions.Button(style=ButtonStyle.PRIMARY,label="Combattre",emoji=getEmojiObject('<:turf:810513139740573696>'),value="fight")
+endButton = interactions.Button(style=ButtonStyle.SUCCESS,label="Terminer",emoji=PartialEmoji(name="▶️"),value="end")
 
 DPT_MELEE,HEALER,BOOSTER,DPT_DIST = 0,1,2,3
 aspiRoleTabl = [[BERSERK,TETE_BRULE,POIDS_PLUME,ENCHANTEUR],[ALTRUISTE,PREVOYANT,PROTECTEUR,VIGILANT],[IDOLE,INOVATEUR],[OBSERVATEUR,MAGE,SORCELER,ATTENTIF]]
 
-async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,user:char,ctx:interactions.CommandContext):
+async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,user:char,ctx:interactions.SlashContext):
     """Play a duty"""
     # Loading / Generating phase
     playerTeam:List[Union[char,tmpAllie]] = [user]
@@ -73,25 +73,26 @@ async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,us
     while 1:
         emb, endButtons = interactions.Embed(name = "__{0} ({1})__'".format(duty.serie,duty.numer),color=user.color,description=duty.embedTxtList[embedIndex]), []
         if duty.eventIndex[embedIndex] == None:
-            endButtons = interactions.ActionRow(components=[nextButton])
+            endButtons = interactions.ActionRow(nextButton)
         elif duty.eventIndex[embedIndex][0] == EVENT_CHOICE:
             endSelectOption = []
             for choice in range(1,len(duty.eventIndex[embedIndex])):
-                endSelectOption.append(interactions.SelectOption(label=duty.eventIndex[embedIndex][choice][0],value=choice))
-            endButtons = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "endSelectOptions", options=endSelectOption)])
+                endSelectOption.append(interactions.StringSelectOption(label=duty.eventIndex[embedIndex][choice][0],value=choice))
+            endButtons = interactions.ActionRow(interactions.StringSelectMenu(endSelectOption,custom_id = "endSelectOptions"))
         elif duty.eventIndex[embedIndex][0] == EVENT_FIGHT:
-            endButtons = interactions.ActionRow(components=[fightButton])
+            endButtons = interactions.ActionRow(fightButton)
         elif duty.eventIndex[embedIndex][0] == EVENT_END:
-            endButtons = interactions.ActionRow(components=[endButton])
+            endButtons = interactions.ActionRow(endButton)
 
         await msg.edit(embeds=emb,components=endButtons)
 
         try:
             react = await bot.wait_for_component(msg,endButtons,reactCheck,3+(len(duty.embedTxtList[embedIndex])/180))
-            if react.data.component_type == 2:
+            react: ComponentContext = react.ctx
+            if react.component_type == 2:
                 react = react.custom_id
             else:
-                react = react.data.values[0]
+                react = react.values[0]
         except TimeoutError:
             if duty.eventIndex[embedIndex] == None:
                 react = nextButton["customId"]

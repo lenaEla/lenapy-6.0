@@ -2,14 +2,18 @@
 Constants module.
 Here stand the first brick of the bot
 """
-import os, shopMessageDownloader
+import os, json, requests
 from datetime import timedelta, datetime
+import pytz
 from interactions import *
-from interactions.ext.wait_for import setup
 from typing import Union, List
-from shopMsg import *
 
 emLoading = '<a:loading:862459118912667678>'
+
+try:
+    parisTimeZone = pytz.timezone("Europe/Paris")
+except:
+    print(pytz.all_timezones)
 
 FROM_LEFT, FROM_RIGHT, FROM_UP, FROM_DOWN, FROM_POINT = 0,1,2,3,4
 
@@ -65,12 +69,19 @@ AREA_BOMB_5 = 46
 AREA_BOMB_6 = 47
 AREA_BOMB_7 = 48
 AREA_LOWEST_HP_ALLIE = 49
-AREA_SUMMON = 50
+AREA_SUMMONS = 50
+AREA_RANDOMALLIE_1 = 51
+AREA_RANDOMALLIE_2 = 52
+AREA_RANDOMALLIE_3 = 53
+AREA_RANDOMALLIE_4 = 54
+AREA_RANDOMALLIE_5 = 55
+AREA_SUMMONER = 56
+AREA_BIGDONUT = 57
 
-areaMelee = [AREA_MONO,AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CONE_2,AREA_CONE_3,AREA_LINE_2,AREA_LINE_3,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_INLINE_2,AREA_INLINE_3]
+areaMelee = [AREA_MONO,AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CONE_2,AREA_CONE_3,AREA_LINE_2,AREA_LINE_3,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_INLINE_2,AREA_INLINE_3,AREA_BIGDONUT]
 areaDist = [AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7]
 areaMixte = []
-notOrientedAreas = [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7,AREA_LOWEST_HP_ALLIE,AREA_SUMMON]
+notOrientedAreas = [AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CIRCLE_4,AREA_CIRCLE_5,AREA_CIRCLE_6,AREA_CIRCLE_7,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_DONUT_4,AREA_DONUT_5,AREA_DONUT_6,AREA_DONUT_7,AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5,AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7,AREA_LOWEST_HP_ALLIE,AREA_SUMMONS]
 
 EmIcon = [None,['<:ikaRed:866459224664702977>','<:ikaOrange:866459241886646272>','<:ikaYellow:866459268520607775>','<:ikaGreen:866459285982937108>','<:ikaLBlue:866459302319226910>','<:ikaBlue:866459319049650206>','<:ikaPurple:866459331254550558>','<:ikaPink:866459344173137930>','<:ikaWhite:871149538554044466>','<:ikaBlack:871149560284741632>'],['<:takoRed:866459004439756810>','<:takoOrange:866459027562954762>','<:takoYellow:866459052132532275>','<:takoGreen:866459073910145025>','<:takoLBlue:866459095875190804>','<:takoBlue:866459141077860352>','<:takoPurple:866459162716536892>','<:takoPink:866459203949166593>','<:takoWhite:871149576965455933>','<:takoBlack:871151069193969714>'],['<:octarian:866461984018137138>'],['<:baseIka:913847108640047174>',"<:baseTako:913847092835930172>","<:empty_squid:913911277548601344>","<:empty_octo:913911290299289632>",'<:littleStar:925860806602682369>','<:ikaCatLine:930383582898315284>','<:ikaCatBody:930383603026776064>','<:takoCatLine:930383560630734848>','<:takoCatBody:930397525888880711>','<:komoriLine:930804436861857872>','<:komoriBody:930798973386641448>','<:birdLine:930906003967443034>','<:birdColor:930908372969095248>','<:skeletonLine:930910501691588658>','<:skeletonColor:931190496427139112>','<:fairyLine:935335398094274621>','<:fairyColor:935335413005037600>','<:fairy2Line:935336370774351902>','<:fairy2Color:935336353284096040>']]
 EmCount = ('0️⃣','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🇦','🇧','🇨','🇩','🇪','🇫')
@@ -79,12 +90,24 @@ for cmpt in range(AREA_INLINE_5+1):
     if cmpt not in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES] + areaMelee + areaDist:
         areaMixte.append(cmpt)
 
-areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon","Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases","Lobbée de 5 cases","Lobbée de 6 cases","Lobbée de 7 cases","Allié le plus blessé","Invocations"]
+areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon","Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases","Lobbée de 5 cases","Lobbée de 6 cases","Lobbée de 7 cases","Allié le plus blessé","Invocations","1 allié aléatoire","2 alliés aléatoires","3 alliés aléatoires","4 alliés aléatoires","5 alliés aléatoires","Invocateur","Anneau"]
 allArea = range(0, AREA_BOMB_7)
 listNumberEmoji = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟","▶️","⏸️","⏯️","⏹️","⏺️","⏭️","⏮️","⏩","⏪","⏫","⏬","◀️","🔼","🔽","➡️","⬅️","⬆️","⬇️","↗️","↘️","↙️","↖️","↕️","↔️"]
 
-rangeAreaEmojis = ["<:rangeMono:1032293272783179796>", "<:rangeCircle:1032293347869593691>(1)", "<:rangeCircle:1032293347869593691>(2)", "<:rangeCircle:1032293347869593691>(3)", "<:rangeCircle:1032293347869593691>(4)", "<:rangeCircle:1032293347869593691>(5)", "<:rangeCircle:1032293347869593691>(6)", "<:rangeCircle:1032293347869593691>(7)", "<:rangeAllAllies:1032512884351172668>", "<:rangeAllEnemies:1032512939992809502>", "<:rangeAllEntities:1032512991859576933>", "<:rangeCone:1032293500093480970>(1)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(3)", "<:rangeCone:1032293500093480970>(4)", "<:rangeCone:1032293500093480970>(5)", "<:rangeLine:1032293431298494595>(2)", "<:rangeLine:1032293431298494595>(3)", "<:rangeLine:1032293431298494595>(4)", "<:rangeLine:1032293431298494595>(5)", "<:rangeLine:1032293431298494595>(6)", "<:rangeDonut:1032294133219459103>(1)", "<:rangeDonut:1032294133219459103>(2)", "<:rangeDonut:1032294133219459103>(3)", "<:rangeDonut:1032294133219459103>(4)","<:rangeDonut:1032294133219459103>(5)", "<:rangeDonut:1032294133219459103>(6)", "<:rangeDonut:1032294133219459103>(7)", "<:rangeDist:1032294217415921726>(1)", "<:rangeDist:1032294217415921726>(2)", "<:rangeDist:1032294217415921726>(3)", "<:rangeDist:1032294217415921726>(4)", "<:rangeDist:1032294217415921726>(5)", "<:rangeArc:1033268272285614080>(1)", "<:rangeArc:1033268272285614080>(2)", "<:rangeArc:1033268272285614080>(3)", "<:rangeRdmEnemie:1032513037351010335>(1)", "<:rangeRdmEnemie:1032513037351010335>(2)", "<:rangeRdmEnemie:1032513037351010335>(3)", "<:rangeRdmEnemie:1032513037351010335>(4)", "<:rangeRdmEnemie:1032513037351010335>(5)", "<:rangeCross:1032294049027194940>(2)", "<:rangeCross:1032294049027194940>(3)", "<:rangeCross:1032294049027194940>(4)", "<:rangeCross:1032294049027194940>(5)","<:rangeLob:1032294266988408833>(5)","<:rangeLob:1032294266988408833>(6)","<:rangeLob:1032294266988408833>(7)","<:INeedHealing:881587796287057951>","<:sprink1:887747751339757599>"]
-areaEmojis = ["<:areaMono:1032293314130616400>", "<:areaCircle:1032293380379656192>(1)", "<:areaCircle:1032293380379656192>(2)", "<:areaCircle:1032293380379656192>(3)", "<:areaCircle:1032293380379656192>(4)", "<:areaCircle:1032293380379656192>(5)", "<:areaCircle:1032293380379656192>(6)", "<:areaCircle:1032293380379656192>(7)", "<:areaAllAllies:1032512909982564443>", "<:areaAllEnemies:1032512965850710026>", "<:areaAllEntities:1032513013879681095>", "<:areaCone:1032293578858307624>(1)", "<:areaCone:1032293578858307624>(2)", "<:areaCone:1032293578858307624>(3)", "<:areaCone:1032293578858307624>(4)", "<:areaCone:1032293578858307624>(5)", "<:areaCone:1032293578858307624>(6)", "<:areaLine:1032293461803675708>(2)", "<:areaLine:1032293461803675708>(3)", "<:areaLine:1032293461803675708>(4)", "<:areaLine:1032293461803675708>(5)", "<:areaLine:1032293461803675708>(6)", "<:areaDonut:1032294180451520552>(1)", "<:areaDonut:1032294180451520552>(2)", "<:areaDonut:1032294180451520552>(3)", "<:areaDonut:1032294180451520552>(4)","<:areaDonut:1032294180451520552>(5)", "<:areaDonut:1032294180451520552>(6)", "<:areaDonut:1032294180451520552>(7)", "<:areaDist:1032294242783080518>(1)", "<:areaDist:1032294242783080518>(2)", "<:areaDist:1032294242783080518>(3)", "<:areaDist:1032294242783080518>(4)", "<:areaDist:1032294242783080518>(5)", "<:areaArc:1033268300412616747>(1)", "<:areaArc:1033268300412616747>(2)", "<:areaArc:1033268300412616747>(3)", "<:areaRdmEnemie:1032513060524539904>(1)", "<:areaRdmEnemie:1032513060524539904>(2)", "<:areaRdmEnemie:1032513060524539904>(3)", "<:areaRdmEnemie:1032513060524539904>(4)", "<:areaRdmEnemie:1032513060524539904>(5)", "<:areaCross:1032294077653328004>(2)", "<:areaCross:1032294077653328004>(3)", "<:areaCross:1032294077653328004>(4)", "<:areaCross:1032294077653328004>(5)","<:areaLob:1032294287657934910>(5)","<:areaLob:1032294287657934910>(6)","<:areaLob:1032294287657934910>(7)","<:INeedHealing:881587796287057951>","<:sprink1:887747751339757599>"]
+rangeAreaEmojis = ["<:rangeMono:1032293272783179796>", "<:rangeCircle:1032293347869593691>(1)", "<:rangeCircle:1032293347869593691>(2)", "<:rangeCircle:1032293347869593691>(3)", "<:rangeCircle:1032293347869593691>(4)", "<:rangeCircle:1032293347869593691>(5)", "<:rangeCircle:1032293347869593691>(6)", "<:rangeCircle:1032293347869593691>(7)", "<:rangeAllAllies:1032512884351172668>", "<:rangeAllEnemies:1032512939992809502>", "<:rangeAllEntities:1032512991859576933>", "<:rangeCone:1032293500093480970>(1)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(3)", "<:rangeCone:1032293500093480970>(4)", "<:rangeCone:1032293500093480970>(5)", "<:rangeCone:1032293500093480970>(6)", "<:rangeLine:1032293431298494595>(2)", "<:rangeLine:1032293431298494595>(3)", "<:rangeLine:1032293431298494595>(4)", "<:rangeLine:1032293431298494595>(5)", "<:rangeLine:1032293431298494595>(6)", "<:rangeDonut:1032294133219459103>(1)", "<:rangeDonut:1032294133219459103>(2)", "<:rangeDonut:1032294133219459103>(3)", "<:rangeDonut:1032294133219459103>(4)","<:rangeDonut:1032294133219459103>(5)", "<:rangeDonut:1032294133219459103>(6)", "<:rangeDonut:1032294133219459103>(7)", "<:rangeDist:1032294217415921726>(1)", "<:rangeDist:1032294217415921726>(2)", "<:rangeDist:1032294217415921726>(3)", "<:rangeDist:1032294217415921726>(4)", "<:rangeDist:1032294217415921726>(5)", "<:rangeArc:1033268272285614080>(1)", "<:rangeArc:1033268272285614080>(2)", "<:rangeArc:1033268272285614080>(3)", "<:rangeRdmEnemie:1032513037351010335>(1)", "<:rangeRdmEnemie:1032513037351010335>(2)", "<:rangeRdmEnemie:1032513037351010335>(3)", "<:rangeRdmEnemie:1032513037351010335>(4)", "<:rangeRdmEnemie:1032513037351010335>(5)", "<:rangeCross:1032294049027194940>(2)", "<:rangeCross:1032294049027194940>(3)", "<:rangeCross:1032294049027194940>(4)", "<:rangeCross:1032294049027194940>(5)","<:rangeLob:1032294266988408833>(5)","<:rangeLob:1032294266988408833>(6)","<:rangeLob:1032294266988408833>(7)","<:INeedHealing:881587796287057951>","<:sprink1:887747751339757599>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeDist:1032294217415921726>"]
+rangeAreaEmojis += rangeAreaEmojis[AREA_RANDOMENNEMI_1:AREA_RANDOMENNEMI_5+1] + [""]
+areaEmojis = ["<:areaMono:1032293314130616400>", "<:areaCircle:1032293380379656192>(1)", "<:areaCircle:1032293380379656192>(2)", "<:areaCircle:1032293380379656192>(3)", "<:areaCircle:1032293380379656192>(4)", "<:areaCircle:1032293380379656192>(5)", "<:areaCircle:1032293380379656192>(6)", "<:areaCircle:1032293380379656192>(7)", "<:areaAllAllies:1032512909982564443>", "<:areaAllEnemies:1032512965850710026>", "<:areaAllEntities:1032513013879681095>", "<:areaCone:1032293578858307624>(1)", "<:areaCone:1032293578858307624>(2)", "<:areaCone:1032293578858307624>(3)", "<:areaCone:1032293578858307624>(4)", "<:areaCone:1032293578858307624>(5)", "<:areaCone:1032293578858307624>(6)", "<:areaLine:1032293461803675708>(2)", "<:areaLine:1032293461803675708>(3)", "<:areaLine:1032293461803675708>(4)", "<:areaLine:1032293461803675708>(5)", "<:areaLine:1032293461803675708>(6)", "<:areaDonut:1032294180451520552>(1)", "<:areaDonut:1032294180451520552>(2)", "<:areaDonut:1032294180451520552>(3)", "<:areaDonut:1032294180451520552>(4)","<:areaDonut:1032294180451520552>(5)", "<:areaDonut:1032294180451520552>(6)", "<:areaDonut:1032294180451520552>(7)", "<:areaDist:1032294242783080518>(1)", "<:areaDist:1032294242783080518>(2)", "<:areaDist:1032294242783080518>(3)", "<:areaDist:1032294242783080518>(4)", "<:areaDist:1032294242783080518>(5)", "<:areaArc:1033268300412616747>(1)", "<:areaArc:1033268300412616747>(2)", "<:areaArc:1033268300412616747>(3)", "<:areaRdmEnemie:1032513060524539904>(1)", "<:areaRdmEnemie:1032513060524539904>(2)", "<:areaRdmEnemie:1032513060524539904>(3)", "<:areaRdmEnemie:1032513060524539904>(4)", "<:areaRdmEnemie:1032513060524539904>(5)", "<:areaCross:1032294077653328004>(2)", "<:areaCross:1032294077653328004>(3)", "<:areaCross:1032294077653328004>(4)", "<:areaCross:1032294077653328004>(5)","<:areaLob:1032294287657934910>(5)","<:areaLob:1032294287657934910>(6)","<:areaLob:1032294287657934910>(7)","<:INeedHealing:881587796287057951>","<:sprink1:887747751339757599>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaDist:1032294242783080518>"]
+areaEmojis += areaEmojis[AREA_RANDOMALLIE_1:AREA_RANDOMALLIE_5+1] + [""]
+
+if len(areaEmojis) != len(rangeAreaEmojis):
+    print(len(areaEmojis),len(rangeAreaEmojis),len(areaNames))
+    printy = ""
+    for cmpt in range(len(areaNames)):
+        try:
+            printy+="{0} {1} {2}\n".format(areaNames[cmpt],rangeAreaEmojis[cmpt],areaEmojis[cmpt])
+        except:
+            print(areaNames[cmpt])
+    print(printy)
 
 # Weapon's range
 RANGE_MELEE = 0
@@ -101,10 +124,12 @@ TRIGGER_INSTANT = 5
 TRIGGER_START_OF_TURN = 6
 TRIGGER_ON_REMOVE = 7
 TRIGGER_AFTER_DAMAGE = 8
-TRIGGER_HP_ENDER_70 = 9,
+TRIGGER_HP_ENDER_70 = 9
 TRIGGER_WEAPON_USE = 10
+TRIGGER_HP_ENDER_50 = 11
+TRIGGER_HP_ENDER_25 = 12
 
-allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE,TRIGGER_HP_ENDER_70, TRIGGER_WEAPON_USE]
+allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE,TRIGGER_HP_ENDER_70, TRIGGER_WEAPON_USE,TRIGGER_HP_ENDER_50,TRIGGER_HP_ENDER_25]
 triggersTxt = [
     "passivement",
     "lorsque le porteur reçoit des dégâts directs",
@@ -116,12 +141,19 @@ triggersTxt = [
     "lors du retrait de cet effet",
     "après que le porteur ai infligé des dégâts directs",
     "lorsque les PV du porteur tombent en dessous de 70%",
-    "lors de l'utilisation de l'arme principale"
+    "lors de l'utilisation de l'arme principale",
+    "lorsque les PV du porteur tombent en dessous de 50%",
+    "lorsque les PV du porteur tombent en dessous de 25%",
 ]
+
+triggerUnderHp = {
+    TRIGGER_HP_ENDER_70:0.7,TRIGGER_HP_ENDER_50:0.5,TRIGGER_HP_ENDER_25:0.25
+}
+
 
 DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 50, 15, 15, 20
 DMGBONUSPERLEVEL, HEALBONUSPERLEVEL, ARMORLBONUSPERLEVEL = DMGBONUSATLVL50/50/100, HEALBONUSATLVL50/50/100, ARMORBONUSATLVL50/50/100
-SUDDENDEATHDMG = 20
+SUDDENDEATHDMG = 10
 
 # Skills and effects types
 TYPE_ARMOR = 0
@@ -164,6 +196,7 @@ ACT_INDIRECT_FULL = 14
 PURCENTAGE = 11
 FIXE = 12
 HARMONIE = 13
+MISSING_HP = 14
 
 ACT_HEAL = 0
 ACT_BOOST = 1
@@ -175,7 +208,7 @@ BONUSPOINTPERLEVEL, MAXBONUSPERSTAT, MAJORBONUS = 2, 55, 50
 
 nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité","Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
 allStatsNames = nameStats+nameStats2+["Soins","Boosts","Armures","Dégâts Directs","Dégâts Indirects"]
-statsEmojis = ["<:str:1012308654780850267>","<:sta:1012308718140002374>","<:cha:1012308755121188905>","<:agi:1012308798494482482>","<:pre:1012308901498208286>","<:int:1012308834661961748>","<:mag:1012308871525699604>","<:res:1012308953721487392>","<:per:1012309032867991613>","<:cri:1012309064824406116>","<:heal:1012309125083959306>","<:bost:1012309093509238814>","<:arm:1012309148802748456>","<:dir:1012309179245019177>","<:idir:1012309203249004614>"] + list(range(99))
+statsEmojis = ["<:strength:1137363979950375022>","<:stamina:1137363976934674462>","<:charisma:1137363972606152745>","<:agility:1137363969464619079>","<:precision:1137363966981574716>","<:intelligence:1137364357823602749>","<:magie:1137363963257028688>","<:resistance:1137364355537715280>","<:percing:1137364352266149908>","<:critical:1137364347308494849>","<:healing:1137364338374623333>","<:boost:1137364341591638126>","<:armor:1137364335581212682>","<:direct:1137364333526007880>","<:indirect:1137364330237673542>"] + list(range(99))
 
 # Status for entities
 STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED, STATUS_TRUE_DEATH = 0, 1, 2, 3
@@ -245,9 +278,9 @@ while len(aspiEmoji) < len(inspi):
     aspiEmoji.append('<a:menacing:917007335220711434>')
 
 BERS_LIFE_STEAL = 35
-MASC_MAX_BOOST = 25
+MASC_MAX_BOOST = 15
 MASC_MIN_BOOST = 1
-MASC_LVL_CONVERT = 10
+MASC_LVL_CONVERT = 5
 
 dptAspi = [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,OBSERVATEUR,ATTENTIF,MAGE,SORCELER]
 healAspi = [ALTRUISTE,VIGILANT]
@@ -339,13 +372,14 @@ ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
 ELEMENT_UNIVERSALIS_PREMO = 9
 
-FIREDMGBUFF = WATERDMGBUFF = EARTHDMGBUFF = AIRDMGBUFF = DARKNESSDMGBUFF = 5
-LIGHTHEALBUFF = 10
+DISTDMGBUFF, AREADMGBUFF, DARKDMGBUFF = 5, 5, 5
+LIGHTHEALBUFF = 5
 TIMEHEALBUFF = TIMEDMGBUFF = 10
-TIMESHIELDABS = 50
-SPACEBONUSBUFF, SPACEMALUSRESIST = 10, 5
+SPACEBONUSBUFF = 10
 
-elemEmojis = ["<:neutral:921127224596385802>", "<:fire:918212781168275456>", "<:water:918212797320536124>", "<:air:918592529480446002>", "<:earth:918212824805801984>","<:light:918212861757653053>", "<:darkness:918212877419175946>", '<:space:918212897967075329>', '<:time:918212912408051814>', "<:univ:936302039456165898>"]
+FIREINCURVALUE, WATERRETURNVALUE, AIRPUSHDMG, EARTHBOOST, LIGHTDMGBUFF, DARKDEBUFF, SPACESHIELD, TIMELIFESTEAL = 10, 10, 15, 5, 10, 10, 10, 10
+
+elemEmojis = ["<:neutral:1137367688793042954>","<:fire:1137367710947356764>","<:water:1137367705972920441>","<:air:1137367703380828201>","<:earth:1137367700348354621>","<:light:1137367698037280818>","<:darkness:1137367695336165498>","<:space:1137367690332348577>","<:time:1137367693255786606>","<:univ:1137367685995438100>"]
 secElemEmojis = ["<:em:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>","<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
 elemDesc = [
     "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(elemEmojis[0]),
@@ -361,25 +395,25 @@ elemDesc = [
 elemNames = ["Neutre", "Feu", "Eau", "Air", "Terre", "Lumière","Ténèbre", "Astral", "Temporel", "Universalis Premera"]
 elemMainPassifDesc = [
     "Aucun passif principal",
-    "{1} Pénétration : + 5\nAugmente de **{0}%** les **dégâts de zones** et les **dégâts à distances** infligés (Cumulable)".format(FIREDMGBUFF,statsEmojis[PERCING]),
-    "{1} Précision : + 10\nAugmente de **{0}%** les **dégâts monocibles** et les **dégâts à distances** infligés (Cumulable)".format(WATERDMGBUFF,statsEmojis[PRECISION]),
-    "{1} Agilité : + 10\nAugmente de **{0}%** les **dégâts de zones** et les **dégâts en mêlée** infligés (Cumulable)".format(AIRDMGBUFF,statsEmojis[AGILITY]),
-    "{1} Résistance : + 5\nAugmente de **{0}%** les **dégâts monocibles** et les **dégâts en mêlée** infligés (Cumulable)".format(EARTHDMGBUFF,statsEmojis[RESISTANCE]),
-    "Augmente de **{0}%** la puissance des **compétences** de **soins** et de **réanimation**, la puissance des effets secondaires soignants de vos compétences ainsi que la puissance des **armures données**".format(LIGHTHEALBUFF),
-    "Augmente de **{0}%** tous les **dégâts infligés** ainsi que la puissance des effets de **dégâts indirects** se déclanchant en **début ou en fin de tour** (Cumulable)".format(DARKNESSDMGBUFF),
-    "Augmente de **{0}%** la puissance des **bonus donnés ou reçus** (Non Cumulable) et réduit de **{1}%** la puissance des **malus reçus**".format(SPACEBONUSBUFF,SPACEMALUSRESIST),
-    "Augmente de **{0}%** la puissance des effets de **soins indirects** et des effets de **dégâts indirects** se déclanchant lors de **leur retrait** octroyés, et augmente de **{1}%** la quantié de **dégâts** supplémentaires **absorbés** par vos **effets d'armures**".format(TIMEHEALBUFF,TIMESHIELDABS)
+    "{3} Pénétration : + 5\n- Augmente de **{0}%** les dégâts directs infligés à distance\n- Augmente de **{1}%** les dégâts directs de zones infligés\n- Augmente de **{2}%** les dégâts indirects infligés".format(DISTDMGBUFF, AREADMGBUFF, AREADMGBUFF, statsEmojis[PERCING]),
+    "{3} Précision : + 10\n- Augmente de **{0}%** les dégâts directs infligés à distance\n- Augmente de **{1}%** les dégâts directs monocibles infligés\n- Augmente de **{2}%** les soins réalisés".format(DISTDMGBUFF, AREADMGBUFF, AREADMGBUFF, statsEmojis[PRECISION]),
+    "{3} Agilité : + 10\n- Augmente de **{0}%** les dégâts directs infligés en mêlée\n- Augmente de **{1}%** les dégâts directs de zones infligés\n- Augmente de **{2}%** les dégâts indirects infligés".format(DISTDMGBUFF, AREADMGBUFF, AREADMGBUFF, statsEmojis[AGILITY]),
+    "{3} Résistance : + 5\n- Augmente de **{0}%** les dégâts directs infligés en mêlée\n- Augmente de **{1}%** les dégâts directs de monocibles\n- Augmente de **{2}%** les armures donnés".format(DISTDMGBUFF, AREADMGBUFF, AREADMGBUFF,statsEmojis[RESISTANCE]),
+    "- Augmente de **{0}%** les soins réalisés\n- Augmente de **{0}%** les armures donnés\n- Vous soigne de **{0}%** de vos PVs manquant en début de tour".format(LIGHTHEALBUFF),
+    "- Augmente de **{0}%** tous les dégâts infligés\n- Augmente de **{1}%** les dégâts indirects infligés\n- Augmente de **{2}%** les dégâts infligés contre l'armure".format(DARKDMGBUFF,DARKDMGBUFF,DARKDMGBUFF),
+    "- Augmente de **{0}%** les dégâts directs de zone infligés\n- Augmente de **{1}%** les bonus de statistiques réalisés".format(AREADMGBUFF,SPACEBONUSBUFF),
+    "- Augmente de **{0}%** les dégâts indirects infligés\n- Augmente de **{1}%** les soins indirects réalisés".format(TIMEDMGBUFF,TIMEHEALBUFF)
 ]
 elemSecPassifDesc = [
     "Aucun passif secondaire",
-    "Soins donnés et reçus : +5%\nArmures données et reçues : -5%",
-    "Armures données et reçues : +5%\nSoins données et reçus : -5%",
-    "Puissance des bonus et malus données et reçus : +5%",
-    "Dégâts sur Armure infligés et reçus : +5%",
-    "Dégâts directs infligés et reçus : +5%",
-    "Dégâts directs infligés et reçus : -5%",
-    "Dégâts directs de zone infligées et reçus : +5%",
-    "Dégâts directs monocibles infligés et reçus : +5%"
+    "- Les effets de dégâts indirects infligés réduisent les soins reçus par la cible de **{0}%** (max 30%)".format(FIREINCURVALUE),
+    "- Vous absorbez **{0}%** des soins directs effectués sur vos alliés".format(WATERRETURNVALUE),
+    "- Augmente de **{0}%** les dégâts de colisions infligés".format(AIRPUSHDMG),
+    "- Vous octroi **{0}%** de vol d'armure et **{0}%** de convertion de dégâts infligés en armure".format(EARTHBOOST),
+    "- Augmente de **{0}%** la puissance des compétences de dégâts ayant pour effet secondaire d'octroyer des soins ou de l'armure à vous ou aux alliés (vol de vie / convertion inclus)".format(LIGHTDMGBUFF),
+    "- Les effets de dégâts indirects infligés réduisent de **{0}%** les statistiques de la cible".format(DARKDEBUFF),
+    "- En début de tour, octroi une armure équivalente à **{0}%** de vos PVs Manquants".format(SPACESHIELD),
+    "- Les effets de dégâts indirects obtiennent **{0}%** de vol de vie".format(TIMELIFESTEAL)
 ]
 
 # AoE stuff
@@ -399,14 +433,11 @@ untargetableEmoji = uniqueEmoji('<:untargetable:899610264998125589>')
 ShushyCustomIcons = [881900244487516180]
 LenaCustomIcons = [881632520830087218, 881633183425253396]
 
-stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624, 953212496930562098, 1006418791669956698, 1025301457458704385,1102510147848380427]
+stuffIconGuilds = [866782432997015613, 878720670006132787, 887756868787769434, 887846876114739261, 904164080204513331,908551466988486667, 914608569284964392, 922684334010433547, 928202839136825344, 933783830341484624, 953212496930562098, 1006418791669956698, 1025301457458704385,1102510147848380427,1189893832133840966]
 weaponIconGuilds = [866363139931242506, 878720670006132787, 887756868787769434, 938379180851212310, 887846876114739261, 916120008948600872, 911731670972002374, 989526511285571614, 938379180851212310]
 
 # For some time related stuff. Time from server != time from France
-if not(os.path.exists("../Kawi")):
-    horaire = timedelta(hours=1)
-else:
-    horaire = timedelta(hours=0)
+
 
 # Are we on the livebot or the test bot ?
 isLenapy = not(os.path.exists("../Kawi"))
@@ -420,14 +451,6 @@ skillGroupNames = ["neutre", "divine", "démoniaque"]
 COUNTERPOWER = 35
 
 shopRepatition = [4, 5, 8, 3]                 # Shop's item category length
-if datetime.now().month == 9:
-    cpShopRandomMsg = shopRandomMsg[:]
-    for cmpt in range(len(cpShopRandomMsg)):
-        if "{feli}" in cpShopRandomMsg[cmpt]:
-            try:
-                shopRandomMsg.remove(cpShopRandomMsg[cmpt])
-            except:
-                pass
 
 # Same, but for the roll command
 rollMessage = ["Selon toute vraisemblance ce sera un **{0}**", "Puisse la chance être avec toi... **{0}** !", "Alors Alice tu as obtenu combien ? **{0}** ? **{0}** alors","Sur 100, les chances que la relation Akrisk tienne debout ? Hum... **{0}**", "Le nombre de lances que tu va avoir à esquiver est... **{0}**"]
@@ -975,7 +998,7 @@ procurTempStuff = {
         ["Casque de la neko de la lueur ultime", 'ilianaPreHead','<:zenithHead:913170464581484554>'],
         ["Armure de la neko de la lueur ultime", 'ilianaPreArmor','<:zenithArmor:913170492452646922>'],
         ["Sorolets de la neko de la lueur ultime", 'ilianaPreBoots','<:zenithBoots:913170512564334623>'],
-        [[0.2,0.1],[1,2.5],[1,3],[0.5,0.9],[1.2,0.7],[3,0.05],[5,0.05],[1.0,0.15],[1,0.03],[1,0]]
+        [[0.2,0.1],[2,2.5],[1,3],[0.5,0.9],[1.2,0.7],[3,0.05],[5,0.05],[1.0,0.2],[1,0.03],[1,0]]
     ],
     "Clémence Exaltée":[500,
         ["Boucles d'oreilles runiques","clemRune",'<:clemEarRings:920297359848636458>'],
@@ -993,12 +1016,14 @@ procurTempStuff = {
         ["Masque de démon renard","liaExHat",'<:liaMask:1012669701068968026>'],
         ["Robe des vents",'liaExDress','<:vert:928200434278100992>'],
         ["Sandales des vents","liaExShoes",'<:sandalGreen:928203305052696616>'],
-        [[0.1,0.01],[0.7,0.5],[1,1.2],[2,1.2],[1,1.2],[0.5,1],[1,1.15],[0.2,0.35],[0.1,0.3],[0,0]]
+        [[0.1,0.01],[0.7,0.5],[1,1.2],[2,1.2],[1,1.2],[0.5,1],[1,1.15],[0.2,0.35],[0.1,0.5],[0,0]]
     ]
 }
 
 alphaTabl=["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]
 def getAutoId(id:str,reverse=False):
+    if type(id) != str:
+        id = id.id
     idTabl = []
     for letter in id:
         idTabl.append(letter)
@@ -1371,13 +1396,13 @@ def reduceEmojiNames(string:str) -> str:
                 emojiName = emojiName + a
     return toReturn
 
-NPC_UNDEAD, NPC_FAIRY, NPC_DRYADE, NPC_HOLY, NPC_KITSUNE, NPC_GOLEM, NPC_UNFORM, NPC_DEMON, NPC_MARINE, NPC_SALMON, NPC_OCTARIAN, NPC_GLYPHIQUE = tuple(range(12))
-npcTeamNames = ["Mort-Vivant","Féérique","Dryade","Divin","Kitsune","Golem","Aformité","Démon","Marine","Salmonoïde","Octarien","Glyphide"]
-npcTeamEmojis = ["<:squeleton:1034363693724610580>","<:brume:1058843224933933096>","<:gardeSilvestre:1023609768427925594>","<:dvin:1004737746377654383>","","","","<:dmon:1004737763771433130>","","<:smallFry:1127173673162387476>","","<:glyphidGrunt:1127174330216886312>","","","","","","","",""]
+NPC_UNDEAD, NPC_FAIRY, NPC_DRYADE, NPC_HOLY, NPC_KITSUNE, NPC_GOLEM, NPC_UNFORM, NPC_DEMON, NPC_MARINE, NPC_SALMON, NPC_OCTARIAN, NPC_GLYPHIQUE, NPC_BOMB, NPC_SPIDER = tuple(range(14))
+npcTeamNames = ["Mort-Vivant","Féérique","Dryade","Divin","Kitsune","Golem","Aformité","Démon","Marine","Salmonoïde","Octarien","Glyphide","Bombe"]
+npcTeamEmojis = ["<:squeleton:1034363693724610580>","<:brume:1058843224933933096>","<:gardeSilvestre:1023609768427925594>","<:dvin:1004737746377654383>","","","","<:dmon:1004737763771433130>","","<:smallFry:1127173673162387476>","","<:glyphidGrunt:1127174330216886312>","<:neutralbombR:1155485124142563390>","","","","","","",""]
 UNDEAD_WEAKNESS, FAIRYMAGICRESIST = 20, 10
 npcTeamDesc = [
     "Augmente les dégâts reçus des compétences {0} __Divines__ de **{1}%**".format("<:dvin:1004737746377654383>",UNDEAD_WEAKNESS),
-    "Réduit les dégâts {4}{0} __Directs Magiques__ reçus de **{1}%** mais augmente d'autant les dégâts {2}{3} __Indirectes Force__ reçus".format("<:magic:1012308871525699604>",FAIRYMAGICRESIST,"<:indirect:1012309203249004614>","<:strength:1012308654780850267>","<:direct:1012309179245019177>"),
+    "Réduit les dégâts {4}{0} __Directs Magiques__ reçus de **{1}%** mais augmente d'autant les dégâts {2}{3} __Indirectes Force__ reçus".format(statsEmojis[MAGIE],FAIRYMAGICRESIST,statsEmojis[ACT_INDIRECT_FULL],statsEmojis[STRENGTH],statsEmojis[ACT_DIRECT_FULL]),
     "",
     "Augmente les dégâts reçus des compétences {0} __Démoniaques__ de **{1}%**".format("<:dmon:1004737763771433130>",UNDEAD_WEAKNESS),
     "Vulnérable aux {0} __Faiblesses élémentaires__".format("<:univ:936302039456165898>"),
@@ -1388,3 +1413,44 @@ npcTeamDesc = [
     "",
     ""
     ]
+
+WAKFUMAXLEVEL = 230
+
+if not(os.path.exists("./data/database/shopMsg.json")):
+    print("shopMsg.json not found")
+    os.umask(0)
+    f, r = open(os.getcwd() + '/data/database/shopMsg.json',mode="wb"), requests.get("https://raw.githubusercontent.com/lenaEla/LenapyShopMsg/main/shopMsg.json")
+    f.write(r.content)
+    f.close()
+    print("> - Download Complete")
+
+elif not(os.path.exists("../Kawi")) or 0:
+    print("Downloading ShopMsg.json...")
+    r, f = requests.get("https://raw.githubusercontent.com/lenaEla/LenapyShopMsg/main/shopMsg.json"), open( os.getcwd() + '/data/database/shopMsg.json',mode="wb")
+    f.write(r.content)
+    f.close()
+    print("> - Download Complete")
+
+shomMsgJsonFile = open("./data/database/shopMsg.json","r",encoding="utf8")
+shopMsgJson = json.load(shomMsgJsonFile)
+shopRandomMsg, shopEventEndYears, shopEventOneDay, shopMonthlyMsg, singingShopMsg, shopLastMonthlyMsg, lenaTipsMsgTabl = shopMsgJson["shopPermaRdmMsg"], shopMsgJson["shopEventEndYears"], shopMsgJson["shopEventOneDay"], shopMsgJson["shopMonthlyMsg"], shopMsgJson["singingShopMsg"], shopMsgJson["shopLastMonthlyMsg"], shopMsgJson["lenaTips"]
+for cmpt in range(len(shopLastMonthlyMsg)):
+    for cmpt2 in range(len(shopLastMonthlyMsg[cmpt])):
+        if not(shopLastMonthlyMsg[cmpt][cmpt2].startswith("[") and shopLastMonthlyMsg[cmpt][cmpt2].endswith("[")):
+            shopLastMonthlyMsg[cmpt][cmpt2] = ["[",""][shopLastMonthlyMsg[cmpt][cmpt2].startswith("[")] + shopLastMonthlyMsg[cmpt][cmpt2] + ["]",""][shopLastMonthlyMsg[cmpt][cmpt2].endswith("]")]
+
+akiaSays = says(
+    "Je suppose qu'il faut quelqu'un pour faire un remplacement.",
+    "Désactivation du limiteur.",
+    "CPU à 300%. Températeur annormalement élevée, mais conformément aux estimations.",
+    "Processus tué avec succès.",
+    "Le CPU a cessé de répondre.",
+    "Merci.",
+    "Résultat du combat : Succès.","Résultat du combat : Succès.","Résultat du combat : Echec.","Résultat du combat : Succès.","Résultat du combat : Succès.","Résultat du combat : Echec.",
+    "Activation des programmes d'isolement de la menace.",
+    "Score de style de {caster} anormalement élevé.","Réponse du module de réaction : Frustration niveau 2.","Chances de victoires reconsidérées à la hausse.","Un premier pas vers le succes.","Réduction des chances de succès...",
+    "Niveau de puissance estimé au dessus du niveau 9000.","Niveau de puissance estimé au dessus du niveau 9000.","Constatation : L'ennemi a encaissé l'attaque","Constatation : Echec de l'attaque","Dégâts détectés...","Maneuvre d'esquive réalisée avec succès.",
+    "Merci."
+)
+
+Embed

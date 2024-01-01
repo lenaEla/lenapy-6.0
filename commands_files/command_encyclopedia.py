@@ -9,10 +9,11 @@ from commands_files.command_inventory import *
 
 ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL, ENC_ALLIES, ENC_ENEMIES, ENC_BOSS, ENC_LOCKED, ENC_ACHIV = tuple(range(10))
 
-async def encylopedia(bot : interactions.Client, ctx : interactions.CommandContext, destination : int, user : char):
+async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext, destination : int, user : char):
     """The main function for the encyclopedia command"""
 
     def check(m):
+        m = m.ctx
         return m.author.id == ctx.author.id and m.message.id == msg.id
 
     msg = None
@@ -39,61 +40,61 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
     while 1:
         destOptions = []
         for a in range(0,len(opValues)):
-            destOptions+=[interactions.SelectOption(label=fullValue[a],value=opValues[a],emoji=getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[destination])]
+            destOptions+=[interactions.StringSelectOption(label=fullValue[a],value=opValues[a],emoji=getEmojiObject(valueIcon[a]),default=opValues[a]==opValues[destination])]
 
-        destSelect = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "destoptions", options=destOptions)])
+        destSelect = interactions.ActionRow(interactions.StringSelectMenu(destOptions,custom_id = "destoptions"))
 
         # The options for the filter menu. Change with the selected destination
         options = [
-            interactions.SelectOption(label="Ordre Alphabétique ↓",value="0",emoji=Emoji(name='🇦'),default=0==tri),
-            interactions.SelectOption(label="Ordre Alphabétique ↑",value="1",emoji=Emoji(name='🇿'),default=1==tri)
+            interactions.StringSelectOption(label="Ordre Alphabétique ↓",value="0",emoji=PartialEmoji(name='🇦'),default=0==tri),
+            interactions.StringSelectOption(label="Ordre Alphabétique ↑",value="1",emoji=PartialEmoji(name='🇿'),default=1==tri)
         ]
 
         if destination in [ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL]:
             options += [
-            interactions.SelectOption(label="Possédé",value="2",emoji=Emoji(name='🔓'),default=2==tri),
-            interactions.SelectOption(label="Non possédé",value="3",emoji=Emoji(name='🔒'),default=3==tri)
+            interactions.StringSelectOption(label="Possédé",value="2",emoji=PartialEmoji(name='🔓'),default=2==tri),
+            interactions.StringSelectOption(label="Non possédé",value="3",emoji=PartialEmoji(name='🔒'),default=3==tri)
             ]
         
         if destination in [ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP]:
             options+=[
-                interactions.SelectOption(label="Force",value="4",emoji=getEmojiObject(statsEmojis[0]),default=4==tri),
-                interactions.SelectOption(label="Endurance",value="5",emoji=getEmojiObject(statsEmojis[1]),default=5==tri),
-                interactions.SelectOption(label="Charisme",value='6',emoji=getEmojiObject(statsEmojis[2]),default=6==tri),
-                interactions.SelectOption(label="Agilité",value="7",emoji=getEmojiObject(statsEmojis[3]),default=7==tri),
-                interactions.SelectOption(label="Précision",value="8",emoji=getEmojiObject(statsEmojis[4]),default=8==tri),
-                interactions.SelectOption(label="Intelligence",value="9",emoji=getEmojiObject(statsEmojis[5]),default=9==tri),
-                interactions.SelectOption(label="Magie",value="10",emoji=getEmojiObject(statsEmojis[6]),default=10==tri),
-                interactions.SelectOption(label="Résistance",value="11",emoji=getEmojiObject(statsEmojis[7]),default=11==tri),
-                interactions.SelectOption(label="Pénétration",value="12",emoji=getEmojiObject(statsEmojis[8]),default=12==tri),
-                interactions.SelectOption(label="Critique",value="13",emoji=getEmojiObject(statsEmojis[9]),default=13==tri)]
+                interactions.StringSelectOption(label="Force",value="4",emoji=getEmojiObject(statsEmojis[0]),default=4==tri),
+                interactions.StringSelectOption(label="Endurance",value="5",emoji=getEmojiObject(statsEmojis[1]),default=5==tri),
+                interactions.StringSelectOption(label="Charisme",value='6',emoji=getEmojiObject(statsEmojis[2]),default=6==tri),
+                interactions.StringSelectOption(label="Agilité",value="7",emoji=getEmojiObject(statsEmojis[3]),default=7==tri),
+                interactions.StringSelectOption(label="Précision",value="8",emoji=getEmojiObject(statsEmojis[4]),default=8==tri),
+                interactions.StringSelectOption(label="Intelligence",value="9",emoji=getEmojiObject(statsEmojis[5]),default=9==tri),
+                interactions.StringSelectOption(label="Magie",value="10",emoji=getEmojiObject(statsEmojis[6]),default=10==tri),
+                interactions.StringSelectOption(label="Résistance",value="11",emoji=getEmojiObject(statsEmojis[7]),default=11==tri),
+                interactions.StringSelectOption(label="Pénétration",value="12",emoji=getEmojiObject(statsEmojis[8]),default=12==tri),
+                interactions.StringSelectOption(label="Critique",value="13",emoji=getEmojiObject(statsEmojis[9]),default=13==tri)]
 
         elif destination == ENC_SKILL:
             options += [
-                interactions.SelectOption(label="Dégâts",value="14",emoji=getEmojiObject(statsEmojis[ACT_DIRECT_FULL]),default=tri==14),
-                interactions.SelectOption(label="Dégâts indirects",value="15",emoji=getEmojiObject(statsEmojis[ACT_INDIRECT_FULL]),default=tri==15),
-                interactions.SelectOption(label="Soins",value="16",emoji=getEmojiObject(statsEmojis[ACT_HEAL_FULL]),default=tri==16),
-                interactions.SelectOption(label="Armure",value="17",emoji=getEmojiObject(statsEmojis[ACT_SHIELD_FULL]),default=tri==17),
-                interactions.SelectOption(label="Boost",value='18',emoji=getEmojiObject(statsEmojis[ACT_BOOST_FULL]),default=tri==18),
-                interactions.SelectOption(label="Malus",value="19",emoji=getEmojiObject(statsEmojis[ACT_BOOST_FULL]),default=tri==19),
-                interactions.SelectOption(label="Invocation",value="20",emoji=getEmojiObject("<:sprink1:887747751339757599>"),default=tri==20),
-                interactions.SelectOption(label="Passif",value="21",emoji=getEmojiObject("<:stratageme:937370395605086229>"),default=tri==21)
+                interactions.StringSelectOption(label="Dégâts",value="14",emoji=getEmojiObject(statsEmojis[ACT_DIRECT_FULL]),default=tri==14),
+                interactions.StringSelectOption(label="Dégâts indirects",value="15",emoji=getEmojiObject(statsEmojis[ACT_INDIRECT_FULL]),default=tri==15),
+                interactions.StringSelectOption(label="Soins",value="16",emoji=getEmojiObject(statsEmojis[ACT_HEAL_FULL]),default=tri==16),
+                interactions.StringSelectOption(label="Armure",value="17",emoji=getEmojiObject(statsEmojis[ACT_SHIELD_FULL]),default=tri==17),
+                interactions.StringSelectOption(label="Boost",value='18',emoji=getEmojiObject(statsEmojis[ACT_BOOST_FULL]),default=tri==18),
+                interactions.StringSelectOption(label="Malus",value="19",emoji=getEmojiObject(statsEmojis[ACT_BOOST_FULL]),default=tri==19),
+                interactions.StringSelectOption(label="Invocation",value="20",emoji=getEmojiObject("<:sprink1:887747751339757599>"),default=tri==20),
+                interactions.StringSelectOption(label="Passif",value="21",emoji=getEmojiObject("<:stratageme:937370395605086229>"),default=tri==21)
             ]
 
         elif destination in [ENC_ALLIES, ENC_ENEMIES, ENC_BOSS]:
             options += [
-                interactions.SelectOption(label="DPT - Mêlée",value="21",emoji=getEmojiObject('<:sworddance:894544710952173609>'),default=tri==21),
-                interactions.SelectOption(label="DPT - Distance",value="22",emoji=getEmojiObject('<:preciseShot:916561817969500191>'),default=tri==22),
-                interactions.SelectOption(label="Supports",value="23",emoji=getEmojiObject('<:alice:893463608716062760>'),default=tri==23),
-                interactions.SelectOption(label="Soigneur / Armuriers",value="24",emoji=getEmojiObject('<:absorb:971788658782928918>'),default=tri==24),
+                interactions.StringSelectOption(label="DPT - Mêlée",value="21",emoji=getEmojiObject('<:sworddance:894544710952173609>'),default=tri==21),
+                interactions.StringSelectOption(label="DPT - Distance",value="22",emoji=getEmojiObject('<:preciseShot:916561817969500191>'),default=tri==22),
+                interactions.StringSelectOption(label="Supports",value="23",emoji=getEmojiObject('<:alice:893463608716062760>'),default=tri==23),
+                interactions.StringSelectOption(label="Soigneur / Armuriers",value="24",emoji=getEmojiObject('<:absorb:971788658782928918>'),default=tri==24),
             ]
         elif destination in [ENC_ACHIV]:
             options += [
-            interactions.SelectOption(label="Terminés",value="14",emoji=Emoji(name='🔓'),default=13==tri),
-            interactions.SelectOption(label="Non terminés",value="15",emoji=Emoji(name='🔒'),default=14==tri)
+            interactions.StringSelectOption(label="Terminés",value="14",emoji=PartialEmoji(name='🔓'),default=13==tri),
+            interactions.StringSelectOption(label="Non terminés",value="15",emoji=PartialEmoji(name='🔒'),default=14==tri)
             ]
 
-        sortOptions = interactions.SelectMenu(custom_id = "sortMenue=", options=options)
+        sortOptions = interactions.StringSelectMenu(options,custom_id = "sortMenue=")
     
         if needRemake:                          # The "TablToSee" generation
             tablToSee = []
@@ -213,7 +214,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
 
         firstOptions = []
         if page != 0:
-            firstOptions+=[interactions.SelectOption(label="Page précédente",value="return",emoji=Emoji(name="◀️"))]
+            firstOptions+=[interactions.StringSelectOption(label="Page précédente",value="return",emoji=PartialEmoji(name="◀️"))]
 
         if lenTabl != 0: # Génération des pages
             if destination <= ENC_SKILL or destination == ENC_LOCKED:
@@ -233,7 +234,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                     maxi = lenTabl
                 for a in tablToSee[(page)*10:maxi]:
                     mess += "{0}{1} __{2}__\n{3} {4}. | {5} |".format(a.icon,["",a.splashIcon][a.splashIcon!=None],a.name,aspiEmoji[a.aspiration],inspi[a.aspiration][0:3],a.weapon.emoji)
-                    firstOptions+=[interactions.SelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject([a.icon,a.splashIcon][a.splashIcon!=None]))]
+                    firstOptions+=[interactions.StringSelectOption(label=unhyperlink(a.name),value=a.name,emoji=getEmojiObject([a.icon,a.splashIcon][a.splashIcon!=None]))]
 
                     for b in a.skills:
                         if type(b) == skill:
@@ -288,32 +289,33 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
             mess = "Il n'y a rien à afficher dans cette catégorie"
 
         if page < maxPage:
-            firstOptions+=[interactions.SelectOption(label="Page suivante",value="next",emoji=Emoji(name="▶️"))]
+            firstOptions+=[interactions.StringSelectOption(label="Page suivante",value="next",emoji=PartialEmoji(name="▶️"))]
 
         if len(firstOptions) > 0:
-            firstSelect = interactions.SelectMenu(custom_id = "seeEquipPage", options=firstOptions,placeholder="Changez de page ou voir la page de l'équipement")
+            firstSelect = interactions.StringSelectMenu(firstOptions,custom_id = "seeEquipPage",placeholder="Changez de page ou voir la page de l'équipement")
         else:
-            firstSelect = interactions.SelectMenu(custom_id = "NothingToShow", options=[interactions.SelectOption(label="None",value="None")],placeholder="Cette catégorie n'a rien à afficher",disabled=True)
+            firstSelect = interactions.StringSelectMenu(interactions.StringSelectOption(label="None",value="None"),custom_id = "NothingToShow",placeholder="Cette catégorie n'a rien à afficher",disabled=True)
 
         emb = interactions.Embed(title="Encyclopédie",description=desc+"\n\n__Page **{0}** / {1} :__\n".format(page+1,maxPage+1)+mess,color=user.color)
 
         if msg == None:     # Send the message for the first loop
             try:
-                msg = await ctx.send(embeds=emb,components=[destSelect,interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])])
+                msg = await ctx.send(embeds=emb,components=[destSelect,interactions.ActionRow(sortOptions),interactions.ActionRow(firstSelect)])
             except:
-                msg = await ctx.channel.send(embeds=emb,components=[destSelect,interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])])
+                msg = await ctx.channel.send(embeds=emb,components=[destSelect,interactions.ActionRow(sortOptions),interactions.ActionRow(firstSelect)])
 
         else:
-            await msg.edit(embeds=emb,components=[destSelect,interactions.ActionRow(components=[sortOptions]),interactions.ActionRow(components=[firstSelect])])
+            await msg.edit(embeds=emb,components=[destSelect,interactions.ActionRow(sortOptions),interactions.ActionRow(firstSelect)])
 
         try:
             respond = await bot.wait_for_component(msg,check=check,timeout=180)
+            respond: ComponentContext = respond.ctx
         except:
             await msg.edit(embeds=emb,components=[])
             break
 
-        if respond.data.values[0].isdigit():
-            respond = int(respond.data.values[0])
+        if respond.values[0].isdigit():
+            respond = int(respond.values[0])
 
             if respond in [0,1]:
                 needRemake = True
@@ -350,7 +352,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
 
         else:
             inter: ComponentContext = respond
-            respond = respond.data.values[0]
+            respond = respond.values[0]
 
             if respond == "return":
                 page -= 1
@@ -364,12 +366,16 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                         needRemake = True
                         break
             elif destination in [0,1,2]:
+                await inter.defer()
                 await inter.send(embeds=infoStuff(findStuff(respond),user,ctx))
             elif destination == 3:
+                await inter.defer()
                 await inter.send(embeds=infoWeapon(findWeapon(respond),user,ctx))
             elif destination == 4:
+                await inter.defer()
                 await inter.send(embeds=infoSkill(findSkill(respond),user,ctx))
             elif destination == ENC_ALLIES:
+                await inter.defer()
                 lvl, tempMachin, addLvl = 50, None, 0
                 procurData = None
                 for procurName, procurStuff in procurTempStuff.items():
@@ -418,14 +424,14 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                     options, cmpt = [], 0
                     for stuffy in [ally.weapon]+ally.skills:
                         if type(stuffy) in [skill,weapon]:
-                            options.append(interactions.SelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
+                            options.append(interactions.StringSelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
                         cmpt+=1
-                    returnButton = interactions.ActionRow(components=[interactions.Button(style=1 ,label="Retour",custom_id="return")])
-                    select = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "seeMoreInfoMenue", options=options,placeholder="Voir plus d'informations sur les équipements")])
+                    returnButton = interactions.ActionRow(interactions.Button(style=1 ,label="Retour",custom_id="return"))
+                    select = interactions.ActionRow(interactions.StringSelectMenu(options,custom_id = "seeMoreInfoMenue",placeholder="Voir plus d'informations sur les équipements"))
                     lvlSelectOption = []
                     for a in range(1,6):
-                        lvlSelectOption.append(interactions.SelectOption(label="Niveau {0}".format(10*a),value="lvl_{0}".format(10*a+addLvl),default=lvl==10*a))
-                    lvlSelect = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "selectLvlMenu", options=lvlSelectOption,placeholder="Choisir un niveau")])
+                        lvlSelectOption.append(interactions.StringSelectOption(label="Niveau {0}".format(10*a),value="lvl_{0}".format(10*a+addLvl),default=lvl==10*a))
+                    lvlSelect = interactions.ActionRow(interactions.StringSelectMenu(lvlSelectOption,custom_id = "selectLvlMenu",placeholder="Choisir un niveau"))
                     emb = infoAllie(ally)
 
                     if ally.changeDict != None:
@@ -434,10 +440,10 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                             emo = getEmojiObject(aspiEmoji[ally.aspiration])
                             if chDict.aspiration != None:
                                 emo = getEmojiObject(aspiEmoji[chDict.aspiration])
-                            optionChDict.append(SelectOption(label="Build Alternatif {0}".format(cmpt+1),value="altBuild_{0}".format(cmpt),emoji=emo))
+                            optionChDict.append(StringSelectOption(label="Build Alternatif {0}".format(cmpt+1),value="altBuild_{0}".format(cmpt),emoji=emo))
                             cmpt += 1
 
-                        chDictSelect = [ActionRow(components=[SelectMenu(custom_id="chDictSelect",options=optionChDict,placeholder="Voir un build alternatif")])]
+                        chDictSelect = [ActionRow(StringSelectMenu(optionChDict,custom_id="chDictSelect",placeholder="Voir un build alternatif"))]
                     else:
                         chDictSelect = []
                     if tempMachin == None:
@@ -449,21 +455,22 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                     else:
                         await tempMachin.edit(embeds=emb,components=[returnButton,select,lvlSelect]+chDictSelect)
                     try:
-                        resp2: ComponentContext = await bot.wait_for_component(messages=tempMachin,timeout=60)
+                        resp2 = await bot.wait_for_component(messages=tempMachin,timeout=60)
+                        resp2: ComponentContext = resp2.ctx
                     except:
                         await tempMachin.edit(embeds=emb,components=[])
                         break
                     try:
-                        if resp2.data.component_type == ComponentType.BUTTON:
+                        if resp2.component_type == ComponentType.BUTTON:
                             await tempMachin.delete()
                             break
-                        elif resp2.data.values[0].startswith("lvl_"):
-                            lvl = int(resp2.data.values[0][4:])
-                        elif resp2.data.values[0].startswith("altBuild_"):
-                            altBuildNb = int(resp2.data.values[0].replace("altBuild_",""))
+                        elif resp2.values[0].startswith("lvl_"):
+                            lvl = int(resp2.values[0][4:])
+                        elif resp2.values[0].startswith("altBuild_"):
+                            altBuildNb = int(resp2.values[0].replace("altBuild_",""))
                         else:
                             tablStuff = [ally.weapon]+ally.skills
-                            obj = tablStuff[int(resp2.data.values[0])]
+                            obj = tablStuff[int(resp2.values[0])]
                             if type(obj) == weapon:
                                 await resp2.send(embeds=infoWeapon(obj,user,ctx))
                             elif type(obj) == skill:
@@ -475,27 +482,29 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                         await resp2.send("Une erreur est survenue lors de l'affichage de l'objet :\n{0}".format(e))
 
             elif destination in [6,7]:
+                await inter.defer()
                 options = []
                 ennemi = findEnnemi(respond)
                 cmpt = 0
                 for stuffy in [ennemi.weapon]+ennemi.skills:
                     if type(stuffy) in [skill,weapon]:
-                        options.append(interactions.SelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
+                        options.append(interactions.StringSelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
                     cmpt+=1
 
-                returnButton = interactions.Button(type=2, style=1,label="Retour",custom_id="return")
-                select = interactions.SelectMenu(custom_id = "seeMoreInfoMenue", options=options,placeholder="Voir plus d'informations sur les équipements")
+                returnButton = interactions.Button(style=1,label="Retour",custom_id="return")
+                select = interactions.StringSelectMenu(options,custom_id = "seeMoreInfoMenue",placeholder="Voir plus d'informations sur les équipements")
 
-                tempMachin = await inter.send(embeds=infoEnnemi(ennemi),components=[interactions.ActionRow(components=[returnButton]),interactions.ActionRow(components=[select])])
+                tempMachin = await inter.send(embeds=infoEnnemi(ennemi),components=[interactions.ActionRow(returnButton),interactions.ActionRow(select)])
 
                 while 1:
                     try:
                         resp2 = await bot.wait_for_component(messages=tempMachin,timeout=60)
+                        resp2: ComponentContext = resp2.ctx
                     except:
                         await tempMachin.edit(embeds=infoEnnemi(ennemi),components=[])
                         break
                     try:
-                        resp3 = int(resp2.data.values[0])
+                        resp3 = int(resp2.values[0])
                         tablStuff = [ennemi.weapon]+ennemi.skills
                         if type(tablStuff[resp3]) == weapon:
                             await resp2.send(embeds=infoWeapon(tablStuff[resp3],user,ctx))
@@ -509,6 +518,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.CommandConte
                         break
 
             elif destination == 8:
+                await inter.defer()
                 what = whatIsThat(respond)
                 if what == 0:
                     await inter.send(embeds=infoWeapon(findWeapon(respond),user,ctx))

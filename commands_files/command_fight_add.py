@@ -1,4 +1,4 @@
-import random, copy, interactions
+import random, copy, interactions, quickchart
 from interactions import *
 from adv import *
 from classes import *
@@ -9,19 +9,24 @@ from commands_files.achievement_handler import *
 from commands_files.alice_stats_endler import *
 from typing import Union, List
 
+HIGHLIGHTBOSS, HIGHLIGHTPURCENT, BOSSPURCENT = "Protecteur Glyphique",0,20
+STORYPURCENT, PROCURPURCENT = 5, 5
+
+RAIDPURCENT, RAIDHIGHLIGHTPURCENT, RAIDHIGHLIGHT = 10, 0,"Ailill"
+
 teamWinDB = dbHandler("teamVic.db")
 AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHANT = 0,1,2,3,4,5,6,7
 moveEmoji = ['⬅️','➡️','⬆️','⬇️']
-cancelButton = interactions.ActionRow(components=[interactions.Button(type=2,style=2,label="Retour",emoji=Emoji(name="◀️"),custom_id="return")])
-waitingSelect = interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "waitingSelect", options=[interactions.SelectOption(label="Veuillez prendre votre mal en patience",value="wainting...",emoji=Emoji(name='🕰️'),default=True)],disabled=True)])
+cancelButton = interactions.ActionRow(interactions.Button(style=2,label="Retour",emoji=PartialEmoji(name="◀️"),custom_id="return"))
+waitingSelect = interactions.ActionRow(interactions.StringSelectMenu(interactions.StringSelectOption(label="Veuillez prendre votre mal en patience",value="wainting...",emoji=PartialEmoji(name='🕰️'),default=True),custom_id = "waitingSelect",disabled=True))
 
 hiddenIcons = ['<:co:888746214999339068>','<:le:892372680777539594>','<:to:905169617163538442>','<:lo:887853918665707621>','<:co:895440308257558529>']+aspiEmoji
 
-altDanger = [65,70,70,70,75,75,80,80,85,85,90,90]
-
+altDanger = [65,70,70,70,75,75,80,80,85,90,100,100]
+dangerLevel = [70,75,80,80,90,90,90,100,110,120,135]
 HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.2
 BASEHP_PLAYER, BASEHP_ENNEMI, BASEHP_SUMMON, BASEHP_BOSS = 150, 120, 100, 600
-HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 20, 15, 10, 132
+HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 22, 15, 12, 155
 
 MELEE_END_CONVERT = 35
 END_NEEDED_10_INDRES, MAX_END_10_INDRES = 145, 35
@@ -31,6 +36,17 @@ statEmbedFieldNames = ["__Liste des effets :__","__Statistiques :__","<:em:86645
 
 tablAchivNpcName = ["Alice","Clémence","Akira","Gwendoline","Hélène","Icealia","Shehisa","Powehi","Félicité","Sixtine","Hina","Julie","Krys","Lio","Liu","Liz","Lia","Iliana","Stella","Kiku","Kitsune","Ailill","Altikia","Klironovia","Lia Ex","Iliana prê.","Anna","Belle","Clémence Exaltée","Luna ex.","Clémence pos.","Céleste","Shushi"]
 tablAchivNpcCode = ["alice","clemence","akira","gwen","helene","icea","sram","powehi","feli","sixtine","hina","julie","krys","lio","liu","liz","lia","light","stella","kiku1","momKitsune","ailill2","alty","klikli","liaEx","catEx","anna","belle","clemEx","luna","clemMem","celeste","shushi"]
+
+LIFESAVOREFF = [deterEff1.id,zelianR.id,healingTimeBombEff.id,lifeSeedEff.id]
+
+dictAllyToReplace = {
+    "Clémence pos.":["Clémence"],
+    "Luna ex.":["Luna","Lena"],
+    "Kiku":["Ly","Chûri","Céleste"],
+    "Akira H.":["Akira"],
+    "Iliana ex.":["Iliana"],
+    "Iliana OvL":["Iliana"]
+}
 
 tablIsNpcName = []
 for a in tablAllAllies + tablVarAllies + ["Liu","Lia","Liz","Lio","Ailill","Kiku","Stella","Séréna","OctoTour","Kitsune","The Giant Enemy Spider","[[Spamton Neo](https://deltarune.fandom.com/wiki/Spamton)]","Nacialisla","Luna ex.","Clémence pos."]:
@@ -94,7 +110,7 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
 
 def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActionStat = ACT_INDIRECT):
     damage, logs = basePower, "FIXE"
-    if use not in [None,FIXE,PURCENTAGE]:
+    if use not in [None,FIXE,PURCENTAGE,MISSING_HP]:
         if use != HARMONIE:
             stat = caster.allStats()[use]-[caster.negativeHeal, caster.negativeShield, caster.negativeBoost, caster.negativeDirect, caster.negativeIndirect][useActionStat]
         else:
@@ -103,19 +119,19 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
         if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
             stat += int(caster.endurance * MELEE_END_CONVERT/100)
 
-        effMultiplier = 100 + 5*int(not(caster.auto))
+        effMultiplier, dmgMul, elementMul = 100 + 5*int(not(caster.auto)), 1, 1
+        if caster.char.element in [ELEMENT_DARKNESS,ELEMENT_TIME,ELEMENT_UNIVERSALIS_PREMO,ELEMENT_FIRE,ELEMENT_AIR]:
+            elementMul += {ELEMENT_DARKNESS:DARKDMGBUFF*2,ELEMENT_TIME:TIMEDMGBUFF,ELEMENT_UNIVERSALIS_PREMO:DARKDMGBUFF*2,ELEMENT_FIRE:AREADMGBUFF,ELEMENT_AIR:AREADMGBUFF}[caster.char.element]/100
         for eff in caster.effects:
             if eff.effects.id == dmgUp.id:
                 effMultiplier += eff.effects.power
-            elif eff.effects.id in [dmgDown.id,indDealReducTmp.id]:
-                effMultiplier -= eff.effects.power
         for eff in target.effects:
-            if eff.effects.id in [vulne.id,kikuRaiseEff.id]:
-                effMultiplier += eff.effects.power
+            if eff.effects.id in [vulne.id]:
+                dmgMul = dmgMul*((100+eff.effects.power)/100)
             elif eff.effects.id == defenseUp.id:
-                effMultiplier -= eff.effects.power
+                dmgMul = dmgMul*((100-eff.effects.power)/100)
             elif eff.effects.inkResistance != 0:
-                effMultiplier -= eff.effects.inkResistance
+                dmgMul = dmgMul*((100+eff.effects.inkResistance)/100)
 
         effMultiplier -= min((target.endurance/END_NEEDED_10_INDRES*10),MAX_END_10_INDRES)
 
@@ -128,14 +144,23 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
         if (use==MAGIE and target.char.npcTeam in [NPC_FAIRY]):
             effMultiplier += FAIRYMAGICRESIST
 
+        effMultiplier = effMultiplier * elementMul
+
         dangerMul = [100, danger][caster.team == 1]
         lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
         if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
             lvlBonus = 2.5
-        damage = basePower * (1+(stat/100)) * (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * lvlBonus * effMultiplier/100 * dangerMul/100
+        damage = basePower * (1+(stat/100)) * (1-(min(95,target.resistance*(1-caster.percing/100))/100)) * lvlBonus * effMultiplier/100 * dmgMul * dangerMul/100
         logs = "{0} [basePower] * (1 + ( {1} [stats] / 100)) * {2} [targetResistance] * {3} [lvlBonus] * {4} [indDamMul] * {5} [dangerMul]".format(basePower,stat,round(1-(min(95,target.resistance*(1-caster.percing/100))/100),2),lvlBonus,effMultiplier/100,dangerMul/100)
     elif use in [PURCENTAGE]:
         damage = int(target.maxHp*basePower/100)
+    elif use in [MISSING_HP]:
+        damage = int((target.maxHp-target.hp)*basePower/100)
+        try:
+            if target.call.standAlone:
+                damage = round(damage/4)
+        except:
+            pass
     return damage, logs
 
 class timeline:
@@ -221,15 +246,16 @@ class timeline:
         return tablEntTeam, tablAliveInvoc, entDict
 
     def insert(self,entBefore,entToInsert):
-        found = False
+        found, whereToInsert = False, 1
         for cmpt in range(len(self.timeline)):
             if entBefore.id == self.timeline[cmpt].id and type(self.timeline[cmpt].char) not in [invoc, depl]:
-                whereToInsert = cmpt+1
-                break
-        
-        if not(found):
-            whereToInsert = 1
-        
+                for cmpt2 in range(len(self.timeline[cmpt+1:])):
+                    if self.timeline[cmpt+1:][cmpt2].id != entBefore.id and type(self.timeline[cmpt+1:][cmpt2].char) not in [invoc, depl]:
+                        whereToInsert, found = cmpt+cmpt2, True
+                        break
+                if found:
+                    break
+
         self.timeline.insert(whereToInsert,entToInsert)
 
 def map(tablAllCells,bigMap,showArea:List[cell]=[],fromEnt=None,wanted=None,numberEmoji=None,fullArea=[],deplTabl=[]):
@@ -410,7 +436,7 @@ def probCritDmg(ent) -> int:
 
 END_REQUIERD_FOR_30_CRIT = 350
 def probCritHeal(ent,target) -> int:
-    return (ent.precision/(PRE_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + (target.endurance/(END_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + ent.critical
+    return (ent.precision/((PRE_REQUIERD_FOR_30_CRIT-50)/50*max(15,ent.level)))*30 + (target.endurance/(END_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + ent.critical
 
 def calHealPower(ent,target,power,secElemMul,statUse,useActionStats,danger):
     if ent.team == 0:
@@ -468,6 +494,10 @@ def getRaiseAggro(caster,target):
 
     return 0
 
+getHpButton = Button(style=ButtonStyle.GRAY,label="Graphiques",emoji=getEmojiObject("<:ConfusedStonks:782072496693706794>"),custom_id="hpChart")
+getHpButtonD = copy.deepcopy(getHpButton)
+getHpButtonD.disabled=True
+
 async def getResultScreen(bot,ent) -> interactions.Embed:
     stats = ent.stats
     userIcon = await ent.getIcon(bot)
@@ -495,7 +525,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
 
     statsCatNames = ["__Statistiques offensives <:sg:968479144293855252> :__","<:em:866459463568850954>\n__Statistiques défensives <:re:989529323063107605> :__","<:em:866459463568850954>\n__Statistiques de soutiens <:fF:956715234842791937>  :__","<:em:866459463568850954>\n__Autres :__"]
 
-    pvRestant = "{0} ({1}%)".format(highlight(separeUnit(max(ent.hp,0))),round(max(ent.hp,0)/ent.maxHp*100,2))
+    pvRestant = "{0} / {2} ({1}%)".format(highlight(separeUnit(max(ent.hp,0))),round(max(ent.hp,0)/ent.maxHp*100,2),separeUnit(ent.maxHp))
     allStatsTabl = [
         {
             "Dégâts totaux infligés":ent.stats.damageDeal,
@@ -519,7 +549,7 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
         },
         {
             "{0} réamimés".format(["Combattants","Alliés"][not(ent.isNpc("Kiku"))]):ent.stats.allieResurected,
-            "Soins effectués":ent.stats.heals,
+            "Soins effectués":int(ent.stats.heals),
             "> - Vol de vie":ent.stats.lifeSteal,
             "Armures données":ent.stats.shieldGived,
             "> - Soins / Armures (Invoc./Depl.)":ent.stats.summonHeal,
@@ -562,3 +592,50 @@ class cellPath:
         self.path = tabl
         self.allReadyCheck = []
         self.movingAway = 0
+
+def formatKnockBack(listResult:List[dict], listEnt:List, knockbackPower: int) -> str:
+    allDict, listStuns, returnMsg = {}, {}, ""
+
+    for resultDict in listResult:
+        for ent, damage in resultDict.items():
+            try:
+                allDict[ent][0], allDict[ent][1] = allDict[ent][0]+damage[0], allDict[ent][1]+damage[1]
+                listStuns[ent] = listStuns[ent]+damage[2]
+            except KeyError:
+                allDict[ent] = [damage[0],damage[1]]
+                listStuns[ent] = damage[2]
+
+    for ent in listEnt:
+        returnMsg += "__{0}__".format(ent.name)
+        if len(listEnt) > 2:
+            if ent not in listEnt[-2:]:
+                returnMsg += ", "
+            elif ent == listEnt[-2]:
+                returnMsg += " et "
+        elif ent.id != listEnt[-1].id:
+            returnMsg += " et "
+
+
+    returnMsg += " {0} repoussé{1} de {2} case{3}".format(["est","sont"][len(listEnt)>1],["","s"][len(listEnt)>1],knockbackPower,["","s"][knockbackPower>1])
+
+    for ent, values in allDict.items():
+        returnMsg += "\n{0} → ".format(ent.icon)
+        for ent2 in values[0]:
+            if ent2.icon not in returnMsg:
+                returnMsg += ent2.icon
+        sumation = 0
+        for damage in values[1]:
+            sumation += damage
+        returnMsg += " -≈ {0} PV".format(round(sumation/len(values[1])))
+        try:
+            if (len(listStuns[ent])) > 0:
+                returnMsg += "\n{0} → ".format(ent.icon)
+                for ent2 in listStuns[ent]:
+                    returnMsg += ent2.icon
+                returnMsg += " + {0} __{1}__".format(lightStun.emoji[0][ent.team],lightStun.name)
+        except KeyError:
+            pass
+
+    return returnMsg + "\n"
+
+effListShowPower = [vulne.id,dmgUp.id,dmgDown.id,defenseUp.id,akikiSkill1Eff.id,incurable.id,armorGetMalus.id,healDoneBonus.id,absEff.id]

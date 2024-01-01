@@ -6,7 +6,7 @@ from gestion import *
 from advance_gestion import *
 from typing import List
 
-async def points(bot : interactions.Client, ctx : interactions.CommandContext, args : List[str], procuration = None, slashed = True):
+async def points(bot : interactions.Client, ctx : interactions.SlashContext, args : List[str], procuration = None, slashed = True):
     mainUser = loadCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof")
     listUserProcure = [mainUser]
     for a in mainUser.haveProcurOn:
@@ -45,6 +45,7 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
     await ctx.defer()
 
     def check(m):
+        m = m.ctx
         return m.author.id == ctx.author.id
 
     while 1:
@@ -52,8 +53,8 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
         if len(listUserProcure) > 0:
             procurOptions = []
             for a in listUserProcure:
-                procurOptions.append(interactions.SelectOption(label=a.name,value="user_{0}".format(a.owner),emoji=getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner,description=["{0} point{1} bonus restants".format(a.points,["","s"][a.points>1]),None][a.points==0]))
-            procurSelect = [interactions.ActionRow(components=[interactions.SelectMenu(custom_id = "procurSelect", options=procurOptions)])]
+                procurOptions.append(interactions.StringSelectOption(label=a.name,value="user_{0}".format(a.owner),emoji=getEmojiObject(await getUserIcon(bot,a)),default=a.owner == user.owner,description=["{0} point{1} bonus restants".format(a.points,["","s"][a.points>1]),None][a.points==0]))
+            procurSelect = [interactions.ActionRow(interactions.StringSelectMenu(procurOptions,custom_id = "procurSelect"))]
         else:
             procurSelect = []
         temp = user.allStats()
@@ -70,56 +71,56 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
 
         selectCatOptions = []
         for cmpt in range(MAGIE+1):
-            selectCatOptions.append(interactions.SelectOption(label=nameStats[cmpt],value=str(cmpt),emoji=getEmojiObject(statsEmojis[cmpt])))
+            selectCatOptions.append(interactions.StringSelectOption(label=nameStats[cmpt],value=str(cmpt),emoji=getEmojiObject(statsEmojis[cmpt])))
 
-        select = interactions.SelectMenu(custom_id = "selectACat", 
-            options=selectCatOptions,
+        select = interactions.StringSelectMenu(selectCatOptions,custom_id = "selectACat",
             placeholder=["Utiliser vos points bonus","Vous n'avez pas de points bonus à répartir"][user.points == 0],
             disabled=user.points == 0
         )
 
         selectCatOptions = []
         for cmpt in range(ACT_INDIRECT_FULL+1):
-            selectCatOptions.append(interactions.SelectOption(label=allStatsNames[cmpt] + " (Majeur)",value=str(cmpt),emoji=getEmojiObject(statsEmojis[cmpt])))
+            selectCatOptions.append(interactions.StringSelectOption(label=allStatsNames[cmpt] + " (Majeur)",value=str(cmpt),emoji=getEmojiObject(statsEmojis[cmpt])))
 
-        select2 = interactions.SelectMenu(custom_id = "selectACatMaj", 
-            options=selectCatOptions,
+        select2 = interactions.StringSelectMenu(selectCatOptions,custom_id = "selectACatMaj",
             placeholder=["Utiliser vos points majeurs","Vous n'avez pas de points majeurs à répartir"][user.majorPointsCount == 0],
             disabled=user.majorPointsCount == 0
         )
         emb = interactions.Embed(title = args[0],color = user.color,description = f"Vous avez {user.points} points et {user.majorPointsCount} points majeurs à répartir.\nQuand quelle catégorie voulez vous les rajouter ?\n{msgTemp}\n(Vous ne pouvez placer que {MAXBONUSPERSTAT} points bonus par catégorie)")
         emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id))
         if msg == None:
-            msg = await ctx.send(embeds = emb,components=procurSelect+[[interactions.ActionRow(components=[select]),interactions.ActionRow(components=[select2])],[interactions.ActionRow(components=[select])]][user.stars == 0])
+            msg = await ctx.send(embeds = emb,components=procurSelect+[[interactions.ActionRow(select),interactions.ActionRow(select2)],[interactions.ActionRow(select)]][user.stars == 0])
         else:
-            await msg.edit(embeds = emb,components=procurSelect+[[interactions.ActionRow(components=[select]),interactions.ActionRow(components=[select2])],[interactions.ActionRow(components=[select])]][user.stars == 0])
+            await msg.edit(embeds = emb,components=procurSelect+[[interactions.ActionRow(select),interactions.ActionRow(select2)],[interactions.ActionRow(select)]][user.stars == 0])
 
         try:
             respond = await bot.wait_for_component(msg,timeout=60,check=check)
+            respond: ComponentContext = respond.ctx
         except:
             await msg.edit(embeds = emb,components=[])
             return 0
 
         ballerine = respond
 
-        if ballerine.data.values[0].startswith('user_'):
-            pathUserProfile = "./userProfile/{0}.prof".format(respond.data.values[0].replace("user_",""))
+        if ballerine.values[0].startswith('user_'):
+            pathUserProfile = "./userProfile/{0}.prof".format(respond.values[0].replace("user_",""))
         else:
-            respond = int(ballerine.data.values[0])
+            respond = int(ballerine.values[0])
             temp = user.allStats()
 
-            if ballerine.data.custom_id == "selectACat":
+            if ballerine.custom_id == "selectACat":
                 stat = temp[respond]
                 trueStat = stat-user.bonusPoints[respond]
                 dif = user.bonusPoints[respond]
                 if dif < MAXBONUSPERSTAT:
                     def checkIsAuthor(message: interactions.Message):
-                        return int(message.channel_id) == int(ctx.channel_id) and int(message.author.id) == int(ctx.author.id)
+                        message: interactions.Message = message.message
+                        return int(message.channel.id) == int(ctx.channel_id) and int(message.author.id) == int(ctx.author.id)
 
                     babie, resp = await ballerine.send(embeds = interactions.Embed(title = f"__/stats__ : {nameStats[respond]}", color = user.color, description = f"__{nameStats[respond]} :__ {trueStat} *+{dif}*\n\nCombien de points voulez vous rajouter ?\nPour rappel, vous avez {user.points} points bonus à votre disposition.")), None
                     try:
-                        resp: interactions.Message = await bot.wait_for("on_message_create",timeout=60,check=checkIsAuthor)
-                        resp = await get(bot, interactions.Message, object_id=int(resp.id), parent_id=int(resp.channel_id))
+                        resp: interactions.Message = await bot.wait_for("on_message_create",timeout=60,checks=checkIsAuthor)
+                        resp: Message = resp.message
                     except asyncio.TimeoutError:
                         await babie.delete()
 
@@ -158,8 +159,8 @@ async def points(bot : interactions.Client, ctx : interactions.CommandContext, a
                     def check1(message):
                         return message.author.id == int(ctx.author.id)
 
-                    conf = interactions.Button(type=2, style=ButtonStyle.SUCCESS,label="Utiliser votre point majeur",emoji=Emoji(name='✅'),custom_id='✅')
-                    await msg.edit(embeds=interactions.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond],[10,MAJORBONUS][respond not in [RESISTANCE,PERCING,CRITICAL]])),components=[interactions.ActionRow(components=[conf])])
+                    conf = interactions.Button(style=ButtonStyle.SUCCESS,label="Utiliser votre point majeur",emoji=PartialEmoji(name='✅'),custom_id='✅')
+                    await msg.edit(embeds=interactions.Embed(title="__/points__ : {0}".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format((nameStats+nameStats2+["Soins","Boost","Armure","Direct","Indirect"])[respond],[10,MAJORBONUS][respond not in [RESISTANCE,PERCING,CRITICAL]])),components=[interactions.ActionRow(conf)])
                     try:
                         await bot.wait_for_component(msg,check=check1,timeout=60)
                     except:

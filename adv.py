@@ -62,6 +62,10 @@ fairyBomb.effects[0].callOnTrigger.power = int(fairyBomb.effects[0].callOnTrigge
 hemoBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect(bleeding.id))
 hemoBomb.effects[0].callOnTrigger.power = fairyBomb.effects[0].callOnTrigger.power//2
 
+starDustNeutralCard = copy.deepcopy(neutralCard)
+starDustNeutralCard.turnInit = 1
+starDust.effectAroundCaster = [TYPE_BOOST,AREA_CIRCLE_2,starDustNeutralCard]
+
 def findOther(otherId : Union[str,other]) -> Union[other,None]:
     if type(otherId) == other:
         return otherId
@@ -155,7 +159,7 @@ def seeAllStuffAtMinLvl(level:int):
 # Stuff verifications ===========================================================================
 if not(isLenapy):
     print("=============================\nVérification de l'équilibrage des stuffs...")
-    print("Nombre d'équipements : ", len(stuffs))
+    print("Nombre d'équipements :", len(stuffs))
     allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for a in stuffs:
         if a.effects == None or (a.effects != None and findEffect(a.effects).id != summonerMalus.id):
@@ -241,22 +245,42 @@ if not(isLenapy):
         #print("Nombre d'ennemis en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
         pass
 
-    for weap in weapons:
-        summation = 0
-        for stats in weap.allStats()+[weap.resistance,weap.percing,weap.critical]:
-            if stats < 0:
-                print("{0} : Stat négative détectée !".format(weap.name))
-            else:
-                summation += stats
 
-        toVerif = 30
-        if weap.effects != None or weap.effectOnUse != None:
-            toVerif = 15
-
-        if int(summation) != int(toVerif):
-            print("{0} : Cumule de stats non égal à {1} ({2} / {1})".format(weap.name,toVerif,summation))
     print("Vérification de l'équilibrage des stuffs terminée\n=============================")
 
+nbAdjustedWeap = 0
+for weap in weapons:
+    summation = 0
+    for stats in weap.allStats()+[weap.resistance,weap.percing,weap.critical]:
+        summation += stats
+
+    toVerif = 50
+    if weap.effects != None or weap.effectOnUse != None:
+        toVerif -= 20
+
+    if int(summation) != int(toVerif):
+        print("{0} : Cumule de stats non égal à {1} ({2} / {1})".format(weap.name,toVerif,summation))
+    if weap.type == TYPE_DAMAGE and weap.power != 0 and weap.accuracy != 0 and not(weap.ignoreAutoVerif):
+        expectation = 60 - {RANGE_MELEE:0,RANGE_DIST:10,RANGE_LONG:20}[weap.range]
+
+        if weap.area != AREA_MONO:
+            expectation = expectation * 0.7
+        if weap.effects != None or weap.effectOnUse != None:
+            if weap.id not in ["ob"]:
+                expectation = expectation * 0.8
+            else:
+                expectation = expectation * 0.9
+        expectation = int(expectation)
+
+        weapAccu = weap.accuracy/100
+        reality = int(weap.power * weap.repetition * weapAccu)
+        if reality != expectation:
+            suggest = int(expectation / (weap.repetition * weapAccu))
+            if suggest != weap.power:
+                #print("{0} : Expected {1} finalPower, got {2}. Suggested basePower : {3}\n> Base Power : {4}, Accuracy : {5}".format(weap.name,expectation,reality,suggest,weap.power,weap.accuracy))
+                weap.power, nbAdjustedWeap = suggest, nbAdjustedWeap+1
+if nbAdjustedWeap > 0:
+    print("> Puissance de {0} armes auto ajustée".format(nbAdjustedWeap))
 """listObjWithNoOrientation = []
 for obj in stuffs:
     if obj.orientation == "Neutre":
@@ -269,7 +293,7 @@ for obj in stuffs:
 """
 
 if not(isLenapy):
-    allReadySeen = []
+    allReadySeen, allReadySeenName = [],[]
     for obj in stuffs+weapons+skills+others:
         if obj.id not in allReadySeen:
             allReadySeen.append(obj.id)
@@ -279,6 +303,15 @@ if not(isLenapy):
                 if whaty.id == obj.id:
                     what += whaty.name + ", "
             raise Exception("Identifiant doublon : {0}({1})".format(what,obj.id))
+        if obj.name.lower() not in allReadySeenName:
+            allReadySeenName.append(obj.name.lower())
+        else:
+            what = obj.id
+            for whaty in stuffs+weapons+skills+others:
+                if whaty.name.lower() == obj.name.lower() and whaty.id != obj.id:
+                    what += ", {0}".format(whaty.id)
+            raise Exception("Nom doublon : {0} ({1})".format(obj.name,what))
+    del allReadySeen, allReadySeenName
 
 #print(seeSimilarStuffNameMinLvl("papillon rose"))
 #print(seeAllStuffAtMinLvl(0))
@@ -300,20 +333,6 @@ for obj in skills+tablVarAllies+tablUniqueEnnemies+tablBoss+tablBossPlus+tablRai
         for ski in obj.skills:
             if type(ski) == skill:
                 tablToSee.append(ski)
-
-    for ski in tablToSee:
-        effToSee = []
-        effPlus = [None]
-        if ski.effectAroundCaster != None and type(ski.effectAroundCaster[2]) == effect:
-            effPlus = [ski.effectAroundCaster[2]]
-        for eff in ski.effects+[ski.effectOnSelf]+effPlus:
-            if type(eff) == effect:
-                if eff.id in [vulne.id,dmgUp.id,dmgDown.id,defenseUp.id,absEff.id,upgradedLifeSteal.id] and eff.stat in [FIXE,None] and not(str(eff.power) in eff.name):
-                    eff.name = eff.name + " ({0}%)".format(eff.power)
-                    cmpt += 1
-
-if cmpt > 0:
-    print("{0} effets ont été renommés".format(cmpt))
 
 class preDefSkillSet:
     def __init__(self,element: Union[int, None] = None, skillList : List[skill] = []):
@@ -365,8 +384,11 @@ for ally in tablAllAllies+varAllies:
                 asp = chDict.aspiration
             if chDict.skills != None:
                 for skilly in chDict.skills:
-                    if len(skilly.condition) > 1 and skilly.condition[1] == ELEMENT:
-                        elem = skilly.condition[2]
+                    try:
+                        if len(skilly.condition) > 1 and skilly.condition[1] == ELEMENT:
+                            elem = skilly.condition[2]
+                    except:
+                        print("Une ou plusieurs compétences de {0} n'a pas pu être retrouvée".format(ally.name))
                 dictPreDefSkillSet[asp].append(preDefSkillSet(skillList=chDict.skills,element=elem))
 
 listUseSkills = []
@@ -436,13 +458,13 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
     if type(enemy) == str:
         enemy = copy.deepcopy(findEnnemi(enemy))
     tablStats = [
-        int(enemy.strength*(max(10,lvl)/50)*1.5/3),
-        int(enemy.endurance*(max(10,lvl)/50)*1.5/3),
-        int(enemy.charisma*(max(10,lvl)/50)*1.5/3),
-        int(enemy.agility*(max(10,lvl)/50)*1.5/3),
-        int(enemy.precision*(max(10,lvl)/50)*1.5/3),
-        int(enemy.intelligence*(max(10,lvl)/50)*1.5/3),
-        int(enemy.magie*(max(10,lvl)/50)*1.5/3),
+        int(enemy.strength*(max(10,lvl)/50)*1/3),
+        int(enemy.endurance*(max(10,lvl)/50)*1/3),
+        int(enemy.charisma*(max(10,lvl)/50)*1/3),
+        int(enemy.agility*(max(10,lvl)/50)*1/3),
+        int(enemy.precision*(max(10,lvl)/50)*1/3),
+        int(enemy.intelligence*(max(10,lvl)/50)*0/3),
+        int(enemy.magie*(max(10,lvl)/50)*1/3),
         int(enemy.resistance*1.2/3),
         int(enemy.percing*1.2/3),
         int(enemy.critical*1.2/3)
@@ -501,7 +523,7 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
         say=enemy.says,
         splashArt=enemy.splashArt,
         splashIcon=enemy.splashIcon,
-        team = ennemi.team)
+        team = ennemi.npcTeam)
 
     if toReturn.name == "Marinier Sabreur":
         toReturn.name = "Pirate Sabreur"
@@ -519,3 +541,6 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
     toReturn.changeLevel(lvl,False,0,False)
 
     return toReturn
+
+findAllie("Shehisa").counterEmoji, findAllie("Luna").counterEmoji, findAllie("Klironovia").counterEmoji, findAllie("Félicité").counterEmoji, findAllie("Alice").counterEmoji = bleedingDague.emoji, fracas.emoji, fracas.emoji, uppercut.emoji, "<:aliceCounter:1190621769581727755>"
+findEnnemi("Lia").counterEmoji, findEnnemi("Liu").counterEmoji = "<:liaCounter:998001563379437568>", "<:liuSkill:922328931502280774>"

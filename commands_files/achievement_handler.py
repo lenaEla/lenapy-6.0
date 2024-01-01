@@ -47,7 +47,7 @@ class achiveTabl:
         self.icealia = achivement("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",findAllie("Icealia").icon)
         self.shehisa = achivement("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",findAllie("Shehisa").icon)
         self.heriteEstialba = achivement("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"",findAllie("Lohica").icon)
-        self.heriteLesath = achivement("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:ble:887743186095730708> Hémorragie__\"","<:dissimulation:900083085708771349>")
+        self.heriteLesath = achivement("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:bleeding:1133258052225745048> Hémorragie__\"","<:dissimulation:900083085708771349>")
         self.powehi = achivement("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois",findAllie("Powehi").icon)
         self.dimentio = achivement("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
         self.feli = achivement("Ne jamais abandonner",10,"feli","tl","Affrontez ou faites équipe avec Félicité {0} fois",findAllie("Félicité").icon)
@@ -145,7 +145,7 @@ class achiveTabl:
                     elif what == 2:
                         recompense = findStuff(a)
                         if recompense == None:
-                            print("L'aéquipement {0} n'a pas été trouvée".format(a))
+                            print("L'équipement {0} n'a pas été trouvée".format(a))
                         elif user.have(recompense):
                             print("{0} possède déjà {1}".format(user.name,recompense.name))
                         else:
@@ -174,6 +174,7 @@ class achiveTabl:
             if sendEmbed:
                 await ctx.channel.send(embeds=emb)
             where.haveSucced = True
+            saveCharFile(user=user)
             hadSucced = True
 
         achivementStand.updateSuccess(user,where)

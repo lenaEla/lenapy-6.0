@@ -59,11 +59,11 @@ for a in allCommands:
 
 nameCat,tablCat = ["Utilitaire","Aventure"],[helpUtils,helpAdventure]
 
-categorieSelect = interactions.SelectMenu(custom_id = "catSelect", 
-    options=[
-        interactions.SelectOption(label="Utilitaire",value="0",description="Retrouvez toutes les commandes utilitaires du bot"),
-        interactions.SelectOption(label="Aventure",value="1",description="Retrouvez toutes les commandes en lien avec l'Aventure du bot"),
-    ], 
+categorieSelect = interactions.StringSelectMenu(
+    [
+        interactions.StringSelectOption(label="Utilitaire",value="0",description="Retrouvez toutes les commandes utilitaires du bot"),
+        interactions.StringSelectOption(label="Aventure",value="1",description="Retrouvez toutes les commandes en lien avec l'Aventure du bot"),
+    ], custom_id = "catSelect",
     placeholder="Séléctionnez une catégorie"
 )
 
@@ -77,26 +77,27 @@ Vous vous trouvez actuellement sur la page d'acceuil de la commande /help.
 Pour obtenir plus d'informations sur les commandes du bot, veillez entrer une catégorie dans le menu déroulant ci-dessous
 """
 
-buttons = interactions.ActionRow(components=[
-    interactions.Button(type=2, style=5, label="GitHub", emoji=getEmojiObject('<:github:892369658429190166>'),url='https://github.com/lenaEla/lenapy-2.0'),
-    interactions.Button(type=2, style=5, value="Inviter le bot", emoji=getEmojiObject('<:lenapy:892372680777539594>'),url='https://discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=328565386304&scope=bot%20applications.commands')
-])
+buttons = interactions.ActionRow(
+    interactions.Button(style=5, label="GitHub", emoji=getEmojiObject('<:github:892369658429190166>'),url='https://github.com/lenaEla/lenapy-2.0'),
+    interactions.Button(style=5, label="Inviter le bot", emoji=getEmojiObject('<:lenapy:892372680777539594>'),url='https://discord.com/api/oauth2/authorize?client_id=623211750832996354&permissions=328565386304&scope=bot%20applications.commands')
+)
 
 async def helpBot(bot,ctx):
-    msg = await ctx.send(embeds=interactions.Embed(title="__/help__",color=light_blue,description=firstEmbedDesc),components=[interactions.ActionRow(components=[categorieSelect]),buttons])
+    msg = await ctx.send(embeds=interactions.Embed(title="__/help__",color=light_blue,description=firstEmbedDesc),components=[interactions.ActionRow(categorieSelect),buttons])
 
     def check(m):
         return m.author.id == ctx.author.id and m.message.id == msg.id
 
     try:
         respond = await bot.wait_for_component(components=categorieSelect,check=check,timeout=60)
+        respond: interactions.ComponentContext = respond.ctx
         continu = True
     except:
         await msg.delete()
         continu = False
 
     if continu:
-        tablToSee,value = [], int(respond.data.values[0])
+        tablToSee,value = [], int(respond.values[0])
         for a in range(0,len(tablCat)):
             if value == a:
                 tablToSee = sorted(tablCat[a],key= lambda com: com["name"])
@@ -110,19 +111,19 @@ async def helpBot(bot,ctx):
         while 1:
             commandInfoOptions = []
             if page > 0:
-                commandInfoOptions.append(interactions.SelectOption(label="Page précédente",value="0",description="Retournez à la page précédente"))
+                commandInfoOptions.append(interactions.StringSelectOption(label="Page précédente",value="0",description="Retournez à la page précédente"))
             maxi,desc = (page+1)*10,"__Page **{0}** / {1}__\n".format(page+1,maxPage+1)
             if maxi > leni:
                 maxi = leni
             for a in tablToSee[page*10:maxi]:
                 desc += f'\n__/{a["name"]}__\n*{a["short"]}*\n'
-                commandInfoOptions.append(interactions.SelectOption(label=a["name"],value=a["name"],description=a["short"]))
+                commandInfoOptions.append(interactions.StringSelectOption(label=a["name"],value=a["name"],description=a["short"]))
 
             
             if page < maxPage:
-                commandInfoOptions.append(interactions.SelectOption(label="Page suivante",value="1",description="Allez à la page suivante"))
-            commandInfoSelect = interactions.SelectMenu(custom_id = "commandInfoSelect", options=commandInfoOptions,placeholder="Sélectionnez une commande pour avoir plus d'informations")
-            await msg.edit(embeds = interactions.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[interactions.ActionRow(components=[commandInfoSelect])])
+                commandInfoOptions.append(interactions.StringSelectOption(label="Page suivante",value="1",description="Allez à la page suivante"))
+            commandInfoSelect = interactions.StringSelectMenu(commandInfoOptions,custom_id = "commandInfoSelect",placeholder="Sélectionnez une commande pour avoir plus d'informations")
+            await msg.edit(embeds = interactions.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[interactions.ActionRow(commandInfoSelect)])
             
             try:
                 respond = await bot.wait_for_component(components=commandInfoSelect,check=check,timeout=60)
@@ -130,7 +131,7 @@ async def helpBot(bot,ctx):
                 await msg.edit(embeds = interactions.Embed(title="__/help {0}__".format(nameCat[value]),color=light_blue,description=desc),components=[timeoutSelect])
                 break
 
-            value2 = respond.data.values[0]
+            value2 = respond.values[0]
             if value2 == "0":
                 page -= 1
             elif value2 == "1":
