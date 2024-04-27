@@ -26,8 +26,6 @@ async def new_patch(bot : interactions.Client, ctx : interactions.Message):
 
 async def send_patchnote(ctx: Union[interactions.SlashContext, interactions.BaseChannel]):
     """Permet d'envoyer le patchnote enregistré"""
-    if type(ctx) == interactions.SlashContext:
-        await ctx.defer()
     patchView = open("./data/patch/patch.txt","r")
     view = patchView.readlines()
     patchView.close()

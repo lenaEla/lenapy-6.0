@@ -1,4 +1,4 @@
-import random, copy, interactions, quickchart
+import random, copy, interactions, quickchart, aiohttp
 from interactions import *
 from adv import *
 from classes import *
@@ -9,10 +9,11 @@ from commands_files.achievement_handler import *
 from commands_files.alice_stats_endler import *
 from typing import Union, List
 
-HIGHLIGHTBOSS, HIGHLIGHTPURCENT, BOSSPURCENT = "Protecteur Glyphique",0,20
-STORYPURCENT, PROCURPURCENT = 5, 5
+HIGHLIGHTBOSS, HIGHLIGHTPURCENT, BOSSPURCENT = "Phy", 25, 25
+SPECIALFIGHTPURCENT = 15
+RAIDPURCENT, RAIDHIGHLIGHTPURCENT, RAIDHIGHLIGHT = 10, 0, "Nacialisla"
 
-RAIDPURCENT, RAIDHIGHLIGHTPURCENT, RAIDHIGHLIGHT = 10, 0,"Ailill"
+SPSPECIALFIGHTPURCENT, SPRAIDPURCENT = 100, 0
 
 teamWinDB = dbHandler("teamVic.db")
 AI_DPT,AI_BOOST,AI_SHIELD,AI_AVENTURE,AI_ALTRUISTE,AI_OFFERUDIT,AI_MAGE,AI_ENCHANT = 0,1,2,3,4,5,6,7
@@ -26,10 +27,10 @@ altDanger = [65,70,70,70,75,75,80,80,85,90,100,100]
 dangerLevel = [70,75,80,80,90,90,90,100,110,120,135]
 HEALRESISTCROIS, SHIELDREDUC = 0.2, 0.2
 BASEHP_PLAYER, BASEHP_ENNEMI, BASEHP_SUMMON, BASEHP_BOSS = 150, 120, 100, 600
-HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 22, 15, 12, 155
+HPPERLVL_PLAYER, HPPERLVL_ENNEMI, HPPERLVL_SUMMON, HPPERLVL_BOSS = 25, 17.5, 12, 155
 
 MELEE_END_CONVERT = 35
-END_NEEDED_10_INDRES, MAX_END_10_INDRES = 145, 35
+END_NEEDED_10_INDRES, MAX_END_10_INDRES = 130, 35
 END_NEEDED_10_HEAL, MAX_END_10_HEAL = 150, 20
 
 statEmbedFieldNames = ["__Liste des effets :__","__Statistiques :__","<:em:866459463568850954>","__Jauges :__","__Déployables :__","__Équipe Bleue :__","__Équipe Rouge :__"]
@@ -61,8 +62,10 @@ for a in tablIsNpcName:
 
 primitiveDictIsNpcVar = dict(temp)
 
+effToSpecialVars = [altOHEff.id,proOHEff.id,idoOHEff.id,idoOSEff.id,proOSEff.id,preOSEff.id,heriteEstialbaEff.id,heriteLesathEff.id,floorTanking.id,foulleeEff.id,exploHealMarkEff.id,squidRollEff.id,partnerIn.id,counterTimeEff.id]
+
 def getPartnerValue(user : classes.char):
-    if user.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR]:
+    if user.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR]:
         return 10 + random.randint(-3,3)
     elif user.aspiration in [PROTECTEUR,ATTENTIF]:
         return 8 + random.randint(-3,3)
@@ -75,38 +78,72 @@ def dmgCalculator(caster, target, basePower, use, actionStat, danger, area, type
     if caster.team == 0:
         danger = 100
 
+    dmg, dictContributor, baseStat, isMelee, resistedDmg = 0, {}, caster.baseStats, caster.aspiration in meleeAspi, 0
     if use == HARMONIE:
-        maxi, stats = -100, caster.allStats()
-        for cmpt in range(0,7):
-            if stats[cmpt] > maxi:
-                maxi, use = stats[cmpt], cmpt 
-    if use not in [FIXE,None]:
-        enemyPercing, tarResi = caster.percing+skillPercing, target.resistance
-        if ignoreEff != None:
-            enemyPercing = getPenetration(caster.rawPercing-ignoreEff.percing)+skillPercing
-            tarResi =  getResistante(target.rawResist-ignoreEff.resistance)
-        resistFactor = (1-(min(95,tarResi*(1-(enemyPercing)/100))/100))
-        lvlBonus = (1+(DMGBONUSPERLEVEL*caster.level))
-        if lvlBonus > 2.5 and type(caster.char) not in [char,tmpAllie]:
-            lvlBonus = 2.5
-        elemBonus = caster.getElementalBonus(target=target,area=area,type=typeDmg)
+        tmpTabl = [[0,baseStat[0]],[1,baseStat[1]],[2,baseStat[2]],[3,baseStat[3]],[4,baseStat[4]],[5,baseStat[5]],[6,baseStat[6]]]
+        tmpTabl.sort(key=lambda ballerine: ballerine[1], reverse=True)
+        use = tmpTabl[0][0]
 
-        stat = caster.allStats()[use]
-        if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
-            stat += int(caster.endurance * MELEE_END_CONVERT/100)
+    if use not in [FIXE,None,MISSING_HP,PURCENTAGE]:
+        statBucket, lvlBonus, elemBonus = baseStat[use]-baseStat[actionStat+ACT_HEAL_FULL], BASEDAMAGEMUL+(DMGBONUSPERLEVEL*caster.level), caster.getElementalBonus(target=target,area=area,type=typeDmg) 
+        if isMelee:
+            statBucket += int(baseStat[ENDURANCE] * MELEE_END_CONVERT/100)
+        if caster.char.__class__ == classes.octarien:
+            lvlBonus = min(lvlBonus,BASEDAMAGEMUL+(DMGBONUSPERLEVEL*MAXLEVEL))
+        dmg = basePower * max(-65,statBucket)/100 *(danger/100)*lvlBonus*elemBonus
 
-        if ignoreEff != None:
-            stat = stat - ignoreEff.allStats()[use]
+        listReducedEnt, listAddEnt = [], []
+        for eff in caster.effects:
+            effStats = eff.allStats()
+            if effStats[use] != 0 or (isMelee and effStats[ENDURANCE] != 0):
+                statBucket1 = effStats[use] + [0, int(effStats[ENDURANCE]* MELEE_END_CONVERT/100)][isMelee]
+                tmpDmg = basePower * max(-65,statBucket1)/100 *(danger/100)*lvlBonus*elemBonus
+                if eff.caster not in dictContributor.keys():
+                    dictContributor[eff.caster] = tmpDmg
+                else:
+                    dictContributor[eff.caster] += tmpDmg
+                dmg += tmpDmg
+            if eff.percing > 0:
+                listAddEnt.append(eff.caster)
+            elif eff.percing < 0:
+                listReducedEnt.append(eff.caster)
 
-        dmg = round(basePower * (max(-65,stat+100-caster.actionStats()[actionStat]))/100 *(danger/100)*elemBonus*lvlBonus)
-        if ignoreEff == None:
-            target.stats.damageResisted += dmg - (dmg*resistFactor)
+        rawDmg = dmg
+        casterPerc, targResist = getPenetration(baseStat[PERCING]+skillPercing), getResistante(target.baseStats[RESISTANCE])
+        resistFactor = 1-(between(targResist*(1-(casterPerc/100)),95,0)/100)
+        rowResistedDmg = dmg*resistFactor
 
-        logs = "> {0} [basePower] * ({1} [AtkStats] / 100) * {2} [dangerMul] * {3} [elemBonus] * {4} [lvlBonus]  * {5} [resistFactor]".format(
-            basePower,caster.allStats()[use]+100-caster.actionStats()[actionStat],danger/100,elemBonus,lvlBonus,round(resistFactor,2))
-        return max(1,round(dmg*resistFactor)), logs
-    else:
-        return basePower, "> Fixe"
+        for eff in target.effects:
+            if eff.resistance > 0:
+                listReducedEnt.append(eff.caster)
+            elif eff.resistance < 0:
+                listAddEnt.append(eff.caster)
+
+        casterPerc, targResist = getPenetration(caster.percing+skillPercing), getResistante(target.resistance)
+        resistFactor = 1-(between(targResist*(1-(casterPerc/100)),95,0)/100)
+        resistedDmg = dmg*resistFactor
+
+        if resistedDmg > rowResistedDmg:
+            lenReducedEnt = len(listReducedEnt)
+            for ent in listReducedEnt:
+                if ent not in dictContributor.keys():
+                    dictContributor[ent] = (rowResistedDmg-resistedDmg) / lenReducedEnt
+                else:
+                    dictContributor[ent] += (rowResistedDmg-resistedDmg) / lenReducedEnt
+        elif resistedDmg < rowResistedDmg:
+            lenAddEnt = len(listAddEnt)
+            for ent in listAddEnt:
+                if ent not in dictContributor.keys():
+                    dictContributor[ent] = (resistedDmg-rowResistedDmg) / lenAddEnt
+                else:
+                    dictContributor[ent] += (resistedDmg-rowResistedDmg) / lenAddEnt
+
+        dmg = max(1,int(dmg-resistedDmg))
+        logs = "> {0} [basePower] * ({1} [AtkStats] / 100) * {2} [dangerMul] * {3} [elemBonus] * {4} [lvlBonus]  * {5} [resistFactor]".format(basePower,statBucket,danger/100,elemBonus,lvlBonus,round(resistFactor,2))
+        return dmg, logs, dictContributor, resistedDmg
+    elif use == MISSING_HP: return int((target.maxHp-target.hp)*basePower/100), "> Missing HP", {}, 0
+    elif use == PURCENTAGE: return int(target.maxHp*basePower/100), "> % max hp", {}, 0
+    else: return basePower, "> Fixe", {}, 0
 
 def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActionStat = ACT_INDIRECT):
     damage, logs = basePower, "FIXE"
@@ -116,7 +153,7 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
         else:
             stat = max(caster.allStats())
 
-        if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
+        if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
             stat += int(caster.endurance * MELEE_END_CONVERT/100)
 
         effMultiplier, dmgMul, elementMul = 100 + 5*int(not(caster.auto)), 1, 1
@@ -131,8 +168,11 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
             elif eff.effects.id == defenseUp.id:
                 dmgMul = dmgMul*((100-eff.effects.power)/100)
             elif eff.effects.inkResistance != 0:
-                dmgMul = dmgMul*((100+eff.effects.inkResistance)/100)
+                dmgMul = dmgMul*((100-eff.effects.inkResistance)/100)
 
+        tmpChip = getChip("Dégâts indirects augmentés")
+        if tmpChip != None and tmpChip.id in caster.char.equippedChips:
+            dmgMul += caster.char.chipInventory[tmpChip.id].power/100
         effMultiplier -= min((target.endurance/END_NEEDED_10_INDRES*10),MAX_END_10_INDRES)
 
         if target.char.aspiration == MASCOTTE:
@@ -157,8 +197,8 @@ def indirectDmgCalculator(caster, target, basePower, use, danger, area, useActio
     elif use in [MISSING_HP]:
         damage = int((target.maxHp-target.hp)*basePower/100)
         try:
-            if target.call.standAlone:
-                damage = round(damage/4)
+            if target.char.standAlone:
+                damage = min(int(target.maxHp)*0.05,damage)
         except:
             pass
     return damage, logs
@@ -219,12 +259,17 @@ class timeline:
         return self.timeline[0]
 
     def icons(self):
-        temp = ""
+        temp, duplicateList = "", []
+        
+        alreadySeen = []
+        for icn in self.timeline:
+            if icn.icon not in alreadySeen:
+                alreadySeen.append(icn.icon)
+            elif icn.icon not in duplicateList and type(icn.char) not in [classes.invoc, classes.octarien]:
+                duplicateList.append(icn.icon)
+
         for a in self.timeline:
-            if a == self.initTimeline[-1]:
-                temp += f"{a.icon} <|- "
-            else:
-                temp += f"{a.icon} <- "
+            temp += "{0}{2} {1} ".format(a.icon,["←","<|-"][a == self.initTimeline[-1]],["","{0}".format(["🔹","🔺"][a.team])][a.icon in duplicateList])
         return temp
 
     def endOfTurn(self,tablEntTeam,tablAliveInvoc,entDict):
@@ -246,12 +291,18 @@ class timeline:
         return tablEntTeam, tablAliveInvoc, entDict
 
     def insert(self,entBefore,entToInsert):
-        found, whereToInsert = False, 1
-        for cmpt in range(len(self.timeline)):
-            if entBefore.id == self.timeline[cmpt].id and type(self.timeline[cmpt].char) not in [invoc, depl]:
-                for cmpt2 in range(len(self.timeline[cmpt+1:])):
-                    if self.timeline[cmpt+1:][cmpt2].id != entBefore.id and type(self.timeline[cmpt+1:][cmpt2].char) not in [invoc, depl]:
-                        whereToInsert, found = cmpt+cmpt2, True
+        try:
+            whereToInsert = self.timeline.index(entBefore) + 1
+        except ValueError:
+            print("Havn't found the entity")
+            found, whereToInsert = False, 1
+            for cmpt in range(len(self.timeline)):
+                if entBefore.id == self.timeline[cmpt].id and type(self.timeline[cmpt].char) not in [invoc, depl]:
+                    for cmpt2 in range(len(self.timeline[cmpt+1:])):
+                        if self.timeline[cmpt+1:][cmpt2].id != entBefore.id and type(self.timeline[cmpt+1:][cmpt2].char) not in [invoc, depl]:
+                            whereToInsert, found = cmpt+cmpt2, True
+                            break
+                    if found:
                         break
                 if found:
                     break
@@ -361,7 +412,7 @@ def getHealTarget(caster,tablTeam : list, skillToUse : skill, armor=False):
     return temp[0]
 
 def getPrelimManWindow(actTurn, LBBars: List[List[int]], tablEntTeam : List):
-    toReturn, cmpt = actTurn.quickEffectIcons()+"Trans. : ", 0
+    toReturn, cmpt = actTurn.quickEffectIcons()+["Trans. : ",""][LBBars[actTurn.team][0]<=0], 0
     while cmpt < LBBars[actTurn.team][0]:
         if LBBars[actTurn.team][1]//3 > cmpt:
             toReturn += "<:lbF:983450379205378088>"
@@ -439,14 +490,11 @@ def probCritHeal(ent,target) -> int:
     return (ent.precision/((PRE_REQUIERD_FOR_30_CRIT-50)/50*max(15,ent.level)))*30 + (target.endurance/(END_REQUIERD_FOR_30_CRIT/50*max(15,ent.level)))*30 + ent.critical
 
 def calHealPower(ent,target,power,secElemMul,statUse,useActionStats,danger):
-    if ent.team == 0:
-        danger = 100
+    if ent.team == 0: danger = 100
     vigilBonus = [1,1.1][target.char.aspiration == VIGILANT]
 
-    if ent.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
-        statUse += int(ent.endurance * MELEE_END_CONVERT/100)
+    if ent.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]: statUse += int(ent.endurance * MELEE_END_CONVERT/100)
 
-    END_NEEDED_10_HEAL, MAX_END_10_HEAL
     endHealReciveBonus = min((target.endurance/END_NEEDED_10_HEAL*10),MAX_END_10_HEAL)
     return round(power * secElemMul * (1+(max(-65,statUse-(ent.actionStats()[useActionStats])))/100)*(1+endHealReciveBonus/100)*ent.valueBoost(target = target,heal=True)*ent.getElementalBonus(target,area = AREA_MONO,type = TYPE_HEAL) * danger/100 * vigilBonus)
 
@@ -509,11 +557,20 @@ async def getResultScreen(bot,ent) -> interactions.Embed:
     skillTmp = ""
     for a in ent.char.skills:
         if type(a) == skill:
-            if skillTmp == "":
-                skillTmp = " |"
-            skillTmp += " {0}".format(a.emoji)
 
-    descri+=skillTmp
+            skillTmp += "{0} ".format(a.emoji)
+    if skillTmp != "":
+        skillTmp = " | "+skillTmp
+
+    chipTmp = ""
+    for tmpChipId in ent.char.equippedChips:
+        tmpChip = getChip(tmpChipId)
+        if tmpChip != None:
+            chipTmp += tmpChip.emoji + " "
+    if chipTmp != "":
+        chipTmp = "|\n "+chipTmp
+
+    descri+=skillTmp+chipTmp
     statsEm = interactions.Embed(title = "__Statistiques de {0} {1}__".format(userIcon,unhyperlink(ent.name)),color=ent.char.color,description=descri)
 
     precisePurcent,dodgePurcent,critPurcent = "-","-","-"
@@ -595,7 +652,13 @@ class cellPath:
 
 def formatKnockBack(listResult:List[dict], listEnt:List, knockbackPower: int) -> str:
     allDict, listStuns, returnMsg = {}, {}, ""
-
+    tmpList, tmpStr = [], ""
+    for tmpResult in listResult:
+        tmpList.append(tmpResult[0])
+        tmpStr += tmpResult[1]
+    
+    listResult = tmpList
+    
     for resultDict in listResult:
         for ent, damage in resultDict.items():
             try:
@@ -614,7 +677,6 @@ def formatKnockBack(listResult:List[dict], listEnt:List, knockbackPower: int) ->
                 returnMsg += " et "
         elif ent.id != listEnt[-1].id:
             returnMsg += " et "
-
 
     returnMsg += " {0} repoussé{1} de {2} case{3}".format(["est","sont"][len(listEnt)>1],["","s"][len(listEnt)>1],knockbackPower,["","s"][knockbackPower>1])
 
@@ -639,3 +701,63 @@ def formatKnockBack(listResult:List[dict], listEnt:List, knockbackPower: int) ->
     return returnMsg + "\n"
 
 effListShowPower = [vulne.id,dmgUp.id,dmgDown.id,defenseUp.id,akikiSkill1Eff.id,incurable.id,armorGetMalus.id,healDoneBonus.id,absEff.id]
+
+def calShieldValue(caster,target,shieldPower,stat,turn,dangerVal=100,actStat=ACT_SHIELD):
+    elemMul = 1
+    if caster.char.element in [ELEMENT_LIGHT,ELEMENT_EARTH,ELEMENT_UNIVERSALIS_PREMO]:
+        elemMul += {ELEMENT_LIGHT:LIGHTHEALBUFF,ELEMENT_EARTH:AREADMGBUFF,ELEMENT_UNIVERSALIS_PREMO:LIGHTHEALBUFF}[caster.char.element]/100
+
+    value, critMsg = shieldPower * elemMul, ""
+
+    friablility = max(1-(turn / 30),0.1)                   # Reduct over time
+    if actStat == None:
+        actStat = ACT_SHIELD
+
+    dangerBoost = [1,dangerVal/100][caster.team]
+
+    if stat not in [None,FIXE,PURCENTAGE,MISSING_HP]:   # Classical armor effect
+        if stat == HARMONIE:
+            maxi = -100
+            for randomVar in caster.allStats():
+                maxi = max(maxi,randomVar)
+            stati = maxi
+        else:
+            stati = caster.allStats()[stat]
+
+        if caster.aspiration in [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR,VIGILANT,PROTECTEUR,MASCOTTE,ASPI_NEUTRAL]:
+            stati += int(caster.endurance * MELEE_END_CONVERT/100)
+        value = round(value * caster.valueBoost(target=target,armor=True) * (1+(stati-caster.actionStats()[actStat])/100) * (1+min(target.endurance/END_NEEDED_10_HEAL*10,MAX_END_10_HEAL)/100) * dangerBoost * (1 - (ARMORMALUSATLVL0/100) + (ARMORLBONUSPERLEVEL*caster.level)))
+
+        critRate = probCritHeal(caster,target)
+        if random.randint(0,99) < critRate:
+            critBonus = 1.25 + caster.critHealUp/100
+            if critRate > 100:
+                critBonus = critBonus * critRate/100
+            value = int(value*critBonus)
+            caster.stats.critHeal += 1
+            critMsg += " !"
+        caster.stats.nbHeal += 1
+    elif stat == PURCENTAGE:
+        value = round(target.maxHp*shieldPower/100)
+    elif stat == MISSING_HP:
+        value = round((target.maxHp-target.hp)*shieldPower/100)
+    else:                                                           # Fixe armor effect
+        value = round(shieldPower)
+
+    armorGetMul = 1
+    for eff in caster.effects:
+        if eff.effects.id == healDoneBonus.id:
+            armorGetMul = armorGetMul * ((100+eff.effects.power)/100)
+    for eff in target.effects:
+        if eff.effects.id == absEff.id:
+            armorGetMul = armorGetMul * ((100+eff.effects.power)/100)
+        elif eff.effects.id == armorGetMalus.id:
+            armorGetMul = armorGetMul * (1-(eff.effects.power/100))
+
+    value = int(value*armorGetMul*friablility)
+
+    return (value,critMsg)
+
+LAST_DITCH_EFFORT_MAX_POWER = 40
+LAST_DITCH_EFFORT_START_TURN, LAST_DITCH_EFFORT_MAX_TURN = 15, 20
+LAST_DITCH_EFFORT_START_ALLIE, LAST_DITCH_EFFORT_MAX_ALLIE = 0.5, 0.2

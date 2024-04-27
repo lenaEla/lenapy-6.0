@@ -2,7 +2,7 @@ from classes import *
 from advObjects.advWeapons import *
 from advObjects.advSkills import *
 from advObjects.advStuffs import *
-from advObjects.advInvocs import *
+from advObjects.advSummons import *
 from advObjects.advEffects import *
 from advObjects.advEnnemies import *
 from advObjects.advAllies import *
@@ -32,8 +32,11 @@ Megalovania = other("Musique qui rentre dans la tête","qn",350,'<:lazyBones:930
 amary = other("Amaryllis",'qo',350,'<:amaryllis:935337538426642483>','Vous permet de changer la forme de votre icone en icone Féérique')
 autoPoint = other("Pai'rte de Nheur'o'Nes",'qp',3500,emoji='<:autPoint:1041625800581066752>',description="Une fois cette object activé, chaque point bonus obtenus en montant de niveau est automatiquement attribué selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
 autoStuff = other("Garde-robe de la Fée Niante",'qq',3500,emoji='<:autStuff:1041625746340323330>',description="Une fois cette object activé, à chaque fois que vous atteigné un pallié de niveau, modifie automatiquement votre équipement selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
-
-others = [elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint,autoStuff]
+dailyCardBooster1 = other("Booster journalié supplémentaire 1",getAutoId("qq"),0,"<:littleStar:925860806602682369>","Augmente le nombre de boosters de puce obtenus lors de votre premier combat du jour de 1")
+dailyCardBooster2 = other("Booster journalié supplémentaire 2",getAutoId(dailyCardBooster1),0,"<:lS:925860806602682369>","Augmente le nombre de boosters de puce obtenus lors de votre premier combat du jour de 1")
+tripleCommunCards = other("Booster de puces commun x3",getAutoId(dailyCardBooster2),0,rarityEmojis[0],"Vous octroi trois booster de puces commun")
+singleRareCards = other("Booster de puces rare",getAutoId(tripleCommunCards),0,rarityEmojis[1],"Vous octroi un booster de puces rare")
+others = [tripleCommunCards,singleRareCards,dailyCardBooster1,dailyCardBooster2,elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint,autoStuff]
 
 previewDict = {
     ilianaGrelot.id:'https://cdn.discordapp.com/emojis/930806243461857301.png',
@@ -46,6 +49,8 @@ previewDict = {
 
 changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania,amary]
 
+smnAnaisEff.callOnTrigger=anais
+
 # Specials skills ================================================================================
 # Total Kboum
 totalAnnilLauch = copy.deepcopy(explosion)
@@ -55,7 +60,7 @@ totalAnnilCastEff = effect("Cast - {replicaName}","totalBoomCast",turnInit=2,sil
 totalAnnilCast = copy.deepcopy(totalAnnilLauch)
 totalAnnilCast.power, totalAnnilCast.effectOnSelf = 0, totalAnnilCastEff
 
-BOUMBOUMBOUMBOUMweap = weapon("noneWeap","noneweap",1,AREA_CIRCLE_1,0,0,0)
+BOUMBOUMBOUMBOUMweap = weapon("BoumWeap","BoumWeap",1,AREA_CIRCLE_1,0,0,0,priority=WEAPON_PRIORITY_NONE)
 fairyBomb.effects[0].callOnTrigger = copy.deepcopy(findEffect(estial.id))
 fairyBomb.effects[0].callOnTrigger.power = int(fairyBomb.effects[0].callOnTrigger.power*0.4)
 
@@ -76,10 +81,40 @@ def findOther(otherId : Union[str,other]) -> Union[other,None]:
                 return a
     return None
 
-listAllBuyableShop = []
+listAllBuyableShop, cmpt, idList = [], 0, []
+for eff in effects:
+    idList.append(eff.id)
+
 for a in weapons+skills+stuffs:
     if a.price > 0:
         listAllBuyableShop.append(a)
+
+    idList = []
+    for eff in effects:
+        idList.append(eff.id)
+
+    if a.__class__ == skill:
+        skillsToSee, tablSkillsEff = [[a], a.become][a.become != None], []
+        for skillSeen in skillsToSee:
+            skillEffs = skillSeen.effects
+            for skillEffect in skillEffs:
+                skillEffect = findEffect(skillEffect)
+                if skillEffect != None:
+                    tablSkillsEff.append(skillEffect)
+                    while skillEffect != None and skillEffect.callOnTrigger != None:
+                        tablSkillsEff.append(skillEffect)
+                        skillEffect = findEffect(skillEffect.callOnTrigger)
+
+        for effectSeen in tablSkillsEff:
+            if (effectSeen.replace or effectSeen.reject != None) and not(effectSeen.id in idList):
+                effects.append(effectSeen)
+                idList.append(effectSeen.id)
+                cmpt += 1
+
+print("{0} effects has been added to the FindEffect list".format(cmpt))
+
+undeadPasEff = copy.deepcopy(constEff)
+undeadPasEff.power, undeadPasEff.stat, undeadPasEff.turnInit = 20, PURCENTAGE, -1
 
 for cmpt in range(len(skills)):
     if skills[cmpt].invocation != None:
@@ -162,7 +197,7 @@ if not(isLenapy):
     print("Nombre d'équipements :", len(stuffs))
     allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for a in stuffs:
-        if a.effects == None or (a.effects != None and findEffect(a.effects).id != summonerMalus.id):
+        if a.effects == None:
             ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
             babie = [a.negativeHeal,a.negativeBoost,a.negativeShield,a.negativeDirect,a.negativeIndirect]
             sumation = 0
@@ -173,7 +208,7 @@ if not(isLenapy):
             for b in babie:
                 sumation -= b
 
-            if sumation != 20 and a.effects == None and a.name != "Claquettes chaussettes":
+            if sumation < 18 and summation > 22 and a.effects == None and a.name != "Claquettes chaussettes":
                 print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
 
             elif sumation != 10 and a.effects != None:
@@ -221,24 +256,13 @@ if not(isLenapy):
         pass
         #print("Nombre de Temp's en {0} : {1}".format(["mêlée","distance","backline"][num],len([tablTank,tablMid,tablBack][num])))
 
-    tabl = copy.deepcopy(tablAllEnnemies)
-    alReadySeen = []
-    tablTank = []
-    tablMid = [] 
-    tablBack = []
-
-    for ennemi in tabl:
-        if ennemi.name not in alReadySeen:
-            [tablTank,tablMid,tablBack][ennemi.weapon.range].append(ennemi)
-            alReadySeen.append(ennemi.name)
-            stat = ennemi.allStats()+[ennemi.resistance,ennemi.percing,ennemi.critical]
-            summ = 0
-            for a in stat:
-                summ += a
-
-            awaited = int((280+110*3)*1)
-            if summ < awaited*0.9 or summ > awaited*1.1:
-                print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
+    tablTank, tablMid, tablBack = [], [], []
+    for ennemi in tablUniqueEnnemies:
+        [tablTank,tablMid,tablBack][ennemi.weapon.range].append(ennemi)
+        summ = sum(ennemi.allStats()+[ennemi.resistance,ennemi.percing,ennemi.critical])
+        awaited = int((280+110*3)*1)
+        if summ < awaited*0.9 or summ > awaited*1.1:
+            print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
 
     #print("")
     for num in range(3):
@@ -247,6 +271,7 @@ if not(isLenapy):
 
 
     print("Vérification de l'équilibrage des stuffs terminée\n=============================")
+
 
 nbAdjustedWeap = 0
 for weap in weapons:
@@ -281,16 +306,6 @@ for weap in weapons:
                 weap.power, nbAdjustedWeap = suggest, nbAdjustedWeap+1
 if nbAdjustedWeap > 0:
     print("> Puissance de {0} armes auto ajustée".format(nbAdjustedWeap))
-"""listObjWithNoOrientation = []
-for obj in stuffs:
-    if obj.orientation == "Neutre":
-        listObjWithNoOrientation.append(obj.name)"""
-
-"""if listObjWithNoOrientation != []:
-    print("=================== Objets sans orientations ===================")
-    for obj in listObjWithNoOrientation:
-        print(obj)
-"""
 
 if not(isLenapy):
     allReadySeen, allReadySeenName = [],[]
@@ -320,20 +335,6 @@ if not(isLenapy):
     if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:
         print("{0} use a default emoji".format(stuffy.name))"""
 
-cmpt = 0
-for obj in skills+tablVarAllies+tablUniqueEnnemies+tablBoss+tablBossPlus+tablRaidBoss:
-    tablToSee: List[skill] = []
-    if type(obj) == skill and obj.become == None and obj.depl == None:
-        tablToSee = [obj]
-    elif type(obj) == skill and obj.become != None:
-        tablToSee = obj.become
-    elif type(obj) == skill:
-        tablToSee = [obj.depl.skills]
-    else:
-        for ski in obj.skills:
-            if type(ski) == skill:
-                tablToSee.append(ski)
-
 class preDefSkillSet:
     def __init__(self,element: Union[int, None] = None, skillList : List[skill] = []):
         self.element = element
@@ -347,10 +348,10 @@ dictPreDefSkillSet = {
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Linceuil de Lémure"),findSkill("Fétu Suppliant"),findSkill("Uppercut"),findSkill("Dernier Voyage"),findSkill("Ombre de la Mort"),findSkill("HighKick")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Attaque Sournoise"),findSkill("Pied Voltige"),findSkill("Corps à corps / Déplacement"),findSkill("Assasinat"),findSkill("Mort Vivant"),findSkill("Bain de Sang")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Invocation - Chauve-souris"),findSkill("Carnage"),findSkill("Choc Cardinal"),findSkill("Démolition"),findSkill("Voyage Ombral"),findSkill("Frappe Vangeresse")]),
-        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de plume"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")])
+        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de Plumes"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")])
     ],
     POIDS_PLUME:[
-        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de plume"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")]),
+        preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Plumes Perçantes"),findSkill("Déluge de Plumes"),findSkill("Plumes Célestes"),findSkill("Danse de la pluie étoilée"),findSkill("Plumes Rémanantes"),findSkill("Flèche aérienne")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Baleyette"),findSkill("Uppercut"),findSkill("Pied Voltige"),findSkill("Choc Ténébreux"),findSkill("Triple Attaque"),findSkill("Assaut du Crabe")]),
         preDefSkillSet(element=ELEMENT_AIR,skillList=[findSkill("Défi"),findSkill("Libération"),findSkill("Flèche aérienne"),findSkill("Convertion élémentaire"),findSkill("Démolition"),findSkill("Envolée féérique"),findSkill("Soyokaze")]),
         preDefSkillSet(skillList=[findSkill("Défi"),findSkill("Combo Eventails Célestes"),findSkill("Chorégraphie de l'éventail"),findSkill("Danse des sabres"),findSkill("Danse de la pluie étoilée"),findSkill("Final Classique"),findSkill("Final Technique")]),
@@ -391,6 +392,9 @@ for ally in tablAllAllies+varAllies:
                         print("Une ou plusieurs compétences de {0} n'a pas pu être retrouvée".format(ally.name))
                 dictPreDefSkillSet[asp].append(preDefSkillSet(skillList=chDict.skills,element=elem))
 
+    if ally.name in descKeys:
+        ally.description = pnjDescriptions[ally.name]
+
 listUseSkills = []
 for aspiCmpt in dictPreDefSkillSet:
     for defSki in dictPreDefSkillSet[aspiCmpt]:
@@ -414,10 +418,9 @@ for ally in tablAllAllies:
                         if type(skilly) == skill and skilly not in listUseSkills:
                             listUseSkills.append(skilly)
 
-if False:
-    print("Used skills : {0}%".format(round(len(listUseSkills)/len(skills)*100,2)))
-    for cmpt in range(ASPI_NEUTRAL):
-        print(inspi[cmpt],len(dictPreDefSkillSet[cmpt]))
+for pnj in tablBoss+tablBossPlus+tablRaidBoss:
+    if pnj.name in descKeys:
+        ennemi.description = pnjDescriptions[ennemi.name]
 
 #exclusiveRepartition()
 
@@ -455,19 +458,20 @@ dictMediumReticens = {
 }
 
 def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,None],color=None) -> tmpAllie:
+    """Return a `tmpAllie` object from a `octarien` object"""
     if type(enemy) == str:
         enemy = copy.deepcopy(findEnnemi(enemy))
     tablStats = [
-        int(enemy.strength*(max(10,lvl)/50)*1/3),
-        int(enemy.endurance*(max(10,lvl)/50)*1/3),
-        int(enemy.charisma*(max(10,lvl)/50)*1/3),
-        int(enemy.agility*(max(10,lvl)/50)*1/3),
-        int(enemy.precision*(max(10,lvl)/50)*1/3),
-        int(enemy.intelligence*(max(10,lvl)/50)*0/3),
-        int(enemy.magie*(max(10,lvl)/50)*1/3),
-        int(enemy.resistance*1.2/3),
-        int(enemy.percing*1.2/3),
-        int(enemy.critical*1.2/3)
+        int(enemy.strength*(max(10,lvl)/50)/3),
+        int(enemy.endurance*(max(10,lvl)/50)/3),
+        int(enemy.charisma*(max(10,lvl)/50)/3),
+        int(enemy.agility*(max(10,lvl)/50)/3),
+        int(enemy.precision*(max(10,lvl)/50)/3),
+        int(enemy.intelligence*(max(10,lvl)/50)/3),
+        int(enemy.magie*(max(10,lvl)/50)/3),
+        int(enemy.resistance/3),
+        int(enemy.percing/3),
+        int(enemy.critical/3)
     ]
     tempStuff = [
         stuff("noName","noId",0,0,
@@ -538,9 +542,12 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
         else:
             toReturn.species, toReturn.icon = 2, "<:pirGun2:1059519760284528640>"
 
+    toReturn.standAlone = enemy.standAlone
     toReturn.changeLevel(lvl,False,0,False)
 
     return toReturn
 
-findAllie("Shehisa").counterEmoji, findAllie("Luna").counterEmoji, findAllie("Klironovia").counterEmoji, findAllie("Félicité").counterEmoji, findAllie("Alice").counterEmoji = bleedingDague.emoji, fracas.emoji, fracas.emoji, uppercut.emoji, "<:aliceCounter:1190621769581727755>"
+findAllie("Shehisa").counterEmoji, findAllie("Luna").counterEmoji, findAllie("Klironovia").counterEmoji, findAllie("Félicité").counterEmoji, findAllie("Alice").counterEmoji = "<:chiphidenBlade:1223632204421140610>", fracas.emoji, fracas.emoji, uppercut.emoji, "<:aliceCounter:1190621769581727755>"
 findEnnemi("Lia").counterEmoji, findEnnemi("Liu").counterEmoji = "<:liaCounter:998001563379437568>", "<:liuSkill:922328931502280774>"
+
+importantSkills.append(lenaExSkill5)

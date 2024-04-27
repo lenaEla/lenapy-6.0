@@ -13,7 +13,7 @@ fightButton = interactions.Button(style=ButtonStyle.PRIMARY,label="Combattre",em
 endButton = interactions.Button(style=ButtonStyle.SUCCESS,label="Terminer",emoji=PartialEmoji(name="▶️"),value="end")
 
 DPT_MELEE,HEALER,BOOSTER,DPT_DIST = 0,1,2,3
-aspiRoleTabl = [[BERSERK,TETE_BRULE,POIDS_PLUME,ENCHANTEUR],[ALTRUISTE,PREVOYANT,PROTECTEUR,VIGILANT],[IDOLE,INOVATEUR],[OBSERVATEUR,MAGE,SORCELER,ATTENTIF]]
+aspiRoleTabl = [[BERSERK,TETE_BRULEE,POIDS_PLUME,ENCHANTEUR],[ALTRUISTE,PREVOYANT,PROTECTEUR,VIGILANT],[IDOLE,INOVATEUR],[OBSERVATEUR,MAGE,SORCELER,ATTENTIF]]
 
 async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,user:char,ctx:interactions.SlashContext):
     """Play a duty"""
@@ -62,7 +62,7 @@ async def playDuty(bot:interactions.Client,msg:interactions.Message,duty:duty,us
             clemence = tablAllAllies[2].icon,
             shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, icealia = '<:icealia:909065559516250112>',
             iliana = '<:Iliana:926425844056985640>',
-            gweny = tablAllAllies[1].icon, alty = '<:alty:1112517632671875152>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
+            gweny = tablAllAllies[1].icon, alty = '<:alty:1112517632671875152>', klikli ='<:klikli:906303031837073429>', karai = '<:karai:974079383197339699>',
             lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>"
             )
 

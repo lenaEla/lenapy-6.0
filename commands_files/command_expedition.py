@@ -219,7 +219,7 @@ async def generateExpeditionReport(bot: interactions.Client, team: List[char], m
     for user in team:
         if type(user) == char:
             gainMsg, useIcon, userlevel = "", await getUserIcon(bot, user), [user.level, user.stars]
-            user = await addExpUser(bot, "./userProfile/{0}.prof".format(user.owner), ctx, exp=recExp, coins=recCoins, send=False)
+            user = await addExpUser(bot, "./userProfile/{0}.json".format(user.owner), ctx, exp=recExp, coins=recCoins, send=False)
             for a in range(0, hoursSpend):
                 if random.randint(0, 99) < loot:
                     drop = listAllBuyableShop[:]
@@ -253,14 +253,14 @@ async def generateExpeditionReport(bot: interactions.Client, team: List[char], m
                                     useIcon, rand.emoji)
                         elif rvn < 7:
                             rdmExpGain = random.randint(20, 50)
-                            user = await addExpUser(bot, "./userProfile/{0}.prof".format(user.owner), ctx, rdmExpGain, send=False)
+                            user = await addExpUser(bot, "./userProfile/{0}.json".format(user.owner), ctx, rdmExpGain, send=False)
                             if useIcon in gainMsg:
                                 gainMsg += f"<:exp:926106339799887892>{rdmExpGain}"
                             else:
                                 gainMsg += "\n{0} → <:exp:926106339799887892>{1}".format(useIcon, rdmExpGain)
                         else:
                             rdmCoinsGain = random.randint(50, 150)
-                            user = await addExpUser(bot, "./userProfile/{0}.prof".format(user.owner), ctx, exp=0, coins=rdmCoinsGain, send=False)
+                            user = await addExpUser(bot, "./userProfile/{0}.json".format(user.owner), ctx, exp=0, coins=rdmCoinsGain, send=False)
                             if useIcon in gainMsg:
                                 gainMsg += f"<:coins:862425847523704832>{rdmCoinsGain}"
                             else:
@@ -278,5 +278,5 @@ async def generateExpeditionReport(bot: interactions.Client, team: List[char], m
             temp += a
         desc += "\n\n__Montée de niveau :__\nLe{0} personnage{0} suivant{0} {1} monté de niveau !\n".format(["", "s"][len(listLvlUp) > 1], ["a", "ont"][len(listLvlUp) > 1])+temp
 
-    listEmbed.append(interactions.Embed(title=title, color=mainUser.color, description=desc))
+    listEmbed.append(interactions.Embed(title=title, color=mainUser.color, description=reduceEmojiNames(desc)))
     return listEmbed

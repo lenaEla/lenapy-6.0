@@ -5,6 +5,7 @@ Here are grouped up the bases classes of the bot, and some very basic functions
 import pathlib,copy,random,interactions
 from constantes import *
 from typing import List, Union, Dict
+from advObjects.advChips import *
 
 absPath = str(pathlib.Path(__file__).parent.resolve())
 
@@ -90,7 +91,7 @@ class jaugeValue:
         self.emoji = emoji
         self.conds = conds
 
-defaultVarsEffInit: Dict[str, Union[None,int,str]] = {"strength":0, "endurance":0, "charisma":0, "agility":0, "precision":0, "intelligence":0, "magie":0, "resistance":0, "percing":0, "critical":0, "emoji":None, "overhealth":0, "redirection":0, "reject":None, "description":"Pas de description", "turnInit":1, "immunity":False, "trigger":TRIGGER_PASSIVE, "callOnTrigger":None, "silent":False, "power":0, "lvl":None, "type":TYPE_BOOST, "ignoreImmunity":False, "area":AREA_MONO, "unclearable":False, "stun":False, "stackable":False, "replique":None, "translucide":False, "untargetable":False, "invisible":False, "aggro":0, "absolutShield": False, "lightShield": False, "onDeclancher": False, "inkResistance":0, "dmgUp": 0, "critDmgUp": 0, "healUp": 0, "critHealUp": 0, "block":0, "jaugeValue":None, "denieWeap": False, "lifeSteal":0,"lifeStealOnOn": False,"counterOnDodge":0,"dodge": 0,"replace":False,"effPrio": 0,"counterOnBlock":0,"iaPow": 0,"armorDmgBonus": 0,"incHealJauge": True,"thornEff": False,"afterchocEff": False,"silentRemove": False}
+defaultVarsEffInit: Dict[str, Union[None,int,str]] = {"strength":0, "endurance":0, "charisma":0, "agility":0, "precision":0, "intelligence":0, "magie":0, "resistance":0, "percing":0, "critical":0, "emoji":None, "overhealth":0, "redirection":0, "reject":None, "description":"Pas de description", "turnInit":1, "immunity":False, "trigger":TRIGGER_PASSIVE, "callOnTrigger":None, "silent":False, "power":0, "lvl":None, "type":TYPE_BOOST, "ignoreImmunity":False, "area":AREA_MONO, "unclearable":False, "stun":False, "stackable":False, "replique":None, "translucide":False, "untargetable":False, "invisible":False, "aggro":0, "absolutShield": False, "lightShield": False, "onDeclancher": False, "inkResistance":0, "dmgUp": 0, "critDmgUp": 0, "healUp": 0, "critHealUp": 0, "block":0, "jaugeValue":None, "denieWeap": False, "lifeSteal":0,"lifeStealOnOn": False,"counterOnDodge":0,"dodge": 0,"replace":False,"effPrio": 0,"counterOnBlock":0,"iaPow": 0,"armorDmgBonus": 0,"incHealJauge": True,"thornEff": False,"afterchocEff": False,"silentRemove": False,"knockback":0,"decateOnTurn":False,"decateEndOfTurn":False}
 defaultKeysEff = list(defaultVarsEffInit.keys())
 
 class effect:
@@ -102,8 +103,6 @@ class effect:
             if key not in defaultKeysEff:
                 raise ValueError("{0} : Key {1} not matching".format(name,key))
 
-        #emoji=None,overhealth = 0,redirection = 0,reject=None,description = "Pas de description",turnInit = 1,immunity=False,trigger=TRIGGER_PASSIVE,callOnTrigger = None,silent = False,power:int = 0,lvl = None,type = TYPE_BOOST,ignoreImmunity = False,area=AREA_MONO,unclearable = False,stun=False,stackable=False,replique=None,translucide=False,untargetable=False,invisible=False,aggro=0,absolutShield = False, lightShield = False,onDeclancher = False,inkResistance=0,dmgUp = 0, critDmgUp = 0, healUp = 0, critHealUp = 0, block=0, jaugeValue:Union[jaugeValue,None]=None, denieWeap = False, lifeSteal=0, lifeStealOnOn = False, counterOnDodge=0, dodge = 0,replace=False, effPrio = 0, counterOnBlock=0, iaPow = 0, armorDmgBonus = 0, incHealJauge = True, thornEff = False, afterchocEff = False, silentRemove = False
-
         self.name, self.id = name, id                    # Name of the effects
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie,self.resistance,self.percing,self.critical= defaultVars["strength"],defaultVars["endurance"],defaultVars["charisma"],defaultVars["agility"],defaultVars["precision"],defaultVars["intelligence"],defaultVars["magie"],defaultVars["resistance"],defaultVars["percing"],defaultVars["critical"]
         self.overhealth = defaultVars["overhealth"]        # Base shield power
@@ -113,6 +112,7 @@ class effect:
         self.description = defaultVars["description"]      # A (quick) description of the effects
         self.turnInit = defaultVars["turnInit"]            # How many turn does the effects stay ?
         self.stat = stat                    # Wich stat is use by the effects ?
+        self.knockback = defaultVars["knockback"]
         
         self.trigger:int = defaultVars["trigger"]          # When does the effects triggers ?
         if (self.overhealth > 0 or self.redirection > 0) and self.trigger==TRIGGER_PASSIVE:
@@ -145,10 +145,11 @@ class effect:
         self.prio, self.armorDmgBonus, self.icon = defaultVars["effPrio"], defaultVars["armorDmgBonus"], ""
         self.incHealJauge = defaultVars["incHealJauge"]
         self.thornEff, self.afterchocEff, self.iaPow, self.emoji = defaultVars["thornEff"], defaultVars["afterchocEff"], defaultVars["iaPow"], defaultVars["emoji"]
+        self.decateOnTurn, self.decateEndOfTurn =  defaultVars["decateOnTurn"], defaultVars["decateEndOfTurn"]
 
         self.lvl:int = defaultVars["lvl"]                      # How many times can the effects trigger ?
         if self.lvl == None:
-            self.lvl = [[[self.turnInit,99][self.turnInit==-1],0][self.jaugeValue != None],1][self.trigger==TRIGGER_ON_REMOVE]
+            self.lvl = [[[self.turnInit,99][self.turnInit==-1],0][self.jaugeValue != None],1][self.trigger in [TRIGGER_ON_REMOVE,TRIGGER_HP_UNDER_70,TRIGGER_HP_UNDER_50,TRIGGER_HP_UNDER_25]]
 
         if self.iaPow == 0:          # Auto generate IA power if none is given
             iaPow = 0
@@ -243,23 +244,12 @@ intargetable = effect("Inciblable","untargetable",untargetable=True,emoji=unique
 silenceEff = effect("InCapacité","silenceEff",description="Empèche l'utilisation de compétence durant la durée de l'effet",type=TYPE_MALUS,emoji='<:silenced:975746154270691358>',effPrio = 1)
 absEff = effect("Absorbtion","absEff",description="Augmente les soins reçus par le porteur de **{0}%**",emoji=sameSpeciesEmoji('<:absB:1143285351608221838>','<:absR:1143285293240291368>'),stackable=True)
 chained = effect("Enchaîné","chained",emoji='<:chained:982710848487317575>',description="Empêche tous déplacements de la cible, que ce soit par elle-même que part une compétence",type=TYPE_MALUS,dodge=-35,effPrio = 1)
-upgradedLifeSteal = effect("Augmentation du plafond de vol de vie","lifeSteal+",power=100,turnInit=-1,silent=True,unclearable=True,description="Augmente de **POWER%** le plafond de vol de vie",emoji=sameSpeciesEmoji("<:lifeStealUpB:1058795614755885066>","<:lifeStealUpR:1058795585873911850>"))
 imuneLightStun = effect("Immunité à l'étourdissement","imuneLightStun",description="Le porteur ne peut plus être étourdi.\nCertains effects étourdissants ignorent cette immunitée",emoji='<:antiStun:1005128649613262968>',turnInit=5)
 lightStun = effect("Etourdissement","lightStun",stun=True,type=TYPE_MALUS,description="Le porteur de l'effet est étourdi.\n\nSans effet sur les boss Stand Alone, les boss de Raid ainsi que certains ennemis.\nInfligé à un joueur ou un allié temporaire, ce dernier bénéficie par la suite d'une immunité aux étourdissements durant **{0} tours**.".format(imuneLightStun.turnInit),emoji='<:stun:1005128631888117852>',reject=[imuneLightStun.id],effPrio=3)
 
 ENEMYIGNORELIGHTSTUN = ["OctoBOUM","Liu","Prétorien Glyphique"]
-
-ailillUpLifeSteal, clemPosUpLifeSteal, clemExUpLifeSteal = copy.deepcopy(upgradedLifeSteal), copy.deepcopy(upgradedLifeSteal), copy.deepcopy(upgradedLifeSteal)
-ailillUpLifeSteal.power, clemPosUpLifeSteal.power, clemExUpLifeSteal.power = 50,50,10000
-upLifeStealNames, upLifeStealEff = ["Clémence Exaltée","Clémence pos.","Ailill"], [clemExUpLifeSteal,clemPosUpLifeSteal,ailillUpLifeSteal]
-
-for eff in upLifeStealEff:
-    eff.description = eff.description.replace("POWER",str(eff.power))
-
-upLifeStealEff[0].description = upLifeStealEff[0].description + "\n\nDe plus, une partie des soins réalisés par vol de vie lorsque les PVs sont au maximum sont converties en armure"
-
-constEff = effect("Constitution","constEff",description="Augmente les PVs maximums de la cible.\nLe pourcentage de PV actuels est concervé lors de la pose de l'effet mais aucun PV est perdu lorsque l'effet est retiré, sauf si le nombre de PV exède les PV maximums",emoji=sameSpeciesEmoji('<:constB:1028695344059518986>','<:constR:1028695415966679132>'))
-aconstEff = effect("Anti-constitution","aconstEff",description="Réduit les PVs maximums de la cible\nLe pourcentage de PV actuels est concervé lors de la pose de l'effet mais aucun PV est perdu lorsque l'effet est retiré, sauf si le nombre de PV exède les PV maximums",emoji=sameSpeciesEmoji('<:ConB:1028695381447557210>','<:ConR:1028695463651717200>'))
+constEff = effect("Constitution","constEff",description="Augmente les PVs maximums de la cible.\nLe pourcentage de PV actuels est concervé lors de la pose de l'effet mais aucun PV est perdu lorsque l'effet est retiré, sauf si le nombre de PV exède les PV maximums",emoji=sameSpeciesEmoji('<:constB:1028695344059518986>','<:constR:1028695415966679132>'),stackable=True)
+aconstEff = effect("Anti-constitution","aconstEff",description="Réduit les PVs maximums de la cible\nLe pourcentage de PV actuels est concervé lors de la pose de l'effet mais aucun PV est perdu lorsque l'effet est retiré, sauf si le nombre de PV exède les PV maximums",emoji=sameSpeciesEmoji('<:ConB:1028695381447557210>','<:ConR:1028695463651717200>'),stackable=True)
 armorGetMalus = effect("Friable","armorRecivedDown",type=TYPE_MALUS,description="Réduit de **{0}%** l'armure reçu par le porteur",stackable=True,emoji=sameSpeciesEmoji("<:abB:934600555916050452>","<:abR:934600570633867365>"))
 
 incur = []
@@ -285,7 +275,7 @@ for num in range(0,10):
     shareTabl.append(shareTemp)
 
 
-WEAPON_PRIORITY_LOW, WEAPON_PRIORITY_DEFAULT, WEAPON_PRIORITY_HIGH, WEAPON_PRIORITY_LOWEST = -1,0,1,-2
+WEAPON_PRIORITY_LOW, WEAPON_PRIORITY_DEFAULT, WEAPON_PRIORITY_HIGH, WEAPON_PRIORITY_LOWEST, WEAPON_PRIORITY_NONE = -1,0,1,-2,-3
 
 class defaultObj():
     def getSummary(self):
@@ -417,6 +407,9 @@ class defaultObj():
         else:
             return "Une erreur est survenue : {0}".format(self.__class__.__str__)
 
+    def __str__(self):
+        return "{0} __{1}__".format(self.emoji, self.name)
+
 class weapon(defaultObj):
     """The main and only class for weapons"""
     def __init__(self,name : str,id : str,range,effectiveRange,power : int,accuracy : int,price = 0,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0, repetition=1,emoji = None,area = AREA_MONO,effects:Union[None,effect]=None,effectOnUse=None,target=ENEMIES,type=TYPE_DAMAGE,orientation=[],needRotate = True,use=STRENGTH,damageOnArmor=1,affinity = None,message=None,negativeHeal=0,negativeDirect=0,negativeShield=0,negativeIndirect=0,negativeBoost=0,say="",ignoreAutoVerif=False,taille=1,effPowerPurcent=100,priority=WEAPON_PRIORITY_DEFAULT):
@@ -513,6 +506,9 @@ class weapon(defaultObj):
         if expectPrice != price and price != 0:
             self.price = expectPrice
 
+        if self.name.lower() == "noneweap" or self.id.lower() == "noneweap":
+            self.priority == WEAPON_PRIORITY_NONE
+
     def allStats(self):
         """Return a list with the mains stats of the weapon"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
@@ -524,7 +520,7 @@ novaShotter = weapon("Lanceur Spacial",getAutoId("eo"),RANGE_LONG,AREA_CIRCLE_5,
 baseWeapon = [mainLibre, splattershotJR,novaShotter]
 
 skillVarInit = {
-    "condition":[], "ultimate":False, "group":0, "emoji":None, "effects":None, "cooldown":1,"area" : AREA_MONO,"accuracy" : 100,"effectOnSelf":None,"use":STRENGTH,"damageOnArmor" : 1,"invocation":None,"description":None,"initCooldown" : 1,"shareCooldown" : False,"message":None,"say":"","repetition":1,"knockback":0,"effPowerPurcent":100,"become":None,"replay":False,"maxHpCost":0,"hpCost":0,"tpCac" : False,"jumpBack":0,"useActionStats" : None,"setAoEDamage":False,"url":None,"areaOnSelf":False, "lifeSteal" : 0, "effectAroundCaster" : None,"needEffect":None,"rejectEffect":None,"erosion":0,"percing":0,"execution":False,"selfEffPurcent":100,"effBeforePow":False,"jaugeEff":None,"pull":0,"maxPower":0,"minJaugeValue" : 0, "maxJaugeValue" : 0, "minTargetRequired" : 1, "quickDesc" : "", "depl":None, "armorConvert":0, "nbSummon" : 1, "firstSumIgnoreLimit":False, "garCrit" : False, "tpBehind" : False, "affSkillMsg" : True, "aoeLifeSteal":0, "aoeArmorConvert" : 0,"armorSteal":0
+    "condition":[], "ultimate":False, "group":0, "emoji":None, "effects":None, "cooldown":1,"area" : AREA_MONO,"accuracy" : 100,"effectOnSelf":None,"use":STRENGTH,"damageOnArmor" : 1,"invocation":None,"description":None,"initCooldown" : 1,"shareCooldown" : False,"message":None,"say":"","repetition":1,"knockback":0,"effPowerPurcent":100,"become":None,"replay":False,"maxHpCost":0,"hpCost":0,"tpCac" : False,"jumpBack":0,"useActionStats" : None,"setAoEDamage":False,"url":None,"areaOnSelf":False, "lifeSteal" : 0, "effectAroundCaster" : None,"needEffect":None,"rejectEffect":None,"erosion":0,"percing":0,"execution":False,"selfEffPurcent":100,"effBeforePow":False,"jaugeEff":None,"pull":0,"maxPower":0,"minJaugeValue" : 0, "maxJaugeValue" : 0, "minTargetRequired" : 1, "quickDesc" : "", "depl":None, "armorConvert":0, "nbSummon" : 1, "firstSumIgnoreLimit":False, "garCrit" : False, "tpBehind" : False, "affSkillMsg" : True, "aoeLifeSteal":0, "aoeArmorConvert" : 0,"armorSteal":0, "consumeNeededEffects":True, "sharedDamage":False, "sharedTB":False, "effectFinisher":False
 }
 skillVarKeyInit = list(skillVarInit.keys())
 
@@ -536,7 +532,7 @@ class skill(defaultObj):
         for key in kwargs:
             defaultVars[key] = kwargs[key]
             if key not in skillVarKeyInit:
-                raise ValueError("{0} : Key {1} not matching".format(name,key))
+                raise ValueError("{0} : Key \"{1}\" not matching".format(name,key))
 
         self.effects: List[Union[None,effect]] = defaultVars["effects"]
         if type(self.effects)!=list:
@@ -560,6 +556,7 @@ class skill(defaultObj):
         self.effBeforePow, self.jaugeEff, self.minJaugeValue, self.maxJaugeValue = defaultVars["effBeforePow"], defaultVars["jaugeEff"], defaultVars["minJaugeValue"], [defaultVars["maxJaugeValue"],defaultVars["minJaugeValue"]][defaultVars["minJaugeValue"]>= 0 and defaultVars["maxJaugeValue"] == 0]
         self.effectAroundCaster: Union[None,List[int]] = defaultVars["effectAroundCaster"]
         self.depl = defaultVars["depl"]
+        self.effectFinisher = defaultVars["effectFinisher"]
         self.nbSummon = defaultVars["nbSummon"]
         self.armorSteal:int = defaultVars["armorSteal"]
         if self.depl != None:
@@ -568,9 +565,14 @@ class skill(defaultObj):
         if self.needEffect != None and type(self.needEffect) != list:
             self.needEffect = [self.needEffect]
         self.rejectEffect= defaultVars["rejectEffect"]
+        self.consumeNeededEffects = defaultVars["consumeNeededEffects"]
         if self.rejectEffect != None and type(self.rejectEffect) != list:
             self.rejectEffect=[self.rejectEffect]
-
+        self.sharedDamage, self.sharedTB = defaultVars["sharedDamage"], defaultVars["sharedTB"]
+        if self.sharedDamage or self.sharedTB:
+            self.setAoEDamage = True
+        
+        
         if self.effectAroundCaster != None:
             if self.effectAroundCaster[0] not in allTypes:
                 raise Exception("EffectAroudCaster[0] not a type")
@@ -592,7 +594,7 @@ class skill(defaultObj):
 
         self.price = price                              # Price. 0 if the skill can't be drop or bought
         self.condition = defaultVars["condition"]
-        
+
         self.range = range
         self.group = defaultVars["group"]
         self.cooldown = defaultVars["cooldown"]
@@ -665,6 +667,7 @@ class skill(defaultObj):
         self.onArmor = defaultVars["damageOnArmor"]
         self.invocation = defaultVars["invocation"]
         self.useActionStats = defaultVars["useActionStats"]
+        self.minLvl = [1,10][self.ultimate]
 
         if types==TYPE_PASSIVE:
             self.area=AREA_MONO
@@ -737,7 +740,7 @@ class skill(defaultObj):
 
         iaPow = 0
         if self.type in [TYPE_DAMAGE,TYPE_HEAL,TYPE_RESURECTION]:
-            cmpt, skillToSee, iaPow = 1, self, int(min([self.power,(self.maxPower-self.power)+self.power][self.maxPower > 0 and self.maxPower != self.power],350)*(min(self.accuracy,150)/100))
+            cmpt, skillToSee, iaPow = 1, self, int(min([self.power,(self.maxPower-self.power)+self.power][self.maxPower > 0 and self.maxPower != self.power],350)*(min(self.accuracy,150)/100)*self.repetition*(max(1,self.onArmor)))
             if self.garCrit or self.setAoEDamage:
                 iaPow = iaPow *1.3
             skillToSee = self
@@ -782,6 +785,7 @@ class skill(defaultObj):
         if self.depl != None:
             iaPow += self.depl.skills.iaPow * self.depl.lifeTime
         self.iaPow = int(iaPow)
+        self.initPower = max(self.power,1)
 
     def havConds(self,user):
         """Verify if the User have the conditions to equip the skill"""
@@ -810,6 +814,17 @@ class skill(defaultObj):
 
         return not(user.level < 10 and self.ultimate)
 
+def skillsHaveSameDesc(skill: skill):
+    if skill.become == None:
+        return True
+    else:
+        for indx, skilly in enumerate(skill.become):
+            try:
+                if skilly.description != skill.become[indx+1].description:
+                    return False
+            except IndexError:
+                return True
+
 firstheal = skill("Premiers Secours","zj",TYPE_HEAL,price=10,power=35,emoji="<:bandage:873542442484396073>",description="Une compétence de soin peu puissance mais utilisable sans temps de rechargement",use=CHARISMA)
 armorPack = skill("Armure Portative",getAutoId("sfv",True),TYPE_ARMOR,price=10,effects=armorPackEff,emoji='<:armorPack:1063490980759748789>',description="Une compétence d'armure peu puissance mais utilisable sans temps de rechargement")
 
@@ -817,9 +832,9 @@ baseSkills = [firstheal,armorPack]
 
 class stuff(defaultObj):
     """The main and only class for all the gears"""
-    def __init__(self,name,id,types,price,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effects=None, orientation = [],position=0,affinity = None,negativeShield=0,negativeHeal=0,negativeDirect=0,negativeIndirect=0,negativeBoost=0):
+    def __init__(self,name,id,types,price=1,strength=0,endurance=0,charisma=0,agility=0,precision=0,intelligence=0,magie=0,resistance=0,percing=0,critical=0,emoji = None,effects=None, orientation = [],position=0,affinity = None,negativeShield=0,negativeHeal=0,negativeDirect=0,negativeIndirect=0,negativeBoost=0):
         """rdtm"""
-        self.name = name
+        self.name:str = name
         self.id = id
         self.price = price
         self.type = types
@@ -850,15 +865,6 @@ class stuff(defaultObj):
             if effects != None:
                 tempPrice += 100
             self.price = tempPrice
-
-        if emoji == None:
-            if self.type == 0:
-                self.emoji='<:defHead:896928743967301703>'
-                self.position = 4
-            elif self.type == 1:
-                self.emoji='<:defMid:896928729673109535>'
-            elif self.type == 2:
-                self.emoji='<:defShoes:896928709330731018>'
 
         self.effects = effects
         self.affinity = affinity
@@ -897,6 +903,19 @@ class stuff(defaultObj):
         while 20 + cmpt * 10 < summation:
             cmpt += 1
         self.minLvl = cmpt * 5
+        if emoji == None:
+            if self.minLvl < 60 or self.minLvl > 100:
+                self.emoji=['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>'][self.type]
+                self.position = 4
+            else:
+                tablEmojis = [
+                    ["<:60ruban:1216382821879255131>","<:60dress:1216382843375325335>","<:60babies:1216382863663169606>"],
+                    ["<:70ruban:1216382891907481721>","<:70dress:1216382913520861215>","<:70babies:1216382938485100724>"],
+                    ["<:80ruban:1216383006084960256>","<:80dress:1216382982785466399>","<:80babies:1216382961671208961>"],
+                    ["<:90ruban:1216383080940568577>","<:90dress:1216383060032094370>","<:90babies:1216383030973960192>"],
+                    ["<:100ruban:1216383134615212205>","<:100dress:1216383152738795551>","<:100babies:1216383175396163624>"]]
+                self.emoji = tablEmojis[(self.minLvl-60)//10][self.type]
+                self.position = 4
 
     def allStats(self):
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
@@ -937,9 +956,6 @@ class defaultChar:
         desc = ""
         if self.elemAffinity:
             desc += "{0} __{1}__ :\n{2}\n".format(elemResistanceEffects[self.element].emoji[0][0],elemResistanceEffects[self.element].name,elemResistanceEffects[self.element].description)
-        for cmpt in range(len(upLifeStealNames)):
-            if self.name == upLifeStealNames[cmpt]:
-                desc += "{0} __{1}__ :\n{2}\n".format(upLifeStealEff[cmpt].emoji[0][0],upLifeStealEff[cmpt].name,upLifeStealEff[cmpt].description)
 
         for skilly in self.skills:
             if type(skilly) == skill:
@@ -949,21 +965,31 @@ class defaultChar:
                     else:
                         desc += "\n{0} __{1}__ :\n{2}\n".format(skilly.emoji,skilly.name,skilly.getSummary())
                 else:
-                    desc += "\n{0} __{1}__ :\n*Les compétences suivantes ont un temps de rechargement partégé*".format(skilly.emoji,skilly.name)
-                    for ski in skilly.become:
-                        if ski.description != None:
-                            desc += "\n> {0} __{1}__ :\n> {2}\n".format(ski.emoji, ski.name, ski.description.replace("\n","\n> "))
-                        else:
-                            desc += "\n> {0} __{1}__ :\n> {2}\n".format(ski.emoji, ski.name, ski.getSummary())
+                    desc += "\n{0} __{1}__ :".format(skilly.emoji,skilly.name)
+                    if skillsHaveSameDesc(skilly):
+                        nameList = ""
+                        for ski in skilly.become:
+                            nameList += str(ski)+", "
+                        nameList = nameList[:-2]
+                        desc += "\n> {0} :\n> - {1}\n".format(nameList,skilly.become[0].description.replace("\n","\n> - "))
+                    else:
+                        for ski in skilly.become:
+                            desc += "\n> {0} __{1}__ :\n> - {2}\n".format(ski.emoji, ski.name, ski.description.replace("\n","\n> - "))
+
         desc = reduceEmojiNames(desc)
         nbEmbed = 0
         while len(desc) > 0:
             if len(desc) > 4000:
-                tempDesc = desc.splitlines()
-                tempDesc = desc.replace(tempDesc[-1],"")
-                toReturn.append(interactions.Embed(title=["__{0}__".format(self.name),""][nbEmbed>0],color=self.color, description=tempDesc))
-                desc = desc.replace(tempDesc,"")
-                nbEmbed += 1
+                tempDescTabl = desc.splitlines(True)
+                tempDesc = ""
+                for line in tempDescTabl:
+                    if len(line+tempDesc)> 4000:
+                        toReturn.append(interactions.Embed(title=["__{0}__".format(self.name),""][nbEmbed>0],color=self.color, description=tempDesc))
+                        desc = desc[len(tempDesc)-1:]
+                        nbEmbed += 1
+                        tempDesc = line
+                    else:
+                        tempDesc += line
             else:
                 toReturn.append(interactions.Embed(title=["__{0}__".format(self.name),""][nbEmbed>0],color=self.color, description=desc))
                 desc = ""
@@ -977,6 +1003,11 @@ class defaultChar:
         """Return a ``list`` with the mains stats of the ennemi\n
         Those stats are the Lvl 50 stats"""
         return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
+    def getEquipedChip(self,toLook:int):
+        for tmpChip in self.chipInventory:
+            if tmpChip.id == toLook:
+                return tmpChip
 
 class char(defaultChar):
     """
@@ -999,73 +1030,85 @@ class char(defaultChar):
         .weaponInventory : The ``list`` of ``weapon`` objects own by the character
         .skills : A ``list`` of the equiped ``skill`` objects by the character
     """
-    def __init__(self,owner,name = "",level = 1,species=0,color=red):
-        self.owner:int = owner
-        self.name:str = str(name)
-        self.level = int(level)
-        self.stars = 0
-        self.exp = 0
-        self.currencies = 0
-        self.species = species
-        self.color = color
-        self.team = 0
-        self.gender = GENDER_OTHER
-        self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
-        self.resistance,self.percing,self.critical = 0,0,0
-        self.aspiration = -1
-        self.points = 5
-        self.canMove = True
-        self.majorPointsCount = 0
-        self.elemAffinity = False
-        self.weapon = splattershotJR
-        self.weaponInventory = baseWeapon
-        self.skills = ["0","0","0","0","0","0","0"]
-        self.skillInventory = baseSkills
-        self.stuff = [bbandeau,bshirt,bshoes]
-        self.stuffInventory = baseStuffs
-        self.otherInventory = []
-        self.procuration = []
-        self.bonusPoints = [0,0,0,0,0,0,0]
-        self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
-        self.icon = None
-        self.customColor = False
-        self.element = ELEMENT_NEUTRAL
-        self.secElement = ELEMENT_NEUTRAL
-        self.deadIcon = None
-        self.says = says()
-        self.autoPoint = False
-        self.apparaWeap:weapon = None
-        self.apparaAcc:stuff = None
-        self.colorHex = None
-        self.iconForm = 0
-        self.showElement = True
-        self.showWeapon = True
-        self.showAcc = True
-        self.handed = 1
-        self.autoStuff = False
-        self.haveProcurOn = []
-        self.limitBreaks = [0,0,0,0,0,0,0]
-        self.charSettings = createCharSettingsDict()
-        self.npcTeam = None
-        self.trait, self.counterEmoji, self.slowMove = [], None, False
+    def __init__(self,owner,name = "",level = 1,species=0,color=red,fromDict=None):
+        if fromDict == None:
+            self.owner:int = owner
+            self.name:str = str(name)
+            self.level = int(level)
+            self.stars = 0
+            self.exp = 0
+            self.currencies = 0
+            self.species = species
+            self.color = color
+            self.team = 0
+            self.gender = GENDER_OTHER
+            self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = 0,0,0,0,0,0,0
+            self.resistance,self.percing,self.critical = 0,0,0
+            self.aspiration = -1
+            self.points = 5
+            self.canMove = True
+            self.majorPointsCount = 0
+            self.elemAffinity = False
+            self.weapon = splattershotJR
+            self.weaponInventory = baseWeapon
+            self.skills = ["0","0","0","0","0","0","0"]
+            self.skillInventory = baseSkills
+            self.stuff = [bbandeau,bshirt,bshoes]
+            self.stuffInventory = baseStuffs
+            self.otherInventory = []
+            self.procuration = []
+            self.bonusPoints = [0,0,0,0,0,0,0]
+            self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
+            self.icon = None
+            self.customColor = False
+            self.element = ELEMENT_NEUTRAL
+            self.secElement = ELEMENT_NEUTRAL
+            self.deadIcon = None
+            self.says = says()
+            self.autoPoint = False
+            self.apparaWeap:weapon = None
+            self.apparaAcc:stuff = None
+            self.colorHex = None
+            self.iconForm = 0
+            self.showElement = True
+            self.showWeapon = True
+            self.showAcc = True
+            self.handed = 1
+            self.autoStuff = False
+            self.haveProcurOn = []
+            self.limitBreaks = [0,0,0,0,0,0,0]
+            self.charSettings = createCharSettingsDict()
+            self.npcTeam = None
+            self.trait, self.counterEmoji, self.slowMove = [], None, False
+            self.standAlone = False
+        else:
+            if fromDict["says"] == None:
+                fromDict["says"] = says()
 
-    def have(self,obj):
+            for k, v in fromDict.items():
+                setattr(self,k,v)
+
+            if self.chipInventory == {}:
+                self.chipInventory = initChipInv
+
+            loadedChipInv = {}
+            for chipId, value in self.chipInventory.items():
+                if type(value) != userChip:
+                    tempChip = userChip(chipList[chipId],self,value[0],value[1])
+                    if tempChip.lvl < rarityMinLvl[tempChip.rarity]:
+                        tempChip.lvl = rarityMinLvl[tempChip.rarity]
+                    loadedChipInv[chipId] = tempChip
+            self.chipInventory = loadedChipInv
+            self.limitBreaks = [0,0,0,0,0,0,0]
+
+    def have(self,obj:Union[weapon,stuff,skill,other]):
         """Verify if the character have the object Obj"""
-        for weap in self.weaponInventory:
-            if weap.id == obj.id:
+        tablToLook = {weapon:self.weaponInventory, stuff:self.stuffInventory, skill:self.skillInventory, other:self.otherInventory}[type(obj)]
+        for toLook in tablToLook:
+            if type(toLook) != str:
+                toLook = toLook.id
+            if toLook == obj.id:
                 return True
-        for skilly in self.skillInventory:
-            if skilly.id == obj.id:
-                return True
-        for stuffy in self.stuffInventory:
-            if stuffy.id == obj.id:
-                return True
-        try:
-            for othy in self.otherInventory:
-                if othy.id == obj.id:
-                    return True
-        except:
-            print(self.otherInventory)
         return False
 
     def isNpc(self,name : str):
@@ -1083,15 +1126,26 @@ class invoc(defaultChar):
         self.stars = 0
         self.canMove = canMove
         self.limitBreaks, self.points = [0,0,0,0,0,0,0], 0
+        self.stuff = []
 
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.resistance,self.percing,self.critical,self.magie = strength,endurance,charisma,agility,precision,intelligence,resistance,percing,critical,magie
         self.aspiration = aspiration
         self.weapon = weapon
         self.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
         self.npcTeam = team
+        self.standAlone = False
 
         self.description = description
         self.trait, self.counterEmoji = trait, None
+
+        self.equippedChips = [None,None,None,None,None]
+        loadedChipInv = {}
+        for chipId, value in initChipInv.items():
+            tempChip = userChip(chipList[chipId],self,value[0],value[1])
+            if tempChip.lvl < rarityMinLvl[tempChip.rarity]:
+                tempChip.lvl = rarityMinLvl[tempChip.rarity]
+            loadedChipInv[chipId] = tempChip
+        self.chipInventory = loadedChipInv
 
         while len(skills)<7:
             skills.append("0")
@@ -1119,7 +1173,7 @@ class invoc(defaultChar):
         self.slowMove = slowMove
 
     def isNpc(self,name : str):
-        return False
+        return self.name.startswith(name)
 
 textBaliseAtReplace = ["Ã©","Ã","à§"]
 textBaliseToReplace = ["é","à","Ç"]
@@ -1163,7 +1217,7 @@ class octarien(defaultChar):
             number:int = 1,
             canMove=True,
             splashArt = None,
-            splashIcon = None, elemAffinity = False, team:int=None, trait=[], slowMove = False
+            splashIcon = None, elemAffinity = False, team:int=None, trait=[], slowMove = False, equippedChips = [None,None,None,None,None]
         ):
         """
             .name : The name of the ennemy
@@ -1239,25 +1293,22 @@ class octarien(defaultChar):
         self.splashArt, self.splashIcon = splashArt, splashIcon
         self.slowMove = slowMove
 
+        self.equippedChips, self.chipInventory = equippedChips, initChipInv
+
     def changeLevel(self,level=1):
         """Change the level of the ennmy and adjust his stats and skills in consequence\n
         It's very recommanded to do than on a copy of the ennemy"""
         self.level = level
-        stats, cmpt = copy.deepcopy(self.allStats()),0
-        for a in lvlToUnlockSkill:
-            if self.level >= a:
-                cmpt += 1
-
-        skillCountMul = 0.65 + (0.35*(cmpt/7))
+        stats = copy.deepcopy(self.allStats())
 
         if self.name == "Marinier Sabreur" and random.randint(0,99) < 50:
             self.icon, self.deadIcon = "<:marSab2:1059519678944382976>", "<:spTako:866465864399323167>"
         elif self.name == "Marinier Tireur" and random.randint(0,99) < 50:
             self.icon, self.deadIcon = "<:marGun2:1059519645201223700>", "<:spTako:866465864399323167>"
 
-
         for a in range(0,len(stats)):
-            stats[a] = round(stats[a]*0.1+stats[a]*0.9*self.level/50*skillCountMul)
+            statBuff = [(1+0.15*min(self.level,MAXLEVEL)/MAXLEVEL),1][self.standAlone or self.level > MAXLEVEL]
+            stats[a] = round(stats[a]*0.1+(stats[a]*0.9*self.level/50*statBuff))
 
         for cmpt in range(len(lvlToUnlockSkill)):
             if self.level < lvlToUnlockSkill[cmpt]:
@@ -1268,15 +1319,27 @@ class octarien(defaultChar):
         elif self.level < 20 and self.element in [ELEMENT_SPACE,ELEMENT_DARKNESS,ELEMENT_LIGHT,ELEMENT_LIGHT]:
             self.element = random.randint(0,3)
 
+        if self.level > 50:
+            self.resistance += min(1,(self.level-50)/(MAXLEVEL-50)*20)
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
         self.stuff[0].minLvl = self.stuff[1].minLvl = self.stuff[2].minLvl = level
+
+        for indx, tmpChip in enumerate(self.equippedChips):
+            tmpChip = getChip(tmpChip)
+            if tmpChip != None:
+                self.equippedChips[indx] = tmpChip.id
+                self.chipInventory[tmpChip.id] = userChip(tmpChip,self,min(max(rarityMinLvl[tmpChip.rarity]+1,(self.level//10)),CHIP_MAX_LEVEL))
+
+        for chipId in self.equippedChips:
+            if type(chipId) == int:
+                self.chipInventory[chipId] = userChip(chipList[chipId],self,min(rarityMinLvl[self.chipInventory[chipId].rarity]+1,self.level//10))
 
     def isNpc(self,name : str):
         """Return if the given name is egal to the ennemy name"""
         return self.name == name
 
 class tempAltBuilds():
-    def __init__(self,proba:int=30,aspiration:int=None,weap:weapon=None,stuffs:List[stuff]=None,skills:List[skill]=None,elements:Union[int,List[int]]=None,bonusPoints:List[int]=None,icon=None,splashIcon=None):
+    def __init__(self,proba:int=30,aspiration:int=None,weap:weapon=None,stuffs:List[stuff]=None,skills:List[skill]=None,elements:Union[int,List[int]]=None,bonusPoints:List[int]=None,icon=None,splashIcon=None,chips=None):
         self.proba = proba
         self.aspiration = aspiration
         self.weapon = weap
@@ -1291,6 +1354,7 @@ class tempAltBuilds():
             self.elements = None
         self.bonusPoints = bonusPoints
         self.icon, self.splashIcon = icon, splashIcon
+        self.chips = chips
 
 class tmpAllie(defaultChar):
     """The class for the allies\n
@@ -1317,7 +1381,7 @@ class tmpAllie(defaultChar):
         limitBreaks:list=None,
         splashArt=None,
         splashIcon = None,
-        charSettings = None, elemAffinity=False,team:int=None,trait=[]
+        charSettings = None, elemAffinity=False,team:int=None,trait=[], equippedChips=[]
         ):
         """
             The class for a ally, based on the ``char`` class\n
@@ -1331,7 +1395,7 @@ class tmpAllie(defaultChar):
                 .stuff : A ``list`` of three ``stuff`` use by the ally
                 .gender : The gender of the ally. Used for accordings messages only
                 .skill : A ``list`` of ``skill`` use by the ally
-                .description : The descrition of the ally. Try to be brief
+                .description : The description of the ally. Try to be brief
                 .element : The element of the ally
                 .variant : Does the ally is a variant of another ally ?
                 .deadIcon : The emoji string to use when the ally is down
@@ -1377,7 +1441,10 @@ class tmpAllie(defaultChar):
         if type(element) != list:
             element = [element,ELEMENT_NEUTRAL]
         self.element = element[0]
-        self.secElement = element[1]
+        if len(element) > 1:
+            self.secElement = element[1]
+        else:
+            self.secElement = ELEMENT_NEUTRAL
         self.variant = variant
         self.deadIcon = deadIcon
         self.bonusPoints = bonusPoints
@@ -1389,17 +1456,15 @@ class tmpAllie(defaultChar):
 
         self.unlock = unlock
         self.npcTeam = team
-        if limitBreaks == None:
-            self.limitBreaks = [0,0,0,0,0,0,0]
-        else:
-            self.limitBreaks = [0,0,0,0,0,0,0]
-            for cmpt in limitBreaks[0]:
-                self.limitBreaks[cmpt] = limitBreaks[1]
+        self.limitBreaks = [0,0,0,0,0,0,0]
 
         self.splashArt, self.splashIcon = splashArt, splashIcon
         self.trait = trait
         self.counterEmoji = None
         self.slowMove = False
+        self.standAlone = False
+
+        self.equippedChips, self.chipInventory = equippedChips, initChipInv
         
         if charSettings == None:
             self.charSettings = createCharSettingsDict()
@@ -1445,9 +1510,12 @@ class tmpAllie(defaultChar):
                             self.icon = altBuild.icon
                         if altBuild.splashIcon != None:
                             self.splashIcon = altBuild.splashIcon
+                        if altBuild.chips != None:
+                            self.equippedChips = altBuild.chips
                         break
                     else:
                         roll = roll - altBuild.proba
+        
         for a in range(0,len(stats)):
             stats[a] = round(aspiStats[self.aspiration][a]*0.1+aspiStats[self.aspiration][a]*0.9*self.level/50)
 
@@ -1475,6 +1543,19 @@ class tmpAllie(defaultChar):
                 self.majorPoints[recommandedMajorPoints[self.aspiration][cmpt]] = [MAJORBONUS,10][recommandedMajorPoints[self.aspiration][cmpt] in [RESISTANCE,PERCING,CRITICAL]] * [1,-1][recommandedMajorPoints[self.aspiration][cmpt] >= ACT_HEAL_FULL]
         self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie = stats[0],stats[1],stats[2],stats[3],stats[4],stats[5],stats[6]
 
+        if len(self.equippedChips) > 0 and type(self.equippedChips[0]) == list:
+            tablToSee = []
+            if len(self.equippedChips) == 1:
+                tablToSee = self.equippedChips[0]
+            elif len(self.equippedChips) > 1:
+                tablToSee = self.equippedChips[random.randint(0,len(self.equippedChips)-1)]
+            self.equippedChips = tablToSee
+        
+        for indx, tmpChip in enumerate(self.equippedChips):
+            tmpChip = getChip(tmpChip)
+            self.equippedChips[indx] = tmpChip.id
+            self.chipInventory[tmpChip.id] = userChip(tmpChip,self,min(max(rarityMinLvl[tmpChip.rarity]+1,(self.level//10)+stars),CHIP_MAX_LEVEL))
+        
     def isNpc(self,name : str):
         return self.name == name
 
@@ -1499,6 +1580,8 @@ def getAllieFromBuild(ally:tmpAllie, build:tempAltBuilds):
         ally.icon = build.icon
     if build.splashIcon != None:
         ally.splashIcon = build.splashIcon
+    if build.chips != None:
+        ally.equippedChips = build.chips
     return ally
 
 class duty():
@@ -1506,6 +1589,7 @@ class duty():
         self.serie, self.numer, self.txtPath = serie, number, "./data/advScriptTxt/{0}/{1}.txt".format(serie.replace(" ","_"),number)
         self.eventDict, self.enemies, self.allies, self.embedTxtList = eventDict, [], [], []
         self.trait = []
+
 
     def load(self):
         """Load the duty with their text box"""
@@ -1522,11 +1606,11 @@ class duty():
             self.eventIndex.append(None)
 
 class depl(defaultChar):
-    def __init__(self,name:str,skills:skill,icon:List[str],cellIcon:List[str]=None,description:str="",lifeTime=3):
+    def __init__(self,name:str,skills:skill,icon:List[str],cellIcon:List[str]=None,description:str="",lifeTime=3,trap=False,triggerArea=None):
         if cellIcon == None:
             if skills.type in friendlyTypes:
                 cellIcon = ["<:avalancheB:1115997614589104219>","<:avalanceR:1115997637821337761>"]
-            elif skills.type in hostilesTypes:
+            elif skills.type in hostileTypes:
                 cellIcon = ["<:fecaloB:1115997532909228052>","<:fecaloR:1115997559308165211>"]
             else:
                 cellIcon = ["<:Targeted1:873118129214083102>","<:Targeted2:873118129130192947>"]
@@ -1545,9 +1629,15 @@ class depl(defaultChar):
         self.npcTeam = None
         sumIaPow = 0
         if type(self.skills) == skill:
-            sumIaPow += self.skills.iaPow
+            sumIaPow += self.skills.iaPow * lifeTime
         self.iaPow = sumIaPow
         self.trait, self.counterEmoji = [], None
+        self.standAlone = False
+        self.equippedChips = [None,None,None,None,None]
+        self.chipInventory = {}
+        self.trap, self.triggerArea = trap, triggerArea
+        if self.trap and self.triggerArea == None:
+            self.triggerArea = self.skills.area
 
     def isNpc(self,name):
         return False
@@ -1571,7 +1661,7 @@ for cmpt in range(1,ELEMENT_EARTH+1):
         effect("Affinité : {0}".format(elemNames[cmpt]), "elemAffinity", turnInit=-1, unclearable=True, emoji=["","<:fireResist:1064110332869611561>","<:waterResist:1064110363584503848>","<:airResist:1064110303836639273>","<:earthResist:1064110388288950302>"][cmpt], description="Réduit de **{0}%** les dégâts subis venant de compétences {1} __{2}__ mais augmente d'autant les dégâts subis de compétences {3} __{4}__".format(ELEMENT_RESIST, elemEmojis[elemStrength[cmpt]], elemNames[elemStrength[cmpt]], elemEmojis[elemWeakness[cmpt]], elemNames[elemWeakness[cmpt]]))
         )
 
-TRAIT_ARACHNOPHOBE, TRAIT_ARACHNOPHILE, TRAIT_HIGHLIGHTED, TRAIT_LYTHOPHAGE, TRAIT_ROCKED = 0,1,2,3,4
+TRAIT_ARACHNOPHOBE, TRAIT_ARACHNOPHILE, TRAIT_HIGHLIGHTED, TRAIT_LYTHOPHAGE, TRAIT_ROCKED, TRAIT_CATGIRL, TRAIT_GIANTESS = 0,1,2,3,4,5,6
 
 clemIa = createCharSettingsDict(
     weaponUse=CHARSET_WEAPON_USE_LOW,
@@ -1588,3 +1678,8 @@ hinaIa = createCharSettingsDict(
     weaponUse=CHARSET_WEAPON_USE_LOW,
     dmgSkillUse=CHARSET_DMGSKILL_HIGH
 )
+
+obseff1 = effect("Précision accrue","obsEff1",PURCENTAGE,strength=3,precision=3,magie=3,stackable=True,emoji=aspiEmoji[OBSERVATEUR],silent=True,decateEndOfTurn=True)
+obseff = effect("Observation","obsEff",stackable=True,silent=True,callOnTrigger=obseff1,trigger=TRIGGER_ON_REMOVE)
+poidEff = effect("Critique Accru","poidEff",FIXE,critical=3,stackable=True,emoji=aspiEmoji[POIDS_PLUME],turnInit=1,silent=True,decateEndOfTurn=True)
+bonkWeakness = effect("Lévitation","bonkWeakness",emoji='<:airWeakness:1210705278929080350>')

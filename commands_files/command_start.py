@@ -190,7 +190,7 @@ async def changeCustomColor(bot: Client, msg: Message, ctx : SlashContext, user 
 
 async def start(bot : interactions.Client, ctx : interactions.SlashContext):
     """Commande de création de personnage"""
-    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".json"
     isEmpty = False
     try:
         isEmpty = open(pathUserProfile)
@@ -276,7 +276,8 @@ async def start(bot : interactions.Client, ctx : interactions.SlashContext):
                 user = restats(user)
 
                 existFile(pathUserProfile)
-                if saveCharFile(pathUserProfile,user):
+                try:
+                    saveCharFile(pathUserProfile,user)
                     aliceStatsDb.addUser(user)
                     desc = "Vous avez terminé la création de votre personnage ! Rassurez-vous, vous pourrez modifier les paramètres renseignés au moyen d'objet spéciaux disponibles dans le shop.\n\nVoici quelques objets pour fêter votre recrutement :"
                     for obj in baseWeapon+baseSkills+baseStuffs:
@@ -286,7 +287,7 @@ async def start(bot : interactions.Client, ctx : interactions.SlashContext):
                     desc += "\nPourquoi ne pas faire un tour vers **/inventory** pour voir ça ?"
 
                     await msg.edit(embeds = interactions.Embed(title = "__/start__", color= user.color, description=desc),components=[])
-                else:
+                except:
                     await msg.edit(embeds = interactions.Embed(title = "__/start__", color= red, description = "Un truc c'est mal passé, l'aventure attendra"))
                     os.remove(pathUserProfile)
             else:

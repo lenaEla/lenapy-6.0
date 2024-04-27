@@ -103,7 +103,7 @@ octaStrans = skill("Multi-Bras","octaStrans",TYPE_PASSIVE,0,effectOnSelf=octaStr
 octoTentasSkill = skill("Tir Concentré","octoTantasSkill",TYPE_DAMAGE,damageOnArmor=1.2,garCrit=True,cooldown=5,power=tentaWeap.power*tentaWeap.repetition,description="Inflige de gros dégâts critiques")
 octoShotProtectSkill = skill("Tir Protecteur","otoShotProtectSkill",TYPE_DAMAGE,power=100,cooldown=5,armorConvert=100,aoeArmorConvert=50,description="Un tir qui convertie une partie des dégâts infligés en armure pour le lanceur et ses alliés proches")
 protectiveArmorEffTrig = effect("Armure Préventive","protectiveArmorEffTrig", stat=INTELLIGENCE,overhealth=50,turnInit=3,stackable=True,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
-protectiveArmorEff = effect("Armure Préventive (effet)","protectiveAmror",callOnTrigger=protectiveArmorEffTrig,trigger=TRIGGER_HP_ENDER_50,turnInit=5,emoji='<:prevention:1170999486684864573>')
+protectiveArmorEff = effect("Armure Préventive (effet)","protectiveAmror",callOnTrigger=protectiveArmorEffTrig,trigger=TRIGGER_HP_UNDER_50,turnInit=5,emoji='<:prevention:1170999486684864573>')
 protectiveArmorEff2 = effect("Aura Préventive","auraPrevent", stat=INTELLIGENCE,power=50,area=AREA_DONUT_1,type=TYPE_INDIRECT_DAMAGE,turnInit=protectiveArmorEff.turnInit,trigger=protectiveArmorEff.trigger)
 protectiveArmor = skill("Armure Préventive","protectiveAmror",TYPE_ARMOR,effects=[protectiveArmorEff,protectiveArmorEff2],cooldown=protectiveArmorEff.turnInit,description="Lorsque la cible passe en dessous de 50% de ses PVs max, lui octroie une armure et inflige des dégâts indirects aux ennemis alentours")
 
@@ -210,7 +210,7 @@ bobSays.start = "Hello. I'm Bob"
 
 # Cliroptère skill
 clirHeal = skill("Clémence","stopSpamThatPls",TYPE_HEAL,0,70,cooldown=3,use=CHARISMA,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_1,50],range=AREA_DONUT_4)
-clirWeap = weapon("Bouclier Nocturne","clirWeap",RANGE_MELEE,AREA_CIRCLE_1,92,70,charisma=10,resistance=10,endurance=10,use=CHARISMA)
+clirWeap = weapon("Bouclier Nocturne","clirWeap",RANGE_MELEE,AREA_CIRCLE_1,92,70,charisma=10,resistance=10,endurance=10,use=CHARISMA,emoji='<:alMainCb1:1080150415632498788>')
 clirSkill1 = skill("Frappe Nocturne","clirSkill1",TYPE_DAMAGE,power=85,use=CHARISMA,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_3,50],emoji=requiescat.emoji,cooldown=4)
 clirSkill2 = copy.deepcopy(lightAura2)
 clirSkill2.effects[0] = copy.deepcopy(findEffect(clirSkill2.effects[0]))
@@ -374,8 +374,8 @@ witchRageSpell = skill("Sort de Rage","witchRageSpell",TYPE_BOOST,effects=[witch
 
 # Rocket Drone
 rocketWeap = weapon("Missile","rocketDroneWeap",RANGE_LONG,AREA_CIRCLE_5,power=43,accuracy=80,area=AREA_CIRCLE_1,emoji='<:missile:1051436723252498462>',damageOnArmor=1.35,strength=15,precision=15)
-rocketSkill1 = skill("Salve de missiles","rocketSkill1",TYPE_DAMAGE,power=25,repetition=6,damageOnArmor=1.5,cooldown=5,emoji='<:miss2:1051436754101612585>',description="Inflige des dégâts à répétition sur une cible unique avec un bonus de dégâts sur l'armure")
-rocketSkill2 = skill("Pluie de missiles","rocketSkill2",TYPE_DAMAGE,power=35,setAoEDamage=True,range=AREA_CIRCLE_5,area=AREA_RANDOMENNEMI_3,repetition=3,emoji='<:miss3:1051436776721481879>',description="Envoi trois salves de missiles qui toucheront des ennemis aléatoires",cooldown=5)
+rocketSkill1 = skill("Salve de missiles","rocketSkill1",TYPE_DAMAGE,power=20,repetition=6,damageOnArmor=1.5,cooldown=5,emoji='<:miss2:1051436754101612585>',description="Inflige des dégâts à répétition sur une cible unique avec un bonus de dégâts sur l'armure")
+rocketSkill2 = skill("Pluie de missiles","rocketSkill2",TYPE_DAMAGE,power=20,setAoEDamage=True,range=AREA_CIRCLE_5,area=AREA_RANDOMENNEMI_3,repetition=3,emoji='<:miss3:1051436776721481879>',description="Envoi trois salves de missiles qui toucheront des ennemis aléatoires",cooldown=5)
 
 # GlyphidPreorian 
 glyphidArmor = effect("Armure Glyphique","glyphidArmor", stat=PURCENTAGE,overhealth=50,turnInit=35,resistance=15,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,description="Le squelette externe du Prétorien Glyphique lui procure une grosse armure qui augmente également sa résistance")
@@ -415,7 +415,7 @@ wardenSkill3 = skill("Rassemblement Glyphique II","wardenSkill3",TYPE_SUMMON,coo
 
 # Earth Golem
 earthGolemWeap = weapon("Masse Rocheuse","earthGolem",RANGE_MELEE,AREA_CIRCLE_1,power=50,accuracy=80,strength=10,endurance=10,resistance=10,emoji='<:stone1:1053730561648246804>')
-earthGolemSkill1Eff = effect("Armure Rocheuse","earthGolemEff1", stat=ENDURANCE,overhealth=40,resistance=3,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_ARMOR,emoji='<:liuArmor:922292960886915103>',stackable=True)
+earthGolemSkill1Eff = effect("Armure Rocheuse","earthGolemEff1", stat=ENDURANCE,overhealth=40,resistance=3,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_ARMOR,emoji='<:liuArmor:922292960886915103>',replace=True)
 earthGolemSkill1 = skill("Lancé de Roche","earthGolemSkill1",TYPE_DAMAGE,use=ENDURANCE,power=60,range=AREA_CIRCLE_3,cooldown=5,effectOnSelf=earthGolemSkill1Eff,damageOnArmor=1.2,description="Inflige des dégâts à l'ennemi ciblé (Dégâts augmentés sur l'armure) et octroi une armure au lanceur",emoji='<:stone2:1053730589049618462>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
 earthGolemSkill2 = skill("Fracture Rocheuse","eathGolemSkill2",TYPE_DAMAGE,use=ENDURANCE,power=80,range=AREA_MONO,area=AREA_CIRCLE_2,armorConvert=35,aoeArmorConvert=20,emoji='<:enemyStone:1042313085400133632>',cooldown=5,description="Inflige des dégâts autour du lanceur et lui procure une armure",effectOnSelf=earthGolemSkill1Eff,condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
 earthGolemSkill3 = skill("Protection Rocheuse","earthGolemSkill3",TYPE_ARMOR,area=AREA_DONUT_2,range=AREA_MONO,effects=earthGolemSkill1Eff,cooldown=5,effectOnSelf=earthGolemSkill1Eff,selfEffPurcent=150,description='Octroi une armure aux alliés alentours et une armure plus puissante au lanceur',emoji='<:stone4:1053730609685602344>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_EARTH])
@@ -432,7 +432,7 @@ zombieUndeadEff.power = 50
 zombieUndead = copy.deepcopy(undead)
 zombieUndead.effectOnSelf = zombieUndeadEff
 
-ploufWeap = weapon("Ploufion","noneWeap",RANGE_DIST,AREA_CIRCLE_4,0,100,ignoreAutoVerif=True,emoji='<:flopper:1034364651670097952>',strength=15)
+ploufWeap = weapon("Ploufion","noneweap",RANGE_DIST,AREA_CIRCLE_4,0,100,ignoreAutoVerif=True,emoji='<:flopper:1034364651670097952>',strength=15)
 ploufSkill1e = effect("Deep Dive","deepDivePlouf",turnInit=1,invisible=True)
 ploufSkill1 = skill("Plongeon","ploufSkill1",TYPE_DAMAGE,power=125,range=AREA_DIST_4,area=AREA_CIRCLE_2,emoji='<:flooper2:1150386056450027560>',tpCac=True,areaOnSelf=True,cooldown=3,effectOnSelf=ploufSkill1e,description="Restrain les chances d'esquives des ennemis ciblés, puis leur inflige des dégâts en leur sautant dessus au tour suivant, en devenant invisible")
 ploufSkill1c = effect("Cast - {replicaName}","ploufSkill1c",turnInit=2,silent=True,replique=ploufSkill1)
@@ -460,7 +460,7 @@ surrinWeap = weapon("Surrin","surrinWeap",RANGE_MELEE,AREA_CIRCLE_1,65,80,streng
 surrinSkill1Eff = copy.deepcopy(vulne)
 surrinSkill1Eff.stat, surrinSkill1Eff.power, surrinSkill1Eff.turnInit = STRENGTH, 5, 3
 surrinSkill1 = skill("Attaque Sournoise","surrinSkill1",TYPE_DAMAGE,power=60,cooldown=3,effBeforePow=True,emoji='<:trickAttack:971788242284343336>',effects=surrinSkill1Eff,range=AREA_CIRCLE_1)
-surrinSkill2 = skill("Triple Attaque","surrinSkill2",TYPE_DAMAGE,power=50,repetition=3,emoji='<:dreamWithinADream:1053655563193561138>',range=AREA_CIRCLE_1,cooldown=5)
+surrinSkill2 = skill("Triple Attaque","surrinSkill2",TYPE_DAMAGE,power=45,repetition=3,emoji='<:dreamWithinADream:1053655563193561138>',range=AREA_CIRCLE_1,cooldown=5)
 surrinSkill3 = skill("Dague Empoisonnée","surrinSkill3",TYPE_DAMAGE,power=60,effects=morsTempette,cooldown=morsTempette.turnInit,range=AREA_CIRCLE_1,emoji=bleedingDague.emoji)
 
 # Archer
@@ -475,3 +475,18 @@ octoHealSkill1.effects[0] = findEffect(octoHealSkill1.effects[0])
 octoHealSkill1.effects[0].power = 15
 octoHealSkill2E = effect("Régénération","octoHealSkill2E", stat=CHARISMA,power=15,turnInit=3,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_START_OF_TURN,emoji='<:cure:1016788041785950250>')
 octoHealSkill2 = skill("Régénération","octoHealSkill2",TYPE_HEAL,power=octoHealSkill2E.power*octoHealSkill2E.turnInit,effects=[octoHealSkill2E],cooldown=3,emoji='<:heal:911735386697519175>')
+
+# OctoMage
+octoMageSkill1 = skill("Magie Débutante","octoMageSkill1",TYPE_DAMAGE,become=[fireMagicCombo.become[0],waterMagicCombo.become[0],airMagicCombo.become[0],earthMagicCombo.become[0]])
+for indx, tmpSkill in enumerate(octoMageSkill1.become):
+    octoMageSkill1.become[indx] = copy.deepcopy(tmpSkill)
+    octoMageSkill1.become[indx].needEffect, octoMageSkill1.become[indx].cooldown = None, 1
+
+octoMageSkill2 = skill("Magie Intermédiaire","octoMageSkill2",TYPE_DAMAGE,become=[fireMagicCombo.become[1],waterMagicCombo.become[1],airMagicCombo.become[1],earthMagicCombo.become[1]])
+for indx, tmpSkill in enumerate(octoMageSkill2.become):
+    octoMageSkill2.become[indx] = copy.deepcopy(tmpSkill)
+    octoMageSkill2.become[indx].needEffect, octoMageSkill2.become[indx].cooldown = None, 3
+
+zombieMalusSkillEff = copy.deepcopy(incurable)
+zombieMalusSkillEff.power, zombieMalusSkillEff.turnInit, zombieMalusSkillEff.unclearable, zombieMalusSkillEff.silent = 35, -1, True, True
+zombieMalusSkill = skill("Mort-Vivant","zombieMalusSkill",TYPE_PASSIVE,effects=zombieMalusSkillEff)

@@ -3,6 +3,7 @@ from gestion import *
 from advance_gestion import *
 from advObjects.advSkills import *
 from advObjects.advAllies import findAllie
+from adv import *
 
 if not(os.path.exists("./data/database/success.db")):
     temp = open("./data/database/success.db","bw")
@@ -46,8 +47,8 @@ class achiveTabl:
         self.poison = achivement("Notre pire ennemi, c'est nous même",5000,"poison",None,"Infligez un total de {0} dégâts indirects",'<:butterflyV:883627142615805962>')
         self.icealia = achivement("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",findAllie("Icealia").icon)
         self.shehisa = achivement("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",findAllie("Shehisa").icon)
-        self.heriteEstialba = achivement("Savoir utiliser ses atouts",25000,"estialba",'vk',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"",findAllie("Lohica").icon)
-        self.heriteLesath = achivement("Il faut que ça sorte",25000,"lesath",'vj',"Infligez {0} dégâts indirects à l'aide de l'effet \"__<:bleeding:1133258052225745048> Hémorragie__\"","<:dissimulation:900083085708771349>")
+        self.heriteEstialba = achivement("Savoir utiliser ses atouts",25000,"estialba",description="Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"",emoji=findAllie("Lohica").icon)
+        self.heriteLesath = achivement("Il faut que ça sorte",25000,"lesath",description="Infligez {0} dégâts indirects à l'aide de l'effet \"__<:bleeding:1133258052225745048> Hémorragie__\"",emoji="<:ombralStrike:900083085708771349>")
         self.powehi = achivement("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois",findAllie("Powehi").icon)
         self.dimentio = achivement("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
         self.feli = achivement("Ne jamais abandonner",10,"feli","tl","Affrontez ou faites équipe avec Félicité {0} fois",findAllie("Félicité").icon)
@@ -89,6 +90,9 @@ class achiveTabl:
         self.marineDealer = achivement("Do what you want 'cause a pirate is free",50,"marineDealer",[fairyLiberation.id,exploPetal.id],description="Vaincre **{0} ennemis** ayant une affinité avec les **Marines**",emoji='<:pirSan2:1059519736347631696>')
         self.celeste = achivement("Le début d'une aventure céleste",10,"celeste",selfMemoria.id,"Affrontez ou faites équipe avec Céleste {0} fois",emoji=findAllie("Céleste").icon)
         self.shushi = achivement("Filer telle une anguille",10,"shushi",squidRoll.id,"Affrontez ou faites équipe avec Shushi {0} fois",emoji=findAllie("Shushi").icon)
+        self.convicStar1 = achivement("Conviction des étoiles 1",1,"convicStar1",description="Soyez témoins de la compétence \"Conviction de Silicia\" lors de **{0}** combats",emoji="<:silicia:1045109225615003729>",recompense=[tripleCommunCards.id])
+        self.convicStar2 = achivement("Conviction des étoiles 2",5,"convicStar2",description="Soyez témoins de la compétence \"Conviction de Silicia\" lors de **{0}** combats",emoji="<:silicia:1045109225615003729>",recompense=[tripleCommunCards.id,dailyCardBooster1.id])
+        self.convicStar3 = achivement("Conviction des étoiles 3",20,"convicStar3",description="Soyez témoins de la compétence \"Conviction de Silicia\" lors de **{0}** combats",emoji="<:silicia:1045109225615003729>",recompense=[tripleCommunCards.id,singleRareCards.id,dailyCardBooster2.id])
 
     def tablAllSuccess(self)->List[achivement]:
         """Renvoie un tableau avec tous les objets success"""
@@ -96,7 +100,7 @@ class achiveTabl:
         for a, b in self.__dict__.items():
             toReturn.append(b)
         return toReturn
-    
+
     def where(self,where : str):
         alls = self.tablAllSuccess()
         for a in range(0,len(alls)):
@@ -155,6 +159,8 @@ class achiveTabl:
                         recompense = findOther(a)
                         if recompense == None:
                             print("L'équipement {0} n'a pas été trouvée".format(a))
+                        elif recompense.id in [tripleCommunCards.id,singleRareCards.id]:
+                            pass
                         elif user.have(recompense):
                             print("{0} possède déjà {1}".format(user.name,recompense.name))
                             user.currencies += recompense.price

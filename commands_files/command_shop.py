@@ -10,8 +10,8 @@ buttonReturn = interactions.Button(style=2, label="Retour",emoji=PartialEmoji(na
 buttonBuy = interactions.Button(style=1, label="Acheter", emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id="0")
 onlyReturn = interactions.ActionRow(buttonReturn)
 
-allBuyButton = interactions.Button(style=ButtonStyle.PRIMARY,label="Devenir pauvre",emoji=getEmojiObject('<:bought:906623435256504451>'),custom_id="buy all")
-allGiveButton = interactions.Button(style=ButtonStyle.SECONDARY,label="Devenir pauvre (Deluxe)",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="buy'n'send all")
+allBuyButton = interactions.Button(style=ButtonStyle.GRAY,label="Tout acheter",emoji=getEmojiObject('<:bought:906623435256504451>'),custom_id="buy all")
+allGiveButton = interactions.Button(style=ButtonStyle.GRAY,label="Tout acheter et offrir",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="buy'n'send all")
 
 allBuyButtonButPoor = interactions.Button(style=ButtonStyle.SECONDARY,label="Vous êtes pauvre",emoji=getEmojiObject('<:bought:906623435256504451>'),custom_id="buy all",disabled=True)
 allGiveButtonButPoor = interactions.Button(style=ButtonStyle.SECONDARY,label="Vous êtes pauvre, mais deluxe",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="buy'n'send all",disabled=True)
@@ -22,495 +22,486 @@ allGiveButtonButAllreadyHaveF = interactions.Button(style=ButtonStyle.SECONDARY,
 global shopMaraine
 shopMaraine = "iiiiii"
 
-haveIcon = "<:bought:906623435256504451>"
+haveIcon, abigail = "<:bought:906623435256504451>", "<:abigail:1130264097271853056>"
 allTeamHaveIcon = "<:teamBought:906621631143743538>"
 
+npcIcons = {}
+for npc in tablAllAllies+tablVarAllies+tablUniqueEnnemies+tablBoss+tablRaidBoss+tablBossPlus:
+    npcIcons[npc.name] = [npc.icon, npc.splashIcon][npc.splashIcon != None]
+
+npcIcons["Akia"] = '<a:akia:993550766415564831>'
 
 def formatShop(txt:str) -> str:
-    baddyTabl = ["","","","",""]
+    baddyTabl, randomTabl = ["","","","",""], ["","","","",""]
     if "baddy" in txt:
         for cmpt in range(0,5):
-            baddyTabl[cmpt]=["<:baddy{0}:1003027064112287764>".format(cmpt),"<:baddy{0}:1003027102196572270>".format(cmpt)][int(random.randint(0,99)//50)]
+            baddyTabl[cmpt] = "<:baddy{0}:{1}>".format(cmpt,randRep([1003027064112287764,1003027102196572270,1113685316319072297,1113685339400327198]))
+
     if "{maraine}" in txt:
         global shopMaraine
         shopMaraine = shopMaraine + "iii"
 
+    if "random" in txt:
+        tablRandom = EmIcon[1]+EmIcon[2]
+        for cmpt in (0,1,2,3,4):
+            randomTabl[cmpt] = randRep(tablRandom)
+            tablRandom.remove(randomTabl[cmpt])
+
     return txt.format(
-        lena = '<:lena:909047343876288552>',
-        alice = '<:alice:908902054959939664>',
-        shushi = '<:shushi:909047653524963328>',timeo="<:timeoB:1104517210728308746>",
-        clemence = '<:clemence:908902579554111549>', john = '<:john:908887592756449311>', sclem = '<:smallClemence:1178113069973508126>',
-        luna = '<:luna:909047362868105227>', stella = "<:stella:1116365644263333988>", celeste = "<:celeste:1129042444479119401>", abigail = "<:abigail:1130264097271853056>",
-        feli = '<:felicite:909048027644317706>', felicite = '<:felicite:909048027644317706>',
-        icealia = '<:icealia:909065559516250112>',lohica='<:lohica:919863918166417448>',ly='<:ly:943444713212641310>',amary='<:amary:979441677460713502>',pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirGun1:1059519820376330351>',pirate3='<:pirGun2:1059519760284528640>',
-        shihu = '<:shihu:909047672541945927>', stimeo = '<:stimeo:1089164206336647168>', itimeo = "<:itimeo:1103217741172846614>",
-        shehisa = '<:shehisa:919863933320454165>', helene = tablAllAllies[6].icon, astra = "<:astra:1051825407466426430>",
-        sixtine = '<:sixtine:908819887059763261>', lily = '<:lily:1006442350471553076>', dSixtine = "<:dreamSixtine:1100793996483235851>",
-        iliana = '<:Iliana:926425844056985640>', catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = "<:aurora:1100791091483136133>", suivant = "Suivant d'Aurora", gaurora = "<:gaurora:1103332091594281050>",
-        gweny = tablAllAllies[1].icon, alty = '<:alty:1112517632671875152>', klikli ='<:klikli:906303031837073429>', karai = '<:karail:974079383197339699>',
-        lio = "<:lio:908754690769043546>", liu = "<:liu:908754674449018890>", liz = '<:lie:908754710121574470>', lia = "<:lia:908754741226520656>", kitsune = "<:kitsune:935552850686255195>", penelope = "<:penelope:1178446515459588106>",
-        anna = "<:anna:943444730430246933>", belle = "<:belle:943444751288528957>",
-        edelweiss = '<:edelweiss:918451422939451412>', epiphyllum = "<:epiphilium:1014094726351294484>",
-        ruby='<:ruby:1112519724799103037>', julie = '<:julie:910185448951906325>',
-        akia = '<a:akia:993550766415564831>',
-        nacialisla = "<:nacialisla:985933665534103564>", silicia = "<:silicia:1045109225615003729>", ailill = "<a:Ailill:882040705814503434>",
-        benedicte = "<:benedict:1116416894426173520>", 
-        kiku = "<:kiku:962082466368213043>", churi = '<:churi:992941366537633914>', skeleton = "<a:smnMage:1054312154452471838>", churHin = '<:churHi:994045813175111811>', anais="<:anais:1166806279042375780>",
-        akira = '<:akira:909048455828238347>', krys = "<:krys:916118008991215726>",
+        lena = npcIcons["Lena"],
+        alice = npcIcons["Alice"],
+        shushi = npcIcons["Shushi"],timeo="<:timeoB:1104517210728308746>",
+        clemence = npcIcons["Clémence"], john = npcIcons["John"], sclem = '<:smallClemence:1228692484247519314>',
+        luna = npcIcons["Luna"], stella = npcIcons["Stella"], celeste = npcIcons["Céleste"], abigail = abigail, oceane = "<:oceane:1218268649564143707>", glan = "<:glan:1218268667960098879>",
+        feli = npcIcons["Félicité"], felicite = npcIcons["Félicité"],
+        icealia = npcIcons["Icealia"],lohica=npcIcons["Lohica"],ly=npcIcons["Ly"],amary=npcIcons["Amary"],pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirGun1:1059519820376330351>',pirate3='<:pirGun2:1059519760284528640>',
+        shihu = npcIcons["Shihu"], stimeo = '<:stimeo:1089164206336647168>', itimeo = "<:itimeo:1103217741172846614>",
+        shehisa = npcIcons["Shehisa"], helene = npcIcons["Hélène"], astra = npcIcons["Astra"],
+        sixtine = npcIcons["Sixtine"], lily = npcIcons["Lily"], dSixtine = "<:dreamSixtine:1100793996483235851>",
+        iliana = npcIcons["Iliana"], catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = npcIcons["Aurora"], gaurora = "<:gaurora:1103332091594281050>",
+        gweny = npcIcons["Gwendoline"], alty = npcIcons["Altikia"], klikli =npcIcons["Klironovia"], karai = '<:karai:974079383197339699>',
+        lio = npcIcons["Lio"], liu = npcIcons["Liu"], liz = npcIcons["Liz"], lia = npcIcons["Lia"], kitsune = npcIcons["Kitsune"], penelope = "<:penelope:1178446515459588106>", lei = '<:lei:1195088871298445352>',
+        anna = npcIcons["Anna"], belle = npcIcons["Belle"],
+        edelweiss = npcIcons["Edelweiss"], epiphyllum = npcIcons["Epiphyllum"],
+        ruby=npcIcons["Ruby"], julie = npcIcons["Julie"],
+        akia = npcIcons["Akia"],
+        nacialisla = npcIcons["Nacialisla"], silicia = "<:silicia:1045109225615003729>", ailill = npcIcons["Ailill"],
+        benedicte = npcIcons["Bénédicte"], amandine = npcIcons["Amandine"], candy = npcIcons["Candy"],
+        kiku = npcIcons["Kiku"], churi = npcIcons["Chûri"], skeleton = "<a:smnMage:1054312154452471838>", churHin = npcIcons["Chûri-Hinoro"], anais="<:anais:1166806279042375780>",
+        akira = npcIcons["Akira"], krys = npcIcons["Krys"],
         baddy1 = baddyTabl[0], baddy2 = baddyTabl[1], baddy3 = baddyTabl[2], baddy4 = baddyTabl[3], baddy5 = baddyTabl[4],
         maraine = "Mara{0}ne".format(shopMaraine), chauvesouris = "🦇", thomas = "Thomas",
-        surrin = "<:surin:1113685316319072297>", bow = "<:bow:1113685339400327198>", imea = "<:imea:1116364997073829998>", isa = "<:isa:1158136337061400797>",
-        soul = "<:ghostB:1119951487032901722>", vampire = "Vampire", jade = "<:jade:1178453233442754701>", alexandre = '<:alexandre:1178570945368162405>', zeneca = '<:zeneca:1177606488496283689>', kaleb='<:kaleb:1183176411452813433>'
-    )
+        surrin = "<:surin:1113685316319072297>", bow = "<:bow:1113685339400327198>", imea = npcIcons["Imea"], isa = "<:isa:1158136337061400797>",
+        soul = "<:ghostB:1119951487032901722>", jade = npcIcons["Jade"], alexandre = npcIcons["Alexandre"], zeneca = npcIcons["Zénéca"], kaleb='<:kaleb:1183176411452813433>', keuleyong = "<:keuleyong:1205465540337078292>",
+        necro = "<:graveyard:1164906144339341424>", batiste = "<:batiste:1203788655240679534>", victoire = npcIcons["Victoire"],
+        random1 = randomTabl[0], random2 = randomTabl[1], random3 = randomTabl[2], random4 = randomTabl[3], random5 = randomTabl[4],
+        unknow="<:blocked:897631107602841600>",dzeneca=npcIcons["Phy"])
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
-    pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
-    if os.path.exists(pathUserProfile): # Does the user have a character
-        user = loadCharFile(pathUserProfile)
-        if random.randint(0,99) < 90:
-            shopTotalRandom = copy.deepcopy(shopRandomMsg)
+    pathUserProfile, overloadShopMsg = absPath + "/userProfile/" + str(ctx.author.id) + ".json", None
+    if not(os.path.exists(pathUserProfile)):
+        await ctx.send(embeds = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),ephemeral=True)
 
-            dateNow = datetime.now(parisTimeZone).replace(tzinfo=None)
-            years = dateNow.year
+    user = loadCharFile(pathUserProfile)
+    if random.randint(0,99) < 90:
+        shopTotalRandom = shopRandomMsg[:]
 
-            if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
-                shopTotalRandom += shopEventEndYears 
+        dateNow = datetime.now(parisTimeZone).replace(tzinfo=None)
+        years = dateNow.year
 
-            shopTotalRandom += shopMonthlyMsg[dateNow.month-1]+shopMonthlyMsg[dateNow.month-1]+shopMonthlyMsg[dateNow.month-1]+ shopLastMonthlyMsg[dateNow.month-1]
+        if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
+            shopTotalRandom += shopEventEndYears 
 
-            for shopDict in shopEventOneDay:
-                if shopDict["date"] == (dateNow.day,dateNow.month):
-                    shopTotalRandom = shopDict["tabl"]
-                    break
+        shopTotalRandom += shopMonthlyMsg[dateNow.month-1]+shopMonthlyMsg[dateNow.month-1]+shopMonthlyMsg[dateNow.month-1]+ shopLastMonthlyMsg[dateNow.month-1]
 
-            shopRdMsg = formatShop(shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)])
-        else:
-            shopRdMsg = formatShop(singingShopMsg[random.randint(0,len(singingShopMsg)-1)])
-        initMsg = None
+        for shopDict in shopEventOneDay:
+            if shopDict["date"] == [dateNow.day,dateNow.month]:
+                shopTotalRandom = shopDict["tabl"]
+                break
 
-        if user.team != 0:
-            teamList = userTeamDb.getTeamMember(user.team)
-        else:
-            teamList = [user.owner]
+        shopRdMsg = formatShop(shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)])
+    else:
+        shopRdMsg = formatShop(singingShopMsg[random.randint(0,len(singingShopMsg)-1)])
+    initMsg = None
 
-        buttonGift = interactions.Button(style=3, label="Offrir",emoji=PartialEmoji(name='🎁'),custom_id="1",disabled=len(teamList) == 1)
-        buttonAllGift = interactions.Button(style=3, label="Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2",disabled=len(teamList) == 1)
+    if user.team != 0:
+        teamList = userTeamDb.getTeamMember(user.team)
+    else:
+        teamList = [user.owner]
 
-        allButtons = interactions.ActionRow(buttonReturn,buttonBuy,buttonGift,buttonAllGift)
-        buttonsWithoutBuy = interactions.ActionRow(buttonReturn,buttonGift,buttonAllGift)
-        while 1: 
-            # Loading the user's team
-            if len(teamList) > 1:
-                teamMember = []
-                for a in teamList:
-                    if a != int(ctx.author.id):
-                        teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".prof")]
+    buttonGift = interactions.Button(style=3, label="Offrir",emoji=PartialEmoji(name='🎁'),custom_id="1",disabled=len(teamList) == 1)
+    buttonAllGift = interactions.Button(style=3, label="Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2",disabled=len(teamList) == 1)
 
-            shopEmb = interactions.Embed(title = "__Shop__",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} <:coins:862425847523704832>.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n\n{shopRdMsg}")
+    allButtons = interactions.ActionRow(buttonReturn,buttonBuy,buttonGift,buttonAllGift)
+    buttonsWithoutBuy = interactions.ActionRow(buttonReturn,buttonGift,buttonAllGift)
 
-            shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
-            for a in shopping:
-                if type(a)==weapon:
-                    shopWeap.append(a)
-                elif type(a)==skill:
-                    shopSkill.append(a)
-                elif type(a)==stuff:
-                    shopStuff.append(a)
-                else:
-                    shopOther.append(a)
+    abigailTalkingFile, isSunday = open(os.getcwd() + '/data/database/shopMsg.json',encoding="utf8"), datetime.now(parisTimeZone).weekday()==6
+    abigailTalking, reduction = json.load(abigailTalkingFile)["abiShopMsg"], [1,0.7][isSunday]
 
-            shopped = shopWeap+shopSkill+shopStuff+shopOther
-            shopMsg = ["__**Armes :**__","__**Compétences :**__","__**Equipement :**__","**__Autre :__**"]
-            options = []
-            listNotHave,listNotAllTeamHave,totalCost,totalTeamCost = [],[],0,0
+    while 1:
+        # Loading the user's team
+        if len(teamList) > 1:
+            teamMember = []
+            for a in teamList:
+                if a != int(ctx.author.id):
+                    teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".json")]
 
-            shopField = ["","","",""]
-            for a in [0,1,2,3]:
+        reducMsg = ["","Réduction de 30% active !\n"][isSunday]
+        shopEmb = interactions.Embed(title = "__Shop__",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} <:coins:862425847523704832>.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n{reducMsg}\n{shopRdMsg}")
+
+        shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
+        for a in shopping:
+            if type(a)==weapon:
+                shopWeap.append(a)
+            elif type(a)==skill:
+                shopSkill.append(a)
+            elif type(a)==stuff:
+                shopStuff.append(a)
+            else:
+                shopOther.append(a)
+
+        shopped = shopWeap+shopSkill+shopStuff+shopOther
+        shopMsg = ["__**Armes :**__","__**Compétences :**__","__**Equipement :**__","**__Autre :__**"]
+        options = []
+        listNotHave,listNotAllTeamHave,totalCost,totalTeamCost = [],[],0,0
+
+        shopField = ["","","",""]
+        for a in [0,1,2,3]:
+            for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
+                if b != None:
+                    price = int(b.price*reduction)
+                    shopField[a] += f"\n{b.emoji} {b.name} ({price} <:coins:862425847523704832>)"
+                    desc, desc2, icon = ["Arme","Compétence","Equipement","Autre"][a], "", ""
+
+                    if user.have(b): icon, desc2 = " ("+haveIcon+")", " - Possédé"
+                    else: listNotHave.append(b); totalCost += price
+
+                    if len(teamList) > 1:
+                        allTeamHave = True
+                        for c in teamMember:
+                            if not(c.have(b)):
+                                allTeamHave = False
+                                totalTeamCost += price
+
+                        if allTeamHave:
+                            icon = " ("+allTeamHaveIcon+")"
+                            desc2 = " - Toute votre équipe possède cet objet"
+                        else:
+                            listNotAllTeamHave.append(b)
+
+                    shopField[a] += icon
+                    options += [interactions.StringSelectOption(label=unhyperlink(b.name),value=b.id,emoji=getEmojiObject(b.emoji),description=desc+desc2)]
+
+            shopField[a] = reduceEmojiNames(shopField[a])
+            if len(shopField[a]) <= 1024:
+                shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
+            else:
+                shopField[a] = ""
                 for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
                     if b != None:
-                        shopField[a] += f"\n{b.emoji} {b.name} ({b.price} <:coins:862425847523704832>)"
-                        desc = ["Arme","Compétence","Equipement","Autre"][a]
-                        desc2 = ""
-
+                        tempName, temp = "",""
+                        for letter in unhyperlink(b.name+" "):
+                            if letter == " ":
+                                if len(temp) > 4:
+                                    tempName += " {0}.".format(temp[:3])
+                                else:
+                                    tempName += " {0}".format(temp[:4])
+                                temp = ""
+                            else:
+                                temp += letter
+                        price = int(b.price*reduction)
+                        shopField[a] += f"\n{b.emoji}{tempName} : {price} pièces"
                         icon = ""
                         if user.have(b):
-                            icon = " ("+haveIcon+")"
-                            desc2 = " - Possédé"
-                        else:
-                            listNotHave.append(b)
-                            totalCost += b.price
-                        
+                            icon = " (☑️)"
+
                         if len(teamList) > 1:
                             allTeamHave = True
                             for c in teamMember:
                                 if not(c.have(b)):
                                     allTeamHave = False
-                                    totalTeamCost += b.price
+                                    break
 
                             if allTeamHave:
-                                icon = " ("+allTeamHaveIcon+")"
-                                desc2 = " - Toute votre équipe possède cet objet"
-                            else:
-                                listNotAllTeamHave.append(b)
+                                icon = " (✅)"
 
                         shopField[a] += icon
-                        options += [interactions.StringSelectOption(label=unhyperlink(b.name),value=b.id,emoji=getEmojiObject(b.emoji),description=desc+desc2)]
-                shopField[a] = reduceEmojiNames(shopField[a])
-                if len(shopField[a]) <= 1024:
-                    shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
-                else:
-                    shopField[a] = ""
-                    for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
-                        if b != None:
-                            tempName, temp = "",""
-                            for letter in unhyperlink(b.name+" "):
-                                if letter == " ":
-                                    if len(temp) > 4:
-                                        tempName += " {0}.".format(temp[:3])
-                                    else:
-                                        tempName += " {0}".format(temp[:4])
-                                    temp = ""
-                                else:
-                                    temp += letter
 
-                            shopField[a] += f"\n{b.emoji}{tempName} : {b.price} pièces"
-                            icon = ""
-                            if user.have(b):
-                                icon = " (☑️)"
+                if shopField[a] == "":
+                    shopField[a] = "???"
 
-                            if len(teamList) > 1:
-                                allTeamHave = True
-                                for c in teamMember:
-                                    if not(c.have(b)):
-                                        allTeamHave = False
-                                        break
+                shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
 
-                                if allTeamHave:
-                                    icon = " (✅)"
+        cd, cd2, fightingStatus = teamWinDB.getFightCooldown(user.team,timestamp=True), teamWinDB.getFightCooldown(user.team, True, timestamp=True), teamWinDB.isFightingBool(user.team)
 
-                            shopField[a] += icon
+        if fightingStatus[0]:
+            fightingRespond = "__Votre équipe affronte actuellement :__\n"
+            temp = ""
+            for letter in fightingStatus[1]:
+                if letter==";" and len(temp) > 0:
+                    ennemi = findEnnemi(temp)
+                    if ennemi == None:
+                        ennemi = findAllie(temp)
 
-                    if shopField[a] == "":
-                        shopField[a] = "???"
-
-                    shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
-
-            cd = teamWinDB.getFightCooldown(user.team,timestamp=True)
-            cd2 = teamWinDB.getFightCooldown(user.team, True, timestamp=True)
-
-            fightingStatus = teamWinDB.isFightingBool(user.team)
-
-            if fightingStatus[0]:
-               
-                fightingRespond = "__Votre équipe affronte actuellement :__\n"
-                temp = ""
-                for letter in fightingStatus[1]:
-                    if letter==";" and len(temp) > 0:
-                        ennemi = findEnnemi(temp)
-                        if ennemi == None:
-                            ennemi = findAllie(temp)
-
-                        if ennemi != None:
-                            fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
-                        else:
-                            fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
-                        temp = ""
+                    if ennemi != None:
+                        fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
                     else:
-                        temp+=letter
+                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
+                    temp = ""
+                else:
+                    temp+=letter
 
-                shopEmb.add_field(name="<:em:866459463568850954>\n__/cooldowns__",value=fightingRespond)
+            shopEmb.add_field(name="<:em:866459463568850954>\n__/cooldowns__",value=fightingRespond)
+        else:
+            if not(globalVar.fightEnabled()):
+                normalFightMsg = '<:noneWeap:917311409585537075>'
             else:
-                if not(globalVar.fightEnabled()):
-                    normalFightMsg = '<:noneWeap:917311409585537075>'
-                else:
-                    normalFightMsg = cd
+                normalFightMsg = cd
 
-                if not(globalVar.fightEnabled()):
-                    quickFightMsg = '<:noneWeap:917311409585537075>'
-                else:
-                    quickFightMsg = cd2
+            if not(globalVar.fightEnabled()):
+                quickFightMsg = '<:noneWeap:917311409585537075>'
+            else:
+                quickFightMsg = cd2
 
-                shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {normalFightMsg}\n__Quick__ : {quickFightMsg}",inline=False)
+            shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {normalFightMsg}\n__Quick__ : {quickFightMsg}",inline=False)
 
+        select = interactions.StringSelectMenu(options,custom_id = "seeMoreInfos",placeholder="Un article vous interesse ?")
 
-            select = interactions.StringSelectMenu(options,custom_id = "seeMoreInfos",placeholder="Choisissez un article pour avoir plus d'informations dessus")
+        if totalCost == 0:
+            temp1 = [allBuyButtonButAllreadyHaveM,allBuyButtonButAllreadyHaveF,allBuyButtonButAllreadyHaveM][user.gender]
+        else:
+            temp1 = copy.deepcopy(allBuyButton)
+            temp1.label += " ({0})".format(totalCost)
+            if user.currencies < totalCost:
+                temp1.disabled, temp1.style = True, ButtonStyle.GRAY
 
-            if totalCost > user.currencies:
-                temp1 = allBuyButtonButPoor
-            elif totalCost == 0:
-                temp1 = [allBuyButtonButAllreadyHaveM,allBuyButtonButAllreadyHaveF,allBuyButtonButAllreadyHaveM][user.gender]
-            elif user.currencies >= totalCost:
-                temp1 = allBuyButton
-
-            actrow2 = ActionRow(temp1)
-            if totalTeamCost > user.currencies:
-                actrow2.add_component(allGiveButtonButPoor)
-            elif totalTeamCost == 0:
+        actrow2 = ActionRow(temp1)
+        if len(teamList)>1:
+            if totalTeamCost == 0:
                 actrow2.add_component([allGiveButtonButAllreadyHaveM,allGiveButtonButAllreadyHaveF,allGiveButtonButAllreadyHaveM][user.gender])
-            elif user.currencies >= totalTeamCost:
-                actrow2.add_component(allGiveButton)
-
-            if initMsg != None:
-                await initMsg.edit(embeds = shopEmb,components=[interactions.ActionRow(select),actrow2])
             else:
-                try:
-                    initMsg = await ctx.send(embeds = shopEmb,components=[interactions.ActionRow(select),actrow2])
-                except:
-                    initMsg = await ctx.channel.send(embeds = shopEmb,components=[interactions.ActionRow(select),actrow2])
+                tempComp = copy.deepcopy(allGiveButton)
+                tempComp.label += " ({0})".format(totalTeamCost)
+                if user.currencies < totalTeamCost:
+                    tempComp.disabled, tempComp.style = True, ButtonStyle.GRAY
+                actrow2.add_component(tempComp)
 
-            def check(m):
-                m = m.ctx
-                return int(m.author.id) == int(ctx.author.id)
+        if initMsg != None:
+            await initMsg.edit(embeds = shopEmb,components=[interactions.ActionRow(select),actrow2])
+        else:
+            try:
+                initMsg = await ctx.send(embeds = shopEmb,components=[interactions.ActionRow(select),actrow2])
+            except:
+                tempShopEmb, shopEmb.description, shopEmb.title, shopEmb.fields[0].name = interactions.Embed(title=shopEmb.title, description=shopEmb.description, color=shopEmb.color), "", "", "__Armes :__"
+                overloadShopMsg = await ctx.send(embeds=tempShopEmb)
+                initMsg = await ctx.channel.send(embeds = shopEmb,components=[interactions.ActionRow(select),actrow2])
+
+        def check(m):
+            m = m.ctx
+            return int(m.author.id) == int(ctx.author.id)
+
+        try:
+            respond = await bot.wait_for_component(messages=initMsg,check=check,timeout=60)
+            respond: ComponentContext = respond.ctx
+            await respond.defer()
+        except asyncio.TimeoutError :
+            timeoutEmbed = interactions.Embed(title="__Shop__",color=user.color,description=shopRdMsg)
+            await initMsg.edit(embeds = timeoutEmbed,components=[])
+            if overloadShopMsg != None:
+                await overloadShopMsg.delete()
+            return 0
+        except Exception as e:
+            await initMsg.edit(embeds=Embed(title="Une erreur est survenue",description=format_exc(limit=4000)))
+
+        if respond.component_type == 2:
+            if respond.custom_id =="buy all":
+                tempMsg = await respond.send(embeds=interactions.Embed(title="__/shop__",color=user.color,description=abigail + " : " + abigailTalking["buyAll"][random.randint(0,len(abigailTalking["buyAll"])-1)]))
+                user = loadCharFile(user.owner)
+                tempTabl = []
+                for obj in listNotHave:
+                    if not(user.have(obj)) and user.currencies >= int(obj.price*reduction):
+                        [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory][whatIsThat(obj)].append(obj)
+                        user.currencies -= int(obj.price*reduction)
+                        tempTabl += [[obj.emoji,obj.name]]
+                saveCharFile("./userProfile/{0}.json".format(user.owner),user)
+                temp = ""
+                for a in tempTabl:
+                    temp += "{0} {1}\n".format(a[0],a[1])
+                await tempMsg.edit(embeds=interactions.Embed(title="__/shop__",color=user.color, description=abigail + " : " + abigailTalking["buyAllEnd"][random.randint(0,len(abigailTalking["buyAllEnd"])-1)]+"\n"+temp))
+
+            elif respond.custom_id == "buy'n'send all":
+                tempMsg = await respond.send(embeds=interactions.Embed(title="__/shop__",color=user.color,description=abigail + " : " + abigailTalking["buyAllAndSend"][random.randint(0,len(abigailTalking["buyAllAndSend"])-1)]))
+                user = loadCharFile("./userProfile/{0}.json".format(user.owner))
+                tempTabl1,tempTabl2,tempTabl3 = [],[],[]
+                for teamUser in teamMember:
+                    gifted = loadCharFile("./userProfile/{0}.json".format(teamUser.owner))
+                    for obj in listNotAllTeamHave:
+                        if not(gifted.have(obj)) and user.currencies >= int(obj.price*reduction):
+                            [gifted.weaponInventory,gifted.skillInventory,gifted.stuffInventory,gifted.otherInventory][whatIsThat(obj)].append(obj)
+                            user.currencies -= int(obj.price*reduction)
+
+                            if obj.name not in tempTabl1:
+                                tempTabl1.append(obj.name)
+                                tempTabl2.append(1)
+                                tempTabl3.append(obj.emoji)
+                            else:
+                                for cmpt in range(len(tempTabl1)):
+                                    if tempTabl1[cmpt] == obj.name:
+                                        tempTabl2[cmpt] += 1
+
+                    saveCharFile("./userProfile/{0}.json".format(gifted.owner),gifted)
+
+                for obj in listNotAllTeamHave:
+                    if not(user.have(obj)) and user.currencies >= int(obj.price*reduction):
+                        [user.weaponInventory,user.skillInventory,user.stuffInventory,user.otherInventory][whatIsThat(obj)].append(obj)
+                        user.currencies -= int(obj.price*reduction)
+
+                temp = ""
+                for cmpt in range(len(tempTabl1)):
+                    temp += "{0} {1} *x{2}*\n".format(tempTabl3[cmpt],tempTabl1[cmpt],tempTabl2[cmpt])
+
+                saveCharFile("./userProfile/{0}.json".format(user.owner),user)
+                await tempMsg.edit(embeds=interactions.Embed(title="__/shop__",color=user.color, description=abigail +" : "+ abigailTalking["buyAllAndSendEnd"][random.randint(0,len(abigailTalking["buyAllAndSendEnd"])-1)]+"\n"+temp))
+
+        else:
+            await initMsg.edit(embeds = shopEmb,components=[interactions.ActionRow(getChoisenSelect(select,respond.values[0]))])
+            rep = None
+            for a in range(0,len(shopped)):
+                if shopped[a].id == respond.values[0]:
+                    rep = a
+                    break
 
             try:
-                respond = await bot.wait_for_component(messages=initMsg,check=check,timeout=60)
-                respond: ComponentContext = respond.ctx
-                await respond.defer()
+                msg = await respond.send(embeds = interactions.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
             except:
-                timeoutEmbed = interactions.Embed(title="__Shop__",color=user.color,description=shopRdMsg)
-                shopField = ["","",""]
-                for a in [0,1,2]:
-                    for b in [shopWeap,shopSkill,shopStuff,shopOther][a]:
-                        if b != None:
-                            shopField[a] += "\n{0} {1}".format(b.emoji,b.name)
+                msg = await initMsg.channel.send(embeds = interactions.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
 
-                    timeoutEmbed.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=True)
+            try:
+                if rep == None:                     # Object not found
+                    await msg.edit(embeds=interactions.Embed(title="Error in shop command",description="Unfound object"))
+                else:
+                    typ, obj = whatIsThat(shopped[rep]), shopped[rep]
+                    if typ == 0:
+                        repEmb = infoWeapon(obj,user,ctx)
+                    elif typ == 1:
+                        repEmb = infoSkill(shopped[rep],user,ctx)
+                    elif typ == 2:
+                        repEmb = infoStuff(obj,user,ctx)
+                    elif typ == 3:
+                        repEmb = infoOther(obj,user)
 
-                await initMsg.edit(embeds = timeoutEmbed,components=[])
-                return 0
-
-            if respond.component_type == 2:
-                if respond.custom_id =="buy all":
-                    tempMsg = await respond.send(embeds=interactions.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
-                    user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
-                    tempTabl = []
-                    for obj in listNotHave:
-                        if not(user.have(obj)) and user.currencies >= obj.price:
-                            if type(obj) == weapon:
-                                user.weaponInventory.append(obj)
-                            elif type(obj) == skill:
-                                user.skillInventory.append(obj)
-                            elif type(obj) == stuff:
-                                user.stuffInventory.append(obj)
-                            elif type(obj) == other:
-                                user.otherInventory.append(obj)
-                            user.currencies -= obj.price
-                            tempTabl += [[obj.emoji,obj.name]]
-                    saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
-                    temp = ""
-                    for a in tempTabl:
-                        temp += "{0} {1}\n".format(a[0],a[1])
-                    await tempMsg.edit(embeds=interactions.Embed(title="__/shop__ - Devenir pauvre",color=user.color,description="__Vous avez acheté les objets suivants pour la somme de **{0}** <:coins:862425847523704832> :__\n{1}".format(separeUnit(totalCost),temp)))
-
-                elif respond.custom_id == "buy'n'send all":
-                    tempMsg = await respond.send(embeds=interactions.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="Vos achats sont en cours d'enregistrement..."))
-                    user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
-                    tempTabl1,tempTabl2,tempTabl3 = [],[],[]
-                    for teamUser in teamMember:
-                        gifted = loadCharFile("./userProfile/{0}.prof".format(teamUser.owner))
-                        for obj in listNotAllTeamHave:
-                            if not(gifted.have(obj)) and user.currencies >= obj.price:
-                                if type(obj) == weapon:
-                                    gifted.weaponInventory.append(obj)
-                                elif type(obj) == skill:
-                                    gifted.skillInventory.append(obj)
-                                elif type(obj) == stuff:
-                                    gifted.stuffInventory.append(obj)
-                                elif type(obj) == other:
-                                    gifted.otherInventory.append(obj)
-                                user.currencies -= obj.price
-
-                                if obj.name not in tempTabl1:
-                                    tempTabl1.append(obj.name)
-                                    tempTabl2.append(1)
-                                    tempTabl3.append(obj.emoji)
-                                else:
-                                    for cmpt in range(len(tempTabl1)):
-                                        if tempTabl1[cmpt] == obj.name:
-                                            tempTabl2[cmpt] += 1
-
-                        saveCharFile("./userProfile/{0}.prof".format(gifted.owner),gifted)
-                    
-                    for obj in listNotAllTeamHave:
-                        if not(user.have(obj)) and user.currencies >= obj.price:
-                            if type(obj) == weapon:
-                                user.weaponInventory.append(obj)
-                            elif type(obj) == skill:
-                                user.skillInventory.append(obj)
-                            elif type(obj) == stuff:
-                                user.stuffInventory.append(obj)
-                            elif type(obj) == other:
-                                user.otherInventory.append(obj)
-                            user.currencies -= obj.price
-
-                    temp = ""
-                    for cmpt in range(len(tempTabl1)):
-                        temp += "{0} {1} *x{2}*\n".format(tempTabl3[cmpt],tempTabl1[cmpt],tempTabl2[cmpt])
-
-                    saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
-                    await tempMsg.edit(embeds=interactions.Embed(title="__/shop__ - Devenir pauvre (Deluxe)",color=user.color,description="__Vous avez acheté les objets suivants pour la somme de **{0}** <:coins:862425847523704832> :__\n{1}".format(separeUnit(totalTeamCost),temp)))
-
-            else:
-                await initMsg.edit(embeds = shopEmb,components=[interactions.ActionRow(getChoisenSelect(select,respond.values[0]))])
-                rep = None
-                for a in range(0,len(shopped)):
-                    if shopped[a].id == respond.values[0]:
-                        rep = a
-                        break
-
-                try:
-                    msg = await respond.send(embeds = interactions.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
-                except:
-                    msg = await initMsg.channel.send(embeds = interactions.Embed(title="shop",description="Recherche de l'objet dans les rayons..."))
-
-                try:
-                    if rep == None:                     # Object not found
-                        await msg.edit(embeds=interactions.Embed(title="Error in shop command",description="Unfound object"))
+                    if user.currencies < int(obj.price*reduction):
+                        repEmb.set_footer(text = "Vous n'avez pas suffisament de pièces")
+                        await msg.edit(embeds = repEmb,components=[onlyReturn])
                     else:
-                        typ, obj = whatIsThat(shopped[rep]), shopped[rep]
-                        if typ == 0:
-                            repEmb = infoWeapon(obj,user,ctx)
-                        elif typ == 1:
-                            repEmb = infoSkill(shopped[rep],user,ctx)
-                        elif typ == 2:
-                            repEmb = infoStuff(obj,user,ctx)
-                        elif typ == 3:
-                            repEmb = infoOther(obj,user)
-
-                        if user.currencies < obj.price:
-                            repEmb.set_footer(text = "Vous n'avez pas suffisament de pièces")
-                            await msg.edit(embeds = repEmb,components=[onlyReturn])
+                        if user.have(obj):
+                            repEmb.set_footer(text = "Vous possédez déjà cet objet")
+                            await msg.edit(embeds = repEmb,components=[buttonsWithoutBuy])
                         else:
-                            if user.have(obj):
-                                repEmb.set_footer(text = "Vous possédez déjà cet objet")
-                                await msg.edit(embeds = repEmb,components=[buttonsWithoutBuy])
-                            else:
-                                repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet")
-                                await msg.edit(embeds = repEmb,components=[allButtons])
+                            repEmb.set_footer(text = "Cliquez sur le bouton \"Acheter\" pour acheter cet objet")
+                            await msg.edit(embeds = repEmb,components=[allButtons])
 
-                            try:
-                                rep = await bot.wait_for_component(messages=msg,check=check,timeout=60)
-                                rep: ComponentContext = rep.ctx
-                            except:
-                                await msg.delete()
-                                rep = None
+                        try:
+                            rep = await bot.wait_for_component(messages=msg,check=check,timeout=60)
+                            rep: ComponentContext = rep.ctx
+                        except:
+                            await msg.delete()
+                            rep = None
 
-                            if rep != None:
-                                if rep.custom_id == "0":                # Buy for them self
-                                    try:
-                                        if typ == 0:
-                                            user.weaponInventory.append(obj)
-                                        elif typ == 1:
-                                            user.skillInventory.append(obj)
-                                        elif typ == 2:
-                                            user.stuffInventory.append(obj)
-                                        elif typ == 3:
-                                            user.otherInventory.append(obj)
-                                        user.currencies = user.currencies - obj.price
-                                        saveCharFile(pathUserProfile,user)
-                                        await msg.edit(embeds = interactions.Embed(title="shop"+ " - " +obj.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"/inventory nom:{obj.id}\" pour l'équiper"),components=[])
-                                    except:
-                                        await msg.edit(embeds = errorEmbed("shop","Une erreur s'est produite"))
+                        if rep != None:
+                            if rep.custom_id == "0":                # Buy for them self
+                                try:
+                                    if typ == 0:
+                                        user.weaponInventory.append(obj)
+                                    elif typ == 1:
+                                        user.skillInventory.append(obj)
+                                    elif typ == 2:
+                                        user.stuffInventory.append(obj)
+                                    elif typ == 3:
+                                        user.otherInventory.append(obj)
+                                    user.currencies = user.currencies - int(obj.price*reduction)
+                                    saveCharFile(pathUserProfile,user)
+                                    await msg.edit(embeds = interactions.Embed(title="shop"+ " - " +obj.name,color = user.color,description = f"Votre achat a bien été effectué ! Faites \"/inventory nom:{obj.id}\" pour l'équiper"),components=[])
+                                except:
+                                    await msg.edit(embeds = errorEmbed("shop","Une erreur s'est produite"))
 
-                                elif rep.custom_id == "1":              # Gift to annother teamMate
-                                    options = []
-                                    for a in teamMember:
-                                        if not(a.have(obj)) and a.owner != user.owner:
-                                            options += [interactions.StringSelectOption(label=a.name,value=str(a.owner),emoji=getEmojiObject(await getUserIcon(bot,a)))]
+                            elif rep.custom_id == "1":              # Gift to annother teamMate
+                                options = []
+                                for a in teamMember:
+                                    if not(a.have(obj)) and a.owner != user.owner:
+                                        options += [interactions.StringSelectOption(label=a.name,value=str(a.owner),emoji=getEmojiObject(await getUserIcon(bot,a)))]
 
-                                    if options == [] :
-                                        select = interactions.StringSelectMenu([interactions.StringSelectOption(label="Vous n'avez pas à voir ça",value="Nani")],placeholder="Toute votre équipe a déjà cet objet",disabled=True,custom_id = "ohYouWantToSeeThis")
-                                    else:
-                                        select = interactions.StringSelectMenu(options,custom_id = "mudamudamudamudamuda",placeholder="À qui voulez vous offrir cet objet ?")
-                                    await msg.edit(embeds= repEmb, components=[interactions.ActionRow(buttonReturn),interactions.ActionRow(select)])
+                                if options == [] :
+                                    select = interactions.StringSelectMenu([interactions.StringSelectOption(label="Vous n'avez pas à voir ça",value="Nani")],placeholder="Toute votre équipe a déjà cet objet",disabled=True,custom_id = "ohYouWantToSeeThis")
+                                else:
+                                    select = interactions.StringSelectMenu(options,custom_id = "mudamudamudamudamuda",placeholder="À qui voulez vous offrir cet objet ?")
+                                await msg.edit(embeds= repEmb, components=[interactions.ActionRow(buttonReturn),interactions.ActionRow(select)])
 
-                                    respond = None
-                                    try:
-                                        respond = await bot.wait_for_component(messages=msg,timeout = 60)
-                                        respond: ComponentContext = respond.ctx
-                                    except:
-                                        await msg.delete()
-                                    if respond != None:
-                                        try:
-                                            for teamMate in teamMember:
-                                                if teamMate.owner == respond.values[0]:
-                                                    try:
-                                                        try:
-                                                            temp = await respond.send("Envoie du cadeau...")
-                                                        except:
-                                                            temp = await initMsg.channel.send("Envoie du cadeau...")
-                                                        if typ == 0:
-                                                            teamMate.weaponInventory.append(obj)
-                                                        elif typ == 1:
-                                                            teamMate.skillInventory.append(obj)
-                                                        elif typ == 2:
-                                                            teamMate.stuffInventory.append(obj)
-                                                        elif typ == 3:
-                                                            teamMate.otherInventory.append(obj)
-                                                        user.currencies = user.currencies - obj.price
-                                                        saveCharFile(absPath + "/userProfile/" + str(teamMate.owner) + ".prof",teamMate)
-                                                        saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof",user)
-                                                        await temp.delete()
-                                                        await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [interactions.ActionRow(getChoisenSelect(select,respond.values[0]))])
-                                                    except:
-                                                        await msg.edit(embeds = errorEmbed("shop","Une erreur s'est produite"))
-                                                    break
-                                        except:
-                                            await msg.delete()
-
-                                elif rep.custom_id == "2":
-                                    tablTeamToGift, msgTeamToGift = [],"Voulez vous offrir __{0}__ aux coéquipiers suivants ?\n".format(obj.name)
-
-                                    for a in teamMember:
-                                        if obj not in a.otherInventory:
-                                            tablTeamToGift.append(a)
-                                            msgTeamToGift += "{0} {1}\n".format(await getUserIcon(bot,a), a.name)
-
-                                    msgTeamToGift += "\nPrix total : {0} <:coins:862425847523704832>".format(obj.price * len(tablTeamToGift))
-
-                                    if user.currencies >= obj.price * len(tablTeamToGift):
-                                        buttonConfirm = interactions.Button(style=1,label="Rendez moi pauvre !",emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id="buy")
-                                    else:
-                                        buttonConfirm = interactions.Button(style=1,label="Rendez moi pauvre !",emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id="buy",disabled=True)
-
-                                    await msg.edit(embeds = interactions.Embed(title="__/shop {0}__".format(obj.name),color=user.color,description=msgTeamToGift),components=[interactions.ActionRow(buttonReturn,buttonConfirm)])
-
-                                    try:
-                                        respond = await bot.wait_for_component(messages=msg,timeout = 60,check=check)
-                                        respond: ComponentContext = respond.ctx
-                                    except:
-                                        break
-
-                                    if respond.custom_id == "buy":
-                                        await msg.edit(embeds = interactions.Embed(title="__/shop {0}__".format(obj.name),color = user.color,description = f"Envoie de vos cadeaux... <a:loading:862459118912667678>"),components = [])
-                                        for a in tablTeamToGift:
-                                            if int(a.owner) != int(user.owner):
-                                                if typ == 0:
-                                                    a.weaponInventory.append(obj)
-                                                elif typ == 1:
-                                                    a.skillInventory.append(obj)
-                                                elif typ == 2:
-                                                    a.stuffInventory.append(obj)
-                                                elif typ == 3:
-                                                    a.otherInventory.append(obj)
-                                                user.currencies = user.currencies - obj.price
-                                                saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".prof",a)
-                                                saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof",user)
-
-                                            else:
-                                                user.otherInventory += [obj]
-                                                user.currencies = user.currencies - obj.price
-                                                saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".prof",user)
-                                        await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Vos cadeaux ont bien été envoyés !"),components = [])
-                                    else:
-                                        await msg.delete()
-
-                                elif rep.custom_id == "-1":
+                                respond = None
+                                try:
+                                    respond = await bot.wait_for_component(messages=msg,timeout = 60)
+                                    respond: ComponentContext = respond.ctx
+                                except:
                                     await msg.delete()
-                except:
-                    await msg.edit(embeds=interactions.Embed(title="Uncatch error in shop command",description=format_exc()),components=[])
-    else:
-        await ctx.send(embeds = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),ephemeral=True)
+                                if respond != None:
+                                    try:
+                                        for teamMate in teamMember:
+                                            if teamMate.owner == respond.values[0]:
+                                                try:
+                                                    try:
+                                                        temp = await respond.send("Envoie du cadeau...")
+                                                    except:
+                                                        temp = await initMsg.channel.send("Envoie du cadeau...")
+                                                    if typ == 0:
+                                                        teamMate.weaponInventory.append(obj)
+                                                    elif typ == 1:
+                                                        teamMate.skillInventory.append(obj)
+                                                    elif typ == 2:
+                                                        teamMate.stuffInventory.append(obj)
+                                                    elif typ == 3:
+                                                        teamMate.otherInventory.append(obj)
+                                                    user.currencies = user.currencies - int(obj.price*reduction)
+                                                    saveCharFile(absPath + "/userProfile/" + str(teamMate.owner) + ".json",teamMate)
+                                                    saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".json",user)
+                                                    await temp.delete()
+                                                    await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Votre cadeau a bien été envoyé !"),components = [interactions.ActionRow(getChoisenSelect(select,respond.values[0]))])
+                                                except:
+                                                    await msg.edit(embeds = errorEmbed("shop","Une erreur s'est produite"))
+                                                break
+                                    except:
+                                        await msg.delete()
+
+                            elif rep.custom_id == "2":
+                                tablTeamToGift, msgTeamToGift = [],"Voulez vous offrir __{0}__ aux coéquipiers suivants ?\n".format(obj.name)
+
+                                for a in teamMember:
+                                    if obj not in a.otherInventory:
+                                        tablTeamToGift.append(a)
+                                        msgTeamToGift += "{0} {1}\n".format(await getUserIcon(bot,a), a.name)
+
+                                msgTeamToGift += "\nPrix total : {0} <:coins:862425847523704832>".format(int(obj.price*reduction) * len(tablTeamToGift))
+
+                                if user.currencies >= int(obj.price*reduction) * len(tablTeamToGift):
+                                    buttonConfirm = interactions.Button(style=1,label="Rendez moi pauvre !",emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id="buy")
+                                else:
+                                    buttonConfirm = interactions.Button(style=1,label="Rendez moi pauvre !",emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id="buy",disabled=True)
+
+                                await msg.edit(embeds = interactions.Embed(title="__/shop {0}__".format(obj.name),color=user.color,description=msgTeamToGift),components=[interactions.ActionRow(buttonReturn,buttonConfirm)])
+
+                                try:
+                                    respond = await bot.wait_for_component(messages=msg,timeout = 60,check=check)
+                                    respond: ComponentContext = respond.ctx
+                                except:
+                                    break
+
+                                if respond.custom_id == "buy":
+                                    await msg.edit(embeds = interactions.Embed(title="__/shop {0}__".format(obj.name),color = user.color,description = f"Envoie de vos cadeaux... <a:loading:862459118912667678>"),components = [])
+                                    for a in tablTeamToGift:
+                                        if int(a.owner) != int(user.owner):
+                                            if typ == 0:
+                                                a.weaponInventory.append(obj)
+                                            elif typ == 1:
+                                                a.skillInventory.append(obj)
+                                            elif typ == 2:
+                                                a.stuffInventory.append(obj)
+                                            elif typ == 3:
+                                                a.otherInventory.append(obj)
+                                            user.currencies = user.currencies - int(obj.price*reduction)
+                                            saveCharFile(absPath + "/userProfile/" + str(a.owner) + ".json",a)
+                                            saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".json",user)
+
+                                        else:
+                                            user.otherInventory += [obj]
+                                            user.currencies = user.currencies - int(obj.price*reduction)
+                                            saveCharFile(absPath + "/userProfile/" + str(ctx.author.id) + ".json",user)
+                                    await msg.edit(embeds = interactions.Embed(title="shop",color = user.color,description = f"Vos cadeaux ont bien été envoyés !"),components = [])
+                                else:
+                                    await msg.delete()
+
+                            elif rep.custom_id == "-1":
+                                await msg.delete()
+            except:
+                await msg.edit(embeds=interactions.Embed(title="Uncatch error in shop command",description=format_exc()),components=[])
 
 if not(isLenapy):
     print("Shop message verification...")
@@ -556,7 +547,7 @@ async def seeSkillsRep(ctx : interactions.SlashContext, skillType:int, aspiratio
             tablsCd[cmpt].sort(key=lambda ballerine : ballerine.iaPow, reverse=True)
             desc = ""
             for cmpt2 in range(len(tablsCd[cmpt])):
-                desc += "{0} {2}{1}{2}".format(tablsCd[cmpt][cmpt2].emoji, tablsCd[cmpt][cmpt2].name, ["","`"][tablsCd[cmpt][cmpt2] in listUseSkills])
+                desc += "{0} {2}{1}{2}".format(tablsCd[cmpt][cmpt2].emoji, tablsCd[cmpt][cmpt2].name, ["","~~"][tablsCd[cmpt][cmpt2] in listUseSkills])
                 toAdd = ""
                 if len(tablsCd[cmpt][cmpt2].condition) > 0:
                     if tablsCd[cmpt][cmpt2].condition[1] == ASPIRATION:
@@ -595,3 +586,243 @@ async def testShopMsgFunction(ctx: interactions.SlashContext):
             started = True
         else:
             await ctx.channel.send(embeds=[interactions.Embed(title=str(cmpt),description=formatShop(shopMonthlyMsg[dateNow.month-1][cmpt]))])
+
+tcBoosterCost, tcCardCost = (60,80,120,160), (30,50,70,100)
+cnBoosterCost, cnCardCost = (1000,2000,3000,5000), (500,750,1350,2500)
+
+async def chipShop(bot: interactions.Client, ctx: interactions.SlashContext):
+    if not(os.path.exists("./userProfile/{0}.json".format(int(ctx.author_id)))):
+        await ctx.send(content="Vous n'avez pas encore de personnage. Commencez d'abord avec la commande **/start** !",ephemeral=True)
+        return 0
+
+    await ctx.defer()
+
+    try:
+        user, msg, secMsg, secButtons, hasSelected = loadCharFile(int(ctx.author_id)), None, None, None, None
+        chipShopMsgFile = open("./data/database/shopMsg.json","r",encoding="utf8")
+        chipShopMsg = json.load(chipShopMsgFile)["chipShopMsg"]
+        chipShopMsgFile.close()
+        chipShopMsg = chipShopMsg[["oceaneSingle","oceaneSingle","glanSingle","glanSingle","oceaneGlanDuo"][random.randint(0,4)]]
+        shopDesc = chipShopMsg["shopDsc"][random.randint(0,len(chipShopMsg["shopDsc"])-1)]
+        
+        jsonFile = open("./data/database/dailyShop.json")
+        chipShopContent = json.load(jsonFile)["dailyShop"]
+
+        makeOfferOptions = []
+        for tmpChipId in user.equippedChips:
+            tmpChip = getChip(tmpChipId)
+            if tmpChip != None:
+                makeOfferOptions.append(StringSelectOption(label=tmpChip.name,value="offer_"+str(tmpChipId),emoji=[None,getEmojiObject(tmpChip.emoji)][tmpChip.emoji != ""],description="Niveau {0} - {1}/{2} - {3} TC".format(user.chipInventory[tmpChipId].lvl, user.chipInventory[tmpChipId].progress, nbChipsForLvlUp[user.chipInventory[tmpChipId].lvl-rarityMinLvl[user.chipInventory[tmpChipId].rarity]], int(tcCardCost[user.chipInventory[tmpChipId].rarity]*1.5))))
+
+        isOffer = False
+        while 1:
+            mainEmbed, totalCardCost, totalCoinCost, shopOptionList = Embed(title="__Chip Shop__",description=reduceEmojiNames("Vous possédez {0} <:tc:1218274555081261116> et {1} <:coins:862425847523704832>\n\n".format(separeUnit(user.tc), separeUnit(user.currencies))+formatShop(shopDesc)+"\n<:empty:866459463568850954>"),color=user.color), 0, 0, []
+            packName, packPriceCards, packPriceCoins = "Booster de puces "+["commun","rare","légendaire","mythique"][chipShopContent["dailyBooster"]], tcBoosterCost[chipShopContent["dailyBooster"]], cnBoosterCost[chipShopContent["dailyBooster"]]
+            mainEmbed.add_field(name="__Booster du jour :__",value="{0} {1} {2}".format(rarityEmojis[chipShopContent["dailyBooster"]],packName,["({0} <:tc:1218274555081261116> / {1} <:coins:862425847523704832>)".format(packPriceCards,packPriceCoins),"({0})".format(haveIcon)][user.owner in chipShopContent["hasBought"][0]]))
+
+            if user.owner not in chipShopContent["hasBought"][0]:
+                totalCardCost, totalCoinCost = totalCardCost+packPriceCards, totalCoinCost+packPriceCoins
+                shopOptionList.append(StringSelectOption(label=packName,value="booster_{0}".format(chipShopContent["dailyBooster"]),emoji=getEmojiObject(rarityEmojis[chipShopContent["dailyBooster"]])))
+
+            secFieldValue, chipsInShop = "", getChip(chipShopContent["chipShop"])
+            for cmpt, tmpChip in enumerate(chipsInShop):
+                cardCardCost, cardCoinCost = tcCardCost[tmpChip.rarity],cnCardCost[tmpChip.rarity]
+                secFieldValue += "{0} {1}*{2}* x**{4}** {3}\n".format(rarityEmojis[tmpChip.rarity],tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,["({0} <:tc:1218274555081261116> / {1} <:coins:862425847523704832>)".format(cardCardCost, cardCoinCost),"({0})".format(haveIcon)][user.owner in chipShopContent["hasBought"][1][cmpt]],[10,5,3,1][tmpChip.rarity])
+                if user.owner not in chipShopContent["hasBought"][1][cmpt]:
+                    totalCardCost, totalCoinCost = totalCardCost+cardCardCost, totalCoinCost+cardCoinCost
+                    shopOptionList.append(StringSelectOption(label=tmpChip.name,value="chip_{0}".format(cmpt),emoji=[getEmojiObject(tmpChip.emoji),None][tmpChip.emoji == ""]))
+
+            mainEmbed.add_field(name="__Puces du jour :__",value=secFieldValue)
+
+            if len(shopOptionList) > 0:
+                actRowSelect = ActionRow(
+                    StringSelectMenu(shopOptionList,placeholder="Tu veux voir quelque chose de plus près ?")
+                )
+            else:
+                actRowSelect = ActionRow(
+                    StringSelectMenu(StringSelectOption(label='Vous avez déjà acheté toutes les offres',default=True,value="shopn't"),disabled=True,placeholder="Tu veux voir quelque chose de plus près ?")
+                )
+
+            actRowSelfAllBuy = ActionRow(
+                Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(totalCardCost)) + chipShopMsg["buyCardButton"][random.randint(0,len(chipShopMsg["buyCardButton"])-1)],emoji=getEmojiObject('<:tc:1218274555081261116>'),custom_id='buyAllSoloCards', disabled=totalCardCost > user.tc or totalCardCost <= 0),
+                Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(totalCoinCost))+ chipShopMsg["buyCoinButton"][random.randint(0,len(chipShopMsg["buyCoinButton"])-1)],emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id='buyAllSoloCoins', disabled=totalCoinCost > user.currencies or totalCoinCost <= 0)
+            )
+
+            disablepString = False
+            if user.owner in chipShopContent["hasBought"][2]:
+                makeOfferOptions, disablepString = [StringSelectOption(label="Vous avez déjà fait une offre pour aujourd'hui",value="disabled",default=True)], True
+            elif len(makeOfferOptions) == 0:
+                makeOfferOptions, disablepString = [StringSelectOption(label="Vous devez avoir une puce équipée pour faire une offre",value="disabled",default=True)], True
+
+            makeOfferSelect = ActionRow(
+                StringSelectMenu(makeOfferOptions,placeholder="Faire une offre",disabled = disablepString,custom_id = "makeOffer")
+            )
+
+            for inx, field in enumerate(mainEmbed.fields):
+                mainEmbed.fields[inx].value = reduceEmojiNames(field.value)
+
+            if ctx.responded:
+                await msg.edit(embeds=mainEmbed, components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy])
+            else:
+                msg = await ctx.respond(embeds=mainEmbed, components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy])
+
+            def check(m):
+                m = m.ctx
+                return m.author_id == ctx.author_id
+
+            try:
+                respond = await bot.wait_for_component(messages=[msg]+[[],[secMsg]][secMsg!=None],components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy]+[[],[secButtons]][secButtons != None],check=check,timeout=60)
+                respond: ComponentContext = respond.ctx
+                await respond.defer()
+            except asyncio.TimeoutError:
+                await msg.edit(embeds=mainEmbed, components=[])
+                break
+            
+            if len(shopOptionList) == 0:
+                actRowSelfAllBuy.components[0].disabled = actRowSelfAllBuy.components[1].disabled = actRowSelect.components[0].disabled = True
+            await msg.edit(embeds=mainEmbed, components=[actRowSelect,actRowSelfAllBuy])
+
+            if respond.component_type == ComponentType.STRING_SELECT:
+                hasSelected, tcCost, coinCost = respond.values[0], 0, 0
+                isOffer = hasSelected.startswith("offer_")
+                if hasSelected.startswith("booster_"):
+                    boosterRarity = int(hasSelected.replace("booster_",""))
+                    embDesc = reduceEmojiNames("Vous octroi une dizaine de puce. Les puces {2} Communes et {3} Rares ont **30%** de chance d'être doublé (**9%** qu'une puce {2} Commune soit triplé)\n\nProbabilité par tirage :\n{2} : {4}%, {3} : {5}%, {6} : {7}%, {8} : {9}%".format(
+                        rarityEmojis[boosterRarity], ["commun","rare","légendaire","mythique"][boosterRarity], rarityEmojis[0], rarityEmojis[1], probaRarityTabl[boosterRarity][0]/10, probaRarityTabl[boosterRarity][1]/10, rarityEmojis[2], probaRarityTabl[boosterRarity][2]/10, rarityEmojis[3], probaRarityTabl[boosterRarity][3]/10
+                    ))
+                    tcCost, coinCost = tcBoosterCost[chipShopContent["dailyBooster"]], cnBoosterCost[chipShopContent["dailyBooster"]]
+                    secEmbed = Embed(title="{0} __Booster de puces {1} :__".format(rarityEmojis[boosterRarity], ["commun","rare","légendaire","mythique"][boosterRarity]),color=user.color,description=embDesc)
+
+                    secButtons = ActionRow(
+                        Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(tcCost)) + chipShopMsg["buyCardButton"][random.randint(0,len(chipShopMsg["buyCardButton"])-1)],emoji=getEmojiObject('<:tc:1218274555081261116>'),custom_id='buyCards', disabled=tcCost > user.tc),
+                        Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(coinCost))+ chipShopMsg["buyCoinButton"][random.randint(0,len(chipShopMsg["buyCoinButton"])-1)],emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id='buyCoins', disabled=coinCost > user.currencies)
+                    )
+                elif hasSelected.startswith("offer_"):
+                    tmpChip = getChip(int(hasSelected.replace("offer_","")))
+                    chipOwned = user.chipInventory[tmpChip.id]
+                    embDesc = tmpChip.description.replace("%power","({0} → {1})".format(tmpChip.minValue, tmpChip.maxValue)).replace("%lvlPower","{0} → {1}".format(int(tmpChip.minValue/100*user.level), int(tmpChip.maxValue/100*user.level))) + "\n\n" + ["*Vous ne possédez pas encore cette puce*","*Niveau actuel : **{0}** (**{1}**/{2})*".format(chipOwned.lvl,chipOwned.progress,nbChipsForLvlUp[chipOwned.lvl-rarityMinLvl[chipOwned.rarity]])][chipOwned.lvl>rarityMinLvl[chipOwned.rarity]]
+                    secEmbed = Embed(title="{0} {1}__{2} :__".format(rarityEmojis[tmpChip.rarity],tmpChip.emoji+['',' '][tmpChip.emoji != ""], tmpChip.name),description=embDesc,color=user.color)
+
+                    tcCost = int(tcCardCost[tmpChip.rarity]*1.5)
+
+                    secButtons = ActionRow(
+                        Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(tcCost)) + chipShopMsg["buyCardButton"][random.randint(0,len(chipShopMsg["buyCardButton"])-1)],emoji=getEmojiObject('<:tc:1218274555081261116>'),custom_id='buyCards', disabled=tcCost > user.tc),
+                        )
+
+                else:
+                    selectedChipId = chipsInShop[int(hasSelected.replace("chip_",""))].id
+                    selectedChip, chipOwned = chipList[selectedChipId], user.chipInventory[selectedChipId]
+                    embDesc = selectedChip.description.replace("%power","({0} → {1})".format(selectedChip.minValue, selectedChip.maxValue)).replace("%lvlPower","{0} → {1}".format(int(selectedChip.minValue/100*user.level), int(selectedChip.maxValue/100*user.level))) + "\n\n" + ["*Vous ne possédez pas encore cette puce*","*Niveau actuel : **{0}** (**{1}**/{2})*".format(chipOwned.lvl,chipOwned.progress,nbChipsForLvlUp[chipOwned.lvl-rarityMinLvl[chipOwned.rarity]])][chipOwned.lvl>rarityMinLvl[chipOwned.rarity]]
+                    secEmbed = Embed(title="{0} {1}__{2} :__".format(rarityEmojis[selectedChip.rarity],selectedChip.emoji+['',' '][selectedChip.emoji != ""], selectedChip.name),description=embDesc,color=user.color)
+
+                    tcCost, coinCost = tcCardCost[tmpChip.rarity],cnCardCost[tmpChip.rarity]
+
+                    secButtons = ActionRow(
+                        Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(tcCost)) + chipShopMsg["buyCardButton"][random.randint(0,len(chipShopMsg["buyCardButton"])-1)],emoji=getEmojiObject('<:tc:1218274555081261116>'),custom_id='buyCards', disabled=tcCost > user.tc),
+                        Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(coinCost))+ chipShopMsg["buyCoinButton"][random.randint(0,len(chipShopMsg["buyCoinButton"])-1)],emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id='buyCoins', disabled=coinCost > user.currencies)
+                    )
+
+                if secMsg == None:
+                    secMsg = await respond.respond(embeds=secEmbed,components=[secButtons])
+                else:
+                    await secMsg.edit(embeds=secEmbed,components=[secButtons])
+
+            elif respond.component_type == ComponentType.BUTTON and respond.component.custom_id in ["buyAllSoloCards","buyAllSoloCoins"]:
+                tmpDesc = ""
+                if user.owner not in chipShopContent["hasBought"][0] and [user.tc, user.currencies][respond.component.custom_id == "buyAllSoloCoins"] >= [tcBoosterCost,cnBoosterCost][respond.component.custom_id == "buyAllSoloCoins"][chipShopContent["dailyBooster"]]:
+                    user, tmpDesc = openBooster(user=user, boosters = [chipShopContent["dailyBooster"]], infield = False)
+                    if respond.component.custom_id == "buyAllSoloCoins":
+                        user.currencies -= cnBoosterCost[chipShopContent["dailyBooster"]]
+                    else:
+                        user.tc -= tcBoosterCost[chipShopContent["dailyBooster"]]
+
+                    chipShopContent["hasBought"][0].append(user.owner)
+                
+                temp = ""
+                for indx, tmpChip in enumerate(chipsInShop):
+                    if user.owner not in chipShopContent["hasBought"][1][indx] and [user.tc, user.currencies][respond.component.custom_id == "buyAllSoloCoins"] > [tcCardCost,cnCardCost][respond.component.custom_id == "buyAllSoloCoins"][tmpChip.rarity]:
+                        hadLvlUp = False
+                        user.chipInventory[tmpChip.id].progress += [10,5,3,1][tmpChip.rarity]
+                        if respond.component.custom_id == "buyAllSoloCoins":
+                            user.currencies -= cnCardCost[tmpChip.rarity]
+                        else:
+                            user.tc -= tcCardCost[tmpChip.rarity]
+
+                        chipShopContent["hasBought"][1][indx].append(user.owner)
+                        while user.chipInventory[tmpChip.id].progress > nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[tmpChip.rarity]]:
+                            user.chipInventory[tmpChip.id].lvl += 1
+                            user.chipInventory[tmpChip.id].progress -= user.chipInventory[tmpChip.id].lvl-rarityMinLvl[tmpChip.rarity]
+                            hadLvlUp = True
+                        
+                        temp += "{4} {0}*{1}* x**{2}** *{3}*\n".format(tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,[10,5,3,1][tmpChip.rarity],["({0}/{1})".format(user.chipInventory[tmpChip.id].progress,nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[tmpChip.rarity]]),"(↑)"][hadLvlUp],rarityEmojis[tmpChip.rarity])
+                
+                saveCharFile(user=user)
+                jsonFile = open("./data/database/dailyShop.json","w")
+                json.dump({"dailyShop":chipShopContent},jsonFile)
+                jsonFile.close()
+                await respond.respond(embed=Embed(title="/chip shop",color=user.color,description=reduceEmojiNames(formatShop(chipShopMsg["buyed"][random.randint(0,len(chipShopMsg["buyed"])-1)])+"\n\n"+tmpDesc+["","\n"][tmpDesc != ""]+temp)))
+                user = loadCharFile(user=user)
+            elif respond.component_type == ComponentType.BUTTON and respond.component.custom_id in ["buyCards","buyCoins"]:
+                if hasSelected.startswith("booster_"):
+                    user, tmpDesc = openBooster(user=user, boosters = [chipShopContent["dailyBooster"]], infield = False)
+                    if respond.component.custom_id == "buyCoins":
+                        user.currencies -= coinCost
+                    else:
+                        user.tc -= tcCost
+                    chipShopContent["hasBought"][0].append(user.owner)
+                    
+                    saveCharFile(user=user)
+                    jsonFile = open("./data/database/dailyShop.json","w")
+                    json.dump({"dailyShop":chipShopContent},jsonFile)
+                    jsonFile.close()
+                    await respond.respond(embed=Embed(title="/chip shop",color=user.color,description=reduceEmojiNames(formatShop(chipShopMsg["buyed"][random.randint(0,len(chipShopMsg["buyed"])-1)])+"\n\n"+tmpDesc+["","\n"][tmpDesc != ""])))
+                    user = loadCharFile(user=user)
+                else:
+                    if isOffer:
+                        indx = int(hasSelected.replace("offer_",""))
+                        tmpChip, toAppend = getChip(indx), [chipShopContent["hasBought"][2]]
+                    else:
+                        indx = int(hasSelected.replace("chip_",""))
+                        tmpChip, toAppend = chipsInShop[indx], [chipShopContent["hasBought"][1][indx]]
+                    hadLvlUp = False
+                    temp, user = user.chipInventory[tmpChip.id].addProgress([10,5,3,1][tmpChip.rarity],user)
+
+                    if respond.component.custom_id == "buyCoins":
+                        user.currencies -= coinCost
+                    else:
+                        user.tc -= tcCost
+
+                    toAppend[0].append(user.owner)
+                    temp = "{4} {0}*{1}* x**{2}** *{3}*\n".format(tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,[10,5,3,1][tmpChip.rarity],["({0}/{1})".format(user.chipInventory[tmpChip.id].progress,nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[tmpChip.rarity]]),"(↑)"][hadLvlUp],rarityEmojis[tmpChip.rarity])
+            
+                    saveCharFile(user=user)
+                    jsonFile = open("./data/database/dailyShop.json","w")
+                    json.dump({"dailyShop":chipShopContent},jsonFile)
+                    jsonFile.close()
+                    await respond.respond(embed=Embed(title="/chip shop",color=user.color,description=reduceEmojiNames(formatShop(chipShopMsg["buyed"][random.randint(0,len(chipShopMsg["buyed"])-1)])+"\n\n"+temp)))
+                    user = loadCharFile(user=user)
+                try:
+                    await secMsg.delete()
+                    secMsg = None
+                except:
+                    pass
+    except:
+        try:
+            await secMsg.delete()
+            secMsg = None
+        except:
+            pass
+
+        try:
+            await respond.delete()
+        except:
+            pass
+
+        try:
+            await msg.suppress_embeds()
+        except:
+            pass
+        if msg != None:
+            await msg.edit(content="A unexpected error occured :\n"+format_exc(limit=4000).replace("_","\"").replace("*","\*").replace("^","\^"),components=[],embeds=[])
+        else:
+            await ctx.send(content="A unexpected error occured :\n"+format_exc(limit=4000).replace("_","\"").replace("*","\*").replace("^","\^"),components=[],embeds=[])

@@ -1,4 +1,4 @@
-import os,random,sqlite3,json
+import os,random,sqlite3,json, asyncio
 from traceback import print_exc
 from typing import Union
 import interactions
@@ -276,7 +276,11 @@ class userSettingsDbEndler:
             self.addUserToDb(self)
             cursory = self.con.cursor()
         else:
-            toAddCat, toAddValue, blabla = [], [], user.says.tabl()
+            if user.says == None:
+                blabla = says().tabl()
+            else:
+                blabla = user.says.tabl()
+            toAddCat, toAddValue = [], []
             for a in range(len(blabla)):
                 if blabla[a] != None:
                     toAddCat.append(userSettingsInterCatNames[a])
@@ -380,18 +384,6 @@ def listToStr(liste : list):
         temp+=a+" "
     return temp
 
-def cutStrToList(string : str, caractere : str):
-    "Coupe le string à chaque itération de caractere, puis le renvoie sous forme de liste\n\nParamètres : string (str), caractere (str)\n\nRetourne : list"
-    rep,temp = [],""
-    for a in string:
-        if a == caractere:
-            rep+=[temp]
-            temp = ""
-        else:
-            temp+=a
-    rep+=[temp]
-    return rep
-
 def existDir(path : str):
     "Vérifie si le dossier au chemin String existe. Si oui, return True. Si non, créait le dossier et return False"
     if not os.path.exists(path):
@@ -484,257 +476,98 @@ def errorEmbed(errorType : str, msgError : str):
     return rep
 
 def randRep(liste : list):
-    """Hum... Where I use that...
-    choose command"""
-    return liste[random.randint(0,len(liste)-1)]
+    """Return a random value from the list"""
+    if type(liste) != list:
+        liste = [liste]
+
+    if len(liste) == 1:
+        return liste[0]
+    else:
+        return liste[random.randint(0,len(liste)-1)]
 
 def saveCharFile(path : str = None, user : char = None):
-    if user.owner.__class__ != int:
-        user.owner = int(user.owner)
-    try:
-        if user == None:
-            raise Exception("Attribut Error : No user gave")
-        if path == None:
-            path = './userProfile/{0}.prof'.format(user.owner)
-        #try:
-        saved = ""
-        for a in [user.owner,user.name,user.level,user.exp,user.currencies,user.species,user.color,user.team,int(user.customColor),user.colorHex,user.stars,user.iconForm,user.secElement]:
-            saved += str(a)+";"
-        saved += "\n"
-        for a in [user.strength,user.endurance,user.charisma,user.agility,user.precision,user.intelligence,user.magie,user.aspiration,user.gender]:
-            saved += str(a)+";"
-        saved += "\n"
-        for a in [user.resistance,user.percing,user.critical,user.points]:
-            saved += str(a)+";"
-        for a in user.bonusPoints+user.majorPoints+[user.majorPointsCount]:
-            saved += str(a)+";"
-        saved += "\n"
-        saved += user.weapon.id +";\n"
-        for a in user.weaponInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in user.skills:
-            try:
-                saved += a.id+";"
-            except:
-                saved += "0;"
-        saved += "\n"
-        for a in user.skillInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in user.stuff:
-            saved += a.id+";"
-        for a in [user.apparaWeap,user.apparaAcc]:
-            if a != None:
-                saved += a.id+";"
-            else:
-                saved += "0;"
-        saved += "\n"
-        for a in user.stuffInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in user.otherInventory:
-            saved += a.id+";"
-        saved += "\n"
-        for a in user.procuration:
-            if int(a) != user.owner:
-                saved += str(a)+";"
-        saved += "\n"
+    if user == None:
+        raise Exception("No Character referenced")
 
-        saved += str(user.element) +";"+str(int(user.autoPoint))+";"+str(int(user.autoStuff))+";\n"
+    userSettingsDb.updateUserSettings(user)
+    convertProfFileIntoJson(character=user)
 
-        for a in user.haveProcurOn:
-            saved += str(a) + ";"
-        saved += "\n"
-
-        for a in user.limitBreaks:
-            saved += str(a) + ";"
-        saved += "\n"
-
-        userSettingsDb.updateUserSettings(user)
-        rewriteFile(path,saved)
-        return True
-    except:
-        raise
-
-def loadCharFile(path : str = None, user:char = None) -> char:
+def loadCharFile(path : str = None, user:char = None, id:int=None) -> char:
     """
         Return a ``char`` object loaded from the file at ``path``
     """
-    try:
+    toRead = ""
+
+    if path.__class__ == str:
+        toRead = path
+    elif user != None or path.__class__ == char:
         if path != None:
-            file = readSaveFiles(path)
-        elif user != None:
-            file = readSaveFiles("./userProfile/{0}.prof".format(user.owner))
-        else:
-            raise Exception("Argument error : No path or user given")
-    except:
-        print_exc()
-        return None
-    rep = char(owner = int(file[0][0]))                     # Owner
-    rep.name = file[0][1]                                   # Name
-    rep.level = int(file[0][2])                             # Level
-    rep.exp = int(file[0][3])                               # Exp
-    rep.currencies = int(file[0][4])                        # Currencies
-    rep.species = int(file[0][5])                           # Species
-    rep.color = int(file[0][6])                             # Color
-    rep.team = int(file[0][7])                              # Team id
-    rep.customColor = bool(int(file[0][8]))                 # Custom color
-    rep.gender = int(file[1][8])
-    rep.colorHex = file[0][9]
-    rep.stars = int(file[0][10])
-    rep.iconForm = int(file[0][11])
-    rep.secElement = int(file[0][12])
+            user = path
+        toRead = "./userProfile/{0}.json".format(user.owner)
+    elif id != None or path.__class__ == int:
+        if path != None:
+            id = path
+        toRead = "./userProfile/{0}.json".format(id)
+    else:
+        raise Exception("No path or character referenced")
 
-    # Stats
-    rep.strength,rep.endurance,rep.charisma,rep.agility,rep.precision,rep.intelligence,rep.magie,rep.aspiration = int(file[1][0]),int(file[1][1]),int(file[1][2]),int(file[1][3]),int(file[1][4]),int(file[1][5]),int(file[1][6]),int(file[1][7])
-    rep.resistance,rep.percing,rep.critical,rep.points = int(file[2][0]),int(file[2][1]),int(file[2][2]),int(file[2][3])
-
-    rep.majorPointsCount = int(file[2][-1])
-
-    try:                                                    # Bonus points
-        temp = []
-        for a in file[2][4:11]:
-            temp += [int(a)]
-        rep.bonusPoints = temp
-    except:
-        rep.bonusPoints = [0,0,0,0,0,0,0]
+    jsonFile = open(toRead)
+    loadedDict, tmpDict = json.load(jsonFile), {}
 
     try:
-        temp = []
-        for a in file[2][11:-1]:
-            temp += [int(a)]
-        while len(temp) < 15:
-            temp.append(0)
-        rep.majorPoints = temp
-    except:
-        rep.majorPoints = [0,0,0,0,0,0,0]+[0,0,0]+[0,0,0,0,0]
-        print("No major point")
+        for k, v in loadedDict["chipInventory"].items():
+            try:
+                tmpDict[int(k)] = v
+            except:
+                tmpDict[int(k)] = (0,0)
+        loadedDict["chipInventory"] = tmpDict
+    except KeyError:
+        loadedDict["equippedChips"], loadedDict["chipInventory"] = [None,None,None,None,None], copy.deepcopy(initChipInv)
 
-    rep.weapon = findWeapon(file[3][0])                     # Weapon
-    cmpt,temp = 0,[]
-    while cmpt < len(file[4]):                              # Weapon Inventort
-        tempWeap = findWeapon(file[4][cmpt])
-        if tempWeap != None:
-            temp.append(tempWeap)
-        cmpt += 1
-    for weap in baseWeapon:
-        if weap not in temp:
-            temp.append(weap)
-    rep.weaponInventory = sorted(temp,key=lambda weapon : weapon.name)
-    try:                                                    # Equiped Skills
-        cmpt,temp = 0,[]
-        while cmpt < len(file[5]):
-            if file[5][cmpt] != "0":
-                temp += [findSkill(file[5][cmpt].replace("\n",""))]
-            else:
-                temp += ["0"]
-            cmpt += 1
-        while cmpt < 7:
-            temp += ["0"]
-            cmpt += 1
-        rep.skills = temp
-    except:
-        rep.skills = ["0","0","0","0","0","0","0"]
-
-    try:                                                   # Skill Inventory
-        cmpt,temp = 0,[]
-        while cmpt < len(file[6]):
-            tempFind = findSkill(file[6][cmpt].replace("\n",""))
-            if tempFind != None:
-                temp += [tempFind]
-            cmpt += 1
-        for ski in baseSkills:
-            if ski not in temp:
-                temp.append(ski)
-        rep.skillInventory = sorted(temp,key=lambda stuff : stuff.name)
-    except:
-        rep.skillInventory = []
-
-    try:                        #Eqquiped Stuff
-        cmpt,temp = 0,[]
-        while cmpt < 3:
-            temp += [findStuff(file[7][cmpt].replace("/n",""))]
-            cmpt += 1
-        rep.stuff = temp
-    except:
-        rep.stuff= [bbandeau,bshirt,bshoes]
-
-    try:
-        if file[7][3] != "0":
-            rep.apparaWeap = findWeapon(file[7][3])
-        else:
-            rep.apparaWeap = None
-    except:
-        rep.apparaWeap = None
-    try:
-        if file[7][4] != "0":
-            rep.apparaAcc = findStuff(file[7][4])
-        else:
-            rep.apparaAcc = None
-    except:
-        rep.apparaAcc = None
-
-    # Stuff inventory
-    cmpt,temp = 0,[]
-    while cmpt < len(file[8]):
-        tempFind = findStuff(file[8][cmpt].replace("/n",""))
-        if tempFind != None:
-            temp += [tempFind]
-        cmpt += 1
-    for stuffy in baseStuffs:
-        if stuffy not in temp:
-            temp.append(stuffy)
-    rep.stuffInventory = sorted(temp,key=lambda stuff : stuff.name)
-
-    cmpt,temp = 0,[]
-    while cmpt < len(file[9]):
-        file[9][cmpt] = file[9][cmpt].replace("\n","")
-        otherTemp = findOther(file[9][cmpt])
-        if type(otherTemp) != None:
-            temp.append(otherTemp)
-        else:
-            print(file[9][cmpt])
-        cmpt += 1
-    rep.otherInventory = temp
-
-    try:
-        rep.procuration = [int(rep.owner)]
-        for a in file[10]:
-            rep.procuration += [int(a)]
-    except:
-        rep.procuration = [int(rep.owner)]
-
-    try:
-        rep.element = int(file[11][0])
-    except:
-        rep.element = ELEMENT_NEUTRAL
-    
-    try:
-        rep.autoPoint = bool(int(file[11][1]))
-    except:
-        rep.autoPoint = False
-    try:
-        rep.autoStuff = bool(int(file[11][2]))
-    except:
-        rep.autoStuff = False
-
-    try:
-        for temp in file[12]:
-            rep.haveProcurOn.append(int(temp))
-    except:
-        rep.haveProcurOn = []
-
-    try:
-        rep.limitBreaks = []
-        for temp in file[13]:
-            rep.limitBreaks.append(int(temp))
-        if len(rep.limitBreaks) != 7:
-            rep.limitBreaks = [0,0,0,0,0,0,0]
-    except:
-        rep.limitBreaks = [0,0,0,0,0,0,0]
-
+    rep = char(0,fromDict=loadedDict)
     rep = userSettingsDb.getUserSettings(rep)
+
+    rep.weapon, rep.apparaAcc, rep.apparaWeap = findWeapon(rep.weapon), findStuff(rep.apparaAcc), findWeapon(rep.apparaWeap)
+    for indx, weapId in enumerate(rep.weaponInventory):
+        temp = findWeapon(weapId)
+        if temp != None:
+            rep.weaponInventory[indx] = temp
+
+    for indx, skillId in enumerate(rep.skillInventory):
+        temp, toRemove = findSkill(skillId), []
+        if temp != None:
+            rep.skillInventory[indx] = temp
+        else:
+            toRemove.append(skillId)
+    
+        for obj in toRemove:
+            rep.skillInventory.remove(obj)
+
+    for indx, skillId in enumerate(rep.skills):
+        temp = findSkill(skillId)
+        if temp != None:
+            rep.skills[indx] = temp
+
+    for indx, stuffId in enumerate(rep.stuffInventory):
+        temp, toRemove = findStuff(stuffId), []
+        if temp != None:
+            rep.stuffInventory[indx] = temp
+        else:
+            toRemove.append(stuffId)
+
+        for obj in toRemove:
+            rep.stuffInventory.remove(obj)
+
+    for indx, stuffId in enumerate(rep.stuff):
+        temp = findStuff(stuffId)
+        if temp != None:
+            rep.stuff[indx] = temp
+
+    for indx, objId in enumerate(rep.otherInventory):
+        temp = findOther(objId)
+        if temp != None:
+            rep.otherInventory[indx] = temp
+
     return rep
 
 def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):
@@ -743,13 +576,13 @@ def whatIsThat(advObject : Union[weapon,stuff,skill,other,str]):
         ``2`` : Stuff
         ``3`` : Other
     """
-    if findWeapon(advObject) != None:
+    if type(advObject) == weapon or findWeapon(advObject) != None:
         return 0
-    elif findSkill(advObject) != None:
+    elif type(advObject) == skill or findSkill(advObject) != None:
         return 1
-    elif findStuff(advObject) != None:
+    elif type(advObject) == stuff or findStuff(advObject) != None:
         return 2
-    elif findOther(advObject) != None:
+    elif type(advObject) == other or findOther(advObject) != None:
         return 3
     else:
         return None
@@ -849,15 +682,12 @@ gbvdb1 = """
 def completlyRemoveEmoji(text:str):
     toReturn,started,justExited = '',False,False
     for letter in text:
-        if letter == '<' and not started:
+        if letter == '<' and not(started):
             started = True
         elif letter == '>' and started:
-            started,justExited = False, True
-        elif not(started) and not(justExited and letter==" "):
+            started = False
+        elif not(started):
             toReturn += letter
-
-        if justExited and letter not in ['>',' ']:
-            justExited = False
     return toReturn
 
 gbdmaj = """CREATE TABLE guildStreamSettings (
@@ -1189,3 +1019,37 @@ def getNextLetter(letter:str=""):
             if tablAlpha[cmpt] == letter:
                 return tablAlpha[cmpt+1]
         return ""
+
+def convertProfFileIntoJson(character:char):
+    existedBefore = os.path.exists("./userProfile/{0}.json".format(character.owner))
+    tablInventory = [character.weaponInventory,character.skills,character.skillInventory,character.stuff,character.stuffInventory,character.otherInventory,[character.weapon],[character.apparaAcc],[character.apparaWeap]]
+    for indx1, tabl in enumerate(tablInventory):
+        for indx2, obj in enumerate(tabl):
+            if obj != None:
+                if obj.__class__ != str:
+                    tablInventory[indx1][indx2] = obj.id
+                else:
+                    tablInventory[indx1][indx2] = obj
+
+    character.weapon,character.apparaAcc,character.apparaWeap = (tablInventory[-3][0],tablInventory[-2][0],tablInventory[-1][0])
+
+    tempDict = {}
+    for tmpChipId, tmpChip in character.chipInventory.items():
+        if type(tmpChip) == userChip:
+            tempDict[tmpChipId] = [tmpChip.lvl, tmpChip.progress]
+        else:
+            tempDict[tmpChipId] = tmpChip
+    character.chipInventory = tempDict
+    charDict = character.__dict__
+    charDict["says"] = None
+    with open("./userProfile/{0}.json".format(character.owner),"w") as newFile:
+        try:
+            json.dump(charDict, newFile)
+        except Exception as e:
+            newFile.close()
+            if not(existedBefore):
+                os.remove("./userProfile/{0}.json".format(character.owner))
+            print_exc()
+            return e
+    if os.path.exists("./userProfile/{0}.prof".format(character.owner)):
+        os.remove("./userProfile/{0}.prof".format(character.owner))
