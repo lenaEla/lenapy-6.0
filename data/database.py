@@ -361,7 +361,12 @@ class dbHandler():
         else:
             blbl2 = None
         if self.haveCustomIcon(user):
-            params = (user.species, user.color, user.stuff[0].id, user.weapon.id, str(emoji), blbl2, blbl1, user.iconForm, user.owner,)
+            if user.stuff[0].__class__ != str:
+                user.stuff[0] = user.stuff[0].id
+            if user.weapon.__class__ != str:
+                user.weapon = user.weapon.id
+            
+            params = (user.species, user.color, user.stuff[0], user.weapon, str(emoji), blbl2, blbl1, user.iconForm, user.owner,)
             query = "UPDATE custom_icon SET espece = ?, couleur = ?, accessoire = ?, arme = ?, emoji = ?, appaWeap = ?, appaAcc = ?, iconForm = ? WHERE owner_id = ?;"
             cursor.execute(query,params)
             cursor.close()
@@ -393,7 +398,10 @@ class dbHandler():
 
         if result != None:
             formVerif = [result["iconForm"],0][result["iconForm"] == None]
-            return not(result["espece"] == user.species and ((user.apparaAcc==None and result["accessoire"]==user.stuff[0].id) or (user.apparaAcc!=None and user.apparaAcc.id == result["appaAcc"])) and ((user.apparaWeap == None and result["arme"]==user.weapon.id) or (user.apparaWeap!=None and user.apparaWeap.id == result["appaWeap"])) and result["couleur"]==user.color and user.iconForm == formVerif)
+            try:
+                return not(result["espece"] == user.species and ((user.apparaAcc==None and result["accessoire"]==user.stuff[0].id) or (user.apparaAcc!=None and user.apparaAcc.id == result["appaAcc"])) and ((user.apparaWeap == None and result["arme"]==user.weapon.id) or (user.apparaWeap!=None and user.apparaWeap.id == result["appaWeap"])) and result["couleur"]==user.color and user.iconForm == formVerif)
+            except:
+                return False
         else:
             return True
 
@@ -573,7 +581,7 @@ class dbHandler():
         self.con.commit()
         cursor.close()
 
-    def getFightCooldown(self,team : int,quickFight = False,timestamp=False):
+    def getFightCooldown(self,team : int,quickFight = False,timestamp=False,returnDate=False):
         cursor = self.con.cursor()
         quickFight = int(quickFight)
         tabl = ["lastFight","lastQuickFight"]
@@ -597,6 +605,9 @@ class dbHandler():
                 print_exc()
                 print("Error endled")
                 result = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
+
+            if returnDate:
+                return result
 
             delta = result + timedelta(hours=1+(2*int(quickFight)))
             if not(timestamp):

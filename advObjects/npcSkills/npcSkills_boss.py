@@ -40,11 +40,6 @@ jevilEff = effect("Confusion","giveup",silent=True,emoji=uniqueEmoji('<a:giveup:
 
 # Luna (Oh it's will be funny)
 lunaWeap = weapon("Épee de l'ombre éternelle","aaa",RANGE_LONG,AREA_CIRCLE_1,35,40,strength=20,agility=10,precision=10,repetition=3,emoji='<:lunaWeap:915358834543968348>',damageOnArmor=1.2,ignoreAutoVerif=True,priority=WEAPON_PRIORITY_LOWEST)
-lunaInfiniteDarknessStun = effect("Lumière Éternelle","ilianaInfiniteLigthEff",None,type=TYPE_MALUS,stun=True,silent=True,emoji=uniqueEmoji("<:iliEff:929705167853604895>"))
-lunaVulne = effect("Vulnérabilité ombrale","lunaVulné", stat=STRENGTH,resistance=-3,turnInit=-1,emoji=vulneEmoji,type=TYPE_MALUS,stackable=True)
-lunaSpe = skill("Ténèbres Éternels","InfDarkLaunch",TYPE_DAMAGE,0,250,range=AREA_CIRCLE_7,area=AREA_CIRCLE_7,emoji='<:lunaSecDamage:929705185016692786>',say=["Laissez moi vous montrer un avant goût des Ténèbres Éternels !","Arrête de toujours d'interposer comme ça !","Même toi ne peut pas contrer mes Ténèbres éternellement !","Raah cette lueur ! Cette insuportable lueur !"],description="Inflige des dégâts extrèmes après un tour de chargement",cooldown=99,initCooldown=5,ultimate=True,damageOnArmor=1.2)
-lunaInfiniteDarknessShield = effect("Ténèbres Éternels","lunaInfiniteDarknessShield", stat=PURCENTAGE,dodge=-100,overhealth=25,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,replique=lunaSpe,turnInit=99,absolutShield=True,emoji=uniqueEmoji('<:bigDark:916561798948347935>'))
-lunaSpeCast = skill("Ténèbres Éternels","lunaInfDarkCast",TYPE_DAMAGE,0,0,emoji='<:lunaSecDamage:929705185016692786>',range=AREA_CIRCLE_7,area=AREA_CIRCLE_7,effectOnSelf=lunaInfiniteDarknessShield,say="Ok ça suffit ! Voyons voir comment vous tiendrez face à ça...",message="Luna concentre les Ténèbres environants...",cooldown=lunaSpe.cooldown,initCooldown=lunaSpe.initCooldown,ultimate=lunaSpe.ultimate)
 lunaSkill = copy.deepcopy(soupledown)
 lunaSkill.power, lunaSkill.onArmor, lunaSkill.cooldown = 250, 1.3, 5
 lunaSkill5_4eff = effect("Onde de Choc","lunaSkill4_1eff", stat=STRENGTH,power=35,area=AREA_DONUT_1,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_INSTANT,emoji='<:darkShockWave:1185653578824679484>')
@@ -135,8 +130,11 @@ clemSkill7 = skill("Prise de Sang","clemPosSkill7",TYPE_DAMAGE,power=50,maxPower
 importantSkills.append(clemSkill7)
 
 # The Giant Ennemi Spider
-TGESWeap = weapon("noneWeap","TheGiantEnemySpiderWeapon",RANGE_DIST,AREA_CIRCLE_1,0,0,0,resistance=50)
-TGESSkill1 = skill("Projectile","TheGiantEnemySpiderSkill1",TYPE_DAMAGE,0,int(GESLskill.power*1.5))
+tgesweape = copy.deepcopy(constEff)
+tgesweape.power, tgesweape.stat, tgesweape.turnInit = 50, PURCENTAGE, -1
+TGESWeap = weapon("noneWeap","TheGiantEnemySpiderWeapon",RANGE_DIST,AREA_CIRCLE_1,power=0,accuracy=0,effects=tgesweape)
+TGESSkill1 = skill("Projectile","TheGiantEnemySpiderSkill1",TYPE_DAMAGE,0,int(GESLskill.power*1.5),emoji=webSpitterWeap.emoji)
+TGESSkill2 = skill("Déluge de toile","tgesskill2",TYPE_DAMAGE,power=50,setAoEDamage=True,cooldown=3,emoji=myrlopeSkill1Eff.emoji[0][0],range=AREA_MONO,area=AREA_ALL_ENEMIES,effectAroundCaster=[TYPE_MALUS,AREA_ALL_ENEMIES,myrlopeSkill1Eff],description="Inflige des dégâts à tous les ennemis et réduit leur probabilité d'esquive")
 
 # Matt from WiiSport
 mattWeapon = weapon("Direct !","mattWeapon",RANGE_DIST,AREA_CIRCLE_1,60,70,repetition=3,emoji='<:boxe:922064460326244384>',ignoreAutoVerif=True)
@@ -178,14 +176,14 @@ akikiSkill3 = skill("Massacre","akikiSkill3",TYPE_DAMAGE,0,power=65,range=AREA_M
 akikiSkill4 = skill("Intolérance","akikiSkill4",TYPE_DAMAGE,0,power=120,range=AREA_CIRCLE_3,area=AREA_LINE_2,cooldown=7)
 akikiSkill1Eff = effect("Rage Croissante","akikiRageDmgBuff",turnInit=-1,unclearable=True,emoji=dmgUp.emoji,power=50)
 akikiSkill1 = skill("Rage Croissante","akikiSkill1",TYPE_PASSIVE,effectOnSelf=akikiSkill1Eff,emoji=akikiSkill1Eff.emoji[0][0],description="Accroie les dégâts directs infligés par Akira au fur et à mesure que ses PVs diminuent, jusqu'à **+{0}%** avec 0.1% de PV restants".format(akikiSkill1Eff.power))
-akikiSkill2_1_2 = skill("Destruction Explosive","akikiSkill2_1",TYPE_DAMAGE,emoji='<:akiTankStack:1007050856748818464>',power=600,range=AREA_CIRCLE_4,tpCac=True,cooldown=5,area=AREA_CIRCLE_1,description="Au premier tour, Akira marque un ennemi puis il inflige au second tour d'énormes dégâts à l'ennemi marqué et ceux alentours. La puissance est divisée par le nombre d'ennemi ayant une aspiration de mêlée dans la zone d'effet")
+akikiSkill2_1_2 = skill("Destruction Explosive","akikiSkill2_1",TYPE_DAMAGE,emoji='<:akiTankStack:1007050856748818464>',power=600,range=AREA_CIRCLE_4,tpCac=True,cooldown=5,area=AREA_CIRCLE_1,description="Au premier tour, Akira marque un ennemi puis il inflige au second tour d'énormes dégâts à l'ennemi marqué et ceux alentours. La puissance est divisée par le nombre d'ennemi ayant une aspiration de mêlée dans la zone d'effet",sharedTB=True)
 akikiSkill2_mark = effect("Cible : Destruction Explosive","akikiSkill2_mark",type=TYPE_MALUS,emoji='<:akiTankStack:1007050856748818464>')
 akikiSkill2_1_cast = effect("Cast - {replicaName}","akikiSkill2_1_cast",silent=True,turnInit=2,replique=akikiSkill2_1_2,emoji='<:akiTankStack:1007050856748818464>')
 akikiSkill2_1_1 = copy.deepcopy(akikiSkill2_1_2)
 akikiSkill2_1_1.id, akikiSkill2_1_1.power, akikiSkill2_1_1.tpCac, akikiSkill2_1_1.effectOnSelf, akikiSkill2_1_1.type, akikiSkill2_1_1.effects, akikiSkill2_1_1.area = "akikiSkill2", 0, False, akikiSkill2_1_cast,TYPE_MALUS, [akikiSkill2_mark], AREA_MONO
 akikiSkill2_2 = skill("Destruction Concentrique","akikiSkill2",TYPE_DAMAGE,range=AREA_CIRCLE_3,power=250,cooldown=5,area=AREA_CIRCLE_1,emoji='<:akiTB:1007050875451220059>')
 
-akikiSkill3_1_1 = skill("Frappe Enragée","akikiSkill3_1",TYPE_DAMAGE,power=400,cooldown=5,emoji='<:akiStack:1007050822338748466>',area=AREA_CIRCLE_3,range=AREA_DONUT_5,tpCac=True,description="Akira marque un ennemi au premier tour puis inflige de lourds dégâts à l'ennemi marqué et ceux aux alentours.\nLa puissance est divisée par le nombre d'ennemi dans la zone d'effet.")
+akikiSkill3_1_1 = skill("Frappe Enragée","akikiSkill3_1",TYPE_DAMAGE,power=400,cooldown=5,emoji='<:akiStack:1007050822338748466>',area=AREA_CIRCLE_3,range=AREA_DONUT_5,tpCac=True,description="Akira marque un ennemi au premier tour puis inflige de lourds dégâts à l'ennemi marqué et ceux aux alentours.\nLa puissance est divisée par le nombre d'ennemi dans la zone d'effet.",sharedDamage=True)
 akikiSkill3_1_cast = effect("Cast - {replicaName}","akikiSkill3_1_cast",silent=True,turnInit=2,replique=akikiSkill3_1_1,emoji='<:akiStack:1007050822338748466>')
 akikiSkill3_1_mark = effect("Cible : Frappe Enragée","akikiSkill3_1_mark",type=TYPE_MALUS,emoji='<:akiStack:1007050822338748466>')
 akikiSkill3_1_2 = copy.deepcopy(akikiSkill3_1_1)
@@ -239,7 +237,7 @@ iliExSay = says(start="Je pense que ça devrait suffire... Je pense pouvoir vous
 
 # Stella
 stellaAuraEff = copy.deepcopy(dmgUp)
-stellaAuraEff.power, stellaAuraEff.stat, stellaAuraEff.strength, stellaAuraEff.magie = 3.5, MAGIE, 5, 5
+stellaAuraEff.power, stellaAuraEff.stat, stellaAuraEff.strength, stellaAuraEff.magie = 3.5, MAGIE, 3.5, 3.5
 stellaAura = effect("Aura solaire","stellaAura", stat=MAGIE,trigger=TRIGGER_END_OF_TURN,denieWeap=True,callOnTrigger=stellaAuraEff,area=AREA_DONUT_2,turnInit=-1,unclearable=True,description="En fin de tour, augmente légèrement les dégâts infligés par les alliés alentours")
 stellaWeap = weapon("Pulsion électro-magnetique","stellaWeap",RANGE_DIST,AREA_CIRCLE_5,53,75,magie=10,endurance=10,resistance=10,effects=stellaAura)
 stellaSkill1 = skill("Galvanisation stellaire","stellaSkill1",TYPE_BOOST,range=AREA_MONO,area=AREA_CIRCLE_3,effects=stellaAuraEff,effPowerPurcent=300,cooldown=5,description="Augmente les dégâts infligés par les alliés alentours")
@@ -265,7 +263,7 @@ stellaLB = copy.deepcopy(stellaLBFinal)
 stellaLB.id, stellaLB.effPowerPurcent, stellaLB.url, stellaLB.effectOnSelf = "stellaLB", 100, "https://media.discordapp.net/attachments/927195778517184534/960234772926455908/20220403_194702.gif",stellaLBGuide2
 stellaSkill5Eff = copy.deepcopy(vulne)
 stellaSkill5Eff.power, stellaSkill5Eff.stat, stellaSkill5Eff.turnInit = 5, MAGIE, 3
-stellaSkill5Eff2 = effect("Galvanisation Stellaire","stellaSkill5Eff2", stat=MAGIE,strength=10,magie=10,charisma=5,intelligence=5,endurance=3,agility=3,precision=3,turnInit=3,emoji="<:buffStellaire:1083755558517100677>")
+stellaSkill5Eff2 = effect("Galvanisation Stellaire","stellaSkill5Eff2", stat=MAGIE,strength=7.5,magie=7.5,charisma=5,intelligence=5,endurance=3,agility=3,precision=3,turnInit=3,emoji="<:buffStellaire:1083755558517100677>")
 stellaSkill5_1 = skill("Eruption Stellaire","stellaSkill5",TYPE_DAMAGE,power=100,area=AREA_ARC_1,use=MAGIE,effects=stellaSkill5Eff,description="Stella inflige des dégâts aux ennemis ciblés et augmente les dégâts reçus par la cible principale pendant 3 tours",emoji='<:erupStell:1083754013582971010>')
 stellaSkill5_2 = skill("Explosion Stellaire","stellaSkill5",TYPE_DAMAGE,power=80,area=AREA_CIRCLE_3,use=MAGIE,effectAroundCaster=[TYPE_BOOST,AREA_CIRCLE_3,stellaSkill5Eff2],description="Stella inflige des dégâts aux ennemis ciblés et augmente les statistiques des alliés autour d'elle pendant 3 tours",emoji='<:erupStell:1083754013582971010>')
 stellaSkill5 = skill("Puissance Stellaire","stellaSkill5",TYPE_DAMAGE,become=[stellaSkill5_1,stellaSkill5_2],emoji=stellaSkill5_2.emoji,description="Stella inflige des dégâts de zone et augmente les statistiques de ses alliés ou les dégâts reçus des ennemis")
@@ -278,6 +276,36 @@ kitsuneExCharmEff = effect("Kyōhaku kan'nen","kitsuneExCharmEff",power=5,stat=C
 KITCHARMVULNE, KITCHARM2VULNE = 2, 5
 
 octoTour = weapon("noneWeap","aaa",RANGE_LONG,AREA_CIRCLE_1,0,0,0,resistance=500)
-octoTourEff2 = effect("Protection magique","octTourEff2",redirection=100,turnInit=-1,emoji='<:tower:905169617163538442>')
+octoTourEff2 = effect("Protection magique","octTourEff2",redirection=100,turnInit=99,emoji='<:tower:905169617163538442>',silent=True)
 octoTourEff1 = effect("Grand protecteur","octTourEff1",emoji='<:tower:905169617163538442>',description="L'OctoTour protège ses alliés\nTant qu'il est en vie, celui-ci subis les dégâts directs de ses alliés à leur place",trigger=TRIGGER_INSTANT,area=AREA_ALL_ALLIES,callOnTrigger=octoTourEff2)
 octoTourSkill = skill("Grand protecteur","octoTourSkill",TYPE_PASSIVE,0,effectOnSelf=octoTourEff1,use=None,emoji='<:tower:905169617163538442>')
+
+darkZenecaWeap = weapon("Pinceau KuroMagic","darkZenecaWeap",RANGE_DIST,AREA_CIRCLE_3,power=80,accuracy=0,priority=WEAPON_PRIORITY_NONE,emoji="<:zenecaBrush2:1214961720691527800>",effects=toxicure,use=MAGIE)
+darkZenecaDot = effect("Peste","darkZenecaDot",MAGIE,power=50,turnInit=5,trigger=TRIGGER_START_OF_TURN,replace=True,type=TYPE_INDIRECT_DAMAGE,emoji='<:darkTox:1231975040912723998>',lifeSteal=15)
+darkZenecaSkill1DeplSkill = skill("CoroZone","darkZenecaSkill1DeplSkill",TYPE_INDIRECT_DAMAGE,effects=[darkZenecaDot],range=AREA_MONO,area=AREA_CIRCLE_1,emoji='<:toxicTouch:1177634174350401557>')
+darkZenecaSkill1Depl = depl("CoroZone",darkZenecaSkill1DeplSkill,["<:toxiEff:1223595956415496213>","<:toxiEff:1223595956415496213>"])
+darkZenecaSkill1Eff = effect("CoroZone","coroZoneEff",type=TYPE_DEPL,callOnTrigger=darkZenecaSkill1Depl,trigger=TRIGGER_INSTANT,emoji=darkZenecaSkill1Depl.icon[0])
+darkZenecaSkill1 = skill("CoroZone","darkZenecaSkill1",TYPE_DAMAGE,range=AREA_CIRCLE_3,area=darkZenecaSkill1DeplSkill.area+1,emoji='<:toxicTouch:1177634174350401557>',ultimate=False,cooldown=7,power=125,effects=darkZenecaSkill1Eff,description="Inflige des dégâts aux ennemis ciblés et fait apparaitre une flaque de poison à leur pieds, empoisant les ennemis dedans durant un moment",use=MAGIE)
+darkZenecaSkill2Eff = effect("DarkSad","darkZenecaSkill2Eff",MAGIE,trigger=TRIGGER_ON_REMOVE,area=AREA_CIRCLE_2,type=TYPE_INDIRECT_DAMAGE,emoji='<:disizosadEff:1177590836238753852>',power=100)
+darkZenecaSkill2 = skill("DarkSad","darkZenecaSkill2",TYPE_DAMAGE,power=100,percing=50,effects=darkZenecaSkill2Eff,emoji="<:disizisad:1177590810338930708>",use=MAGIE,cooldown=5,description="Inflige des dégâts à l'ennemi ciblé en ignorant une partie de son endurance. Lors du prochain tour, inflige des dégâts indirects en zone autour de la cible")
+darkZenecaSkill3 = skill("ToxiMarre","darkZenecaSkill3",TYPE_DAMAGE,power=120,setAoEDamage=True,range=AREA_MONO,area=AREA_CIRCLE_2,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_CIRCLE_2,darkZenecaDot],cooldown=5,emoji='<:chipToxiHeal:1221119824223014924>',use=MAGIE,description="Inflige des dégâts aux ennemis alentours et leur inflige {0}".format(estial),minTargetRequired=3)
+darkZenecaSkill4 = skill("ToxiStrike","darkZenecaSkill4",TYPE_DAMAGE,power=80,effects=estial,effPowerPurcent=70,emoji='<:toxicHearth:1177634139516706919>',description="Inflige des dégâts à l'ennemi ciblé ainsi que {0} (70%)".format(darkZenecaDot),use=MAGIE)
+darkZenecaSkill4.iaPow = 10
+darkZenecaSkill5Eff1, darkZenecaSkill5Eff2 = copy.deepcopy(incurable), copy.deepcopy(armorGetMalus)
+darkZenecaSkill5Eff1.power = darkZenecaSkill5Eff2.power = 40
+darkZenecaSkill5Eff1.turnInit = darkZenecaSkill5Eff2.turnInit = 3
+darkZenecaSkill5Eff3, darkZenecaSkill5Eff4 = effect("DarkSentiments","darkSentEff1",trigger=TRIGGER_INSTANT,callOnTrigger=darkZenecaSkill5Eff1,type=TYPE_MALUS, emoji='<:zenecaUlt1:1214961183673684018>'), effect("DarkSentiments","darkSentEff2",trigger=TRIGGER_INSTANT,callOnTrigger=darkZenecaSkill5Eff2,type=TYPE_MALUS, emoji='<:zenecaUlt2:1214960718126784522>')
+darkZenecaSkill5Eff3.area = darkZenecaSkill5Eff4.area = AREA_CIRCLE_2
+darkZenecaSkill5 = skill("Rancour","darkZenecaSkill5",TYPE_INDIRECT_DAMAGE,effects=[intoxEff,epidemicEff,markInfexEff,darkZenecaSkill5Eff3, darkZenecaSkill5Eff4],ultimate=True,cooldown=7,description="Inflige {0}, {1} à l'ennemi ciblé, et {2} et {3} à la cible et aux ennemis alentours".format(intoxEff,epidemicEff,darkZenecaSkill5Eff3.callOnTrigger,darkZenecaSkill5Eff4.callOnTrigger),emoji='<:markInfex:1212102833059663953>')
+darkZenecaPassiveEff = effect("Dégâts indirects subis réduits","darkZenecaPassifEff",turnInit=-1,unclearable=True,silent=True,inkResistance=40,counterOnDodge=25,dodge=15,aggro=-35)
+darkZenecaPassive = skill("Vaccin","sarkZenecaPassive",TYPE_PASSIVE,effects=[darkZenecaPassiveEff,counterTimeEff],description="Réduit les dégâts indirects reçus")
+
+darkZenecaSays=says(
+    start="J'espère que vous n'oublirez pas de respecter les distanciations sociales.",
+    ultimate="J'vais vous montrer pourquoi vous auriez dû vous faire vacciner",
+    onKill="Ni repris ni échangé",
+    redWinAlive="Prenez ça bande d'anti-vaxs.",
+    reactEnnemyKilled="Hm.",
+    getHealed="Thx.",
+    redLoose="Aw."
+)

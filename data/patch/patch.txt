@@ -1,4 +1,6 @@
-Mise à jour 5.5.2
+Patch 5.6.6.3
 __Equilibrage :__
-- __Ailill__ :
-> - Changement de l'arme
+- Lors du combat procuré de Lia Exaltée, celle-ci possède désormais un buff permanant de 35% de Dégâts Infligés
+
+__Autre :__
+- Optimisations

@@ -2,7 +2,7 @@
 from traceback import print_exc, format_exc
 from sqlite3 import Row
 from constantes import *
-import requests, data.bot_tokens, gestion, random, interactions, asyncio
+import requests, data.bot_tokens, gestion, random, interactions, asyncio, time
 
 isAllReadyStreaming = []
 
@@ -31,7 +31,7 @@ def checkIfLive(channel):
 			return False
 	except:
 		try:
-			return "An error occured: " + format_exc() +"\n"+ res
+			return "An error occured: " + format_exc() +"\n"+ str(res)
 		except:
 			print("An error occured: " + format_exc())
 			return "An error occured: " + format_exc()
@@ -92,7 +92,7 @@ def checkingStreaming(alert,bot):
 	if type(potStreamEmb) == stream and alert["streamerName"] not in isAllReadyStreaming:
 		isAllReadyStreaming.append(alert["streamerName"])
 		if isLenapy:
-			timeSteam = datetime.now() - potStreamEmb.startTime - timedelta(hours=1)
+			timeSteam = datetime.now() - potStreamEmb.startTime - timedelta(hours=1+time.localtime(datetime.now().timestamp()).tm_isdst)
 		else:
 			timeSteam = datetime.now(parisTimeZone) - potStreamEmb.startTime
 		timeSteam = int(timeSteam.total_seconds())
@@ -104,7 +104,7 @@ def checkingStreaming(alert,bot):
 					twEmbed = gestion.globalVar.getStreamAlertEmbed(int(nowStreaming["guild"]), nowStreaming["streamerName"])
 					twEmbed.guild = bot.get_guild(twEmbed.guild)
 					twEmbed.notifRole = twEmbed.guild.get_role(twEmbed.notifRole)
-					twEmbed.notifChannel: interactions.GuildText = twEmbed.guild.get_channel(twEmbed.notifChannel)
+					twEmbed.notifChannel = twEmbed.guild.get_channel(twEmbed.notifChannel)
 
 					def formatTwitchTxt(txt,twitchEmb:gestion.streamEmbed,stream:stream):
 						return txt.format(
@@ -149,13 +149,14 @@ async def verifStreamingStreamers2(bot:interactions.Client, alert:Row):
 
 async def verifStreamingStreamers(bot:interactions.Client):
 	listallAlertes: List[Row] = gestion.globalVar.getStreamAlertList()
-	listStreamersNames = []
+	listStreamersNames, backgroundTast = [], set()
 	for alert in listallAlertes:
 		if alert["streamerName"] not in listStreamersNames:
-			asyncio.create_task(verifStreamingStreamers2(bot, alert))
+			tmpTask = asyncio.create_task(verifStreamingStreamers2(bot, alert))
+			backgroundTast.add(tmpTask)
+			tmpTask.add_done_callback(backgroundTast.discard)
 			listStreamersNames.append(alert["streamerName"])
 			await asyncio.sleep(0.1)
-
 
 addAlertButton = interactions.Button(style=ButtonStyle.SUCCESS, label="Ajouter une alerte",emoji=PartialEmoji(name="➕"),custom_id="add")
 confirmButton = interactions.Button(style=ButtonStyle.SUCCESS, label="Confirmer",emoji=PartialEmoji(name="✅"),custom_id="confirm")
@@ -165,7 +166,7 @@ exempleButton = interactions.Button(style=ButtonStyle.SECONDARY, label="Essai da
 cancelButton = interactions.Button(style=ButtonStyle.SECONDARY, label="Retour",emoji=PartialEmoji(name="◀️"),custom_id="goback")
 
 tablSelectEmbed = [
-	["Messsage de noctification","Le message qui s'affiche lors d'une alerte.\nLes mentions de rôles ne fonctionnent dans ce message"],
+	["Messsage de notification","Le message qui s'affiche lors d'une alerte.\nLes mentions de rôles ne fonctionnent dans ce message"],
 	["Titre de l'embed","Le titre de l'embed."],
 	["Description de l'embed","Le message qui s'affichera en dessous du titre\nLes liens hypertextes ne fonctionnent que dans cette description"],
 	["Couleur de l'embed","La couleur de l'embed"],
@@ -359,7 +360,7 @@ async def streamSettingsFunction(bot:interactions.Client,guild:interactions.Guil
 
 				listChannelMentions = paramRep.mention_channels
 				if len(listChannelMentions) > 0:
-					newAlert.notifChannel: TYPE_MESSAGEABLE_CHANNEL = listChannelMentions[0]
+					newAlert.notifChannel = listChannelMentions[0]
 
 					tempMsg = await paramRep.channel.send(content="✅ Les futures alertes seront envoyées dans le salon **{0}**".format(newAlert.notifChannel.name),components=[])
 					await asyncio.sleep(3)

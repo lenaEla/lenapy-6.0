@@ -14,7 +14,7 @@ asileSkillEff.power = 10
 asileSkill = skill("Asile","asileSkill",TYPE_HEAL,power=35,effects=asileSkillEff,range=AREA_MONO,area=AREA_CIRCLE_2,use=CHARISMA,effBeforePow=True)
 asileDepl = depl("Asile",asileSkill,["<:asileB:1013751801742372947>","<:asileR:1013751836412489820>"],["<:tasileB:1013751863386046556>","<:tasileR:1013751895938048060>"],"Place une zone sur une cellule qui augmentera les soins reçus par les alliés de **{0}%** et les soigneras (Puissance : **{1}**)".format(asileSkillEff.power,asileSkill.power))
 
-liaTornadeSkill = skill("Tatsumaki","liaTornadeSkill",TYPE_DAMAGE,power=60,range=AREA_MONO,area=AREA_CIRCLE_2,use=MAGIE,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_3,30])
+liaTornadeSkill = skill("Tatsumaki","liaTornadeSkill",TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_CIRCLE_2,use=MAGIE,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_3,50])
 liaTornade = depl("Tatsumaki",liaTornadeSkill,["<:liaDepl:1013912739728592896>","<:liaDepl:1013912739728592896>"],["<:tliaDepl:1013912690877550664>","<:tliaDepl:1013912690877550664>"],"Lia invoque une tornade sur la cellule ciblée, infligeant des dégâts avec une puissance de **{0}** et soigne la kitsune si celle-ci se trouve à l'intérieur avec une puissance de **{1}**".format(liaTornadeSkill.power,liaTornadeSkill.effectAroundCaster[2]))
 
 lohicaDeplSkill = skill("Brouillard Empoisonné","lohicaDeplSkill",TYPE_INDIRECT_DAMAGE,range=AREA_MONO,area=AREA_CIRCLE_2,effects="me",effPowerPurcent=70,emoji="<:poisonusMist:1059084936100970556>",use=MAGIE)
@@ -58,3 +58,7 @@ dmonGroundEff2 = copy.deepcopy(holyGroundIIEff)
 dmonGroundEff2.name, dmonGroundEff2.emoji, dmonGroundEff2.stat = "Terre Démoniaque", uniqueEmoji("<:burningGround:950256060923535370>"), INTELLIGENCE
 dmonGroundSkill = skill("Terre Démoniaque","dmonGroundSKill",TYPE_BOOST,range=AREA_MONO,area=AREA_CIRCLE_2,effects=[dmonGroundEff,dmonGroundEff2],emoji='<:dmonland:1006455391342829599>')
 dmonGround = depl("Terre Démoniaque",dmonGroundSkill,"<:burningGround:950256060923535370>",description="Augmente les dégâts infligés et les statistiques des alliés dans la zone d'effet durant 3 tours")
+
+littleTrapSkill = skill("Explosion","littleTrapSkill",TYPE_DAMAGE,power=50,area=AREA_CIRCLE_1,range=AREA_MONO,emoji='<:splatted1:727586364618702898>')
+littleTrapDepl = depl("Petite Mine",littleTrapSkill,["<:inkMineB:1227311683165360199>","<:inkMineR:1227311700991152131>"],["<:lenaInkStrikeAreaB:1226234884683726979>","<:lenaInkStrikeAreaR:1226234907450413076>"],trap=True)
+littleTrapEff = effect("Petite Mine","littleTrapEff",STRENGTH,type=TYPE_DAMAGE,trigger=TRIGGER_ON_MOVE,lvl=1,area=AREA_CIRCLE_1,power=50,emoji='<:inkMine:1227311660365123586>',turnInit=3,stackable=True)

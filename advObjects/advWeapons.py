@@ -1,6 +1,6 @@
 from classes import *
 from constantes import *
-from advObjects.advSkills import tablElemEff, coroWind, plumRemEff, estial, bleeding, krysUlt
+from advObjects.advSkills import tablElemEff, coroWind, plumRemEff, estial, bleeding, krysUlt, bloodButterfly
 from advObjects.advStuffs import shieltron
 
 splattershot = weapon("Liquidateur","ab",RANGE_DIST,AREA_CIRCLE_3,40,50,280,agility=10,precision=20,strength=20,repetition=3,emoji = '<:splattershot:866367647113543730>',affinity=ELEMENT_NEUTRAL)
@@ -29,8 +29,8 @@ butterflyR = weapon("Papillon Rose","bb",RANGE_LONG,AREA_CIRCLE_5,62,80,150,tail
 butterflyP = weapon("Papillon Violet","bc",RANGE_LONG,AREA_CIRCLE_5,28,100,250,taille=0,area=AREA_CIRCLE_1,magie=30,effectOnUse=estial.id,needRotate=False,emoji='<:butterflyV:883627142615805962>',type=TYPE_DAMAGE,message="{0} demande à son papillon d'empoisonner {1} :",use=MAGIE)
 dtsword = weapon("Épée de Détermination","bd",RANGE_MELEE,AREA_CIRCLE_1,61,85,500,strength=15,resistance=10,critical=5,emoji='<:dtSword:884802145239588884>',affinity=ELEMENT_NEUTRAL,effects="lg")
 magicSword = weapon("Épée de MagicalGirl","be",RANGE_MELEE,AREA_CIRCLE_1,92,70,200,endurance=10,charisma=30,resistance=10,emoji="<:magicSword:885241611682975744>",use=CHARISMA)
-lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,76,85,250,endurance=20,intelligence=20,resistance=10,emoji="<:lunarBonk:887347614448746516>",use=MAGIE,affinity=ELEMENT_LIGHT)
-rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,80,60,0,magie=10,intelligence=10,percing=5,endurance=5,use=MAGIE,emoji='<:clemWeap:915358467773063208>',effectOnUse=coroWind,effPowerPurcent=70)
+lunarBonk = weapon("Bâton Lunaire","bf",RANGE_MELEE,AREA_CIRCLE_1,76,85,250,endurance=20,intelligence=20,resistance=10,emoji="<:lunarBonk:887347614448746516>",use=INTELLIGENCE,affinity=ELEMENT_LIGHT)
+rapiere = weapon("Rapière en argent","bg",RANGE_DIST,AREA_CIRCLE_3,80,60,0,magie=10,intelligence=10,percing=5,endurance=5,use=MAGIE,emoji='<:clemWeap:915358467773063208>',effectOnUse=bloodButterfly)
 fauc = weapon("Faux Tourmentée","bh",RANGE_MELEE,AREA_CIRCLE_2,69,75,0,strength=25,percing=5,emoji='<a:akifauxgif:887335929650507776>',affinity=ELEMENT_DARKNESS,effectOnUse=incur[2])
 serringue = weapon("Serringue","bi",RANGE_DIST,AREA_CIRCLE_3,35,100,350,charisma=30,precision=20,emoji='<:seringue:887402558665142343>',target=ALLIES,type=TYPE_HEAL,use=CHARISMA,affinity=ELEMENT_LIGHT,message="{0} fait une perfusion à {1}")
 bigshot = weapon("[[Big shot](https://www.youtube.com/watch?v=-8p8VowCmgE)]","bj",RANGE_DIST,AREA_CIRCLE_4,63,60,1997,strength=20,percing=10,magie=20,emoji='<:bigshot:892756699277037569>',message="{0} PROPOSE UN [[Big shot](https://www.youtube.com/watch?v=-8p8VowCmgE)] À {1} :",area=AREA_LINE_2)
@@ -185,21 +185,29 @@ dvinWandEff = effect("Ascendance","ascendance",unclearable=True,turnInit=-1,powe
 dvinWand = weapon("Canne Divine",getAutoId(aWeap.id),RANGE_LONG,AREA_CIRCLE_4,50,100,price=1,effects=dvinWandEff,type=TYPE_HEAL,charisma=30,emoji='<:dvinWand:1104505507978432583>',use=CHARISMA)
 dvinSeptre = weapon("Sceptre Divin",getAutoId(dvinWand.id),RANGE_LONG,AREA_CIRCLE_4,37,85,price=1,effects=dvinWandEff,magie=25,precision=5,emoji='<:dvinSeptre:1104505536092840026>',use=MAGIE)
 eclataDash = effect("Eclatadash","eclatadash", stat=PURCENTAGE,turnInit=-1,agility=5,unclearable=True,emoji='<:splatana:1129775771410505819>',dodge=5,description="Si vous attaquez votre cible avec votre arme sans être à son corps à corps, vous sautez devant de la cible. De plus, vos attaques à l'arme au corps à corps de la cible sont forcément critique\nAugmente aussi de **5%** votre probabilité d'esquive et votre agilité")
-eclatana = weapon("Eclatana",getAutoId(dvinSeptre.id),RANGE_MELEE,AREA_CIRCLE_3,64,75,1,strength=20,agility=10,emoji='<:splatana:1129775771410505819>',effects=eclataDash)
-eclatanaDoto = weapon("Eclatana Chic",getAutoId(eclatana.id),RANGE_MELEE,AREA_CIRCLE_3,64,75,1,magie=20,agility=10,emoji='<:splatanaDeco:1129775782798049360>',effects=eclataDash,use=MAGIE)
+eclatana = weapon("Eclatana",getAutoId(dvinSeptre.id),RANGE_MELEE,AREA_CIRCLE_3,64,75,1,strength=20,agility=10,emoji='<:splatana:1129775771410505819>',effects=eclataDash,priority=WEAPON_PRIORITY_LOW)
+eclatanaDoto = weapon("Eclatana Chic",getAutoId(eclatana.id),RANGE_MELEE,AREA_CIRCLE_3,64,75,1,magie=20,agility=10,emoji='<:splatanaDeco:1129775782798049360>',effects=eclataDash,use=MAGIE,priority=WEAPON_PRIORITY_LOW)
 icealiaShieldEff = copy.deepcopy(defenseUp)
 icealiaShieldEff.power, icealiaShieldEff.unclearable, icealiaShieldEff.turnInit, icealiaShieldEff.block = 5, -1, True, 20
 icealiaShield = weapon("Bouclier Royal",getAutoId(eclatanaDoto.id),RANGE_MELEE,AREA_CIRCLE_1,60,80,1,use=INTELLIGENCE,endurance=20,resistance=10,effects=icealiaShieldEff,taille=0,priority=WEAPON_PRIORITY_LOWEST,emoji='<:royalInsing:1163510202713247904>')
-heleneBrushEff = effect("Intégrité","heleneBrushEff", stat=CHARISMA,type=TYPE_INDIRECT_HEAL,turnInit=5,stackable=True,trigger=TRIGGER_HP_ENDER_25,power=35,emoji=sameSpeciesEmoji("<:integriteB:1131483104222126133>","<:integriteR:1131483136526663810>"),description="Soigne le porteur si ses PV tombent en dessous de **25%** de ses PV Max")
+heleneBrushEff = effect("Intégrité","heleneBrushEff", stat=CHARISMA,type=TYPE_INDIRECT_HEAL,turnInit=5,stackable=True,trigger=TRIGGER_HP_UNDER_25,power=35,emoji=sameSpeciesEmoji("<:integriteB:1131483104222126133>","<:integriteR:1131483136526663810>"),description="Soigne le porteur si ses PV tombent en dessous de **25%** de ses PV Max")
 heleneBrush = weapon("Pinceau Magique",getAutoId(icealiaShield.id),RANGE_DIST,AREA_CIRCLE_4,35,100,1,use=CHARISMA,charisma=20,precision=10,effectOnUse=heleneBrushEff,type=TYPE_HEAL,target=ALLIES,emoji='<:heleneBrush:1131483975743971379>',taille=0)
 elinaWeapEff = effect("Soins Intensifs","elinaWeapEff",power=20,turnInit=-1,unclearable=True,emoji='<:elinaWeapEff:1168213257031520326>',description="Augmente de **20%** les soins directs monocibles effectués mais diminue de **35%** les soins directs de zone")
 elinaWeap = weapon("Seringue d'urgence",getAutoId(heleneBrush),RANGE_LONG,AREA_CIRCLE_5,40,100,1,type=TYPE_HEAL,use=CHARISMA,target=ALLIES,effects=elinaWeapEff,charisma=10,precision=20,emoji='<:elinaWeap:1168214196324925552>')
-toxicureEff = effect("Toxicure","toxicureEff", stat=FIXE,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_HP_ENDER_25,emoji='<:toxiCure:1177648759727980665>',turnInit=20,lvl=1)
-toxicure = effect("Toxicure","toxicure",power=20,turnInit=-1,unclearable=True,silent=True,emoji=toxicureEff.emoji,callOnTrigger=toxicureEff,description="Lorsque vous infligez des dégâts indirects, **{0}%** des dégâts sont stockés\nLorsque vous utilisez votre arme pour soigner un allié ou que vous passez en dessous de 25% de vos PV maximums, un soin supplémentaire est effectué d'une valeur équivalente aux dégâts stockés")
-toxicBrush = weapon("Pinceau ToxiCo",getAutoId(elinaWeap),RANGE_DIST,AREA_CIRCLE_3,35,100,500,magie=20,intelligence=10,effects=toxicure,emoji='<:zenecaBrush:1177650683260969090>',use=MAGIE,type=TYPE_HEAL,target=ALLIES)
+toxicureEff = effect("Toxicure","toxicureEff",type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_ON_REMOVE,emoji='<:toxiheart:1177648816774717482>',turnInit=1,lvl=1,area=AREA_LOWEST_HP_ALLIE)
+toxicure = effect("Toxicure","toxicure",power=25,turnInit=-1,unclearable=True,silent=True,emoji="<:toxiCure:1177648759727980665>",callOnTrigger=toxicureEff,description="Lorsque vous infligez des dégâts ou vol de vie indirects, **{0}%** des dégâts ou des PVs restorés sont stockés. Au début de chaque tour, l'allié le plus blessé reçoit des soins équivalents à la quantité de dégâts ou PVs stoqués")
+toxicBrush = weapon("Pinceau ToxiCo",getAutoId(elinaWeap),RANGE_DIST,AREA_CIRCLE_3,35,100,500,magie=20,intelligence=10,effects=toxicure,emoji='<:zenecaBrush:1177650683260969090>',use=MAGIE,type=TYPE_HEAL,target=ALLIES,priority=WEAPON_PRIORITY_NONE)
+
+victoireShotgunEff = effect("Fusil à Pompe","victoireShotgunEff",turnInit=-1,unclearable=True,description="Vos attaques à l'arme au corps à corps infligent forcément un coup critique",emoji='<:shotgun:1227635614686380052>')
+shotgun = weapon("Fusil à Pompe",getAutoId(toxicBrush),RANGE_MELEE,AREA_CIRCLE_2,75,60,1,strength=10,damageOnArmor=1.35,precision=10,endurance=10,effects=victoireShotgunEff,emoji='<:shotgun:1227635614686380052>')
+enchantedShotgunEff = copy.deepcopy(victoireShotgunEff)
+enchantedShotgunEff.name, enchantedShotgunEff.emoji = "Fusil à Pompe Enchanté", uniqueEmoji("<:enchantedShotgun:1227635638136864890>")
+enchantedShotgun = weapon("Fusil à Pompe Enchanté",getAutoId(shotgun),RANGE_MELEE,AREA_CIRCLE_2,75,60,1,strength=10,damageOnArmor=1.35,precision=10,endurance=10,effects=enchantedShotgunEff,use=MAGIE,emoji='<:enchantedShotgun:1227635638136864890>')
+ailillPassiveEff = effect("Acharnement","aillilPassiv",power=15,emoji=deepWound.emoji,turnInit=-1,unclearable=True,callOnTrigger=deepWound,description="Lors de vos attaques directs, **15%** des dégâts infligés sont également infligés en tant que Blessure Profonde")
+chainsaw = weapon("Tronçonneuse",getAutoId(enchantedShotgun),RANGE_MELEE,AREA_CIRCLE_1,80,75,1,strength=15,precision=10,endurance=5,effects=ailillPassiveEff,emoji='<:chainsaw:1189299410794979479>')
 
 # Weapon
-weapons = [toxicBrush,elinaWeap,heleneBrush,icealiaShield,eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
+weapons = [chainsaw,shotgun,enchantedShotgun,toxicBrush,elinaWeap,heleneBrush,icealiaShield,eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
     iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,aliceFan,
     fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
@@ -228,7 +236,6 @@ def findWeapon(WeaponId) -> weapon:
             if a.id == id or a.name.lower() == id.lower():
                 rep = a
                 break
-    
         return rep
 
 akiaPreWeapon = [klikliSword,splatcharger,dualies,micPink,bleuSpiritWings,clashBlaster,magicWood,explosher2,magicSwordnShield,inkbrella2,constShield,dflumWand,luth,HunterRiffle]

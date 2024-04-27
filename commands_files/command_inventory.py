@@ -1,4 +1,4 @@
-import asyncio, operator, interactions
+import asyncio, interactions, string
 from interactions import ButtonStyle
 
 from adv import *
@@ -9,7 +9,7 @@ from advance_gestion import *
 from commands_files.command_start import chooseAspiration,chooseColor,changeCustomColor
 
 ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL, ENC_ALLIES, ENC_ENEMIES, ENC_BOSS, ENC_LOCKED, ENC_ACHIV = tuple(range(10))
-INV_GEAR, INV_WEAPON, INV_SKILL, INV_OBJ, INV_ELEMENT = tuple(range(5))
+INV_GEAR, INV_WEAPON, INV_SKILL, INV_OBJ, INV_ELEMENT, INV_CHIP = tuple(range(6))
 
 inventoryMenu = interactions.StringSelectMenu([
         interactions.StringSelectOption(label="Inventaire d'Arme",value="0",emoji=getEmojiObject('<:splattershot:866367647113543730>')),
@@ -42,10 +42,10 @@ affNonEquip = interactions.Button(style=2,label="Afficher Non équipables",custo
 allType = interactions.Button(style=ButtonStyle.SECONDARY,label="Afficher Tout",custom_id="allDamages",emoji=getEmojiObject('<:targeted:912415337088159744>'))
 onlyPhys = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher Compétences Physiques",custom_id="onlyPhys",emoji=getEmojiObject("<:berkSlash:916210295867850782>"))
 onlyMag = interactions.Button(style=ButtonStyle.PRIMARY,label="Afficher Compétences Psychiques",custom_id="onlyMag",emoji=getEmojiObject('<:lizDirectSkill:917202291042435142>'))
-affAcc = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher Accessoire",emoji=getEmojiObject('<:defHead:896928743967301703>'),custom_id="acc")
-affBody = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher Tenue",emoji=getEmojiObject('<:defMid:896928729673109535>'),custom_id="dress")
-affShoes = interactions.Button(style=ButtonStyle.PRIMARY,label="Afficher Chaussures",emoji=getEmojiObject('<:defShoes:896928709330731018>'),custom_id="flats")
-affAllStuff = interactions.Button(style=2,label="Afficher Tout",emoji=getEmojiObject('<:dualMagie:899628510463803393>'),custom_id="all")
+affAcc = interactions.Button(style=ButtonStyle.SUCCESS,label="Accessoire",emoji=getEmojiObject('<:defHead:896928743967301703>'),custom_id="acc")
+affBody = interactions.Button(style=ButtonStyle.SUCCESS,label="Tenue",emoji=getEmojiObject('<:defMid:896928729673109535>'),custom_id="dress")
+affShoes = interactions.Button(style=ButtonStyle.PRIMARY,label="Chaussures",emoji=getEmojiObject('<:defShoes:896928709330731018>'),custom_id="flats")
+affAllStuff = interactions.Button(style=2,label="Tout Type",emoji=getEmojiObject('<:dualMagie:899628510463803393>'),custom_id="all")
 
 affCompMelee = interactions.Button(style=ButtonStyle.DANGER,label="Afficher Comptétences Mêlée",emoji=getEmojiObject(absorbingStrike.emoji),custom_id="melee_range")
 affCompDist = interactions.Button(style=ButtonStyle.DANGER,label="Afficher Compétences Distance",emoji=getEmojiObject(absorbingArrow.emoji),custom_id="dist_range")
@@ -146,14 +146,14 @@ async def mimikThat(bot : interactions.Client, ctx : ComponentContext, msg : int
     if react.custom_id == "return":
         return False
     else:
-        user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+        user = loadCharFile("./userProfile/{0}.json".format(user.owner))
         if index:
             user.apparaAcc = toChange
         else:
             user.apparaWeap = toChange
 
         user.otherInventory.remove(mimique)
-        saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
+        saveCharFile("./userProfile/{0}.json".format(user.owner),user)
 
         await msg.edit(embeds=interactions.Embed(title="__Mimikator :__ {0} {1}".format(toChange.emoji,toChange.name),color=user.color,description="Votre mimikator a bien été utilisé"),components=[])
         return True
@@ -216,6 +216,7 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
         return m.author.id == ctx.author.id and m.message.id == msg.id
 
     def checkSecond(m):
+        m = m.ctx
         return m.author.id == ctx.author.id and m.message.id == secondMsg.id
 
     if user.level < 10: # The user doesn't have the level
@@ -237,8 +238,11 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
             try:
                 respond = await bot.wait_for_component(msg,check=check,timeout=60)
                 respond: ComponentContext = respond.ctx
-            except:
+            except asyncio.TimeoutError:
                 await msg.edit(embeds = elemEmbed,components=[])
+                break
+            except:
+                await msg.channel.send(format_exc())
                 break
 
             resp = int(respond.values[0])
@@ -279,9 +283,13 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
             try:
                 respond = await bot.wait_for_component(secondMsg,check=checkSecond,timeout=60)
                 respond: ComponentContext = respond.ctx
-            except:
+            except asyncio.TimeoutError:
                 await secondMsg.delete()
                 await msg.edit(embeds = elemEmbed,components=[])
+                break
+            except:
+                await secondMsg.delete()
+                await msg.channel.send(format_exc())
                 break
 
             if respond.custom_id == "change":
@@ -290,7 +298,7 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
                     user.otherInventory.remove(elementalCristal)
                 else:
                     user.otherInventory.remove(dimentioCristal)
-                saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
+                saveCharFile(absPath+"/userProfile/"+str(user.owner)+".json",user)
                 await secondMsg.edit(embeds = interactions.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément principal a bien été modifié",color=user.color),components=[])
 
             elif respond.custom_id == "change2":
@@ -299,14 +307,14 @@ async def elements(bot : interactions.Client, ctx : interactions.Message, msg : 
                     user.otherInventory.remove(elementalCristal)
                 else:
                     user.otherInventory.remove(dimentioCristal)
-                saveCharFile(absPath+"/userProfile/"+str(user.owner)+".prof",user)
+                saveCharFile(absPath+"/userProfile/"+str(user.owner)+".json",user)
                 await secondMsg.edit(embeds = interactions.Embed(title="__Élément : {0}__".format(elemNames[resp]),description="Votre élément secondaire a bien été modifié",color=user.color),components=[])
 
             else:
                 await secondMsg.delete()
 
 async def blablaEdit(bot : interactions.Client, ctx : interactions.Message, msg : interactions.Message, user : classes.char):
-    pathUserProfile = absPath + "/userProfile/" + str(user.owner) + ".prof"
+    pathUserProfile = absPath + "/userProfile/" + str(user.owner) + ".json"
 
     def check(m):
         m = m.ctx
@@ -424,9 +432,9 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
     """Old function for the user's inventory. Still called when we go a id"""
     oldMsg = None
     if procur != None:
-        pathUserProfile = "./userProfile/" + str(procur) + ".prof"
+        pathUserProfile = "./userProfile/" + str(procur) + ".json"
     else:
-        pathUserProfile = "./userProfile/" + str(ctx.author.id) + ".prof"
+        pathUserProfile = "./userProfile/" + str(ctx.author.id) + ".json"
 
     def checkIsAuthorReact(reaction,user):
         return int(user.id) == int(ctx.author.id) and int(reaction.message.id) == int(oldMsg.id)
@@ -441,482 +449,477 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
             return 0
 
     if oldMsg == None:
-        try:
-            oldMsg = await ctx.send(embeds = interactions.Embed(title = "/inventory", description = emLoading))
-        except:
-            oldMsg = await ctx.channel.send(embeds = interactions.Embed(title = "/inventory", description = emLoading))
+        tmpEmb = interactions.Embed(title = "/inventory", description = emLoading)
+        try: oldMsg = await ctx.send(embeds = tmpEmb)
+        except: oldMsg = await ctx.channel.send(embeds = tmpEmb)
+
     inv = whatIsThat(identifiant)
     if inv != None:
-        if inv == 0:                # Weapon
-            weap = findWeapon(identifiant)
-            emb = infoWeapon(weap,user,ctx)
-            
-            trouv = False
-            for a in user.weaponInventory:
-                if a.id == identifiant or a.name.lower() == identifiant.lower():
-                    trouv = True
+        match inv:
+            case 0:                # Weapon
+                weap = findWeapon(identifiant)
+                emb = infoWeapon(weap,user,ctx)
 
-            componentList = [interactions.ActionRow(returnButton)]
-            if not(trouv):
-                emb.set_footer(text = "Vous ne possédez pas cette arme")
-            else:
-                if weap == user.weapon:
-                    emb.set_footer(text = "Vous utilisez déjà cette arme")
+                componentList = [interactions.ActionRow(returnButton)]
+                if not(user.have(weap)):
+                    emb.footer.text +=" - Vous ne possédez pas cette arme"
                 else:
-                    emb.set_footer(text = "Cliquez sur l'icone de l'arme pour l'équiper")
-                    componentList[0].add_component(confirmButton)
-                    componentList.append(interactions.ActionRow(interactions.Button(style=2,label="Comparer",emoji=getEmojiObject(user.weapon.emoji),custom_id="compare")))
+                    if weap == user.weapon:
+                        emb.footer.text += " - Vous utilisez déjà cette arme"
+                    else:
+                        emb.footer.text += " - Cliquez sur l'icone de l'arme pour l'équiper"
+                        componentList[0].add_component(confirmButton)
+                        componentList.append(interactions.ActionRow(interactions.Button(style=2,label="Comparer",emoji=getEmojiObject(user.weapon.emoji),custom_id="compare")))
 
-                if user.have(mimique) and (user.apparaWeap != None and user.apparaWeap.id != weap.id):
-                    componentList[-1].add_component(useMimikator)
+                    if user.have(mimique) and (user.apparaWeap != None and user.apparaWeap.id != weap.id):
+                        componentList[-1].add_component(useMimikator)
 
-            await oldMsg.edit(embeds=emb, components=componentList)
+                await oldMsg.edit(embeds=emb, components=componentList)
 
-            def check(m):
-                m = m.ctx
-                return m.author.id == ctx.author.id and m.message.id == oldMsg.id
+                def check(m):
+                    m = m.ctx
+                    return m.author.id == ctx.author.id and m.message.id == oldMsg.id
 
-            while 1:
-                try:
-                    rep = await bot.wait_for_component(timeout=60,check=check,messages=oldMsg)
-                    rep: ComponentContext = rep.ctx
-                except:
+                while 1:
                     try:
+                        rep = await bot.wait_for_component(timeout=60,check=check,messages=oldMsg)
+                        rep: ComponentContext = rep.ctx
+                    except:
+                        try:
+                            if delete :
+                                await oldMsg.delete()
+                            else:
+                                await oldMsg.edit(embeds = emb,components=[])
+                        except:
+                            pass
+                        break
+
+                    if rep.custom_id == "confirm":
+                        user.weapon = weap
+                        try:
+                            saveCharFile(pathUserProfile,user)
+                            await rep.respond(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre arme !"),ephemeral=True)
+                            await oldMsg.delete()
+                        except:
+                            await react.respond(embeds = errorEmbed("__/inventory__","<:aliceBoude:1179656601083322470> Une erreur est survenue"))
+                            await oldMsg.delete()
+                        break
+                    elif rep.custom_id == "compare":
+                        await compare(bot,rep,user,weap)
+                    elif rep.custom_id == "return":
                         if delete :
                             await oldMsg.delete()
                         else:
                             await oldMsg.edit(embeds = emb,components=[])
-                    except:
-                        pass
-                    break
-
-                if rep.custom_id == "confirm":
-                    user.weapon = weap
-                    if saveCharFile(pathUserProfile,user):
-                        await rep.respond(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre arme !"),ephemeral=True)
-                        await oldMsg.delete()
-                    else:
-                        await react.respond(embeds = errorEmbed("__/inventory__","<:aliceBoude:1179656601083322470> Une erreur est survenue"))
-                        await oldMsg.delete()
-                    break
-                elif rep.custom_id == "compare":
-                    await compare(bot,rep,user,weap)
-                elif rep.custom_id == "return":
-                    if delete :
-                        await oldMsg.delete()
-                    else:
-                        await oldMsg.edit(embeds = emb,components=[])
-                    break
-                elif rep.custom_id == "mimikator":
-                    var = await mimikThat(bot,ctx,oldMsg,user,weap)
-                    break
-
-        elif inv == 1:              # Skills
-            invSkill = findSkill(identifiant)
-            emb = infoSkill(invSkill,user,ctx)
-
-            ballerine=True
-            if invSkill.group != 0:
-                for skilly in user.skills:
-                    if type(skilly) == skill and skilly.group not in [0,invSkill.group]:
-                        ballerine = False
                         break
+                    elif rep.custom_id == "mimikator":
+                        var = await mimikThat(bot,ctx,oldMsg,user,weap)
+                        break
+            case 1:              # Skills
+                invSkill = findSkill(identifiant)
+                emb = infoSkill(invSkill,user,ctx)
+                if type(emb) != list:
+                    emb = [emb]
 
-            if invSkill not in user.skillInventory:
-                emb.set_footer(text = "Vous ne possédez pas cette compétence")
-                if delete:
-                    await oldMsg.edit(embeds = emb,components=[])
-                else:
-                    await oldMsg.edit(embeds = emb,components=[])
-            elif invSkill in user.skills:
-                emb.set_footer(text = "Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?")
-                alReadyHaveButton = returnAndConfirmActionRow
-                alReadyHaveButton.components[0].label, alReadyHaveButton.components[0].style = "Déséquiper", ButtonStyle.GRAY
-                await oldMsg.edit(embeds = emb,components=[alReadyHaveButton])
-
-                def check(m):
-                    m = m.ctx
-                    return m.author.id == ctx.author.id
-
-                try:
-                    rep = await bot.wait_for_component(timeout=60,check=check,messages=oldMsg)
-                    rep: ComponentContext = rep.ctx
-                except:
-                    if delete:
-                        await oldMsg.delete()
-                    else:
-                        await oldMsg.edit(embeds = emb,components=[])
-                    return 0
-
-                if rep.custom_id == "confirm":
-                    for a in range(0,7):
-                        if user.skills[a] == invSkill:
-                            user.skills[a] = "0"
+                ballerine=True
+                if invSkill.group != 0:
+                    for skilly in user.skills:
+                        if type(skilly) == skill and skilly.group not in [0,invSkill.group]:
+                            ballerine = False
                             break
 
-                    saveCharFile(pathUserProfile,user)
-                    await rep.respond(embeds = interactions.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),ephemeral=True)
-                    await oldMsg.delete()
-                else:
+                if invSkill not in user.skillInventory:
+                    emb[-1].footer.text += " - Vous ne possédez pas cette compétence"
                     if delete:
-                        await oldMsg.delete()
+                        await oldMsg.edit(embeds = emb,components=[])
                     else:
                         await oldMsg.edit(embeds = emb,components=[])
-                    return 0
-            elif not(ballerine):
-                emb.set_footer(text = "Vous utilisez déjà une compétence du groupe opposé")
-                if delete:
-                    await oldMsg.edit(embeds = emb,components=[])
-                else:
-                    await oldMsg.edit(embeds = emb,components=[])
-            elif not(invSkill.havConds(user=user)):
-                emb.set_footer(text = "Vous ne respectez pas les conditions de cette compétence")
-                if delete:
-                    await oldMsg.edit(embeds = emb,components=[])
-                else:
-                    await oldMsg.edit(embeds = emb,components=[])
-            else:
-                hasUltimate=False
-                for a in [0,1,2,3,4,5,6]:
-                    if type(user.skills[a]) == skill:
-                        if user.skills[a].ultimate and invSkill.ultimate:
-                            hasUltimate=True
-                            break
-                options = []
-        
-                if user.level < 5:
-                    addPerLevel = []
-                elif user.level < 15:
-                    addPerLevel = [3]
-                elif user.level < 25:
-                    addPerLevel = [3,4]
-                elif user.level < 35:
-                    addPerLevel = [3,4,5]
-                else:
-                    addPerLevel = [3,4,5,6]
+                elif invSkill in user.skills:
+                    emb[-1].footer.text += "- Vous avez déjà équipé cette compétence. Voulez vous la déséquiper ?"
+                    alReadyHaveButton = returnAndConfirmActionRow
+                    alReadyHaveButton.components[0].label, alReadyHaveButton.components[0].style = "Déséquiper", ButtonStyle.GRAY
+                    await oldMsg.edit(embeds = emb,components=[alReadyHaveButton])
 
-                skillWithLevel = []
-                for slotNb in range(len(lvlToUnlockSkill)):
-                    if user.level >= lvlToUnlockSkill[slotNb]:
-                        skillWithLevel.append(slotNb)
+                    def check(m):
+                        m = m.ctx
+                        return m.author.id == ctx.author.id
 
-                for comp in skillWithLevel:
-                    if type(user.skills[comp]) == skill:
-                        ultimatum = ""
-                        if user.skills[comp].ultimate:
-                            ultimatum = "Capacité ultime - "
-                        if not(hasUltimate) or (hasUltimate and user.skills[comp].ultimate and invSkill.ultimate):
-                            options += [interactions.StringSelectOption(label=user.skills[comp].name, value=user.skills[comp].id, emoji=getEmojiObject(user.skills[comp].emoji))]
-                    elif not(hasUltimate):
-                        options += [interactions.StringSelectOption(label=f"Slot de compétence vide",value=str(comp+1),emoji=PartialEmoji(name=EmCount[comp+1]))]
-
-                select = interactions.StringSelectMenu(options,custom_id = "skillPlaceSelect",placeholder="Sélectionnez un emplacement")
-
-                emb.set_footer(text = "Cliquez sur l'icone d'emplacement pour équiper")
-                await oldMsg.edit(embeds = emb,components=[interactions.ActionRow(returnButton),interactions.ActionRow(select)])
-                def check(m):
-                    m = m.ctx
-                    return m.author.id == ctx.author.id
-                react = None
-                try:
-                    react = await bot.wait_for_component(messages=oldMsg,timeout=60,check=check)
-                    react: ComponentContext = react.ctx
-                except:
-                    if delete :
-                        await oldMsg.delete()
-                    else:
-                        await oldMsg.edit(embeds = emb,components=[])
-
-                if react != None:
                     try:
-                        await oldMsg.edit(embeds = emb,components=[interactions.ActionRow(getChoisenSelect(select,react.values[0]))])
-
-                        for cmpt in [0,1,2,3,4,5,6]:
-                            ballerine,babie = False,react.values[0] == str(cmpt+1)
-                            if type(user.skills[cmpt]) == skill:
-                                ballerine = react.values[0] == user.skills[cmpt].id
-
-                            print(babie,react.values[0] == str(cmpt+1))
-                            if babie or ballerine:
-                                try:
-                                    user.skills[cmpt] = invSkill
-                                    saveCharFile(pathUserProfile,user)
-                                    await react.respond(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !"),ephemeral=True)
-                                    await oldMsg.delete()
-                                except:
-                                    await react.respond(embeds = errorEmbed("__/inventory__","<:aliceBoude:1179656601083322470> Une erreur est survenue"),ephemeral=True)
-                                    await oldMsg.delete()
-                                break
+                        rep = await bot.wait_for_component(timeout=60,check=check,messages=oldMsg)
+                        rep: ComponentContext = rep.ctx
                     except:
-                        print_exc()
-                        await oldMsg.delete()
-
-        elif inv == 2:              # Stuff
-            invStuff = findStuff(identifiant)
-            emb = infoStuff(invStuff,user,ctx)
-
-            trouv = False
-            for a in user.stuffInventory:
-                if a.id == identifiant or a.name.lower() == identifiant.lower():
-                    trouv = True
-
-            componentList = [interactions.ActionRow(returnButton)]
-
-            if not(trouv):
-                emb.set_footer(text = "Vous ne possédez pas cet équipement")
-            else:
-                if (invStuff == user.stuff[invStuff.type]) or (invStuff.minLvl > user.level):
-                    if invStuff == user.stuff[invStuff.type]:
-                        emb.set_footer(text = "Vous portez déjà cet équipement")
-                    else:
-                        emb.set_footer(text = "Cet équipement donne trop de statistiques pour votre niveau")
-
-                else:
-                    emb.set_footer(text = "Cliquez sur l'icone de l'équipement pour l'équiper")
-                    componentList[0].add_component(confirmButton)
-                    componentList.append(interactions.ActionRow(interactions.Button(style=2,label="Comparer",emoji=getEmojiObject(user.stuff[invStuff.type].emoji),custom_id="compare")))
-
-                if user.have(mimique) and invStuff.type == 0 and (user.apparaAcc != None and user.apparaAcc.id != invStuff.id):
-                    componentList[-1].add_component(useMimikator)
-            await oldMsg.edit(embeds=emb, components=componentList)
-
-            def check(m):
-                m = m.ctx
-                return m.author.id == ctx.author.id and m.message.id == oldMsg.id
-
-            while 1:
-                try:
-                    rep = await bot.wait_for_component(timeout=60,check=check,messages=oldMsg)
-                    rep: ComponentContext = rep.ctx
-                except:
-                    if delete :
-                        try:
+                        if delete:
                             await oldMsg.delete()
-                        except:
-                            pass
-
-                    else:
-                        try:
+                        else:
                             await oldMsg.edit(embeds = emb,components=[])
-                        except:
-                            pass
-                    break
+                        return 0
 
-                if rep.custom_id == "confirm":
-                    user.stuff[invStuff.type] = invStuff
-                    if saveCharFile(pathUserProfile,user):
-                        await rep.respond(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),ephemeral=True)
+                    if rep.custom_id == "confirm":
+                        for a in range(0,7):
+                            if user.skills[a] == invSkill:
+                                user.skills[a] = "0"
+                                break
+
+                        saveCharFile(pathUserProfile,user)
+                        await rep.respond(embeds = interactions.Embed(title="Inventory",color=user.color,description="Votre compétence a bien été déséquipée"),ephemeral=True)
                         await oldMsg.delete()
                     else:
-                        await rep.respond(embeds = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"),ephemeral=True)
-                        await oldMsg.delete()
-                    break
-                elif rep.custom_id == "compare":
-                    await compare(bot,rep,user,invStuff)
-                elif rep.custom_id == "return":
-                    if delete :
-                        await oldMsg.delete()
+                        if delete:
+                            await oldMsg.delete()
+                        else:
+                            await oldMsg.edit(embeds = emb,components=[])
+                        return 0
+                elif not(ballerine):
+                    emb[-1].footer.text += " - Vous utilisez déjà une compétence du groupe opposé"
+                    if delete:
+                        await oldMsg.edit(embeds = emb,components=[])
                     else:
                         await oldMsg.edit(embeds = emb,components=[])
-                    break
-                elif rep.custom_id == "mimikator":
-                    var = await mimikThat(bot,ctx,oldMsg,user,invStuff)
-                    break
-
-        elif inv == 3:              # Other
-            obj = findOther(identifiant)
-            emb = infoOther(obj,user)
-
-            if obj == autoPoint:
-                emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoPoint)],inline=False)
-                emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]]),inline=False)
-
-            if obj == autoStuff:
-                emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
-                emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]]),inline=False)
-
-            trouv = False
-            for a in user.otherInventory:
-                if a.id == identifiant or a.name.lower() == identifiant.lower():
-                    trouv = True
-
-            if not(trouv):
-                emb.set_footer(text = "Vous ne possédez pas cet objet")
-                await oldMsg.edit(embeds = emb,components=[])
-
-            else:
-                if obj == elementalCristal:
-                    emb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Élément")
-
-                if obj not in [elementalCristal,dimentioCristal,mimique]:
-                    oldMsgCompo = ActionRow(
-                        Button(style=ButtonStyle.SECONDARY,label="Retour",emoji=getEmojiObject("◀️"),custom_id="Return"),
-                        Button(style=ButtonStyle.SUCCESS,label="Utiliser l'objet",emoji=getEmojiObject(obj.emoji),custom_id="use")
-                    )
+                elif not(invSkill.havConds(user=user)):
+                    emb[-1].footer.text += "- Vous ne respectez pas les conditions de cette compétence"
+                    if delete:
+                        await oldMsg.edit(embeds = emb,components=[])
+                    else:
+                        await oldMsg.edit(embeds = emb,components=[])
                 else:
-                    oldMsgCompo = []
+                    hasUltimate=False
+                    for a in [0,1,2,3,4,5,6]:
+                        if type(user.skills[a]) == skill:
+                            if user.skills[a].ultimate and invSkill.ultimate:
+                                hasUltimate=True
+                                break
+                    options = []
+            
+                    if user.level < 5:
+                        addPerLevel = []
+                    elif user.level < 15:
+                        addPerLevel = [3]
+                    elif user.level < 25:
+                        addPerLevel = [3,4]
+                    elif user.level < 35:
+                        addPerLevel = [3,4,5]
+                    else:
+                        addPerLevel = [3,4,5,6]
 
-                await oldMsg.edit(embeds = emb,components=oldMsgCompo)
-                def checkisReaction(reaction:ComponentContext):
-                    reaction = reaction.ctx
-                    return reaction.author.id == ctx.author.id
-                try:
-                    reaction:ComponentContext = await bot.wait_for_component(messages=oldMsg,timeout=60,check=checkisReaction)
-                    reaction: ComponentContext = reaction.ctx
-                except asyncio.TimeoutError:
-                    return 0
+                    skillWithLevel = []
+                    for slotNb in range(len(lvlToUnlockSkill)):
+                        if user.level >= lvlToUnlockSkill[slotNb]:
+                            skillWithLevel.append(slotNb)
 
-                if reaction.custom_id == "use":
-                    if obj==changeAspi:
+                    for comp in skillWithLevel:
+                        if type(user.skills[comp]) == skill:
+                            ultimatum = ""
+                            if user.skills[comp].ultimate:
+                                ultimatum = "Capacité ultime - "
+                            if not(hasUltimate) or (hasUltimate and user.skills[comp].ultimate and invSkill.ultimate):
+                                options += [interactions.StringSelectOption(label=user.skills[comp].name, value=user.skills[comp].id, emoji=getEmojiObject(user.skills[comp].emoji))]
+                        elif not(hasUltimate):
+                            options += [interactions.StringSelectOption(label=f"Slot de compétence vide",value=str(comp+1),emoji=PartialEmoji(name=EmCount[comp+1]))]
+
+                    select = interactions.StringSelectMenu(options,custom_id = "skillPlaceSelect",placeholder="Sélectionnez un emplacement")
+
+                    emb[-1].footer.text += " - Cliquez sur l'icone d'emplacement pour équiper"
+                    await oldMsg.edit(embeds = emb,components=[interactions.ActionRow(returnButton),interactions.ActionRow(select)])
+                    def check(m):
+                        m = m.ctx
+                        return m.author.id == ctx.author.id
+                    react = None
+                    try:
+                        react = await bot.wait_for_component(messages=oldMsg,timeout=60,check=check)
+                        react: ComponentContext = react.ctx
+                    except:
+                        if delete :
+                            await oldMsg.delete()
+                        else:
+                            await oldMsg.edit(embeds = emb,components=[])
+
+                    if react != None:
                         try:
-                            user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user)
-                            if user.aspiration != None:
-                                user = restats(user)
+                            await oldMsg.edit(embeds = emb,components=[interactions.ActionRow(getChoisenSelect(select,react.values[0]))])
 
-                                user.otherInventory.remove(changeAspi)
-                                if saveCharFile(pathUserProfile,user):
-                                    await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
-                                else:
-                                    await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue\n"))
-                                    print_exc()
+                            for cmpt in [0,1,2,3,4,5,6]:
+                                ballerine,babie = False,react.values[0] == str(cmpt+1)
+                                if type(user.skills[cmpt]) == skill:
+                                    ballerine = react.values[0] == user.skills[cmpt].id
+
+                                print(babie,react.values[0] == str(cmpt+1))
+                                if babie or ballerine:
+                                    try:
+                                        user.skills[cmpt] = invSkill
+                                        saveCharFile(pathUserProfile,user)
+                                        await react.respond(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description="Vous avez bien équipé votre compétence !"),ephemeral=True)
+                                        await oldMsg.delete()
+                                    except:
+                                        await react.respond(embeds = errorEmbed("__/inventory__","<:aliceBoude:1179656601083322470> Une erreur est survenue"),ephemeral=True)
+                                        await oldMsg.delete()
+                                    break
                         except:
-                            await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue"))
                             print_exc()
-                    elif obj==changeAppa:
-                        still = True
-                        if still: #Espèce
-                            msgComponents = ActionRow(
-                                Button(style=ButtonStyle.PRIMARY,label="Inkling",emoji=getEmojiObject('<:ikaLBlue:866459302319226910>'),custom_id="inkling"),
-                                Button(style=ButtonStyle.PRIMARY,label="Octaling",emoji=getEmojiObject('<:takoLBlue:866459095875190804>'),custom_id="octaling")
-                            )
-                            await oldMsg.edit(embeds = interactions.Embed(title = "__/start__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage, et il vous sera possible de modifier la forme de votre personnage avec des objets spéciaux"),components=[msgComponents])
+                            await oldMsg.delete()
+            case 2:              # Stuff
+                invStuff = findStuff(identifiant)
+                emb = infoStuff(invStuff,user,ctx)
 
-                            def checkIsAuthorReact1(reaction):
-                                reaction = reaction.ctx
-                                return reaction.author.id == ctx.author.id
+                componentList = [interactions.ActionRow(returnButton)]
 
+                if not(user.have(invStuff)):
+                    emb.footer.text +=  " - Vous ne possédez pas cet équipement"
+                else:
+                    if (invStuff == user.stuff[invStuff.type]) or (invStuff.minLvl > user.level):
+                        if invStuff == user.stuff[invStuff.type]:
+                            emb.footer.text += " - Vous portez déjà cet équipement"
+                        else:
+                            emb.footer.text += " - Cet équipement donne trop de statistiques pour votre niveau"
+
+                    else:
+                        emb.footer.text += " - Cliquez sur l'icone de l'équipement pour l'équiper"
+                        componentList[0].add_component(confirmButton)
+                        componentList.append(interactions.ActionRow(interactions.Button(style=2,label="Comparer",emoji=getEmojiObject(user.stuff[invStuff.type].emoji),custom_id="compare")))
+
+                    if user.have(mimique) and invStuff.type == 0 and (user.apparaAcc != None and user.apparaAcc.id != invStuff.id):
+                        componentList[-1].add_component(useMimikator)
+                await oldMsg.edit(embeds=emb, components=componentList)
+
+                def check(m):
+                    m = m.ctx
+                    return m.author.id == ctx.author.id and m.message.id == oldMsg.id
+
+                while 1:
+                    try:
+                        rep = await bot.wait_for_component(timeout=60,check=check,messages=oldMsg)
+                        rep: ComponentContext = rep.ctx
+                    except:
+                        if delete :
                             try:
-                                respond = await bot.wait_for_component(messages=oldMsg ,timeout = 60, check = checkIsAuthorReact1)
-                                respond: ComponentContext = respond.ctx
-                                if respond.custom_id == 'inkling':
-                                    user.species = 1
-                                else:
-                                    user.species = 2
-                            except asyncio.TimeoutError :
-                                print_exc()
-                                await oldMsg.edit(embeds = interactions.Embed(title = "Commande annulée (Timeout)"),components=MISSING)
-                                still = False
-                        if still: #Genre
-                            components = interactions.ActionRow(
-                                interactions.Button(style=ButtonStyle.PRIMARY,label="Masculin",emoji=getEmojiObject('♂️'),custom_id="male"),
-                                interactions.Button(style=ButtonStyle.PRIMARY,label="Féminin",emoji=getEmojiObject('♀️'),custom_id="female"),
-                                interactions.Button(style=ButtonStyle.PRIMARY,label="Autre / Passer",emoji=getEmojiObject("▶️"),custom_id="other")
-                            )
-                            await oldMsg.edit(embeds = interactions.Embed(title = "__/start__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques et ne sert qu'à des fins orthographiques"),components=components)
-                    
-                            def checkIsAuthorReact(reaction:interactions.ComponentContext):
-                                reaction = reaction.ctx
-                                return reaction.author.id == ctx.author.id
-
-                            try:
-                                respond = await bot.wait_for_component(timeout=60,check=checkIsAuthorReact,messages=oldMsg)
-                                respond: ComponentContext = respond.ctx
-                                testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],["male","female","other"]
-                                for a in range(0,len(titouille)):
-                                    if str(respond.custom_id) == titouille[a]:
-                                        user.gender = testouille[a]
-                            except asyncio.TimeoutError:
-                                still = False
-                                await oldMsg.edit(embeds=interactions.Embed(title="Commande annulée (timeout"))
-                        if still:
-                            user = await chooseColor(bot,oldMsg,ctx,user)
-
-                            if user != False:
-                                user.otherInventory.remove(changeAppa)
-                                saveCharFile(pathUserProfile,user)
-
-                                await oldMsg.edit(embeds = interactions.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
-                    elif obj==changeName:
-                        await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"),components=[])
-                        timeout = False
-                        def checkIsAuthor(message):
-                            message = message.message
-                            return int(ctx.author.id) == int(message.author.id)
-                        try:
-                            respond = await bot.wait_for("on_message_create",timeout = 60,checks = checkIsAuthor)
-                            respond: Message = respond.message
-                        except:
-                            timeout = True
-
-                        if not(timeout):
-                            user.name = respond.content
-                            user.otherInventory.remove(changeName)
-
-                            try:
-                                await respond.delete()
+                                await oldMsg.delete()
                             except:
                                 pass
 
-                            saveCharFile(pathUserProfile,user)
-
-                            await oldMsg.edit(embeds = interactions.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !"),components=[])
                         else:
-                            await oldMsg.add_reaction('🕛')
-                    elif obj==restat:
-                        restats(user)
-                        user.otherInventory.remove(restat)
+                            try:
+                                await oldMsg.edit(embeds = emb,components=[])
+                            except:
+                                pass
+                        break
 
-                        saveCharFile(pathUserProfile,user)
+                    if rep.custom_id == "confirm":
+                        user.stuff[invStuff.type] = invStuff
+                        try:
+                            saveCharFile(pathUserProfile,user)
+                            await rep.respond(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle équipement a bien été équipée"),ephemeral=True)
+                            await oldMsg.delete()
+                        except:
+                            await rep.respond(embeds = errorEmbed("Erreur","Une erreur est survenue. La modification a pas été enregistrée"),ephemeral=True)
+                            await oldMsg.delete()
+                        break
+                    elif rep.custom_id == "compare":
+                        await compare(bot,rep,user,invStuff)
+                    elif rep.custom_id == "return":
+                        if delete :
+                            await oldMsg.delete()
+                        else:
+                            await oldMsg.edit(embeds = emb,components=[])
+                        break
+                    elif rep.custom_id == "mimikator":
+                        var = await mimikThat(bot,ctx,oldMsg,user,invStuff)
+                        break
+            case 3:              # Other
+                obj = findOther(identifiant)
+                emb = infoOther(obj,user)
+
+                if obj == autoPoint:
+                    emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoPoint)],inline=False)
+                    emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]]),inline=False)
+
+                if obj == autoStuff:
+                    emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
+                    emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]]),inline=False)
+
+                trouv = False
+                for a in user.otherInventory:
+                    if a.id == identifiant or a.name.lower() == identifiant.lower():
+                        trouv = True
+
+                if not(trouv):
+                    emb.set_footer(text = "Vous ne possédez pas cet objet")
+                    await oldMsg.edit(embeds = emb,components=[])
+
+                else:
+                    if obj == elementalCristal:
+                        emb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Élément")
+
+                    if obj not in [elementalCristal,dimentioCristal,mimique,dailyCardBooster1,dailyCardBooster2]:
+                        oldMsgCompo = ActionRow(
+                            Button(style=ButtonStyle.SECONDARY,label="Retour",emoji=getEmojiObject("◀️"),custom_id="Return"),
+                            Button(style=ButtonStyle.SUCCESS,label="Utiliser l'objet",emoji=getEmojiObject(obj.emoji),custom_id="use")
+                        )
+                    else:
+                        oldMsgCompo = []
+
+                    await oldMsg.edit(embeds = emb,components=oldMsgCompo)
+                    def checkisReaction(reaction:ComponentContext):
+                        reaction = reaction.ctx
+                        return reaction.author.id == ctx.author.id
+                    try:
+                        reaction:ComponentContext = await bot.wait_for_component(messages=oldMsg,timeout=60,check=checkisReaction)
+                        reaction: ComponentContext = reaction.ctx
+                    except asyncio.TimeoutError:
+                        return 0
+
+                    if reaction.custom_id == "use":
+                        if obj==changeAspi:
+                            try:
+                                user.aspiration = await chooseAspiration(bot,oldMsg,ctx,user)
+                                if user.aspiration != None:
+                                    user = restats(user)
+
+                                    user.otherInventory.remove(changeAspi)
+                                    try:
+                                        saveCharFile(pathUserProfile,user)
+                                        await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__",color = user.color,description = "Votre nouvelle aspiration a bien été prise en compte et vous avez récupéré vos points bonus"))
+                                    except:
+                                        await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue\n"))
+                                        print_exc()
+                            except:
+                                await oldMsg.edit(embeds = errorEmbed("__/inventory__","Une erreure est survenue"))
+                                print_exc()
+                        elif obj==changeAppa:
+                            still = True
+                            if still: #Espèce
+                                msgComponents = ActionRow(
+                                    Button(style=ButtonStyle.PRIMARY,label="Inkling",emoji=getEmojiObject('<:ikaLBlue:866459302319226910>'),custom_id="inkling"),
+                                    Button(style=ButtonStyle.PRIMARY,label="Octaling",emoji=getEmojiObject('<:takoLBlue:866459095875190804>'),custom_id="octaling")
+                                )
+                                await oldMsg.edit(embeds = interactions.Embed(title = "__/start__" + " : Espèce",color = light_blue,description = f"Sélectionnez l'espèce de votre personnage :\n\n<:ikaLBlue:866459302319226910> Inkling\n<:takoLBlue:866459095875190804> Octaling\n\nL'espèce n'a aucune influence sur les statistiques du personnage, et il vous sera possible de modifier la forme de votre personnage avec des objets spéciaux"),components=[msgComponents])
+
+                                def checkIsAuthorReact1(reaction):
+                                    reaction = reaction.ctx
+                                    return reaction.author.id == ctx.author.id
+
+                                try:
+                                    respond = await bot.wait_for_component(messages=oldMsg ,timeout = 60, check = checkIsAuthorReact1)
+                                    respond: ComponentContext = respond.ctx
+                                    if respond.custom_id == 'inkling':
+                                        user.species = 1
+                                    else:
+                                        user.species = 2
+                                except asyncio.TimeoutError :
+                                    print_exc()
+                                    await oldMsg.edit(embeds = interactions.Embed(title = "Commande annulée (Timeout)"),components=MISSING)
+                                    still = False
+                            if still: #Genre
+                                components = interactions.ActionRow(
+                                    interactions.Button(style=ButtonStyle.PRIMARY,label="Masculin",emoji=getEmojiObject('♂️'),custom_id="male"),
+                                    interactions.Button(style=ButtonStyle.PRIMARY,label="Féminin",emoji=getEmojiObject('♀️'),custom_id="female"),
+                                    interactions.Button(style=ButtonStyle.PRIMARY,label="Autre / Passer",emoji=getEmojiObject("▶️"),custom_id="other")
+                                )
+                                await oldMsg.edit(embeds = interactions.Embed(title = "__/start__" + " : Genre",color = light_blue,description = f"Renseignez (ou non) le genre personnage :\nLe genre du personnage n'a aucune incidences sur ses statistiques et ne sert qu'à des fins orthographiques"),components=components)
                         
-                        await oldMsg.edit(embeds = interactions.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
-                    elif obj==customColor:
-                        user = await changeCustomColor(bot,oldMsg,ctx,user)
-                        if user != None:
-                            user.otherInventory.remove(customColor)
+                                def checkIsAuthorReact(reaction:interactions.ComponentContext):
+                                    reaction = reaction.ctx
+                                    return reaction.author.id == ctx.author.id
+
+                                try:
+                                    respond = await bot.wait_for_component(timeout=60,check=checkIsAuthorReact,messages=oldMsg)
+                                    respond: ComponentContext = respond.ctx
+                                    testouille,titouille = [GENDER_MALE,GENDER_FEMALE,GENDER_OTHER],["male","female","other"]
+                                    for a in range(0,len(titouille)):
+                                        if str(respond.custom_id) == titouille[a]:
+                                            user.gender = testouille[a]
+                                except asyncio.TimeoutError:
+                                    still = False
+                                    await oldMsg.edit(embeds=interactions.Embed(title="Commande annulée (timeout"))
+                            if still:
+                                user = await chooseColor(bot,oldMsg,ctx,user)
+
+                                if user != False:
+                                    user.otherInventory.remove(changeAppa)
+                                    saveCharFile(pathUserProfile,user)
+
+                                    await oldMsg.edit(embeds = interactions.Embed(title="Changement d'apparence",color = user.color,description="Votre changement a bien été pris en compte !"),components = [])
+                        elif obj==changeName:
+                            await oldMsg.edit(embeds = interactions.Embed(title = "__/inventory__" + " : Nom",color = light_blue,description = f"Ecrivez le nom de votre personnage :\n\nVous ne pourrez pas modifier le nom de votre personnage par la suite"),components=[])
+                            timeout = False
+                            def checkIsAuthor(message):
+                                message = message.message
+                                return int(ctx.author.id) == int(message.author.id)
+                            try:
+                                respond = await bot.wait_for("on_message_create",timeout = 60,checks = checkIsAuthor)
+                                respond: Message = respond.message
+                            except:
+                                timeout = True
+
+                            if not(timeout):
+                                user.name = respond.content
+                                user.otherInventory.remove(changeName)
+
+                                try:
+                                    await respond.delete()
+                                except:
+                                    pass
+
+                                saveCharFile(pathUserProfile,user)
+
+                                await oldMsg.edit(embeds = interactions.Embed(title="Changement de nom",color = user.color,description="Votre changement a bien été pris en compte !"),components=[])
+                            else:
+                                await oldMsg.add_reaction('🕛')
+                        elif obj==restat:
+                            restats(user)
+                            user.otherInventory.remove(restat)
+
                             saveCharFile(pathUserProfile,user)
                             
-                            await oldMsg.edit(embeds = interactions.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color),components=[])
-                    elif obj==blablator:
-                        await blablaEdit(bot,ctx,oldMsg,user)
-                    elif obj in changeIconForm:
-                        for cmpt in range(len(changeIconForm)):
-                            if changeIconForm[cmpt] == obj:
-                                if user.iconForm != cmpt:
-                                    user.iconForm = cmpt
-                                    user.otherInventory.remove(obj)
-                                    saveCharFile(user=user)
-                                    await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Votre {0} a bien été utilisé".format(obj.name)).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id)))
-                                else:
-                                    await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
-                                break
-                    elif obj==autoPoint:
-                        if user.autoPoint:
-                            user.autoPoint = False
-                            user.otherInventory.remove(obj)
-                            saveCharFile(user=user)
-                            await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a été désactivé"))
-                        elif user.stars > 0:
-                            user.autoPoint = True
-                            user.otherInventory.remove(obj)
-                            saveCharFile(user=user)
-                            await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivantes :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
-                        else:
-                            await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
-                    elif obj==autoStuff:
-                        if user.autoStuff:
-                            user.autoStuff = False
-                            user.otherInventory.remove(obj)
-                            saveCharFile(user=user)
-                            await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a été désactivé"))
-                        elif user.stars > 0:
-                            user.autoStuff = True
-                            user.otherInventory.remove(obj)
-                            saveCharFile(user=user)
-                            await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]])))
-                        else:
-                            await oldMsg.edit(embeds=interactions.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
-                else:
-                    await oldMsg.delete()
+                            await oldMsg.edit(embeds = interactions.Embed(title="Rénitialisation des points bonus",color = user.color,description=f"Votre changement a bien été pris en compte !\nVous avez {user.points} à distribuer avec la commande \"points\""))
+                        elif obj==customColor:
+                            user = await changeCustomColor(bot,oldMsg,ctx,user)
+                            if user != None:
+                                user.otherInventory.remove(customColor)
+                                saveCharFile(pathUserProfile,user)
+                                
+                                await oldMsg.edit(embeds = interactions.Embed(title="Couleur personnalisée",description="Votre couleur a bien été enregistrée\n\nCelle-ci sera appliquée à votre icone lors de sa prochaine modification",color=user.color),components=[])
+                        elif obj==blablator:
+                            await blablaEdit(bot,ctx,oldMsg,user)
+                        elif obj in changeIconForm:
+                            for cmpt in range(len(changeIconForm)):
+                                if changeIconForm[cmpt] == obj:
+                                    if user.iconForm != cmpt:
+                                        user.iconForm = cmpt
+                                        user.otherInventory.remove(obj)
+                                        saveCharFile(user=user)
+                                        await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Votre {0} a bien été utilisé".format(obj.name)).set_image(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id)))
+                                    else:
+                                        await oldMsg.edit(embeds=interactions.Embed(title="__/inventory__",color=user.color,description="Vous utilisez déjà cette forme d'icon"))
+                                    break
+                        elif obj==autoPoint:
+                            if user.autoPoint:
+                                user.autoPoint = False
+                                user.otherInventory.remove(obj)
+                                saveCharFile(user=user)
+                                await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a été désactivé"))
+                            elif user.stars > 0:
+                                user.autoPoint = True
+                                user.otherInventory.remove(obj)
+                                saveCharFile(user=user)
+                                await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Votre Pai'rte de Nheur'o'Nes a bien été activé.\n\n__Vos futurs points bonus seront attribués aux statistiques suivantes :__\n{0}\n{1}".format(nameStats[recommandedStat[user.aspiration][0]],nameStats[recommandedStat[user.aspiration][1]])))
+                            else:
+                                await oldMsg.edit(embeds=interactions.Embed(title="__Pai'rte de Nheur'o'Nes :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
+                        elif obj==autoStuff:
+                            if user.autoStuff:
+                                user.autoStuff = False
+                                user.otherInventory.remove(obj)
+                                saveCharFile(user=user)
+                                await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a été désactivé"))
+                            elif user.stars > 0:
+                                user.autoStuff = True
+                                user.otherInventory.remove(obj)
+                                saveCharFile(user=user)
+                                await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(allStatsNames[recommandedStuffStat[user.aspiration][0]],allStatsNames[recommandedStuffStat[user.aspiration][1]],allStatsNames[recommandedStuffStat[user.aspiration][2]])))
+                            else:
+                                await oldMsg.edit(embeds=interactions.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
+                    else:
+                        await oldMsg.delete()
+
+    else: await ctx.edit(embed=Embed("Inventory",description="L'objet cherché n'a pas été trouvé"))
 
 affult = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher tout type",emoji=getEmojiObject(splatbomb.emoji),custom_id="aff_ult")
 hideult = interactions.Button(style=ButtonStyle.PRIMARY,label="Cacher Ultimes",emoji=getEmojiObject(burst.emoji),custom_id="hide_ult")
@@ -936,11 +939,157 @@ affBundleSkills = interactions.Button(style=ButtonStyle.BLUE,label="Aff. Uniq. C
 hideBundleSkills = interactions.Button(style=ButtonStyle.GREY,label="Cacher Compétences Multiples",emoji=getEmojiObject(infuEther.emoji),custom_id="bundleyHide")
 tablBundleSkills = [affBundleSkills2,affBundleSkills,hideBundleSkills]
 
-async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext ,destination : int ,user : classes.char):
+async def chipInventory(bot: interactions.Client, ctx: Union[interactions.SlashContext, interactions.Message], user: classes.char):
+    rarityFilter, toSeePage, msg, secMsg, actRowtoEquipSelect = RARITY_MYTHICAL+1, 0, [None,ctx][type(ctx) == interactions.Message], None, None
+    rarityfilterSelectOptions = [
+        StringSelectOption(label="Rararté Commune",value="rarity_0",emoji=getEmojiObject(rarityEmojis[0])),
+        StringSelectOption(label="Rararté Rare",value="rarity_1",emoji=getEmojiObject(rarityEmojis[1])),
+        StringSelectOption(label="Rararté Légendaire",value="rarity_2",emoji=getEmojiObject(rarityEmojis[2])),
+        StringSelectOption(label="Rararté Mythique",value="rarity_3",emoji=getEmojiObject(rarityEmojis[3])),
+        StringSelectOption(label="Puces Possédées",value="rarity_4",emoji=getEmojiObject('<:univ:1137367685995438100>')),
+        StringSelectOption(label="Puces Non-Possédées",value="rarity_5",emoji=getEmojiObject('🔒'))
+    ]
+    changePageButtons = [
+        Button(style=ButtonStyle.GRAY,label="Première page",emoji=getEmojiObject('⏮'),custom_id="firstPage"),
+        Button(style=ButtonStyle.GRAY,label="Page précédente",emoji=getEmojiObject('◀️'),custom_id="previousPage"),
+        Button(style=ButtonStyle.GRAY,label="Page suivante",emoji=getEmojiObject('▶'),custom_id="nextPage"),
+        Button(style=ButtonStyle.GRAY,label="Dernière page",emoji=getEmojiObject('⏭'),custom_id="lastPage")
+    ]
+
+    try:
+        while 1:
+            for indx in range(len(rarityfilterSelectOptions)):
+                rarityfilterSelectOptions[indx].default = indx == rarityFilter
+            
+            actRowRarity = ActionRow(StringSelectMenu(rarityfilterSelectOptions,custom_id="raritySelect"))
+            equippedChipInventoryEmbed, tempDesc, toEquipSelectOption = Embed(title="Puces équipées",color=user.color), "", []
+            for cmpt, tmpChipId in enumerate(user.equippedChips):
+                if tmpChipId != None:
+                    tmpChip: userChip = user.chipInventory[tmpChipId]
+                    tempDesc += " - {0} {1}__{2}__ - Niveau {3}\n> {4}\n".format(rarityEmojis[tmpChip.rarity],tmpChip.emoji+[""," "][tmpChip.emoji != ""], tmpChip.name, tmpChip.lvl, tmpChip.formatDescription().replace("> ","  - ").replace("\n","\n > "))
+                    toEquipSelectOption.append(StringSelectOption(label=tmpChip.name,value="slot_{0}".format(cmpt),emoji=[getEmojiObject(tmpChip.emoji),None][tmpChip.emoji==""],description=["Commun","Rare","Légendaire","Mythique"][tmpChip.rarity]))
+                else:
+                    tempDesc += " \- \n"
+                    toEquipSelectOption.append(StringSelectOption(label="Emplacement vide",emoji=getEmojiObject(listNumberEmoji[cmpt+1]),value="slot_{0}".format(cmpt)))
+
+            equippedChipInventoryEmbed.description = tempDesc
+            equippedChipInventoryEmbed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.webp?size=96&quality=lossless".format(getEmojiInfo(await getUserIcon(bot,user))[1]))
+            listOptionSelectChip = []
+            ownedCommunChips, ownedRareChips, ownedLegendaryChips, ownedMythicalChips, unownedCommunChips, unownedRareChips, unownedLegendaryChips, unownedMythicalChips = [], [], [], [],[], [], [], []
+            for tmpChipId, tmpChip in user.chipInventory.items():
+                [[ownedCommunChips, ownedRareChips, ownedLegendaryChips, ownedMythicalChips],[unownedCommunChips, unownedRareChips, unownedLegendaryChips, unownedMythicalChips]][tmpChip.lvl <= rarityMinLvl[tmpChip.rarity]][tmpChip.rarity].append(tmpChip)
+
+            tablAllTablChips = [ownedCommunChips, ownedRareChips, ownedLegendaryChips, ownedMythicalChips, unownedCommunChips, unownedRareChips, unownedLegendaryChips, unownedMythicalChips]
+            for cmpt in range(len(tablAllTablChips)):
+                tablAllTablChips[cmpt] = tablAllTablChips[cmpt].sort(key= lambda ballerine : ballerine.lvl*50+(26-string.ascii_lowercase.index(remove_accents(ballerine.name[0].lower()))),reverse=True)
+
+            tablToSeeFull = [ownedCommunChips+unownedCommunChips, ownedRareChips+unownedRareChips, ownedLegendaryChips+unownedLegendaryChips, ownedMythicalChips+unownedMythicalChips, ownedCommunChips+ownedRareChips+ownedLegendaryChips+ownedMythicalChips,unownedCommunChips+unownedRareChips+unownedLegendaryChips+unownedMythicalChips][rarityFilter]
+            tablToSee, chipInvEmbedDesc, chipInvEmbed = tablToSeeFull[toSeePage*10:min((toSeePage+1)*10,len(tablToSeeFull)-1)], "", Embed(title="Inventaire de puces",color=user.color)
+            for tmpChip in tablToSee:
+                chipInvEmbedDesc += " - {0} {1}__{5}{2}{5}__ - Niveau {5}{3}{5}{6}\n> {5}{4}{5}\n\n".format(rarityEmojis[tmpChip.rarity],tmpChip.emoji+[""," "][tmpChip.emoji != ""], tmpChip.name, tmpChip.lvl, tmpChip.formatDescription().replace("> ","  - ").replace("\n","\n > "),["","`"][tmpChip.lvl <= rarityMinLvl[tmpChip.rarity]],[""," (**{0}**/{1})".format(tmpChip.progress,nbChipsForLvlUp[tmpChip.lvl-rarityMinLvl[tmpChip.rarity]])][tmpChip.lvl > rarityMinLvl[tmpChip.rarity]])
+                if tmpChip.lvl > rarityMinLvl[tmpChip.rarity]:
+                    listOptionSelectChip.append(StringSelectOption(label=tmpChip.name,emoji=[getEmojiObject(tmpChip.emoji),None][tmpChip.emoji==""],value=tmpChip.id,description=["Commun","Rare","Légendaire","Mythique"][tmpChip.rarity]))
+            
+            chipInvEmbed.description, chipInvEmbed.footer = chipInvEmbedDesc, EmbedFooter(text="Page {0}/{1}".format(toSeePage+1 ,len(tablToSeeFull)//10 + int(len(tablToSeeFull)%10 > 0) -1+ 1))
+            if len(listOptionSelectChip) > 0:
+                actrowSelecChip = ActionRow(StringSelectMenu(listOptionSelectChip,placeholder="Voir une puce en particulier",custom_id="selecChip"))
+            else:
+                actrowSelecChip = ActionRow(StringSelectMenu(StringSelectOption(label="Vous ne possédez pas de puce de cette rareté",value="valuen't",default=True),disabled=True,placeholder="Voir une puce en particulier",custom_id="selecChip"))
+
+            changePageButtons[0].disabled = changePageButtons[1].disabled = toSeePage <= 0
+            changePageButtons[2].disabled = changePageButtons[3].disabled = toSeePage >= len(tablToSeeFull)//10 + int(len(tablToSeeFull)%10 > 0) -1
+
+            actRowSailingButtons = ActionRow(changePageButtons[0],changePageButtons[1],changePageButtons[2],changePageButtons[3])
+
+            if msg == None:
+                msg = await ctx.send(embeds=[equippedChipInventoryEmbed,chipInvEmbed], components=[actRowSailingButtons,actrowSelecChip,actRowRarity])
+            else:
+                await msg.edit(embeds=[equippedChipInventoryEmbed,chipInvEmbed], components=[actRowSailingButtons,actrowSelecChip,actRowRarity])
+
+            def check(m):
+                m = m.ctx
+                return m.author_id == ctx.author_id
+            
+            try:
+                respond = await bot.wait_for_component(messages=[msg]+[[],[secMsg]][secMsg != None], components=[actRowSailingButtons,actrowSelecChip,actRowRarity]+[[],[actRowtoEquipSelect]][secMsg != None], timeout=300, check=check)
+                respond: ComponentContext = respond.ctx
+            except asyncio.TimeoutError:
+                try:
+                    await secMsg.delete()
+                except:
+                    pass
+
+                await msg.edit(embeds=[equippedChipInventoryEmbed,chipInvEmbed], components=[])
+                return 1
+
+            if respond.component_type == ComponentType.STRING_SELECT and respond.component.custom_id == actrowSelecChip.components[0].custom_id:
+                selectedChip: userChip = user.chipInventory[int(respond.values[0])]
+                secEmbed = Embed(title="{0} __{1}__ - Niveau {2} (**{3}**/{4})".format(selectedChip.emoji+[" ",""][selectedChip.emoji == ""],selectedChip.name,selectedChip.lvl,selectedChip.progress,nbChipsForLvlUp[selectedChip.lvl-rarityMinLvl[selectedChip.rarity]]),color=user.color,description=selectedChip.formatDescription())
+
+                if selectedChip.emoji != '':
+                    secEmbed.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.webp?size=96&quality=lossless".format(getEmojiInfo(selectedChip.emoji)[1]))
+
+                if selectedChip.id in user.equippedChips:
+                    toEquipSelectOption = [StringSelectOption(label="Déséquiper",value="unequip",emoji=getEmojiObject('❌'))]
+                elif selectedChip.rarity == RARITY_MYTHICAL:
+                    otherMythical = False
+                    for opt in toEquipSelectOption:
+                        if opt.description == "Mythique":
+                            otherMythical = True
+                            break
+
+                    if otherMythical:
+                        for opt in toEquipSelectOption[:]:
+                            if opt.description != "Mythique":
+                                toEquipSelectOption.remove(opt)
+
+                actRowtoEquipSelect = ActionRow(StringSelectMenu(toEquipSelectOption,placeholder=["Equiper la puce","Cette puce est actuellement désactivée"][selectedChip.name in disabled],custom_id="equipChip",disabled=selectedChip.name in disabled))
+
+                if secMsg == None:
+                    secMsg = await respond.respond(embeds=secEmbed, components=[actRowtoEquipSelect])
+                else:
+                    await secMsg.edit(embeds=secEmbed, components=[actRowtoEquipSelect])
+            elif respond.component_type == ComponentType.STRING_SELECT and respond.component.custom_id == "equipChip":
+                if respond.values[0] == "unequip":
+                    for indx, chipId in enumerate(user.equippedChips):
+                        if chipId == selectedChip.id:
+                            user.equippedChips[indx] = None
+                            await respond.respond("✅ Votre puce a bien été déséquipée",ephemeral=True)
+                            break
+
+                else:
+                    user.equippedChips[int(respond.values[0].replace("slot_",""))] = selectedChip.id
+                    await respond.respond("✅ Votre puce a bien été équipée",ephemeral=True)
+                
+                try:
+                    await secMsg.delete()
+                    secMsg = None
+                except:
+                    pass
+                saveCharFile(user=user)
+                user = loadCharFile(user=user)
+            elif respond.component_type == ComponentType.STRING_SELECT and respond.component.custom_id == actRowRarity.components[0].custom_id:
+                rarityFilter = int(respond.values[0].replace("rarity_",""))
+                toSeePage = 0
+            elif respond.component_type == ComponentType.BUTTON:
+                toSeePage = {changePageButtons[0].custom_id:0, changePageButtons[1].custom_id:toSeePage-1, changePageButtons[2].custom_id:toSeePage+1, changePageButtons[3].custom_id:len(tablToSeeFull)//10 + int(len(tablToSeeFull)%10 > 0) -1}[respond.component.custom_id]
+    except Exception as e:
+        print_exc()
+        try:
+            await secMsg.delete()
+        except:
+            pass
+
+        if msg != None:
+            await msg.suppress_embeds()
+            await msg.edit(content="A unexpected error occured :\n"+str(e),components=[])
+        else:
+            await ctx.send("A unexpected error occured :\n"+str(e))
+
+async def inventoryV2(bot : interactions.Client, ctx : interactions.SlashContext, destination : int ,user : classes.char):
     """New function for the user's inventory. Heavely copied from encyclopedia"""
-    if destination == INV_ELEMENT:
-        msg = await ctx.send(embeds = interactions.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg)-1)]))
-        await elements(bot,ctx,msg,user)
+    if destination == INV_ELEMENT: msg = await ctx.send(embeds = interactions.Embed(title=randomWaitingMsg[random.randint(0,len(randomWaitingMsg)-1)])) ; await elements(bot,ctx,msg,user)
+    elif destination == INV_CHIP: await chipInventory(bot, ctx, user)
     else:
         def check(m):
             m = m.ctx
@@ -949,13 +1098,13 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
         msg = None
         opValues=["equipement","armes","competences","autre"]
         tri = 0
-        needRemake, hideUlt, affMono, stuffMenuStatus, rangeSkill = True, 0, 0, 0, 0
+        needRemake, hideUlt, affMono, stuffMenuStatus, rangeSkill, showMaxLevel = True, 0, 0, 0, 0, 0
 
         listUserProcure = [user]
         for a in user.haveProcurOn:
-            listUserProcure.append(loadCharFile("./userProfile/{0}.prof".format(a)))
-        
-        mainUser = loadCharFile("./userProfile/{0}.prof".format(ctx.author.id))
+            listUserProcure.append(loadCharFile("./userProfile/{0}.json".format(a)))
+
+        mainUser = loadCharFile("./userProfile/{0}.json".format(ctx.author.id))
         def userSortValue(user):
             if user.owner == mainUser.owner:
                 return 2
@@ -988,7 +1137,7 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
                     ],custom_id = "catOptionSelect",
                     placeholder="Changer de catégorie d'objets"
                 )
-                user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".prof")
+                user = loadCharFile(absPath + "/userProfile/" + str(user.owner) + ".json")
                 for a in range(len(listUserProcure)):
                     if listUserProcure[a].owner == user.owner:
                         listUserProcure[a] = user
@@ -1039,176 +1188,172 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
 
                 if needRemake:
                     tablToSee = []
-                    if destination == 0:
-                        tablToSee = user.stuffInventory
-                        if not(stuffAff) or stuffToAff > 0:
-                            for a in tablToSee[:]:
-                                if not(stuffAff) and not(a.havConds(user)):
-                                    tablToSee.remove(a)
-                                elif stuffToAff > 0 and a.type != stuffToAff-1:
-                                    tablToSee.remove(a)
+                    match destination:
+                        case 0:
+                            tablToSee, toRemove = user.stuffInventory, []
+                            for indx, obj in enumerate(tablToSee):
+                                tmpObj = findStuff(obj)
+                                if tmpObj != None: tablToSee[indx] = tmpObj
+                                else: toRemove.append(obj)
 
-                    elif destination == 1:
-                        tablToSee = user.weaponInventory
-                    elif destination == 2:
-                        tablToSee = user.skillInventory
-                        if tri >= 14:
-                            typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
-                            see = typeTabl[tri-14]
-                            if type(see) != list:
-                                for ski in tablToSee[:]:
-                                    if type(ski) != None:
-                                        if (see != TYPE_BOOST and not(ski.type == see or (ski.effects != [None] and findEffect(ski.effects[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see) or (ski.depl != None and ski.depl.skills.type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST) or (see == TYPE_BOOST and ski.depl != None and ski.depl.skills.type != see):
+                            for obj in toRemove: tablToSee.remove(obj)
+
+                            if not(stuffAff) or stuffToAff > 0 or showMaxLevel:
+                                for a in tablToSee[:]:
+                                    if stuffToAff > 0 : print(stuffToAff > 0 and a.type != stuffToAff-1, a.type != stuffToAff-1)
+                                    if (a !=None and not(stuffAff) and not(a.havConds(user))) or (stuffToAff > 0 and a.type != stuffToAff-1) or (showMaxLevel and (a.minLvl//10 < user.level//10 or a.minLvl//10 > user.level//10)): tablToSee.remove(a)
+                        case 1:
+                            tablToSee, toRemove = user.weaponInventory, []
+                            for indx, obj in enumerate(tablToSee):
+                                tmpObj = findWeapon(obj)
+                                if tmpObj != None:
+                                    tablToSee[indx] = tmpObj
+                                else:
+                                    toRemove.append(obj)
+
+                            for obj in toRemove:
+                                tablToSee.remove(obj)
+                        case 2:
+                            tablToSee, toRemove = user.skillInventory, []
+                            for indx, obj in enumerate(tablToSee):
+                                tmpObj = findSkill(obj)
+                                if tmpObj != None:
+                                    tablToSee[indx] = tmpObj
+                                else:
+                                    toRemove.append(obj)
+
+                            for obj in toRemove:
+                                tablToSee.remove(obj)
+
+                            if tri >= 14:
+                                typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
+                                see = typeTabl[tri-14]
+                                if type(see) != list:
+                                    for ski in tablToSee[:]:
+                                        if type(ski) != None:
+                                            if (see != TYPE_BOOST and not(ski.type == see or (ski.effects != [None] and findEffect(ski.effects[0]).type == see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] == see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type == see) or (ski.depl != None and ski.depl.skills.type == see))) or (see == TYPE_BOOST and ski.type != TYPE_BOOST) or (see == TYPE_BOOST and ski.depl != None and ski.depl.skills.type != see):
+                                                tablToSee.remove(ski)
+
+                                else:
+                                    for ski in tablToSee[:]:
+                                        if not(ski.type in see or (ski.effects != [None] and findEffect(ski.effects[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
                                             tablToSee.remove(ski)
 
-                            else:
-                                for ski in tablToSee[:]:
-                                    if not(ski.type in see or (ski.effects != [None] and findEffect(ski.effects[0]).type in see) or (ski.effectAroundCaster != None and ski.effectAroundCaster[0] in see) or (ski.effectOnSelf != None and findEffect(ski.effectOnSelf).type in see)):
-                                        tablToSee.remove(ski)
+                            if affAll==0:
+                                for a in tablToSee[:]:
+                                    if not(a.havConds(user)):
+                                        tablToSee.remove(a)
+                            elif affAll == 1:
+                                for a in tablToSee[:]:
+                                    if not(a.havConds(user)) or a.condition == []:
+                                        tablToSee.remove(a)
 
-                        if affAll==0:
-                            for a in tablToSee[:]:
-                                if not(a.havConds(user)):
-                                    tablToSee.remove(a)
-                        elif affAll == 1:
-                            for a in tablToSee[:]:
-                                if not(a.havConds(user)) or a.condition == []:
-                                    tablToSee.remove(a)
+                            if statsToAff > 0:
+                                for skilly in tablToSee[:]:
+                                    if skilly.use not in [[STRENGTH,AGILITY,PRECISION],[MAGIE,CHARISMA,INTELLIGENCE]][statsToAff-1]:
+                                        tablToSee.remove(skilly)
+                            if hideUlt == 1:
+                                for skilly in tablToSee[:]:
+                                    if skilly.ultimate:
+                                        tablToSee.remove(skilly)
+                            elif hideUlt == 2:
+                                for skilly in tablToSee[:]:
+                                    if not skilly.ultimate:
+                                        tablToSee.remove(skilly)
+                            if rangeSkill == 1:
+                                for skilly in tablToSee[:]:
+                                    if skilly.ultimate or skilly.range not in areaMelee+areaMixte:
+                                        tablToSee.remove(skilly)
+                            elif rangeSkill == 2:
+                                for skilly in tablToSee[:]:
+                                    if skilly.ultimate or skilly.range not in areaDist+areaMixte:
+                                        tablToSee.remove(skilly)
+                            if affMono == 1:
+                                for skilly in tablToSee[:]:
+                                    if skilly.area != AREA_MONO:
+                                        tablToSee.remove(skilly)
+                            elif affMono == 2:
+                                for skilly in tablToSee[:]:
+                                    if skilly.area == AREA_MONO:
+                                        tablToSee.remove(skilly)
 
-                        if statsToAff > 0:
-                            for skilly in tablToSee[:]:
-                                if skilly.use not in [[STRENGTH,AGILITY,PRECISION],[MAGIE,CHARISMA,INTELLIGENCE]][statsToAff-1]:
-                                    tablToSee.remove(skilly)
-                        if hideUlt == 1:
-                            for skilly in tablToSee[:]:
-                                if skilly.ultimate:
-                                    tablToSee.remove(skilly)
-                        elif hideUlt == 2:
-                            for skilly in tablToSee[:]:
-                                if not skilly.ultimate:
-                                    tablToSee.remove(skilly)
-                        if rangeSkill == 1:
-                            for skilly in tablToSee[:]:
-                                if skilly.ultimate or skilly.range not in areaMelee+areaMixte:
-                                    tablToSee.remove(skilly)
-                        elif rangeSkill == 2:
-                            for skilly in tablToSee[:]:
-                                if skilly.ultimate or skilly.range not in areaDist+areaMixte:
-                                    tablToSee.remove(skilly)
-                        if affMono == 1:
-                            for skilly in tablToSee[:]:
-                                if skilly.area != AREA_MONO:
-                                    tablToSee.remove(skilly)
-                        elif affMono == 2:
-                            for skilly in tablToSee[:]:
-                                if skilly.area == AREA_MONO:
-                                    tablToSee.remove(skilly)
+                            if affReplay > 0:
+                                for skilly in tablToSee[:]:
+                                    if [not(skilly.replay),skilly.replay][affReplay-1]:
+                                        tablToSee.remove(skilly)
+                            if affBundle > 0:
+                                for skilly in tablToSee[:]:
+                                    if [type(skilly.become) != list,type(skilly.become) == list][affBundle-1]:
+                                        tablToSee.remove(skilly)
 
-                        if affReplay > 0:
-                            for skilly in tablToSee[:]:
-                                if [not(skilly.replay),skilly.replay][affReplay-1]:
-                                    tablToSee.remove(skilly)
-                        if affBundle > 0:
-                            for skilly in tablToSee[:]:
-                                if [type(skilly.become) != list,type(skilly.become) == list][affBundle-1]:
-                                    tablToSee.remove(skilly)
-
-                        if tri in [14,16]:
-                            tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-                        elif tri in [15]:
-                            tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-                        elif tri in [17]:
-                            tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
-
-                    elif destination == 3:
-                        tablToSee = user.otherInventory
+                            if tri in [14,16]:
+                                tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                            elif tri in [15]:
+                                tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                            elif tri in [17]:
+                                tablToSee.sort(key=lambda ballerine:getSortSkillValue(ballerine,tri),reverse=True)
+                        case 3:
+                            tablToSee, toRemove = user.otherInventory, []
+                            for indx, obj in enumerate(tablToSee):
+                                tmpObj = findOther(obj)
+                                if tmpObj != None:
+                                    tablToSee[indx] = tmpObj
+                                
+                                else:
+                                    toRemove.append(obj)
+                            
+                            for obj in toRemove:
+                                tablToSee.remove(obj)
 
                     if destination in [0,1]:
                         tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
-                        if tri in [2,3]:
-                            tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
-                        elif tri == 4:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1)), reverse=True)
-                        elif tri == 5:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance), reverse=True)
-                        elif tri == 6:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1)), reverse=True)
-                        elif tri == 7:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.agility), reverse=True)
-                        elif tri == 8:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.precision), reverse=True)
-                        elif tri == 9:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1)), reverse=True)
-                        elif tri == 10:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1)), reverse=True)
-                        elif tri == 11:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.resistance), reverse=True)
-                        elif tri == 12:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.percing), reverse=True)
-                        elif tri == 13:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.critical), reverse=True)
-                        elif tri == 14:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeHeal + ballerine.charisma), reverse=True)
-                        elif tri == 15:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeBoost + max(ballerine.charisma,ballerine.intelligence)), reverse=True)
-                        elif tri == 16:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeShield + ballerine.intelligence), reverse=True)
-                        elif tri == 17:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeDirect + max(ballerine.magie,ballerine.strength)), reverse=True)
-                        elif tri == 18:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeIndirect + max(ballerine.magie,ballerine.strength)), reverse=True)
-                        elif tri == 22:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
-                        elif tri == 23:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.agility + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
-                        elif tri == 24:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.endurance + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
-                        elif tri == 25:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance + ballerine.magie + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
-                        elif tri == 26:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.endurance + ballerine.negativeHeal*-1), reverse=True)
-                        elif tri == 27:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.endurance + ballerine.negativeShield*-1), reverse=True)
-                        elif tri == 28:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.negativeHeal*-1), reverse=True)
-                        elif tri == 29:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.negativeBoost*-1), reverse=True)
-                        elif tri == 30:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.negativeShield*-1), reverse=True)
-                        elif tri == 31:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.negativeBoost*-1), reverse=True)
-                        elif tri == 32:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
-                    elif destination != 2:
-                        tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
+                        match tri:
+                            case num if 2 <= num <= 3: tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
+                            case 4: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength), reverse=True)
+                            case 5: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance), reverse=True)
+                            case 6: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma), reverse=True)
+                            case 7: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.agility), reverse=True)
+                            case 8: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.precision), reverse=True)
+                            case 9: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence), reverse=True)
+                            case 10: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie), reverse=True)
+                            case 11: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.resistance), reverse=True)
+                            case 12: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.percing), reverse=True)
+                            case 13: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.critical), reverse=True)
+                            case 14: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeHeal), reverse=True)
+                            case 15: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeBoost), reverse=True)
+                            case 16: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeShield), reverse=True)
+                            case 17: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeDirect), reverse=True)
+                            case 18: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeIndirect), reverse=True)
+                            case 22: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 23: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.agility + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 24: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.endurance + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 25: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance + ballerine.magie + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 26: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.endurance + ballerine.negativeHeal*-1), reverse=True)
+                            case 27: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.endurance + ballerine.negativeShield*-1), reverse=True)
+                            case 28: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.negativeHeal*-1), reverse=True)
+                            case 29: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.negativeBoost*-1), reverse=True)
+                            case 30: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.negativeShield*-1), reverse=True)
+                            case 31: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.negativeBoost*-1), reverse=True)
+                            case 32: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+
+                    elif destination != 2: tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
 
                     lenTabl = len(tablToSee)
-                    maxPage=lenTabl//15 - int(lenTabl%15 == 0)
-                    page=0
-                    needRemake = False
+                    maxPage, page, needRemake = lenTabl//15 - int(lenTabl%15 == 0), 0, False
 
-                if destination == INV_GEAR:      # Equipement
-                    desc = "**__Équipement équipé :__\n{0} {1}\n{2} {3}\n{4} {5}**".format(user.stuff[0].emoji,user.stuff[0].name,user.stuff[1].emoji,user.stuff[1].name,user.stuff[2].emoji,user.stuff[2].name)
-                elif destination == INV_WEAPON:    # Arme
-                    desc = "**__Arme équipée :__\n{0} {1}**".format(user.weapon.emoji,user.weapon.name)
+                if destination == INV_GEAR: desc = "**__Équipement équipé :__\n{0} {1}\n{2} {3}\n{4} {5}**".format(user.stuff[0].emoji,user.stuff[0].name,user.stuff[1].emoji,user.stuff[1].name,user.stuff[2].emoji,user.stuff[2].name)
+                elif destination == INV_WEAPON: desc = "**__Arme équipée :__\n{0} {1}**".format(user.weapon.emoji,user.weapon.name)
                 elif destination == INV_SKILL:    # Compétences
                     desc = "**__Compétences équipées :__"
                     for tip in range(len(user.skills)):
-                        if type(user.skills[tip]) == skill:
-                            desc += "\n{0} {1}".format(user.skills[tip].emoji,user.skills[tip].name)
-                        else:
-                            if user.level >= lvlToUnlockSkill[tip]:
-                                desc += "\n -"
-                            else:
-                                desc += "\n 🔒"
+                        if type(user.skills[tip]) == skill: desc += "\n{0} {1}".format(user.skills[tip].emoji,user.skills[tip].name)
+                        else: desc += ["\n 🔒","\n -"][user.level >= lvlToUnlockSkill[tip]]
                     desc += "**"
-                else:
-                    desc = "Les objets spéciaux permettent de modifier votre personnage"
+                else: desc = "Les objets spéciaux permettent de modifier votre personnage"
 
                 firstOptions = []
 
-                if page > 0:
-                    firstOptions.append(interactions.StringSelectOption(label="Page précédente",value="goto{0}".format(page-1),emoji=PartialEmoji(name="◀️")))
+                if page > 0: firstOptions.append(interactions.StringSelectOption(label="Page précédente",value="goto{0}".format(page-1),emoji=PartialEmoji(name="◀️")))
                 if lenTabl != 0: # Génération des pages
                     mess=""
                     if page != maxPage:
@@ -1220,12 +1365,8 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
                     firstOptions = firstOptions + tempFirstOptions
 
                     mess = reduceEmojiNames(mess)
-
-                    if len(mess) > 4056: # Mess abrégé
-                        mess = unemoji(mess)
-
-                else:
-                    mess = "Il n'y a rien à afficher dans cette catégorie"
+                    if len(mess) > 4056: mess = unemoji(mess)
+                else: mess = "Il n'y a rien à afficher dans cette catégorie"
 
                 if page < maxPage:
                     firstOptions.append(interactions.StringSelectOption(label="Page suivante",value="goto{0}".format(page+1),emoji=PartialEmoji(name="▶️")))
@@ -1242,29 +1383,20 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
                         listButtons += [tablShowUltButton[(hideUlt+1)%3]] + [tablSkillArea[affMono]] + [tablRangeSkill[(rangeSkill+1)%3]] + [tablReplaySkills[(affReplay+1)%3]] + [tablBundleSkills[(affBundle+1)%3]]
 
                 elif destination == INV_GEAR:
-                    listButtons += [[hideNonEquip,affNonEquip,affExclu][affAll]]+[[affAcc,affBody,affShoes,affAllStuff][stuffToAff%4]]
-                    temp1 = [hideNonEquip,affNonEquip,affExclu][affAll]
-                    temp2 = [affAcc,affBody,affShoes,affAllStuff][stuffToAff%4]
+                    listButtons += [[hideNonEquip,affNonEquip,affExclu][affAll]]+[affAcc,affBody,affShoes,affAllStuff]+[Button(style=ButtonStyle.BLUE,label=["Afficher Niveaux Proches","Afficher Tous Niveaux"][showMaxLevel],custom_id="showMaxLevel")]
 
-                if len(firstOptions) > 0:
-                    firstSelect = interactions.StringSelectMenu(firstOptions,custom_id = "firstSelect",placeholder="Voir la page de l'équipement")
-                else:
-                    firstSelect = interactions.StringSelectMenu(interactions.StringSelectOption(label="Cette catégorie n'a rien à afficher",value="None",emoji=PartialEmoji(name="❌"),default=True),custom_id = "firstSelect",placeholder="Cette catégorie n'a rien à afficher",disabled=True)
+                if len(firstOptions) > 0: firstSelect = interactions.StringSelectMenu(firstOptions,custom_id = "firstSelect",placeholder="Voir la page de l'équipement")
+                else: firstSelect = interactions.StringSelectMenu(interactions.StringSelectOption(label="Cette catégorie n'a rien à afficher",value="None",emoji=PartialEmoji(name="❌"),default=True),custom_id = "firstSelect",placeholder="Cette catégorie n'a rien à afficher",disabled=True)
 
-                for tempButton in listButtons:
-                    tempSelectOptions.append(interactions.StringSelectOption(label=tempButton.label,value=tempButton.custom_id,emoji=tempButton.emoji))
+                for tempButton in listButtons: tempSelectOptions.append(interactions.StringSelectOption(label=tempButton.label,value=tempButton.custom_id,emoji=tempButton.emoji))
 
-                if len(tempSelectOptions) < 1:
-                    ultimateTemp = [interactions.ActionRow(interactions.StringSelectMenu([interactions.StringSelectOption(label="Aucune Option Disponible",value="None",emoji=PartialEmoji(name='❌'),default=True)],disabled=True,custom_id="invSelectStat"))]
-                else:
-                    ultimateTemp = [interactions.ActionRow(interactions.StringSelectMenu(tempSelectOptions,custom_id="invSelectStat",placeholder="Paramètres de tri",min_values=1,max_values=len(tempSelectOptions)))]
+                if len(tempSelectOptions) < 1: ultimateTemp = [interactions.ActionRow(interactions.StringSelectMenu([interactions.StringSelectOption(label="Aucune Option Disponible",value="None",emoji=PartialEmoji(name='❌'),default=True)],disabled=True,custom_id="invSelectStat"))]
+                else: ultimateTemp = [interactions.ActionRow(interactions.StringSelectMenu(tempSelectOptions,custom_id="invSelectStat",placeholder="Paramètres de tri",min_values=1,max_values=len(tempSelectOptions)))]
 
                 if msg == None:
-                    try:
-                        msg = await ctx.send(embeds=[mainEmb,emb],components=procurSelect+[interactions.ActionRow(catSelect),interactions.ActionRow(sortOptions)]+ultimateTemp+[interactions.ActionRow(firstSelect)])
+                    try: msg = await ctx.send(embeds=[mainEmb,emb],components=procurSelect+[interactions.ActionRow(catSelect),interactions.ActionRow(sortOptions)]+ultimateTemp+[interactions.ActionRow(firstSelect)])
                     except:
-                        try:
-                            msg = await ctx.channel.send(embeds=[mainEmb,emb],components=procurSelect+[interactions.ActionRow(catSelect),interactions.ActionRow(sortOptions)]+ultimateTemp+[interactions.ActionRow(firstSelect)])
+                        try: msg = await ctx.channel.send(embeds=[mainEmb,emb],components=procurSelect+[interactions.ActionRow(catSelect),interactions.ActionRow(sortOptions)]+ultimateTemp+[interactions.ActionRow(firstSelect)])
                         except:
                             errorTxt = format_exc()
                             if len(errorTxt) > 1000:
@@ -1277,9 +1409,7 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
                     except:
                         await msg.edit(embeds=[interactions.Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=format_exc(limit=1000)),interactions.Embed(title="Variable",description="FirstSelect = {0}".format(firstSelect.__dict__))])
                         return 0
-                try:
-                    respond: ComponentContext = await bot.wait_for_component(msg,check=check,timeout=180)
-                    respond: ComponentContext = respond.ctx
+                try: respond: ComponentContext = await bot.wait_for_component(msg,check=check,timeout=180);  respond: ComponentContext = respond.ctx
                 except:
                     emb = interactions.Embed(title="__/inventory__",color=user.color)
                     emb.add_field(name="__Arme :__",value="{0} {1}".format(user.weapon.emoji,user.weapon.name))
@@ -1300,217 +1430,52 @@ async def inventoryV2(bot : interactions.Client,ctx : interactions.SlashContext 
                     await msg.edit(embeds = emb, components = [])
                     return 0
 
-                if respond.component_type == 2:
-                    respond.values = [respond.custom_id]
+                if respond.component_type == 2: respond.values = [respond.custom_id]
 
                 if respond.values[0].isdigit():
                     respond = int(respond.values[0])
-                    sortOptions = changeDefault(sortOptions,respond)
-                    needRemake=True
-
-                    """if respond in [0,1] or respond >= 14:
-                        needRemake=True
-                    else:
-                        tablToSee.sort(key=lambda ballerine: ballerine.name)
-                        if respond == 4:
-                            tablToSee.sort(key=lambda ballerine: (ballerine.minLvl,ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1)), reverse=True)
-                        elif respond == 5:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance), reverse=True)
-                        elif respond == 6:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1)), reverse=True)
-                        elif respond == 7:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.agility), reverse=True)
-                        elif respond == 8:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.precision), reverse=True)
-                        elif respond == 9:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1)), reverse=True)
-                        elif respond == 10:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1)), reverse=True)
-                        elif respond == 11:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.resistance), reverse=True)
-                        elif respond == 12:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.percing), reverse=True)
-                        elif respond == 13:
-                            tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.critical), reverse=True)"""
-
-                    tri=respond
+                    sortOptions, needRemake, tri = changeDefault(sortOptions,respond), True, respond
 
                 elif respond.values[0].startswith("cat_"):
+                    if not(destination in [0,1] and tri <= 18): tri = 0
                     destination = int(respond.values[0].replace("cat_",""))
-                    needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, 0, False, 0, 0
+                    needRemake, affAll, stuffAff, statsToAff, stuffToAff, showMaxLevel = True, 0, False, 0, 0, 0
 
                 elif respond.values[0].startswith("goto"):
                     page = int(respond.values[0].replace("goto",""))
 
                 elif respond.values[0].startswith("user_"):
-                    user = loadCharFile("./userProfile/{0}.prof".format(respond.values[0].replace("user_","")))
+                    user = loadCharFile("./userProfile/{0}.json".format(respond.values[0].replace("user_","")))
                     needRemake, tri, affAll, stuffAff, statsToAff, stuffToAff = True, 0, 0, False, 0, 0
 
                 elif respond.custom_id in ["invSelectStat","sortOptionsSelect"]:
+                    needRemake = True
                     for value in respond.values:
-                        if value in ["hideNoneEquip","affNoneEquip","affExclu"]:
-                            for cmpt in range(3):
-                                if value == ["hideNoneEquip","affExclu","affNoneEquip"][cmpt]:
-                                    affAll = cmpt
-                                    break
-                            stuffAff = not(stuffAff)
-                            needRemake = True
-                        elif value in ["allDamages","onlyPhys","onlyMag","acc","dress","flats","all"]:
-                            if destination == 2:
-                                statsToAff = (statsToAff+1)%3
-                            elif destination == 0:
-                                stuffToAff = (stuffToAff+1)%4
-                            needRemake = True
-                        elif value.endswith("_ult"):
-                            hideUlt = (hideUlt+1)%3
-                            needRemake = True
-                        elif value.endswith("_range"):
-                            rangeSkill = (rangeSkill+1)%3
-                            needRemake = True
-                        elif value.endswith("_area"):
-                            affMono = (affMono+1)%3
-                            needRemake = True
-                        elif value.startswith("autCat_"):
-                            stuffMenuStatus, needRemake = int(value[-1]), True
-                            tri = [0,22][stuffMenuStatus]
-                        elif respond.values[0].startswith("replay"):
-                            affReplay = (affReplay+1)%3
-                            needRemake = True
-                        elif respond.values[0].startswith("bundle"):
-                            affBundle = (affBundle+1)%3
-                            needRemake = True
+                        if value in ["hideNoneEquip","affNoneEquip","affExclu"]: affAll, stuffAff = {"hideNoneEquip":0,"affExclu":1,"affNoneEquip":2}[value], not(stuffAff)
+                        elif value in ["allDamages","onlyPhys","onlyMag"]: statsToAff = (statsToAff+1)%3
+                        elif value in ["acc","dress","flats","all"] : stuffToAff = (stuffToAff+1)%4
+                        elif value.endswith("_ult"): hideUlt = (hideUlt+1)%3
+                        elif value.endswith("_range"): rangeSkill = (rangeSkill+1)%3
+                        elif value.endswith("_area"): affMono = (affMono+1)%3
+                        elif value.startswith("autCat_"): stuffMenuStatus = int(value[-1]); tri = [0,22][stuffMenuStatus]
+                        elif value.startswith("replay"): affReplay = (affReplay+1)%3
+                        elif value.startswith("bundle"): affBundle = (affBundle+1)%3
+                        elif value == "showMaxLevel": showMaxLevel = int(not(showMaxLevel))
+
                 else:
                     inter = respond
                     respond = respond.values[0]
 
                     if respond in opValues:
                         for a in range(0,len(opValues)):
-                            if opValues[a] == respond:
-                                destination = a
-                                needRemake = True
-                                break
+                            if opValues[a] == respond: destination, needRemake = a, True; break
 
                     else:
                         await msg.edit(embeds=emb,components=[interactions.ActionRow(interactions.StringSelectMenu(interactions.StringSelectOption(label="None",value="None"),custom_id = "dunno",placeholder="Une autre action est en cours",disabled=True))])
-                        if ctx.author.id != user.owner:
-                            await inventory(bot,inter,respond,delete=True,procur=user.owner)
-                        else:
-                            await inventory(bot,inter,respond,delete=True)
+                        if ctx.author.id != user.owner: await inventory(bot,inter,respond,delete=True,procur=user.owner)
+                        else: await inventory(bot,inter,respond,delete=True)
             except:
                 errorForm = format_exc()
-                if len(errorForm) > 4000:
-                    errorForm = errorForm[len(errorForm)-4000:]
+                if len(errorForm) > EMBED_MAX_DESC_LENGTH:errorForm = errorForm[len(errorForm)-EMBED_MAX_DESC_LENGTH:]
                 await ctx.send(embeds=Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=errorForm))
                 return 0
-async def breakTheLimits(bot : interactions.Client, ctx : interactions.SlashContext, user : classes.char, msg : interactions.Message = None):
-    if msg == None:
-        try:
-            msg = await ctx.send(embeds = await getRandomStatsEmbed(bot, [user], text="Chargement..."))
-        except:
-            msg = await ctx.channel.send(embeds = await getRandomStatsEmbed(bot, [user], text="Chargement..."))
-
-    started = False
-
-    while 1:
-        if not(started):
-            actBonus, valeurAjoute = "", 0
-            if user.limitBreaks == [0,0,0,0,0,0,0]:
-                actBonus = "`Pas de bonus`"
-            else:
-                valeur, nbBuff = 0, 0
-                for cmpt in range(len(user.limitBreaks)):
-                    if user.limitBreaks[cmpt] > 0:
-                        actBonus += statsEmojis[cmpt]
-                        nbBuff += 1
-                        valeur = max(valeur, user.limitBreaks[cmpt])
-                actBonus += " +{0}%".format(valeur)
-
-                valeurAjoute = 30 * valeur * nbBuff
-
-            hasSkillUpdated, lvl = True, user.level - 5
-            nbExpectedSkills, nbSkills = 0, 0
-            for cmpt in range(len(lvlToUnlockSkill)):
-                if lvl >= lvlToUnlockSkill[cmpt]:
-                    nbExpectedSkills += 1
-
-            for skilly in user.skills:
-                if type(skilly) == skill:
-                    nbSkills += 1
-            
-            hasSkillUpdated = nbSkills >= nbExpectedSkills
-            hasUpdatedStuff = True
-            for stuffy in user.stuff:
-                if stuffy.minLvl < user.level-10:
-                    hasUpdatedStuff = False
-                    break
-
-            hasBonusPointsUpdated, updateBonus = user.points < 5, "\n\n"
-
-            if not(hasBonusPointsUpdated and hasSkillUpdated and hasUpdatedStuff):
-                updateBonus += "__Bonus de personnage à jour :__\nComplétez les conditions suivantes pour obtenir un bonus de 5% dans toutes vos satistiques principales :\n"
-                updateBonus += "{0} {1}Avoir moins de **5 points bonus** non attribués{1}\n".format(["❌","✅"][hasBonusPointsUpdated],["","~~"][hasBonusPointsUpdated])
-                updateBonus += "{0} {1}Avoir moins des équipements à votre niveau ou maximum **10 niveaux** en dessous du votre{1}\n".format(["❌","✅"][hasUpdatedStuff],["","~~"][hasUpdatedStuff])
-                updateBonus += "{0} {1}Avoir **aucun** d'emplacement de compétences vides, à l'exeption du dernière emplacement sur il a été débloqué réçament{1}\n".format(["❌","✅"][hasSkillUpdated],["","~~"][hasSkillUpdated])
-
-            else:
-                updateBonus += "__Bonus de personnage à jour :__\n{0},{1},{2},{3},{4},{5},{6} +5%\n".format(statsEmojis[0],statsEmojis[1],statsEmojis[2],statsEmojis[3],statsEmojis[4],statsEmojis[5],statsEmojis[6])
-            
-            repEmb = interactions.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "__En début de combats, votre personnage verra ses statistiques suivantes augmenter :__\n{0}{1}\n- Vous pouvez obtenir un nouveau set de bonus en déboursant quelques pièces, mais libre à vous de choisir si vous voulez l'utiliser ou passer.\n- En utilisant un nouveau set de bonus, l'ancien est perdu.\n- Plus votre set de bonus utilisé est puissant, plus la quantité de pièces devant être débourssée est élevée".format(actBonus,updateBonus))
-
-            payButton = interactions.ActionRow(interactions.Button(style=ButtonStyle.PRIMARY,label="Nouveau Set ({0})".format(100+valeurAjoute),emoji=getEmojiObject("<:coins:862425847523704832>"),custom_id="buy",disabled=user.currencies<100+valeurAjoute))
-            await msg.edit(embeds=repEmb,components=[payButton])
-
-            def check(m):
-                m = m.ctx
-                return int(m.author.id) == int(ctx.author.id)
-
-            try:
-                respond = await bot.wait_for_component(messages=msg,components=payButton,check=check,timeout=60)
-                respond: ComponentContext = respond.ctx
-            except asyncio.exceptions.TimeoutError:
-                await msg.edit(embeds=interactions.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "En début de combats, votre personnage verra ses statistiques suivantes augmenter :\n{0}".format(actBonus)),components=[])
-                return 0
-
-        started = True
-        user = loadCharFile(user=user)
-        if user.currencies <= 100+valeurAjoute:
-            await msg.edit(embeds=interactions.Embed(title="__Dépassement de ses limites :__", color=red, description = "Une erreur est survenue :\nVous n'avez pas les fonds nécessaires"))
-            return 0
-
-        user.currencies -= 100+valeurAjoute
-        saveCharFile(user=user)
-        rolledBonus = tablBreakingTheLimits[random.randint(0,len(tablBreakingTheLimits)-1)]
-
-        rolledPower = random.randint(tablRangeLB[len(rolledBonus)-1][0],tablRangeLB[len(rolledBonus)-1][-1])
-
-        bonusTxt = ""
-        for cmpt in range(len(rolledBonus)):
-            bonusTxt += statsEmojis[rolledBonus[cmpt]] + allStatsNames[rolledBonus[cmpt]] + "\n"
-        bonusTxt += "+{0}%".format(rolledPower)
-
-        repEmb = interactions.Embed(title="__Dépassement de ses limites :__", color = user.color, description = "__Votre bonus actuel est :__\n{0}\n\n__Vous venez de tirer :__\n{1}\n\nSouhaitez vous concerver ce nouveau set de bonus ?".format(actBonus, bonusTxt))
-
-        repayButton = interactions.ActionRow(interactions.Button(style=ButtonStyle.PRIMARY,label="Passer et retirer ({0})".format(100+valeurAjoute),emoji=getEmojiObject("<:coins:862425847523704832>"),custom_id="buy",disabled=user.currencies<100+valeurAjoute))
-        buttons = interactions.ActionRow(confirmChange,rejectModernity)
-        await msg.edit(embeds=repEmb,components=[buttons,repayButton])
-        try:
-            respond = await bot.wait_for_component(msg,[payButton,buttons],check=check,timeout=60)
-            respond: ComponentContext = respond.ctx
-        except asyncio.exceptions.TimeoutError:
-            await msg.edit(embeds=interactions.Embed(title="__Dépassement de ses limites :__", color=user.color, description = "En début de combats, votre personnage verra ses statistiques suivantes augmenter :\n{0}".format(actBonus)),components=[])
-            return 0
-
-        if respond.custom_id == "nope":
-            started = False
-        elif respond.custom_id == "buy":
-            pass
-        else:
-            for cmpt in range(0,MAGIE+1):
-                if cmpt in rolledBonus:
-                    user.limitBreaks[cmpt] = rolledPower
-                else:
-                    user.limitBreaks[cmpt] = 0
-            
-            saveCharFile(user=user)
-            started = False
-

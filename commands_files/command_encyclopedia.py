@@ -147,7 +147,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                         tablToSee.remove(a)
 
             elif destination==9:
-                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".prof"
+                pathUserProfile = absPath + "/userProfile/" + str(ctx.author.id) + ".json"
                 user = loadCharFile(pathUserProfile)
                 tablToSee = achivementStand.getSuccess(user)
                 tablToSee = tablToSee.tablAllSuccess()
@@ -181,7 +181,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                     tablToSee.sort(key=lambda ballerine:ballerine.name, reverse=tri)
             elif destination in [5,6,7] and tri >= 21:
                 for ent in tablToSee[:]:
-                    if tri == 21 and ent.aspiration not in [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR]:
+                    if tri == 21 and ent.aspiration not in [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR]:
                         tablToSee.remove(ent)
                     elif tri == 22 and ent.aspiration not in [OBSERVATEUR,ATTENTIF,MAGE,SORCELER]:
                         tablToSee.remove(ent)
@@ -376,7 +376,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                 await inter.send(embeds=infoSkill(findSkill(respond),user,ctx))
             elif destination == ENC_ALLIES:
                 await inter.defer()
-                lvl, tempMachin, addLvl = 50, None, 0
+                lvl, tempMachin, addLvl, changeStuff = MAXLEVEL, None, 0, True
                 procurData = None
                 for procurName, procurStuff in procurTempStuff.items():
                     if respond == procurName:
@@ -413,9 +413,9 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                             ally.splashIcon = tempBuild.splashIcon
                     ally.changeLevel(lvl,changeDict=False)
 
-                    if procurData == None:
+                    if procurData == None and (altBuildNb == -1 or (altBuildNb != -1 and tempBuild.proba > 0)):
                         ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
-                    else:
+                    elif procurData != None:
                         ally.stuff = [
                             stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[1][2]),
                             stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[2][2]),
@@ -429,7 +429,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                     returnButton = interactions.ActionRow(interactions.Button(style=1 ,label="Retour",custom_id="return"))
                     select = interactions.ActionRow(interactions.StringSelectMenu(options,custom_id = "seeMoreInfoMenue",placeholder="Voir plus d'informations sur les équipements"))
                     lvlSelectOption = []
-                    for a in range(1,6):
+                    for a in range(1,MAXLEVEL//10+1):
                         lvlSelectOption.append(interactions.StringSelectOption(label="Niveau {0}".format(10*a),value="lvl_{0}".format(10*a+addLvl),default=lvl==10*a))
                     lvlSelect = interactions.ActionRow(interactions.StringSelectMenu(lvlSelectOption,custom_id = "selectLvlMenu",placeholder="Choisir un niveau"))
                     emb = infoAllie(ally)
@@ -469,6 +469,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                         elif resp2.values[0].startswith("altBuild_"):
                             altBuildNb = int(resp2.values[0].replace("altBuild_",""))
                         else:
+                            await resp2.defer()
                             tablStuff = [ally.weapon]+ally.skills
                             obj = tablStuff[int(resp2.values[0])]
                             if type(obj) == weapon:

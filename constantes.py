@@ -2,11 +2,13 @@
 Constants module.
 Here stand the first brick of the bot
 """
-import os, json, requests
+import os, json, requests, math
 from datetime import timedelta, datetime
 import pytz
 from interactions import *
 from typing import Union, List
+
+MAXLEVEL, PRESTIGEXPBOOST, XPBOOSTVALUE = 100, 70, 150
 
 emLoading = '<a:loading:862459118912667678>'
 
@@ -16,6 +18,12 @@ except:
     print(pytz.all_timezones)
 
 FROM_LEFT, FROM_RIGHT, FROM_UP, FROM_DOWN, FROM_POINT = 0,1,2,3,4
+
+def clamp(val:int, minv:int=0, maxv:int=1):
+    return minv if val < minv else maxv if val > maxv else val
+
+def between(val: int, limitMax: int, limitMin:int):
+    return min(max(val,limitMin),limitMax)
 
 # Constantes :
 # Area of effects
@@ -77,6 +85,7 @@ AREA_RANDOMALLIE_4 = 54
 AREA_RANDOMALLIE_5 = 55
 AREA_SUMMONER = 56
 AREA_BIGDONUT = 57
+AREA_LOWEST_HP_ENEMY = 58
 
 areaMelee = [AREA_MONO,AREA_CIRCLE_1,AREA_CIRCLE_2,AREA_CIRCLE_3,AREA_CONE_2,AREA_CONE_3,AREA_LINE_2,AREA_LINE_3,AREA_DONUT_1,AREA_DONUT_2,AREA_DONUT_3,AREA_INLINE_2,AREA_INLINE_3,AREA_BIGDONUT]
 areaDist = [AREA_DIST_3,AREA_DIST_4,AREA_DIST_5,AREA_DIST_6,AREA_DIST_7,AREA_BOMB_5,AREA_BOMB_6,AREA_BOMB_7]
@@ -90,14 +99,14 @@ for cmpt in range(AREA_INLINE_5+1):
     if cmpt not in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES] + areaMelee + areaDist:
         areaMixte.append(cmpt)
 
-areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon","Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases","Lobbée de 5 cases","Lobbée de 6 cases","Lobbée de 7 cases","Allié le plus blessé","Invocations","1 allié aléatoire","2 alliés aléatoires","3 alliés aléatoires","4 alliés aléatoires","5 alliés aléatoires","Invocateur","Anneau"]
+areaNames = ["Monocible", "Cercle de rayon 1", "Cercle de rayon 2", "Cercle de rayon 3", "Cercle de rayon 4", "Cercle de rayon 5", "Cercle de rayon 6", "Cercle de rayon 7", "Tous les alliés", "Tous les ennemis", "Tous les combattants", "Cone simple", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Cone Large", "Ligne de 2 de longueur", "Ligne de 3 de longueur", "Ligne de 4 de longueur", "Ligne de 5 de longueur", "Ligne de 6 de longueur", "Donut de 1 de rayon", "Donut de 2 de rayon", "Donut de 3 de rayon", "Donut de 4 de rayon","Donut de 5 de rayon", "Donut de 6 de rayon", "Donut de 7 de rayon", "Anneau Distance de 1 de largeur", "Anneau Distance de 2 de largeur", "Anneau Distance de 3 de largeur", "Anneau Distance de 4 de largeur", "Anneau Distance de 5 de largeur", "Arc de Cercle de 1 de rayon", "Arc de Cercle de 2 de rayon", "Arc de Cercle de 3 de rayon", "1 ennemi aléatoire", "2 ennemis aléatoires", "3 ennemis aléatoires", "4 ennemis aléatoires", "5 ennemis aléatoires", "Croix de 2 cases", "Croix de 3 cases", "Croix de 4 cases", "Crois de 5 cases","Lobbée de 5 cases","Lobbée de 6 cases","Lobbée de 7 cases","Allié le plus blessé","Invocations","1 allié aléatoire","2 alliés aléatoires","3 alliés aléatoires","4 alliés aléatoires","5 alliés aléatoires","Invocateur","Anneau","Ennemi le plus blessé"]
 allArea = range(0, AREA_BOMB_7)
 listNumberEmoji = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟","▶️","⏸️","⏯️","⏹️","⏺️","⏭️","⏮️","⏩","⏪","⏫","⏬","◀️","🔼","🔽","➡️","⬅️","⬆️","⬇️","↗️","↘️","↙️","↖️","↕️","↔️"]
 
 rangeAreaEmojis = ["<:rangeMono:1032293272783179796>", "<:rangeCircle:1032293347869593691>(1)", "<:rangeCircle:1032293347869593691>(2)", "<:rangeCircle:1032293347869593691>(3)", "<:rangeCircle:1032293347869593691>(4)", "<:rangeCircle:1032293347869593691>(5)", "<:rangeCircle:1032293347869593691>(6)", "<:rangeCircle:1032293347869593691>(7)", "<:rangeAllAllies:1032512884351172668>", "<:rangeAllEnemies:1032512939992809502>", "<:rangeAllEntities:1032512991859576933>", "<:rangeCone:1032293500093480970>(1)", "<:rangeCone:1032293500093480970>(2)", "<:rangeCone:1032293500093480970>(3)", "<:rangeCone:1032293500093480970>(4)", "<:rangeCone:1032293500093480970>(5)", "<:rangeCone:1032293500093480970>(6)", "<:rangeLine:1032293431298494595>(2)", "<:rangeLine:1032293431298494595>(3)", "<:rangeLine:1032293431298494595>(4)", "<:rangeLine:1032293431298494595>(5)", "<:rangeLine:1032293431298494595>(6)", "<:rangeDonut:1032294133219459103>(1)", "<:rangeDonut:1032294133219459103>(2)", "<:rangeDonut:1032294133219459103>(3)", "<:rangeDonut:1032294133219459103>(4)","<:rangeDonut:1032294133219459103>(5)", "<:rangeDonut:1032294133219459103>(6)", "<:rangeDonut:1032294133219459103>(7)", "<:rangeDist:1032294217415921726>(1)", "<:rangeDist:1032294217415921726>(2)", "<:rangeDist:1032294217415921726>(3)", "<:rangeDist:1032294217415921726>(4)", "<:rangeDist:1032294217415921726>(5)", "<:rangeArc:1033268272285614080>(1)", "<:rangeArc:1033268272285614080>(2)", "<:rangeArc:1033268272285614080>(3)", "<:rangeRdmEnemie:1032513037351010335>(1)", "<:rangeRdmEnemie:1032513037351010335>(2)", "<:rangeRdmEnemie:1032513037351010335>(3)", "<:rangeRdmEnemie:1032513037351010335>(4)", "<:rangeRdmEnemie:1032513037351010335>(5)", "<:rangeCross:1032294049027194940>(2)", "<:rangeCross:1032294049027194940>(3)", "<:rangeCross:1032294049027194940>(4)", "<:rangeCross:1032294049027194940>(5)","<:rangeLob:1032294266988408833>(5)","<:rangeLob:1032294266988408833>(6)","<:rangeLob:1032294266988408833>(7)","<:INeedHealing:881587796287057951>","<:sprink1:887747751339757599>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeRdmEnemie:1032513037351010335>","<:rangeDist:1032294217415921726>"]
-rangeAreaEmojis += rangeAreaEmojis[AREA_RANDOMENNEMI_1:AREA_RANDOMENNEMI_5+1] + [""]
+rangeAreaEmojis += rangeAreaEmojis[AREA_RANDOMENNEMI_1:AREA_RANDOMENNEMI_5+1] + ["",""]
 areaEmojis = ["<:areaMono:1032293314130616400>", "<:areaCircle:1032293380379656192>(1)", "<:areaCircle:1032293380379656192>(2)", "<:areaCircle:1032293380379656192>(3)", "<:areaCircle:1032293380379656192>(4)", "<:areaCircle:1032293380379656192>(5)", "<:areaCircle:1032293380379656192>(6)", "<:areaCircle:1032293380379656192>(7)", "<:areaAllAllies:1032512909982564443>", "<:areaAllEnemies:1032512965850710026>", "<:areaAllEntities:1032513013879681095>", "<:areaCone:1032293578858307624>(1)", "<:areaCone:1032293578858307624>(2)", "<:areaCone:1032293578858307624>(3)", "<:areaCone:1032293578858307624>(4)", "<:areaCone:1032293578858307624>(5)", "<:areaCone:1032293578858307624>(6)", "<:areaLine:1032293461803675708>(2)", "<:areaLine:1032293461803675708>(3)", "<:areaLine:1032293461803675708>(4)", "<:areaLine:1032293461803675708>(5)", "<:areaLine:1032293461803675708>(6)", "<:areaDonut:1032294180451520552>(1)", "<:areaDonut:1032294180451520552>(2)", "<:areaDonut:1032294180451520552>(3)", "<:areaDonut:1032294180451520552>(4)","<:areaDonut:1032294180451520552>(5)", "<:areaDonut:1032294180451520552>(6)", "<:areaDonut:1032294180451520552>(7)", "<:areaDist:1032294242783080518>(1)", "<:areaDist:1032294242783080518>(2)", "<:areaDist:1032294242783080518>(3)", "<:areaDist:1032294242783080518>(4)", "<:areaDist:1032294242783080518>(5)", "<:areaArc:1033268300412616747>(1)", "<:areaArc:1033268300412616747>(2)", "<:areaArc:1033268300412616747>(3)", "<:areaRdmEnemie:1032513060524539904>(1)", "<:areaRdmEnemie:1032513060524539904>(2)", "<:areaRdmEnemie:1032513060524539904>(3)", "<:areaRdmEnemie:1032513060524539904>(4)", "<:areaRdmEnemie:1032513060524539904>(5)", "<:areaCross:1032294077653328004>(2)", "<:areaCross:1032294077653328004>(3)", "<:areaCross:1032294077653328004>(4)", "<:areaCross:1032294077653328004>(5)","<:areaLob:1032294287657934910>(5)","<:areaLob:1032294287657934910>(6)","<:areaLob:1032294287657934910>(7)","<:INeedHealing:881587796287057951>","<:sprink1:887747751339757599>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaRdmEnemie:1032513060524539904>","<:areaDist:1032294242783080518>"]
-areaEmojis += areaEmojis[AREA_RANDOMALLIE_1:AREA_RANDOMALLIE_5+1] + [""]
+areaEmojis += areaEmojis[AREA_RANDOMALLIE_1:AREA_RANDOMALLIE_5+1] + ["",""]
 
 if len(areaEmojis) != len(rangeAreaEmojis):
     print(len(areaEmojis),len(rangeAreaEmojis),len(areaNames))
@@ -124,12 +133,13 @@ TRIGGER_INSTANT = 5
 TRIGGER_START_OF_TURN = 6
 TRIGGER_ON_REMOVE = 7
 TRIGGER_AFTER_DAMAGE = 8
-TRIGGER_HP_ENDER_70 = 9
+TRIGGER_HP_UNDER_70 = 9
 TRIGGER_WEAPON_USE = 10
-TRIGGER_HP_ENDER_50 = 11
-TRIGGER_HP_ENDER_25 = 12
+TRIGGER_HP_UNDER_50 = 11
+TRIGGER_HP_UNDER_25 = 12
+TRIGGER_ON_MOVE = 13
 
-allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE,TRIGGER_HP_ENDER_70, TRIGGER_WEAPON_USE,TRIGGER_HP_ENDER_50,TRIGGER_HP_ENDER_25]
+allTriggers = [TRIGGER_PASSIVE, TRIGGER_DAMAGE, TRIGGER_END_OF_TURN, TRIGGER_DEATH,TRIGGER_DEALS_DAMAGE, TRIGGER_INSTANT, TRIGGER_START_OF_TURN, TRIGGER_ON_REMOVE, TRIGGER_AFTER_DAMAGE,TRIGGER_HP_UNDER_70, TRIGGER_WEAPON_USE,TRIGGER_HP_UNDER_50,TRIGGER_HP_UNDER_25,TRIGGER_ON_MOVE]
 triggersTxt = [
     "passivement",
     "lorsque le porteur reçoit des dégâts directs",
@@ -144,14 +154,15 @@ triggersTxt = [
     "lors de l'utilisation de l'arme principale",
     "lorsque les PV du porteur tombent en dessous de 50%",
     "lorsque les PV du porteur tombent en dessous de 25%",
+    "lorsque la cible se déplace ou est déplacée"
 ]
 
 triggerUnderHp = {
-    TRIGGER_HP_ENDER_70:0.7,TRIGGER_HP_ENDER_50:0.5,TRIGGER_HP_ENDER_25:0.25
+    TRIGGER_HP_UNDER_70:0.7,TRIGGER_HP_UNDER_50:0.5,TRIGGER_HP_UNDER_25:0.25
 }
 
-
-DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 50, 15, 15, 20
+BASEDAMAGEMUL = 0.8
+DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 50+((1-BASEDAMAGEMUL)*100), 15, 15, 20
 DMGBONUSPERLEVEL, HEALBONUSPERLEVEL, ARMORLBONUSPERLEVEL = DMGBONUSATLVL50/50/100, HEALBONUSATLVL50/50/100, ARMORBONUSATLVL50/50/100
 SUDDENDEATHDMG = 10
 
@@ -171,7 +182,7 @@ TYPE_PASSIVE = 11
 TYPE_DEPL = 12
 
 allTypeNames = ["Armure", "Dégâts indirects", "Soins Indirects", "Résurection indirecte","Boost", "Resurection", "Dégâts", "Malus", "Soins", "Unique", "Invocation", "Passif", "Déployable"]
-friendlyTypes, hostilesTypes = [TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_HEAL,TYPE_BOOST,TYPE_RESURECTION], [TYPE_INDIRECT_DAMAGE,TYPE_DAMAGE,TYPE_MALUS]
+friendlyTypes, hostileTypes = [TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_HEAL,TYPE_BOOST,TYPE_RESURECTION], [TYPE_INDIRECT_DAMAGE,TYPE_DAMAGE,TYPE_MALUS]
 allTypes = range(0, 12)
 
 EXCLUSIVE = 0
@@ -204,7 +215,7 @@ ACT_SHIELD = 2
 ACT_DIRECT = 3
 ACT_INDIRECT = 4
 
-BONUSPOINTPERLEVEL, MAXBONUSPERSTAT, MAJORBONUS = 2, 55, 50
+BONUSPOINTPERLEVEL, MAXBONUSPERSTAT, MAJORBONUS = 2, 85, 75
 
 nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité","Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
 allStatsNames = nameStats+nameStats2+["Soins","Boosts","Armures","Dégâts Directs","Dégâts Indirects"]
@@ -216,7 +227,7 @@ STATUS_ALIVE, STATUS_DEAD, STATUS_RESURECTED, STATUS_TRUE_DEATH = 0, 1, 2, 3
 DANGERUPPERSTAR = 5
 
 # Aspirations
-BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULE, MAGE, ALTRUISTE, ENCHANTEUR, PROTECTEUR, VIGILANT, SORCELER, INOVATEUR, ATTENTIF, MASCOTTE, ASPI_NEUTRAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULEE, MAGE, ALTRUISTE, ENCHANTEUR, PROTECTEUR, VIGILANT, SORCELER, INOVATEUR, ATTENTIF, MASCOTTE, ASPI_NEUTRAL = 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
 inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant", "Tête brulée", "Mage","Altruiste", "Enchanteur", "Protecteur", "Vigilant", "Sorcier", "Inovateur", "Attentif", "Mascotte", "Neutre"]
 aspiEmoji = ["<:ber:985007311997263932>","<:obs:985007736360165407>","<:pplume:985007345648148541>","<:ido:985007596656275476>","<:pre:985007771613274133>","<:tbrule:985007436538740766>","<:ma:985010178900500561>","<:alt:985007803322224720>","<:enc:985007558156755004>","<:pro:985009037546487850>","<:vig:985009013097910302>","<:sor:985007632639205458>","<:inov:985007247656632360>","<:att:985007703707500555>","<:masc:1009814577262895224>","<:neutral:985011113458536538>"]
 lbNames = ["Lames de l'Ombre","Odre de Tir : Drône 3.4.8 Alpha","Frappe de Silicia","Apothéose planétaire","Armure Galactique","Fracture Dimentionnelle","Colère de Nacialisla","Bénédiction de Nacialisla","Desctruction Silicienne","Pousée d'Espoir","Grandeur de Nacialisla","Cataclysme Powehien","Avenir Prometeur","Chef d'Oeuvre Balistique","Bénédiction Fleurale"]
@@ -282,10 +293,11 @@ MASC_MAX_BOOST = 15
 MASC_MIN_BOOST = 1
 MASC_LVL_CONVERT = 5
 
-dptAspi = [BERSERK,POIDS_PLUME,TETE_BRULE,ENCHANTEUR,OBSERVATEUR,ATTENTIF,MAGE,SORCELER]
+dptAspi = [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR,OBSERVATEUR,ATTENTIF,MAGE,SORCELER]
 healAspi = [ALTRUISTE,VIGILANT]
 armorAspi = [PREVOYANT,PROTECTEUR]
 boostAspi = [IDOLE,INOVATEUR,MASCOTTE]
+meleeAspi = [BERSERK,POIDS_PLUME,TETE_BRULEE,ENCHANTEUR,VIGILANT,MASCOTTE,ASPI_NEUTRAL,PROTECTEUR]
 
 # "Target" values
 ALL, TEAM1, TEAM2, ALLIES, ENEMIES = 0, 1, 2, 3, 4
@@ -380,7 +392,7 @@ SPACEBONUSBUFF = 10
 FIREINCURVALUE, WATERRETURNVALUE, AIRPUSHDMG, EARTHBOOST, LIGHTDMGBUFF, DARKDEBUFF, SPACESHIELD, TIMELIFESTEAL = 10, 10, 15, 5, 10, 10, 10, 10
 
 elemEmojis = ["<:neutral:1137367688793042954>","<:fire:1137367710947356764>","<:water:1137367705972920441>","<:air:1137367703380828201>","<:earth:1137367700348354621>","<:light:1137367698037280818>","<:darkness:1137367695336165498>","<:space:1137367690332348577>","<:time:1137367693255786606>","<:univ:1137367685995438100>"]
-secElemEmojis = ["<:em:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>","<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>", "<:secTempo:932941280785338389>", "<:secAst:932941221331075092>"]
+secElemEmojis = ["<:em:866459463568850954>", "<:secFeu:932941340612894760>", "<:secEau:932941360858820618>", "<:secAir:932941299559063573>","<:secTerre:932941317804273734>", "<:secLum:932941251597201438>", "<:secTen:932941234501222410>","<:secAst:932941221331075092>","<:secTempo:932941280785338389>","<:univ:1137367685995438100>"]
 elemDesc = [
     "L'élément Neutre ({0}) est l'élément le plus apprécié des nouvelles recrues.\nSans spécialisations particulière, cet élément permet de tout faire sans trop se casser la tête".format(elemEmojis[0]),
     "L'élément Feu ({0}) est en général préféré par ceux qui aiment tirer sans distinction et faire carnage sans pareil.\nLes dissicles de l'élément Feu infligent un peu plus de dégâts avec les armes et capacité de zone en distance.".format(elemEmojis[1]),
@@ -417,8 +429,8 @@ elemSecPassifDesc = [
 ]
 
 # AoE stuff
-AOEDAMAGEREDUCTION = 0.35
-AOEMINDAMAGE = 0.2
+AOEDAMAGEREDUCTION = 0.2
+AOEMINDAMAGE = 0.4
 
 def uniqueEmoji(emoji) -> List[List[str]]:
     return [[emoji, emoji], [emoji, emoji], [emoji, emoji]]
@@ -558,7 +570,7 @@ class says:
 
 lenaSays = says(
     start="Lena, parée à faire feu.",
-    ultimate="Hey {target} ! J'ai un {skill} avec ton nom dessus !",
+    ultimate="Area denied !",
     limiteBreak="C'est mainteant ou jamais !",
     onDeath="Tps.",
     onResurect="J'te revaudrais ça {target}",
@@ -617,7 +629,7 @@ clemSays = says(
     onResurect="Merci du coup de main",
     redWinAlive="Et bah alors, on abandonne déjà ?",
     blueWinAlive="Ça sera tout pour moi",
-    reactEnnemyKilled="Pas trop {killer}",
+    reactEnnemyKilled="T'emballe pas trop {killer}",
     redLoose="Pas la peine de prendre la grosse tête.",
     limiteBreak="Vous commencez sérieusement à m'ennuyer.",
     reactAllyLb="J'aurais pû le faire moi-même {caster}.",
@@ -835,7 +847,7 @@ aliceExSays = says(
 
 lilySays = says(
     start="Il faut toujours pourchasser ses rêves !",
-    ultimate="Les rêves sont plus réels que vous pensez !",
+    ultimate="Toujours suivre ses rêves !",
     limiteBreak="Que nos rêves deviennent réalité !",
     onDeath="Dites-moi que je rêve...",
     blueWinAlive="Faites de beaux rêves !",
@@ -895,7 +907,17 @@ gwenySays = says(start="Tachons de faire ça rapidement, ça vous vas ?",ultimat
 klikliSays = says(start="Ok. Je vais m'en occuper rapidement",limiteBreak="OK, VOILÀ POUR VOUS !",onKill="Si tu veux revenir, j't'ai pas encore montrer tout ce dont je suis capable.",reactEnnemyKilled="Pff, j'peux le faire toute seule tu sais ?",ultimate="J'espère que tu as les yeux grands ouverts {target} !",redWinAlive="J'espère que vous en avez pris de la graine.",onHit="Et ce n'était qu'un début !",reactBigRaiseEnnemy="Vous en voulez encore ?")
 altySays = says(start="'K, je vais faire de mon mieux",onKill="Désolée...",onResurect="Ok, second round !",reactAllyKilled="{downed} !",redWinAlive="Oulà, ça va aller ? Je crois qu'on y est allé un peu fort...",redWinDead="`Rigole` Bien joué tout le monde !",takeHit="Quoi c'est tout ?",bigRaise="On n'a pas encore dit notre dernier mot !")
 
-shehisaSays = says(start="Ok, si on suit le plan, tout se passera bien",onKill="Tu aurais pu attendre que je soit partie avant de creuver quand même.",onDeath="Humf, c'était pas prévu ça...",reactAllyKilled="On lache rien !",reactBigRaiseEnnemy="C'était trop beau pour être vrai",reactAllyLb="Wowowo tu nous as fait quoi là {caster} ?",blueWinAlive="Tout s'est déroulé comme prévu",redWinAlive="Tout s'est déroulé selon le plan")
+shehisaSays = says(
+    start="Ok, si on suit le plan, tout se passera bien",
+    onKill=["Tu aurais pu attendre que je soit partie avant de creuver quand même.","Ça, c'est fait","Parfait, ça c'est bon"],
+    onDeath="Humf, c'était pas prévu ça...",
+    reactAllyKilled=["On lache rien !","On se relache pas !"],
+    reactBigRaiseEnnemy=["C'était trop beau pour être vrai","Tps. On se reprend et on y retourne."],
+    reactAllyLb=["Wowowo tu nous as fait quoi là {caster} ?", "C'était pas prévu ça. Mais bienvenue quand même"],
+    blueWinAlive="Tout s'est déroulé comme prévu",
+    redWinAlive="Tout s'est déroulé selon le plan",
+    getHealed=["Merci {caster}","Merci. Tâcherais de faire un peu plus gaffe"],
+    onHit=["Urf, j'aurais préféré terminer ça en un coup."])
 
 churiSays = says(
     start="Ça n'a rien de personnel mais... Je dois devenir plus forte.",
@@ -999,12 +1021,6 @@ procurTempStuff = {
         ["Armure de la neko de la lueur ultime", 'ilianaPreArmor','<:zenithArmor:913170492452646922>'],
         ["Sorolets de la neko de la lueur ultime", 'ilianaPreBoots','<:zenithBoots:913170512564334623>'],
         [[0.2,0.1],[2,2.5],[1,3],[0.5,0.9],[1.2,0.7],[3,0.05],[5,0.05],[1.0,0.2],[1,0.03],[1,0]]
-    ],
-    "Clémence Exaltée":[500,
-        ["Boucles d'oreilles runiques","clemRune",'<:clemEarRings:920297359848636458>'],
-        ["Veste sanguine",'clemRune','<:clemVeste:920300283068833874>'],
-        ["Bottes sanguines","clemRune","<:clemBoots:920297554330157056>"],
-        [[0.6,0.2],[2,1],[0.5,0.5],[2,.05],[1,0.3],[1.2,0.8],[1.7,1],[0.5,0.25],[1,0.031],[1,0.0005]]
     ],
     "Alice Exaltée":[0,
         ["Noeud en ruban chauve-souris","aliceExHat","<:batRuban:887328511222763593>"],
@@ -1433,7 +1449,8 @@ elif not(os.path.exists("../Kawi")) or 0:
 
 shomMsgJsonFile = open("./data/database/shopMsg.json","r",encoding="utf8")
 shopMsgJson = json.load(shomMsgJsonFile)
-shopRandomMsg, shopEventEndYears, shopEventOneDay, shopMonthlyMsg, singingShopMsg, shopLastMonthlyMsg, lenaTipsMsgTabl = shopMsgJson["shopPermaRdmMsg"], shopMsgJson["shopEventEndYears"], shopMsgJson["shopEventOneDay"], shopMsgJson["shopMonthlyMsg"], shopMsgJson["singingShopMsg"], shopMsgJson["shopLastMonthlyMsg"], shopMsgJson["lenaTips"]
+shomMsgJsonFile.close()
+shopRandomMsg, shopEventEndYears, shopEventOneDay, shopMonthlyMsg, singingShopMsg, shopLastMonthlyMsg, lenaTipsMsgTabl, pnjDescriptions = shopMsgJson["shopPermaRdmMsg"], shopMsgJson["shopEventEndYears"], shopMsgJson["shopEventOneDay"], shopMsgJson["shopMonthlyMsg"], shopMsgJson["singingShopMsg"], shopMsgJson["shopLastMonthlyMsg"], shopMsgJson["lenaTips"], shopMsgJson["pnjDescriptions"]
 for cmpt in range(len(shopLastMonthlyMsg)):
     for cmpt2 in range(len(shopLastMonthlyMsg[cmpt])):
         if not(shopLastMonthlyMsg[cmpt][cmpt2].startswith("[") and shopLastMonthlyMsg[cmpt][cmpt2].endswith("[")):
@@ -1453,4 +1470,7 @@ akiaSays = says(
     "Merci."
 )
 
-Embed
+amandineSays = says(
+    start="Numéro 3, parée",ultimate="C'est l'heure de sortir le grand jeu !",limiteBreak="PREND CA !",onDeath="Mmmmgn...",blueWinAlive="Mission accomplie"
+)
+

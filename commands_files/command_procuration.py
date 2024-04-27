@@ -9,10 +9,10 @@ from asyncio import sleep
 from interactions import *
 
 async def procuration(ctx : interactions.Message,toProcur:interactions.User):
-    if os.path.exists("./userProfile/" + str(ctx.author.id) + ".prof"):
-        user = loadCharFile("./userProfile/" + str(ctx.author.id) + ".prof")
+    if os.path.exists("./userProfile/" + str(ctx.author.id) + ".json"):
+        user = loadCharFile("./userProfile/" + str(ctx.author.id) + ".json")
         user.procuration.append(toProcur.id)
-        user2 = loadCharFile("./userProfile/" + str(toProcur.id) + ".prof")
+        user2 = loadCharFile("./userProfile/" + str(toProcur.id) + ".json")
         user2.haveProcurOn	.append(user.owner)
 
         try:
@@ -120,7 +120,7 @@ async def roulette(bot: interactions.Client, ctx: interactions.Message, user: ch
             if cmpt in [2,5]:
                 hidden += "\n"
 
-        user = loadCharFile("./userProfile/{0}.prof".format(user.owner))
+        user = loadCharFile("./userProfile/{0}.json".format(user.owner))
         if type(bigRolly[gain]) == weapon:
             user.weaponInventory += [bigRolly[gain]]
         elif type(bigRolly[gain]) == skill:
@@ -130,7 +130,7 @@ async def roulette(bot: interactions.Client, ctx: interactions.Message, user: ch
         else:
             user.currencies += bigRolly[gain]
 
-        saveCharFile("./userProfile/{0}.prof".format(user.owner),user)
+        saveCharFile("./userProfile/{0}.json".format(user.owner),user)
 
         hidden += "\n\nVotre gain a été ajouté à votre inventaire"
         await msg.edit(embeds=interactions.Embed(title="__Roulette :__",color=light_blue,description=possibleGainList+"\n\n"+"__Découvrez ce que vous avez gagné :__\n"+hidden),components=[])
