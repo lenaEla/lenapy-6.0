@@ -172,35 +172,27 @@ kikuSkill6 = skill("Brûme Funèbre","kikuSkill6",TYPE_MALUS,effects=[kikuSkill6
 
 # Akira H.
 akikiWeap = weapon("Faux Haineuse","akikiWeap",range=RANGE_MELEE,effectiveRange=AREA_CIRCLE_1,power=150,accuracy=70,strength=25,endurance=25,emoji=fauc.emoji,area=AREA_ARC_1,priority=WEAPON_PRIORITY_LOWEST)
-akikiSkill3 = skill("Massacre","akikiSkill3",TYPE_DAMAGE,0,power=65,range=AREA_MONO,area=AREA_CIRCLE_2,accuracy=80,cooldown=7)
-akikiSkill4 = skill("Intolérance","akikiSkill4",TYPE_DAMAGE,0,power=120,range=AREA_CIRCLE_3,area=AREA_LINE_2,cooldown=7)
+
+akikiSkill1Eff2 = copy.deepcopy(dmgUp)
+akikiSkill1Eff2.power, akikiSkill1Eff2.turnInit, akikiSkill1Eff2.unclearable = 20, -1, True
+
+akikiSkill1Eff3 = effect("Rage Croissante II","akikiSkill1Eff3",callOnTrigger=akikiSkill1Eff2, trigger=TRIGGER_HP_UNDER_70, turnInit=25, stackable=True)
+akikiSkill1Eff4, akikiSkill1Eff5 = copy.deepcopy(akikiSkill1Eff3), copy.deepcopy(akikiSkill1Eff3)  
+akikiSkill1Eff4.name, akikiSkill1Eff5.name, akikiSkill1Eff4.trigger, akikiSkill1Eff5.trigger = "Rage Croissante III", "Rage Croissante IV", TRIGGER_HP_UNDER_50, TRIGGER_HP_UNDER_25
+
 akikiSkill1Eff = effect("Rage Croissante","akikiRageDmgBuff",turnInit=-1,unclearable=True,emoji=dmgUp.emoji,power=50)
-akikiSkill1 = skill("Rage Croissante","akikiSkill1",TYPE_PASSIVE,effectOnSelf=akikiSkill1Eff,emoji=akikiSkill1Eff.emoji[0][0],description="Accroie les dégâts directs infligés par Akira au fur et à mesure que ses PVs diminuent, jusqu'à **+{0}%** avec 0.1% de PV restants".format(akikiSkill1Eff.power))
-akikiSkill2_1_2 = skill("Destruction Explosive","akikiSkill2_1",TYPE_DAMAGE,emoji='<:akiTankStack:1007050856748818464>',power=600,range=AREA_CIRCLE_4,tpCac=True,cooldown=5,area=AREA_CIRCLE_1,description="Au premier tour, Akira marque un ennemi puis il inflige au second tour d'énormes dégâts à l'ennemi marqué et ceux alentours. La puissance est divisée par le nombre d'ennemi ayant une aspiration de mêlée dans la zone d'effet",sharedTB=True)
-akikiSkill2_mark = effect("Cible : Destruction Explosive","akikiSkill2_mark",type=TYPE_MALUS,emoji='<:akiTankStack:1007050856748818464>')
-akikiSkill2_1_cast = effect("Cast - {replicaName}","akikiSkill2_1_cast",silent=True,turnInit=2,replique=akikiSkill2_1_2,emoji='<:akiTankStack:1007050856748818464>')
-akikiSkill2_1_1 = copy.deepcopy(akikiSkill2_1_2)
-akikiSkill2_1_1.id, akikiSkill2_1_1.power, akikiSkill2_1_1.tpCac, akikiSkill2_1_1.effectOnSelf, akikiSkill2_1_1.type, akikiSkill2_1_1.effects, akikiSkill2_1_1.area = "akikiSkill2", 0, False, akikiSkill2_1_cast,TYPE_MALUS, [akikiSkill2_mark], AREA_MONO
-akikiSkill2_2 = skill("Destruction Concentrique","akikiSkill2",TYPE_DAMAGE,range=AREA_CIRCLE_3,power=250,cooldown=5,area=AREA_CIRCLE_1,emoji='<:akiTB:1007050875451220059>')
+akikiSkill1 = skill("Rage Croissante","akikiSkill1",TYPE_PASSIVE,effects=[akikiSkill1Eff, akikiSkill1Eff3, akikiSkill1Eff4, akikiSkill1Eff5 ],emoji=akikiSkill1Eff.emoji[0][0],description="Accroie les dégâts directs infligés par Akira au fur et à mesure que ses PVs diminuent, jusqu'à **+{0}%** avec 0.1% de PV restants".format(akikiSkill1Eff.power))
 
-akikiSkill3_1_1 = skill("Frappe Enragée","akikiSkill3_1",TYPE_DAMAGE,power=400,cooldown=5,emoji='<:akiStack:1007050822338748466>',area=AREA_CIRCLE_3,range=AREA_DONUT_5,tpCac=True,description="Akira marque un ennemi au premier tour puis inflige de lourds dégâts à l'ennemi marqué et ceux aux alentours.\nLa puissance est divisée par le nombre d'ennemi dans la zone d'effet.",sharedDamage=True)
-akikiSkill3_1_cast = effect("Cast - {replicaName}","akikiSkill3_1_cast",silent=True,turnInit=2,replique=akikiSkill3_1_1,emoji='<:akiStack:1007050822338748466>')
-akikiSkill3_1_mark = effect("Cible : Frappe Enragée","akikiSkill3_1_mark",type=TYPE_MALUS,emoji='<:akiStack:1007050822338748466>')
-akikiSkill3_1_2 = copy.deepcopy(akikiSkill3_1_1)
-akikiSkill3_1_2.id, akikiSkill3_1_2.power, akikiSkill3_1_2.tpCac, akikiSkill3_1_2.effectOnSelf, akikiSkill3_1_2.type, akikiSkill3_1_2.area, akikiSkill3_1_2.effects= 'akikiSkill3', 0, False, akikiSkill3_1_cast,TYPE_MALUS, AREA_MONO, [akikiSkill3_1_mark]
-akikiSkill3_2_1 = skill("Frappe Haineuse","akikiSkill3_2",TYPE_DAMAGE,power=80,cooldown=5,area=AREA_CIRCLE_1,emoji='<:akiAway:1007050839514435584>',range=AREA_DONUT_5,description="Marque 3 ennemis au premier tour puis inflige au second tour des dégâts à tous les ennemis marquées et ceux autour d'eux. Chaque attaque augmente les dégâts reçus des ennemis affecté, augmentant aussi ceux subis par les ennemis prenant plusieurs fois des dégâts par cette attaque")
-akikiSkill3_2_cast = effect("Cast - {replicaName}","akikiSkill3_2_cast",silent=True,turnInit=2,replique=akikiSkill3_2_1,emoji='<:akiAway:1007050839514435584>')
-akikiSkill3_2_mark = effect("Cible : Frappe Haineuse","akikiSkill3_2_mark",type=TYPE_MALUS,emoji='<:akiAway:1007050839514435584>')
-akikiSkill3_2_2 = copy.deepcopy(akikiSkill3_2_1)
-akikiSkill3_2_2.id, akikiSkill3_1_2.power, akikiSkill3_1_2.type, akikiSkill3_1_2.effects, akikiSkill3_1_2.effectOnSelf, akikiSkill3_1_2.area = 'akikiSkill3', 0,TYPE_MALUS, [akikiSkill3_2_mark], akikiSkill3_2_cast, AREA_RANDOMENNEMI_3
+akikiSkill2_2 = skill("Destruction Explosive","akikiSkill2",TYPE_DAMAGE,emoji='<:akiTankStack:1007050856748818464>',power=600,range=AREA_CIRCLE_4,tpCac=True,cooldown=3,area=AREA_CIRCLE_1,description="Inflige d'énormes dégâts aux ennemis ciblés. La puissance est divisée par le nombre d'ennemi ayant une aspiration de mêlée dans la zone d'effet",sharedTB=True)
+akikiSkill2_1 = skill("Destruction Concentrique","akikiSkill2",TYPE_DAMAGE,range=AREA_CIRCLE_3,power=250,cooldown=3,area=AREA_CIRCLE_1,emoji='<:akiTB:1007050875451220059>')
+akikiSkill2 = skill("Destruction",akikiSkill2_2.id, TYPE_DAMAGE, become=[akikiSkill2_1,akikiSkill2_2], emoji=akikiSkill2_2.emoji)
 
-akikiEnrage2 = skill("En-Rage","akikiEnrage",TYPE_DAMAGE,0,500,range=AREA_MONO,ultimate=True,area=AREA_ALL_ENEMIES,accuracy=500,description="Cette compétence exécute tous les ennemis encore vivants.\nCette compétence est forcément utilisée lorsque les PVs restants sont inférieurs à **15%** des PVmax",initCooldown=99,cooldown=99)
-akikiEnrage2_c = effect("Cast - Rage (1 tour !)","akikiEnrage2_c",turnInit=2,silent=True,replique=akikiEnrage2)
-akikiEnrage1 = copy.deepcopy(akikiEnrage2)
-akikiEnrage1.power, akikiEnrage1.effectOnSelf = 0, akikiEnrage2_c
-akikiEnrage1_c = effect("Cast - Rage (2 tour !)","akikiEnrage1_c",turnInit=2,silent=True,replique=akikiEnrage1)
-akikiEnrage = copy.deepcopy(akikiEnrage1)
-akikiEnrage.effectOnSelf = akikiEnrage1_c
+akikiSkill3 = skill("Massacre","akikiSkill3",TYPE_DAMAGE,0,power=150,range=AREA_MONO,area=AREA_CIRCLE_2,accuracy=80,cooldown=5)
+akikiSkill4 = skill("Intolérance","akikiSkill4",TYPE_DAMAGE,0,power=120,range=AREA_CIRCLE_3,area=AREA_LINE_2,cooldown=5)
+
+akikiSkill5_1 = skill("Frappe Enragée","akikiSkill3_1",TYPE_DAMAGE,power=400,cooldown=5,emoji='<:akiStack:1007050822338748466>',area=AREA_CIRCLE_3,range=AREA_DONUT_5,tpCac=True,description="Akira marque un ennemi au premier tour puis inflige de lourds dégâts à l'ennemi marqué et ceux aux alentours.\nLa puissance est divisée par le nombre d'ennemi dans la zone d'effet.",sharedDamage=True)
+akikiSkill5_2 = skill("Frappe Haineuse","akikiSkill3_2",TYPE_DAMAGE,power=80,cooldown=5,area=AREA_CIRCLE_1,emoji='<:akiAway:1007050839514435584>',range=AREA_DONUT_5,description="Marque 3 ennemis au premier tour puis inflige au second tour des dégâts à tous les ennemis marquées et ceux autour d'eux. Chaque attaque augmente les dégâts reçus des ennemis affecté, augmentant aussi ceux subis par les ennemis prenant plusieurs fois des dégâts par cette attaque")
+akikiSkill5 = skill("Atomisation", "akikiSkill5", TYPE_DAMAGE, become=[akikiSkill5_1,akikiSkill5_2], emoji=akikiSkill5_2.emoji)
 
 unformBossWeapon = weapon("Arme aforme","unformBossWeap",RANGE_DIST,AREA_CIRCLE_1,150,80,ignoreAutoVerif=True)
 unformBossSkill1 = skill("Distorsion Dimentionelle","unformBossSkill1",TYPE_DAMAGE,power=250,range=AREA_CIRCLE_1,cooldown=7,use=MAGIE)

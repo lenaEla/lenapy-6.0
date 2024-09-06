@@ -1,6 +1,6 @@
-Patch 5.6.6.3
+Patch 5.8.3.2
 __Equilibrage :__
-- Lors du combat procuré de Lia Exaltée, celle-ci possède désormais un buff permanant de 35% de Dégâts Infligés
-
-__Autre :__
-- Optimisations
+- __Blood Cross :__
+> La compétence est désormais dépendante de la Jauge de Sang
+> La puissance minimale a été réduite
+> La puissance maximale a été augmentée

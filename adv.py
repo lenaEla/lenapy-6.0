@@ -34,8 +34,8 @@ autoPoint = other("Pai'rte de Nheur'o'Nes",'qp',3500,emoji='<:autPoint:104162580
 autoStuff = other("Garde-robe de la Fée Niante",'qq',3500,emoji='<:autStuff:1041625746340323330>',description="Une fois cette object activé, à chaque fois que vous atteigné un pallié de niveau, modifie automatiquement votre équipement selon les statistiques recommandés pour votre aspiration\n\nNécessite d'être au moins niveau 1<:littleStar:925860806602682369>1")
 dailyCardBooster1 = other("Booster journalié supplémentaire 1",getAutoId("qq"),0,"<:littleStar:925860806602682369>","Augmente le nombre de boosters de puce obtenus lors de votre premier combat du jour de 1")
 dailyCardBooster2 = other("Booster journalié supplémentaire 2",getAutoId(dailyCardBooster1),0,"<:lS:925860806602682369>","Augmente le nombre de boosters de puce obtenus lors de votre premier combat du jour de 1")
-tripleCommunCards = other("Booster de puces commun x3",getAutoId(dailyCardBooster2),0,rarityEmojis[0],"Vous octroi trois booster de puces commun")
-singleRareCards = other("Booster de puces rare",getAutoId(tripleCommunCards),0,rarityEmojis[1],"Vous octroi un booster de puces rare")
+tripleCommunCards = other("Booster de puces commun x3",getAutoId(dailyCardBooster2),0,rarityEmojis[0],"Vous octroie trois booster de puces commun")
+singleRareCards = other("Booster de puces rare",getAutoId(tripleCommunCards),0,rarityEmojis[1],"Vous octroie un booster de puces rare")
 others = [tripleCommunCards,singleRareCards,dailyCardBooster1,dailyCardBooster2,elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint,autoStuff]
 
 previewDict = {
@@ -81,13 +81,17 @@ def findOther(otherId : Union[str,other]) -> Union[other,None]:
                 return a
     return None
 
+listAllyEnemies = ["Lia","Liz","Liu","Lio"]
+for tmpName in listAllyEnemies: 
+    try: findAllie(tmpName).says = findEnnemi(tmpName).says
+    except: pass
+
 listAllBuyableShop, cmpt, idList = [], 0, []
 for eff in effects:
     idList.append(eff.id)
 
 for a in weapons+skills+stuffs:
-    if a.price > 0:
-        listAllBuyableShop.append(a)
+    if a.price > 0: listAllBuyableShop.append(a)
 
     idList = []
     for eff in effects:
@@ -272,7 +276,6 @@ if not(isLenapy):
 
     print("Vérification de l'équilibrage des stuffs terminée\n=============================")
 
-
 nbAdjustedWeap = 0
 for weap in weapons:
     summation = 0
@@ -380,18 +383,19 @@ for ally in tablAllAllies+varAllies:
 
     if ally.changeDict != None:
         for chDict in ally.changeDict:
-            asp, elem = ally.aspiration, None
-            if chDict.aspiration != None:
-                asp = chDict.aspiration
-            if chDict.skills != None:
-                for skilly in chDict.skills:
-                    try:
-                        if len(skilly.condition) > 1 and skilly.condition[1] == ELEMENT:
-                            elem = skilly.condition[2]
-                    except:
-                        print("Une ou plusieurs compétences de {0} n'a pas pu être retrouvée".format(ally.name))
-                dictPreDefSkillSet[asp].append(preDefSkillSet(skillList=chDict.skills,element=elem))
-
+            try:
+                asp, elem = ally.aspiration, None
+                if chDict.aspiration != None:
+                    asp = chDict.aspiration
+                if chDict.skills != None:
+                    for skilly in chDict.skills:
+                        try:
+                            if len(skilly.condition) > 1 and skilly.condition[1] == ELEMENT:
+                                elem = skilly.condition[2]
+                        except:
+                            print("Une ou plusieurs compétences de {0} n'a pas pu être retrouvée".format(ally.name))
+                    dictPreDefSkillSet[asp].append(preDefSkillSet(skillList=chDict.skills,element=elem))
+            except: print(ally.name, chDict)
     if ally.name in descKeys:
         ally.description = pnjDescriptions[ally.name]
 
@@ -408,7 +412,7 @@ for ally in tablAllAllies:
             listUseSkills.append(skilly)
     if ally.changeDict != None:
         for cdi in ally.changeDict:
-            if type(cdi) == tempAltBuilds:
+            if type(cdi) == tempAltBuild:
                 for skilly in cdi.skills:
                     if type(skilly) == skill and skilly not in listUseSkills:
                         listUseSkills.append(skilly)

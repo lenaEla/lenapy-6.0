@@ -82,7 +82,7 @@ class achiveTabl:
         self.klikli = achivement("Ne pas laissez les autres imposer leur volonté",3,"klikli",klikliStrike.id,"Affrontez ou faites équipe avec Klironovia {0} fois","<:klikli:906303031837073429>")
         self.liaEx = achivement("Filer comme le vent",3,"liaEx",Hauringusutomusodo.id,"Rencontrer {0} fois le combat de Lia Ex",'<:liaEx:1079115890437656598>')
         self.ilianaEx = achivement("Qui continue de briller dans le Noir",3,"catEx",eternalLight,"Rencontrer {0} fois le combat de Iliana Prê.","<:iliPre:1053017768443785236>")
-        self.clemEx = achivement("Sang pitié",3,"clemEx",komoriHerit.id,description="Rencontrer {0} fois le combat de Clémence Ex",emoji=tablVarAllies[4].splashIcon)
+        self.clemEx = achivement("Sang pitié",3,"clemEx",description="Rencontrer {0} fois le combat de Clémence Ex",emoji=tablVarAllies[4].splashIcon)
         self.anna = achivement("Moitié perdue",7,"anna",inMemoria.id,"Affrontez ou faites équipe avec Anna {0} fois",emoji="<:anna:943444730430246933>")
         self.belle = achivement("Moitié brisée",3,"belle",description="Affrontez ou faites équipe avec Belle {0} fois",emoji="<:belle:943444751288528957>")
         self.masterDamage = achivement("Quête de la puissance",500,"masterDamage",description="Infligez l'équivalent de **{0} fois** vos PV Max en dégâts",emoji='<a:dmgBuffB:954429227657224272>',recompense=[renforPhys.id,dualCast.id])
@@ -194,22 +194,12 @@ class succesDb:
 
         cursor, tabl = self.con.cursor(), tabl.tablAllSuccess()
 
-        try:
-            cursor.execute("SELECT * from achivements;")
-        except:
-            cursor.execute("CREATE TABLE achivements (id INTEGER PRIMARY KEY)")
-            print("Tabl Achivment créée")
-            self.con.commit()
+        try: cursor.execute("SELECT * from achivements;")
+        except: cursor.execute("CREATE TABLE achivements (id INTEGER PRIMARY KEY)"); print("Tabl Achivment créée"); self.con.commit()
 
         for achiv in tabl:
-            try:
-                cursor.execute("SELECT {0}Have FROM achivements;".format(achiv.code))
-            except:
-                cursor.execute("ALTER TABLE achivements ADD {0}Count INTEGER DEFAULT (0)".format(achiv.code))
-                cursor.execute("ALTER TABLE achivements ADD {0}Have BOOLEAN DEFAULT (0)".format(achiv.code))
-                cursor.execute("UPDATE achivements SET {0}Count = 0, {0}Have = 0;".format(achiv.code))
-                print("Achivement {0} ajouté à la base de donné".format(achiv.name))
-                self.con.commit()
+            try: cursor.execute("SELECT {0}Have FROM achivements;".format(achiv.code))
+            except: cursor.execute("ALTER TABLE achivements ADD {0}Count INTEGER DEFAULT (0)".format(achiv.code)); cursor.execute("ALTER TABLE achivements ADD {0}Have BOOLEAN DEFAULT (0)".format(achiv.code)); cursor.execute("UPDATE achivements SET {0}Count = 0, {0}Have = 0;".format(achiv.code)); print("Achivement {0} ajouté à la base de donné".format(achiv.name)); self.con.commit()
 
         # Fin des majs
         cursor.close()

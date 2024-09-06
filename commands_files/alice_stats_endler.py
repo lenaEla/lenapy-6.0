@@ -587,8 +587,7 @@ class aliceStatsdbEndler:
             self.con.commit()
             print("Table userStats et records créé")
 
-        try:
-            cursor.execute("SELECT totalSupp FROM userStats;")
+        try: cursor.execute("SELECT totalSupp FROM userStats;")
         except:
             temp = ""
             for a in majTeamDb:
@@ -617,9 +616,7 @@ class aliceStatsdbEndler:
         except:
             pass
 
-
-        try:
-            cursor.execute("SELECT * FROM enemyStats;")
+        try: cursor.execute("SELECT * FROM enemyStats;")
         except:
             temp = ""
             for a in enemyStatCreate:
@@ -632,8 +629,7 @@ class aliceStatsdbEndler:
             self.con.commit()
             print("enemyStat crée")
 
-        try:
-            cursor.execute("SELECT teamLeader FROM userTeams;")
+        try: cursor.execute("SELECT teamLeader FROM userTeams;")
         except:
             temp = ""
             for a in majTeamDb:
@@ -647,8 +643,7 @@ class aliceStatsdbEndler:
             self.con.commit()
             print("majTeam1 done")
 
-        try:
-            cursor.execute("SELECT teamName FROM userTeams;")
+        try: cursor.execute("SELECT teamName FROM userTeams;")
         except:
             temp = ""
             for a in majTeamDb2:
@@ -662,21 +657,21 @@ class aliceStatsdbEndler:
             self.con.commit()
             print("majTeam2 done")
 
-        try:
-            cursor.execute("SELECT weaponUse FROM userSettings;")
+        try: cursor.execute("SELECT weaponUse FROM userSettings;")
         except:
             temp = ""
             for a in userSettingsDbUptade:
-                if a != ";":
-                    temp+=a
-                else:
-                    cursor.execute(temp)
-                    temp = ""
+                if a != ";": temp+=a
+                else: cursor.execute(temp); temp = ""
 
             cursor.execute(temp)
             self.con.commit()
             print("user Settings updated")
-
+            
+        try: cursor.execute("SELECT explorationStr FROM userTeams;")
+        except: cursor.execute("ALTER TABLE userTeams ADD explorationStr STRING DEFAULT \"None\";"); print("explorationStr added")
+        try: cursor.execute("SELECT lastExploDate FROM userTeams;")
+        except: cursor.execute("ALTER TABLE userTeams ADD lastExploDate STRING DEFAULT \"None\";"); print("lastExploDate added")
         cursor.close()
 
     def addUser(self,user : char):
@@ -877,8 +872,7 @@ class aliceStatsdbEndler:
         varExect = ""
         for name, value in dictModifValues.items():
             varExect += "{0} = {1}".format(name,value)
-            if name != "AllyRaiseMoy":
-                varExect += ", "
+            if name != "AllyRaiseMoy": varExect += ", "
 
         cursor.execute("UPDATE enemyStats SET {0} WHERE Name = ?".format(varExect),(nameEnemy,))
         self.con.commit()
@@ -934,35 +928,13 @@ class aliceStatsdbEndler:
             cursory.close()
             return format_exc()
 
-    def getTeamSettings(self,user: char) -> dict:
-        cursor = self.con.cursor()
-        teamToSee = int(user.team)
-        cursor.execute("SELECT * FROM userTeams WHERE teamId = ?",(teamToSee,))
-        result = cursor.fetchall()
-
-        if len(result)==0:
-            cursor.close()
-            return createTeamSettingsDict(teamLeader=user.owner)        
-        else:
-            result = result[0]
-            teamName = result["teamName"]
-            if teamName in [None,""]:
-                teamName = getRandomTeamName()
-                cursor.execute("UPDATE userTeams SET teamName = ? WHERE teamId = ?;",(teamName,teamToSee))
-                print("L'équipe {0} a été automatiquement renommé \"{1}\"".format(teamToSee,teamName))
-            cursor.close()
-            return createTeamSettingsDict(result["teamLeader"],result["settingsAllyIcon"],result["settingsEnemyIcon"],teamName,result["teamCaptain"],result["teamCapLenaExp"],result["teamCapClemenceExp"],result["teamCapHeleneExp"],result["teamCapShehisaExp"],result["teamCapLiuExp"],result["teamCapEdelweissExp"],result["teamCapElinaExp"],result["teamCapIcealiaExp"])
-
     def updateTeamSettings(self,team:Union[int,str,char],teamSettings:dict):
         cursor = self.con.cursor()
         try:
-            if type(team) == char:
-                teamToSee = int(team.team)
-            else:
-                teamToSee = int(team)
+            if type(team) == char: teamToSee = int(team.team)
+            else: teamToSee = int(team)
             
-            for setName, setValue in teamSettings.items():
-                cursor.execute("UPDATE userTeams SET {0} = ? WHERE teamId = ?;".format(setName),(setValue,teamToSee))
+            for setName, setValue in teamSettings.items(): cursor.execute("UPDATE userTeams SET {0} = ? WHERE teamId = ?;".format(setName),(setValue,teamToSee))
             
             self.con.commit()
             cursor.close()
@@ -971,5 +943,29 @@ class aliceStatsdbEndler:
             cursor.close()
             print_exc()
             return False
+
+    def setExplorationStr(self, team:int, location:int=-1, departure:Union[datetime,bool]=False):
+        if type(departure) == datetime: tmpStr = departure.isoformat()+";"+str(location)
+        else: tmpStr = "None;-1"
+        cursor = self.con.cursor()
+        try: cursor.execute("UPDATE userTeams SET explorationStr = ? WHERE teamId = ?;",(tmpStr,team,)); self.con.commit()
+        except: print_exc()
+
+        if tmpStr == "None;-1":
+            try: cursor.execute("UPDATE userTeams SET lastExploDate = ? WHERE teamId = ?;",(str(datetime.now(parisTimeZone).isoformat),team,)); self.con.commit()
+            except: print_exc()
+        cursor.close()
+
+    def getExplorationStr(self, team:int):
+        cursor = self.con.cursor()
+        try: cursor.execute("SELECT explorationStr, lastExploDate FROM userTeams WHERE teamId = ?",(team,)); result = cursor.fetchall()
+        except: print_exc(); return False, -1, 0
+        else: 
+            tmpStr = result[0]["explorationStr"]; tmpStr = tmpStr.split(";")
+            try: tmpStr2 = datetime.fromisoformat(result[0]["lastExploDate"])
+            except: tmpStr2 = None
+            if tmpStr[0] not in ["None",""]: return datetime.fromisoformat(tmpStr[0]), int(tmpStr[1]), tmpStr2
+            else: return False, -1, None
+
 aliceStatsDb = aliceStatsdbEndler()
 

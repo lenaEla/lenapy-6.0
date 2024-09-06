@@ -322,58 +322,34 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
             else:
                 if destination in [0,1,2,3]:
                     tablToSee.sort(key=lambda ballerine: ballerine.name)
-                    if respond in [2,3]:
-                        tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(respond-2))
-                    elif respond == 4:
-                        tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
-                    elif respond == 5:
-                        tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
-                    elif respond == 6:
-                        tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
-                    elif respond == 7:
-                        tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
-                    elif respond == 8:
-                        tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
-                    elif respond == 9:
-                        tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
-                    elif respond == 10:
-                        tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
-                    elif respond == 11:
-                        tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
-                    elif respond == 12:
-                        tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
-                    elif respond == 13:
-                        tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
-                    elif respond in [14,15]:
-                        tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(respond-14))
-                else:
-                    needRemake = True
+                    if respond in [2,3]: tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(respond-2))
+                    elif respond == 4: tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    elif respond == 5: tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
+                    elif respond == 6: tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
+                    elif respond == 7: tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
+                    elif respond == 8: tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
+                    elif respond == 9: tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
+                    elif respond == 10: tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    elif respond == 11: tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
+                    elif respond == 12: tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
+                    elif respond == 13: tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)
+                    elif respond in [14,15]: tablToSee.sort(key=lambda ballerine:ballerine.haveSucced, reverse=not(respond-14))
+                else: needRemake = True
             tri=respond
 
         else:
             inter: ComponentContext = respond
             respond = respond.values[0]
 
-            if respond == "return":
-                page -= 1
-            elif respond == "next":
-                page += 1
+            if respond == "return": page -= 1
+            elif respond == "next": page += 1
 
             elif respond in opValues:
                 for a in range(0,len(opValues)):
-                    if opValues[a] == respond:
-                        destination = a
-                        needRemake = True
-                        break
-            elif destination in [0,1,2]:
-                await inter.defer()
-                await inter.send(embeds=infoStuff(findStuff(respond),user,ctx))
-            elif destination == 3:
-                await inter.defer()
-                await inter.send(embeds=infoWeapon(findWeapon(respond),user,ctx))
-            elif destination == 4:
-                await inter.defer()
-                await inter.send(embeds=infoSkill(findSkill(respond),user,ctx))
+                    if opValues[a] == respond:destination = a; needRemake = True; break
+            elif destination in [0,1,2]: await inter.defer(); await inter.send(embeds=infoStuff(findStuff(respond),user,ctx))
+            elif destination == 3: await inter.defer(); await inter.send(embeds=infoWeapon(findWeapon(respond),user,ctx))
+            elif destination == 4: await inter.defer(); await inter.send(embeds=infoSkill(findSkill(respond),user,ctx))
             elif destination == ENC_ALLIES:
                 await inter.defer()
                 lvl, tempMachin, addLvl, changeStuff = MAXLEVEL, None, 0, True
@@ -391,96 +367,63 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                     if altBuildNb != -1:
                         tempBuild = ally.changeDict[altBuildNb]
                         initBuildProb = 100
-                        for chDict in ally.changeDict:
-                            initBuildProb = initBuildProb - chDict.proba
-                        ally.changeDict[altBuildNb] = tempAltBuilds(proba=initBuildProb,aspiration=ally.aspiration,weap=ally.weapon,stuffs=ally.stuff,skills=ally.skills,elements=[ally.element,ally.secElement],bonusPoints=ally.bonusPoints)
+                        for chDict in ally.changeDict: initBuildProb = initBuildProb - chDict.proba
+                        ally.changeDict[altBuildNb] = tempAltBuild(proba=initBuildProb,aspiration=ally.aspiration,weap=ally.weapon,stuffs=ally.stuff,skills=ally.skills,elements=[ally.element,ally.secElement],bonusPoints=ally.bonusPoints,buildName="Build Original",buildIcon=ally.icon)
                         
-                        if tempBuild.aspiration != None:
-                            ally.aspiration = tempBuild.aspiration
-                        if tempBuild.weapon != None:
-                            ally.weapon = tempBuild.weapon
-                        if tempBuild.stuff != None:
-                            ally.stuff = tempBuild.stuff
-                        if tempBuild.skills != None:
-                            ally.skills = tempBuild.skills
-                        if tempBuild.elements != None:
-                            ally.element, ally.secElement = tempBuild.elements[0], tempBuild.elements[1]
-                        if tempBuild.bonusPoints != None:
-                            ally.bonusPoints = tempBuild.bonusPoints
-                        if tempBuild.icon != None:
-                            ally.icon = tempBuild.icon
-                        if tempBuild.splashIcon != None:
-                            ally.splashIcon = tempBuild.splashIcon
+                        if tempBuild.aspiration != None: ally.aspiration = tempBuild.aspiration
+                        if tempBuild.weapon != None: ally.weapon = tempBuild.weapon
+                        if tempBuild.stuff != None: ally.stuff = tempBuild.stuff
+                        if tempBuild.skills != None: ally.skills = tempBuild.skills
+                        if tempBuild.elements != None: ally.element, ally.secElement = tempBuild.elements[0], tempBuild.elements[1]
+                        if tempBuild.bonusPoints != None: ally.bonusPoints = tempBuild.bonusPoints
+                        if tempBuild.icon != None: ally.icon = tempBuild.icon
+                        if tempBuild.splashIcon != None: ally.splashIcon = tempBuild.splashIcon
+                        if tempBuild.chips != None: ally.equippedChips = tempBuild.chips[0]
                     ally.changeLevel(lvl,changeDict=False)
 
-                    if procurData == None and (altBuildNb == -1 or (altBuildNb != -1 and tempBuild.proba > 0)):
-                        ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
-                    elif procurData != None:
-                        ally.stuff = [
-                            stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[1][2]),
-                            stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[2][2]),
-                            stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[3][2])
-                        ]
+                    if procurData == None and (altBuildNb == -1 or (altBuildNb != -1 and tempBuild.proba > 0)): ally.stuff = [getAutoStuff(ally.stuff[0],ally),getAutoStuff(ally.stuff[1],ally),getAutoStuff(ally.stuff[2],ally)]
+                    elif procurData != None: ally.stuff = [stuff(procurData[1][0],procurData[1][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[1][2]),stuff(procurData[2][0],procurData[2][1],1,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[2][2]),stuff(procurData[3][0],procurData[3][1],0,0,int(procurData[4][0][0]*procurData[4][0][1]*lvlAdded),int(procurData[4][1][0]*procurData[4][1][1]*lvlAdded),int(procurData[4][2][0]*procurData[4][2][1]*lvlAdded),int(procurData[4][3][0]*procurData[4][3][1]*lvlAdded),int(procurData[4][4][0]*procurData[4][4][1]*lvlAdded),int(procurData[4][5][0]*procurData[4][5][1]*lvlAdded),int(procurData[4][6][0]*procurData[4][6][1]*lvlAdded),int(procurData[4][7][0]*procurData[4][7][1]*lvlAdded),int(procurData[4][8][0]*procurData[4][8][1]*lvlAdded),int(procurData[4][9][0]*procurData[4][9][1]*lvlAdded),emoji=procurData[3][2])]
                     options, cmpt = [], 0
                     for stuffy in [ally.weapon]+ally.skills:
-                        if type(stuffy) in [skill,weapon]:
-                            options.append(interactions.StringSelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
+                        if type(stuffy) in [skill,weapon]: options.append(interactions.StringSelectOption(label=stuffy.name,value=str(cmpt),emoji=getEmojiObject(stuffy.emoji)))
                         cmpt+=1
                     returnButton = interactions.ActionRow(interactions.Button(style=1 ,label="Retour",custom_id="return"))
                     select = interactions.ActionRow(interactions.StringSelectMenu(options,custom_id = "seeMoreInfoMenue",placeholder="Voir plus d'informations sur les équipements"))
                     lvlSelectOption = []
-                    for a in range(1,MAXLEVEL//10+1):
-                        lvlSelectOption.append(interactions.StringSelectOption(label="Niveau {0}".format(10*a),value="lvl_{0}".format(10*a+addLvl),default=lvl==10*a))
+                    for a in range(1,MAXLEVEL//10+1): lvlSelectOption.append(interactions.StringSelectOption(label="Niveau {0}".format(10*a),value="lvl_{0}".format(10*a+addLvl),default=lvl==10*a))
                     lvlSelect = interactions.ActionRow(interactions.StringSelectMenu(lvlSelectOption,custom_id = "selectLvlMenu",placeholder="Choisir un niveau"))
                     emb = infoAllie(ally)
 
                     if ally.changeDict != None:
                         optionChDict, cmpt = [], 0
                         for chDict in ally.changeDict:
-                            emo = getEmojiObject(aspiEmoji[ally.aspiration])
-                            if chDict.aspiration != None:
-                                emo = getEmojiObject(aspiEmoji[chDict.aspiration])
-                            optionChDict.append(StringSelectOption(label="Build Alternatif {0}".format(cmpt+1),value="altBuild_{0}".format(cmpt),emoji=emo))
+                            tmpName, tmpIcon = "Build Alternatif {0}".format(cmpt+1), getEmojiObject(aspiEmoji[ally.aspiration])
+                            if chDict.buildName != None: tmpName = chDict.buildName
+                            if chDict.buildIcon != None: tmpIcon = getEmojiObject(chDict.buildIcon)
+                            optionChDict.append(StringSelectOption(label=tmpName,value="altBuild_{0}".format(cmpt),emoji=tmpIcon))
                             cmpt += 1
 
                         chDictSelect = [ActionRow(StringSelectMenu(optionChDict,custom_id="chDictSelect",placeholder="Voir un build alternatif"))]
-                    else:
-                        chDictSelect = []
+                    else: chDictSelect = []
                     if tempMachin == None:
-                        try:
-                            tempMachin = await inter.send(embeds=emb,components=[returnButton, select, lvlSelect]+chDictSelect)
-                        except Exception as e:
-                            print_exc()
-                            raise e
-                    else:
-                        await tempMachin.edit(embeds=emb,components=[returnButton,select,lvlSelect]+chDictSelect)
+                        try: tempMachin = await inter.send(embeds=emb,components=[returnButton, select, lvlSelect]+chDictSelect)
+                        except Exception as e: print_exc(); raise e
+                    else: await tempMachin.edit(embeds=emb,components=[returnButton,select,lvlSelect]+chDictSelect)
+                    try: resp2 = await bot.wait_for_component(messages=tempMachin,timeout=60); resp2: ComponentContext = resp2.ctx
+                    except: await tempMachin.edit(embeds=emb,components=[]); break
                     try:
-                        resp2 = await bot.wait_for_component(messages=tempMachin,timeout=60)
-                        resp2: ComponentContext = resp2.ctx
-                    except:
-                        await tempMachin.edit(embeds=emb,components=[])
-                        break
-                    try:
-                        if resp2.component_type == ComponentType.BUTTON:
-                            await tempMachin.delete()
-                            break
-                        elif resp2.values[0].startswith("lvl_"):
-                            lvl = int(resp2.values[0][4:])
-                        elif resp2.values[0].startswith("altBuild_"):
-                            altBuildNb = int(resp2.values[0].replace("altBuild_",""))
+                        if resp2.component_type == ComponentType.BUTTON: await tempMachin.delete(); break
+                        elif resp2.values[0].startswith("lvl_"): lvl = int(resp2.values[0][4:])
+                        elif resp2.values[0].startswith("altBuild_"): altBuildNb = int(resp2.values[0].replace("altBuild_",""))
                         else:
                             await resp2.defer()
                             tablStuff = [ally.weapon]+ally.skills
                             obj = tablStuff[int(resp2.values[0])]
-                            if type(obj) == weapon:
-                                await resp2.send(embeds=infoWeapon(obj,user,ctx))
-                            elif type(obj) == skill:
-                                await resp2.send(embeds=infoSkill(obj,user,ctx))
-                            elif type(obj) == stuff:
-                                await resp2.send(embeds=infoStuff(obj,user,ctx))
+                            if type(obj) == weapon: await resp2.send(embeds=infoWeapon(obj,user,ctx))
+                            elif type(obj) == skill: await resp2.send(embeds=infoSkill(obj,user,ctx))
+                            elif type(obj) == stuff: await resp2.send(embeds=infoStuff(obj,user,ctx))
                     except Exception as e:
-                        print_exc()
-                        await resp2.send("Une erreur est survenue lors de l'affichage de l'objet :\n{0}".format(e))
+                        print_exc(); await resp2.send("Une erreur est survenue lors de l'affichage de l'objet :\n{0}".format(e))
 
             elif destination in [6,7]:
                 await inter.defer()

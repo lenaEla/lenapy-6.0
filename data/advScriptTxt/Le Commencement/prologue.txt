@@ -1,7 +1,0 @@
-[ref:testing0]
-[Lena] :
-Alors {name} ?
-Est-ce que ça marche bien ?
-
-Oublie pas de close() quand tu as fini avec le fichier d'ailleurs. ça soulagera la ram
-=====

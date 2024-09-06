@@ -128,27 +128,22 @@ class userTeamDbEndler:
             cursory.close()
             print("The team number {0} have been removed from the database".format(team))
             return 0
+        
         if result == None:
             for a in range(len(members)):
-                if type(members[a]) in [int,str]:
-                    listToAdd += "{0}".format(members[a])
-                elif type(members[a]) == char:
-                    listToAdd += "{0}".format(members[a].owner)
-                else:
-                    raise Exception("Unknow type ({0})".format(type(members[a])))
+                if type(members[a]) in [int,str]: listToAdd += "{0}".format(members[a])
+                elif type(members[a]) == char: listToAdd += "{0}".format(members[a].owner)
+                else: raise Exception("Unknow type ({0})".format(type(members[a])))
 
                 listToAdd2 += "teamMember{0}".format(a)
-                if a < len(members)-1:
-                    listToAdd += ","
-                    listToAdd2 += ","
+                if a < len(members)-1: listToAdd += ","; listToAdd2 += ","
 
             cursory.execute('INSERT INTO userTeams (teamId,{2}) VALUES ({0},{1});'.format(team,listToAdd,listToAdd2))
             self.con.commit()
             cursory.close()
             print("The team number {0} have been added into the database".format(team))
         else:
-            while len(members) < 8:
-                members.append(None)
+            while len(members) < 8: members.append(None)
             cursory.execute('UPDATE userTeams SET teamMember0 = ?, teamMember1 = ?, teamMember2 = ?, teamMember3 = ?, teamMember4 = ?, teamMember5 = ?, teamMember6 = ?, teamMember7 = ? WHERE teamId = ?;',(members[0],members[1],members[2],members[3],members[4],members[5],members[6],members[7],team))
             self.con.commit()
             cursory.close()
@@ -198,8 +193,7 @@ class userTeamDbEndler:
             cursory.execute("SELECT teamId FROM userTeams;")
             result = cursory.fetchall()
             cursory.close()
-            for a in result:
-                toReturn.append([a["teamId"]])
+            for a in result: toReturn.append([a["teamId"]])
         return toReturn
 
     def doesTeamExist(self,team:int):
@@ -307,10 +301,8 @@ class userSettingsDbEndler:
             if toAddStr != "":
                 if toAddStr.endswith(","):
                     toAddStr= toAddStr[:-1]
-                try:
-                    cursory.execute("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
-                except:
-                    print("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
+                try: cursory.execute("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner))
+                except: print("UPDATE userSettings SET {0} WHERE userId = {1};".format(toAddStr,user.owner)), print_exc()
             
             textUpdateSettings = ""
             for setName, setValue in user.charSettings.items():
@@ -421,10 +413,10 @@ def commandArgs(ctx : interactions.Message):
     rep = rep + [temp] + [None]
     return rep
 
-async def loadingEmbed(ctx : interactions.Message):
+def loadingEmbed(txt:str):
     """A function for send loading embed from a message command.\n
     Mostly useless with slash commands now"""
-    return await ctx.channel.send(embeds = interactions.Embed(title = commandArgs(ctx)[0], description = emLoading))
+    return interactions.Embed(title = "Chargement... {0}".format(emLoading), description = txt)
 
 def readSaveFiles(path : str):
     """Return a list with the saves files content, ready to be used in a Load function"""
@@ -471,23 +463,10 @@ def choice(liste : list):
 
 def errorEmbed(errorType : str, msgError : str):
     """Return a error embed ready to be send"""
-    rep = interactions.Embed(title = errorType, description = msgError)
-    rep.set_footer(text = "Fin de la commande")
-    return rep
-
-def randRep(liste : list):
-    """Return a random value from the list"""
-    if type(liste) != list:
-        liste = [liste]
-
-    if len(liste) == 1:
-        return liste[0]
-    else:
-        return liste[random.randint(0,len(liste)-1)]
+    return interactions.Embed(title = errorType, description = msgError)
 
 def saveCharFile(path : str = None, user : char = None):
-    if user == None:
-        raise Exception("No Character referenced")
+    if user == None: raise Exception("No Character referenced")
 
     userSettingsDb.updateUserSettings(user)
     convertProfFileIntoJson(character=user)
@@ -690,39 +669,35 @@ def completlyRemoveEmoji(text:str):
             toReturn += letter
     return toReturn
 
-gbdmaj = """CREATE TABLE guildStreamSettings (
-    guild        INTEGER NOT NULL,
-    streamerName STRING  NOT NULL,
-    notifRole    INTEGER,
-    notifMsg     STRING  DEFAULT [notifRole : streamerName viens de commencer un stream !],
-    embedTitle   STRING  DEFAULT streamTitle,
-    embedDesc    STRING  DEFAULT [gameName\nhyperlink],
-    embedColor   STRING,
-    notifChannel INTEGER,
-    hyperlinkTxt STRING  DEFAULT [Ça se passe ici !],
-    showImage    BOOLEAN DEFAULT (TRUE),
-    image0       STRING,
-    image1       STRING,
-    image2       STRING
-);
-"""
+twitchAlertColumnDate = {
+    "guild": ["INTEGER", "NOT NULL", ""],
+    "streamerName": ["STRING", "NOT NULL", ""],
+    "notifRole" : ["INTEGER", "", ""],
+    "notifMsg" : ["STRING", "", "[notifRole : streamerName viens de commencer un stream !]"],
+    "embedTitle" : ["STRING", "", "streamTitle"],
+    "embedDesc" : ["STRING", "",  "[gameName\nhyperlink]"],
+    "embedColor" : ["STRING", "", ""],
+    "notifChannel" : ["INTEGER", "", ""],
+    "hyperlinkTxt" : ["STRING", "", "[Ça se passe ici !]"],
+    "showImage" : ["BOOLEAN", "", "(TRUE)"],
+    "image0": ["STRING","",""],
+    "image1": ["STRING","",""],
+    "image2": ["STRING","",""],
+    "publish": ["BOOLEAN", "", "(FALSE)"],
+    "lastSend" : ["STRING", "", "\""+defaultDate.isoformat()+"\""]
+}
 
 listToChange = ["notifRole","streamerName","gameName","hyperlink","streamTitle","streamTitle"]
 class streamEmbed():
-    def __init__(self, guild, notifRole=None, notifChannel=None, streamerName="alice_kohishu", notifMsg="Hey notifRole ! **streamerName** viens de commencer un live !", embedTitle="streamTitle", embedDesc="Viens donc le voir jouer à gameName hyperlink", embedColor=light_blue, hyperlinkTxt="ici", showImage=True, image0=None, image1=None, image2=None):
+    def __init__(self, guild, notifRole=None, notifChannel=None, streamerName="alice_kohishu", notifMsg="Hey notifRole ! **streamerName** viens de commencer un live !", embedTitle="streamTitle", embedDesc="Viens donc le voir jouer à gameName hyperlink", embedColor=light_blue, hyperlinkTxt="ici", showImage=True, image0=None, image1=None, image2=None, publish=False, lastSend:str=defaultDate.isoformat()):
         self.guild, self.notifRole, self.notifChannel, self.streamerName, self.embedTitle, self.embedDesc, self.showImage, self.image0, self.image1, self.image2 = int(guild), notifRole, notifChannel, streamerName, embedTitle, embedDesc, showImage, image0, image1, image2
-        if self.notifRole != None:
-            self.notifRole = int(self.notifRole)
-        if self.notifChannel != None:
-            self.notifChannel = int(self.notifChannel)
+        if self.notifRole != None: self.notifRole = int(self.notifRole)
+        if self.notifChannel != None: self.notifChannel = int(self.notifChannel)
         self.notifMsg = [notifMsg,"streamerName viens de commencer un stream !"][self.notifRole == None and notifMsg == "notifRole : streamerName viens de commencer un stream !"]
         if embedColor != None:
-            if type(embedColor) != int:
-                self.embedColor = int(embedColor,16)
-            else:
-                self.embedColor = embedColor
-        else:
-            self.embedColor = light_blue
+            if type(embedColor) != int: self.embedColor = int(embedColor,16)
+            else: self.embedColor = embedColor
+        else: self.embedColor = light_blue
         self.hyperlinkTxt = hyperlinkTxt
         self.hyperlink = "[{1}](https://www.twitch.tv/{0})".format(streamerName.lower(),hyperlinkTxt)
 
@@ -731,6 +706,9 @@ class streamEmbed():
             self.notifMsg = self.notifMsg.replace(listToChange[cmpt],"{"+listToChange[cmpt]+"}")
             self.embedDesc = self.embedDesc.replace(listToChange[cmpt],"{"+listToChange[cmpt]+"}")
             self.embedTitle = self.embedTitle.replace(listToChange[cmpt],"{"+listToChange[cmpt]+"}")
+
+        self.publish, self.lastSend = publish, datetime.fromisoformat(lastSend)
+        if type(self.publish) not in [bool, int]: self.publish = False
 
 class globalVarDb:
     """
@@ -763,8 +741,7 @@ class globalVarDb:
             self.con.commit()
             print("Table globalVar crée")
         
-        try:
-            cursor.execute("SELECT * FROM guildSettings;")
+        try: cursor.execute("SELECT * FROM guildSettings;")
         except:
             temp = ""
             for a in gbvdb1:
@@ -777,19 +754,15 @@ class globalVarDb:
             self.con.commit()
             print("Table guildSettings crée")
         
-        try:
-            cursor.execute("SELECT * FROM guildStreamSettings;")
-        except:
-            temp = ""
-            for a in gbdmaj:
-                if a != ";":
-                    temp+=a
-                else:
-                    cursor.execute(temp)
-                    temp = ""
-
-            self.con.commit()
-            print("Table guildStreamSettings crée")
+        for tACN, tACD in twitchAlertColumnDate.items():
+            try: cursor.execute("SELECT {0} FROM guildStreamSettings;".format(tACN))
+            except:
+                try:
+                    cursor.execute("ALTER TABLE guildStreamSettings ADD {0} {1}{2}".format(tACN, tACD[0], "{0}{1}{2}".format(tACD[1],[""," DEFAULT "][tACD[2]!=""],tACD[2]))); 
+                    print("Ajout de la colonne {0} à la base de donnée".format(tACN)); 
+                    self.con.commit()
+                except Exception as e:
+                    print("ALTER TABLE guildStreamSettings ADD {0} {1}{2}\n".format(tACN, tACD[0], "{0}{1}{2}".format(tACD[1],[""," DEFAULT "][tACD[2]!=""],tACD[2])), e.__str__())
         
         cursor.close()
 
@@ -852,6 +825,7 @@ class globalVarDb:
         cursor.close()
 
     def getGuildBotChannel(self,guild_id:int):
+        guild_id = int(guild_id)
         cursor = self.con.cursor()
         cursor.execute(f"SELECT botChannel FROM guildSettings WHERE guildid = {guild_id};")
         result = cursor.fetchall()
@@ -861,13 +835,11 @@ class globalVarDb:
             self.con.commit()
             cursor.close()
             return 0
-        else:
-            cursor.close()
-            return result[0]["botChannel"]
+        else: cursor.close(); return result[0]["botChannel"]
 
     def getStreamAlertList(self):
         cursor = self.con.cursor()
-        cursor.execute(f"SELECT guild, streamerName FROM guildStreamSettings;")
+        cursor.execute(f"SELECT guild, streamerName, publish FROM guildStreamSettings;")
         result = cursor.fetchall()
         cursor.close()
         return result
@@ -878,7 +850,7 @@ class globalVarDb:
         result = cursor.fetchone()
         cursor.close()
 
-        return streamEmbed(result["guild"],result["notifRole"],result["notifChannel"],result["streamerName"],result["notifMsg"],result["embedTitle"],result["embedDesc"],result["embedColor"],result["hyperlinkTxt"],result["showImage"],result["image0"],result["image1"],result["image2"])
+        return streamEmbed(result["guild"],result["notifRole"],result["notifChannel"],result["streamerName"],result["notifMsg"],result["embedTitle"],result["embedDesc"],result["embedColor"],result["hyperlinkTxt"],result["showImage"],result["image0"],result["image1"],result["image2"],result["publish"],result["lastSend"])
 
     def getStreamAlterPerGuild(self, guild):
         cursor, guild = self.con.cursor(), int(guild)
@@ -887,37 +859,41 @@ class globalVarDb:
         cursor.close()
         toReturn = []
         for rep in result:
-            toReturn.append(streamEmbed(rep["guild"],rep["notifRole"],rep["notifChannel"],rep["streamerName"],rep["notifMsg"],rep["embedTitle"],rep["embedDesc"],rep["embedColor"],rep["hyperlinkTxt"],rep["showImage"],rep["image0"],rep["image1"],rep["image2"]))
+            toReturn.append(streamEmbed(rep["guild"],rep["notifRole"],rep["notifChannel"],rep["streamerName"],rep["notifMsg"],rep["embedTitle"],rep["embedDesc"],rep["embedColor"],rep["hyperlinkTxt"],rep["showImage"],rep["image0"],rep["image1"],rep["image2"],rep["publish"],rep["lastSend"]))
 
         return toReturn
 
     def updateStreamEmbed(self,streamEmbed:streamEmbed):
         cursor = self.con.cursor()
-        if type(streamEmbed.notifChannel) != int:
-            streamEmbed.notifChannel = int(streamEmbed.notifChannel.id)
-        if type(streamEmbed.notifRole) != int:
-            streamEmbed.notifRole = int(streamEmbed.notifRole.id)
-        cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(streamEmbed.guild, streamEmbed.streamerName,))
-        result = cursor.fetchall()
-
+        if type(streamEmbed.notifChannel) != int: streamEmbed.notifChannel = int(streamEmbed.notifChannel.id)
+        if type(streamEmbed.notifRole) != int: streamEmbed.notifRole = int(streamEmbed.notifRole.id)
         listToChange = ["notifRole","streamerName","gameName","hyperlink","streamTitle"]
         for cmpt in range(len(listToChange)):
             streamEmbed.notifMsg = streamEmbed.notifMsg.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
             streamEmbed.embedDesc = streamEmbed.embedDesc.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
             streamEmbed.embedTitle = streamEmbed.embedTitle.replace("{"+listToChange[cmpt]+"}",listToChange[cmpt])
+        
+        cursor.execute(f"SELECT * FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(streamEmbed.guild, streamEmbed.streamerName,))
+        result = cursor.fetchall()
 
         if len(result) <= 0:
-            cursor.execute("INSERT INTO guildStreamSettings VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);",(streamEmbed.guild,streamEmbed.streamerName,streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,))
+            cursor.execute("INSERT INTO guildStreamSettings VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);",(streamEmbed.guild,streamEmbed.streamerName,streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,streamEmbed.publish,streamEmbed.lastSend.isoformat()))
             cursor.close()
             self.con.commit()
         else:
-            cursor.execute("UPDATE guildStreamSettings SET notifRole=?, notifMsg=?, embedTitle=?, embedDesc=?, embedColor=?, notifChannel=?, hyperlinkTxt=?, showImage=?, image0=?, image1=?, image2=? WHERE guild = ? AND streamerName = ?",(streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,streamEmbed.guild,streamEmbed.streamerName,))
+            cursor.execute("UPDATE guildStreamSettings SET notifRole=?, notifMsg=?, embedTitle=?, embedDesc=?, embedColor=?, notifChannel=?, hyperlinkTxt=?, showImage=?, image0=?, image1=?, image2=?, publish=? WHERE guild = ? AND streamerName = ?",(streamEmbed.notifRole,streamEmbed.notifMsg,streamEmbed.embedTitle,streamEmbed.embedDesc,str(streamEmbed.embedColor),streamEmbed.notifChannel,streamEmbed.hyperlinkTxt,streamEmbed.showImage,streamEmbed.image0,streamEmbed.image1,streamEmbed.image2,streamEmbed.publish,streamEmbed.guild,streamEmbed.streamerName))
             cursor.close()
             self.con.commit()
 
     def removeAlert(self,guild_id,streamer_login):
         cursor = self.con.cursor()
         cursor.execute("DELETE FROM guildStreamSettings WHERE guild = ? AND streamerName = ?;",(guild_id,streamer_login))
+        cursor.close()
+        self.con.commit()
+
+    def changeLastSendValue(self, alert:dict):
+        cursor = self.con.cursor()
+        cursor.execute("UPDATE guildStreamSettings SET lastSend = ? WHERE guild = ? AND streamerName = ?;",(datetime.now(parisTimeZone).isoformat(), int(alert["guild"]), str(alert["streamerName"])))
         cursor.close()
         self.con.commit()
 
@@ -928,11 +904,9 @@ async def botChannelVerif(bot:interactions.Client,ctx:interactions.SlashContext)
         return True
 
     else:
-        chan = await bot.get_channel(globalVar.getGuildBotChannel(ctx.guild_id))
-        try:
-            await ctx.send(embeds=interactions.Embed(title="__Paramètres__",color=light_blue,description="Je regrète mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),ephemeral=True)
-        except:
-            pass
+        chan = bot.get_channel(globalVar.getGuildBotChannel(ctx.guild_id))
+        try: await ctx.send(embeds=interactions.Embed(title="__Paramètres__",color=light_blue,description="Je regrète mais on m'a demandé de répondre aux commandes que dans {0}".format(chan.mention)),ephemeral=True)
+        except: pass
         return False
 
 def highlight(string : str):
@@ -1043,13 +1017,19 @@ def convertProfFileIntoJson(character:char):
     charDict = character.__dict__
     charDict["says"] = None
     with open("./userProfile/{0}.json".format(character.owner),"w") as newFile:
-        try:
-            json.dump(charDict, newFile)
+        try: json.dump(charDict, newFile)
         except Exception as e:
             newFile.close()
-            if not(existedBefore):
-                os.remove("./userProfile/{0}.json".format(character.owner))
+            if not(existedBefore): os.remove("./userProfile/{0}.json".format(character.owner))
             print_exc()
             return e
     if os.path.exists("./userProfile/{0}.prof".format(character.owner)):
         os.remove("./userProfile/{0}.prof".format(character.owner))
+
+def flatList(x:list):
+    tmp = []
+    for tmp2 in x:
+        if type(tmp2) != list: tmp.append(tmp2)
+        else:
+            for tmp3 in tmp2: tmp.append(tmp3)
+    return tmp

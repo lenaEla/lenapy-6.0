@@ -910,9 +910,9 @@ nightPaladinBoots70 = stuff("Sandales compensées du Paladin Nocturne","",2,inte
 shadowNinjaHead70 = stuff("Masque de l'Assassin de l'Ombre Nocturne","",0,strength=65,endurance=10,resistance=10,agility=20,precision=25,negativeDirect=-30,magie=-50,negativeBoost=50,charisma=-40)
 shadowNinjaArmor70 = stuff("Crop Top de l'Assassin de l'Ombre Nocturne","",1,strength=65,endurance=10,resistance=10,agility=25,precision=15,negativeDirect=-30,magie=-50,negativeBoost=50,charisma=-35)
 shadowNinjaBoots70 = stuff("Bottines à talons de l'Assassin de l'Ombre Nocturne","",2,strength=65,endurance=10,resistance=10,agility=25,precision=15,negativeDirect=-30,magie=-50,negativeBoost=50,charisma=-35)
-healer70Head = stuff("Diadème du Soigneur Légendaire","",0,charisma=65,precision=25,endurance=10,resistance=10,negativeHeal=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35)
-healer70Armor = stuff("Robe de combat du Soigneur Légendaire","",1,charisma=65,precision=25,endurance=10,resistance=10,negativeHeal=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35)
-healer70Boots = stuff("Bottes du Soigneur Légendaire","",2,charisma=65,precision=25,endurance=10,resistance=10,negativeHeal=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35)
+healer70Head = stuff("Diadème du Soigneur Légendaire","",0,charisma=65,precision=25,endurance=10,resistance=10,negativeHeal=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35,emoji='<:heleneDiademe:1242508053404713010>')
+healer70Armor = stuff("Robe de combat du Soigneur Légendaire","",1,charisma=65,precision=25,endurance=10,resistance=10,negativeHeal=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35,emoji='<:heleneBattleDress:1242508073554149418>')
+healer70Boots = stuff("Bottes du Soigneur Légendaire","",2,charisma=65,precision=25,endurance=10,resistance=10,negativeHeal=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35,emoji='<:heleneBattleShoes:1242508099743645879>')
 shielder70Head = stuff("Casque de l'Armurier Légendaire","",0,intelligence=65,precision=25,endurance=10,resistance=10,negativeShield=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35)
 shielder70Armor = stuff("Armure du l'Armurier Légendaire","",1,intelligence=65,precision=25,endurance=10,resistance=10,negativeShield=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35)
 shielder70Boots = stuff("Bottes du l'Armurier Légendaire","",2,intelligence=65,precision=25,endurance=10,resistance=10,negativeShield=-50,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=35)
@@ -947,30 +947,36 @@ magicAssHead70 = stuff("Masque de l'Assassin Mage Légendaire","",0,magie=60,end
 magicAssArmor70 = stuff("Top de l'Assassin Mage Légendaire","",1,magie=60,endurance=10,resistance=10,agility=30,precision=15,negativeDirect=-30,strength=-50,negativeBoost=50,charisma=-35)
 magicAssBoots70 = stuff("Bottes de l'Assassin Mage Légendaire","",2,magie=60,endurance=10,resistance=10,agility=30,precision=15,negativeDirect=-30,strength=-50,negativeBoost=50,charisma=-35)
 
-stuffsLvl70Tabl = [lightPaladinHead70,lightPaladinArmor70,lightPaladinBoots70,
-                   nightPaladinHead70,nightPaladinArmor70,nightPaladinBoots70,
-                   shadowNinjaHead70,shadowNinjaArmor70,shadowNinjaBoots70,
-                   healer70Head,healer70Armor,healer70Boots,
-                   shielder70Head,shielder70Armor,shielder70Boots,
-                   charBoost70Head,charBoost70Armor,charBoost70Boots,
-                   intBoost70Head,intBoost70Armor,intBoost70Boots,
-                   starPaladinHead70,starPaladinArmor70,starPaladinBoots70,
-                   ranged70Head,ranged70Armor,ranged70Boots,
-                   mage70Head,mage70Armor,mage70Boots,
-                   rangedPoi70Head,rangedPoi70Armor,rangedPoi70Boots,
-                   magePoi70Head,magePoi70Armor,magePoi70Boots,
-                   plugilHead70,plugilArmor70,plugilBoots70,
-                   battleMageHead70,battleMageArmor70,battleMageBoots70,
-                   magicAssHead70,magicAssArmor70,magicAssBoots70]
+stuffsLvl70Tabl = [lightPaladinHead70,lightPaladinArmor70,lightPaladinBoots70,nightPaladinHead70,nightPaladinArmor70,nightPaladinBoots70,shadowNinjaHead70,shadowNinjaArmor70,shadowNinjaBoots70,healer70Head,healer70Armor,healer70Boots,shielder70Head,shielder70Armor,shielder70Boots,charBoost70Head,charBoost70Armor,charBoost70Boots,intBoost70Head,intBoost70Armor,intBoost70Boots,starPaladinHead70,starPaladinArmor70,starPaladinBoots70,ranged70Head,ranged70Armor,ranged70Boots,mage70Head,mage70Armor,mage70Boots,rangedPoi70Head,rangedPoi70Armor,rangedPoi70Boots,magePoi70Head,magePoi70Armor,magePoi70Boots,plugilHead70,plugilArmor70,plugilBoots70,battleMageHead70,battleMageArmor70,battleMageBoots70,magicAssHead70,magicAssArmor70,magicAssBoots70]
 allowIdToStuffTabl(stuffsLvl70Tabl,stuffsLvl60Tabl[-1].id)
 
 tablStuff80to100 = autoGenerateStuff(stuffsLvl70Tabl,stuffsLvl70Tabl[-1].id)
-for tempStuff in tablStuff80to100:
-    if tempStuff.minLvl%10 != 0:
-        print(tempStuff.name, tempStuff.minLvl)
+
+healerHybr70Head = stuff("Barrette de l'Infirmier Prévoyant","",0,charisma=40,intelligence=35,precision=10,endurance=10,resistance=10,negativeShield=-20,negativeHeal=-30,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=30,emoji='<:elinaBar:1242505214339186800>',position=barrette.position)
+healerHybr70Armor = stuff("Menteau de l'Infirmier Prévoyant","",1,charisma=40,intelligence=35,precision=10,endurance=10,resistance=10,negativeShield=-20,negativeHeal=-30,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=30,emoji='<:elinaJacket:1242505258597355620>')
+healerHybr70Boots = stuff("Bottes de l'Infirmier Prévoyant","",2,charisma=40,intelligence=35,precision=10,endurance=10,resistance=10,negativeShield=-20,negativeHeal=-30,strength=-35,magie=-35,negativeDirect=35,negativeIndirect=30,emoji='<:elinaShoes:1242505236275269692>')
+stuffsHealerHybrLvl70Tabl = [healerHybr70Head,healerHybr70Armor,healerHybr70Boots]
+allowIdToStuffTabl(stuffsHealerHybrLvl70Tabl,tablStuff80to100[-1].id)
+
+tablStuffhealerHybr80to100 = autoGenerateStuff(stuffsHealerHybrLvl70Tabl,stuffsHealerHybrLvl70Tabl[-1].id)
+for tempStuff in tablStuffhealerHybr80to100: 
+    if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
+
+charStrenthBoost70Head = stuff("Diadème du Tireur Charismatique","",0,charisma=50,strength=40,precision=20,endurance=10,resistance=10,negativeBoost=-30,agility=-35,magie=-35,negativeShield=35,negativeIndirect=35,emoji='<:shotCharHat:1244368719115714732>')
+charStrenthBoost70Armor = stuff("Robe du Tireur Charismatique","",1,charisma=50,strength=40,precision=10,endurance=20,resistance=10,negativeBoost=-30,agility=-35,magie=-35,negativeShield=35,negativeIndirect=35,emoji='<:shotCharDress:1244368771158769718>')
+charStrenthBoost70Boots = stuff("Bottes du Tireur Charismatique","",2,charisma=50,strength=40,precision=20,endurance=10,resistance=10,negativeBoost=-30,agility=-35,magie=-35,negativeShield=35,negativeIndirect=35,emoji='<:shotCharShoes:1244369002655125596>')
+charMagicBoost70Head = stuff("Diadème du Sage","",0,intelligence=50,magie=40,precision=20,endurance=10,resistance=10,negativeBoost=-30,agility=-35,strength=-35,negativeHeal=35,negativeIndirect=35,emoji='<:sageHat:1244368739495837826>')
+charMagicBoost70Armor = stuff("Robe du Sage","",1,intelligence=50,magie=40,precision=10,endurance=20,resistance=10,negativeBoost=-30,agility=-35,strength=-35,negativeHeal=35,negativeIndirect=35,emoji='<:sageDress:1244368973362106388>')
+charMagicBoost70Boots = stuff("Bottes du Sage","",2,intelligence=50,magie=40,precision=20,endurance=10,resistance=10,negativeBoost=-30,agility=-35,strength=-35,negativeHeal=35,negativeIndirect=35,emoji='<:sageDress:1244369026155675669>')
+
+tablStuffHybrDmgBoostDist70 = [charStrenthBoost70Head,charStrenthBoost70Armor,charStrenthBoost70Boots,charMagicBoost70Head,charMagicBoost70Armor,charMagicBoost70Boots]
+allowIdToStuffTabl(tablStuffHybrDmgBoostDist70,tablStuffhealerHybr80to100[-1].id)
+tablStuffHybrDmgBoostDist80to100 = autoGenerateStuff(tablStuffHybrDmgBoostDist70,tablStuffHybrDmgBoostDist70[-1].id)
+for tempStuff in tablStuffHybrDmgBoostDist80to100: 
+    if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
 
 # Stuff
-stuffs = tablStuff80to100+stuffsLvl70Tabl+stuffsLvl60Tabl + [ninjaArmored10Hat, ninjaArmored10Dress, ninjaArmored10Shoes, ninjaArmored20Hat, ninjaArmored20Dress, ninjaArmored20Shoes, ninjaArmored30Hat, ninjaArmored30Dress, ninjaArmored30Shoes, ninjaArmored40Hat, ninjaArmored40Dress, ninjaArmored40Shoes, ninjaArmored50Hat, ninjaArmored50Dress, ninjaArmored50Shoes,
+stuffs = tablStuffHybrDmgBoostDist80to100 + stuffsHealerHybrLvl70Tabl + tablStuffhealerHybr80to100 + tablStuff80to100+stuffsLvl70Tabl+stuffsLvl60Tabl + [ninjaArmored10Hat, ninjaArmored10Dress, ninjaArmored10Shoes, ninjaArmored20Hat, ninjaArmored20Dress, ninjaArmored20Shoes, ninjaArmored30Hat, ninjaArmored30Dress, ninjaArmored30Shoes, ninjaArmored40Hat, ninjaArmored40Dress, ninjaArmored40Shoes, ninjaArmored50Hat, ninjaArmored50Dress, ninjaArmored50Shoes,
     meleeOra1Hat, meleeOra1Dress, meleeOra1Shoes, meleeOra10Hat, meleeOra10Dress, meleeOra10Shoes, meleeOra20Hat, meleeOra20Dress, meleeOra20Shoes, meleeOra30Hat, meleeOra30Dress, meleeOra30Shoes, meleeOra40Hat, meleeOra40Dress, meleeOra40Shoes, meleeOra50Hat, meleeOra50Dress, meleeOra50Shoes,
     bardMagHat50,bardMagDress50,bardMagShoes50, bardMagHat40, bardMagDress40, bardMagShoes40, bardMagHat30, bardMagDress30, bardMagShoes30, bardMagHat20, bardMagDress20, bardMagShoes20, bardMagHat10, bardMagDress10, bardMagShoes10,
     bardIntHat50,bardIntDress50,bardIntShoes50, bardIntHat40, bardIntDress40, bardIntShoes40, bardIntHat30, bardIntDress30, bardIntShoes30, bardIntHat20, bardIntDress20, bardIntShoes20, bardIntHat10, bardIntDress10, bardIntShoes10,

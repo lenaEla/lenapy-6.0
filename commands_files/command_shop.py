@@ -4,7 +4,7 @@ from classes import *
 from donnes import *
 from gestion import *
 from advance_gestion import *
-from commands_files.command_fight import teamWinDB
+from commands_files.fight_module.fight_const import teamWinDB
 
 buttonReturn = interactions.Button(style=2, label="Retour",emoji=PartialEmoji(name="◀️"),custom_id="-1")
 buttonBuy = interactions.Button(style=1, label="Acheter", emoji=getEmojiObject('<:coins:862425847523704832>'),custom_id="0")
@@ -51,21 +51,21 @@ def formatShop(txt:str) -> str:
         lena = npcIcons["Lena"],
         alice = npcIcons["Alice"],
         shushi = npcIcons["Shushi"],timeo="<:timeoB:1104517210728308746>",
-        clemence = npcIcons["Clémence"], john = npcIcons["John"], sclem = '<:smallClemence:1228692484247519314>',
-        luna = npcIcons["Luna"], stella = npcIcons["Stella"], celeste = npcIcons["Céleste"], abigail = abigail, oceane = "<:oceane:1218268649564143707>", glan = "<:glan:1218268667960098879>",
+        clemence = npcIcons["Clémence"], john = npcIcons["John"], sclem = '<:smallClemence:1236329023219437630>',
+        luna = npcIcons["Luna"], stella = npcIcons["Stella"], celeste = npcIcons["Céleste"], abigail = abigail, oceane = "<:oceane:1243448244944638023>", glan = "<:glan:1218268667960098879>",
         feli = npcIcons["Félicité"], felicite = npcIcons["Félicité"],
-        icealia = npcIcons["Icealia"],lohica=npcIcons["Lohica"],ly=npcIcons["Ly"],amary=npcIcons["Amary"],pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirGun1:1059519820376330351>',pirate3='<:pirGun2:1059519760284528640>',
+        icealia = npcIcons["Icealia"], lohica=npcIcons["Lohica"],ly=npcIcons["Ly"],amary=npcIcons["Amary"],pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirGun1:1059519820376330351>',pirate3='<:pirGun2:1059519760284528640>',
         shihu = npcIcons["Shihu"], stimeo = '<:stimeo:1089164206336647168>', itimeo = "<:itimeo:1103217741172846614>",
         shehisa = npcIcons["Shehisa"], helene = npcIcons["Hélène"], astra = npcIcons["Astra"],
         sixtine = npcIcons["Sixtine"], lily = npcIcons["Lily"], dSixtine = "<:dreamSixtine:1100793996483235851>",
         iliana = npcIcons["Iliana"], catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = npcIcons["Aurora"], gaurora = "<:gaurora:1103332091594281050>",
-        gweny = npcIcons["Gwendoline"], alty = npcIcons["Altikia"], klikli =npcIcons["Klironovia"], karai = '<:karai:974079383197339699>',
-        lio = npcIcons["Lio"], liu = npcIcons["Liu"], liz = npcIcons["Liz"], lia = npcIcons["Lia"], kitsune = npcIcons["Kitsune"], penelope = "<:penelope:1178446515459588106>", lei = '<:lei:1195088871298445352>',
+        gweny = npcIcons["Gwendoline"], alty = npcIcons["Altikia"], klikli = npcIcons["Klironovia"], karai = '<:karai:974079383197339699>',
+        lio = npcIcons["Lio"], liu = npcIcons["Liu"], liz = npcIcons["Liz"], lia = npcIcons["Lia"], kitsune = npcIcons["Kitsune"], penelope = "<:penelope:1178446515459588106>", lei = '<:lei:1257691823170785372>',
         anna = npcIcons["Anna"], belle = npcIcons["Belle"],
         edelweiss = npcIcons["Edelweiss"], epiphyllum = npcIcons["Epiphyllum"],
-        ruby=npcIcons["Ruby"], julie = npcIcons["Julie"],
-        akia = npcIcons["Akia"],
-        nacialisla = npcIcons["Nacialisla"], silicia = "<:silicia:1045109225615003729>", ailill = npcIcons["Ailill"],
+        ruby = npcIcons["Ruby"], julie = npcIcons["Julie"],
+        akia = npcIcons["Akia"],  ailill = npcIcons["Ailill"],
+        nacialisla = npcIcons["Nacialisla"], silicia = "<:silicia:1045109225615003729>", powehi = npcIcons["Powehi"], aNacia = "<:airNacia:1208074166297952278>", fNacia = "<:fireNacia:1208074195888504902>", wNacia = "<:waterNacia:1208074216973410405>", eNacia = "<:earthNacia:1208074102569566209>",
         benedicte = npcIcons["Bénédicte"], amandine = npcIcons["Amandine"], candy = npcIcons["Candy"],
         kiku = npcIcons["Kiku"], churi = npcIcons["Chûri"], skeleton = "<a:smnMage:1054312154452471838>", churHin = npcIcons["Chûri-Hinoro"], anais="<:anais:1166806279042375780>",
         akira = npcIcons["Akira"], krys = npcIcons["Krys"],
@@ -75,7 +75,7 @@ def formatShop(txt:str) -> str:
         soul = "<:ghostB:1119951487032901722>", jade = npcIcons["Jade"], alexandre = npcIcons["Alexandre"], zeneca = npcIcons["Zénéca"], kaleb='<:kaleb:1183176411452813433>', keuleyong = "<:keuleyong:1205465540337078292>",
         necro = "<:graveyard:1164906144339341424>", batiste = "<:batiste:1203788655240679534>", victoire = npcIcons["Victoire"],
         random1 = randomTabl[0], random2 = randomTabl[1], random3 = randomTabl[2], random4 = randomTabl[3], random5 = randomTabl[4],
-        unknow="<:blocked:897631107602841600>",dzeneca=npcIcons["Phy"])
+        unknow="<:blocked:897631107602841600>", dzeneca=npcIcons["Phy"], krosnos = "<:kronos:1279709026015514668>", salestaly = "<:takoRed:866459004439756810>", halsta="<:ikaRed:866459224664702977>")
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
     pathUserProfile, overloadShopMsg = absPath + "/userProfile/" + str(ctx.author.id) + ".json", None
@@ -83,31 +83,28 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
         await ctx.send(embeds = errorEmbed("shop","Vous n'avez pas commencé l'aventure"),ephemeral=True)
 
     user = loadCharFile(pathUserProfile)
-    if random.randint(0,99) < 90:
-        shopTotalRandom = shopRandomMsg[:]
+    randRoll = random.randint(0,99)
+    dateNow = datetime.now(parisTimeZone).replace(tzinfo=None)
+    years = dateNow.year
 
-        dateNow = datetime.now(parisTimeZone).replace(tzinfo=None)
-        years = dateNow.year
+    if randRoll < 10: shopTotalRandom = shopRandomMsg[:]
+    elif randRoll < 25: shopTotalRandom = singingShopMsg[:]
+    elif randRoll < 75: shopTotalRandom = shopMonthlyMsg[dateNow.month-1][:]
+    else: shopTotalRandom = shopLastMonthlyMsg[dateNow.month-1][:]
 
-        if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"):
-            shopTotalRandom += shopEventEndYears 
+    if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"): shopTotalRandom += shopEventEndYears 
 
-        shopTotalRandom += shopMonthlyMsg[dateNow.month-1]+shopMonthlyMsg[dateNow.month-1]+shopMonthlyMsg[dateNow.month-1]+ shopLastMonthlyMsg[dateNow.month-1]
+    for shopDict in shopEventOneDay:
+        if shopDict["date"] == [dateNow.day,dateNow.month]: shopTotalRandom = shopDict["tabl"]; break
 
-        for shopDict in shopEventOneDay:
-            if shopDict["date"] == [dateNow.day,dateNow.month]:
-                shopTotalRandom = shopDict["tabl"]
-                break
-
-        shopRdMsg = formatShop(shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)])
-    else:
-        shopRdMsg = formatShop(singingShopMsg[random.randint(0,len(singingShopMsg)-1)])
+    tmp = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)]
+    if type(tmp) == list: tmp = tmp[1]
+    shopRdMsg = formatShop(tmp)
+    
     initMsg = None
 
-    if user.team != 0:
-        teamList = userTeamDb.getTeamMember(user.team)
-    else:
-        teamList = [user.owner]
+    if user.team != 0: teamList = userTeamDb.getTeamMember(user.team)
+    else: teamList = [user.owner]
 
     buttonGift = interactions.Button(style=3, label="Offrir",emoji=PartialEmoji(name='🎁'),custom_id="1",disabled=len(teamList) == 1)
     buttonAllGift = interactions.Button(style=3, label="Offrir à tous",emoji=getEmojiObject('<:teamBought:906621631143743538>'),custom_id="2",disabled=len(teamList) == 1)
@@ -123,26 +120,19 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
         if len(teamList) > 1:
             teamMember = []
             for a in teamList:
-                if a != int(ctx.author.id):
-                    teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".json")]
+                if a != int(ctx.author.id): teamMember += [loadCharFile(absPath + "/userProfile/" + str(a) + ".json")]
 
         reducMsg = ["","Réduction de 30% active !\n"][isSunday]
         shopEmb = interactions.Embed(title = "__Shop__",color = user.color, description = "Le magasin est commun à tous les serveurs et est actualisé toutes les 3 heures"+f"\n\nVous disposez actuellement de {user.currencies} <:coins:862425847523704832>.\nVous êtes en possession de **{round(userShopPurcent(user),2)}**% du magasin.\n{reducMsg}\n{shopRdMsg}")
 
         shopWeap,shopSkill,shopStuff,shopOther = [],[],[],[]
         for a in shopping:
-            if type(a)==weapon:
-                shopWeap.append(a)
-            elif type(a)==skill:
-                shopSkill.append(a)
-            elif type(a)==stuff:
-                shopStuff.append(a)
-            else:
-                shopOther.append(a)
+            if type(a) == weapon: shopWeap.append(a)
+            elif type(a) == skill: shopSkill.append(a)
+            elif type(a) == stuff: shopStuff.append(a)
+            else : shopOther.append(a)
 
-        shopped = shopWeap+shopSkill+shopStuff+shopOther
-        shopMsg = ["__**Armes :**__","__**Compétences :**__","__**Equipement :**__","**__Autre :__**"]
-        options = []
+        shopped, shopMsg, options = shopWeap+shopSkill+shopStuff+shopOther, ["__**Armes :**__","__**Compétences :**__","__**Equipement :**__","**__Autre :__**"], []
         listNotHave,listNotAllTeamHave,totalCost,totalTeamCost = [],[],0,0
 
         shopField = ["","","",""]
@@ -211,39 +201,36 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
                     shopField[a] = "???"
 
                 shopEmb.add_field(name="<:em:866459463568850954>\n"+shopMsg[a],value=shopField[a],inline=False)
-
-        cd, cd2, fightingStatus = teamWinDB.getFightCooldown(user.team,timestamp=True), teamWinDB.getFightCooldown(user.team, True, timestamp=True), teamWinDB.isFightingBool(user.team)
-
-        if fightingStatus[0]:
-            fightingRespond = "__Votre équipe affronte actuellement :__\n"
-            temp = ""
-            for letter in fightingStatus[1]:
-                if letter==";" and len(temp) > 0:
-                    ennemi = findEnnemi(temp)
-                    if ennemi == None:
-                        ennemi = findAllie(temp)
-
-                    if ennemi != None:
-                        fightingRespond += "{0} {1}\n".format(ennemi.icon,ennemi.name)
-                    else:
-                        fightingRespond += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
-                    temp = ""
-                else:
-                    temp+=letter
-
-            shopEmb.add_field(name="<:em:866459463568850954>\n__/cooldowns__",value=fightingRespond)
+       
+        tmpValue, notFight, cd, cd2, fightingStatus = "","", teamWinDB.getFightCooldown(user.team,timestamp=True), teamWinDB.getFightCooldown(user.team, True, timestamp=True), teamWinDB.isFightingBool(int(user.team))
+        if not(globalVar.fightEnabled()):
+            notFight = "**<:noneWeap:917311409585537075> __Les combats sont actuellement désactivées !__**\n\n"
         else:
-            if not(globalVar.fightEnabled()):
-                normalFightMsg = '<:noneWeap:917311409585537075>'
-            else:
-                normalFightMsg = cd
+            tmpValue = "__Normal__ :\n"
+            if fightingStatus[0]:
+                tmpValue += "__Votre équipe affronte actuellement :__\n"
+                tablEnnemis = fightingStatus[1].split(";")[:-1]
+                for enemyName in tablEnnemis:
+                    ennemi = findEnnemi(enemyName)
+                    if ennemi == None: ennemi = findAllie(enemyName)
+                    if ennemi != None: tmpValue += "{0} {1}\n".format(ennemi.icon, ennemi.name)
+                    else: tmpValue += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
+            elif user.team in allReadyInWait.keys():
+                tmpStr = allReadyInWait[user.team].split(":")
+                tmpChannel = await bot.fetch_channel(int(tmpStr[1]))
+                tmpMsg = tmpChannel.get_message(int(tmpStr[0]))
+                tmpValue += "Votre équipe est en file d'attente ({0}) ({1})\n".format(tmpMsg.jump_url,cd)
+            else: tmpValue += cd+"\n"
 
-            if not(globalVar.fightEnabled()):
-                quickFightMsg = '<:noneWeap:917311409585537075>'
-            else:
-                quickFightMsg = cd2
+            tmpValue += "__Rapide__ :\n"
+            if user.team in allReadyInWaitQuick.keys():
+                tmpStr = allReadyInWaitQuick[user.team].split(":")
+                tmpChannel = await bot.fetch_channel(int(tmpStr[1]))
+                tmpMsg = tmpChannel.get_message(int(tmpStr[0]))
+                tmpValue += "Votre équipe est en file d'attente ({0}) ({1})\n".format(tmpMsg.jump_url,cd2)
+            else: tmpValue += cd2
 
-            shopEmb.add_field(name=f"<:em:866459463568850954>\n__Cooldowns des commandes Fight l'équipe :__",value=f"__Normal__ : {normalFightMsg}\n__Quick__ : {quickFightMsg}",inline=False)
+        shopEmb.add_field(name="<:em:866459463568850954>\n__Temps de rechargements :__",value=notFight+tmpValue)
 
         select = interactions.StringSelectMenu(options,custom_id = "seeMoreInfos",placeholder="Un article vous interesse ?")
 
@@ -506,17 +493,14 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
 if not(isLenapy):
     print("Shop message verification...")
     tablShopMsg = shopRandomMsg+shopEventEndYears
-    for temp in shopEventOneDay:
-        tablShopMsg = tablShopMsg + temp["tabl"]
-    for temp in shopMonthlyMsg:
-        tablShopMsg = tablShopMsg + temp
+    for temp in shopEventOneDay: tablShopMsg = tablShopMsg + temp["tabl"]
+    for temp in shopMonthlyMsg: tablShopMsg = tablShopMsg+temp
 
     for shopmsg in tablShopMsg:
         try:
-            formatShop(shopmsg)
-        except:
-            print("Error with the following shop message :\n{0}".format(shopmsg))
-            print_exc()
+            if type(shopmsg) == list: formatShop(shopmsg[1])
+            else: formatShop(shopmsg)
+        except: print("Error with the following shop message :\n{0}".format(shopmsg)); print_exc()
     print("Shop message verification done")
 
 async def seeSkillsRep(ctx : interactions.SlashContext, skillType:int, aspiration:int = None, element:int = None, use: int=None, skillRange : int = None):
@@ -565,13 +549,10 @@ async def seeSkillsRep(ctx : interactions.SlashContext, skillType:int, aspiratio
                 desc += "\n"
                 if len(desc) > 4000 or tablsCd[cmpt][cmpt2] == tablsCd[cmpt][-1]:
                     if not(firstMsgSend):
-                        if ctx.__class__ == interactions.Message:
-                            await ctx.edit(embeds=interactions.Embed(title="__Cooldown {0}__".format(["faible","moyen","élevé"][cmpt]),description=desc,color=light_blue,footer=EmbedFooter(text="{0}/{1}".format(tablLens[cmpt]+cmpt2+1,lenTot))))
-                        else:
-                            await ctx.send(embeds=interactions.Embed(title="__Cooldown {0}__".format(["faible","moyen","élevé"][cmpt]),description=desc,color=light_blue,footer=EmbedFooter(text="{0}/{1}".format(tablLens[cmpt]+cmpt2+1,lenTot))))
+                        if ctx.__class__ == interactions.Message: await ctx.edit(embeds=interactions.Embed(title="__Cooldown {0}__".format(["faible","moyen","élevé"][cmpt]),description=desc,color=light_blue,footer=EmbedFooter(text="{0}/{1}".format(tablLens[cmpt]+cmpt2+1,lenTot))))
+                        else: await ctx.send(embeds=interactions.Embed(title="__Cooldown {0}__".format(["faible","moyen","élevé"][cmpt]),description=desc,color=light_blue,footer=EmbedFooter(text="{0}/{1}".format(tablLens[cmpt]+cmpt2+1,lenTot))))
                         firstMsgSend = True
-                    else:
-                        await ctx.channel.send(embeds=interactions.Embed(title="__Cooldown {0}__".format(["faible","moyen","élevé"][cmpt]),description=desc,color=light_blue,footer=EmbedFooter(text="{0}/{1}".format(tablLens[cmpt]+cmpt2+1,lenTot))))
+                    else: await ctx.channel.send(embeds=interactions.Embed(title="__Cooldown {0}__".format(["faible","moyen","élevé"][cmpt]),description=desc,color=light_blue,footer=EmbedFooter(text="{0}/{1}".format(tablLens[cmpt]+cmpt2+1,lenTot))))
                     desc = ""
     else:
         
@@ -580,6 +561,7 @@ async def seeSkillsRep(ctx : interactions.SlashContext, skillType:int, aspiratio
 async def testShopMsgFunction(ctx: interactions.SlashContext):
     listEmbed: List[interactions.Embed] = []
     dateNow, started = datetime.now(parisTimeZone), False
+    print(dateNow.month)
     for cmpt in range(len(shopMonthlyMsg[dateNow.month-1])):
         if not(started):
             await ctx.send(embeds=[interactions.Embed(title=str(cmpt),description=formatShop(shopMonthlyMsg[dateNow.month-1][cmpt]))])
@@ -624,24 +606,19 @@ async def chipShop(bot: interactions.Client, ctx: interactions.SlashContext):
                 totalCardCost, totalCoinCost = totalCardCost+packPriceCards, totalCoinCost+packPriceCoins
                 shopOptionList.append(StringSelectOption(label=packName,value="booster_{0}".format(chipShopContent["dailyBooster"]),emoji=getEmojiObject(rarityEmojis[chipShopContent["dailyBooster"]])))
 
-            secFieldValue, chipsInShop = "", getChip(chipShopContent["chipShop"])
+            secFieldValue, chipsInShop, tmpChipNb = "", getChip(chipShopContent["chipShop"]), {}
             for cmpt, tmpChip in enumerate(chipsInShop):
                 cardCardCost, cardCoinCost = tcCardCost[tmpChip.rarity],cnCardCost[tmpChip.rarity]
-                secFieldValue += "{0} {1}*{2}* x**{4}** {3}\n".format(rarityEmojis[tmpChip.rarity],tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,["({0} <:tc:1218274555081261116> / {1} <:coins:862425847523704832>)".format(cardCardCost, cardCoinCost),"({0})".format(haveIcon)][user.owner in chipShopContent["hasBought"][1][cmpt]],[10,5,3,1][tmpChip.rarity])
+                tmpChipNb[cmpt] = max([10,5,3,1][tmpChip.rarity], int(nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[user.chipInventory[tmpChip.id].rarity]]*0.1))
+                secFieldValue += "{0} {1}*{2}* x**{4}** {3}\n".format(rarityEmojis[tmpChip.rarity],tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,["({0} <:tc:1218274555081261116> / {1} <:coins:862425847523704832>)".format(cardCardCost, cardCoinCost),"({0})".format(haveIcon)][user.owner in chipShopContent["hasBought"][1][cmpt]],tmpChipNb[cmpt])
                 if user.owner not in chipShopContent["hasBought"][1][cmpt]:
                     totalCardCost, totalCoinCost = totalCardCost+cardCardCost, totalCoinCost+cardCoinCost
                     shopOptionList.append(StringSelectOption(label=tmpChip.name,value="chip_{0}".format(cmpt),emoji=[getEmojiObject(tmpChip.emoji),None][tmpChip.emoji == ""]))
 
             mainEmbed.add_field(name="__Puces du jour :__",value=secFieldValue)
 
-            if len(shopOptionList) > 0:
-                actRowSelect = ActionRow(
-                    StringSelectMenu(shopOptionList,placeholder="Tu veux voir quelque chose de plus près ?")
-                )
-            else:
-                actRowSelect = ActionRow(
-                    StringSelectMenu(StringSelectOption(label='Vous avez déjà acheté toutes les offres',default=True,value="shopn't"),disabled=True,placeholder="Tu veux voir quelque chose de plus près ?")
-                )
+            if len(shopOptionList) > 0:actRowSelect = ActionRow(StringSelectMenu(shopOptionList,placeholder="Tu veux voir quelque chose de plus près ?"))
+            else: actRowSelect = ActionRow(StringSelectMenu(StringSelectOption(label='Vous avez déjà acheté toutes les offres',default=True,value="shopn't"),disabled=True,placeholder="Tu veux voir quelque chose de plus près ?"))
 
             actRowSelfAllBuy = ActionRow(
                 Button(style=ButtonStyle.GRAY,label='{0} '.format(separeUnit(totalCardCost)) + chipShopMsg["buyCardButton"][random.randint(0,len(chipShopMsg["buyCardButton"])-1)],emoji=getEmojiObject('<:tc:1218274555081261116>'),custom_id='buyAllSoloCards', disabled=totalCardCost > user.tc or totalCardCost <= 0),
@@ -649,22 +626,15 @@ async def chipShop(bot: interactions.Client, ctx: interactions.SlashContext):
             )
 
             disablepString = False
-            if user.owner in chipShopContent["hasBought"][2]:
-                makeOfferOptions, disablepString = [StringSelectOption(label="Vous avez déjà fait une offre pour aujourd'hui",value="disabled",default=True)], True
-            elif len(makeOfferOptions) == 0:
-                makeOfferOptions, disablepString = [StringSelectOption(label="Vous devez avoir une puce équipée pour faire une offre",value="disabled",default=True)], True
+            if user.owner in chipShopContent["hasBought"][2]: makeOfferOptions, disablepString = [StringSelectOption(label="Vous avez déjà fait une offre pour aujourd'hui",value="disabled",default=True)], True
+            elif len(makeOfferOptions) == 0: makeOfferOptions, disablepString = [StringSelectOption(label="Vous devez avoir une puce équipée pour faire une offre",value="disabled",default=True)], True
 
-            makeOfferSelect = ActionRow(
-                StringSelectMenu(makeOfferOptions,placeholder="Faire une offre",disabled = disablepString,custom_id = "makeOffer")
-            )
+            makeOfferSelect = ActionRow(StringSelectMenu(makeOfferOptions,placeholder="Faire une offre",disabled = disablepString,custom_id = "makeOffer"))
 
-            for inx, field in enumerate(mainEmbed.fields):
-                mainEmbed.fields[inx].value = reduceEmojiNames(field.value)
+            for inx, field in enumerate(mainEmbed.fields): mainEmbed.fields[inx].value = reduceEmojiNames(field.value)
 
-            if ctx.responded:
-                await msg.edit(embeds=mainEmbed, components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy])
-            else:
-                msg = await ctx.respond(embeds=mainEmbed, components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy])
+            if ctx.responded: await msg.edit(embeds=mainEmbed, components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy])
+            else: msg = await ctx.respond(embeds=mainEmbed, components=[actRowSelect,makeOfferSelect,actRowSelfAllBuy])
 
             def check(m):
                 m = m.ctx
@@ -687,7 +657,7 @@ async def chipShop(bot: interactions.Client, ctx: interactions.SlashContext):
                 isOffer = hasSelected.startswith("offer_")
                 if hasSelected.startswith("booster_"):
                     boosterRarity = int(hasSelected.replace("booster_",""))
-                    embDesc = reduceEmojiNames("Vous octroi une dizaine de puce. Les puces {2} Communes et {3} Rares ont **30%** de chance d'être doublé (**9%** qu'une puce {2} Commune soit triplé)\n\nProbabilité par tirage :\n{2} : {4}%, {3} : {5}%, {6} : {7}%, {8} : {9}%".format(
+                    embDesc = reduceEmojiNames("Vous octroie une dizaine de puce. Les puces {2} Communes et {3} Rares ont **30%** de chance d'être doublé (**9%** qu'une puce {2} Commune soit triplé)\n\nProbabilité par tirage :\n{2} : {4}%, {3} : {5}%, {6} : {7}%, {8} : {9}%".format(
                         rarityEmojis[boosterRarity], ["commun","rare","légendaire","mythique"][boosterRarity], rarityEmojis[0], rarityEmojis[1], probaRarityTabl[boosterRarity][0]/10, probaRarityTabl[boosterRarity][1]/10, rarityEmojis[2], probaRarityTabl[boosterRarity][2]/10, rarityEmojis[3], probaRarityTabl[boosterRarity][3]/10
                     ))
                     tcCost, coinCost = tcBoosterCost[chipShopContent["dailyBooster"]], cnBoosterCost[chipShopContent["dailyBooster"]]
@@ -742,7 +712,7 @@ async def chipShop(bot: interactions.Client, ctx: interactions.SlashContext):
                 for indx, tmpChip in enumerate(chipsInShop):
                     if user.owner not in chipShopContent["hasBought"][1][indx] and [user.tc, user.currencies][respond.component.custom_id == "buyAllSoloCoins"] > [tcCardCost,cnCardCost][respond.component.custom_id == "buyAllSoloCoins"][tmpChip.rarity]:
                         hadLvlUp = False
-                        user.chipInventory[tmpChip.id].progress += [10,5,3,1][tmpChip.rarity]
+                        user.chipInventory[tmpChip.id].progress += tmpChipNb[indx]
                         if respond.component.custom_id == "buyAllSoloCoins":
                             user.currencies -= cnCardCost[tmpChip.rarity]
                         else:
@@ -780,20 +750,19 @@ async def chipShop(bot: interactions.Client, ctx: interactions.SlashContext):
                 else:
                     if isOffer:
                         indx = int(hasSelected.replace("offer_",""))
-                        tmpChip, toAppend = getChip(indx), [chipShopContent["hasBought"][2]]
+                        tmpChip, toAppend = getChip(indx), [chipShopContent["hasBought"][2]] 
+                        tmpChipNb[indx] = max([10,5,3,1][tmpChip.rarity], int(nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[user.chipInventory[tmpChip.id].rarity]]*0.1))
                     else:
                         indx = int(hasSelected.replace("chip_",""))
                         tmpChip, toAppend = chipsInShop[indx], [chipShopContent["hasBought"][1][indx]]
                     hadLvlUp = False
-                    temp, user = user.chipInventory[tmpChip.id].addProgress([10,5,3,1][tmpChip.rarity],user)
+                    temp, user = user.chipInventory[tmpChip.id].addProgress(tmpChipNb[indx],user)
 
-                    if respond.component.custom_id == "buyCoins":
-                        user.currencies -= coinCost
-                    else:
-                        user.tc -= tcCost
+                    if respond.component.custom_id == "buyCoins": user.currencies -= coinCost
+                    else: user.tc -= tcCost
 
                     toAppend[0].append(user.owner)
-                    temp = "{4} {0}*{1}* x**{2}** *{3}*\n".format(tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,[10,5,3,1][tmpChip.rarity],["({0}/{1})".format(user.chipInventory[tmpChip.id].progress,nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[tmpChip.rarity]]),"(↑)"][hadLvlUp],rarityEmojis[tmpChip.rarity])
+                    temp = "{4} {0}*{1}* x**{2}** *{3}*\n".format(tmpChip.emoji+[""," "][tmpChip.emoji != ""],tmpChip.name,tmpChipNb[indx],["({0}/{1})".format(user.chipInventory[tmpChip.id].progress,nbChipsForLvlUp[user.chipInventory[tmpChip.id].lvl-rarityMinLvl[tmpChip.rarity]]),"(↑)"][hadLvlUp],rarityEmojis[tmpChip.rarity])
             
                     saveCharFile(user=user)
                     jsonFile = open("./data/database/dailyShop.json","w")

@@ -2,7 +2,7 @@
 Constants module.
 Here stand the first brick of the bot
 """
-import os, json, requests, math
+import os, json, requests, math, random
 from datetime import timedelta, datetime
 import pytz
 from interactions import *
@@ -12,18 +12,17 @@ MAXLEVEL, PRESTIGEXPBOOST, XPBOOSTVALUE = 100, 70, 150
 
 emLoading = '<a:loading:862459118912667678>'
 
-try:
-    parisTimeZone = pytz.timezone("Europe/Paris")
-except:
-    print(pytz.all_timezones)
+try: parisTimeZone = pytz.timezone("Europe/Paris")
+except: print(pytz.all_timezones)
+
+defaultDate = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
 
 FROM_LEFT, FROM_RIGHT, FROM_UP, FROM_DOWN, FROM_POINT = 0,1,2,3,4
 
 def clamp(val:int, minv:int=0, maxv:int=1):
     return minv if val < minv else maxv if val > maxv else val
 
-def between(val: int, limitMax: int, limitMin:int):
-    return min(max(val,limitMin),limitMax)
+def between(val: int, limitMax: int, limitMin:int):return min(max(val,limitMin),limitMax)
 
 # Constantes :
 # Area of effects
@@ -162,7 +161,7 @@ triggerUnderHp = {
 }
 
 BASEDAMAGEMUL = 0.8
-DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 50+((1-BASEDAMAGEMUL)*100), 15, 15, 20
+DMGBONUSATLVL50, HEALBONUSATLVL50, ARMORBONUSATLVL50, ARMORMALUSATLVL0 = 50, 15, 15, 20
 DMGBONUSPERLEVEL, HEALBONUSPERLEVEL, ARMORLBONUSPERLEVEL = DMGBONUSATLVL50/50/100, HEALBONUSATLVL50/50/100, ARMORBONUSATLVL50/50/100
 SUDDENDEATHDMG = 10
 
@@ -231,7 +230,7 @@ BERSERK, OBSERVATEUR, POIDS_PLUME, IDOLE, PREVOYANT, TETE_BRULEE, MAGE, ALTRUIST
 inspi = ["Berserkeur", "Observateur", "Poids plume", "Idole", "Prévoyant", "Tête brulée", "Mage","Altruiste", "Enchanteur", "Protecteur", "Vigilant", "Sorcier", "Inovateur", "Attentif", "Mascotte", "Neutre"]
 aspiEmoji = ["<:ber:985007311997263932>","<:obs:985007736360165407>","<:pplume:985007345648148541>","<:ido:985007596656275476>","<:pre:985007771613274133>","<:tbrule:985007436538740766>","<:ma:985010178900500561>","<:alt:985007803322224720>","<:enc:985007558156755004>","<:pro:985009037546487850>","<:vig:985009013097910302>","<:sor:985007632639205458>","<:inov:985007247656632360>","<:att:985007703707500555>","<:masc:1009814577262895224>","<:neutral:985011113458536538>"]
 lbNames = ["Lames de l'Ombre","Odre de Tir : Drône 3.4.8 Alpha","Frappe de Silicia","Apothéose planétaire","Armure Galactique","Fracture Dimentionnelle","Colère de Nacialisla","Bénédiction de Nacialisla","Desctruction Silicienne","Pousée d'Espoir","Grandeur de Nacialisla","Cataclysme Powehien","Avenir Prometeur","Chef d'Oeuvre Balistique","Bénédiction Fleurale"]
-lbDesc = ["Inflige des dégâts à l'ennemi ciblé et vous soigne d'une partie des dégâts infligés","Inflige des dégâts à l'ennemi ciblé et augmente vos statistiques","Inflige des dégâts à l'ennemi ciblé et le repousse violament","Augmente les statistiques des alliés à portée et réanime ceux qui sont vaincus","Octroi une armure aux alliés à portée et augmente leurs statistiques offensives","Inflige des dégâts à l'ennemi ciblé et réduit ses PV max","Inflige dégâts dans une large zone autour de l'ennemi ciblé","Soigne les alliés à portée et leur donne un effet de régénération tout en réanimant ceux qui étaient vaincus","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et vous octroit une armure","Octroi une armure aux alliés à portée et augmente leurs statistiques défensives","Soigne les alliés à portée en réanimant ceux vaincus tout en réduisant vos dégâts subis","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et lui inflige un effet de dégâts indirects multi-cibles","Augmente les statistiques des alliés à portée et réduit leurs dégâts subis pendant la même durée","Inflige des dégâts en ligne droite sur l'ennemi ciblé et augmente vos statistiques","Augmente les statistiques des alliés alentours et réduits la défense des ennemis à portée"]
+lbDesc = ["Inflige des dégâts à l'ennemi ciblé et vous soigne d'une partie des dégâts infligés","Inflige des dégâts à l'ennemi ciblé et augmente vos statistiques","Inflige des dégâts à l'ennemi ciblé et le repousse violament","Augmente les statistiques des alliés à portée et réanime ceux qui sont vaincus","Octroie une armure aux alliés à portée et augmente leurs statistiques offensives","Inflige des dégâts à l'ennemi ciblé et réduit ses PV max","Inflige dégâts dans une large zone autour de l'ennemi ciblé","Soigne les alliés à portée et leur donne un effet de régénération tout en réanimant ceux qui étaient vaincus","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et vous octroit une armure","Octroie une armure aux alliés à portée et augmente leurs statistiques défensives","Soigne les alliés à portée en réanimant ceux vaincus tout en réduisant vos dégâts subis","Inflige des dégâts dans une large zone autour de l'ennemi ciblé et lui inflige un effet de dégâts indirects multi-cibles","Augmente les statistiques des alliés à portée et réduit leurs dégâts subis pendant la même durée","Inflige des dégâts en ligne droite sur l'ennemi ciblé et augmente vos statistiques","Augmente les statistiques des alliés alentours et réduits la défense des ennemis à portée"]
 recommandedStat = [
     [STRENGTH, ENDURANCE, AGILITY],
     [STRENGTH, PRECISION, ENDURANCE],
@@ -382,7 +381,7 @@ ELEMENT_LIGHT = 5
 ELEMENT_DARKNESS = 6
 ELEMENT_SPACE = 7
 ELEMENT_TIME = 8
-ELEMENT_UNIVERSALIS_PREMO = 9
+ELEMENT_UNIVERSALIS = 9
 
 DISTDMGBUFF, AREADMGBUFF, DARKDMGBUFF = 5, 5, 5
 LIGHTHEALBUFF = 5
@@ -421,10 +420,10 @@ elemSecPassifDesc = [
     "- Les effets de dégâts indirects infligés réduisent les soins reçus par la cible de **{0}%** (max 30%)".format(FIREINCURVALUE),
     "- Vous absorbez **{0}%** des soins directs effectués sur vos alliés".format(WATERRETURNVALUE),
     "- Augmente de **{0}%** les dégâts de colisions infligés".format(AIRPUSHDMG),
-    "- Vous octroi **{0}%** de vol d'armure et **{0}%** de convertion de dégâts infligés en armure".format(EARTHBOOST),
+    "- Vous octroie **{0}%** de vol d'armure et **{0}%** de convertion de dégâts infligés en armure".format(EARTHBOOST),
     "- Augmente de **{0}%** la puissance des compétences de dégâts ayant pour effet secondaire d'octroyer des soins ou de l'armure à vous ou aux alliés (vol de vie / convertion inclus)".format(LIGHTDMGBUFF),
     "- Les effets de dégâts indirects infligés réduisent de **{0}%** les statistiques de la cible".format(DARKDEBUFF),
-    "- En début de tour, octroi une armure équivalente à **{0}%** de vos PVs Manquants".format(SPACESHIELD),
+    "- En début de tour, octroie une armure équivalente à **{0}%** de vos PVs Manquants".format(SPACESHIELD),
     "- Les effets de dégâts indirects obtiennent **{0}%** de vol de vie".format(TIMELIFESTEAL)
 ]
 
@@ -765,7 +764,7 @@ liaSays = says(
     redLoose="Vous savez pas rire...",
     reactBigRaiseAllie="Toujours aussi jouissif {caster}",
     reactEnemyLb="Mow, je crois qu'ils sont un peu en colère",
-    dodge=["T'es sûr d'avoir les yeux en face des trous {caster} ?","Bien essayé","Pas cette fois !"],
+    dodge=["T'es sûr d'avoir les yeux en face des trous {caster} ?","Bien essayé","Pas cette fois !","Huh, ça devait être le vent..."],
     getHealed=["Arigatō","Domo","Merci {caster}"],
     specDeath={"Liu":"Hé bah on l'a pas esquivé celle-là","Liz":"Ça te ressemble pas d'abandonner comme ça Lia"}
 )
@@ -1237,9 +1236,9 @@ capSkills = {
     0: createCapSkillDict("Lena","<:lena:909047343876288552>","En début de tour de table, inflige des dégâts aux **3** ennemis ayant le plus de PAr\nPuissance : **__{0}__** (x**__{1}__** sur l'armure)",[20,22.5,25],[4,4.5,5],"Prête à tirer"),
     1: createCapSkillDict("Clémence","<:clemence:908902579554111549>","En début de tour de table, marque les **__{0}__** ennemi(s) ayant le moins de PV\nLorsque le ou les ennemis marqués recevront des soins, ceux-ci seront réduit de **__{1}__** et votre équipié ayant le moins de PV sera soigné de cette même valeur",[1,2,3],[5,7.5,10],"Si vous y tenez"),
     2: createCapSkillDict("Hélène","<:helene:906303162854543390>","Augmente les PV maximums et les soins reçus par les équipiers de **__{0}%__**",[10,12.5,15],[0,0,0],"Je vous laisserais pas tomber"),
-    3: createCapSkillDict("Shehisa","<:shehisa:919863933320454165>","Réduit la progression des malus d'agression en fonction des actions des équipiers de **__{0}%__**\nDe plus, octroi aux équipiers **__{1}%__** de chances d'effectuer une *Contre-Attaque* lorsqu'ils esquivent une attaque",[15,20,25],[5,10,15],"Ils peuvent pas nous toucher si nous sommes pas là"),
-    4: createCapSkillDict("Liu","<:liu:908754674449018890>","Augmente de **__{0}%__** la probabilité de tous les équipiers d'effectuer une *Parade* lorsqu'il est attaqué\nDe plus, octroi aux équipiers **__{1}%__** de chances d'effectuer une *Contre-Attaque* lorsqu'ils parent une attaque",[10,15,20],[15,20,25],"Il suffit de garder la forme"),
-    5: createCapSkillDict("Edelweiss","<:edelweiss:918451422939451412>","En début de tour de table, octroi aux **__{0}__** équipiers ayant le moins de PV une armure équivalante à **__{1}%__** des PV maximums de l'équipier qui en possède le plus",[1,2,3],[5,7.5,10],"Je vous ferais pas faux-bond..."),
+    3: createCapSkillDict("Shehisa","<:shehisa:919863933320454165>","Réduit la progression des malus d'agression en fonction des actions des équipiers de **__{0}%__**\nDe plus, octroie aux équipiers **__{1}%__** de chances d'effectuer une *Contre-Attaque* lorsqu'ils esquivent une attaque",[15,20,25],[5,10,15],"Ils peuvent pas nous toucher si nous sommes pas là"),
+    4: createCapSkillDict("Liu","<:liu:908754674449018890>","Augmente de **__{0}%__** la probabilité de tous les équipiers d'effectuer une *Parade* lorsqu'il est attaqué\nDe plus, octroie aux équipiers **__{1}%__** de chances d'effectuer une *Contre-Attaque* lorsqu'ils parent une attaque",[10,15,20],[15,20,25],"Il suffit de garder la forme"),
+    5: createCapSkillDict("Edelweiss","<:edelweiss:918451422939451412>","En début de tour de table, octroie aux **__{0}__** équipiers ayant le moins de PV une armure équivalante à **__{1}%__** des PV maximums de l'équipier qui en possède le plus",[1,2,3],[5,7.5,10],"Je vous ferais pas faux-bond..."),
     6: createCapSkillDict("Elina","<:elina:950542889623117824>","En début de tour de table, l'équipier ayant le moins de PV récupère **__{0}%__** de ses PV manquants et reçois des dégâts réduits de __**{1}%**__ pour le tour en cour",[10,12.5,15],[5,7.5,10],"Huh ?"),
     7: createCapSkillDict("Icealia","<:icealia:909065559516250112>","Lorsqu'un équipier passe en dessous de __**{0}%**__ de ses PV maximums, il reçoit une armure équivalante à __**{1}%**__ de ses PV maximus pendant 3 tours (une fois par combat)",[10,12.5,15],[10,15,20],"Je vais faire de mon mieux")
 }
@@ -1412,10 +1411,11 @@ def reduceEmojiNames(string:str) -> str:
                 emojiName = emojiName + a
     return toReturn
 
-NPC_UNDEAD, NPC_FAIRY, NPC_DRYADE, NPC_HOLY, NPC_KITSUNE, NPC_GOLEM, NPC_UNFORM, NPC_DEMON, NPC_MARINE, NPC_SALMON, NPC_OCTARIAN, NPC_GLYPHIQUE, NPC_BOMB, NPC_SPIDER = tuple(range(14))
-npcTeamNames = ["Mort-Vivant","Féérique","Dryade","Divin","Kitsune","Golem","Aformité","Démon","Marine","Salmonoïde","Octarien","Glyphide","Bombe"]
-npcTeamEmojis = ["<:squeleton:1034363693724610580>","<:brume:1058843224933933096>","<:gardeSilvestre:1023609768427925594>","<:dvin:1004737746377654383>","","","","<:dmon:1004737763771433130>","","<:smallFry:1127173673162387476>","","<:glyphidGrunt:1127174330216886312>","<:neutralbombR:1155485124142563390>","","","","","","",""]
+NPC_UNDEAD, NPC_FAIRY, NPC_DRYADE, NPC_HOLY, NPC_KITSUNE, NPC_GOLEM, NPC_UNFORM, NPC_DEMON, NPC_MARINE, NPC_SALMON, NPC_OCTARIAN, NPC_GLYPHIQUE, NPC_BOMB, NPC_SPIDER, NPC_ANGEL = tuple(range(15))
+npcTeamNames = ["Mort-Vivant","Féérique","Dryade","Divin","Kitsune","Golem","Aformité","Démon","Marine","Salmonoïde","Octarien","Glyphide","Bombe","Araignés","Ange"]
+npcTeamEmojis = ["<:squeleton:1034363693724610580>","<:brume:1058843224933933096>","<:gardeSilvestre:1023609768427925594>","<:dvin:1004737746377654383>","","","","<:dmon:1004737763771433130>","","<:smallFry:1127173673162387476>","","<:glyphidGrunt:1127174330216886312>","<:neutralbombR:1155485124142563390>","","<:dvinRegen:1104496736845713440>","","","","","",]
 UNDEAD_WEAKNESS, FAIRYMAGICRESIST = 20, 10
+ANGELPOWERMALUS = (100-15)/100
 npcTeamDesc = [
     "Augmente les dégâts reçus des compétences {0} __Divines__ de **{1}%**".format("<:dvin:1004737746377654383>",UNDEAD_WEAKNESS),
     "Réduit les dégâts {4}{0} __Directs Magiques__ reçus de **{1}%** mais augmente d'autant les dégâts {2}{3} __Indirectes Force__ reçus".format(statsEmojis[MAGIE],FAIRYMAGICRESIST,statsEmojis[ACT_INDIRECT_FULL],statsEmojis[STRENGTH],statsEmojis[ACT_DIRECT_FULL]),
@@ -1450,11 +1450,19 @@ elif not(os.path.exists("../Kawi")) or 0:
 shomMsgJsonFile = open("./data/database/shopMsg.json","r",encoding="utf8")
 shopMsgJson = json.load(shomMsgJsonFile)
 shomMsgJsonFile.close()
+
+
+tmpCounter1, tmpCounter2, tmpCounter3 = 0, 0, 0
+for tmpKey in ["shopMonthlyMsg","shopLastMonthlyMsg"]:
+    for tmpInt in range(12):
+        for tmpTxt in shopMsgJson[tmpKey][tmpInt]:
+            tmpCounter1 += 1
+            tmpCounter2 += len(tmpTxt[1])
+            tmpCounter3 += len(tmpTxt[1].splitlines())
+
+print("Btw, there are currently {0} monthly shop msg (present and past), for a total of {1} characters and {2} lines".format(tmpCounter1,tmpCounter2,tmpCounter3))
+
 shopRandomMsg, shopEventEndYears, shopEventOneDay, shopMonthlyMsg, singingShopMsg, shopLastMonthlyMsg, lenaTipsMsgTabl, pnjDescriptions = shopMsgJson["shopPermaRdmMsg"], shopMsgJson["shopEventEndYears"], shopMsgJson["shopEventOneDay"], shopMsgJson["shopMonthlyMsg"], shopMsgJson["singingShopMsg"], shopMsgJson["shopLastMonthlyMsg"], shopMsgJson["lenaTips"], shopMsgJson["pnjDescriptions"]
-for cmpt in range(len(shopLastMonthlyMsg)):
-    for cmpt2 in range(len(shopLastMonthlyMsg[cmpt])):
-        if not(shopLastMonthlyMsg[cmpt][cmpt2].startswith("[") and shopLastMonthlyMsg[cmpt][cmpt2].endswith("[")):
-            shopLastMonthlyMsg[cmpt][cmpt2] = ["[",""][shopLastMonthlyMsg[cmpt][cmpt2].startswith("[")] + shopLastMonthlyMsg[cmpt][cmpt2] + ["]",""][shopLastMonthlyMsg[cmpt][cmpt2].endswith("]")]
 
 akiaSays = says(
     "Je suppose qu'il faut quelqu'un pour faire un remplacement.",
@@ -1474,3 +1482,12 @@ amandineSays = says(
     start="Numéro 3, parée",ultimate="C'est l'heure de sortir le grand jeu !",limiteBreak="PREND CA !",onDeath="Mmmmgn...",blueWinAlive="Mission accomplie"
 )
 
+global allReadyInWait, allReadyInWaitQuick
+allReadyInWait, allReadyInWaitQuick = {}, {}
+
+def randRep(liste : list):
+    """Return a random value from the list"""
+    if type(liste) != list: liste = [liste]
+
+    if len(liste) == 1: return liste[0]
+    else: return liste[random.randint(0,len(liste)-1)]

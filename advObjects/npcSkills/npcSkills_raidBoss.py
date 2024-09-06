@@ -7,7 +7,9 @@ ailillEffBleeding.power, ailillEffBleeding.lifeSteal = 50, 50
 ailillWeapEff2 = copy.deepcopy(vampirismeEff)
 ailillWeapEff2.power, ailillWeapEff2.turnInit = 50, -1
 ailillWeap = weapon("Tronçonneuse Sanglante","aillilWeap",RANGE_MELEE,AREA_CIRCLE_1,power=300,accuracy=200,strength=50,precision=25,percing=10,resistance=10,agility=20,damageOnArmor=1.5,emoji='<:chainsaw:1189299410794979479>',effects=ailillWeapEff2,effectOnUse=ailillEffBleeding,priority=WEAPON_PRIORITY_LOWEST)
-ailillSkill4 = skill("Frappe Sonique",'ailillSkill4',TYPE_DAMAGE,power=200,range=AREA_RANDOMENNEMI_1,area=AREA_CIRCLE_2,lifeSteal=20,cooldown=3,tpCac=True,areaOnSelf=True,description="Ailill apparait à côté d'un ennemi et inflige des dégâts à tous les ennemis autour d'elle",emoji='<:ailillSkill2:1044634656701698088>')
+ailillSkill4 = copy.deepcopy(obsiArcane)
+ailillSkill4.effects, ailillSkill4.effectOnSelf, ailillSkill4.replay = [effect("Arcane Obsidienne","arcObsAilill",STRENGTH,power=75,area=AREA_DONUT_2,trigger=TRIGGER_INSTANT,type=TYPE_DAMAGE,emoji=ailillSkill4.emoji),ailillSkill4.effectOnSelf.callOnTrigger], None, True
+ailillSkill4.effects[1].use = ailillSkill4.use = STRENGTH
 ailillSkill5 = skill("Lames Dansantes","ailillSkill5",TYPE_DAMAGE,power=200,range=AREA_RANDOMENNEMI_3,area=AREA_LINE_5,cooldown=5,lifeSteal=20,description="Ailill apparait à côté d'un ennemi et inflige des dégâts sur toute une ligne dans la direction de ce dernier",emoji='<:ailillSkill3:1044636776616177734>')
 ailillSkill6Eff = effect("Frappe Déphasée","ailillDephaStrikes", stat=STRENGTH,power=220,area=AREA_CIRCLE_1,lifeSteal=50,trigger=TRIGGER_ON_REMOVE,type=TYPE_DAMAGE,effPrio=1,emoji='<:ailillDephaStrikeRep:1044639469921378334>')
 ailillSkill6 = skill("Frappe Déphasée","alillSkill6",TYPE_INDIRECT_DAMAGE,effects=ailillSkill6Eff,range=AREA_RANDOMENNEMI_3,area=AREA_RANDOMENNEMI_5,cooldown=5,description="Ailill marque 5 ennemis aléatoirement et viendra infliger des dé^gats autour d'eux à son prochain tour",emoji='<:ailillDephaStrike:1044639442335449113>')
@@ -176,10 +178,7 @@ iliOvlSkill7_c = effect("Cast - Lumière de l'Éternité","iliOvlSkill7_c",turnI
 iliOvlSkill7 = skill("Lumière de l'Éternité","iliOvlSkill7",TYPE_DAMAGE,power=150,range=AREA_MONO,cooldown=99,area=AREA_INLINE_2,emoji='<:ancientLight1:1147186235727695943>',ultimate=True,description=iliOvlSkill7_1.description,effectOnSelf=iliOvlSkill7_c,jaugeEff=iliOvlSkill7Eff,minJaugeValue=100,use=MAGIE,say="MARCHEZ DANS LA LUMIÈRE !")
 iliOvlSkill7.iaPow = 9999
 
-importantSkills.append(iliOvlSkill6.id)
-importantSkills.append(iliOvlSkill4.id)
-importantSkills.append(iliOvlSkill3.id)
-importantSkills.append(iliOvlSkill7.id)
+importantSkills.append(iliOvlSkill6.id); importantSkills.append(iliOvlSkill4.id); importantSkills.append(iliOvlSkill3.id); importantSkills.append(iliOvlSkill7.id)
 
 iliOvlSay= says(
     start="Vous pensez tenir combien de temps ?",

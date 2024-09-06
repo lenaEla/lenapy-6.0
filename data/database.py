@@ -4,344 +4,53 @@ from datetime import datetime, timedelta
 from constantes import *
 from traceback import print_exc
 
-majTeamVic2 = """
-    PRAGMA foreign_keys = 0;
-
-    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
-                                            FROM teamVictory;
-
-    DROP TABLE teamVictory;
-
-    CREATE TABLE teamVictory (
-        id                     PRIMARY KEY
-                            UNIQUE
-                            NOT NULL,
-        [1],
-        [2],
-        [3],
-        [4],
-        [5],
-        [6],
-        [7],
-        [8],
-        [9],
-        [10],
-        lastFight,
-        lastQuickFight,
-        isFighting,
-        totalWin,
-        totalFight,
-        fightingInfo
-    );
-
-    INSERT INTO teamVictory (
-                                id,
-                                [1],
-                                [2],
-                                [3],
-                                [4],
-                                [5],
-                                [6],
-                                [7],
-                                [8],
-                                [9],
-                                [10],
-                                lastFight,
-                                lastQuickFight,
-                                isFighting,
-                                totalWin,
-                                totalFight
-                            )
-                            SELECT id,
-                                "1",
-                                "2",
-                                "3",
-                                "4",
-                                "5",
-                                "6",
-                                "7",
-                                "8",
-                                "9",
-                                "10",
-                                lastFight,
-                                lastQuickFight,
-                                isFighting,
-                                totalWin,
-                                totalFight
-                            FROM sqlitestudio_temp_table0;
-
-    DROP TABLE sqlitestudio_temp_table0;
-
-    PRAGMA foreign_keys = 1;
-"""
-majTeamVic1 = """
-    PRAGMA foreign_keys = 0;
-
-    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
-                                            FROM teamVictory;
-
-    DROP TABLE teamVictory;
-
-    CREATE TABLE teamVictory (
-        id                     PRIMARY KEY
-                            UNIQUE
-                            NOT NULL,
-        [1],
-        [2],
-        [3],
-        [4],
-        [5],
-        [6],
-        [7],
-        [8],
-        [9],
-        [10],
-        lastFight,
-        lastQuickFight,
-        isFighting     BOOLEAN,
-        totalWin,
-        totalFight
-    );
-
-    INSERT INTO teamVictory (
-                                id,
-                                [1],
-                                [2],
-                                [3],
-                                [4],
-                                [5],
-                                [6],
-                                [7],
-                                [8],
-                                [9],
-                                [10],
-                                lastFight,
-                                lastQuickFight,
-                                isFighting
-                            )
-                            SELECT id,
-                                "1",
-                                "2",
-                                "3",
-                                "4",
-                                "5",
-                                "6",
-                                "7",
-                                "8",
-                                "9",
-                                "10",
-                                lastFight,
-                                lastQuickFight,
-                                isFighting
-                            FROM sqlitestudio_temp_table0;
-
-    DROP TABLE sqlitestudio_temp_table0;
-
-    PRAGMA foreign_keys = 1;
-"""
-majTeamVic3 = """
-    PRAGMA foreign_keys = 0;
-
-    CREATE TABLE sqlitestudio_temp_table0 AS SELECT *
-                                            FROM teamVictory;
-
-    DROP TABLE teamVictory;
-
-    CREATE TABLE teamVictory (
-        id                     PRIMARY KEY
-                            UNIQUE
-                            NOT NULL,
-        [1],
-        [2],
-        [3],
-        [4],
-        [5],
-        [6],
-        [7],
-        [8],
-        [9],
-        [10],
-        lastFight,
-        lastQuickFight,
-        isFighting,
-        totalWin,
-        totalFight,
-        fightingInfo,
-        fightingChannel
-    );
-
-    INSERT INTO teamVictory (
-                                id,
-                                [1],
-                                [2],
-                                [3],
-                                [4],
-                                [5],
-                                [6],
-                                [7],
-                                [8],
-                                [9],
-                                [10],
-                                lastFight,
-                                lastQuickFight,
-                                isFighting,
-                                totalWin,
-                                totalFight,
-                                fightingInfo
-                            )
-                            SELECT id,
-                                "1",
-                                "2",
-                                "3",
-                                "4",
-                                "5",
-                                "6",
-                                "7",
-                                "8",
-                                "9",
-                                "10",
-                                lastFight,
-                                lastQuickFight,
-                                isFighting,
-                                totalWin,
-                                totalFight,
-                                fightingInfo
-                            FROM sqlitestudio_temp_table0;
-
-    DROP TABLE sqlitestudio_temp_table0;
-
-    PRAGMA foreign_keys = 1;
-"""
-majUserIcon1 = """
-PRAGMA foreign_keys = 0;
-
-CREATE TABLE sqlitestudio_temp_table AS SELECT *
-                                          FROM custom_icon;
-
-DROP TABLE custom_icon;
-
-CREATE TABLE custom_icon (
-    owner_id    PRIMARY KEY
-                UNIQUE
-                NOT NULL,
-    espece      DEFAULT (1),
-    couleur     DEFAULT (0),
-    accessoire  DEFAULT ('ha'),
-    arme        DEFAULT ('af'),
-    emoji       DEFAULT ('<:LenaWhat:760884455727955978>'),
-    iconForm    DEFAULT (0),
-    appaWeap    DEFAULT (NULL),
-    appaAcc     DEFAULT (NULL)
-);
-
-INSERT INTO custom_icon (
-                            owner_id,
-                            espece,
-                            couleur,
-                            accessoire,
-                            arme,
-                            emoji
-                        )
-                        SELECT owner_id,
-                               espece,
-                               couleur,
-                               accessoire,
-                               arme,
-                               emoji
-                          FROM sqlitestudio_temp_table;
-
-DROP TABLE sqlitestudio_temp_table;
-
-PRAGMA foreign_keys = 1;
-"""
-
 class dbHandler():
     def __init__(self, database : str):
-        self.con = sqlite3.connect(f"./data/database/{database}")
+        self.con = sqlite3.connect(f"./data/database/{database}",timeout=10)
         self.con.row_factory = sqlite3.Row
         self.database = database
 
-        if database=="teamVic.db":
+    def addTeam(self,team):
+        try:
+            cursor, defIso = self.con.cursor(), defaultDate.isoformat()
+            cursor.execute("INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,';',0);",(team,True,False,True,False,True,False,True,False,True,False,defIso,defIso,False,0,0,))
+            cursor.close()
+            self.con.commit()
+        except: print_exc()
+
+    def getAllTeamIds(self):
+        try:
             cursor = self.con.cursor()
+            cursor.execute("SELECT id FROM teamVictory")
+            result = cursor.fetchall()
+            cursor.close()
 
-            # MajTeamVic1
+            toReturn = []
+            for tmp in result: toReturn.append(int(tmp["id"]))
+            return toReturn
+        except: print_exc(); raise
         
-            try:
-                cursor.execute("SELECT totalWin FROM teamVictory;")
-            except:
-                temp = ""
-                for a in majTeamVic1:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
-
-                cursor.execute("UPDATE teamVictory SET totalWin = ?, totalFight = ?;",(0,0))
-                self.con.commit()
-                print("majTeamVic1 réalisée")
-
-            try:
-                cursor.execute("SELECT fightingInfo FROM teamVictory;")
-            except:
-                temp = ""
-                for a in majTeamVic2:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
-
-                cursor.execute("UPDATE teamVictory SET fightingInfo = ?;",(';',))
-                self.con.commit()
-                print("majTeamVic2 réalisée")                
-        
-            try:
-                cursor.execute("SELECT fightingChannel FROM teamVictory;")
-            except:
-                temp = ""
-                for a in majTeamVic3:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
-
-                cursor.execute("UPDATE teamVictory SET fightingChannel = ?;",(0,))
-                self.con.commit()
-                print("majTeamVic3 réalisée")                
-
-        elif database=="custom_icon.db":
+    def delTeam(self,team):
+        try:
             cursor = self.con.cursor()
-            try:
-                cursor.execute("SELECT iconForm FROM custom_icon;")
-            except:
-                temp = ""
-                for a in majUserIcon1:
-                    if a != ";":
-                        temp+=a
-                    else:
-                        cursor.execute(temp)
-                        temp = ""
-
-                self.con.commit()
-                print("majUserIcon1 réalisée")
+            cursor.execute("DELETE FROM teamVictory WHERE id = {0};".format(team))
+            self.con.commit()
+            cursor.close()
+            return True
+        except: print_exc(); return False
 
     def addIconFiles(self,species:int,color:int,file):
         cursor = self.con.cursor()
         params = (species,color,file)
         query = "INSERT INTO color_icon VALUES (?,?,?);"
-        try:
-            cursor.execute(query,params)
-        except:
-            pass
+        try: cursor.execute(query,params)
+        except: pass
         cursor.close()
         self.con.commit()
 
     def getIdFromEmoji(self,emoji,where):
         for obj in adv.stuffs + adv.weapons:
-            if obj.emoji == emoji:
-                return obj.id
+            if obj.emoji == emoji: return obj.id
 
     def haveCustomIcon(self,user):
         cursor = self.con.cursor()
@@ -405,103 +114,52 @@ class dbHandler():
         else:
             return True
 
-    def getVictoryStreak(self,user):
+    def getVictoryStreak(self, user, returnStr=False):
         team = user.team
-        if user.team == 0:
-            team = user.owner
+        if user.team == 0: team = user.owner
         cursor = self.con.cursor()
-        query = f"SELECT * FROM teamVictory WHERE id = ?;"
-        cursor.execute(query,(int(team),))
+        cursor.execute("SELECT * FROM teamVictory WHERE id = ?;",(team,))
         result = cursor.fetchall()
-
-        if len(result) > 0:
-            result = result[0]
-            win = 0
-            tabl = [result["1"],result["2"],result["3"],result["4"],result["5"],result["6"],result["7"],result["8"],result["9"],result["10"]]
-            for a in tabl:
-                if a:
-                    win += 1
-            return win
-
-        else:
-            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,';',0);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-            return 5
-
+        
         cursor.close()
 
-    def getVictoryStreakStr(self,user):
-        team = user.team
-        if user.team == 0:
-            team = user.owner
-        cursor = self.con.cursor()
-        query = f"SELECT * FROM teamVictory WHERE id = ?;"
-        cursor.execute(query,(int(team),))
-        result = cursor.fetchall()
-
         if len(result) > 0:
-            result = result[0]
-            win = ""
+            result, winNb, winStr = result[0], 0, ""
             tabl = [result["1"],result["2"],result["3"],result["4"],result["5"],result["6"],result["7"],result["8"],result["9"],result["10"]]
-            cmpt = 0
-            winCmpt = 0
-            while cmpt < 10:
-                if tabl[cmpt]:
-                    win += "🟢"
-                    winCmpt += 1
-                else:
-                    win += "🔴"
+            for indx, tmpResult in enumerate(tabl):
+                if tmpResult: winNb += 1; winStr += "🟢"
+                else: winStr += "🔴"
 
-                if cmpt != 9:
-                    win += ","
-
-                cmpt += 1
-            win += "\n__Taux de victoire des derniers combats :__ {0}%".format(int(winCmpt/10*100))
-            try:
-                win += "\n__Taux de victoire total :__ {0}%".format(round(result["totalWin"]/result["totalFight"]*100,1))
-            except:
-                pass
-            return win
+                if indx != 9: winStr += ","
+            
+            if not(returnStr): return winNb
+            else:
+                winStr += "\n__Taux de victoire des derniers combats :__ {0}%".format(int(winNb/10*100))
+                try: winStr += "\n__Taux de victoire total :__ {0}%".format(round(result["totalWin"]/result["totalFight"]*100,1))
+                except: pass
+                return winStr
 
         else:
-            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0,";",0)
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-            return "🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴"
-
-        cursor.close()
+            self.addTeam(team)
+            if not(returnStr): return 5
+            else: return "🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴,🟢,🔴"
 
     def addResultToStreak(self,user,resultat : bool):
         team = user.team
-        if team == 0:
-            team = user.owner
+        if team == 0: team = user.owner
         cursor = self.con.cursor()
-        query = f"SELECT * FROM teamVictory WHERE id = ?;"
-        cursor.execute(query,(int(team),))
+        cursor.execute("SELECT * FROM teamVictory WHERE id = ?;",(team,))
         result = cursor.fetchall()
-        if len(result) > 0:
-            result = result[0]
+        if len(result) > 0: result = result[0]
         else:
-            query = "INSERT INTO teamVictory VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);"
-            params = (int(team),True,False,True,False,True,False,True,False,True,False,datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),datetime.min.strftime("%m/%d/%Y, %H:%M:%S"),False,0,0)
-            cursor.execute(query,params)
-            cursor.close()
-            self.con.commit()
-            query = f"SELECT * FROM teamVictory WHERE id = ?;"
-            cursor.execute(query,(team,))
+            self.addTeam(team)
+            cursor.execute("SELECT * FROM teamVictory WHERE id = ?;",(team,))
             result = cursor.fetchall()[0]
 
         nbWin = result["totalWin"]
         nbWin += int(resultat)
 
-        params = (resultat, result["1"], result["2"], result["3"], result["4"], result["5"], result["6"], result["7"], result["8"], result["9"], nbWin, result["totalFight"]+1, team,)
-        query = "UPDATE teamVictory SET '1'=?, '2'=?, '3'=?, '4'=?, '5'=?, '6'=?, '7'=?, '8'=?, '9'=?, '10'=?, totalWin = ?, totalFight=? WHERE id = ?;"
-        cursor.execute(query,params)
+        cursor.execute("UPDATE teamVictory SET '1'=?, '2'=?, '3'=?, '4'=?, '5'=?, '6'=?, '7'=?, '8'=?, '9'=?, '10'=?, totalWin = ?, totalFight=? WHERE id = ?;",(resultat, result["1"], result["2"], result["3"], result["4"], result["5"], result["6"], result["7"], result["8"], result["9"], nbWin, result["totalFight"]+1, team,))
         self.con.commit()
         cursor.close()
 
@@ -522,6 +180,7 @@ class dbHandler():
             return True
         except:
             return False
+    
     def remarkeCustomDB(self):
         cursor = self.con.cursor()
         cursor.execute("CREATE TABLE color_icon (\n    species,\n    color,\n    file     UNIQUE\n);")
@@ -530,6 +189,7 @@ class dbHandler():
         cursor.execute("CREATE TABLE weap_has_png (\n    weapon  PRIMARY KEY\n            UNIQUE,\n    file\n);")
         self.con.commit()
         cursor.close()
+    
     def dropCustomDB(self):
         cursor = self.con.cursor()
         cursor.execute("DROP TABLE color_icon;")
@@ -538,6 +198,7 @@ class dbHandler():
         cursor.execute("DROP TABLE weap_has_png;")
         self.con.commit()
         cursor.close()
+    
     def getShop(self):
         cursor = self.con.cursor()
         cursor.execute("SELECT * FROM shop;")
@@ -569,79 +230,56 @@ class dbHandler():
         ennemiNames = ""
         value = int(value)
         channel = int(value)
-        for a in ennemis:
-            ennemiNames += "{0};".format(a.name)
+        for a in ennemis: ennemiNames += "{0};".format(a.name)
 
-        if ennemiNames == "":
-            ennemiNames = ";"
+        if ennemiNames == "": ennemiNames = ";"
         
-        if value == 0:
-            channel = 0
+        if value == 0: channel = 0
         cursor.execute("UPDATE teamVictory SET isFighting = ?, fightingInfo = ?, fightingChannel = ? WHERE id = ?",(value,ennemiNames,channel,team,))
         self.con.commit()
         cursor.close()
 
-    def getFightCooldown(self,team : int,quickFight = False,timestamp=False,returnDate=False):
+    def getFightCooldown(self,team : int ,quickFight = False ,timestamp=False ,returnDate=False):
         cursor = self.con.cursor()
         quickFight = int(quickFight)
         tabl = ["lastFight","lastQuickFight"]
-        if quickFight:
-            cursor.execute("SELECT lastQuickFight FROM teamVictory WHERE id = ?;",(team,))
-        else:
-            cursor.execute("SELECT lastFight FROM teamVictory WHERE id = ?;",(team,))
+        if quickFight: cursor.execute("SELECT lastQuickFight FROM teamVictory WHERE id = ?;",(team,))
+        else: cursor.execute("SELECT lastFight FROM teamVictory WHERE id = ?;",(team,))
         result = cursor.fetchall()
+        cursor.close()
         if len(result)>0:
-            if quickFight:
-                result = result[0]["lastQuickFight"]
-            else:
-                result = result[0]["lastFight"]
+            if quickFight: result = result[0]["lastQuickFight"]
+            else: result = result[0]["lastFight"]
             try:
                 result = datetime.fromisoformat(result)
-                if result.tzinfo == None:
-                    result = result.replace(tzinfo=parisTimeZone)
-            except ValueError:
-                result = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
-            except:
-                print_exc()
-                print("Error endled")
-                result = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
+                if result.tzinfo == None: result = result.replace(tzinfo=parisTimeZone)
+            except ValueError: result = defaultDate
+            except: print_exc(); print("Error endled"); result = defaultDate
 
-            if returnDate:
-                return result
+            if returnDate: return result
 
             delta = result + timedelta(hours=1+(2*int(quickFight)))
             if not(timestamp):
-                try:
-                    now = datetime.now(parisTimeZone)
-                    ballerine = delta - now
-                except:
-                    print_exc()
-                    print("Error endled")
-                    return 999
+                try: now = datetime.now(parisTimeZone); ballerine = delta - now
+                except: print_exc(); print("Error endled"); return 999
                 return max(0,int(ballerine.total_seconds()))
             else:
                 timy = delta
-                if delta.year == delta.month == delta.day == 1:
-                    delta = datetime(year=2001,month=1,day=19,hour=19,minute=26,second=57,tzinfo=parisTimeZone)
-                    delta = delta.isoformat()
-                else:
-                    delta = timy.isoformat()
+                if delta.year == delta.month == delta.day == 1: delta = defaultDate; delta = delta.isoformat()
+                else: delta = timy.isoformat()
                 return ["✅ ","❌ "][(timy-datetime.now(parisTimeZone)).total_seconds()>0] + Timestamp.fromisoformat(delta).format(interactions.models.discord.timestamp.TimestampStyles.RelativeTime)
         else:
-            return 0
+            self.addTeam(team)
+            if returnDate: return defaultDate
+            else: return (defaultDate-datetime.now(parisTimeZone)).total_seconds()
 
     def refreshFightCooldown(self,team : int,quickFight = False, fromTime : Union[None,datetime,int] = None):
         cursor = self.con.cursor()
-        if fromTime == None:
-            now = datetime.now(parisTimeZone).isoformat()
-        elif fromTime == 0:
-            now = datetime.strptime("01/19/2001, 19:26:57","%m/%d/%Y, %H:%M:%S").isoformat()
-        else:
-            now = fromTime.isoformat()
-        if quickFight:
-            cursor.execute("UPDATE teamVictory SET lastQuickFight = ? WHERE id = ?;",(now,team,))
-        else:
-            cursor.execute("UPDATE teamVictory SET lastFight = ? WHERE id = ?;",(now,team,))
+        if fromTime == None: now = datetime.now(parisTimeZone).isoformat()
+        elif fromTime == 0: now = defaultDate.isoformat()
+        else: now = fromTime.isoformat()
+        if quickFight: cursor.execute("UPDATE teamVictory SET lastQuickFight = ? WHERE id = ?;",(now,team,))
+        else: cursor.execute("UPDATE teamVictory SET lastFight = ? WHERE id = ?;",(now,team,))
         self.con.commit()
         cursor.close()
 

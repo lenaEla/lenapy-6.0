@@ -25,12 +25,9 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
         listUserProcure.append(loadCharFile("./userProfile/{0}.json".format(a)))
     
     def userSortValue(user):
-        if user.owner == mainUser.owner:
-            return 2
-        elif user.team == mainUser.team and user.team != 0:
-            return 1
-        else:
-            return 0
+        if user.owner == mainUser.owner: return 2
+        elif user.team == mainUser.team and user.team != 0: return 1
+        else: return 0
 
     listUserProcure.sort(key=lambda ballerine: userSortValue(ballerine),reverse=True)
 
@@ -154,22 +151,18 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
                         await babie.edit(embeds = toRespondEmb)
                     else:
                         await ctx.channel.send(embeds = toRespondEmb)
-                return 1
+                if msg == None: return 1
+                else: state = 0
             else:
                 state = 0
                 errorMsg = ""
-                if points > user.points:
-                    errorMsg += "- Vous n'avez pas assez de points à attribuer (Vous avez {0} point{1})\n".format(user.points, ["","s"][user.points > 1])
-                if points <= 0:
-                    errorMsg += "- Vous le nombre de points à attribuer doit être supérieur à 0\n"
-                if user.bonusPoints[stat] >= MAXBONUSPERSTAT:
-                    errorMsg += "- Vous avez déjà attribué le maximum de points bonus dans cette catégorie\n"
-                if user.bonusPoints[stat]+points >= MAXBONUSPERSTAT:
-                    errorMsg += "- Le nombre de points spécifié dépasse la limite maximum de points bonus dans une seule catégorie (Vous ne pouvez placer plus que {0} point{1} dans cette statistique)\n".format(MAXBONUSPERSTAT-user.bonusPoints[stat],["","s"][MAXBONUSPERSTAT-user.bonusPoints[stat]])
+                if points > user.points: errorMsg += "- Vous n'avez pas assez de points à attribuer (Vous avez {0} point{1})\n".format(user.points, ["","s"][user.points > 1])
+                if user.bonusPoints[stat] >= MAXBONUSPERSTAT: errorMsg += "- Vous avez déjà attribué le maximum de points bonus dans cette catégorie\n"
+                if user.bonusPoints[stat]+points >= MAXBONUSPERSTAT: errorMsg += "- Le nombre de points spécifié dépasse la limite maximum de points bonus dans une seule catégorie (Vous ne pouvez placer plus que {0} point{1} dans cette statistique)\n".format(MAXBONUSPERSTAT-user.bonusPoints[stat],["","s"][MAXBONUSPERSTAT-user.bonusPoints[stat]])
 
                 if not(ctx.responded):
                     await ctx.send(embeds= interactions.Embed(title="__/stats__ :",color=red,description="Vos points n'ont pas été attribués :\n"+errorMsg))
-                    return 0
+                    if msg == None: return 0
                 else:
                     if babie != None:
                         await babie.edit(embeds= interactions.Embed(title="__/stats__ :",color=red,description="Vos points n'ont pas été attribués :\n"+errorMsg))
@@ -206,11 +199,9 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
                     if not(ctx.responded):
                         await ctx.send(embeds = toRespondEmb)
                     else:
-                        if babie != None:
-                            await babie.edit(embeds = toRespondEmb,components=[])
-                        else:
-                            await msg.reply(embeds = toRespondEmb)
-                    return 1
+                        if babie != None: await babie.edit(embeds = toRespondEmb,components=[])
+                        else: await msg.reply(embeds = toRespondEmb)
+                    state = 0
                 else:
                     await babie.delete()
                     babie, state = None, 0

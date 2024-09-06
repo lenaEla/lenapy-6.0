@@ -226,11 +226,10 @@ class cell:
             rep.append(self)
         elif area in [AREA_RANDOMENNEMI_1,AREA_RANDOMENNEMI_2,AREA_RANDOMENNEMI_3,AREA_RANDOMENNEMI_4,AREA_RANDOMENNEMI_5,AREA_RANDOMALLIE_1,AREA_RANDOMALLIE_2,AREA_RANDOMALLIE_3,AREA_RANDOMALLIE_4,AREA_RANDOMALLIE_5]:
             for cell in self.tablAllCells:
-                if (cell.on != None and cell.on.team != team and area <= AREA_RANDOMENNEMI_5) or (cell.on != None and cell.on.team == team and area > AREA_RANDOMENNEMI_5) and type(cell.on.char) != classes.invoc:
-                    rep.append(cell)
-            nbToReturn = area-[AREA_RANDOMENNEMI_1,AREA_RANDOMALLIE_1][area>=AREA_RANDOMALLIE_1]+1
-            while len(rep) < nbToReturn-2:
-                rep.append(rep[random.randint(0,len(rep)-1)])
+                if (cell.on != None and cell.on.team != team and area <= AREA_RANDOMENNEMI_5) or (cell.on != None and cell.on.team == team and area > AREA_RANDOMENNEMI_5) and type(cell.on.char) != classes.invoc:rep.append(cell)
+            nbToReturn, now = area-[AREA_RANDOMENNEMI_1,AREA_RANDOMALLIE_1][area>=AREA_RANDOMALLIE_1]+1, datetime.now()
+            while len(rep) < nbToReturn-2: rep.append(rep[random.randint(0,len(rep)-1)])
+            random.shuffle(rep)
             return rep[0:min(nbToReturn,len(rep))]
         elif area in [AREA_INLINE_2,AREA_INLINE_3,AREA_INLINE_4,AREA_INLINE_5]:
             for celly in self.tablAllCells:
@@ -280,8 +279,7 @@ class cell:
             .ignoreAspiration : Do we need to ignore certains entities for their aspirations ? Default ``None``
         """
 
-        if area==AREA_MONO:                 # If the area is monocible, directly return a list with only the entity on the cell
-            return [self.on]
+        if area==AREA_MONO: return [self.on]
 
         rep = []
         if type(effect)!=list:
@@ -557,125 +555,82 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
     effTmp, boucle, iteration, powerPurcent = "", True, False, [powerPurcent,100][powerPurcent==None]
     while boucle:
         eff = findEffect(effId)
-        if eff.callOnTrigger != None and eff.trigger==TRIGGER_INSTANT and eff.type in [TYPE_BOOST,TYPE_MALUS]:
-            effSelf = findEffect(eff.callOnTrigger)
-            txt = " ({0} autour de la cible)".format(areaEmojis[eff.area])
-            eff: classes.effect = effSelf
-        fieldname, bonus, malus, Stat = "{0} :".format(eff), "", "", ""
-        if eff.stat == None:
-            Stat = "- Fixe"
-        elif eff.stat == PURCENTAGE:
-            Stat = "% Pourcentage"
-        elif eff.stat == MISSING_HP:
-            Stat = "% Pourcentage PV Manquant"
-        elif eff.stat != HARMONIE:
-            Stat = statsEmojis[eff.stat] + " " +allStatsNames[eff.stat]
-        else:
-            Stat = "Harmonie"
+        if eff.callOnTrigger != None and eff.trigger==TRIGGER_INSTANT and eff.type in [TYPE_BOOST,TYPE_MALUS]: txt = " ({0} autour de la cible)".format(areaEmojis[eff.area]); eff: classes.effect = findEffect(eff.callOnTrigger)
+        fieldname, bonus, malus, Stat = "<:em:866459463568850954>\n{0} :".format(eff), "", "", ""
+        if eff.stat == None: Stat = "- Fixe"
+        elif eff.stat == PURCENTAGE: Stat = "% Pourcentage"
+        elif eff.stat == MISSING_HP: Stat = "% Pourcentage PV Manquant"
+        elif eff.stat != HARMONIE: Stat = statsEmojis[eff.stat] + " " +allStatsNames[eff.stat]
+        else: Stat = "Harmonie"
 
-        if eff.turnInit == -1:
-            initDur = "\n__Durée :__ Infinie\n"
-        elif eff.trigger!=TRIGGER_INSTANT:
-            initDur = "\n__Durée :__ {0} tour{1}\n".format(eff.turnInit,["","s"][eff.turnInit>1])
-        else:
-            initDur = "\n"
-        if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None:
-            effCalled = findEffect(eff.callOnTrigger)
-            called = "\nLorsqu'il se déclanche, cet effet {0} {1} __{2}__ aux cibles dans la zone d'effet".format(["octroi","inflige"][effCalled.type in hostileTypes],effCalled.emoji[0][0], effCalled.name)
-        else:
-            called = ""
+        if eff.turnInit == -1: initDur = "\n__Durée :__ Infinie\n"
+        elif eff.trigger!=TRIGGER_INSTANT: initDur = "\n__Durée :__ {0} tour{1}\n".format(eff.turnInit,["","s"][eff.turnInit>1])
+        else: initDur = "\n"
+        if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None: effCalled = findEffect(eff.callOnTrigger); called = "\nLorsqu'il se déclanche, cet effet {0} {1} aux cibles dans la zone d'effet".format(["octroie","inflige"][effCalled.type in hostileTypes],effCalled)
+        else: called = ""
         typeEmoji = ""
 
-        if eff.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION]:
-            typeEmoji = statsEmojis[ACT_HEAL_FULL]
-        elif eff.type in [TYPE_INDIRECT_DAMAGE]:
-            typeEmoji = statsEmojis[ACT_INDIRECT_FULL]
-        elif eff.type in [TYPE_ARMOR]:
-            typeEmoji = statsEmojis[ACT_SHIELD_FULL]
-        elif eff.type in [TYPE_BOOST,TYPE_MALUS]:
-            typeEmoji = statsEmojis[ACT_BOOST_FULL]
-        elif eff.type in [TYPE_SUMMON,TYPE_DEPL]:
-            typeEmoji = "<:Icn_Sprinkler:1080807633432350801>"
-        elif eff.type in [TYPE_DAMAGE]:
-            typeEmoji = statsEmojis[ACT_DIRECT_FULL]
+        if eff.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION]: typeEmoji = statsEmojis[ACT_HEAL_FULL]
+        elif eff.type in [TYPE_INDIRECT_DAMAGE]: typeEmoji = statsEmojis[ACT_INDIRECT_FULL]
+        elif eff.type in [TYPE_ARMOR]: typeEmoji = statsEmojis[ACT_SHIELD_FULL]
+        elif eff.type in [TYPE_BOOST,TYPE_MALUS]: typeEmoji = statsEmojis[ACT_BOOST_FULL]
+        elif eff.type in [TYPE_SUMMON,TYPE_DEPL]: typeEmoji = "<:Icn_Sprinkler:1080807633432350801>"
+        elif eff.type in [TYPE_DAMAGE]: typeEmoji = statsEmojis[ACT_DIRECT_FULL]
 
         effTmp += "__Type :__ {1} {0}".format(allTypeNames[eff.type],typeEmoji)
-        if eff.power > 0:
-            powa = max(eff.power, eff.overhealth)*([powerPurcent,100][eff.stat in [PURCENTAGE,FIXE,None,MISSING_HP]]/100)
-            effTmp += "\n__Puissance :__ **"+str(round(powa,[1,0][powa.is_integer()]))+"**"
+        if eff.power > 0: powa = max(eff.power, eff.overhealth)*([powerPurcent,100][eff.stat in [PURCENTAGE,FIXE,None,MISSING_HP]]/100); effTmp += "\n__Puissance :__ **"+str(round(powa,[1,0][powa.is_integer()]))+"**"
 
-        if eff.stackable:
-            cumu = "\n\nCet effet est **cumulable**"
         effTmp += "{0}__Statistique :__ **{1}**".format(initDur,Stat)
 
-        if eff.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL] or eff.area != AREA_MONO:
-            effTmp += "\n__Zone d'effet :__ {0} {1}".format(areaEmojis[eff.area],areaNames[eff.area])
+        if eff.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL] or eff.area != AREA_MONO: effTmp += "\n__Zone d'effet :__ {0} {1}".format(areaEmojis[eff.area],areaNames[eff.area])
         
         addTxt = ""
-        if eff.trigger != TRIGGER_PASSIVE:
-            addTxt += "\nCet effet se délanche {0}".format(triggersTxt[eff.trigger])
-        if eff.stackable:
-            addTxt += "\nCet effet est **cumulable**"
-        if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None:
-            effCalled = findEffect(eff.callOnTrigger)
-            addTxt += "\nEn se déclanchant, {0} {1}".format(["octroi","inflige"][effCalled.type in hostileTypes],effCalled)
+        if eff.trigger != TRIGGER_PASSIVE: addTxt += "\nCet effet se délanche {0}".format(triggersTxt[eff.trigger])
+        if eff.stackable: addTxt += "\nCet effet est **cumulable**"
+        if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None: effCalled = findEffect(eff.callOnTrigger); addTxt += "\nEn se déclanchant, cet effet {0} {1}".format(["octroie","inflige"][effCalled.type in hostileTypes],effCalled)
 
-        if eff.lvl not in [1,99] and eff.trigger not in [TRIGGER_PASSIVE] and eff.type not in [TYPE_PASSIVE,TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR] and eff.lvl != eff.turnInit:
-            addTxt += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
+        if eff.lvl not in [1,99] and eff.trigger not in [TRIGGER_PASSIVE] and eff.type not in [TYPE_PASSIVE,TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR] and eff.lvl != eff.turnInit: addTxt += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
         stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge, eff.critDmgUp, eff.critHealUp, eff.dmgUp, eff.healUp, eff.counterOnBlock, eff.counterOnDodge]
         names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage","Prob. Esquive", "Dégâts Critiques","Soins Critiques", "Dégâts non critiques","Soins non critiques","Prob. Contre lors d'un blocage","Prob. Contre lors d'une esquive"]
 
-        if eff.redirection > 0:
-            addTxt += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**".format(eff.redirection)
-        if eff.immunity:
-            addTxt += "\nCet effect rend le porteur **invulnérable aux dégâts**"
+        if eff.redirection > 0: addTxt += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**".format(eff.redirection)
+        if eff.immunity: addTxt += "\nCet effet rend le porteur **invulnérable aux dégâts**"
+        if eff.armorDmgBonus > 0: addTxt += "\nCet effet augmente les dégâts du porteur sur les armures de **{0}%**".format(int(eff.armorDmgBonus*100))
 
-        if addTxt != "":
-            effTmp += "\n"+addTxt
+        if addTxt != "": effTmp += "\n"+addTxt
         if eff.description != "Pas de description":
-            if eff.stat not in [FIXE,None,PURCENTAGE]:
-                statEm = " ({})".format(statsEmojis[eff.stat])
-            else:
-                statEm = ""
+            if eff.stat not in [FIXE,None,PURCENTAGE]: statEm = " ({})".format(statsEmojis[eff.stat])
+            else: statEm = ""
             effTmp += "\n\n{1}__Description :__\n{0}\n".format(eff.description.format(str([round(eff.power*(powerPurcent/100),1),eff.power][type(eff.power)==int])+statEm, str(int(eff.power*powerPurcent/100)//2)+statEm),["","\n"][effTmp[-1] == "\n"])
         for a in range(len(stats)):
-            if stats[a] > 0:
-                bonus += "{2} __{0}__ : +{1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
-            elif stats[a] < 0:
-                malus += "{2} __{0}__ : {1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
+            if stats[a] > 0: bonus += "{2} __{0}__ : +{1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
+            elif stats[a] < 0: malus += "{2} __{0}__ : {1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statsEmojis[a],""][a>CRITICAL])
 
-        if bonus != "":
-            effTmp += ["\n",""][effTmp[-1]=="\n"]+"\n**__Bonus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + bonus
-        if malus != "":
-            effTmp += ["\n",""][effTmp[-1]=="\n"]+"\n**__Malus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + malus
+        if bonus != "": effTmp += ["\n",""][effTmp[-1]=="\n"]+"\n**__Bonus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + bonus
+        if malus != "": effTmp += ["\n",""][effTmp[-1]=="\n"]+"\n**__Malus de statistiques :__**{0}\n".format([""," *({0}%)*".format(powerPurcent)][powerPurcent!=100]) + malus
 
-        if eff.inkResistance > 0 and eff.stat != None:
-            effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base"
-        if eff.block > 0:
-            effTmp += "\n__Blocage :__\nUne attaque bloquée réduit de **35%** les dégâts reçus"
-        if eff.counterOnDodge > 0:
-            effTmp += "\n__Contre Attaque :__\n- Puissance : **{0}**, Harmonie".format(COUNTERPOWER)
+        if eff.inkResistance > 0 and eff.stat != None: effTmp += "\nLa résistance aux dégâts indirects ne peux pas dépasser 3 fois sa valeur de base"
+        if eff.block > 0: effTmp += "\n__Blocage :__\nUne attaque bloquée réduit de **35%** les dégâts reçus"
+        if eff.counterOnDodge > 0: effTmp += "\n__Contre Attaque :__\n- Puissance : **{0}**, Harmonie".format(COUNTERPOWER)
         if eff.reject != None:
             effTmp += "\n{0}__Cet effet n'est pas compatible avec les effets :__\n".format(["","\n"][effTmp[-1]!="\n"])
             for a in eff.reject:
                 rejected = findEffect(a)
                 effTmp += f"{rejected.emoji[user.species-1][0]} {rejected.name}\n"
 
-        effTmp = reduceEmojiNames(effTmp)
-        if len(effTmp) > 1024:
-            effTmp = completlyRemoveEmoji(effTmp)
+        effTmp, fieldname = reduceEmojiNames(effTmp), reduceEmojiNames(fieldname)
+        if len(effTmp) > 1024: effTmp = completlyRemoveEmoji(effTmp)
         if eff.callOnTrigger != None and not(iteration) and type(eff.callOnTrigger) in [str,effect]:
-            lastName = effId.name
             effId = findEffect(eff.callOnTrigger)
             iteration = True
 
+            if effTmp.endswith("<:em:866459463568850954>"): effTmp = "\n".join(effTmp.splitlines()[:-1])
             emb.add_field(name=fieldname, value=effTmp, inline=False)
-            effTmp, txt = "", " ("+lastName+")"
+            effTmp, txt = "", ""
         elif eff.callOnTrigger != None and iteration and type(eff.callOnTrigger) in [str,effect]:
             effId = findEffect(eff.callOnTrigger)
             emb.add_field(name=fieldname, value=effTmp, inline=False)
-            if eff.area != AREA_MONO:
-                emb.add_field(name="__Zone d'effet :__", value="{0} {1}".format(areaEmojis[eff.area],areaNames[eff.area]))
+            if eff.area != AREA_MONO: emb.add_field(name="__Zone d'effet :__", value="{0} {1}".format(areaEmojis[eff.area],areaNames[eff.area]))
             break
         elif eff.callOnTrigger != None and type(eff.callOnTrigger) == depl:
             emb.add_field(name="__Cet effet invoque un Déployable :__",value="{0} __{1}__ : {2}".format(eff.callOnTrigger.icon[0],eff.callOnTrigger.name,eff.callOnTrigger.description),inline=False)
@@ -692,10 +647,8 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
             emb.add_field(name="__Cet effet invoque {0} {1} autour de la cible :__".format(smn.icon[0],smn.name),value=smnDesc,inline=False)
             break
         else:
-            if not(self):
-                emb.add_field(name="<:em:866459463568850954>\n" +fieldname + txt, value=reduceEmojiNames(effTmp), inline=False)
-            else:
-                emb.add_field(name="<:em:866459463568850954>\n" + fieldname, value=reduceEmojiNames(effTmp), inline=False)
+            if not(self): emb.add_field(name=fieldname + txt, value=reduceEmojiNames(effTmp), inline=False)
+            else: emb.add_field(name=fieldname, value=reduceEmojiNames(effTmp), inline=False)
             break
 
     if eff.id == neutralCard.id:
@@ -767,10 +720,8 @@ def infoSkill(skill: skill, user: char, ctx):
             desc, listConds = desc + "\n\nCette compétence regroupe les compétences suivantes :\n", []
             for cmpt in range(len(skil.become)):
                 desc += "{1} __{0}__".format(skil.become[cmpt].name, skil.become[cmpt].emoji)
-                if cmpt < len(skil.become)-2:
-                    desc += ", "
-                elif cmpt == len(skil.become)-2:
-                    desc += " et "
+                if cmpt < len(skil.become)-2: desc += ", "
+                elif cmpt == len(skil.become)-2: desc += " et "
 
             desc += "\nLeurs temps de rechargement sont syncronisés"
 
@@ -828,8 +779,7 @@ def infoSkill(skill: skill, user: char, ctx):
                 temp += " ({0} {1})".format(statsEmojis[CRITICAL+1+skil.useActionStats],allStatsNames[CRITICAL+1+skil.useActionStats])
             temp += "\n"
 
-        if skil.description != None:
-            temp += "\n__Description :__\n"+skil.quickDesc+["","\n\n"][len(skil.quickDesc)>0]+skil.description+"\n"
+        if skil.description != None: temp += "\n__Description :__\n"+skil.quickDesc+["","\n\n"][len(skil.quickDesc)>0]+skil.description+"\n"
 
         # Power, Success and Damage Type
         if skil.become == None:
@@ -907,52 +857,63 @@ def infoSkill(skill: skill, user: char, ctx):
                         multi = " x{0}".format(tmpSkill.repetition)
                     if type(tmpSkill.maxPower) == int and (tmpSkill.maxPower > 0 and tmpSkill.maxPower != tmpSkill.power):
                         maPow = " → **{0}**".format(tmpSkill.maxPower)
-                    tempMsg += "**{0}**{2}{3} ({1})\n".format(tmpSkill.power, tmpSkill.name, multi, maPow)
+                    tempMsg += "{1} : **{0}**{2}{3}\n".format(tmpSkill.power, tmpSkill, multi, maPow)
                 maxPowerComb += tmpSkill.maxPower
 
-            if tempMsg != "":
-                temp += "\n__Puissances :__\n"+tempMsg
+            if tempMsg != "": temp += "\n__Puissances :__\n"+tempMsg
 
-            tempMsg = ""
+            tempMsg, dictAccuracy = "", {}
             for tmpSkill in skil.become:
                 if tmpSkill.type == TYPE_DAMAGE:
-                    tempMsg += "{0}% ({1})\n".format(tmpSkill.accuracy, tmpSkill.name)
+                    if tmpSkill.accuracy in dictAccuracy.keys(): dictAccuracy[tmpSkill.accuracy] += [tmpSkill]
+                    else: dictAccuracy[tmpSkill.accuracy] = [tmpSkill]
+            
+            for tmpKey, tmpList in dictAccuracy.items():
+                for tmpSkill in tmpList:
+                    tempMsg += str(tmpSkill)+", "
+                tempMsg = tempMsg[:-2] + " : {0}%\n".format(tmpKey)
 
-            if tempMsg != "":
-                temp += "\n__Précisions :__\n"+tempMsg
+            if tempMsg != "": temp += "\n__Précision :__\n"+tempMsg[:-1]
 
         suppStats, temp3 = "", ""
 
         if skil.jaugeEff != None:
-            if skil.minJaugeValue != 0:
-                temp3 += "\n__Coût minimal en {1} {2} :__ **{0}**".format(skil.minJaugeValue, skil.jaugeEff.emoji[0][0], skil.jaugeEff.name)
-            if skil.maxJaugeValue != skil.minJaugeValue:
-                temp3 += "\n__Coût maximal en {1} {2} :__ **{0}**".format(skil.maxJaugeValue, skil.jaugeEff.emoji[0][0], skil.jaugeEff.name)
+            if skil.minJaugeValue != 0: temp3 += "\n__Coût minimal en {1} {2} :__ **{0}**".format(skil.minJaugeValue, skil.jaugeEff.emoji[0][0], skil.jaugeEff.name)
+            if skil.maxJaugeValue != skil.minJaugeValue: temp3 += "\n__Coût maximal en {1} {2} :__ **{0}**".format(skil.maxJaugeValue, skil.jaugeEff.emoji[0][0], skil.jaugeEff.name)
 
         if skil.range == AREA_MONO and skil.type != TYPE_PASSIVE:
             suppStats += "{0} Se lance sur soi-même\n".format(rangeAreaEmojis[0])
 
         if skil.effects != [None]:
-            effDesc = "\n**__Effet{0} {2}{0} {1} :__**\n".format(["","s"][len(skil.effects)>1],["à la cible",'aux cibles'][skil.area != AREA_MONO], ["octroyé","infligé"][skil.type in hostileTypes])
+            effDesc, tLenEff = "\n**__Effet{0} {2}{0} {1} :__**\n".format(["","s"][len(skil.effects)>1],["à la cible",'aux cibles'][skil.area != AREA_MONO], ["octroyé","infligé"][skil.type in hostileTypes]), 0
             if skil.effPowerPurcent != 100:
-                if skil.jaugeEff == None or (skil.type not in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_DAMAGE,TYPE_MALUS]):
-                    effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.effPowerPurcent)
-                else:
-                    effDesc += "*Puissance et statistiques : de {0}% à {1}%*\n".format(skil.effPowerPurcent//2,skil.effPowerPurcent)
+                if skil.jaugeEff == None or (skil.type not in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_DAMAGE,TYPE_MALUS]): effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.effPowerPurcent)
+                else: effDesc += "*Puissance et statistiques : de {0}% à {1}%*\n".format(skil.effPowerPurcent//2,skil.effPowerPurcent)
             for eff in skil.effects:
                 if type(eff) == effect:
                     effDesc += "{0} {1}".format(eff.emoji[0][0], eff.name)
-                    if len(skil.effects) > 1 and skil.effects[-1] != eff:
-                        effDesc +=", "
+                    tLenEff += 1
+                    if len(skil.effects) > 1 and skil.effects[-1] != eff: effDesc +=", "
 
-            temp3 += effDesc + "\n<:em:866459463568850954>"
+            temp3 += effDesc + ["","\n<:empty:866459463568850954>"][tLenEff>0]
+
+        elif skil.become != None:
+            effDesc, tLenEff = "\n**__Effet{0} {2}{0} {1} :__**\n".format(["","s"][len(skil.effects)>1],["à la cible",'aux cibles'][skil.area != AREA_MONO], ["octroyé","infligé"][skil.type in hostileTypes]), 0
+            for tmpSkill in skil.become:
+                tmpDesc, lenEff = "{0} : ".format(str(tmpSkill)), 0
+                if tmpSkill.effPowerPurcent != 100:
+                    if tmpSkill.jaugeEff == None or (tmpSkill.type not in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_DAMAGE,TYPE_MALUS]): tmpDesc += "*Puissance et statistiques : {0}%*\n".format(tmpSkill.effPowerPurcent)
+                    else: tmpDesc += "*Puissance et statistiques : de {0}% à {1}%*\n".format(tmpSkill.effPowerPurcent//2,tmpSkill.effPowerPurcent)
+                for eff in tmpSkill.effects:
+                    eff = findEffect(eff)
+                    if type(eff) == effect: tmpDesc += "{0}, ".format(eff); lenEff += 1; tLenEff += 1
+                if lenEff >= 1: effDesc += tmpDesc[:-1] + "\n"
+            if tLenEff > 0: temp3 += "\n"+effDesc
 
         if skil.effectOnSelf != None:
             effDesc = "\n__Effet octroyé au lanceur :__\n"
-            if skil.effPowerPurcent != 100 or skil.selfEffPurcent != 100:
-                effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.selfEffPurcent)
+            if skil.effPowerPurcent != 100 or skil.selfEffPurcent != 100: effDesc += "*Puissance et statistiques : {0}%*\n".format(skil.selfEffPurcent)
             effDesc += "{0} {1}".format(skil.effectOnSelf.emoji[0][0], skil.effectOnSelf.name)
-
             temp3 += effDesc + "\n"
 
         if skil.become == None and skil.type in friendlyTypes+hostileTypes and not(skil.range == skil.area == AREA_MONO):
@@ -966,60 +927,37 @@ def infoSkill(skill: skill, user: char, ctx):
                 if becomeName.onArmor != 1:
                     temp3 += "\n__{2} {1}__ inflige **{0}%** de ses dégâts aux armures".format(int(becomeName.onArmor*100), becomeName.name, becomeName.emoji)
 
-        if skil.shareCooldown:
-            suppStats += "Cooldown Partagé"
-        if skil.initCooldown > 1 and skil.type != TYPE_PASSIVE:
-            suppStats += "Cooldown Initial : {0}\n".format(skil.initCooldown)
+        if skil.shareCooldown: suppStats += "Cooldown Partagé"
+        if skil.initCooldown > 1 and skil.type != TYPE_PASSIVE: suppStats += "Cooldown Initial : {0}\n".format(skil.initCooldown)
 
         if skil.condition != []:
             tempTabl, tempName = [aspiEmoji,elemEmojis][skil.condition[1]==ELEMENT], [inspi,elemNames][skil.condition[1]==ELEMENT]
             suppStats += "{0} Exclusivité de l'{1} **{2}**\n".format(tempTabl[skil.condition[2]],["aspiration","élément"][skil.condition[1]==ELEMENT], tempName[skil.condition[2]])
 
-        if skil.replay:
-            suppStats += "<:qqLuna:932318030380302386> Permet de **rejouer son tour**\n"
+        if skil.replay: suppStats += "<:qqLuna:932318030380302386> Permet de **rejouer son tour**\n"
+        if skil.maxHpCost > 0: suppStats += "<:dvin:1004737746377654383> Réduit de **{0}%** les PV Max\n".format(skil.maxHpCost)
+        if skil.hpCost > 0: suppStats += "<:dmon:1004737763771433130> Réduit de **{0}%** les PV actuels\n".format(skil.hpCost)
+        if skil.ultimate: suppStats += "<:littleStar:925860806602682369> Compétence Ultime\n"
+        if skil.execution : suppStats += "<:sacrified:973313400056725545> Exécution"
+        if skil.group != 0: suppStats += "{0} Compétence {1}\n".format(["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][skil.group],skillGroupNames[skil.group][0].upper()+skillGroupNames[skil.group][1:])
+        if skil.setAoEDamage: suppStats += "<:dislocation:1052697663402950667> Ignore la réduction de Dégâts de zone\n"
+        if skil.lifeSteal > 0: suppStats += "<:vampire:900312789686571018> Soigne de **{0}%** des dégâts infligés\n".format(skil.lifeSteal)
+        if skil.aoeLifeSteal > 0: suppStats += "<:aoeLifeSteal:1100770895846457376> Soigne les alliés alentours de **{0}%** des dégâts infligés\n".format(skil.aoeLifeSteal)
+        if skil.armorConvert > 0: suppStats += "<:converted:902527031663788032> Vous octroie une armure équivalent à **{0}%** des dégâts infligés\n".format(skil.armorConvert)
+        if skil.aoeArmorConvert > 0: suppStats += "<:aoeConvert:1100770918340497519> Octroie aux alliés alentours une armure équivalent à **{0}%** des dégâts infligés\n".format(skil.aoeArmorConvert)
+        if skil.erosion != 0: suppStats += "<:ConR:1028695463651717200> Réduit les PVs Max de la cible de **{0}%** des dégâts infliés\n".format(skil.erosion)
+        if skil.tpCac: suppStats += "<:iliLightSpeed:1046384202792308797> Saute **devant** de la cible\n"
+        if skil.tpBehind: suppStats += "<:liaCounter:998001563379437568> Saute **derrière** de la cible\n"
+        if skil.percing > 0: suppStats += "{1} Ignore **{0}%** de la Résistance de la cible\n".format(skil.percing,statsEmojis[PERCING])
 
-        if skil.maxHpCost > 0:
-            suppStats += "<:dvin:1004737746377654383> Réduit de **{0}%** les PV Max\n".format(skil.maxHpCost)
-        if skil.hpCost > 0:
-            suppStats += "<:dmon:1004737763771433130> Réduit de **{0}%** les PV actuels\n".format(skil.hpCost)
+        if skil.knockback > 0 and skil.become == None: suppStats += "<:piedVolt:1034208868068233348> Pousse les cibles de **{0} case{1}**\n".format(skil.knockback,["","s"][skil.knockback > 1])
+        if skil.pull > 0 and skil.become == None: suppStats += "<:spectralFury:1033016230333911080> Attire les cibles de **{0} case{1}**\n".format(skil.pull,["","s"][skil.pull > 1])
+        if skil.jumpBack: suppStats += "<:retPercu:1034210776703062057> Vous fait reculer de **{0} case{1}**\n".format(skil.jumpBack,["","s"][skil.jumpBack > 1])
+        if skil.garCrit: suppStats += "{0} Inflige forcément un coup critique\n".format(statsEmojis[CRITICAL])
 
-        if skil.ultimate:
-            suppStats += "<:littleStar:925860806602682369> Compétence Ultime\n"
-        if skil.execution :
-            suppStats += "<:sacrified:973313400056725545> Exécution"
-        if skil.group != 0:
-            suppStats += "{0} Compétence {1}\n".format(["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][skil.group],skillGroupNames[skil.group][0].upper()+skillGroupNames[skil.group][1:])
-        if skil.setAoEDamage:
-            suppStats += "<:dislocation:1052697663402950667> Ignore la réduction de Dégâts de zone\n"
-        if skil.lifeSteal > 0:
-            suppStats += "<:vampire:900312789686571018> Soigne de **{0}%** des dégâts infligés\n".format(skil.lifeSteal)
-        if skil.aoeLifeSteal > 0:
-            suppStats += "<:aoeLifeSteal:1100770895846457376> Soigne les alliés alentours de **{0}%** des dégâts infligés\n".format(skil.aoeLifeSteal)
-        if skil.armorConvert > 0:
-            suppStats += "<:converted:902527031663788032> Vous octroi une armure équivalent à **{0}%** des dégâts infligés\n".format(skil.armorConvert)
-        if skil.aoeArmorConvert > 0:
-            suppStats += "<:aoeConvert:1100770918340497519> Octroi aux alliés alentours une armure équivalent à **{0}%** des dégâts infligés\n".format(skil.aoeArmorConvert)
-        if skil.erosion != 0:
-            suppStats += "<:ConR:1028695463651717200> Réduit les PVs Max de la cible de **{0}%** des dégâts infliés\n".format(skil.erosion)
         temp2 = ""
-        if skil.tpCac:
-            suppStats += "<:iliLightSpeed:1046384202792308797> Saute **devant** de la cible\n"
-        if skil.tpBehind:
-            suppStats += "<:liaCounter:998001563379437568> Saute **derrière** de la cible\n"
-        if skil.percing > 0:
-            suppStats += "{1} Ignore **{0}%** de la Résistance de la cible\n".format(skil.percing,statsEmojis[PERCING])
-
-        if skil.knockback > 0 and skil.become == None:
-            suppStats += "<:piedVolt:1034208868068233348> Pousse les cibles de **{0} case{1}**\n".format(skil.knockback,["","s"][skil.knockback > 1])
-        if skil.pull > 0 and skil.become == None:
-            suppStats += "<:spectralFury:1033016230333911080> Attire les cibles de **{0} case{1}**\n".format(skil.pull,["","s"][skil.pull > 1])
-        if skil.jumpBack:
-            suppStats += "<:retPercu:1034210776703062057> Vous fait reculer de **{0} case{1}**\n".format(skil.jumpBack,["","s"][skil.jumpBack > 1])
-        if skil.garCrit:
-            suppStats += "{0} Inflige forcément un coup critique\n".format(statsEmojis[CRITICAL])
-
         if skil.jaugeEff != None:
-            temp2 = "\nCette compétence octroi et utilise {0} **{1}**. La valeur de cette jauge augmente dans les conditions suivantes :\n".format(skil.jaugeEff.emoji[0][0],skil.jaugeEff.name)
+            temp2 = "\nCette compétence octroie et utilise {0} **{1}**. La valeur de cette jauge augmente dans les conditions suivantes :\n".format(skil.jaugeEff.emoji[0][0],skil.jaugeEff.name)
             jaugeVal: jaugeValue = skil.jaugeEff.jaugeValue
             for conds in jaugeVal.conds:
                 temp2 += "- "+incCondsStr[conds.type] + "** +{0}**\n".format(conds.value)
@@ -1034,32 +972,36 @@ def infoSkill(skill: skill, user: char, ctx):
                 elif conds.type == INC_USE_GROUP_SKILL:
                     temp2 += "> - {0} Compétences {1}\n".format(["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][conds.add],["Normales","Divines","Démoniaques"])
 
-        if temp2 != "":
-            temp3 += "\n"+temp2
+            if skil.jaugeEff.id == lycanJauge.id: temp2 += "\nDe plus, lorsque vous attaquez un ennemi, lui inflige {0} (vous pouvez placez qu'un seul effet {0} à la fois)\n> {1}\n".format(hunterMarkEff, hunterMarkEff.description)
+            elif skil.jaugeEff.id == bloodJauge.id: temp2 += "\nDe plus, lorsque vous attaquez un ennemi, 30% de chance de lui infliger {0}\n> {1}\n".format(bloodButterfly, bloodButterfly.description)
+            elif skil.jaugeEff.id == planJauge.id: temp2 += "\nDe plus, lorsque vous attaquez un ennemi, lui inflige {0} si il n'en était pas sous l'emprise. Si l'effet était déjà présent utlisant une compétence qui consomme cette jauge, {0} est consommé pour infliger une attaque supplémentaire en fonction des PVs manquant de la cible et de la quantité minimale de jauge consommée par la compétence"
+        if temp2 != "": temp3 += "\n"+temp2
 
         if skil.become != None:
             allreadyAdd = False
             for becomeName in skil.become:
-                if becomeName.knockback > 0:
-                    if not(allreadyAdd):
-                        temp3 += "\n\n**__Repoussement :__**"
-                        allreadyAdd = True
-                    temp3 += "\n__{1}__ repousse la cible de **{0}** case{2}".format(
-                        becomeName.knockback, becomeName.name, ["", "s"][becomeName.knockback > 1])
+                if becomeName.knockback > 0: temp3 += "\n__{1}__ repousse la cible de **{0}** case{2}".format(becomeName.knockback, becomeName.name, ["", "s"][becomeName.knockback > 1])
 
-        repEmb:interactions.Embed = interactions.Embed(title="__{0}__".format(skil.name), color=user.color,description=desc+"\n\n__Statistiques :__"+"\n"+temp+"\n"+suppStats+temp3)
+        repEmb:interactions.Embed = interactions.Embed(title="__{0}__".format(skil.name), color=user.color,description=reduceEmojiNames(desc+"\n\n__Statistiques :__"+"\n"+temp+"\n"+suppStats+temp3))
 
         if skil.become == None: # AREA
             if skil.type != TYPE_PASSIVE:
                 repEmb.add_field(name="__Portée et air d'effet :__", value="__Portée :__ {0} {1}\n__Zone d'effet :__ {2} {3}".format(rangeAreaEmojis[skil.range],areaNames[skil.range],areaEmojis[skil.area],areaNames[skil.area]))
         else:
-            tempValuesRange, tempValuesArea = "", ""
+            dictRange, dictArea = {}, {}
             for skilly in skil.become:
-                tempValuesRange += "{0} __{1}__ : {2} {3}\n".format(skilly.emoji, skilly.name, rangeAreaEmojis[skilly.range], areaNames[skilly.range])
-                tempValuesArea += "{0} __{1}__ : {2} {3}\n".format(skilly.emoji, skilly.name, areaEmojis[skilly.area], areaNames[skilly.area])
+                if skilly.range in dictRange.keys(): dictRange[skilly.range] += [skilly]
+                else: dictRange[skilly.range] = [skilly]
 
-            repEmb.add_field(name="<:em:866459463568850954>\n__Portées :__", value=tempValuesRange,inline=False)
-            repEmb.add_field(name="<:em:866459463568850954>\n__Zones d'Effets :__", value=tempValuesArea,inline=False)
+                if skilly.area in dictArea.keys(): dictArea[skilly.area] += [skilly]
+                else: dictArea[skilly.area] = [skilly]
+
+            for indx in [0, 1]:
+                tmpDict, tablEm, tmpValue, tmpNames = [dictRange, dictArea][indx], [rangeAreaEmojis,areaEmojis][indx], "", ["__Portées__","__Zones d'Effets__"][indx]
+                for tmpKey, tmpTabl in tmpDict.items():
+                    for tmpSkill in tmpTabl: tmpValue += str(tmpSkill) + ", "
+                    tmpValue = tmpValue[:-2] + " : {0} {1}\n".format(tablEm[tmpKey], areaNames[tmpKey])
+                repEmb.add_field(name="<:em:866459463568850954>\n"+tmpNames, value=reduceEmojiNames(tmpValue),inline=False)
 
         if skil.effectAroundCaster != None:
             if type(skil.effectAroundCaster[2]) == effect:
@@ -1068,28 +1010,17 @@ def infoSkill(skill: skill, user: char, ctx):
                 toAdd = "__Puissance :__ {0}".format(skil.effectAroundCaster[2])
             
             typeEmoji = ''
-            if skil.effectAroundCaster[0] == TYPE_DAMAGE:
-                typeEmoji += statsEmojis[ACT_DIRECT_FULL]
-            elif skil.effectAroundCaster[0] == TYPE_INDIRECT_DAMAGE:
-                typeEmoji += statsEmojis[ACT_INDIRECT_FULL]
-            elif skil.effectAroundCaster[0] in [TYPE_BOOST,TYPE_MALUS]:
-                typeEmoji += statsEmojis[ACT_BOOST_FULL]
-            elif skil.effectAroundCaster[0] == TYPE_ARMOR:
-                typeEmoji += statsEmojis[ACT_SHIELD_FULL]
-            elif skil.effectAroundCaster[0] in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
-                typeEmoji += statsEmojis[ACT_HEAL_FULL]
-            elif skil.effectAroundCaster[0] in [TYPE_SUMMON,TYPE_DEPL]:
-                typeEmoji += "<:sprink1:887747751339757599>"
-            elif skil.effectAroundCaster[0] == TYPE_RESURECTION:
-                typeEmoji += "'<:renisurection:873723658315644938>'"
-            else:
-                typeEmoji += "<:i1b:866828199156252682>"
+            if skil.effectAroundCaster[0] == TYPE_DAMAGE: typeEmoji += statsEmojis[ACT_DIRECT_FULL]
+            elif skil.effectAroundCaster[0] == TYPE_INDIRECT_DAMAGE: typeEmoji += statsEmojis[ACT_INDIRECT_FULL]
+            elif skil.effectAroundCaster[0] in [TYPE_BOOST,TYPE_MALUS]: typeEmoji += statsEmojis[ACT_BOOST_FULL]
+            elif skil.effectAroundCaster[0] == TYPE_ARMOR: typeEmoji += statsEmojis[ACT_SHIELD_FULL]
+            elif skil.effectAroundCaster[0] in [TYPE_HEAL,TYPE_INDIRECT_HEAL]: typeEmoji += statsEmojis[ACT_HEAL_FULL]
+            elif skil.effectAroundCaster[0] in [TYPE_SUMMON,TYPE_DEPL]: typeEmoji += "<:sprink1:887747751339757599>"
+            elif skil.effectAroundCaster[0] == TYPE_RESURECTION: typeEmoji += "'<:renisurection:873723658315644938>'"
+            else: typeEmoji += "<:i1b:866828199156252682>"
             repEmb.add_field(name="<:em:866459463568850954>\n__Effet supplémentaire autour du lanceur :__",inline=False,value="__Type :__ {3} {0}\n__Zone d'effet :__ {4} {1}\n{2}".format(allTypeNames[skil.effectAroundCaster[0]], areaNames[skil.effectAroundCaster[1]], toAdd, typeEmoji,areaEmojis[skil.effectAroundCaster[1]]))
 
-        if skil.emoji[1] == "a":
-            repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.gif".format(getEmojiObject(skil.emoji).id))
-        else:
-            repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(skil.emoji).id))
+        repEmb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.{1}".format(getEmojiObject(skil.emoji).id,["png","gif"][skil.emoji[1] == "a"]))
 
         allReadySeen, effToSee = [], []
         for eff in skil.effects:
@@ -1100,21 +1031,16 @@ def infoSkill(skill: skill, user: char, ctx):
                     effToSee.append(1)
                 else:
                     for cmpt in range(len(effToSee)):
-                        if allReadySeen[cmpt].id == eff.id:
-                            effToSee[cmpt] += 1
+                        if allReadySeen[cmpt].id == eff.id: effToSee[cmpt] += 1
 
-        for cmpt in range(len(allReadySeen)):
-            txt = ["", " x{0}".format(effToSee[cmpt])][effToSee[cmpt] > 1]
-            repEmb = infoEffect(allReadySeen[cmpt], user, repEmb, txt=txt, powerPurcent=skil.effPowerPurcent)
+        for cmpt in range(len(allReadySeen)): txt = ["", " x{0}".format(effToSee[cmpt])][effToSee[cmpt] > 1]; repEmb = infoEffect(allReadySeen[cmpt], user, repEmb, txt=txt, powerPurcent=skil.effPowerPurcent)
 
         if skil.become != None:
+            allReadySeenEff = []
             for skilly in skil.become:
                 if skilly.effects != [None]:
-                    allReadySeenEff = []
                     for eff in skilly.effects:
-                        if eff.id not in allReadySeenEff:
-                            repEmb = infoEffect(findEffect(eff), user, repEmb, ctx, txt=" ({0})".format(skilly.name))
-                            allReadySeenEff.append(eff.id)
+                        if eff.id not in allReadySeenEff: repEmb = infoEffect(findEffect(eff), user, repEmb, ctx, txt=" ({0})".format(skilly.name)); allReadySeenEff.append(eff.id)
 
         if skil.effectOnSelf != None:
             if skil.type == TYPE_PASSIVE:
@@ -1338,49 +1264,34 @@ def silentRestats(user: char):
 
     return userMajStats(user, stats)
 
-async def addExpUser(bot: interactions.Client, path: Union[str,char], ctx: Union[interactions.Message, interactions.SlashContext], exp=3, coins=0, send=True):
-    if type(path) == str:
-        user = loadCharFile(path)
-    else:
-        user = path
+def addExpUser(path: Union[str,char],  exp=3, coins=0):
+    if type(path) == str: user = loadCharFile(path)
+    else: user = path
 
-    if user.level < MAXLEVEL:
-        user.exp = user.exp + exp
-    else:
-        user.exp = 0
+    if user.level < MAXLEVEL: user.exp = user.exp + exp
+    else: user.exp = 0
     user.currencies = user.currencies + coins
 
     upLvl = (user.level-1)*50+30
 
     while user.exp >= upLvl and user.level < MAXLEVEL:
         user.points = user.points + BONUSPOINTPERLEVEL
-        if (user.level+1) // 10 == 0:
-            user.points = user.points + 5
-        temp = user.allStats()
-        up = [0, 0, 0, 0, 0, 0, 0]
-        stats = user.allStats()
+        if (user.level+1) // 10 == 0: user.points = user.points + 5
+        temp, up, stats = user.allStats(), [0, 0, 0, 0, 0, 0, 0], user.allStats()
         for a in range(0, len(stats)):
-            stats[a] = round(aspiStats[user.aspiration][a]*0.1 +aspiStats[user.aspiration][a]*0.9*user.level/50+user.bonusPoints[a])
-            temp[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*(user.level+1)/50+user.bonusPoints[a])
+            stats[a], temp[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*user.level/50+user.bonusPoints[a]), round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*(user.level+1)/50+user.bonusPoints[a])
             up[a] = temp[a]-stats[a]
 
         user.strength, user.endurance, user.charisma, user.agility, user.precision, user.intelligence, user.magie = temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6]
 
-        user.exp = user.exp - upLvl
-        user.level = user.level + 1
+        user.exp, user.level = user.exp - upLvl, user.level+1
         upLvl = (user.level-1)*50+30
 
-        if user.level % 5 == 0 and user.autoStuff and user.level <= MAXLEVEL:
-            user.stuff[0] = getAutoStuff(user.stuff[0],user,recommandedStuffStat[user.aspiration])
-            user.stuff[1] = getAutoStuff(user.stuff[1],user,recommandedStuffStat[user.aspiration])
-            user.stuff[2] = getAutoStuff(user.stuff[2],user,recommandedStuffStat[user.aspiration])
-
+        if user.level % 5 == 0 and user.autoStuff and user.level <= MAXLEVEL: user.stuff = [getAutoStuff([user.stuff[0], findStuff(user.aimedStuff[0])][user.aimedStuff[0]!=None],user,recommandedStuffStat[user.aspiration]), getAutoStuff([user.stuff[1], findStuff(user.aimedStuff[1])][user.aimedStuff[1]!=None],user,recommandedStuffStat[user.aspiration]), getAutoStuff([user.stuff[2], findStuff(user.aimedStuff[2])][user.aimedStuff[2]!=None],user,recommandedStuffStat[user.aspiration])]
         if user.autoPoint:
             while user.points > 0:
                 for recStat in recommandedStat[user.aspiration]:
-                    if user.bonusPoints[recStat] < MAXBONUSPERSTAT and user.points > 0:
-                        user.bonusPoints[recStat] += 1
-                        user.points -= 1
+                    if user.bonusPoints[recStat] < MAXBONUSPERSTAT and user.points > 0: user.bonusPoints[recStat], user.points = user.bonusPoints[recStat]+1, user.points-1
 
     saveCharFile(user=user)
     return user
@@ -1548,11 +1459,11 @@ async def downloadAllIconPng(bot: interactions.Client):
 
 async def makeCustomIcon(bot: interactions.Client, user: char, returnImage: bool = False):
     # Paramètres de l'accessoire ----------------------------------
+    user.stuff[0], user.weapon, user.apparaAcc = findStuff(user.stuff[0]), findWeapon(user.weapon), findStuff(user.apparaAcc)
+
     if user.apparaAcc == None:
-        if os.path.exists("./data/images/headgears/{0}.png".format(getEmojiObject(user.stuff[0].emoji).name)):
-            accessoire, pos = PIL.Image.open("./data/images/headgears/{0}.png".format(getEmojiObject(user.stuff[0].emoji).name)), user.stuff[0].position
-        else:
-            accessoire  = PIL.Image.new("RGBA", [0,0], (0, 0, 0, 0))
+        if os.path.exists("./data/images/headgears/{0}.png".format(getEmojiObject(user.stuff[0].emoji).name)): accessoire, pos = PIL.Image.open("./data/images/headgears/{0}.png".format(getEmojiObject(user.stuff[0].emoji).name)), user.stuff[0].position
+        else: accessoire  = PIL.Image.new("RGBA", [0,0], (0, 0, 0, 0))
 
     else:
         user.apparaAcc, user.apparaWeap = findStuff(user.apparaAcc), findWeapon(user.apparaWeap)
@@ -1771,12 +1682,12 @@ async def makeCustomIcon(bot: interactions.Client, user: char, returnImage: bool
     pixel = background.load()
     layer = PIL.Image.open(tablLine[user.species-1])
 
-    colorToUse = user.colorHex.replace("0x", "#")
-    if colorToUse == "None":
-        if user.color != black:
-            colorToUse = hex(user.color).replace("0x", "#")
-        else:
-            colorToUse = "#000000"
+    if user.customColor == None: colorToUse = hex(user.customColor).replace("0x", "#")
+    else:
+        colorToUse = user.colorHex.replace("0x", "#")
+        if colorToUse in ["None", None]:
+            if user.color != black: colorToUse = hex(user.color).replace("0x", "#")
+            else: colorToUse = "#000000"
     baseUserColor = ImageColor.getcolor(colorToUse, "RGB")
     baseTemp = [baseUserColor[0], baseUserColor[1], baseUserColor[2]]
     for x in range(0, background.size[0]):
@@ -1996,19 +1907,20 @@ def infoInvoc(invoc: invoc, emb: interactions.Embed):
     return emb
 
 def infoAllie(allie: tmpAllie):
-    var = ""
+    var, teamName = "", ""
     if allie.variant:
-        var = "Cet allié temporaire est une variante d'un autre allié temporaire\n\n"
-    teamName = ""
-    if allie.npcTeam != None:
-        teamName = "__Affinité :__ {0}{1}\n".format(npcTeamEmojis[allie.npcTeam]+[""," "][npcTeamEmojis[allie.npcTeam]!=""], npcTeamNames[allie.npcTeam])
+        for tmpAllie in tablAllAllies:
+            if allie.name in tmpAllie.variantTabl.keys(): var += "Cet{0} allié{1} est une variante de {2} {3} ({4}% d'apparition)\n".format(["","te"][allie.gender == GENDER_FEMALE],["","e"][allie.gender == GENDER_FEMALE], [tmpAllie.splashIcon,tmpAllie.icon][tmpAllie.splashIcon == None],tmpAllie.name,tmpAllie.variantTabl[allie.name]); break
+        if var == "":
+            var = "Cet{0} allié{1} n'apparait que lors d'évenements spéciaux\n".format(["","te"][allie.gender == GENDER_FEMALE],["","e"][allie.gender == GENDER_FEMALE])
+    for key, value in allie.variantTabl.items(): tmpAllie = findAllie(key); var += "Cet{0} allié{1} peut être remplacé{1} par {2} {3} ({4}%) en combat\n".format(["","te"][allie.gender == GENDER_FEMALE],["","e"][allie.gender == GENDER_FEMALE],[tmpAllie.splashIcon,tmpAllie.icon][tmpAllie.splashIcon == None],tmpAllie.name,value)
+    if var != "": var += "\n"
+    if allie.npcTeam != None: teamName = "__Affinité :__ {0}{1}\n".format(npcTeamEmojis[allie.npcTeam]+[""," "][npcTeamEmojis[allie.npcTeam]!=""], npcTeamNames[allie.npcTeam])
 
     rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]} ({elemEmojis[allie.secElement]} {elemNames[allie.secElement]})\n{teamName}__Description :__\n{allie.description}"
     allMaxStats, accStats, dressStats, flatsStats, statsWeapon = allie.allStats(), allie.stuff[0].allStats(), allie.stuff[1].allStats(), allie.stuff[2].allStats(), allie.weapon.allStats()
     stats = ""
-    for a in range(0, len(allMaxStats)):
-        allyStat = int((allMaxStats[a]+accStats[a]+dressStats[a]+flatsStats[a]+statsWeapon[a]) * ((100+allie.limitBreaks[a])/100))
-        stats += f"{statsEmojis[a]} __{nameStats[a]}.__ : {allyStat}\n"
+    for a in range(0, len(allMaxStats)): allyStat = int((allMaxStats[a]+accStats[a]+dressStats[a]+flatsStats[a]+statsWeapon[a]) * ((100+allie.limitBreaks[a])/100)); stats += f"{statsEmojis[a]} __{nameStats[a]}.__ : {allyStat}\n"
 
     stats2 = ""
     accStats = [allie.stuff[0].resistance,allie.stuff[0].percing, allie.stuff[0].critical]
@@ -2026,56 +1938,50 @@ def infoAllie(allie: tmpAllie):
     statsPlusName = ["Soins", "Bonus/Malus","Armure", "Dégâts directs", "Dégâts indirect"]
     stats2 += "\n"
     for num in range(5):
-        summation = accStats[num]*-1 + dressStats[num]*-1 + flatsStats[num]*-1
-        stats2 += f"{statsEmojis[num+ACT_HEAL_FULL]} __{statsPlusName[num]}__ : {summation}\n"
+        summation = accStats[num]*-1 + dressStats[num]*-1 + flatsStats[num]*-1; stats2 += f"{statsEmojis[num+ACT_HEAL_FULL]} __{statsPlusName[num]}__ : {summation}\n"
 
-
-    rep += f"\n\n__**Arme et compétences** :__\n{allie.weapon.emoji} {allie.weapon.name}\n"
+    tmpField = f"{allie.weapon.emoji} {allie.weapon.name}\n"
     for a in allie.skills:
-        if type(a) == skill:
-            rep += f"\n{a.emoji} {a.name}"
-
-    rep += f"\n\n__**Equipement :**__\n__Accessoire__ : {allie.stuff[0].emoji} {allie.stuff[0].name}\n__Vêtements__ : {allie.stuff[1].emoji} {allie.stuff[1].name}\n__Chaussures__ : {allie.stuff[2].emoji} {allie.stuff[2].name}"
-
+        if type(a) == skill: tmpField += f"\n{a.emoji} {a.name}"
+    
     emb = interactions.Embed(title="__Allié temporaire : "+allie.name+"__", color=allie.color, description= reduceEmojiNames(rep)+"\n<:em:866459463568850954>")
+    
+    emb.add_field(name="__**Arme et compétences** :__", value=reduceEmojiNames(tmpField),inline=True)
+    tmpField = ""
+    for a in allie.equippedChips:
+        tmpChip = getChip(a)
+        if tmpChip != None: tmpField += "{}{}{}\n".format(tmpChip.emoji,[""," "][tmpChip.emoji != ""],tmpChip.name)
+
+    if tmpField != "": emb.add_field(name=["<:em:866459463568850954>\n",""][allie.splashArt==None]+"__**Puces** :__", value=reduceEmojiNames(tmpField),inline=allie.splashArt == None)
+    emb.add_field(name="<:em:866459463568850954>\n__**Equipement :**__",value=reduceEmojiNames(f"__Accessoire__ : {allie.stuff[0].emoji} {allie.stuff[0].name}\n__Vêtements__ : {allie.stuff[1].emoji} {allie.stuff[1].name}\n__Chaussures__ : {allie.stuff[2].emoji} {allie.stuff[2].name}\n<:em:866459463568850954>"),inline=False)
+
     emb.add_field(name="__**Statistiques au niveau {0} :**__".format(allie.level), value=reduceEmojiNames(stats),inline=True)
-    emb.add_field(name="__**Statistiques secondaires :**__", value=reduceEmojiNames(stats2),inline=True)
+    emb.add_field(name=["<:em:866459463568850954>\n",""][allie.splashArt==None]+"__**Statistiques secondaires :**__", value=reduceEmojiNames(stats2),inline=allie.splashArt == None)
     emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.{1}".format(getEmojiObject([allie.icon,allie.splashIcon][allie.splashIcon != None]).id, ["png","gif"][allie.splashIcon != None and [allie.icon[1],allie.splashIcon[1]][allie.splashIcon != None] == "a"]))
 
-    if allie.splashArt != None:
-        emb.set_image(url=allie.splashArt)
+    if allie.splashArt != None: emb.set_image(url=allie.splashArt)
 
     if allie.changeDict != None:
         for altBuild in allie.changeDict:
             fieldValue = ""
-            if altBuild.aspiration != None:
-                fieldValue += "{0}|".format(aspiEmoji[altBuild.aspiration])
-            else:
-                fieldValue += "{0}|".format(aspiEmoji[allie.aspiration])
-            if altBuild.weapon != None:
-                fieldValue += "{0}|".format(altBuild.weapon.emoji)
-            else:
-                fieldValue += "{0}|".format(allie.weapon.emoji)
+            if altBuild.aspiration != None: fieldValue += "{0}|".format(aspiEmoji[altBuild.aspiration])
+            else: fieldValue += "{0}|".format(aspiEmoji[allie.aspiration])
+            if altBuild.weapon != None: fieldValue += "{0}|".format(altBuild.weapon.emoji)
+            else: fieldValue += "{0}|".format(allie.weapon.emoji)
             if altBuild.stuff != None:
-                if altBuild.proba > 0:
-                    stuffToSee = [getAutoStuff(altBuild.stuff[0], allie), getAutoStuff(altBuild.stuff[1], allie), getAutoStuff(altBuild.stuff[2], allie)]
-                else:
-                    stuffToSee = altBuild.stuff
-            else:
-                stuffToSee = allie.stuff
-            for stuffy in stuffToSee:
-                fieldValue += stuffy.emoji
+                if altBuild.proba > 0: stuffToSee = [getAutoStuff(altBuild.stuff[0], allie), getAutoStuff(altBuild.stuff[1], allie), getAutoStuff(altBuild.stuff[2], allie)]
+                else: stuffToSee = altBuild.stuff
+            else: stuffToSee = allie.stuff
+            for stuffy in stuffToSee: fieldValue += stuffy.emoji
             fieldValue += "|"
-            if altBuild.skills != None:
-                listActSkills = altBuild.skills
-            else:
-                listActSkills = allie.skills
+            if altBuild.skills != None: listActSkills = altBuild.skills
+            else: listActSkills = allie.skills
             
             for skilly in listActSkills:
-                if type(skilly) == skill:
-                    fieldValue += skilly.emoji
-     
-            emb.add_field(name="<:em:866459463568850954>\n__Build alternatif ({0}%) :__".format(altBuild.proba), value=fieldValue, inline=False)
+                if type(skilly) == skill: fieldValue += skilly.emoji
+            tmpName = "Build alternatif"
+            if altBuild.buildName != None: tmpName = altBuild.buildName
+            emb.add_field(name="<:em:866459463568850954>\n__{1} ({0}%) :__".format(altBuild.proba, tmpName), value=reduceEmojiNames(fieldValue), inline=False)
 
     if allie.elemAffinity:
         emb = infoEffect(elemResistanceEffects[allie.element],allie,emb)
@@ -2107,34 +2013,32 @@ def infoEnnemi(ennemi: octarien):
     return emb
 
 def getAutoStuff(object: stuff, user: Union[char, tmpAllie], tablStats = None):
-    if user.level//5 == object.minLvl//5 or (object.minLvl == MAXLEVEL//10*10 and user.level >= MAXLEVEL) and (type(user) == char and user.have(object)):
-        return object
+    if user.level//5 == object.minLvl//5 or (object.minLvl == MAXLEVEL//10*10 and user.level >= MAXLEVEL) and (type(user) == char and user.have(object)): return object
     else:
         if tablStats == None:
             tablAllStats = object.allStats()+[object.resistance, object.percing, object.critical]+[object.negativeHeal*-1, object.negativeBoost*-1, object.negativeShield*-1, object.negativeDirect*-1, object.negativeIndirect*-1]
 
             for comp in user.skills:
-                if type(comp) == skill and comp.use not in [None, HARMONIE]:
-                    tablAllStats[comp.use] += 1
+                if type(comp) == skill and comp.use not in [None, HARMONIE]: tablAllStats[comp.use] += 1
             dictList = []
-            for cmpt in range(len(tablAllStats)):
-                dictList.append({"Stats": cmpt, "Value": tablAllStats[cmpt]})
+            for cmpt in range(len(tablAllStats)): dictList.append({"Stats": cmpt, "Value": tablAllStats[cmpt]})
 
             dictList.sort(key=lambda ballerine: ballerine["Value"], reverse=True)
             dictList = dictList[0:3]
 
             statsMaxPlace = []
             for a in dictList:
-                if a["Value"] > 0:
-                    statsMaxPlace.append(a["Stats"])
+                if a["Value"] > 0: statsMaxPlace.append(a["Stats"])
         
         else:
             statsMaxPlace = tablStats
 
-        if type(user) == char:
-            tablToSee = user.stuffInventory[:]
-        elif type(user) == tmpAllie:
-            tablToSee = stuffs[:]
+        if type(user) == char: 
+            tablToSee = []
+            for tmpStuff in user.stuffInventory:
+                tmpStuff = findStuff(tmpStuff)
+                tablToSee.append(tmpStuff)
+        elif type(user) == tmpAllie: tablToSee = stuffs[:]
 
         def getSortValue(obj: stuff, statsMaxPlace: list[int]=statsMaxPlace, aff=False):
             objStats: list[int] = obj.allStats()+[obj.resistance, obj.percing, obj.critical]+[obj.negativeHeal*-1, obj.negativeBoost*-1, obj.negativeShield*-1, obj.negativeDirect*-1, obj.negativeIndirect*-1]
@@ -2151,10 +2055,8 @@ def getAutoStuff(object: stuff, user: Union[char, tmpAllie], tablStats = None):
             return sum(value)
 
         for stuffy in tablToSee[:]:
-            if (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 >= stuffy.minLvl//5):
-                tablToSee.remove(stuffy)
-            elif (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 <= stuffy.minLvl//5):
-                tablToSee.remove(stuffy)
+            if (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 >= stuffy.minLvl//5):tablToSee.remove(stuffy)
+            elif (stuffy.minLvl > user.level or stuffy.type != object.type or getSortValue(stuffy) <= 0) and (object.minLvl//5 <= stuffy.minLvl//5): tablToSee.remove(stuffy)
 
         if len(tablToSee) > 0:
             tablToSee.sort(key=lambda ballerine: getSortValue(ballerine), reverse=True)
@@ -2189,7 +2091,7 @@ async def downloadElementIcon(bot: interactions.Client):
 
 async def getRandomStatsEmbed(bot: interactions.Client, team: List[classes.char], text="Chargement...", fullStats=False, fullTips=False) -> interactions.Embed:
     if (fullStats or (random.randint(0, 99) < 50)) and not(fullTips) :
-        title, desc = "<:alice:908902054959939664> :", "\""
+        title, desc = "<:alice:1069700207345946715> :", "\""
         whatRandomStat = random.randint(0, len(tablAdd)-1)
         randomStat = tablAdd[whatRandomStat]
         rdm2 = ["max", "total"][random.randint(0, 1)]
@@ -2256,7 +2158,7 @@ async def getRandomStatsEmbed(bot: interactions.Client, team: List[classes.char]
     
     else:
         emb = interactions.Embed(title="__{0}__".format(text), color=light_blue)
-        emb.add_field(name="<:lena:909047343876288552> :",value="\""+lenaTipsMsgTabl[random.randint(0, len(lenaTipsMsgTabl)-1)]+"\"")
+        emb.add_field(name="<:lena:1106478667871289455> :",value="\""+lenaTipsMsgTabl[random.randint(0, len(lenaTipsMsgTabl)-1)]+"\"")
         return emb
 
 async def getFullTeamEmbed(bot: interactions.Client, team: List[char], mainUser: char, see = 0) -> interactions.Embed:
@@ -2326,15 +2228,16 @@ async def updateHaveProcurOn():
             print("Les procurations de {0} ont bien été mise à jour".format(user.name))
 
 def newTeam(user):
-    rdm, teamIds = str(random.randint(1, 999999999)), userTeamDb.getAllTeamIds()
-    while rdm in teamIds:
-        rdm = str(random.randint(1, 999999999))
+    rdm, teamIds = random.randint(1, 999999999), set(userTeamDb.getAllTeamIds()+dbHandler("teamVic.db").getAllTeamIds())
+    while rdm in teamIds: rdm = random.randint(1, 999999999)
+
+    rdm = str(rdm)
     userTeamDb.updateTeam(rdm, [user])
     user.team = rdm
     saveCharFile(user=user)
     return user
 
-catSelect = interactions.ActionRow(interactions.StringSelectMenu([StringSelectOption(label="Players",value="0",description="Show players"),StringSelectOption(label="Allies",value="1",description="Show allies"),StringSelectOption(label="Ennemis",value="2",description="Show ennemis"),StringSelectOption(label="Small Bosses",value="3",description="Show small bosses"),StringSelectOption(label="Stands Alones",value="4",description="Show stands alones bosses"),StringSelectOption(label="Raids",value="5",description="Show raids bosses")],custom_id="catSelect",placeholder="Sort by entity category"))
+catSelect = interactions.ActionRow(interactions.StringSelectMenu([StringSelectOption(label="Players",value="0",description="Show players"),StringSelectOption(label="Allies (équipe bleue)",value="1",description="Show allies"),StringSelectOption(label="Allies (équipe rouge)",value="6",description="Show allies"),StringSelectOption(label="Ennemis",value="2",description="Show ennemis"),StringSelectOption(label="Small Bosses",value="3",description="Show small bosses"),StringSelectOption(label="Stands Alones",value="4",description="Show stands alones bosses"),StringSelectOption(label="Raids",value="5",description="Show raids bosses")],custom_id="catSelect",placeholder="Sort by entity category"))
 async def kikimerFunction(bot:interactions.Client,ctx:interactions.SlashContext,period:bool=False):
     destination, msg, sortValue, page = 0, None, 0, 0
     await ctx.defer()
@@ -2362,77 +2265,57 @@ async def kikimerFunction(bot:interactions.Client,ctx:interactions.SlashContext,
             else:
                 tempTablResultDict = []
                 cursory = aliceStatsDb.con.cursor()
-                if not(period):
-                    cursory.execute("SELECT * FROM enemyStats")
-                else:
-                    cursory.execute("SELECT * FROM lastMouthEnemy")
+                if not(period): cursory.execute("SELECT * FROM enemyStats")
+                else: cursory.execute("SELECT * FROM lastMouthEnemy")
                 tempTablResultDict = cursory.fetchall()
                 cursory.close()
 
-                for cmpt in range(len(tempTablResultDict)):
+                for indx, value in enumerate(tempTablResultDict):
                     try:
-                        if destination == 1:
-                            tempEnt = findAllie(tempTablResultDict[cmpt]["name"])
-                            if tempEnt != None:
-                                tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
+                        if destination in [1,6]:
+                            tempEnt = findAllie(value["name"].replace("_B","").replace("_R",""))
+                            if tempEnt != None and (destination==1 and value["name"].endswith("_B")) or (destination==6 and value["name"].endswith("_R")): tablResultDict.append([tempEnt,value])
                         else:
-                            tempEnt = findEnnemi(tempTablResultDict[cmpt]["name"])
+                            tempEnt = findEnnemi(value["name"])
                             if tempEnt != None:
-                                if destination == 2:
-                                    for ent in tablUniqueEnnemies:
-                                        if tempEnt.name == ent.name:
-                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
-                                            break
-                                elif destination == 3:
-                                    for ent in tablBoss:
-                                        if tempEnt.name == ent.name and not(ent.standAlone):
-                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
-                                            break
-                                elif destination == 4:
-                                    for ent in tablBoss:
-                                        if tempEnt.name == ent.name and ent.standAlone:
-                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
-                                            break
-                                if destination == 5:
-                                    for ent in tablRaidBoss:
-                                        if tempEnt.name == ent.name:
-                                            tablResultDict.append([tempEnt,tempTablResultDict[cmpt]])
-                                            break
+                                match destination:
+                                    case 2:
+                                        for ent in tablUniqueEnnemies:
+                                            if tempEnt.name == ent.name: tablResultDict.append([tempEnt,value]); break
+                                    case 3:
+                                        for ent in tablBoss:
+                                            if tempEnt.name == ent.name and not(ent.standAlone): tablResultDict.append([tempEnt,value]); break
+                                    case 4:
+                                        for ent in tablBoss:
+                                            if tempEnt.name == ent.name and ent.standAlone: tablResultDict.append([tempEnt,value]); break
+                                    case 5:
+                                        for ent in tablRaidBoss:
+                                            if tempEnt.name == ent.name: tablResultDict.append([tempEnt,value]);break
                         
-                    except:
-                        pass
+                    except: pass
+        
         except:
             print_exc()
 
         if len(tablResultDict) == 0:
-            if msg == None:
-                msg = await ctx.send(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[catSelect])
-            else:
-                await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[catSelect])
+            if msg == None: msg = await ctx.send(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[catSelect])
+            else: await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[catSelect])
 
-            try:
-                respond: interactions.ComponentContext = await bot.wait_for_component(messages=msg,components=[catSelect,sortSelect,buttonsActRow],timeout=60)
-            except asyncio.TimeoutError:
-                await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[])
-                return 0
+            try: respond: interactions.ComponentContext = await bot.wait_for_component(messages=msg,components=[catSelect,sortSelect,buttonsActRow],timeout=60); respond = respond.ctx
+            except asyncio.TimeoutError: await msg.edit(embeds=interactions.Embed(title="============== Kikimeter ==============",description="No result found"),components=[]); return 0
 
-            if respond.custom_id == catSelect.components[0].custom_id:
-                destination, sortValue, page = int(respond.values[0]), 0, 0
+            if respond.custom_id == catSelect.components[0].custom_id: destination, sortValue, page = int(respond.values[0]), 0, 0
         else:
             selectSortOptions, cmpt, itemList = [], 0, tablResultDict[0][1].keys()
             itemList = itemList[1:]
 
-            for ballerine in itemList:
-                selectSortOptions.append(interactions.StringSelectOption(label=ballerine,value=str(cmpt)))
-                cmpt += 1
+            for ballerine in itemList: selectSortOptions.append(interactions.StringSelectOption(label=ballerine,value=str(cmpt))); cmpt += 1
             sortSelect = interactions.ActionRow(interactions.StringSelectMenu(selectSortOptions,custom_id='selectMenu',placeholder="Sort by stat category"))
             tablResultDict.sort(key=lambda ballerine: ballerine[1][itemList[sortValue]],reverse=True)
             description = ""
             for cmpt in range(10*page,min((page+1)*10,len(tablResultDict))):
-                if type(tablResultDict[cmpt][0]) == char:
-                    icon = await getUserIcon(bot,tablResultDict[cmpt][0])
-                else:
-                    icon = [tablResultDict[cmpt][0].splashIcon,tablResultDict[cmpt][0].icon][tablResultDict[cmpt][0].splashIcon == None]
+                if type(tablResultDict[cmpt][0]) == char: icon = await getUserIcon(bot,tablResultDict[cmpt][0])
+                else: icon = [tablResultDict[cmpt][0].splashIcon,tablResultDict[cmpt][0].icon][tablResultDict[cmpt][0].splashIcon == None]
                 
                 description += "\n{0}. {1} {4}        [{2}] : {3}".format(cmpt,icon,itemList[sortValue],tablResultDict[cmpt][1][itemList[sortValue]],tablResultDict[cmpt][0].name)
 
@@ -2501,33 +2384,24 @@ def openBooster(user:char, boosters = [], infield = True):
             for cmpt in range(3):
                 listChipPull = chipMythic[:]
                 pulledChip =  listChipPull[random.randint(0,len(listChipPull)-1)]
-                try:
-                    drawnedChip[pulledChip.id][1] += 1
-                except KeyError:
-                    drawnedChip[pulledChip.id] = [pulledChip,1]
+                try: drawnedChip[pulledChip.id][1] += 1
+                except KeyError: drawnedChip[pulledChip.id] = [pulledChip,1]
                 chipsPulls+=1
 
         for cmpt in range(10-chipsPulls):
             randRoll, rarity = random.randint(0,999), RARITY_MYTHICAL
             for rar in range(4):
-                if randRoll < probaRarity[rar]:
-                    rarity = rar
-                    break
-                else:
-                    randRoll -= probaRarity[rar]
+                if randRoll < probaRarity[rar]: rarity = rar; break
+                else: randRoll -= probaRarity[rar]
 
             listChipPull = [chipCommun,chipRare,chipLegend,chipMythic][rarity][:]
             pulledChip =  listChipPull[random.randint(0,len(listChipPull)-1)]
 
             nbDrawnedChips, neededChips = 1, nbChipsForLvlUp[user.chipInventory[pulledChip.id].lvl-rarityMinLvl[pulledChip.rarity]]
-            if neededChips > 20:
-                tmp = int(neededChips*0.05)
-                nbDrawnedChips += random.randint(0,max(tmp,1))
+            if neededChips > 20: tmp = int(neededChips*0.05); nbDrawnedChips += random.randint(0,max(tmp,1))
 
-            try:
-                drawnedChip[pulledChip.id][1] += nbDrawnedChips
-            except KeyError:
-                drawnedChip[pulledChip.id] = [user.chipInventory[pulledChip.id],nbDrawnedChips]
+            try: drawnedChip[pulledChip.id][1] += nbDrawnedChips
+            except KeyError: drawnedChip[pulledChip.id] = [user.chipInventory[pulledChip.id],nbDrawnedChips]
 
         drawnedChip = {k: v for k, v in sorted(drawnedChip.items(), key=lambda item: item[1][0].rarity)}
         user.tc += 10
@@ -2545,21 +2419,15 @@ def openBooster(user:char, boosters = [], infield = True):
     toReturn, charLimit = reduceEmojiNames(toReturn), [EMBED_MAX_DESC_LENGTH,EMBED_FIELD_VALUE_LENGTH][infield]
     if len(toReturn) > charLimit:
         tablToRemove, tablToRemplace = ("<:co:1217187986085646427>","<:ra:1217188006679810058>","<:le:1217344108599967764>","<:my:1217569212642365520>"), ("C","R","L","M")
-        for cmpt, toReplace in enumerate(tablToRemplace):
-            toReturn = toReturn.replace(tablToRemove[cmpt],toReplace)
+        for cmpt, toReplace in enumerate(tablToRemplace): toReturn = toReturn.replace(tablToRemove[cmpt],toReplace)
         if len(toReturn) > charLimit:
             tablToRemove = []
             for chipid in drawnedChip:
-                if drawnedChip[chipid][0].emoji != "":
-                    tablToRemove.append(reduceEmojiNames(drawnedChip[chipid][0].emoji))
-            for toReplace in tablToRemove:
-                toReturn = toReturn.replace(toReplace,"")
+                if drawnedChip[chipid][0].emoji != "": tablToRemove.append(reduceEmojiNames(drawnedChip[chipid][0].emoji))
+            for toReplace in tablToRemove: toReturn = toReturn.replace(toReplace,"")
         if len(toReturn) > charLimit:
             toReturn, nbRarity = "Overload <:iliSip:1119011945157230692>\n", [0,0,0,0]
-            for chipid in drawnedChip:
-                nbRarity[drawnedChip[chipid][0].rarity]+=drawnedChip[chipid][1]
-            for indx, nbCards in enumerate(nbRarity):
-                toReturn += "{0} x{1}, ".format(rarityEmojis[indx],nbCards)
-            toReturn = reduceEmojiNames(toReturn)[:-2]
+            for chipid in drawnedChip: nbRarity[drawnedChip[chipid][0].rarity]+=drawnedChip[chipid][1]
+            for indx, nbCards in enumerate(nbRarity): toReturn += "{0} x{1}, ".format(rarityEmojis[indx],nbCards)
 
     return user, toReturn

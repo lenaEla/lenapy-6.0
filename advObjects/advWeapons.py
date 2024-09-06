@@ -58,7 +58,7 @@ blueButterfly = weapon("Papillon Bleu","cf",RANGE_DIST,price=500,taille=0,effect
 butterflyRed = weapon("Papillon Rouge","cg",RANGE_LONG,AREA_CIRCLE_5,62,80,150,magie=30,precision=15,critical=5,taille=0,emoji='<:redbuterfly:912441401508233226>',use=MAGIE,needRotate=False,message="{0} demande à son papillon d'attaquer {1} :")
 
 luth = weapon("Luth",'ch',RANGE_DIST,AREA_CIRCLE_4,78,70,1,intelligence=35,charisma=15,use=INTELLIGENCE,emoji='<:luth:911647678037905458>')
-krystalFistEff = effect("Vol d'Armure","armorSteal",power=20,turnInit=-1,unclearable=True,emoji=krysUlt.emoji,description="Vous octroi **{0}%** de vol d'armure durant tout le combat")
+krystalFistEff = effect("Vol d'Armure","armorSteal",power=20,turnInit=-1,unclearable=True,emoji=krysUlt.emoji,description="Vous octroie **{0}%** de vol d'armure durant tout le combat")
 krystalFist = weapon("Poings cristalins","ci",RANGE_MELEE,AREA_CIRCLE_1,28,60,price=1,repetition=3,strength=30,resistance=10,endurance=10,intelligence=-20,emoji='<:krystalopoings:916120173130448948>',effects=krystalFistEff)
 
 eternalInkEff = effect("Encre Éternelle","eternalInk",turnInit=-1,unclearable=True,description="Au début du combat, converti l'intégralité de vos statistiques d'Actions positives dans la statistique utilisée par votre arme principale (Ratio de 70%)",emoji=uniqueEmoji('<:inkEter:918083455731007499>'))
@@ -87,7 +87,7 @@ eukrasia = effect("Eukrasia","eukrasia",type=TYPE_BOOST,trigger=TRIGGER_WEAPON_U
 bleuSpiritWings = weapon("Ailes de l'esprit bleu","cv",RANGE_DIST,AREA_CIRCLE_4,46,75,1,intelligence=20,precision=10,effects=eukrasia,use=INTELLIGENCE,needRotate=False,emoji='<:bws:929847711941935214>',ignoreAutoVerif=True,priority=WEAPON_PRIORITY_HIGH)
 
 neutralCard = effect("Carte Astrale","astralCard",stat=CHARISMA,description="Cette carte devient une des cartes astrale, appropriée à l'aspiration du receveur, lorsqu'elle est octroyée",emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=2)
-cardsDeck = effect("Deck de cartes","astro", stat=CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroi un effet boostant ses statistiques en fonction de son aspiration",callOnTrigger=neutralCard,trigger=TRIGGER_START_OF_TURN,area=AREA_RANDOMALLIE_1)
+cardsDeck = effect("Deck de cartes","astro", stat=CHARISMA,emoji=uniqueEmoji('<:deck:932400761176981605>'),turnInit=-1,unclearable=True,description="À chaque début de tour, désigne aléatoirement un allié et lui octroie un effet boostant ses statistiques en fonction de son aspiration",callOnTrigger=neutralCard,trigger=TRIGGER_START_OF_TURN,area=AREA_RANDOMALLIE_1)
 cardBer = effect("La balance berserk",'BerCard', stat=CHARISMA,strength=5,resistance=3,emoji='<:balance:932399888422043739>',turnInit=2)
 cardPlume = effect("La balance agile",'PoiCard', stat=CHARISMA,strength=5,agility=5,emoji='<:balance:932399888422043739>',turnInit=2)
 cardObs = effect("La flèche précise",'ObsCard', stat=CHARISMA,strength=5,precision=5,emoji='<:fleche:932399905807433738>',turnInit=2)
@@ -168,7 +168,7 @@ dSixtineWeap = weapon("Rapière Onirique","ej",RANGE_MELEE,AREA_CIRCLE_1,power=6
 phenixLeath = weapon("Plumes de Phénix","ek",RANGE_DIST,AREA_CIRCLE_4,46,65,1,magie=15,endurance=5,precision=10,effects=dtsword.effects,emoji='<:phenpl:992946043161411694>',area=AREA_CONE_2,use=MAGIE)
 plume2 = copy.deepcopy(plume)
 plume2.effectOnUse = plumRemEff
-liaKatanaEff = effect("Akashi","liaKatanaEff",None,turnInit=-1,unclearable=True,emoji='<:liaCounter:998001563379437568>',counterOnDodge=15,description="Vous octroi **15%** de chance d'effectuer une **contre-attaque** en esquivant une attaque d'un adversaire se trouvant à 3 cases ou moins de vous",reject=["windDanceEff"])
+liaKatanaEff = effect("Akashi","liaKatanaEff",None,turnInit=-1,unclearable=True,emoji='<:liaCounter:998001563379437568>',counterOnDodge=15,description="Vous octroie **15%** de chance d'effectuer une **contre-attaque** en esquivant une attaque d'un adversaire se trouvant à 3 cases ou moins de vous",reject=["windDanceEff"])
 liaKatana = weapon("Akashi","el",RANGE_MELEE,AREA_CIRCLE_1,34,50,repetition=3,effects=liaKatanaEff,agility=20,endurance=10,use=AGILITY,emoji='<:liaKat:998001500267749448>',price=1)
 epiEff = effect("Armure","epiphyllumArmor", stat=INTELLIGENCE,overhealth=20,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
 epiphyllum = weapon("Epiphyllum","em",RANGE_LONG,AREA_CIRCLE_5,power=15,type=TYPE_HEAL,effectOnUse=epiEff,area=AREA_CIRCLE_1,target=ALLIES,taille=0,emoji='<:flower:1014636465239629918>',accuracy=100,price=250,use=INTELLIGENCE,intelligence=30)
@@ -205,9 +205,10 @@ enchantedShotgunEff.name, enchantedShotgunEff.emoji = "Fusil à Pompe Enchanté"
 enchantedShotgun = weapon("Fusil à Pompe Enchanté",getAutoId(shotgun),RANGE_MELEE,AREA_CIRCLE_2,75,60,1,strength=10,damageOnArmor=1.35,precision=10,endurance=10,effects=enchantedShotgunEff,use=MAGIE,emoji='<:enchantedShotgun:1227635638136864890>')
 ailillPassiveEff = effect("Acharnement","aillilPassiv",power=15,emoji=deepWound.emoji,turnInit=-1,unclearable=True,callOnTrigger=deepWound,description="Lors de vos attaques directs, **15%** des dégâts infligés sont également infligés en tant que Blessure Profonde")
 chainsaw = weapon("Tronçonneuse",getAutoId(enchantedShotgun),RANGE_MELEE,AREA_CIRCLE_1,80,75,1,strength=15,precision=10,endurance=5,effects=ailillPassiveEff,emoji='<:chainsaw:1189299410794979479>')
+bigHammer = weapon("Masse d'Arme",getAutoId(chainsaw),range=RANGE_MELEE, effectiveRange=AREA_CIRCLE_1,power=80, accuracy=80, price=1, endurance=20, strength=20, resistance=10, damageOnArmor=1.25, emoji='<:mace:1261602201822957589>')
 
 # Weapon
-weapons = [chainsaw,shotgun,enchantedShotgun,toxicBrush,elinaWeap,heleneBrush,icealiaShield,eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
+weapons = [bigHammer,chainsaw,shotgun,enchantedShotgun,toxicBrush,elinaWeap,heleneBrush,icealiaShield,eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
     iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,aliceFan,
     fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,
