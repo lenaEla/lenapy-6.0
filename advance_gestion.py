@@ -590,7 +590,7 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         if eff.callOnTrigger != None and findEffect(eff.callOnTrigger) != None: effCalled = findEffect(eff.callOnTrigger); addTxt += "\nEn se déclanchant, cet effet {0} {1}".format(["octroie","inflige"][effCalled.type in hostileTypes],effCalled)
 
         if eff.lvl not in [1,99] and eff.trigger not in [TRIGGER_PASSIVE] and eff.type not in [TYPE_PASSIVE,TYPE_BOOST,TYPE_MALUS,TYPE_ARMOR] and eff.lvl != eff.turnInit: addTxt += "\nCet effet peut se déclancher au maximum **{0} fois**".format(eff.lvl)
-        stats = eff.allStats()+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge, eff.critDmgUp, eff.critHealUp, eff.dmgUp, eff.healUp, eff.counterOnBlock, eff.counterOnDodge]
+        stats = eff.allStats+[eff.resistance, eff.percing, eff.critical, eff.overhealth, eff.aggro, eff.inkResistance, eff.block, eff.dodge, eff.critDmgUp, eff.critHealUp, eff.dmgUp, eff.healUp, eff.counterOnBlock, eff.counterOnDodge]
         names = nameStats+nameStats2 + ["Puissance de l'Armure", "Agression", "Résistance aux dégâts indirects","Blocage","Prob. Esquive", "Dégâts Critiques","Soins Critiques", "Dégâts non critiques","Soins non critiques","Prob. Contre lors d'un blocage","Prob. Contre lors d'une esquive"]
 
         if eff.redirection > 0: addTxt += "\nCet effet redirige **{0}**% des **dégâts direct** reçu par le porteur vers le lanceur de l'effet en tant que **dégâts indirects**".format(eff.redirection)
@@ -655,7 +655,7 @@ def infoEffect(effId: Union[str,effect], user: char, emb: interactions.Embed, se
         cardDesc = ''
         for cmpt in range(len(cardAspi)-1):
             cardDesc += "{0} __{1}__ : ".format(cardAspi[cmpt].emoji[0][0],inspi[cmpt])
-            tmpCardStat, cardStat = [], cardAspi[cmpt].allStats() + [cardAspi[cmpt].resistance, cardAspi[cmpt].percing, cardAspi[cmpt].critical]
+            tmpCardStat, cardStat = [], cardAspi[cmpt].allStats + [cardAspi[cmpt].resistance, cardAspi[cmpt].percing, cardAspi[cmpt].critical]
             for statCmpt in range(len(cardStat)):
                 if cardStat[statCmpt] > 0:
                     tmpCardStat.append([statCmpt,cardStat[statCmpt]])
@@ -1149,7 +1149,7 @@ def infoWeapon(weap: weapon, user: char, ctx):
     repEmb.add_field(name="<:em:866459463568850954>\n__Informations Principales :__", value=f"__Position :__ {portee}\n__Portée :__ {weap.effectiveRange}\n__Type :__ {allTypeNames[weap.type]}\n__Puissance :__ {weap.power}{nbShot}\n__Précision :__ {weap.accuracy}%", inline=True)
     repEmb.add_field(name="<:em:866459463568850954>\n__Statistiques secondaires :__",value=f'{element}{info}', inline=True)
     bonus, malus = "", ""
-    stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical]
+    stats = weap.allStats+[weap.resistance, weap.percing, weap.critical]
     for a in range(len(stats)):
         if stats[a] != 0:
             bonus += "{0} __{1}__ : {2}{3}\n".format(statsEmojis[a],allStatsNames[a],["","+"][stats[a]>0],stats[a])
@@ -1201,7 +1201,7 @@ def infoStuff(stuff: stuff, user: char, ctx):
         url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(weap.emoji).id))
 
     bonus, malus = "", ""
-    stats = weap.allStats()+[weap.resistance, weap.percing, weap.critical] + [weap.negativeHeal*-1, weap.negativeBoost*-1,weap.negativeShield*-1, weap.negativeDirect*-1, weap.negativeIndirect*-1]
+    stats = weap.allStats+[weap.resistance, weap.percing, weap.critical] + [weap.actHeal*-1, weap.actBoost*-1,weap.actShield*-1, weap.actDirect*-1, weap.actIndirect*-1]
     for cmpt in range(len(stats)):
         if stats[cmpt] > 0:
             bonus += "{2} __{0}__ : +{1}\n".format(allStatsNames[cmpt],stats[cmpt],statsEmojis[cmpt])
@@ -1239,7 +1239,7 @@ def userMajStats(user: char, tabl: list):
 
 def restats(user: char):
     """Function for restat a user"""
-    stats = user.allStats()
+    stats = user.allStats
     for a in range(0, len(stats)):
         stats[a] = round(aspiStats[user.aspiration][a]*0.1 +aspiStats[user.aspiration][a]*0.9*user.level/50)
 
@@ -1258,7 +1258,7 @@ def restats(user: char):
 
 def silentRestats(user: char):
     """Function for restat a user without reset the bonus points"""
-    stats = user.allStats()
+    stats = user.allStats
     for a in range(0, len(stats)):
         stats[a] = round(aspiStats[user.aspiration][a]*0.1 + aspiStats[user.aspiration][a]*0.9*user.level/50)+user.bonusPoints[a]
 
@@ -1277,7 +1277,7 @@ def addExpUser(path: Union[str,char],  exp=3, coins=0):
     while user.exp >= upLvl and user.level < MAXLEVEL:
         user.points = user.points + BONUSPOINTPERLEVEL
         if (user.level+1) // 10 == 0: user.points = user.points + 5
-        temp, up, stats = user.allStats(), [0, 0, 0, 0, 0, 0, 0], user.allStats()
+        temp, up, stats = user.allStats, [0, 0, 0, 0, 0, 0, 0], user.allStats
         for a in range(0, len(stats)):
             stats[a], temp[a] = round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*user.level/50+user.bonusPoints[a]), round(aspiStats[user.aspiration][a]*0.1+aspiStats[user.aspiration][a]*0.9*(user.level+1)/50+user.bonusPoints[a])
             up[a] = temp[a]-stats[a]
@@ -1883,7 +1883,7 @@ async def getUserIcon(bot: interactions.Client, user: char):
 
 def infoInvoc(invoc: invoc, emb: interactions.Embed):
     emb.add_field(name="<:em:866459463568850954>\n{} __{}__".format(invoc.icon[0],invoc.name), value=reduceEmojiNames(f"__Aspiration :__ {aspiEmoji[invoc.aspiration]} {inspi[invoc.aspiration]}\n__Elément :__ {elemEmojis[invoc.element]} {elemNames[invoc.element]}\n__Description :__\n{invoc.description}"), inline=False)
-    stats, rep = invoc.allStats()+[invoc.resistance, invoc.percing, invoc.critical], ""
+    stats, rep = invoc.allStats+[invoc.resistance, invoc.percing, invoc.critical], ""
 
     for a in range(0, len(stats)):
         if type(stats[a]) == list:
@@ -1918,7 +1918,7 @@ def infoAllie(allie: tmpAllie):
     if allie.npcTeam != None: teamName = "__Affinité :__ {0}{1}\n".format(npcTeamEmojis[allie.npcTeam]+[""," "][npcTeamEmojis[allie.npcTeam]!=""], npcTeamNames[allie.npcTeam])
 
     rep = f"{var}__Aspiration :__ {inspi[allie.aspiration]}\n__Element :__ {elemEmojis[allie.element]} {elemNames[allie.element]} ({elemEmojis[allie.secElement]} {elemNames[allie.secElement]})\n{teamName}__Description :__\n{allie.description}"
-    allMaxStats, accStats, dressStats, flatsStats, statsWeapon = allie.allStats(), allie.stuff[0].allStats(), allie.stuff[1].allStats(), allie.stuff[2].allStats(), allie.weapon.allStats()
+    allMaxStats, accStats, dressStats, flatsStats, statsWeapon = allie.allStats, allie.stuff[0].allStats, allie.stuff[1].allStats, allie.stuff[2].allStats, allie.weapon.allStats
     stats = ""
     for a in range(0, len(allMaxStats)): allyStat = int((allMaxStats[a]+accStats[a]+dressStats[a]+flatsStats[a]+statsWeapon[a]) * ((100+allie.limitBreaks[a])/100)); stats += f"{statsEmojis[a]} __{nameStats[a]}.__ : {allyStat}\n"
 
@@ -1932,9 +1932,9 @@ def infoAllie(allie: tmpAllie):
         summation = accStats[num] + dressStats[num] + flatsStats[num] + weaponStats[num]
         stats2 += f"{statsEmojis[num+RESISTANCE]} __{statsPlusName[num]}__ : {summation}\n"
 
-    accStats = [allie.stuff[0].negativeHeal, allie.stuff[0].negativeBoost,allie.stuff[0].negativeShield, allie.stuff[0].negativeDirect, allie.stuff[0].negativeIndirect]
-    dressStats = [allie.stuff[1].negativeHeal, allie.stuff[1].negativeBoost,allie.stuff[1].negativeShield, allie.stuff[1].negativeDirect, allie.stuff[1].negativeIndirect]
-    flatsStats = [allie.stuff[2].negativeHeal, allie.stuff[2].negativeBoost,allie.stuff[2].negativeShield, allie.stuff[2].negativeDirect, allie.stuff[2].negativeIndirect]
+    accStats = [allie.stuff[0].actHeal, allie.stuff[0].actBoost,allie.stuff[0].actShield, allie.stuff[0].actDirect, allie.stuff[0].actIndirect]
+    dressStats = [allie.stuff[1].actHeal, allie.stuff[1].actBoost,allie.stuff[1].actShield, allie.stuff[1].actDirect, allie.stuff[1].actIndirect]
+    flatsStats = [allie.stuff[2].actHeal, allie.stuff[2].actBoost,allie.stuff[2].actShield, allie.stuff[2].actDirect, allie.stuff[2].actIndirect]
     statsPlusName = ["Soins", "Bonus/Malus","Armure", "Dégâts directs", "Dégâts indirect"]
     stats2 += "\n"
     for num in range(5):
@@ -1993,7 +1993,7 @@ def infoEnnemi(ennemi: octarien):
     if ennemi.npcTeam != None:
         teamName = "__Affinité :__ {0}{1}\n".format(npcTeamEmojis[ennemi.npcTeam]+[""," "][npcTeamEmojis[ennemi.npcTeam]!=""], npcTeamNames[ennemi.npcTeam])
     rep = f"__Aspiration :__ {inspi[ennemi.aspiration]}\n__Niveau Minimum :__ {ennemi.baseLvl}\n__Element :__ {elemEmojis[ennemi.element]} {elemNames[ennemi.element]}\n{teamName}\n__Description :__\n{ennemi.description}\n\n__**Statistiques au niveau 50 :**__\n"
-    allMaxStats, accStats, dressStats, flatsStats, weapStats = ennemi.allStats(), ennemi.stuff[0].allStats(), ennemi.stuff[1].allStats(), ennemi.stuff[2].allStats(), ennemi.weapon.allStats()
+    allMaxStats, accStats, dressStats, flatsStats, weapStats = ennemi.allStats, ennemi.stuff[0].allStats, ennemi.stuff[1].allStats, ennemi.stuff[2].allStats, ennemi.weapon.allStats
     for a in range(0, len(allMaxStats)):
         enStat = allMaxStats[a]+ accStats[a] + dressStats[a]+flatsStats[a]+weapStats[a]
         rep += f"\n{statsEmojis[a]} __{nameStats[a]}__ : {enStat}"
@@ -2016,7 +2016,7 @@ def getAutoStuff(object: stuff, user: Union[char, tmpAllie], tablStats = None):
     if user.level//5 == object.minLvl//5 or (object.minLvl == MAXLEVEL//10*10 and user.level >= MAXLEVEL) and (type(user) == char and user.have(object)): return object
     else:
         if tablStats == None:
-            tablAllStats = object.allStats()+[object.resistance, object.percing, object.critical]+[object.negativeHeal*-1, object.negativeBoost*-1, object.negativeShield*-1, object.negativeDirect*-1, object.negativeIndirect*-1]
+            tablAllStats = object.allStats+[object.resistance, object.percing, object.critical]+[object.actHeal*-1, object.actBoost*-1, object.actShield*-1, object.actDirect*-1, object.actIndirect*-1]
 
             for comp in user.skills:
                 if type(comp) == skill and comp.use not in [None, HARMONIE]: tablAllStats[comp.use] += 1
@@ -2041,7 +2041,7 @@ def getAutoStuff(object: stuff, user: Union[char, tmpAllie], tablStats = None):
         elif type(user) == tmpAllie: tablToSee = stuffs[:]
 
         def getSortValue(obj: stuff, statsMaxPlace: list[int]=statsMaxPlace, aff=False):
-            objStats: list[int] = obj.allStats()+[obj.resistance, obj.percing, obj.critical]+[obj.negativeHeal*-1, obj.negativeBoost*-1, obj.negativeShield*-1, obj.negativeDirect*-1, obj.negativeIndirect*-1]
+            objStats: list[int] = obj.allStats+[obj.resistance, obj.percing, obj.critical]+[obj.actHeal*-1, obj.actBoost*-1, obj.actShield*-1, obj.actDirect*-1, obj.actIndirect*-1]
             value: list[int] = []
             for a in statsMaxPlace:
                 value.append(objStats[a])
@@ -2187,15 +2187,15 @@ async def getFullTeamEmbed(bot: interactions.Client, team: List[char], mainUser:
                 sumStatsBonus[7] += a.resistance
                 sumStatsBonus[8] += a.percing
                 sumStatsBonus[9] += a.critical
-                sumStatsBonus[10] += a.negativeHeal * -1
-                sumStatsBonus[11] += a.negativeBoost * -1
-                sumStatsBonus[12] += a.negativeShield * -1
-                sumStatsBonus[13] += a.negativeDirect * -1
-                sumStatsBonus[14] += a.negativeIndirect * -1
+                sumStatsBonus[10] += a.actHeal * -1
+                sumStatsBonus[11] += a.actBoost * -1
+                sumStatsBonus[12] += a.actShield * -1
+                sumStatsBonus[13] += a.actDirect * -1
+                sumStatsBonus[14] += a.actIndirect * -1
 
             estimPV = separeUnit(round((130+ent.level*15)*(int((ent.endurance+sumStatsBonus[ENDURANCE]*(1+ent.limitBreaks[ENDURANCE]/100)))/100+1)))
             entDesc = "\n__PVs :__ {0}".format(estimPV)
-            allStatsUser = ent.allStats()+[ent.resistance,ent.percing,ent.critical,ent.majorPoints[ACT_BOOST_FULL],ent.majorPoints[ACT_HEAL_FULL],ent.majorPoints[ACT_SHIELD_FULL],ent.majorPoints[ACT_DIRECT_FULL],ent.majorPoints[ACT_INDIRECT_FULL]]
+            allStatsUser = ent.allStats+[ent.resistance,ent.percing,ent.critical,ent.majorPoints[ACT_BOOST_FULL],ent.majorPoints[ACT_HEAL_FULL],ent.majorPoints[ACT_SHIELD_FULL],ent.majorPoints[ACT_DIRECT_FULL],ent.majorPoints[ACT_INDIRECT_FULL]]
             for cmpt in range(0,MAGIE+1):
                 userStats = int((allStatsUser[cmpt]+sumStatsBonus[cmpt]) * (1+ent.limitBreaks[cmpt]/100))
                 entDesc += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],userStats)

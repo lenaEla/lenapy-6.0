@@ -212,8 +212,7 @@ class shopClass:
         """When inited, look for a existing shop data in the database and load it"""
         self.shopping = []
         summation = 0
-        for a in shopRepatition:
-            summation += a
+        for a in shopRepatition: summation += a
         cmpt = 0
         while cmpt < summation:
             self.shopping.append(None)
@@ -727,7 +726,7 @@ async def comEncyclopedia(ctx: SlashContext, destination = None):
         await ctx.send("Une erreur est survenue :\n{0}".format(e))
 
 # -------------------------------------------- FIGHT --------------------------------------------
-toTestTemp, toTestChangeDict = "Céleste", -1
+toTestTemp, toTestChangeDict = "Lena", None
 
 SPECIALFIGHTPURCENT = 10
 SPSPECIALFIGHTPURCENT, SPRAIDPURCENT = 0, 0
@@ -1072,7 +1071,7 @@ async def fightFunction(ctx:SlashContext, notify=False, quick=False):
                         for cmpt in range(len(ent.stuff)): stuffy = copy.deepcopy(ent.stuff[cmpt]); stuffy.strength = int(stuffy.strength * ratio1 * ratio2); stuffy.endurance = int(stuffy.endurance * max(1,ratio1/4) * ratio2); stuffy.charisma = int(stuffy.charisma * max(1,ratio1/3) * ratio2); stuffy.agility = int(stuffy.agility * max(1,ratio1/4) * ratio2); stuffy.precision = int(stuffy.precision * max(1,ratio1/4) * ratio2); stuffy.intelligence = int(stuffy.intelligence * max(1,ratio1/3) * ratio2); stuffy.magie = int(stuffy.magie * ratio1 * ratio2); ent.stuff[cmpt] = stuffy
 
                         tmpCount = 0
-                        for tmpStuff in ent.stuff: tmpCount += sum(tmpStuff.allStats())
+                        for tmpStuff in ent.stuff: tmpCount += sum(tmpStuff.allStats)
                         #print(ent.name, tmpCount)
                     tempTeamEff = copy.deepcopy(constEff)
                     tempTeamEff.stat, tempTeamEff.turnInit, tempTeamEff.unclearable, tempTeamEff.power = PURCENTAGE, -1, True, (ratio1-1)*100
@@ -1912,15 +1911,15 @@ async def statsCmd(ctx, joueur=None):
             sumStatsBonus[7] += a.resistance
             sumStatsBonus[8] += a.percing
             sumStatsBonus[9] += a.critical
-            sumStatsBonus[10] += a.negativeHeal * -1
-            sumStatsBonus[11] += a.negativeBoost * -1
-            sumStatsBonus[12] += a.negativeShield * -1
-            sumStatsBonus[13] += a.negativeDirect * -1
-            sumStatsBonus[14] += a.negativeIndirect * -1
+            sumStatsBonus[10] += a.actHeal * -1
+            sumStatsBonus[11] += a.actBoost * -1
+            sumStatsBonus[12] += a.actShield * -1
+            sumStatsBonus[13] += a.actDirect * -1
+            sumStatsBonus[14] += a.actIndirect * -1
 
         estimPV = separeUnit(round((130+user.level*15)*(int((user.endurance+sumStatsBonus[ENDURANCE]*(1+user.limitBreaks[ENDURANCE]/100)))/100+1)))
         value = "\n__PVs :__ {0}".format(estimPV)
-        allStatsUser = user.allStats()+[user.resistance,user.percing,user.critical,user.majorPoints[ACT_BOOST_FULL],user.majorPoints[ACT_HEAL_FULL],user.majorPoints[ACT_SHIELD_FULL],user.majorPoints[ACT_DIRECT_FULL],user.majorPoints[ACT_INDIRECT_FULL]]
+        allStatsUser = user.allStats+[user.resistance,user.percing,user.critical,user.majorPoints[ACT_BOOST_FULL],user.majorPoints[ACT_HEAL_FULL],user.majorPoints[ACT_SHIELD_FULL],user.majorPoints[ACT_DIRECT_FULL],user.majorPoints[ACT_INDIRECT_FULL]]
         for cmpt in range(0,MAGIE+1):
             userStats = int((allStatsUser[cmpt]+sumStatsBonus[cmpt]) * (1+user.limitBreaks[cmpt]/100))
             value += "\n{0} __{1}__ : {2}".format(statsEmojis[cmpt],allStatsNames[cmpt],userStats)

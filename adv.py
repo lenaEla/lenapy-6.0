@@ -200,23 +200,19 @@ if not(isLenapy):
     print("=============================\nVérification de l'équilibrage des stuffs...")
     print("Nombre d'équipements :", len(stuffs))
     allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    for a in stuffs:
-        if a.effects == None:
-            ballerine = a.allStats()+[a.resistance,a.percing,a.critical]
-            babie = [a.negativeHeal,a.negativeBoost,a.negativeShield,a.negativeDirect,a.negativeIndirect]
+    for tmpStuff in stuffs:
+        if tmpStuff.effects == None:
+            ballerine = tmpStuff.allStats + [tmpStuff.resistance,tmpStuff.percing,tmpStuff.critical] + tmpStuff.actionStats
             sumation = 0
             for b in range(0,len(ballerine)):
                 sumation += ballerine[b]
                 allstats[b] += ballerine[b]
 
-            for b in babie:
-                sumation -= b
+            if sumation < 18 and summation > 22 and tmpStuff.effects == None and tmpStuff.name != "Claquettes chaussettes":
+                print("{0} n'a pas le bon cumul de stats : {1}".format(tmpStuff.name,sumation))
 
-            if sumation < 18 and summation > 22 and a.effects == None and a.name != "Claquettes chaussettes":
-                print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
-
-            elif sumation != 10 and a.effects != None:
-                print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
+            elif sumation != 10 and tmpStuff.effects != None:
+                print("{0} n'a pas le bon cumul de stats : {1}".format(tmpStuff.name,sumation))
 
     temp = "\nDistribution des statistiques :\n"
     total = 0
@@ -263,7 +259,7 @@ if not(isLenapy):
     tablTank, tablMid, tablBack = [], [], []
     for ennemi in tablUniqueEnnemies:
         [tablTank,tablMid,tablBack][ennemi.weapon.range].append(ennemi)
-        summ = sum(ennemi.allStats()+[ennemi.resistance,ennemi.percing,ennemi.critical])
+        summ = sum(ennemi.allStats+[ennemi.resistance,ennemi.percing,ennemi.critical])
         awaited = int((280+110*3)*1)
         if summ < awaited*0.9 or summ > awaited*1.1:
             print("{0} n'a pas le bon cumul de stats : {1} ({2})".format(ennemi.name,summ,awaited))
@@ -279,7 +275,7 @@ if not(isLenapy):
 nbAdjustedWeap = 0
 for weap in weapons:
     summation = 0
-    for stats in weap.allStats()+[weap.resistance,weap.percing,weap.critical]:
+    for stats in weap.allStats+[weap.resistance,weap.percing,weap.critical]:
         summation += stats
 
     toVerif = 50

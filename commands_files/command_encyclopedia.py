@@ -156,19 +156,19 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                 if tri in [2,3]:
                     tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(tri-2))
                 elif tri == 4:
-                    tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.actDirect *-1,ballerine.actIndirect *-1), reverse=True)
                 elif tri == 5:
                     tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
                 elif tri == 6:
-                    tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.actHeal *-1,ballerine.actBoost *-1), reverse=True)
                 elif tri == 7:
                     tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
                 elif tri == 8:
                     tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
                 elif tri == 9:
-                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.actShield *-1,ballerine.actBoost *-1), reverse=True)
                 elif tri == 10:
-                    tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.actDirect *-1,ballerine.actIndirect *-1), reverse=True)
                 elif tri == 11:
                     tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                 elif tri == 12:
@@ -323,13 +323,13 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
                 if destination in [0,1,2,3]:
                     tablToSee.sort(key=lambda ballerine: ballerine.name)
                     if respond in [2,3]: tablToSee.sort(key=lambda ballerine:user.have(ballerine), reverse=not(respond-2))
-                    elif respond == 4: tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    elif respond == 4: tablToSee.sort(key=lambda ballerine:ballerine.strength + max(ballerine.actDirect *-1,ballerine.actIndirect *-1), reverse=True)
                     elif respond == 5: tablToSee.sort(key=lambda ballerine:ballerine.endurance, reverse=True)
-                    elif respond == 6: tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.negativeHeal *-1,ballerine.negativeBoost *-1), reverse=True)
+                    elif respond == 6: tablToSee.sort(key=lambda ballerine:ballerine.charisma + max(ballerine.actHeal *-1,ballerine.actBoost *-1), reverse=True)
                     elif respond == 7: tablToSee.sort(key=lambda ballerine:ballerine.agility, reverse=True)
                     elif respond == 8: tablToSee.sort(key=lambda ballerine:ballerine.precision, reverse=True)
-                    elif respond == 9: tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.negativeShield *-1,ballerine.negativeBoost *-1), reverse=True)
-                    elif respond == 10: tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.negativeDirect *-1,ballerine.negativeIndirect *-1), reverse=True)
+                    elif respond == 9: tablToSee.sort(key=lambda ballerine:ballerine.intelligence + max(ballerine.actShield *-1,ballerine.actBoost *-1), reverse=True)
+                    elif respond == 10: tablToSee.sort(key=lambda ballerine:ballerine.magie + max(ballerine.actDirect *-1,ballerine.actIndirect *-1), reverse=True)
                     elif respond == 11: tablToSee.sort(key=lambda ballerine:ballerine.resistance, reverse=True)
                     elif respond == 12: tablToSee.sort(key=lambda ballerine:ballerine.percing, reverse=True)
                     elif respond == 13: tablToSee.sort(key=lambda ballerine:ballerine.critical, reverse=True)

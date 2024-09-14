@@ -1,6 +1,13 @@
-Patch 5.8.3.2
+Patch 6.0.0
 __Equilibrage :__
-- __Blood Cross :__
-> La compétence est désormais dépendante de la Jauge de Sang
-> La puissance minimale a été réduite
-> La puissance maximale a été augmentée
+- Toutes les armes ont désormais un taux d'érosion de 10%
+- Réduction des statistiques de certains équipements
+- La progression de la résistance soins des combattants n'est plus impactée par le nombre de soigneurs dans l'équipe
+- Nacialisla :
+> Puissance de Onde de Choc réduite
+
+__Autres :__
+- Optimisation de l'attribution des récompenses d'expéditions
+
+__Corrections :__
+- Correction d'une erreur survenant lorsque Liz (alliée) attaquait un ennemi ou Lio (alliée) soignait un allié
