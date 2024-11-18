@@ -1,13 +1,19 @@
-Patch 6.0.0
-__Equilibrage :__
-- Toutes les armes ont désormais un taux d'érosion de 10%
-- Réduction des statistiques de certains équipements
-- La progression de la résistance soins des combattants n'est plus impactée par le nombre de soigneurs dans l'équipe
-- Nacialisla :
-> Puissance de Onde de Choc réduite
+Patch 6.8.5
+__Combat :__
+- Au début du combat, les Aformités d'Ombres, de Lumières et d'Espaces s'affinent en une aformité précise, modifiant leurs statistiques et compétences
+> Il est possible de consulter chaque concrétisation via les compétences des aformités concernée dans l'encyclopédie
+- Ajout d'un combat spécial ou une groupe prédéfini d'alliés ou votre propre équipe affrontent un groupe d'afformité
 
-__Autres :__
-- Optimisation de l'attribution des récompenses d'expéditions
+__Equilibrage:__
+- L'effet Soins et Armures augmentés est désormais cumulable
+- L'effet Acharnement se déclanche désormais après les dégâts directes qui l'ont déclanché et plus avant
+- Clémence ne prend plus sa forme enfantine si au moins une aformité est présente dans l'équipe ennemie
+
+__Autre :__
+- Icealia a désormais un splashicon
+- La probabilité de tomber sur Phy sont revenues à la normale
+- La probabilité de tomber sur le combat spécial du Main Crew est revenue à la normale
+- La probabilité de tomber sur le combat spécial contre les aformités a été accrue
 
 __Corrections :__
-- Correction d'une erreur survenant lorsque Liz (alliée) attaquait un ennemi ou Lio (alliée) soignait un allié
+- Optimisation de la procédure de retour d'expéditions

@@ -190,7 +190,7 @@ async def streamSettingsFunction(bot:interactions.Client, guild:interactions.Gui
 			emb = interactions.Embed(title="__Alertes Twitch ({0})__".format(guild.name),color=light_blue,description=desc)
 			
 			comp = []
-			if len(guildAlerteList) < 10: comp = comp + [interactions.ActionRow(addAlertButton)]
+			comp = comp + [interactions.ActionRow(addAlertButton)]
 
 			if len(listOption) > 0: comp = comp + [interactions.ActionRow(interactions.StringSelectMenu(listOption,custom_id = "listAlert",placeholder="Modifier / Supprimer une alerte"))]
 			

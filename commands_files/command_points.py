@@ -52,7 +52,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
                 procurSelect = [interactions.ActionRow(interactions.StringSelectMenu(procurOptions,custom_id = "procurSelect"))]
             else:
                 procurSelect = []
-            temp = user.allStats
+            temp = user.allStats()
 
             msgTemp = "\n"
             for a in range(0,len(nameStats)):
@@ -101,7 +101,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
                 pathUserProfile = "./userProfile/{0}.json".format(respond.values[0].replace("user_",""))
             else:
                 respond = int(ballerine.values[0])
-                temp = user.allStats
+                temp = user.allStats()
 
                 if ballerine.custom_id == "selectACat":
                     stat, state = respond, 1
@@ -109,7 +109,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
                     stat, state = respond, 3
 
         if state == 1:
-            userStats = user.allStats
+            userStats = user.allStats()
             trueStat = userStats[stat]-user.bonusPoints[stat]
             dif = user.bonusPoints[stat]
             def checkIsAuthor(message: interactions.Message):
@@ -135,7 +135,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
                     points, state = int(resp.content), 2
 
         if state == 2:
-            userStats = user.allStats
+            userStats = user.allStats()
             if points <= user.points and points >= 0 and user.bonusPoints[stat] <= MAXBONUSPERSTAT and user.bonusPoints[stat]+points <= MAXBONUSPERSTAT:
                 userStats[stat] = userStats[stat]+points
                 user.points -= points

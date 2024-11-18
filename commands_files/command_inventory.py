@@ -173,8 +173,8 @@ async def compare(bot : interactions.Client, ctx : ComponentContext, user : char
     compBonus = ""
     compMalus = ""
     allStaty = allStatsNames
-    allStatsCompare = toCompare.allStats + [toCompare.resistance,toCompare.percing,toCompare.critical,toCompare.actHeal*-1,toCompare.actBoost*-1,toCompare.actShield*-1,toCompare.actDirect*-1,toCompare.actIndirect*-1]
-    allStatsSee = see.allStats + [see.resistance,see.percing,see.critical,see.actHeal*-1,see.actBoost*-1,see.actShield*-1,see.actDirect*-1,see.actIndirect*-1]
+    allStatsCompare = toCompare.allStats() + [toCompare.resistance,toCompare.percing,toCompare.critical,toCompare.negativeHeal*-1,toCompare.negativeBoost*-1,toCompare.negativeShield*-1,toCompare.negativeDirect*-1,toCompare.negativeIndirect*-1]
+    allStatsSee = see.allStats() + [see.resistance,see.percing,see.critical,see.negativeHeal*-1,see.negativeBoost*-1,see.negativeShield*-1,see.negativeDirect*-1,see.negativeIndirect*-1]
 
     for cmpt in range(len(allStatsSee)):
         diff = allStatsSee[cmpt] - allStatsCompare[cmpt]
@@ -1304,22 +1304,22 @@ async def inventoryV2(bot : interactions.Client, ctx : interactions.SlashContext
                             case 11: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.resistance), reverse=True)
                             case 12: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.percing), reverse=True)
                             case 13: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.critical), reverse=True)
-                            case 14: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.actHeal), reverse=True)
-                            case 15: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.actBoost), reverse=True)
-                            case 16: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.actShield), reverse=True)
-                            case 17: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.actDirect), reverse=True)
-                            case 18: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.actIndirect), reverse=True)
-                            case 22: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.precision + min(ballerine.actDirect,ballerine.actIndirect)*-1), reverse=True)
-                            case 23: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.agility + min(ballerine.actDirect,ballerine.actIndirect)*-1), reverse=True)
-                            case 24: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.endurance + min(ballerine.actDirect,ballerine.actIndirect)*-1), reverse=True)
-                            case 25: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance + ballerine.magie + min(ballerine.actDirect,ballerine.actIndirect)*-1), reverse=True)
-                            case 26: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.endurance + ballerine.actHeal*-1), reverse=True)
-                            case 27: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.endurance + ballerine.actShield*-1), reverse=True)
-                            case 28: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.actHeal*-1), reverse=True)
-                            case 29: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.actBoost*-1), reverse=True)
-                            case 30: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.actShield*-1), reverse=True)
-                            case 31: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.actBoost*-1), reverse=True)
-                            case 32: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie + ballerine.precision + min(ballerine.actDirect,ballerine.actIndirect)*-1), reverse=True)
+                            case 14: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeHeal), reverse=True)
+                            case 15: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeBoost), reverse=True)
+                            case 16: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeShield), reverse=True)
+                            case 17: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeDirect), reverse=True)
+                            case 18: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,-ballerine.negativeIndirect), reverse=True)
+                            case 22: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 23: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.agility + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 24: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.strength + ballerine.endurance + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 25: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.endurance + ballerine.magie + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
+                            case 26: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.endurance + ballerine.negativeHeal*-1), reverse=True)
+                            case 27: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.endurance + ballerine.negativeShield*-1), reverse=True)
+                            case 28: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.negativeHeal*-1), reverse=True)
+                            case 29: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.charisma + ballerine.negativeBoost*-1), reverse=True)
+                            case 30: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.negativeShield*-1), reverse=True)
+                            case 31: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.intelligence + ballerine.negativeBoost*-1), reverse=True)
+                            case 32: tablToSee.sort(key=lambda ballerine:(ballerine.minLvl,ballerine.magie + ballerine.precision + min(ballerine.negativeDirect,ballerine.negativeIndirect)*-1), reverse=True)
 
                     elif destination != 2: tablToSee.sort(key=lambda ballerine:ballerine.name,reverse=tri==1)
 

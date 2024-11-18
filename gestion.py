@@ -3,7 +3,7 @@ from traceback import print_exc
 from typing import Union
 import interactions
 from classes import *
-from adv import findWeapon,findOther,findSkill,findStuff
+from adv import findWeapon, findOther, findSkill, findStuff
 """
 Main functions module
 """
@@ -267,7 +267,7 @@ class userSettingsDbEndler:
 
         if result == None:
             cursory.close()
-            self.addUserToDb(self)
+            self.addUserToDb(user)
             cursory = self.con.cursor()
         else:
             if user.says == None:
@@ -332,7 +332,7 @@ class userSettingsDbEndler:
         cursory.close()
 
         if result == None:
-            self.addUserToDb(self)
+            self.addUserToDb(user)
         else:
             tablTemp = []
             for cmpt in range(len(tablSaysDictCat)):

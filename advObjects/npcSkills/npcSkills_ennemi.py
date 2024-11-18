@@ -476,13 +476,13 @@ octoHealSkill2 = skill("Régénération","octoHealSkill2",TYPE_HEAL,power=octoHe
 # OctoMage
 octoMageSkill1 = skill("Magie Débutante","octoMageSkill1",TYPE_DAMAGE,become=[fireMagicCombo.become[0],waterMagicCombo.become[0],airMagicCombo.become[0],earthMagicCombo.become[0]])
 for indx, tmpSkill in enumerate(octoMageSkill1.become):
-    octoMageSkill1.become[indx] = copy.deepcopy(tmpSkill)
-    octoMageSkill1.become[indx].needEffect, octoMageSkill1.become[indx].cooldown = None, 1
+	octoMageSkill1.become[indx] = copy.deepcopy(tmpSkill)
+	octoMageSkill1.become[indx].needEffect, octoMageSkill1.become[indx].cooldown = None, 1
 
 octoMageSkill2 = skill("Magie Intermédiaire","octoMageSkill2",TYPE_DAMAGE,become=[fireMagicCombo.become[1],waterMagicCombo.become[1],airMagicCombo.become[1],earthMagicCombo.become[1]])
 for indx, tmpSkill in enumerate(octoMageSkill2.become):
-    octoMageSkill2.become[indx] = copy.deepcopy(tmpSkill)
-    octoMageSkill2.become[indx].needEffect, octoMageSkill2.become[indx].cooldown = None, 3
+	octoMageSkill2.become[indx] = copy.deepcopy(tmpSkill)
+	octoMageSkill2.become[indx].needEffect, octoMageSkill2.become[indx].cooldown = None, 3
 
 zombieMalusSkillEff = copy.deepcopy(incurable)
 zombieMalusSkillEff.power, zombieMalusSkillEff.turnInit, zombieMalusSkillEff.unclearable, zombieMalusSkillEff.silent = 35, -1, True, True
@@ -521,3 +521,105 @@ mageBanditSkill2_3 = skill("Extra Vent", "", TYPE_DAMAGE, power=100, area=AREA_C
 mageBanditSkill2_4 = skill("Extra Terre", "", TYPE_DAMAGE, power=100, area=AREA_CIRCLE_1, use=MAGIE, cooldown=3, emoji=earthCircle.emoji, needEffect=mageBanditEarthEff)
 mageBanditSkill2 = skill("Combo élémentaire II","mageBanditSkill2",TYPE_DAMAGE,emoji=mageBanditSkill1_2_ne.emoji[0][0],become=[mageBanditSkill2_1,mageBanditSkill2_2,mageBanditSkill2_3,mageBanditSkill2_4])
 for indx, tmpSkill in enumerate(mageBanditSkill2.become): mageBanditSkill2.become[indx].id, mageBanditSkill2.become[indx].condition, mageBanditSkill2.become[indx].range = mageBanditSkill2.id, [EXCLUSIVE, ELEMENT, mageBanditElemDict[tmpSkill.needEffect[0].id]], AREA_CIRCLE_4
+
+aformLightTankWeap = weapon("Arme contandante Lumineuse", "aformLightTankWeap", RANGE_MELEE, AREA_CIRCLE_1, 65, 100, 0, resistance=20, endurance=20, damageOnArmor=2, use=ENDURANCE)
+aformLightTankSkill1Eff1 = copy.deepcopy(dmgDown)
+aformLightTankSkill1Eff1.power, aformLightTankSkill1Eff1.turnInit, aformLightTankSkill1Eff1.stat = 4, 3, ENDURANCE
+aformLightTankSkill1Eff2 = effect("Armure de Lumière", "aformLightTankSkill1Eff2", ENDURANCE, overhealth=75, turnInit=3)
+aformLightTankSkill1 = skill("Champ de Lumière", "aformLightTankSkill1", TYPE_MALUS, area=AREA_DONUT_2, range=AREA_MONO, effects=aformLightTankSkill1Eff1, effectOnSelf=aformLightTankSkill1Eff2, use=ENDURANCE, cooldown=5, description="Réduit les dégâts infligés par les ennemis proches et vous octori une armure")
+aformLightTankSkill2 = skill("Tremblement de Lumière", "aformLightTankSkill2", TYPE_DAMAGE, power=85, setAoEDamage=True, lifeSteal=100, damageOnArmor=2, range=AREA_MONO, area=AREA_CIRCLE_2, use=ENDURANCE, cooldown=5, description="Inflige des dégâts (accrues contre l'armure) aux ennemis proches en ignorant la réduction de dégâts de zone et vous soigne ne fonction des dégâts infligés", emoji='<:ancientLight3:1147186280308953179>')
+aformLightTankSkill3Eff = effect("Affaiblissement", "aformLightTankSkill3Eff", PURCENTAGE, type=TYPE_MALUS, resistance=-35, turnInit=3, emoji='<:resDown:1188192304788406333>')
+aformLightTankSkill3 = skill("Affaiblissement de Lumière", "aformLightTankSkill3", TYPE_DAMAGE, power=100, range=AREA_CIRCLE_3, effects=aformLightTankSkill3Eff, cooldown=5, description="Inflige des dégâts à l'ennemi ciblé et réduit sa résistance", use=ENDURANCE)
+aformLightTankStats = [100,200,20,20,50,100,100,50,0,0]
+
+aformLightSuppWeap = weapon("Arme Aurifique Lumineuse", "aformLightSuppWeap", RANGE_DIST, AREA_CIRCLE_4, 65, 100, charisma=20, intelligence=20, area=AREA_CIRCLE_1, use=CHARISMA)
+aformLightSuppSkill1Eff = copy.deepcopy(dmgUp)
+aformLightSuppSkill1Eff.power, aformLightSuppSkill1Eff.turnInit, aformLightSuppSkill1Eff.stat = 5, 3, CHARISMA
+aformLightSuppSkill1 = skill("Bénédiction de Lumière", "aformLightSuppSkill1", TYPE_BOOST, range=AREA_MONO, area=AREA_CIRCLE_3, effects=aformLightSuppSkill1Eff, cooldown=aformLightSuppSkill1Eff.turnInit, description="Augmente les dégâts infligés par vous et vos alliés proches", emoji='<:lightAura2:1106836809083781120>')
+aformLightSuppSkill2Eff2 = effect("Aura Luminésente (effet)", "aformLightSuppSkill2Eff2", silentRemove=True, strength=5, magie=5, endurance=3, charisma=3, intelligence=3, turnInit=True, stackable=True, stat=CHARISMA)
+aformLightSuppSkill2Eff1 = effect("Aura Luminésente", "aformLightSuppSkill2Eff1", CHARISMA, callOnTrigger=aformLightSuppSkill2Eff2, turnInit=5, trigger=TRIGGER_START_OF_TURN, area=AREA_CIRCLE_4)
+aformLightSuppSkill2 = skill("Aura Luminésente", "aformLightSuppSkill2", TYPE_BOOST, range=AREA_MONO, area=aformLightSuppSkill2Eff1.area, cooldown=aformLightSuppSkill2Eff1.turnInit, effectOnSelf=aformLightSuppSkill2Eff1, effects=aformLightSuppSkill2Eff2, description="Durant un moment, augmente les statistiques globales des alliés autour de vous et vous-même", emoji='<:iliOvlSkill6:1139254326494244864>')
+aformLightSuppSkill2.effectOnSelf.emoji = uniqueEmoji(aformLightSuppSkill2.emoji)
+aformLightSuppSkill3Eff1 = copy.deepcopy(vampirismeEff)
+aformLightSuppSkill3Eff1.power, aformLightSuppSkill3Eff1.turnInit, aformLightSuppSkill3Eff1.strength, aformLightSuppSkill3Eff1.magie = 5, 3, 2.5, 2.5
+aformLightSuppSkill3 = skill("Lumino-Thérapie","aformLightSuppSkill3",TYPE_HEAL, range=AREA_MONO, area=AREA_CIRCLE_3, effects=aformLightSuppSkill3Eff1, cooldown=aformLightSuppSkill3Eff1.turnInit, description="Augmente légèrement les statistiques offensives et octroi un peu de vol de vie à vos alliés proches et vous-même")
+
+aformLightMageWeap = weapon("Missile de Lumière", "aformLightMageWeap", RANGE_LONG, AREA_CIRCLE_4, 100, 80, magie=30, precision=10)
+aformLightMageSkill1Eff = effect("Lumino-Dispersion", "aformLightMageSkill1Eff", MAGIE, type=TYPE_DAMAGE, power=50, trigger=TRIGGER_INSTANT, area=AREA_DONUT_1, emoji='<:catLight:956599774461722655>')
+aformLightMageSkill1 = skill("Lumino-Dispersion", "aformLightMageSkill1", TYPE_DAMAGE, power=100, cooldown=5, effects=aformLightMageSkill1Eff, use=MAGIE, percing=20, description="Inflige des dégâts à l'ennemi ciblé en ignorant une partie de sa résistance, et inflige des dégâts moindres aux ennemis proches de la cible", emoji='<:iliOvlSkill21:1139254767604990002>')
+aformLightMageSkill2 = skill("Pluie Luminésente", "aformLightMageSkill2", TYPE_DAMAGE, power=40, area=AREA_RANDOMENNEMI_4, cooldown=3, setAoEDamage=True, use=MAGIE, description="Inflige de petits dégâts à quatres ennemis aléatoirement, en ignorant la réduction de dégâts de zone")
+aformLightMageSkill3_1 = skill("Rayon de Lumière", "aformLightMageSkill3", TYPE_DAMAGE, power=185, area=AREA_LINE_5, range=AREA_CIRCLE_4, use=MAGIE, ultimate=True, cooldown=6, description="Après un tour de chargement, inflige de lourd dégâts en ligne droite en direction de l'ennemi ciblé", emoji='<:iliOvlSkill22:1139254745337438300>')
+aformLightMageSkill3_c = effect("Cast - {replicaName}", "aformLightMageSkill3_c", turnInit=2, replique=aformLightMageSkill3_1, silent=True)
+aformLightMageSkill3 = copy.deepcopy(aformLightMageSkill3_1)
+aformLightMageSkill3.power, aformLightMageSkill3.effectOnSelf = 0, aformLightMageSkill3_c
+
+aformDarkNinWeap = weapon("Arme Tranchante d'Ombre", "aformDarkNinWeap", RANGE_MELEE, AREA_CIRCLE_1, 80, 120, strength=20, agility=20)
+aformDarkNinSkill1 = skill("Voyage Sombre Aforme", "aformDarkNinSkill1", TYPE_DAMAGE, range=AREA_INLINE_3, tpBehind=True, power=100, percing=20, cooldown=3, description="Saute derrière l'ennemi ciblé et lui inflige une attaque ignorant une ârtie de sa résistance")
+aformDarkNinSkill2Eff = effect("Corruption Ombrale", "aformDarkNinSkill2Eff", HARMONIE, stackable=True, power=30, turnInit=5, trigger=TRIGGER_START_OF_TURN, type=TYPE_INDIRECT_DAMAGE, emoji='<:lunaDot:1046387641807020092>')
+aformDarkNinSkill2 = skill("Lame Corruptrice d'Ombre", "aformDarkNinSkill2", TYPE_DAMAGE, power=100, range=AREA_CIRCLE_2, effects=aformDarkNinSkill2Eff, cooldown=5, description="Inflige des dégâts à la cible ainsi qu'un effet de dégâts sur la durée")
+aformDarkNinSkill3Eff1 = effect("Affaiblissement Ombral", "aformDarkNinSkill3Eff", PURCENTAGE, type=TYPE_MALUS, resistance=-15, turnInit=3, emoji='<:resDown:1188192304788406333>')
+aformDarkNinSkill3Eff2 = copy.deepcopy(vulne)
+aformDarkNinSkill3Eff2.power, aformDarkNinSkill3Eff2.turnInit = 15, aformDarkNinSkill3Eff1.turnInit
+aformDarkNinSkill3 = skill("Ombre Affablissante", "aformDarkNinSkill3", TYPE_DAMAGE, power=100, range=AREA_CIRCLE_1, effects=[aformDarkNinSkill3Eff1, aformDarkNinSkill3Eff2], cooldown=aformDarkNinSkill3Eff2.turnInit, description="Inflige des dégâts à l'ennemi ciblé, réduit sa résistance et augmente les dégâts qu'il subis")
+
+aformDarkSorcWeap = weapon("Missile Corrupteur Ombral", "aformDarkSorcWeap", RANGE_DIST, AREA_CIRCLE_4, power=50, accuracy=100, use=MAGIE, effectOnUse=aformDarkNinSkill2Eff, magie=20, intelligence=20)
+aformDarkSorcSkill1 = skill("Champ Ombral", "aformDarkSorcSkill1", TYPE_INDIRECT_DAMAGE, area=AREA_CIRCLE_2, range=AREA_CIRCLE_4, effects=aformDarkNinSkill2Eff, effPowerPurcent=150, cooldown=5, description="Inflige aux ennemis ciblés un effet de dégâts indirects")
+aformDarkSorcSkill2Eff = effect("Affaiblissement d'Ombre", "aformDarkSorcSkill2Eff", inkResistance=-25, turnInit=3)
+aformDarkSorcSkill2 = skill("Corruption D'Ombre", "aformDarkSorcSkill2", TYPE_INDIRECT_DAMAGE, effects=[aformDarkSorcSkill2Eff, aformDarkNinSkill2Eff], cooldown=5, range=AREA_CIRCLE_3, description="Inflige à la cible un effet de dégâts indirects et augmente les dégâts indirects qu'il subit", emoji="<:darkThunder:912414778356564019>")
+aformDarkSorcSkill3Eff = effect("Détonnation d'Ombre", "aformDarkSorcSkill3Eff", MAGIE, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_INSTANT, area=AREA_CIRCLE_1, power=35, emoji="<:darkShockWave:1185653578824679484>")
+aformDarkSorcSkill3 = skill("Détonnation d'Ombre", "aformDarkSorcSkill3", TYPE_INDIRECT_DAMAGE, effects=[aformDarkSorcSkill3Eff, aformDarkSorcSkill3Eff, aformDarkSorcSkill3Eff, aformDarkSorcSkill3Eff], range=AREA_CIRCLE_4, cooldown=5, description="Inflige à l'ennemi ciblé quatres attaques indirects à air d'effet", emoji='<:darkShockWave:1185653578824679484>')
+
+aformDarkObsWeap = weapon("Projectile d'Ombre", "aformDarkObsWeap", RANGE_LONG, AREA_CIRCLE_5, 100, 100, strength=20, precision=20)
+aformDarkObsSkill1 = skill("Tir Aforme de Précision", "aformDarkObsSkill1", TYPE_DAMAGE, power=120, cooldown=5, damageOnArmor=2, description="Inflige de lourds dégâts accrue sur l'armure à la cible")
+aformDarkObsSkill2 = skill("Tir à l'Aveugle Aforme", "aformDarkObsSkill1", TYPE_DAMAGE, power=30, area=AREA_RANDOMENNEMI_3, repetition=3, setAoEDamage=True, cooldown=5, description="Inflige à trois ennemis aléatoires une attaque ignorant la réduction de dégâts de zone, à trois reprises")
+aformDarkObsSkill3_1 = skill("Pic Ombral", "aformDarkObsSkill3_1", TYPE_DAMAGE, power=150, area=AREA_CIRCLE_2, range=AREA_BOMB_6, cooldown=6, ultimate=True, damageOnArmor=1.5, description="Après un tour de chargement, inflige une attaque infligeant de lourds dégâts accrus à l'armure sur la cible et les ennemis alentours")
+aformDarkObsSkill3_c = effect("Cast - {replicaName}", "aformDarkObsSkill3_c", turnInit=2, silent=True, replique=aformDarkObsSkill3_1)
+aformDarkObsSkill3 = copy.deepcopy(aformDarkObsSkill3_1)
+aformDarkObsSkill3.power, aformDarkObsSkill3.effectOnSelf = 0, aformDarkObsSkill3_c
+
+aformSpaceBerkWeap = weapon("Arme Tranchante Aforme", "aformSpaceBerkWeap", range=RANGE_MELEE, effectiveRange=AREA_CIRCLE_1, power=100, accuracy=120, strength=20, endurance=20)
+aformSpaceBerkSkill1Eff = copy.deepcopy(deepWound)
+aformSpaceBerkSkill1Eff.stat, aformSpaceBerkSkill1Eff.power = STRENGTH, 50
+aformSpaceBerkSkill1 = skill("Fissure Spacial Aforme", 'aformDarkSorcSkill1', TYPE_DAMAGE, range=AREA_MONO, area=AREA_CIRCLE_2, power=120, effectAroundCaster=[TYPE_MALUS, AREA_CIRCLE_2, aformSpaceBerkSkill1Eff], cooldown=5, description="Inflige des dégâts aux ennemis alentours et leur inflige {0}".format(deepWound), emoji='<:space3:1095252316959035452>')
+aformSpaceBerkSkill2Eff = effect("Tranchage Aforme", "aformSpaceBerkSkill2Eff", PURCENTAGE, resistance=-10, turnInit=3, stackable=True, emoji='<:resDown:1188192304788406333>')
+aformSpaceBerkSkill2 = skill("Tranchage Spacial Aforme", "aformSpaceBerkSkill2", TYPE_DAMAGE, power=35, repetition=3, tpCac=True, effects=aformSpaceBerkSkill2Eff, cooldown=3, range=AREA_CIRCLE_4, description="Saute sur l'ennemi ciblé et lui inflige trois attaques, réduisant sa résistance à chaque attaque réussie")
+aformSpaceBerkSkill3 = skill("Comète Aforme", "aformSpaceBerkSkill3", TYPE_DAMAGE, power=150, range=AREA_MONO, area=AREA_CIRCLE_3, hpCost=20, cooldown=5, ultimate=True, description='Inflige de lourds dégâts aux ennemis alentours en sacrifiant une partie de vos PVs actuels', emoji='<:catSpace:956599795110277150>')
+aformSpaceBerkSkill4Eff = effect("Supernova Aforme", "aformSpaceBerkSkill4Eff", TYPE_DAMAGE, trigger=TRIGGER_DEATH, turnInit=20, emoji='<:space1:1095252262563102720>', area=AREA_CIRCLE_3, power=150)
+aformSpaceBerkSkill4 = skill("Supernova Aforme", "aformSpaceBerkSkill4", TYPE_PASSIVE, effects=aformSpaceBerkSkill4Eff, description="Lorsque vous êtes vaincu, inflige de lourds dégâts aux ennemis autour de vous")
+
+aformSpaceInvWeap = weapon("Analyse Astrale Aforme", "aformSpaceInvWeap", RANGE_DIST, AREA_CIRCLE_4, power=35, accuracy=80, repetition=3, intelligence=20, precision=20, use=INTELLIGENCE)
+aformSpaceSMNWeap = weapon("Tir Astral", "aformSpaceSMNWeap", RANGE_DIST, AREA_CIRCLE_4, power=25, accuracy=80, repetition=2, use=INTELLIGENCE, emoji='<:akiAway:1007050839514435584>')
+aformSpaceSMN = invoc("Artilleur Spacial Aforme", 0, [PURCENTAGE, 0.4], 0, [PURCENTAGE, 0.75], [PURCENTAGE, 1], [HARMONIE, 1], 0, 20, 10, 5, OBSERVATEUR, ["<:saformSmn:1305478324419563531>", "<:saformSmn:1305478324419563531>"], aformSpaceSMNWeap, [], description="Une invocation infligeant de petits dégâts à plusieurs reprises", element=[ELEMENT_SPACE, ELEMENT_SPACE], team=NPC_UNFORM)
+aformSpaceInvSkill1 = skill("Invocation Aforme", "aformSpaceInvSkill1", TYPE_SUMMON, invocation=aformSpaceSMN, nbSummon=3, range=AREA_CIRCLE_3, emoji=aformSpaceSMN.icon[0], description="Invoque trois {0} à vos côtés, infligeant de petits dégâts à plusieurs reprises".format(aformSpaceSMN), cooldown=4)
+aformSpaceInvSkill2Eff1, aformSpaceInvSkill2Eff2 = copy.deepcopy(dmgDown), copy.deepcopy(vulne)
+aformSpaceInvSkill2Eff1.power = aformSpaceInvSkill2Eff2.power = 5
+aformSpaceInvSkill2Eff1.turnInit = aformSpaceInvSkill2Eff2.turnInit = 3
+aformSpaceInvSkill2Eff1.stat = aformSpaceInvSkill2Eff2.stat = INTELLIGENCE
+aformSpaceInvSkill2 = skill("Affaiblissement Astral Aforme", "aformSpaceInvSkill2", TYPE_MALUS, area=AREA_CIRCLE_2, range=AREA_CIRCLE_4, effects=[aformSpaceInvSkill2Eff1, aformSpaceInvSkill2Eff2], cooldown=4, description="Réduit les dégâts infligés et accrois les dégâts reçus des ennemis ciblés")
+aformSpaceInvSkill3Eff = copy.deepcopy(afterShockDmg)
+aformSpaceInvSkill3Eff.stat, aformSpaceInvSkill3Eff.power = INTELLIGENCE, 20
+aformSpaceInvSkill3Eff.emoji, aformSpaceInvSkill3Eff.name = uniqueEmoji("<:space2:1095252290744619018>"), "MicroNova Aforme"
+aformSpaceInvSkill3 = skill("Micro-Nova Aforme", "aformSpaceInvSkill3", TYPE_INDIRECT_DAMAGE, range=AREA_CIRCLE_4, area=AREA_CIRCLE_2, effects=aformSpaceInvSkill3Eff, cooldown=3, description="Jusqu'à votre prochain tour, les ennemis ciblés par cette compétence subissent des dégâts indirects suplémentaires lorsqu'ils sont attaqués", emoji='<:space2:1095252290744619018>')
+
+aformSpacePrevShield = effect("Armure Astrale Aforme", "aformSpacePrevShield", INTELLIGENCE, overhealth=30, type=TYPE_ARMOR, turnInit=3, stackable=True, emoji=['<:matriceArmor2B:1241381818901725305>','<:matriceArmor2R:1241381762291073024>'])
+aformSpacePrevWeap = weapon("Savoir Astral Aforme", "aformSpacePrev", RANGE_LONG, AREA_CIRCLE_4, power=30, accuracy=100, use=INTELLIGENCE, effectOnUse=aformSpacePrevShield, target=ALLIES, type=TYPE_HEAL, intelligence=20, precision=20)
+aformSpacePrevSkill1Eff = effect("Renforcement Aforme", "aformSpacePrevSkill1Eff", trigger=TRIGGER_INSTANT, area=AREA_DONUT_2, callOnTrigger=aformSpacePrevShield, emoji=sameSpeciesEmoji('<:armorAura:960060538119929927>','<:armorAura:960060634517602344>'))
+aformSpacePrevSkill1 = skill("Renforcement Aforme", "aformSpacePrevSkill1", TYPE_ARMOR, effects=[aformSpacePrevShield, aformSpacePrevSkill1Eff], effPowerPurcent=150, cooldown=3, description="Octroi une armure à l'allié ciblé et une armure moindre aux alliés alentours", range=AREA_CIRCLE_4)
+aformSpacePrevSkill2 = skill("Protection Aforme", "aformSpacePrevSkill2", TYPE_ARMOR, area=AREA_CIRCLE_3, effects=aformSpacePrevShield, effPowerPurcent=65, cooldown=3, description="Octroi une petite armure aux alliés ciblés")
+aformSpacePrevSkill3 = skill("Vigilance Aforme", "aformSpacePrevSkill3", TYPE_ARMOR, effects=[aformSpacePrevShield], area=AREA_ALL_ALLIES, range=AREA_MONO, ultimate=True, cooldown=5, description="Octroi une armure à tous vos alliés et vous-même")
+
+dictAform = {"Lueur Aforme": [
+		["Lumière Protectrice Aforme", "<:laformTank:1304948348280897617>", aformLightTankWeap, [aformLightTankSkill1, aformLightTankSkill2, aformLightTankSkill3], [100,200,20,20,50,100,100,50,0,0], PROTECTEUR],
+		["Lueur Galvanisante Aforme", "<:laformSupp:1304948367952187392>", aformLightSuppWeap, [aformLightSuppSkill1, aformLightSuppSkill2, aformLightSuppSkill3], [100,50,200,20,80,150,80,20,0,0], IDOLE],
+		["Claireté Magique Aforme", "<:laformMage:1304953021033222235>", aformLightMageWeap, [aformLightMageSkill1, aformLightMageSkill2, aformLightMageSkill3], [50,75,50,20,150,80,200,10,15,10], MAGE]
+	],
+	"Ombre Aforme": [
+		["Ombre Aforme Assassine", "<:daformM:1305209754561282169>", aformDarkNinWeap, [aformDarkNinSkill1, aformDarkNinSkill2, aformDarkNinSkill3], [255,75,20,150,100,25,50,20,20,10], POIDS_PLUME],
+		["Sombre Corrupteur Aforme", "<:daformD:1305209780272496650>", aformDarkSorcWeap, [aformDarkSorcSkill1, aformDarkSorcSkill2, aformDarkSorcSkill3], [55,50,20,50,100,155,225,10,10,0], SORCELER],
+		["Pénombre Artilleur Aforme", "<:daformL:1305209800480788480>", aformDarkObsWeap, [aformDarkObsSkill1, aformDarkObsSkill2, aformDarkNinSkill3], [255,50,20,0,150,50,50,20,20,10], OBSERVATEUR]
+	],
+	"Espace Aforme": [
+		["Etoile Ravageuse Aforme", "<:saformBerk:1305476797575462912>", aformSpaceBerkWeap, [aformSpaceBerkSkill1, aformSpaceBerkSkill2, aformSpaceBerkSkill3, aformSpaceBerkSkill4], [280,125,20,50,100,25,50,50,10,10], BERSERK],
+		["Nébuleuse Néfaste Aforme", "<:saformIno:1305476847110455348>", aformSpaceInvWeap, [aformSpaceInvSkill1, aformSpaceInvSkill2, aformSpaceInvSkill3], [80,75,20,100,25,255,100,20,10,15], INOVATEUR],
+		["Pulsar Visonnaire Aforme", "<:saformObs:1305476825916506122>", aformSpacePrevWeap, [aformSpacePrevSkill1, aformSpacePrevSkill2, aformSpacePrevSkill3], [80,50,20,75,75,255,100,20,10,15], PREVOYANT]
+	]}

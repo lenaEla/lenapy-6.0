@@ -1240,7 +1240,7 @@ capSkills = {
     4: createCapSkillDict("Liu","<:liu:908754674449018890>","Augmente de **__{0}%__** la probabilité de tous les équipiers d'effectuer une *Parade* lorsqu'il est attaqué\nDe plus, octroie aux équipiers **__{1}%__** de chances d'effectuer une *Contre-Attaque* lorsqu'ils parent une attaque",[10,15,20],[15,20,25],"Il suffit de garder la forme"),
     5: createCapSkillDict("Edelweiss","<:edelweiss:918451422939451412>","En début de tour de table, octroie aux **__{0}__** équipiers ayant le moins de PV une armure équivalante à **__{1}%__** des PV maximums de l'équipier qui en possède le plus",[1,2,3],[5,7.5,10],"Je vous ferais pas faux-bond..."),
     6: createCapSkillDict("Elina","<:elina:950542889623117824>","En début de tour de table, l'équipier ayant le moins de PV récupère **__{0}%__** de ses PV manquants et reçois des dégâts réduits de __**{1}%**__ pour le tour en cour",[10,12.5,15],[5,7.5,10],"Huh ?"),
-    7: createCapSkillDict("Icealia","<:icealia:909065559516250112>","Lorsqu'un équipier passe en dessous de __**{0}%**__ de ses PV maximums, il reçoit une armure équivalante à __**{1}%**__ de ses PV maximus pendant 3 tours (une fois par combat)",[10,12.5,15],[10,15,20],"Je vais faire de mon mieux")
+    7: createCapSkillDict("Icealia","<:icealia:1308103151643136020>","Lorsqu'un équipier passe en dessous de __**{0}%**__ de ses PV maximums, il reçoit une armure équivalante à __**{1}%**__ de ses PV maximus pendant 3 tours (une fois par combat)",[10,12.5,15],[10,15,20],"Je vais faire de mon mieux")
 }
 
 # Team Settings ---------------------------------------
@@ -1440,7 +1440,7 @@ if not(os.path.exists("./data/database/shopMsg.json")):
     f.close()
     print("> - Download Complete")
 
-elif not(os.path.exists("../Kawi")) or 0:
+elif not(os.path.exists("../Kawi")) or 1:
     print("Downloading ShopMsg.json...")
     r, f = requests.get("https://raw.githubusercontent.com/lenaEla/LenapyShopMsg/main/shopMsg.json"), open( os.getcwd() + '/data/database/shopMsg.json',mode="wb")
     f.write(r.content)

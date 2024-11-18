@@ -3,7 +3,7 @@ import interactions
 from gestion import *
 from advance_gestion import *
 from classes import char
-from typing import List
+from typing import Union, List
 from advObjects.advAllies import *
 
 listLocations, dictLocations = ["la Forêt","l'Académie de Magie","l'Académie d'Escrime","les Ruines du Centre Commercial","les Ruines de l'Ecole","la Mine"], {}
@@ -24,11 +24,12 @@ async def explorationReturn(bot: interactions.Client, team: List[char], duration
 			tmp = min(durLimit,duration)
 			maxCmpt += tmp // ([FIRSTINTER, SECONDINTER, THIRDINTER][indx] * 60)
 			duration -= tmp
-
+	
 	maxCmpt = int(min(maxCmpt, 200))
 
 	for tmpChar in team:
-		tmpChar, charStamina, listLoot, cmpt, basicCopy, basicKeys, successfulRoll, lootTabl = loadCharFile(user=tmpChar), 100, {"exp":0, "gold":0, "tc":0, "loot":"", "chip":""}, 0, copy.deepcopy(basicRoll), basicRoll.keys(), 0, {"stuff":[], "skill": [], "weapon": []}
+		tmpChar, charStamina, listLoot, cmpt, basicCopy, basicKeys, successfulRoll = loadCharFile(user=tmpChar), 100, {"exp":0, "gold":0, "tc":0, "loot":"", "chip":""}, 0, copy.deepcopy(basicRoll), basicRoll.keys(), 0
+		notAlreadyHaveStuff, notAlreadyHaveWeapon, notAlreadyHaveSkill = [],[],[]
 		match location:
 			case 3: basicCopy["stuff"] += 10
 			case 4: basicCopy["tc"] += 5
@@ -51,29 +52,29 @@ async def explorationReturn(bot: interactions.Client, team: List[char], duration
 								tmp, tmpChar = tmpChar.chipInventory[rolledChip.id].addProgress(toAddChip,tmpChar)
 								listLoot["chip"] += "{0}*{1}* x**{2}**\n".format(rolledChip.emoji+[""," "][rolledChip.emoji != ""],rolledChip.name,toAddChip)
 							case "stuff":
-								if lootTabl["stuff"] == []:
-									lootTabl["stuff"] = stuffs[:]
+								if notAlreadyHaveStuff == []:
+									notAlreadyHaveStuff = stuffs[:]
 									for tmpStuff in stuffs:
-										if (tmpChar.have(tmpStuff) and random.randint(0,9) < 9) or tmpStuff.price == 0: lootTabl["stuff"].remove(tmpStuff)
-								pulledStuff: stuff = randRep(lootTabl["stuff"])
+										if (tmpChar.have(tmpStuff) and random.randint(0,9) < 9) or tmpStuff.price == 0: notAlreadyHaveStuff.remove(tmpStuff)
+								pulledStuff: stuff = randRep(notAlreadyHaveStuff)
 								if tmpChar.have(pulledStuff): listLoot["exp"] += 25
 								else: tmpChar.stuffInventory.append(pulledStuff); listLoot["loot"] += "{0}\n".format(pulledStuff)
 							case "weapon":
-								if lootTabl["weapon"] == []:
-									lootTabl["weapon"] = weapons[:]
+								if notAlreadyHaveWeapon == []:
+									notAlreadyHaveWeapon = weapons[:]
 									for tmpWeapon in weapons:
-										if (tmpChar.have(tmpWeapon) and random.randint(0,9) < 9) or tmpWeapon.price == 0: lootTabl["weapon"].remove(tmpWeapon)
-								pulledStuff: weapon = randRep(lootTabl["weapon"])
+										if (tmpChar.have(tmpWeapon) and random.randint(0,9) < 9) or tmpWeapon.price == 0: notAlreadyHaveWeapon.remove(tmpWeapon)
+								pulledStuff: weapon = randRep(notAlreadyHaveWeapon )
 								if tmpChar.have(pulledStuff): listLoot["exp"] += 25
 								else: tmpChar.weaponInventory.append(pulledStuff); listLoot["loot"] += "{0}\n".format(pulledStuff)
 							case "skill":
-								if lootTabl["skill"] == []:
-									lootTabl["skill"] = skills[:]
+								if notAlreadyHaveSkill == []:
+									notAlreadyHaveSkill = skills[:]
 									for tmpSkill in skills:
-										if (tmpChar.have(tmpSkill) and random.randint(0,9) < 9) or tmpSkill.price == 0: lootTabl["skill"].remove(tmpSkill)
-									for tmpSkill in lootTabl["skill"][:]:
-										if (tmpSkill.use in [STRENGTH,AGILITY,PRECISION,ENDURANCE] and location == LOC_SWORDSCHOOL) or (tmpSkill.use in [CHARISMA,INTELLIGENCE,MAGIE] and location == LOC_MAGICSCHOOL): lootTabl["skill"].append(tmpSkill)
-								pulledStuff: skill = randRep(lootTabl["skill"])
+										if (tmpChar.have(tmpSkill) and random.randint(0,9) < 9) or tmpSkill.price == 0: notAlreadyHaveSkill.remove(tmpSkill)
+									for tmpSkill in notAlreadyHaveSkill[:]:
+										if (tmpSkill.use in [STRENGTH,AGILITY,PRECISION,ENDURANCE] and location == LOC_SWORDSCHOOL) or (tmpSkill.use in [CHARISMA,INTELLIGENCE,MAGIE] and location == LOC_MAGICSCHOOL): notAlreadyHaveSkill.append(tmpSkill)
+								pulledStuff: skill = randRep(notAlreadyHaveSkill)
 								if tmpChar.have(pulledStuff): listLoot["exp"] += 25
 								else: tmpChar.skillInventory.append(pulledStuff); listLoot["loot"] += "{0}\n".format(pulledStuff)
 							case "tc": listLoot["tc"] += random.randint(5,10)
