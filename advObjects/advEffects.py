@@ -5,10 +5,8 @@ from advObjects.advWeapons import purpleSecretEff, critBonusEff, liaKatanaEff
 
 tankStans = ["ne","ng","nh","ol","nf"]
 healStans = ["idoOHEff","proOHEff","altOHEff","ly","idoOSEff","proOSEff","preOSEff","lightaura2Pa"]
-vulneEmoji = uniqueEmoji('<:vulne:930080488557793300> ')
 
-
-the = effect("Théiné","lc", stat=CHARISMA,intelligence=10,magie=10,description="Boost l'agilité et la précision de tous les alliés",emoji=uniqueEmoji('<:the:867538602644602931>'))
+the = effect("Théiné","lc", stat=CHARISMA,intelligence=7.5,magie=7.5,emoji=uniqueEmoji('<:the:867538602644602931>'))
 encrifugeEff = effect("Tenue encrifugée - Armure","ld",overhealth=1,turnInit=2,trigger=TRIGGER_DAMAGE,absolutShield=True)
 gpEffect = effect("Potion tonifiante","le",INTELLIGENCE,strength=5,magie=5,precision=5,turnInit=3,description="Vos connaissances en alchimie vous permettent de booster toutes vos statistiques pour le prochain tour")
 bpEffect = effect("Potion étrange","lf",INTELLIGENCE,strength=-5,magie=-5,precision=-2,turnInit=3,description="Vos connaissances en alchimie vous permettent de baisser toutes les statistiques d'un adversaire pendant un tour",emoji = emojiMalus)
@@ -24,7 +22,7 @@ hunter = effect("Chasseur","ls",None,emoji=uniqueEmoji('<:chasseur:8710976733342
 hunterBuff = effect("Hunterbuff","lt",None,critical=100,precision=500,silent=True)
 menthe = effect("Mentiné","lu", stat=CHARISMA,percing=3,resistance=3,critical=5,description="Boost la résistance, la pénétration et le critique de vos alliés",emoji=uniqueEmoji('<:menthe:867538622797054042>'))
 badaboum = effect("Ça fait bim bam boum","lv", stat=MAGIE,aggro=10,turnInit=2,trigger=TRIGGER_DEATH,power=int(100*(1+AOEDAMAGEREDUCTION)),type=TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_2,emoji=sameSpeciesEmoji("<:deathBoomB:915050502369214474>","<:deathBoomR:915050526436102155>"),description="Lorsque le porteur meurt, cela délanche une explosion infligeant des dégâts à ses alliés alentours")
-charme = effect("Sous le charme","lw", stat=CHARISMA,strength=-10,resistance=-5,magie=-10,description="Le porteur est distrait, ce qui diminue ses capacitées offensives et défensives",type=TYPE_MALUS,emoji=sameSpeciesEmoji("<:CharmeB:908793556435632158>","<:charmeR:908793574437584956>"),turnInit=2)
+charme = effect("Sous le charme","lw", stat=CHARISMA,strength=-10,resistance=-5,magie=-10,description="Le porteur est distrait, ce qui diminue ses capacitées offensives et défensives",type=TYPE_MALUS,emoji=sameSpeciesEmoji("<:charmBoostB:1349767487037902909>","<:charmBoostR:1349767727996338237>"),turnInit=2)
 jetlag = effect("Jetlag",'jetLag',None,emoji=uniqueEmoji('<:jetlag:872181671372402759>'),silent=True,description="Le porteur de cet effet est insenssible aux sorts/armes de type \"Sablier\"")
 lightAuraEffect = effect("Aura de Lumière I","ly", stat=CHARISMA,turnInit=-1,power=15,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_END_OF_TURN,emoji="<:lightAura:1133263881955967127>",description="À la fin du tour du porteur, lui et ses alliés proches reçoivent des soins",area=AREA_CIRCLE_2,reject=healStans)
 flumEffect = effect("Douce lueur","lz", stat=CHARISMA,power=10,turnInit=-1,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji=uniqueEmoji('<:flum:876079513954557952>'),description="Soigne le porteur au début de son tour")
@@ -35,9 +33,9 @@ octoboum = effect("Explosion à venir !!","mg",emoji=uniqueEmoji('<a:explosion:8
 think = effect("REFLECHIS !","mh", stat=CHARISMA,intelligence=15,magie=15,turnInit=3)
 iThink = effect("Philosophé","mi", stat=INTELLIGENCE,intelligence=15,magie=15,turnInit=3)
 blinde = effect("Blindé","mj", stat=ENDURANCE,resistance=7,description="Réduit les degâts subis en fonction de l'Endurance du lanceur")
-const = effect("Constitution","mk",emoji=uniqueEmoji('<:constitution:888746214999339068>'),description="Augmente de 5% les PV max de toute votre équipe",turnInit = -1)
+const = effect("Constitution","mk",emoji=uniqueEmoji('<:constitution:888746214999339068>'),description="Augmente de 5% les PV max de toute votre équipe",turnInit = -1, hide=True)
 nouil = effect("Œuil de Linx","mm", stat=PRECISION,emoji=uniqueEmoji('<:noeuil:887743235131322398>'),precision=10,block=10,critical=3,turnInit=2)
-lostSoul = effect("Âme en peine","mn",emoji=uniqueEmoji('<:lostSoul:887853918665707621>'),turnInit=3,trigger=TRIGGER_ON_REMOVE,type=TYPE_UNIQUE)
+lostSoul = effect("Âme en peine","mn",emoji=uniqueEmoji('<:lostSoul:887853918665707621>'),turnInit=3,trigger=TRIGGER_ON_REMOVE,type=TYPE_UNIQUE, hide=True)
 oneforallbuff = effect("Un pour tous - Bonus","mo",resistance=10,stat=CHARISMA,description="Vos capacités défensives sont augmentées au détriment de celle du lanceur de cette compétence",emoji=sameSpeciesEmoji('<:one4allB:905243401157476423>','<:one4allR:905243417846636555>'))
 oneforalldebuff = effect("Un pour tous - Malus","mp",resistance=-33,type=TYPE_MALUS,emoji=emojiMalus,description="Vos capacités défenses sont dimunuées pour augmenter celles de vos alliés")
 secondSuneff = effect("Insomnie","mq", stat=CHARISMA,agility=-10,precision=-10,type=TYPE_MALUS,emoji=uniqueEmoji('<:MyEyes:784226383018328115>'),reject=["sixtineUltEff"],description="Vous êtes en train d'expérimenter la joie d'avoir un lampadaire devant une fênetre sans rideau")
@@ -95,11 +93,12 @@ preOSEff = effect("Armures avancées","preOSEff",emoji=uniqueEmoji('<:osPre:9138
 dptStans = ["ns","np",physicRuneEff1.id,magicRuneEff1.id,"purpleSecrets",critBonusEff.id]
 purpleSecretEff.reject = critBonusEff.reject = heriteLesathEff.reject = heriteEstialbaEff.reject = physicRuneEff1.reject = magicRuneEff1.reject = dptStans
 
-charming = effect("Miryoku","kitsuneSisterEff", stat=CHARISMA,strength=-2,magie=-2,charisma=-2,intelligence=-2,stackable=True,type=TYPE_MALUS,description="Réduit vos statistiques et augmente les dégâts subis de la part des kitsunes",emoji=sameSpeciesEmoji("<:charm1B:1105349312126386226>","<:charm1R:1105349381848305714>"),turnInit=2)
-charming2 = effect("Kantan","kitsuneSisterEffBuff", stat=CHARISMA,strength=5,magie=5,charisma=5,intelligence=5,stackable=True,type=TYPE_BOOST,description="Augmente vos statitiques et augmente les soins et armures reçus de la part des kitsunes",emoji=sameSpeciesEmoji("<:charm2B:1105349280539103273>","<:charm2R:1105349341448773703>"),turnInit=2)
+charming = effect("Miryoku","kitsuneSisterEff", stat=CHARISMA, strength=-2,magie=-2,charisma=-2,intelligence=-2,stackable=True,type=TYPE_MALUS,description="Réduit vos statistiques et augmente les dégâts subis de la part des kitsunes",emoji=sameSpeciesEmoji("<:charmB:1349766862560297042>","<:charmR:1349767098473250857>"),turnInit=2)
+charming2 = effect("Kantan","kitsuneSisterEffBuff", stat=CHARISMA, strength=5,magie=5,charisma=5,intelligence=5,stackable=True,type=TYPE_BOOST,description="Augmente vos statitiques et augmente les soins et armures reçus de la part des kitsunes",emoji=sameSpeciesEmoji("<:charmBoostB:1349767487037902909>","<:charmBoostR:1349767727996338237>"),turnInit=2)
+kitsuneExCharmEff = effect("Kyōhaku kan'nen","kitsuneExCharmEff", stat=CHARISMA, replace=True, strength=-10,magie=-10,charisma=-10,intelligence=-10,precision=-5,agility=-5,turnInit=3, type=TYPE_MALUS, description="Réduit grandement les statistiques et augmente les dégâts subis de la part des kitsunes", emoji=charming.emoji)
 
 clemExOvershield = effect("Armure Sanguine","clemExOvershield",turnInit=20,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji="<:clemMemento2:902222663806775428>",absolutShield=True)
-cicatrisationEff = effect("Cicatrisation","chipCica",PURCENTAGE,emoji=getChip("Cicatrisation").emoji,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_END_OF_TURN,turnInit=-1,unclearable=True)
+cicatrisationEff = effect("Cicatrisation","chipCica",MISSING_HP,emoji=getChip("Cicatrisation").emoji,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_END_OF_TURN,turnInit=-1,unclearable=True)
 lythophageEff = effect("Lithophage",'chipLytho',FIXE,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_END_OF_TURN,emoji=getChip("Lithophage").emoji)
 overshieldEff = effect("Overhealth","chipOverhealth",FIXE,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji='<:clemMemento2:902222663806775428>',absolutShield=True,turnInit=3,silentRemove=True,replace=True)
 openingGambitEff = effect("Opening Gambit","openingGambitEff",PURCENTAGE,turnInit=-1,unclearable=True,emoji="<:OpeningGambit:1217580002120306750>")
@@ -112,8 +111,20 @@ presenceEff = effect(tmpChip.name,"présenceEff",aggro=25,emoji=rarityEmojis[tmp
 toxiceptionEff2 = effect("Toxiception","toxiceptEff2",inkResistance=-50,type=TYPE_MALUS,decateOnTurn=True,turnInit=2,stackable=True)
 toxiceptionEff = effect("Toxiception","toxiceptEff1",type=TYPE_MALUS,trigger=TRIGGER_START_OF_TURN,callOnTrigger=toxiceptionEff2,stackable=True, silentRemove=True,emoji='<:toxiEff:1223595956415496213>')
 
+chipRappelEff = effect("Rappel", "chipRappel", emoji=rarityEmojis[getChip("Rappel").rarity], turnInit=-1, unclearable=True)
+chipAftershockEff = effect("Contre-Coup", "chipAftershock", emoji=rarityEmojis[getChip("Contre-Coup").rarity], turnInit=-1, unclearable=True)
+
+chipConst3Eff1 = copy.deepcopy(constEff)
+chipConst3Eff1.stat, chipConst3Eff1.turnInit, chipConst3Eff1.unclearable = PURCENTAGE, -1, True
+chipConst3Eff = effect("Constituion III", "chipConst3Eff", trigger=TRIGGER_INSTANT, area=AREA_ALL_ALLIES, callOnTrigger=chipConst3Eff1, emoji=getChip("Constitution III").emoji)
+
+chipKarmaEff = effect("Réprimation", "reprimationEff", HARMONIE, power=1, type=TYPE_DAMAGE, trigger=TRIGGER_INSTANT, emoji='<:karmaEff:1345443910826332253>')
+
+tmpChip = getChip("Rentre-Dedans")
+chipRentreDedans = effect("Rentre-Dedans", "tmpChipRentre-Dedans", PURCENTAGE, type=TYPE_ARMOR, overhealth=CHIP_RENTRE_DEDANS_SHIELD, emoji=getChip("Rentre-Dedans").emoji)
+
 #Effect
-effects = [liaKatanaEff,windDanceEff,imuneLightStun,critBonusEff,idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff1,magicRuneEff1,purpleSecretEff,fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff3,heriteEstialbaEff,estal2,bleeding2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,bleeding,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,isoled,const,blinde,iThink,think,octoboum,missiles,estial,defensive,flumEffect,lightAuraEffect,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,hunter,hunterBuff,menthe,badaboum,courageE
+effects = [liaKatanaEff,windDanceEff,imuneLightStun,critBonusEff,idoOHEff,proOHEff,altOHEff,lightAura2PassiveEff,sixtineUltEff,idoOSEff,proOSEff,preOSEff,physicRuneEff1,magicRuneEff1,purpleSecretEff,fireCircleEff,waterCircleEff,airCircleEff,earthCircleEff,renforceEff,renforceEff2,renforceEff3,steroideEff,gwenCoupeEff,contrainteEff,troubleEff,croissanceEff,croissanceEff2,croissanceEff3,infection,infectRej,ConcenEff,inkBrella2Eff,blackHoleEff,blackHoleEff3,heriteEstialbaEff,estal2,bleeding2,heriteLesathEff,darkFlumEff,darkFlumPoi,ondeEff,etingEff,encrifugeEff2,ferociteEff,defiEff,royaleGarde,ironWill,dissimulationEff,pigmaCast,derobadeBonus,derobadeMalus,castExplo,affaiEffect,stupid,bleeding,innerdarknessEff,darkspellbookeff,lighteff,lightHealeff,lightspellshield,secondSuneff,oneforallbuff,oneforalldebuff,lostSoul,nouil,const,blinde,iThink,think,octoboum,missiles,estial,defensive,flumEffect,lightAuraEffect,jetlag,charme,armor,coffee,the,encrifugeEff,gpEffect,bpEffect,deterEff1,onceButNotTwice,zelianR,afterShockDmg,octoshield,nostalgiaE,inkBrellaEff,stopAttacking,hunter,hunterBuff,menthe,badaboum,courageE
 ]
 
 def findEffect(effectId) -> effect:

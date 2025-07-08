@@ -15,7 +15,7 @@ basicRoll = {"chip":5,"stuff":15,"skill":15,"tc":10,"weapon":5}
 FIRSTINTER, SECONDINTER, THIRDINTER, FORTHINTER = 20, 15, 12, 10
 durationCounters = [60*60,60*60*2,60*60*2,-1]
 
-async def explorationReturn(bot: interactions.Client, team: List[char], duration:int, location:int):
+async def explorationReturn(bot: interactions.Client, team: List[char], duration:int, location:int, show=2):
 	maxCmpt, fieldList, successfulRoll = 0, [], 0
 
 	for indx, durLimit in enumerate(durationCounters):
@@ -27,7 +27,7 @@ async def explorationReturn(bot: interactions.Client, team: List[char], duration
 	
 	maxCmpt = int(min(maxCmpt, 200))
 
-	for tmpChar in team:
+	for indx, tmpChar in enumerate(team):
 		tmpChar, charStamina, listLoot, cmpt, basicCopy, basicKeys, successfulRoll = loadCharFile(user=tmpChar), 100, {"exp":0, "gold":0, "tc":0, "loot":"", "chip":""}, 0, copy.deepcopy(basicRoll), basicRoll.keys(), 0
 		notAlreadyHaveStuff, notAlreadyHaveWeapon, notAlreadyHaveSkill = [],[],[]
 		match location:
@@ -88,7 +88,8 @@ async def explorationReturn(bot: interactions.Client, team: List[char], duration
 		tmpChar = addExpUser(tmpChar,exp=listLoot["exp"],coins=listLoot["gold"])
 		saveCharFile(user=tmpChar)
 
-		fieldList.append(EmbedField(name=reduceEmojiNames("{0} __{1}__ ({2} / {3}) :".format(await getUserIcon(bot, tmpChar), tmpChar.name, successfulRoll, min(maxCmpt,20))),value=reduceEmojiNames("{1} {0}, {3} {2}, {5} {4}\n{6}{8}{7}".format("<:exp:926106339799887892>",listLoot["exp"],"<:coins:862425847523704832>",listLoot["gold"],"<:tc:1218274555081261116>",listLoot["tc"],listLoot["loot"].replace("_",""),listLoot["chip"].replace("*",""),["","\n"][listLoot["chip"] != "" and listLoot["loot"] != ""]))))
+		if show != 1 or (show == 1 and indx == 0):
+			fieldList.append(EmbedField(name=reduceEmojiNames("{0} __{1}__ ({2} / {3}) :".format(await getUserIcon(bot, tmpChar), tmpChar.name, successfulRoll, min(maxCmpt,20))),value=reduceEmojiNames("{1} {0}, {3} {2}, {5} {4}\n{6}{8}{7}".format("<:exp:926106339799887892>",listLoot["exp"],"<:coins:862425847523704832>",listLoot["gold"],"<:tc:1218274555081261116>",listLoot["tc"],listLoot["loot"].replace("_",""),listLoot["chip"].replace("*",""),["","\n"][listLoot["chip"] != "" and listLoot["loot"] != ""]))))
 
 	return fieldList
 

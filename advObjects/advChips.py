@@ -6,6 +6,11 @@ rarityMinLvl, CHIP_MAX_LEVEL, rarityEmojis = (0,3,6,9), 15, ("<:communChip:12171
 nbChipsForLvlUp = [1,1,2,5,10,25,40,65,80,100,150,200,300,400,500,500,500]
 
 chipIdCount = 0
+ILIBONK_BLOCK = 15
+AFTER_SHOCK_PAR_LOST = 25
+CHIP_KARMA_LIMIT = 6
+
+CHIP_RENTRE_DEDANS_SHIELD = 5
 
 class chip():
     def __init__(self, name:str, emoji:str, rarity:int, description:str, minValue=0, maxValue=0):
@@ -54,43 +59,43 @@ class userChip(chip):
         return "{0} {1} Lvl{2} Progress{3}".format(self.emoji, self.name, self.lvl, self.progress)
 
 chipList = [
-    chip("Force augmentée I",statsEmojis[STRENGTH],RARITY_COMMUN,"Augmente votre **Force** de **%power%** de votre niveau (**%lvlPower**)",25,60),
-    chip("Force augmentée II",statsEmojis[STRENGTH],RARITY_COMMUN,"Augmente votre **Force** de **%power%**",5,10),
-    chip("Endurance augmenté I",statsEmojis[ENDURANCE],RARITY_COMMUN,"Augmente votre **Endurance** de **%power%** de votre niveau (**%lvlPower**)",25,60),
-    chip("Endurance augmenté II",statsEmojis[ENDURANCE],RARITY_COMMUN,"Augmente votre **Endurance** de **%power%**",5,10),
-    chip("Charisme augmenté I",statsEmojis[CHARISMA],RARITY_COMMUN,"Augmente votre **Charisme** de **%power%** de votre niveau (**%lvlPower**)",25,60),
-    chip("Charisme augmenté II",statsEmojis[CHARISMA],RARITY_COMMUN,"Augmente votre **Charisme** de **%power%**",5,10),
-    chip("Agilité augmentée I",statsEmojis[AGILITY],RARITY_COMMUN,"Augmente votre **Agilité** de **%power%** de votre niveau (**%lvlPower**)",10,40),
-    chip("Agilité augmentée II",statsEmojis[AGILITY],RARITY_COMMUN,"Augmente votre **Agilité** de **%power%**",5,10),
-    chip("Précision augmentée I",statsEmojis[PRECISION],RARITY_COMMUN,"Augmente votre **Précision** de **%power%** de votre niveau (**%lvlPower**)",10,40),
-    chip("Précision augmentée II",statsEmojis[PRECISION],RARITY_COMMUN,"Augmente votre **Précision** de **%power%**",5,10),
-    chip("Intelligence augmentée I",statsEmojis[INTELLIGENCE],RARITY_COMMUN,"Augmente votre **Intelligence** de **%power%** de votre niveau (**%lvlPower**)",25,60),
-    chip("Intelligence augmentée II",statsEmojis[INTELLIGENCE],RARITY_COMMUN,"Augmente votre **Intelligence** de **%power%**",5,10),
-    chip("Magie augmentée I",statsEmojis[MAGIE],RARITY_COMMUN,"Augmente votre **Magie** de **%power%** de votre niveau (**%lvlPower**)",25,60),
-    chip("Magie augmentée II",statsEmojis[MAGIE],RARITY_COMMUN,"Augmente votre **Magie** de **%power%**",5,10),
-    chip("Renforcement",statsEmojis[RESISTANCE],RARITY_COMMUN,"Augmente votre **Résistance** de **%power** points",2.5,10),
-    chip("Pénétration",statsEmojis[PERCING],RARITY_COMMUN,"Augmente votre **Pénétration** de **%power** points",2.5,10),
-    chip("Critique universel",statsEmojis[CRITICAL],RARITY_COMMUN,"Augmente votre **probabilité de critique** lors d'une attaque directe, indirecte, en réalisant un soin ou octroyant une armure de **%power%**",2.5,10),
+    chip("Force augmentée I",statEmojis[STRENGTH],RARITY_COMMUN,"Augmente votre **Force** de **%power%** de votre niveau (**%lvlPower**)",25,60),
+    chip("Force augmentée II",statEmojis[STRENGTH],RARITY_COMMUN,"Augmente votre **Force** de **%power%**",5,10),
+    chip("Endurance augmenté I",statEmojis[ENDURANCE],RARITY_COMMUN,"Augmente votre **Endurance** de **%power%** de votre niveau (**%lvlPower**)",25,60),
+    chip("Endurance augmenté II",statEmojis[ENDURANCE],RARITY_COMMUN,"Augmente votre **Endurance** de **%power%**",5,10),
+    chip("Charisme augmenté I",statEmojis[CHARISMA],RARITY_COMMUN,"Augmente votre **Charisme** de **%power%** de votre niveau (**%lvlPower**)",25,60),
+    chip("Charisme augmenté II",statEmojis[CHARISMA],RARITY_COMMUN,"Augmente votre **Charisme** de **%power%**",5,10),
+    chip("Agilité augmentée I",statEmojis[AGILITY],RARITY_COMMUN,"Augmente votre **Agilité** de **%power%** de votre niveau (**%lvlPower**)",10,40),
+    chip("Agilité augmentée II",statEmojis[AGILITY],RARITY_COMMUN,"Augmente votre **Agilité** de **%power%**",5,10),
+    chip("Précision augmentée I",statEmojis[PRECISION],RARITY_COMMUN,"Augmente votre **Précision** de **%power%** de votre niveau (**%lvlPower**)",10,40),
+    chip("Précision augmentée II",statEmojis[PRECISION],RARITY_COMMUN,"Augmente votre **Précision** de **%power%**",5,10),
+    chip("Intelligence augmentée I",statEmojis[INTELLIGENCE],RARITY_COMMUN,"Augmente votre **Intelligence** de **%power%** de votre niveau (**%lvlPower**)",25,60),
+    chip("Intelligence augmentée II",statEmojis[INTELLIGENCE],RARITY_COMMUN,"Augmente votre **Intelligence** de **%power%**",5,10),
+    chip("Magie augmentée I",statEmojis[MAGIE],RARITY_COMMUN,"Augmente votre **Magie** de **%power%** de votre niveau (**%lvlPower**)",25,60),
+    chip("Magie augmentée II",statEmojis[MAGIE],RARITY_COMMUN,"Augmente votre **Magie** de **%power%**",5,10),
+    chip("Renforcement",statEmojis[RESISTANCE],RARITY_COMMUN,"Augmente votre **Résistance** de **%power** points",2.5,10),
+    chip("Pénétration",statEmojis[PERCING],RARITY_COMMUN,"Augmente votre **Pénétration** de **%power** points",2.5,10),
+    chip("Critique universel",statEmojis[CRITICAL],RARITY_COMMUN,"Augmente votre **probabilité de critique** lors d'une attaque directe, indirecte, en réalisant un soin ou octroyant une armure de **%power%**",2.5,10),
     chip("Constitution I",'<:constB:1028695344059518986>',RARITY_COMMUN,"Augmente vos **Points de Vie** de base de **%power%** de votre niveau (**%lvlPower**)",100,500),
     chip("Constitution II",'<:constB:1028695344059518986>',RARITY_COMMUN,"Augmente vos **Points de Vie** de **%power%**",3.5,10),
-    chip("Soins augmentés I",statsEmojis[ACT_HEAL_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Soins** de **%power%** de votre niveau (**%lvlPower**)",15,40),
-    chip("Soins augmentés II",statsEmojis[ACT_HEAL_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Soins** de **%power%**",2.5,7.5),
-    chip("Boosts augmenté I",statsEmojis[ACT_BOOST_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Boost** de **%power%** de votre niveau (**%lvlPower**)",15,40),
-    chip("Boosts augmenté II",statsEmojis[ACT_BOOST_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Boost** de **%power%**",2.5,7.5),
-    chip("Armures augmenté I",statsEmojis[ACT_SHIELD_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Armure** de **%power%** de votre niveau (**%lvlPower**)",15,40),
-    chip("Armures augmenté II",statsEmojis[ACT_SHIELD_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Armure** de **%power%**",2.5,7.5),
-    chip("Directs augmentée I",statsEmojis[ACT_DIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Directs** de **%power%** de votre niveau (**%lvlPower**)",15,40),
-    chip("Directs augmentée II",statsEmojis[ACT_DIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Directs** de **%power%**",2.5,7.5),
-    chip("Indirects augmentée I",statsEmojis[ACT_INDIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Indirects** de **%power%** de votre niveau (**%lvlPower**)",15,40),
-    chip("Indirects augmentée II",statsEmojis[ACT_INDIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Indirects** de **%power%**",2.5,7.5),
+    chip("Soins augmentés I",statEmojis[ACT_HEAL_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Soins** de **%power%** de votre niveau (**%lvlPower**)",15,40),
+    chip("Soins augmentés II",statEmojis[ACT_HEAL_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Soins** de **%power%**",2.5,7.5),
+    chip("Boosts augmenté I",statEmojis[ACT_BOOST_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Boost** de **%power%** de votre niveau (**%lvlPower**)",15,40),
+    chip("Boosts augmenté II",statEmojis[ACT_BOOST_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Boost** de **%power%**",2.5,7.5),
+    chip("Armures augmenté I",statEmojis[ACT_SHIELD_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Armure** de **%power%** de votre niveau (**%lvlPower**)",15,40),
+    chip("Armures augmenté II",statEmojis[ACT_SHIELD_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Armure** de **%power%**",2.5,7.5),
+    chip("Directs augmentée I",statEmojis[ACT_DIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Directs** de **%power%** de votre niveau (**%lvlPower**)",15,40),
+    chip("Directs augmentée II",statEmojis[ACT_DIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Directs** de **%power%**",2.5,7.5),
+    chip("Indirects augmentée I",statEmojis[ACT_INDIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Indirects** de **%power%** de votre niveau (**%lvlPower**)",15,40),
+    chip("Indirects augmentée II",statEmojis[ACT_INDIRECT_FULL],RARITY_COMMUN,"Augmente votre statistique d'action de **Dégâts Indirects** de **%power%**",2.5,7.5),
 
     chip("Vampirisme I",'<:vampire:900312789686571018>',RARITY_RARE,"Vous recevez des soins équivalents à **%power%** des **dégâts directs** infligés lorsque vous attaquez",10,20),
     chip("Vampirisme II",'<:vampire:900312789686571018>',RARITY_RARE,"Vous recevez des soins équivalents à **%power%** des **dégâts indirects** infligés lorsque vos effets de dégats indirects se déclanchent",10,20),
     chip("Absorbtion",'<:absB:1143285351608221838>',RARITY_RARE,"Augmente les soins et armures reçus d'autrui de **%power%**",2.5,12.5),
     chip("Soins et armures réalisés augmentés",'<:largesse:1086390291055005736>',RARITY_RARE,"Augmente les soins et armures réalisés de **%power%**",2.5,10),
     chip("Dégâts universels augmentés",'<a:dmgBuffB:954429227657224272>',RARITY_RARE,"Augmente tous les dégâts infligés de **%power%**",1,5),
-    chip("Dégâts directs augmentés",statsEmojis[ACT_DIRECT_FULL],RARITY_RARE,"Augmente les dégâts directs infligés de **%power%**",2.5,10),
-    chip("Dégâts indirects augmentés",statsEmojis[ACT_INDIRECT_FULL],RARITY_RARE,"Augmente les dégâts indirects infligés de **%power%**",2.5,10),
+    chip("Dégâts directs augmentés",statEmojis[ACT_DIRECT_FULL],RARITY_RARE,"Augmente les dégâts directs infligés de **%power%**",2.5,10),
+    chip("Dégâts indirects augmentés",statEmojis[ACT_INDIRECT_FULL],RARITY_RARE,"Augmente les dégâts indirects infligés de **%power%**",2.5,10),
     chip("Convertion",'<:convertion:900311843938115614>',RARITY_RARE,"Vous recevez une armure légère équivalente à **%power%** des **dégâts directs** infligés lorsque vous attaquez",10,20),
     chip("Incurable",'<:incurR:1143285244477317233>',RARITY_RARE,"Les adversaires ciblés directement par vos compétences offensives voient les soins qu'ils reçoivent réduit de **%power%** durant un tour",5,20),
     chip("Friable",'<:abR:934600570633867365>',RARITY_RARE,"Les adversaires ciblés directement par vos compétences offensives voient les armures qu'ils reçoivent réduit de **%power%** durant un tour",5,20),
@@ -101,7 +106,7 @@ chipList = [
     chip("Démolition",'<:demolition:1217142138425315510>',RARITY_RARE,"Augmente les dégâts infligés aux armures adverses de **%power%**",15,35),
     chip("Lame Dissimulée","<:chiphidenBlade:1223632204421140610>",RARITY_RARE,"Augmente les dégâts directs infligés à la cible principale de vos compétence de **%power%** de votre niveau (**lvlPower**)",15,35),
 
-    chip("Cicatrisation","<:chipCicatrisation:1218696306583797851>",RARITY_LEGENDARY,"À la fin de votre tour, vous soigne de l'équivalent de **%power%** de vos PVs maximums",2.5,7.5),
+    chip("Cicatrisation","<:chipCicatrisation:1218696306583797851>",RARITY_LEGENDARY,"À la fin de votre tour, vous soigne de l'équivalent de **%power%** de vos PVs manquants", 5, 12.5),
     chip("Lithophage","",RARITY_LEGENDARY,"Vous vous soignez de l'équivalent de **%power%** des dégâts infligés sur de l'armure",15,35),
     chip("Sur-Vie","<:chipOverhealthB:1217345964856311870>",RARITY_LEGENDARY,"Lorsque vous recevez des soins de n'importe quelle source qui excèdent vos PVs max, une armure légère à la valeur équivalente aux soins éxédant vous est octroyé, pour un maximum de **%power%** de vos PVs maximums",10,25),
     chip("Diffraction","<:chipDiffraction:1222633497945182319>",RARITY_LEGENDARY,"En ingligeant une attaque monocible à un adversaire ayant au moins **1** adversaire autour de lui, la puissance de l'attaque est réduite de **%power%**. Les dégâts réduits sont infligés aux ennemis proches de la cible principale",10,25),
@@ -113,7 +118,7 @@ chipList = [
     chip("Bénédiction","<:waterIntents:1185653674781970502>",RARITY_MYTHICAL,"Une fois par combat, lorsque les PVs d'un allié (hors invocation) tombent en dessous de 0, le soigne immédiatement de **%power%** de ses PVs maximums",50,100),
     chip("Plot Armor","<:complicated:945054889573240883>",RARITY_MYTHICAL,"Une fois par combat, en recevant des dégâts mortels, empêche vos PVs de passer en dessous de 1 et augmente vos dégâts infligés de **%power%**",25,50),
     chip("Transgression","<:transgression:1154369057630453780>",RARITY_MYTHICAL,"Après avoir soigné l'équivalent de **100%** de vos PVs max (les soins de zone et/ou indirects contribuent à hauteur de 50%), à la fin de votre tour, inflige __Blessure Profonde__ à tous les ennemis, avec une puissance équivalente à **%power%** de vos PVs max, divisés par le nombre d'ennemis affectés",50,150),
-    chip("Overpower","<:sanguisDaemonium:1050059965630533714>",RARITY_MYTHICAL,"Une fois par combat, en utilisant votre compétence ultime, augmente la puissance et/ou celle des effets infligés ou octroyés de **%power%**, mais elle vous coûtera **50%** de vos PVs actuels",25,50),
+    chip("Overpower","<:sanguisDaemonium:1050059965630533714>",RARITY_MYTHICAL,"En utilisant votre compétence ultime, augmente la puissance et/ou celle des effets infligés ou octroyés de **%power%**, mais elle vous coûtera **40%** de vos PVs actuels",15,35),
 
     chip("Crucifix","<:dvin:1004737746377654383>",RARITY_COMMUN,"Reduit de **%power%** le coût en PVs maximums des compétences divines",10,25),
     chip("Démaniaque","<:dmon:1004737763771433130>",RARITY_COMMUN,"Reduit de **%power%** le coût en PVs courants des compétences démoniaque",10,25),
@@ -131,9 +136,9 @@ chipList = [
     chip("Toxiception","<:chipToxiception:1223595936370917486>",RARITY_MYTHICAL,"En utilisant une compétence de dégâts directs ou indirects, inflige <:toxiEff:1223595956415496213> Toxiception à la cible principale\n> Au début du tour du porteur, augmente les dégâts indirects reçus de **%power%** par effet de dégâts indirects infligés par le lanceur sur le porteur (maximum **30%**)",5,10),
     chip("Ambivalance","<:stopUndoingMyDoings:1154368777476132864>",RARITY_MYTHICAL,"En fin de tour, inflige à l'ennemi le plus blessé des dégâts indirects équivalents à **%power%** des soins réalisés depuis le dernier tour (les soins indirects comptent pour 40% et les soins directs de zone pour 65%)",25,50),
     chip("Armure Initiale","<:armorPack:1063490980759748789>",RARITY_MYTHICAL,"Au début du combat, octroie à toute votre équipe une armure équivalante à **%power%** de vos PVs maximums",20,35),
-    chip("Retour de Bâton","<:iliBonk:1220101642259529829>",RARITY_MYTHICAL,"Permet d'utiliser d'utiliser Retour de Bâton\n> Inflige **%lvlPower** + **%power%** dégâts bloqués entre deux utilisations (5 tours)",35,50),
-    chip("Appel de la Nuit","<:dmonland:1006455391342829599>",RARITY_MYTHICAL,"Permet d'utiliser Appel de la Nuit\n> Augmente la puissance des compétences démoniaques de votre équipe de **%power%** durant trois tours (7 tours)",20,35),
-    chip("Appel de la Lumière","<:ascendance:1051510131105464370>",RARITY_MYTHICAL,"Permet d'utiliser Appel de la Lumière\n> Augmente la puissance des compétences divines de votre équipe de **%power%** durant trois tours (7 tours)",20,35),
+    chip("Retour de Bâton","<:iliBonk:1220101642259529829>",RARITY_MYTHICAL,"Permet d'utiliser d'utiliser Retour de Bâton\n> Inflige des dégâts fixes en fonction de votre Résistance et votre niveau, plus **%power%** dégâts bloqués entre deux utilisations (5 tours). Augmente également votre probabilité de bloquer des attaques de **{0}%**".format(ILIBONK_BLOCK),100,30),
+    chip("Appel de la Nuit","<:dmonland:1006455391342829599>",RARITY_MYTHICAL,"Permet d'utiliser Appel de la Nuit\n> Augmente la puissance des compétences démoniaques de votre équipe de **%power%** durant trois tours (7 tours)\nAugmente également la puissance des compétences démoniaques de vos alliés de **5%**",20,35),
+    chip("Appel de la Lumière","<:ascendance:1051510131105464370>",RARITY_MYTHICAL,"Permet d'utiliser Appel de la Lumière\n> Augmente la puissance des compétences divines de votre équipe de **%power%** durant trois tours (7 tours) et vous permet de rejouer votre tour\nAugmente également la puissance des compétences divines de vos alliés de **5%**",20,35),
     chip("Contre-Offensive",'<:chipOffensifCounter:1218696364855132280>',RARITY_LEGENDARY,"Après avoir bloqué **5** attaques (ou **1** venant d'un boss Stand Alone), les dégâts infligés à la cible principale de votre prochaine compétence sont augmentés d'une valeur équivalente à **%power%** de votre niveau (**%lvlPower**)",125,650),
     chip("Héritage d'Estialba","<:estialLegacy:1191001141304119376>",RARITY_LEGENDARY,"Augmente de **%power%** le vol de vie de vos effets de dégâts indirects psychiques",10,20),
     chip("Héritage Lesath","<:lesathLegacy:1191001162300801095>",RARITY_LEGENDARY,"Augmente de **%power%** le vol de vie de vos effets de dégâts indirects physiques",10,20),
@@ -153,17 +158,33 @@ chipList = [
     chip("Pas Piégés","<:chipSurprise:1227279072451629237>",RARITY_LEGENDARY,"Lorsque vous êtes déplacés par une compétence ennemie, déploie une Petite Mine sur le sol. En utilisant une compétence vous faisant sauter sur l'adversaire ou sauter en arrière, lui inflige l'effet Petite Mine. La Petite Mine inflige des dégâts **Force** avec une puissance de **%power** lorsqu'un ennemi marche à proximité, après 3 tours ou si le porteur est déplacé",20,40),
     chip("Haut-Perceur 5.1","<:kwB:933510332733882378>",RARITY_RARE,"Tous les trois tours à partir du tour 1, invoque un **Haut-Perceur 5.1** à vos côtés. Celui-ci voit ses PVs maximums et ses dégâts infligés augmenter de **%power%**",10,25),
     chip("Cadeau Explosif","<:terrabombB:1155475225979408454>",RARITY_RARE,"Tous les trois tours à partir du tour 1, invoque une **Petite Bombe** autour de vous. Celui-ci voit ses PVs maximums et ses dégâts infligés augmenter de **%power%**",10,25),
-    chip("Rentre-Dedans","<:angelStrike:1233110358445789235>",RARITY_RARE,"Augmente la puissance de vos compétences vous faisant sauter dedans ou derrière une cible de **%power**",15,25),
+    chip("Rentre-Dedans","<:angelStrike:1233110358445789235>",RARITY_RARE,"Augmente la puissance de vos compétences vous faisant sauter dedans ou derrière une cible de **%power**. De plus, lorsque vous sautez sur un ennemi, vous octroi une armure équivalante à **5%** de vos PV max",15,25),
     chip("Bout-Portant","<:shortTeleport:1233097703832162324>",RARITY_LEGENDARY,"Une fois par tour et si l'ennemi ciblé se trouve à votre corps à corps, augmente la puissance de votre attaque de **%power**",15,35),
     chip("Empathie","<:oneforall:893295824761663488>",RARITY_RARE,"Réduit la puissance des attaques de zone dont vous êtes la cible principale et qui touchent d'autres alliés de **%power%**",5,20),
     chip("Sourire Agile","<:niceSmile:1257711547145519145>", RARITY_LEGENDARY,"Lorsque vous esquivez une attaque, vous avez **%power%** de chance d'infliger l'effet Charmé (50%) à l'attaquant. Certaines conditions peuvent faire varier cette probabilité", 20, 50),
     chip("Sourire Mazo","<:niceSmile:1257711547145519145>", RARITY_LEGENDARY,"Lorsque vous subissez une attaque, vous avez **%power%** de chance d'infliger l'effet Charmé (50%) à l'attaquant. Certaines conditions peuvent faire varier cette probabilité", 15, 40),
     chip("Sourire Sadique","<:niceSmile:1257711547145519145>", RARITY_LEGENDARY,"Lorsque vous infligez une attaque, vous avez **%power%** de chance d'infliger l'effet Charmé (50%) à la cible. Certaines conditions peuvent faire varier cette probabilité", 10, 30),
     chip("Sourire Bienveillant","<:niceSmile:1257711547145519145>", RARITY_LEGENDARY,"Lorsque vous soignez un équipier, vous avez **%power%** de chance de lui octroyer l'effet Enjolé. Certaines conditions peuvent faire varier cette probabilité", 20, 40),
+    chip("R.H.S.", "<:rhs:1315685295760347176>", RARITY_MYTHICAL, "À la fin de votre tour, vous octroi l'effet {0} {1} avec une valeur équivalente à **%power%** des armures octroyés à autrui durant votre tour", 15, 25),
+    chip("Myrlopé", "<:myrlopeB:1351998629350477906>", RARITY_LEGENDARY, "En début de combat, invoque Myrlopé à vos côtés. Invoqués ainsi, sa durée de vie est augmentée de **20 tours** et ses PVs sont accrus de **%power%**", 100, 300),
+    chip("Partage", "<:shareB:1327750665186836502>", RARITY_RARE, "Lorsque vous recevez des soins directs monocibles, les alliés proches de vous reçoivent des soins équivalents à **%power%** des soins reçus", 10, 20),
+    chip("Rappel", "<:rappel:1333903405122326630>", RARITY_LEGENDARY, "Vos effets augmentant au moins une statistique principale augmentent également les dégâts infligés par le porteur de **%power%** (non cumulable, sur vos alliés uniquement)", 1, 3.5),
+    chip("Contre-Coup", "<:aftershock:1333186801078239262>", RARITY_MYTHICAL, "Lorsque vous sautez avec succès sur un ennemi, diminue vos PAr de **{0}%** et inflige aux ennemis autour de vous des dégâts fixes équivalents à **%power%** de vos PV maximum. Si vous n'avez pas d'armure lorsque cette puce se déclanche, vous octroi une armure équivalente à **%power%** de vos PV Maximum".format(AFTER_SHOCK_PAR_LOST), 7.5, 15),
+    chip("Constitution III", '<:constitution:888746214999339068>', RARITY_RARE, "Au début du combat, augmente vos PV maximums et ceux de vos alliés de **%power%**", 1, 5),
+    chip("Réprimande", "<:karmaEff:1345443910826332253>", RARITY_LEGENDARY, "Lorsque vous êtes attaqué, effectuez une esquive ou effectuez une contre-attaque, la valeur de cette puce augmente. Lorsqu'elle atteint {0}, vous effectuez **3** attaques harmoniques sur des ennemis aléatoirement avec une puissance de **%power**".format(CHIP_KARMA_LIMIT), 15, 30)
 ]
 
 disabled = [
 ]
+
+chipWithEmoji = []
+for tmpChip in chipList:
+    if tmpChip.emoji != "":
+        chipWithEmoji.append(tmpChip)
+
+CHIP_KARMA_DMG_TAKEN = 0.5
+CHIP_KARMA_DODGE = 1
+CHIP_KARMA_COUNTER = 1.2
 
 chipCommun,chipRare,chipLegend,chipMythic = [],[],[],[]
 for tmpChip in chipList:
@@ -197,3 +218,6 @@ def getChip(*toGet:Union[str,int,list]) -> Union[chip, List[chip]]:
     return toReturnTemp
 
 probaRarityTabl = [(690,205,100,5),(350,400,200,50),(50, 450, 400, 100),(50, 350, 450, 150)]
+
+summoningChips = ["Médaille de la Chauve-Souris","Haut-Perceur 5.1","Cadeau Explosif","Myrlopé", "Pas Piégés"]
+turnSpawnSummoningChips = ["Médaille de la Chauve-Souris","Haut-Perceur 5.1","Cadeau Explosif"]

@@ -1,5 +1,5 @@
 from advObjects.npcSkills.npcSkillsImports import *
-from advObjects.npcSkills.npcSkills_ennemi import lioLB
+from advObjects.npcSkills.npcSkills_ennemi import lioLB, witchWeapon, liuSkillEff
 from advObjects.npcSkills.npcSkills_boss import *
 
 # Clem Ex.
@@ -36,8 +36,8 @@ clemExSkill4 = skill("Corps à Corps Sanglant","clemExSkill4",TYPE_DAMAGE,accura
 
 clemExBloodJauge = copy.deepcopy(bloodJauge)
 clemExBloodJauge.jaugeValue.conds = [
-    jaugeConds(INC_START_FIGHT,50),
-    jaugeConds(INC_DEAL_DAMAGE,10/100)
+	jaugeConds(INC_START_FIGHT,50),
+	jaugeConds(INC_DEAL_DAMAGE,10/100)
 ]
 
 CLEMEXBLOODDEMONMAGIE, CLEMEXSCAR = 50, 10
@@ -48,9 +48,9 @@ clemExBloodDemonEff3 = effect("Cicatrice Alpha","clemExBloodDemonEff3", stat=PUR
 clemExBloodDemon = skill("Sanguis Daemonis Exaltatus","clemExBloodDemon",TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_DONUT_3,effects=[clemExBloodDemonEff,clemExBloodDemonEff2,clemExBloodDemonEff3],cooldown=7,jaugeEff=clemExBloodJauge,minJaugeValue=100,description="Vous infligez des dégâts autour de vous déchénant toute votre puissance !\nAugmente votre Magie, rend toutes vos compétences instantannée, inflige des dégâts indirects supplémentaire en attaquant, mais vous subissez des dégâts continues, le tout durant quatres tours",emoji="<:sanguisDaemonium:1050059965630533714>")
 
 clemExSay = says(
-    start="Pff, vous tenez tant que ça à être au milieu de ma route ?",
-    onKill="Tss, même pas le temps de faire une pause pour manger...",
-    blueWinAlive="Quel résultat surprenant"
+	start="Pff, vous tenez tant que ça à être au milieu de ma route ?",
+	onKill="Tss, même pas le temps de faire une pause pour manger...",
+	blueWinAlive="Quel résultat surprenant"
 )
 
 clemExWeapon = copy.deepcopy(rapiere)
@@ -58,10 +58,11 @@ clemExWeapon.power, clemExWeapon.range, clemExWeapon.effectOnUse, clemExWeapon.n
 miniStuff = stuff("Rune adaptative", 'clemRune', 0, 0, endurance=50, charisma=0, agility=50//2,precision=int(50*0.3), intelligence=50//10, magie=50*2, resistance=min(50//5, 35), emoji=clemEarRings.emoji)
 
 # Iliana prêtresse
-miniStuffHead = stuff("Casque de la neko de la lueur ultime", 'ilianaPreHead', 0, 0, endurance=int(50*1.35), agility=int(50*0.3), precision=int(50*0.3), charisma=50, magie=50, resistance=min(50//5, 50), percing=10, emoji=zenithHat.emoji)
-miniStuffDress = stuff("Armure de la neko de la lueur ultime", 'ilianaPreArmor', 1, 0, endurance=int(50*1.85), agility=int(50*0.3), precision=int(50*0.5), charisma=50, magie=50, percing=15, resistance=min(50//5, 50), emoji=zenithArmor.emoji)
-miniStuffFlats = stuff("Sorolets de la neko de la lueur ultime", 'ilianaPreBoots', 2, 0, endurance=int(50*1.35), agility=int(50*0.3), precision=int(50*0.3), charisma=50, magie=50, resistance=min(50//5, 50), percing=10, emoji=zenithBoots.emoji)
-
+iliPreStuffs = [
+	stuff("Casque de la neko de la lueur ultime", 'ilianaPreHead', 0, 0, endurance=350, agility=20, precision=50, charisma=250, magie=300, strength=200, resistance=50, emoji=zenithHat.emoji),
+	stuff("Armure de la neko de la lueur ultime", 'ilianaPreArmor', 1, 0, endurance=500, agility=20, precision=50, charisma=250, magie=300, strength=200, percing=15, resistance=50, emoji=zenithArmor.emoji),
+	stuff("Sorolets de la neko de la lueur ultime", 'ilianaPreBoots', 2, 0, endurance=350, agility=20, precision=50, charisma=255, magie=300, strength=200, resistance=50, emoji=zenithBoots.emoji)
+]
 iliPrePoi = effect("Lumière Absolue", "ilianaIndirect", CHARISMA, power=20,type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, turnInit=3, lvl=3, emoji='<:iliDot:1046387034522136609>')
 iliPreRegen = effect("Régénération de Lumière", "ilianaRegen", CHARISMA, power=50, trigger=TRIGGER_START_OF_TURN, type=TYPE_INDIRECT_HEAL,emoji='<a:ilianaRegen:969825374093578260>', turnInit=5, stackable=True, description="Soigne le porteur de l'effet au début de son tour")
 iliPreSkill1 = skill("Lumière Tranchante", 'iliSkill1', TYPE_DAMAGE, range=AREA_MONO, area=AREA_CIRCLE_3, power=200, use=CHARISMA, cooldown=5, effectOnSelf = iliPreRegen, description='Inflige des dégâts aux ennemis alentours et vous procure un effet régénérant', emoji='<:iliBravor:1046381213910302834>',selfEffPurcent = 80)
@@ -102,9 +103,11 @@ iliPreSkill7 = skill("Jeu de lumière",'iliPreSkill7',TYPE_DAMAGE,become=[iliPre
 
 iliWeap = weapon("Epée et Bouclier de la Lumière", "iliWeap", RANGE_MELEE, AREA_CIRCLE_1, 125, 100, charisma=30, endurance=20,resistance=15, area=AREA_CIRCLE_1, ignoreAutoVerif=True, emoji=infLightSword.emoji, use=CHARISMA)
 
-LunaPreStuffHead = stuff("Boucle d'oreille ombrale", 'lunaDarkPendant', 0, 0, endurance=int(50*0.3), agility=50,precision=int(50*0.3), strength=int(50*2.2), resistance=min(50//5, 30), percing=10, emoji=darkMaidPendants.emoji)
-LunaPreStuffDress = stuff("Robe de soubrette ombrale ombrale", 'lunaDarkMaidDress', 0, 0, endurance=int(50*0.7), agility=50, precision=int(50*0.5), strength=int(50*3), percing=15, resistance=min(50//5, 40), emoji=darkMaidDress.emoji)
-LunaPreStuffFlats = stuff("Ballerines ombrales", 'lunaDarkFlats', 0, 0, endurance=int(50*0.3), agility=int(50*1.3), precision=int(50*0.3), strength=int(50*2.2), resistance=min(50//5, 30), percing=10, emoji=darkMaidFlats.emoji)
+lunaPreStuffs = [
+	stuff("Boucle d'oreille ombrale", 'lunaDarkPendant', 0, endurance=200, agility=150, precision=200, strength=300, resistance=20, percing=10, emoji=darkMaidPendants.emoji),
+	stuff("Chemisié ombrale", 'lunaDarkMaidDress', 1, endurance=100, agility=100, precision=200, strength=200, resistance=20, emoji=darkMaidDress.emoji),
+	stuff("Ballerines ombrales", 'lunaDarkFlats', 2, endurance=200, agility=150, precision=200, strength=300, resistance=20, percing=10, emoji=darkMaidFlats.emoji)
+]
 
 lunaQuickFightEff = effect('Enchaînement',"lunaQuickFight",emoji=uniqueEmoji('<:qqLuna:932318030380302386>'))
 accelerant.effects= [lunaQuickFightEff]
@@ -120,12 +123,22 @@ lunaPreSkill5_3.effectOnSelf, lunaPreSkill5_3.replay, lunaPreSkill5_3.descriptio
 lunaPreSkill2_eff = effect("Ténèbres d'Obsidienne","lunaPreIndirect", stat=STRENGTH,power=80,emoji='<:lunaIndi:932447879786823730>',turnInit=3,lvl=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE)
 lunaPreSkill2 = skill("Obsidienne Ténébreuse","lunaPreSkill2",TYPE_INDIRECT_DAMAGE,emoji=lunaPandan.emoji,effects=lunaPreSkill2_eff,effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_INLINE_4,lunaPreSkill2_eff],range=AREA_MONO,area=AREA_CIRCLE_4,cooldown=4,description="Inflige un effet de dégâts indirects aux ennemis alentours. Les adversaires allignés subissent une deuxième fois l'effet",replay=True)
 lunaPreSkill3 = skill("Frappe d'Obsidienne","lunaPreSkill3",TYPE_DAMAGE,emoji=lunaSkill2.emoji,power=int(lunaSkill2.power*lunaSkill2.repetition*1.25),cooldown=lunaSkill2.cooldown,description="Inflige de lourd dégâts à un ennemi")
-lunaDarkChoc = copy.deepcopy(lunaSkill)
-lunaDarkChoc.power, lunaDarkChoc.lifeSteal, lunaDarkChoc.cooldown, lunaDarkChoc.description, lunaDarkChoc.name = 200, 15, 5, "Vous téléporte au corps à corps de l'ennemi ciblé et lui porte une attaque infligeant des dégâts de zone tout en vous restituant un pourcentage des dégâts infligés", "Choc d'Obsidienne"
 lunaPreUltimawashi = copy.deepcopy(lunaSkill7)
 lunaPreUltimawashi.area, lunaPreUltimawashi.name, lunaPreUltimawashi.description = AREA_CIRCLE_1, "Piqué Ténébreux", "Inflige des dégâts à l'ennemi ciblé ainsi qu'aux adversaires alentours, puis repousse violament ce premier".format(lunaPreUltimawashi.power)
 
-liaExWeapEff = effect("Kazama","liaExWeapEff",turnInit=-1,unclearable=True,dodge=20,counterOnDodge=75,power=80,description="Octroie à Lia 75% de chances d'effectuer une **contre-attaque** en esquivant un assaut adverse\nLui octroie également {0}% de chance d'obtenir l'effet {1} __{2}__ en effectuant une compétence {3} __{4}__".format(50,tablElemEff[ELEMENT_AIR].emoji[0][0],tablElemEff[ELEMENT_AIR].name,elemEmojis[ELEMENT_AIR],elemNames[ELEMENT_AIR]),emoji='<:liaWeap:908859908034793552>')
+
+## LIA EX
+liaExStuffs = [
+	stuff("Barrête Aérienne", "liaExStuff0", 0, magie=200, charisma=200, endurance=150, strength=250, agility=200, precision=100, intelligence=50, resistance=25, percing=15, critical=-30),
+	stuff("Tunique et Veste Aérienne", "liaExStuff1", 1, magie=200, charisma=200, endurance=250, strength=250, agility=200, precision=100, intelligence=50, resistance=25, percing=15, critical=-30),
+	stuff("Bottines Aérienne", "liaExStuff2", 2, magie=200, charisma=200, endurance=150, strength=250, agility=200, precision=100, intelligence=50, resistance=25, percing=15, critical=-30)
+]
+
+lizExDot = effect("Ekusutorīmubān", "lizExDot", MAGIE, stackable=True, replace=True, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, power=50, turnInit=3, emoji='<:lizExDot:1328754717656088658>', lifeSteal=35, description="En plus d'infliger des dégâts au début du tour du porteur, cet effet agit tel {0}, réduisant les soins qu'il reçoit".format(incurable))
+lizExDotWeak = copy.deepcopy(lizExDot)
+lizExDotWeak.power, lizExDotWeak.name, lizExDotWeak.emoji = 35, 'Yakedo', uniqueEmoji('<:lizExDot2:1328815968084037683>')
+
+liaExWeapEff = effect("Kazama","liaExWeapEff",turnInit=-1,unclearable=True,dodge=20,counterOnDodge=50, critDmgUp = 100, power=80, inkResistance=50, description="Octroie à Lia 75% de chances d'effectuer une **contre-attaque** en esquivant un assaut adverse\nLui octroie également {0}% de chance d'obtenir l'effet {1} __{2}__ en effectuant une compétence {3} __{4}__".format(50,tablElemEff[ELEMENT_AIR].emoji[0][0],tablElemEff[ELEMENT_AIR].name,elemEmojis[ELEMENT_AIR],elemNames[ELEMENT_AIR]),emoji='<:liaWeap:908859908034793552>')
 liaExWeap = weapon("Akashi","noneweap",RANGE_MELEE,AREA_CIRCLE_1,power=25,accuracy=90,magie=20,agility=20,resistance=10,area=AREA_ARC_1,emoji=liaKatana.emoji,ignoreAutoVerif=True,use=MAGIE,effects=liaExWeapEff)
 liaExDotOnTarget = effect("U~indobaito","liaExDotOnTarget", stat=MAGIE,power=80,turnInit=8,lvl=8,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji='<:airKitsune:917670912646602823>')
 liaExSkill1_3_ready = effect("Harikenburedo préparé","liaSkill1_3_ready",turnInit=5,emoji='<:liaSki1_3:1012765729554178138>')
@@ -139,7 +152,7 @@ liaExSkill1_1 = skill("Kaze no ha","liaExSkill1",TYPE_DAMAGE,use=MAGIE,power=80,
 liaExSkill1 = skill("Combo Lame des vents","liaExSkill1",TYPE_DAMAGE,use=MAGIE,emoji='<:liaSki1_3:1012765729554178138>',become=[liaExSkill1_1,liaExSkill1_2,liaExSkill1_3],description="Permet d'effectuer le combo Lame des Vents.\n\n{0} __{1}__ augmente les dégâts infligés,\n{2} __{3}__ vous octroie un effet de dégâts indirects infligeant des dégâts autour de vous en fin de tour\n{4} __{5}__ inflige un effet de dégâts indirect à la cible, lui infligeant des dégâtts lorsqu'il débute son tour".format(liaExSkill1_1.emoji,liaExSkill1_1.name,liaExSkill1_2.emoji,liaExSkill1_2.name,liaExSkill1_3.emoji,liaExSkill1_3.name))
 liaExSkill2_2_ready = effect("Shapuchajido préparé","liaExSkill2_2_ready",turnInit=5,emoji='<:liaCounter:998001563379437568>')
 liaExSkill2_2_e = effect("Arashi no kaze","lizExSkill2_2_e", stat=AGILITY,power=100,area=AREA_CIRCLE_3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_INSTANT,emoji='<:liaSamLB2:1100185041306386439>')
-liaExSkill2_2 = skill("Shapuchajido","liaExSkill2",TYPE_DAMAGE,cooldown=3,power=100,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],range=AREA_CIRCLE_4,tpBehind=True,replay=True,use=AGILITY,emoji='<:liaCounter:998001563379437568>',needEffect=[liaExSkill2_2_ready],effects=[liaExSkill2_2_e],description="Vous téléporte derrière l'ennemi ciblé, lui inflige des dégâts en ignorant une grosse partie de sa résistance et inflige des dégâts aux ennemis environant",percing=50,url=senbonzakura.url)
+liaExSkill2_2 = skill("Shapuchajido","liaExSkill2",TYPE_DAMAGE,cooldown=3,power=100,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],range=AREA_CIRCLE_4,tpBehind=True,replay=True,use=AGILITY,emoji='<:liaCounter:998001563379437568>',needEffect=[liaExSkill2_2_ready],effects=[weakGuard], effBeforePow=True, effectAroundCaster=[TYPE_DAMAGE, liaExSkill2_2_e.area, liaExSkill2_2_e.power],description="Vous téléporte derrière l'ennemi ciblé, lui inflige des dégâts en ignorant une grosse partie de sa résistance et inflige des dégâts aux ennemis environant",percing=50,url=senbonzakura.url)
 liaExSkill2_1 = skill("Terukikku","liaExSkill2",TYPE_DAMAGE,power=125,range=AREA_CIRCLE_4,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],area=AREA_CONE_2,tpCac=True,jumpBack=3,description="Charge l'ennmi ciblé, lui inflige des dégâts et le repousse de 3 cases\nVous octroie également la possibilité d'utiliser {0} __{1}__ une fois durant les {2} prochains tours".format(liaExSkill2_2.emoji,liaExSkill2_2.name,liaExSkill2_2.needEffect[0].turnInit),effectOnSelf=liaExSkill2_2.needEffect[0],rejectEffect=[liaExSkill2_2_ready],emoji='<:liaSkill:922291249002709062>')
 liaExSkill2 = skill("Terukikku +","liaExSkill2",TYPE_DAMAGE,power=liaExSkill2_1.power,use=AGILITY,emoji=liaExSkill2_1.emoji,become=[liaExSkill2_1,liaExSkill2_2],description="Inflige des dégâts agilité à l'ennemi ciblé.\n\n{0} __{1}__ permet de rejouer son tour\n{2} __{3}__ ne peut pas être utilisé pendant 4 tours après utilisation".format(liaExSkill2_2.emoji, liaExSkill2_2.name, liaExSkill2_1.emoji, liaExSkill2_1.name))
 liaExSkill3_eff = effect("Hariken no me","liaExSkill3_eff", stat=MAGIE,area=AREA_DIST_5,trigger=TRIGGER_END_OF_TURN,type=TYPE_INDIRECT_DAMAGE,emoji="<:liaTornadoEff2:1100185833115492402>",power=135,lvl=5,turnInit=5)
@@ -147,9 +160,8 @@ liaExSkill3 = skill("Hariken","liaExSkill3",TYPE_DAMAGE,condition=[EXCLUSIVE,ELE
 liaExSkill4_3 = skill("Keifu","liaExSkill4",TYPE_DAMAGE,power=150,effectAroundCaster=[TYPE_HEAL,AREA_MONO,150],use=MAGIE,cooldown=5,description="Inflige des dégâts aux ennemis alliégné avec vous et vous soigne",area=AREA_INLINE_5,range=AREA_MONO,emoji="<:waterKitsune:917670866626707516>")
 liaExSkill4_2_eff = effect("Asuama","liaExSkill4_2_eff", stat=MAGIE,overhealth=100,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE,emoji='<:liaWindArmor:1013901987303149630>')
 liaExSkill4_2 = skill("Sunaarashi","liaExSkill4",use=MAGIE,types=TYPE_DAMAGE,power=150,range=AREA_MONO,area=AREA_CIRCLE_2,effectOnSelf=liaExSkill4_2_eff,cooldown=liaExSkill4_3.cooldown, emoji="<:earthKitsune:917670882586017792>", description="Inflige des dégâts aux ennemis en mêlée et vous octroie une armure pendnant 3 tours")
-liaExSkill4_1_dot = effect("Moeta","liaExSkill4_1_dot", stat=MAGIE,power=50,turnInit=3,lvl=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE)
-liaExSkill4_1 = skill("Sabaku no kaze","liaExSkill4",TYPE_DAMAGE,area=AREA_ALL_ENEMIES,use=MAGIE,range=AREA_MONO,power=85,description="Inflige des dégâts à tous les ennemis et leur inflige un effet de dégâts indirect pendant 3 tours",effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_ALL_ENEMIES,liaExSkill4_1_dot],cooldown=liaExSkill4_3.cooldown,emoji='<:fireKitsune:917670925904785408>')
-liaExSkill4 = skill("Kyodai no kyoka","liaExSkill4",TYPE_DAMAGE,use=MAGIE,initCooldown=2,power=max(liaExSkill4_3.power,liaExSkill4_2.power,liaExSkill4_1.power+liaExSkill4_1_dot.power*liaExSkill4_1_dot.turnInit),become=[liaExSkill4_1,liaExSkill4_2,liaExSkill4_3],emoji='<:kitsuWeap:935553775500947486>',description="Permet d'utiliser les éléments des soeurs de Lia pour déclancher une attaque suivant leur élément.\n\n{0} __{1}__ vous soigne en plus d'infliger des dégâts\n{2} __{3}__ vous octroie une armure en plus d'infliger des dégâts".format(liaExSkill4_3.emoji,liaExSkill4_3.name,liaExSkill4_2.emoji,liaExSkill4_2.name))
+liaExSkill4_1 = skill("Sabaku no kaze","liaExSkill4",TYPE_DAMAGE,area=AREA_CIRCLE_3,use=MAGIE,range=AREA_MONO,power=85,description="Inflige des dégâts à tous les ennemis et leur inflige un effet de dégâts indirect pendant 3 tours",effectAroundCaster=[TYPE_INDIRECT_DAMAGE,AREA_CIRCLE_3,lizExDotWeak],cooldown=liaExSkill4_3.cooldown,emoji='<:fireKitsune:917670925904785408>')
+liaExSkill4 = skill("Kyodai no kyoka","liaExSkill4",TYPE_DAMAGE,use=MAGIE,initCooldown=2,power=max(liaExSkill4_3.power,liaExSkill4_2.power,liaExSkill4_1.power+lizExDotWeak.power*lizExDotWeak.turnInit),become=[liaExSkill4_1,liaExSkill4_2,liaExSkill4_3],emoji='<:kitsuWeap:935553775500947486>',description="Permet d'utiliser les éléments des soeurs de Lia pour déclancher une attaque suivant leur élément.\n\n{0} __{1}__ vous soigne en plus d'infliger des dégâts\n{2} __{3}__ vous octroie une armure en plus d'infliger des dégâts".format(liaExSkill4_3.emoji,liaExSkill4_3.name,liaExSkill4_2.emoji,liaExSkill4_2.name))
 liaExUlt_4 = skill("Kaze no bakuhatsu","liaExUlt_4",TYPE_DAMAGE,power=150,cooldown=7,ultimate=True,area=AREA_CIRCLE_1,range=AREA_CIRCLE_3,condition=[EXCLUSIVE,ELEMENT,ELEMENT_AIR],emoji='<:liaSkiUlt3:1013889062962217021>',description="Au premier tour, inflige des dégâts aux ennemis en mêlée et les repoussent.\nAu second tour, inflige à deux reprises des dégâts dans une zone en arc de cercle centrée sur l'ennemi ciblé, repoussant les ennemis touchés et vous téléportant au corps à corps de la cible à chaque reprise, puis inflige des dégâts en cercle autour de l'ennemi ciblé\n\nChaque effet {0} __{1}__ possédé au premier tour vous octroie une armure équivalante à **5%** de vos PV Max\nChaque effet {0} __{1}__ possédé augmente les puissances des attaques en arc de cercle du second tour de **10%**\nChaque effet {0} __{1}__ possédé augmente la puissance de l'attaque de zone de **15%** et les consommes pour vous soigner de **5%** de vos PV max".format(tablElemEff[ELEMENT_AIR].emoji[0][0],tablElemEff[ELEMENT_AIR].name),accuracy=200,use=MAGIE)
 liaExUlt_4_cast = effect("Enchainement - {replicaName}","liaExUlt_4_c",replique=liaExUlt_4,silent=True)
 liaExUlt_3 = skill("Gyakufu no suraisu","liaExUlt_3",TYPE_DAMAGE,power=120,area=AREA_ARC_3,tpCac=True,knockback=1,range=liaExUlt_4.range,condition=liaExUlt_4.condition,description=liaExUlt_4.description,cooldown=liaExUlt_4.cooldown,replay=True,effectOnSelf=liaExUlt_4_cast,emoji='<:liaSkiUlt2:1013889034600329246>',use=MAGIE)
@@ -266,19 +278,19 @@ gwenyExSkillList = [gwenChangeSkillKA,gwenySkill1,gwenySkill2,gwenySkill3,gwenyS
 altyExSkillList = [gwenChangeSkillKG,altySkill1,altySkill2,altySkill3,altySkill4,gwenExCummonSkill]
 
 gwenyExStuff = [
-    stuff("Barrette noire","gwenyExStuff1",0,strength=75,endurance=120,intelligence=100,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji=''),
-    stuff("Robe et Leggins noirs","gwenyExStuff2",1,strength=75,endurance=130,intelligence=100,charisma=35,resistance=30,percing=20,agility=20,precision=20,emoji=''),
-    stuff("Ballerines noires","gwenyExStuff3",2,strength=75,endurance=120,intelligence=100,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji='')
+	stuff("Barrette noire","gwenyExStuff1",0,strength=75,endurance=120,intelligence=100,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji=''),
+	stuff("Robe et Leggins noirs","gwenyExStuff2",1,strength=75,endurance=130,intelligence=100,charisma=35,resistance=30,percing=20,agility=20,precision=20,emoji=''),
+	stuff("Ballerines noires","gwenyExStuff3",2,strength=75,endurance=120,intelligence=100,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji='')
 ]
 klikliExStuff = [
-    stuff("Barrette noire","gwenyExStuff1",0,strength=150,endurance=120,intelligence=35,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji=''),
-    stuff("Robe et Leggins noirs","gwenyExStuff2",1,strength=150,endurance=130,intelligence=35,charisma=35,resistance=30,percing=20,agility=20,precision=20,emoji=''),
-    stuff("Ballerines noires","gwenyExStuff3",2,strength=150,endurance=120,intelligence=35,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji='')
+	stuff("Barrette noire","gwenyExStuff1",0,strength=150,endurance=120,intelligence=35,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji=''),
+	stuff("Robe et Leggins noirs","gwenyExStuff2",1,strength=150,endurance=130,intelligence=35,charisma=35,resistance=30,percing=20,agility=20,precision=20,emoji=''),
+	stuff("Ballerines noires","gwenyExStuff3",2,strength=150,endurance=120,intelligence=35,charisma=35,resistance=25,percing=20,agility=20,precision=20,emoji='')
 ]
 altyExStuff = [
-    stuff("Barrette noire","gwenyExStuff1",0,strength=75,endurance=120,intelligence=35,charisma=100,resistance=25,percing=20,agility=20,precision=20,emoji=''),
-    stuff("Robe et Leggins noirs","gwenyExStuff2",1,strength=75,endurance=130,intelligence=35,charisma=100,resistance=30,percing=20,agility=20,precision=20,emoji=''),
-    stuff("Ballerines noires","gwenyExStuff3",2,strength=75,endurance=120,intelligence=35,charisma=100,resistance=25,percing=20,agility=20,precision=20,emoji='')
+	stuff("Barrette noire","gwenyExStuff1",0,strength=75,endurance=120,intelligence=35,charisma=100,resistance=25,percing=20,agility=20,precision=20,emoji=''),
+	stuff("Robe et Leggins noirs","gwenyExStuff2",1,strength=75,endurance=130,intelligence=35,charisma=100,resistance=30,percing=20,agility=20,precision=20,emoji=''),
+	stuff("Ballerines noires","gwenyExStuff3",2,strength=75,endurance=120,intelligence=35,charisma=100,resistance=25,percing=20,agility=20,precision=20,emoji='')
 ]
 
 
@@ -286,22 +298,10 @@ krysWaterWeakness = effect("KrysTal","krysWaterWeakness",power=10,armorDmgBonus=
 krysWeapon = copy.deepcopy(krystalFist)
 krysWeapon.effects=krysWaterWeakness
 
-lioExWeap = weapon("AquaMage","noneWeap",RANGE_LONG,AREA_CIRCLE_5,0,0,charisma=35)
-lioExSkill1 = skill("AquaStrike","lioExSkill1",TYPE_DAMAGE,power=80,use=CHARISMA,emoji='<:water2:1065647727708483654>',description="Un sort simple qui inflige des dégâts à l'ennemi ciblé")
-lioExSkill2_eff = effect("VibrAqua","lioExSkill2_eff", stat=CHARISMA,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_INSTANT,area=AREA_DONUT_2,power=85,emoji='<:water3:1065647689129271397>')
-lioExSkill2 = skill("VibrAqua","lioExSkill2",TYPE_DAMAGE,power=120,effects=lioExSkill2_eff,cooldown=5,emoji='<:vibraqua:1123874146678489118>',effectAroundCaster=[TYPE_HEAL,AREA_LOWEST_HP_ALLIE,100],description="Inflige des dégâts à l'ennemi ciblé, des dégâts indirects autour de lui et soigne  votre allié le plus blessé")
-lioExSkill3_eff1, lioExSkill3_eff2 = copy.deepcopy(defenseUp), effect("AquaPurification","lioExSkill3_eff2", stat=CHARISMA,power=40,turnInit=3,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji='<:water1:1065647748826791966>')
-lioExSkill3_eff1.power, lioExSkill3_eff1.stat, lioExSkill3_eff1.turnInit = 3.5, CHARISMA, lioExSkill3_eff2.turnInit
-lioExSkill3 = skill("AquaVoile","lioExSKill3",TYPE_INDIRECT_HEAL,effects=[lioExSkill3_eff2,lioExSkill3_eff1],cooldown=3,emoji=lioExSkill3_eff1.emoji[0][0],effPowerPurcent=150,description="Octroie un effet régénérant et réduit les dégâts subis par l'allié ciblé")
-lioExSkill4_eff1 = effect("Charme","lioExSkill4_eff1",trigger=TRIGGER_INSTANT,area=AREA_DONUT_3,callOnTrigger=charming2,emoji='<:waterKitsune:917670866626707516>')
-lioExSkill4_eff2 = effect("Charme","lioExSkill4_eff2",trigger=TRIGGER_INSTANT,area=AREA_LINE_5,callOnTrigger=charming,emoji='<:waterKitsune:917670866626707516>')
-lioExSkill4 = skill("Gekiryū","lioExSkill4",TYPE_DAMAGE,power=135,use=CHARISMA,area=lioExSkill4_eff2.area,effects=lioExSkill4_eff2,effectOnSelf=lioExSkill4_eff1,effectAroundCaster=[TYPE_INDIRECT_HEAL,AREA_CIRCLE_2,lioExSkill3_eff2],cooldown=5,ultimate=True,emoji=lioLB.emoji,url=lioLB.url,description="Inflige des dégâts aux ennemis ciblés, réduit leurs statistiques et augmente celles des alliés alentours tout en leur octroyant un effet régénérant")
-lioExSkill5_eff = effect("Oeudème","lioExSKill5_eff", stat=CHARISMA,power=75,trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE,turnInit=3)
-lioExSkill5 = skill("AquaBulle","lioExSkill5",TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1,effects=lioExSkill5_eff,cooldown=3,effectAroundCaster=[TYPE_INDIRECT_HEAL,AREA_LOWEST_HP_ALLIE,lioExSkill3_eff2],emoji='<:lioSkill:922328964926697505>',description="Inflige un effet de dégâts périodiques aux ennemis ciblés et octroie un effet régénérant à l'allié le plus blessé")
-lioExSkill6 = skill("Déluge","liaExSkill6",TYPE_DAMAGE,power=80,area=AREA_CIRCLE_2,range=AREA_MONO,knockback=3,cooldown=3,description="Inflige des dégâts aux ennemis ciblés et les repousse",emoji="<:enemyWater:1042313114487636038>")
-
 beneRedempt = copy.deepcopy(redemption)
 beneRedempt.say = "Repentez vous !!"
+
+## LENA
 
 lenaExStuff1 = stuff("Boucle d'Oreille en Améthyste","",0,strength=100,endurance=25,charisma=35,agility=20,precision=75,intelligence=20,magie=10,resistance=10,percing=15,emoji=amethystEarRings.emoji)
 lenaExStuff2 = stuff("Robe Azurée","",1,strength=100,endurance=25,charisma=35,agility=20,precision=75,intelligence=20,magie=10,resistance=10,percing=15,emoji=lightBlueJacket.emoji)
@@ -348,9 +348,24 @@ lenaExSkill52 = skill("Railgun","lenaRailgun",TYPE_DAMAGE,power=350,ultimate=Tru
 
 lenaExSkill5 = skill(lenaExSkill51.name,lenaExSkill51.id,TYPE_BOOST,become=[lenaExSkill51,lenaExSkill52],emoji=lenaExSkill51.emoji)
 
-shushiStuff1 = stuff("Bêret Scolaire","",0,magie=115,endurance=50,charisma=35,agility=75,precision=75,intelligence=20,resistance=20,percing=10,emoji=shushi50Hat.emoji,effects=squidRollEff,critical=-20)
-shushiStuff2 = stuff("Uniforme Scolaire","",1,magie=115,endurance=50,charisma=35,agility=75,precision=75,intelligence=20,resistance=20,percing=10,emoji=shushi50Dress.emoji,critical=-20)
-shushiStuff3 = stuff("Mocassins à Froufrou Scolaire","",2,magie=115,endurance=50,charisma=35,agility=75,precision=75,intelligence=20,resistance=20,percing=10,emoji=shushi50Shoes.emoji,critical=-20)
+pictoLenaSays = says(
+	start="Prêt pour un combat haut en couleurs ?",
+	ultimate="Explosion chromatique dans ta face, {target} !",
+	onKill=["Huh, c'était plutôt terne au final", "Quoi déjà ? Pour une fois que je commençais à m'amuser...", "Alors ? T'en pense quoi de cette touche finale ?"],
+	blueWinAlive="Et une victoire sans bavures !",
+	blueWinDead="Belle reprise",
+	reactBigRaiseAllie="Second round !",
+	onMiss=["Tu pourrais pas rester tranquille genre, cinq minutes ?", "Pff. Tout viens à point à qui sait attendre, comme on dit"],
+)
+
+pictoLenaRainbowDrop = copy.deepcopy(rainbowDrop)
+pictoLenaRainbowDrop.say = "Des jaunes, des verts, des blancs, je met ce qu'il me plait !"
+pictoLenaRainbowDrop.effectOnSelf.replica.say = "Car c'est comme ÇA que j'imagine UN MONDE PARFAIT !"
+
+## SHUSHI
+shushiStuff1 = stuff("Bêret Scolaire","",0,magie=150,endurance=50,charisma=35,agility=75,precision=75,intelligence=20,resistance=20,percing=10,emoji=shushi50Hat.emoji,effects=squidRollEff,critical=-20)
+shushiStuff2 = stuff("Uniforme Scolaire","",1,magie=150,endurance=50,charisma=35,agility=75,precision=75,intelligence=20,resistance=20,percing=10,emoji=shushi50Dress.emoji,critical=-20)
+shushiStuff3 = stuff("Mocassins à Froufrou Scolaire","",2,magie=150,endurance=50,charisma=35,agility=75,precision=75,intelligence=20,resistance=20,percing=10,emoji=shushi50Shoes.emoji,critical=-20)
 shushiWeapon = weapon("Eclatana Doto Chic","",RANGE_MELEE,AREA_BIGDONUT,power=100,accuracy=200,magie=25,precision=25,emoji=eclatanaDoto.emoji,priority=WEAPON_PRIORITY_LOWEST,effects=copy.deepcopy(eclataDash))
 shushiWeapon.effects.id, shushiWeapon.effects.aggro, shushiWeapon.effects.dodge = shushiWeapon.effects.id+"+", 500, 20
 
@@ -368,7 +383,7 @@ shushiSkill113_1c = effect("Enchaînement - {replicaName}","shushiSkill113_2c",r
 shushiSkill113 = skill("Mikelit","shushiSkill113",TYPE_DAMAGE,emoji='<:mikelit:988360135485313085>',range=AREA_CIRCLE_1,use=MAGIE,needEffect=shushiMikel,damageOnArmor=2,power=25,repetition=2,effectOnSelf=shushiSkill113_1c,replay=True,knockback=1,description="Inflige une série d'attaque sur l'ennemi ciblé. Les dégâts infligés sur l'armure sont augmentés")
 shushiMipoi = effect("Mipoi","mipoi",turnInit=5,silent=True,emoji='<:mipoi:988360255413039124>')
 shushiSkill121 = skill("Mipoitau","shushiSkill121",TYPE_DAMAGE,emoji="<:mipoitau:988360402201108511>",power=150,range=AREA_INLINE_3,area=AREA_CIRCLE_1,use=MAGIE,tpCac=True,description="Saute sur l'ennemi ciblé et inflige des dégâts de zone",needEffect=shushiMipoi)
-shushiSkill122 = skill("Mipoicou","shushiSkill122",TYPE_DAMAGE,emoji="<:mipoitou:988360468496273488>",power=80,repetition=3,use=MAGIE,range=AREA_MONO,area=AREA_CIRCLE_2,description=triSlashdown.description,needEffect=shushiMipoi,damageOnArmor=triSlashdown.onArmor,accuracy=90)
+shushiSkill122 = skill("Mipoicou","shushiSkill122",TYPE_DAMAGE,emoji="<:mipoitou:988360468496273488>",power=80,repetition=3,use=MAGIE,range=AREA_MONO,area=AREA_CIRCLE_2,description=triSlashdown.description,needEffect=shushiMipoi,damageOnArmor=triSlashdown.damageOnArmor,accuracy=90)
 shushiSkill123 = skill("Mipoidyu","shushiSkill123",TYPE_DAMAGE,emoji='<:mipoityu:988360346102292520>',power=80,range=AREA_CIRCLE_1,area=AREA_CONE_2,accuracy=135,repetition=3,use=MAGIE,description="Inflige des dégâts à trois reprises dans la zone ciblé, avec une bonne précision",needEffect=shushiMipoi)
 
 shushiMisil = effect("Misil","misil",turnInit=5,silent=True,emoji='<:misil:988359552619671592>')
@@ -440,7 +455,7 @@ shushiSkill313e5, shushiSkill313e6 = effect("Ticlipiol","ticlipiol1",trigger=TRI
 shushiSkill313 = skill(shushiSkill313e5.name,"shushiSkill313",TYPE_DAMAGE,needEffect=shushiTiCli,power=100,garCrit=True,range=AREA_CIRCLE_1,effectOnSelf=shushiSkill311e1,effects=[shushiSkill313e1,shushiSkill313e2,shushiSkill313e5,shushiSkill313e6],emoji=shushiSkill313e5.emoji[0][0],use=MAGIE,description="inflige une attaque critique à l'ennemi ciblé, et réduit de **{0}%** les soins et armures qu'il reçoit durant un moment. Réduit également de **{1}%** les soins et armures reçus par les ennemis autour de la cible pour la même durée et accroi votre esquive pendant un long moment".format(shushiSkill313e1.power,shushiSkill313e3.power))
 
 shushiTisen = effect("Tisen","tisen",emoji='<:ticli:988362274584530965>',turnInit=5,silent=True)
-shushiSkill321e, shushiTisene = effect("Tisenklo","shushiSkill321e",MAGIE,emoji='<:tisenklo:988362689862574181>',magie=5, strength=5, turnInit=3), effect("Bonus de Magie","shushiTisene",PURCENTAGE,magie=20,turnInit=7,emoji=statsEmojis[MAGIE])
+shushiSkill321e, shushiTisene = effect("Tisenklo","shushiSkill321e",MAGIE,emoji='<:tisenklo:988362689862574181>',magie=5, strength=5, turnInit=3), effect("Bonus de Magie","shushiTisene",PURCENTAGE,magie=20,turnInit=7,emoji=statEmojis[MAGIE])
 shushiSkill321 = skill(shushiSkill321e.name,"shushiSkill321",TYPE_DAMAGE,power=100,range=AREA_CIRCLE_3,needEffect=shushiTisen,area=AREA_CIRCLE_1,tpCac=True,use=MAGIE,emoji=shushiSkill321e.emoji[0][0],effectAroundCaster=[TYPE_BOOST,AREA_DONUT_3,shushiSkill321e],effectOnSelf=shushiTisene,description="Saute sur l'ennem ciblé et inflige des dégâts de zone autour de lui. Augmente la Force et la Magie des alliés alentours durant un petit moment et accroi votre propre Magie de **{0}%** durant un long moment".format(shushiTisene.magie))
 shushiSkill322e = effect('Tisenplo',"shushiSkill322e",MAGIE,emoji="<:tisenplo:988362818766143498>",endurance=3,turnInit=3)
 shushiSkill322 = skill(shushiSkill322e.name,"shushiSkill322",TYPE_DAMAGE,power=35,setAoEDamage=True,needEffect=shushiTisen,area=AREA_ALL_ENEMIES,range=AREA_MONO,use=MAGIE,effectOnSelf=shushiTisene,effectAroundCaster=[TYPE_BOOST,AREA_ALL_ALLIES,shushiSkill322e],emoji=shushiSkill322e.emoji[0][0],description="Inflige des dégâts à tous les ennemis en ignorant la réduction des dégâts de zone, accroi l'Endurance de tous vos alliés (vous incluts) durant un petit moment et augmente votre propre Magie de **{0}%** durant un long moment".format(shushiTisene.magie))
@@ -472,8 +487,8 @@ shushiSkill3_1 = skill(shushiTi.name,"shushiSkill3",TYPE_DAMAGE,power=70,range=A
 shushiSkill3 = skill("Combinaison Ti","shushiSkill3",TYPE_DAMAGE,become=[shushiSkill3_1,shushiSkill31,shushiSkill311,shushiSkill312,shushiSkill313,shushiSkill32,shushiSkill321,shushiSkill322,shushiSkill323,shushiSkill33,shushiSkill331,shushiSkill332,shushiSkill333],emoji=shushiSkill3_1.emoji)
 
 for tmpSkill in [shushiSkill1,shushiSkill2,shushiSkill3]:
-    for indx, tmpSkill2 in enumerate(tmpSkill.become):
-        if tmpSkill2.use != MAGIE: tmpSkill.become[indx].use = MAGIE
+	for indx, tmpSkill2 in enumerate(tmpSkill.become):
+		if tmpSkill2.use != MAGIE: tmpSkill.become[indx].use = MAGIE
 
 sixtineStuff1 = stuff("Barette Rompiche","sixtineStuff1",0,magie=80,intelligence=100,endurance=5,resistance=10,strength=10,charisma=20,agility=15,precision=25,emoji=sixitneBarrette.emoji)
 sixtineStuff2 = stuff("Pull en Laine","sixtineStuff2",1,magie=80,intelligence=100,endurance=10,resistance=10,strength=10,charisma=20,agility=20,precision=25,emoji=sixitnePull.emoji)
@@ -508,67 +523,64 @@ clemExStuff2 = stuff("Robe du Mage écarlate","clemExStuff1",0,strength=100,endu
 clemExStuff3 = stuff("Bottines du Mage écarlate","clemExStuff2",0,strength=100,endurance=120,charisma=50,agility=75,precision=75,intelligence=100,magie=650,resistance=15,percing=15)
 clemExBloodMissiles = skill("Missiles Sanguins","clemExBloodMissiles",TYPE_DAMAGE,power=75,area=AREA_RANDOMENNEMI_5,repetition=4,emoji=bloodmissiles.emoji,cooldown=5,use=MAGIE,description="Inflige des dégâts à cinqs ennemis aléatoirement, quatre fois", setAoEDamage=True)
 
-
-echo = skill("Echo","jadeSkill",TYPE_DAMAGE,0,power=80,use=CHARISMA,useActionStats=ACT_BOOST,emoji='<:requiem:1178936044238942258>',cooldown=3)
-
 zenecaSays=says(
-    start="Oubliez pas de respecter les distanciations sociales !",
-    ultimate="J'vais vous montrer ce que peut faire quelqu'un de majeur et vacciné ! Oh c'est vrai je suis pas majeure...",
-    limiteBreak="C'est... Parti !",
-    onKill="Faut pas négliger sa santé tant que ça voyons",
-    onResurect="Arf... Merci {caster}",
-    blueWinAlive="Prenez ça bande d'anti-vaxs !",
-    reactEnnemyKilled="Wooow. C'était pas mal ça !",
-    reactAllyLb="Tu leur en a fait voir de toutes les couleurs {caster} !",
-    getHealed="Thx"
+	start="Oubliez pas de respecter les distanciations sociales !",
+	ultimate="J'vais vous montrer ce que peut faire quelqu'un de majeur et vacciné ! Oh c'est vrai je suis pas majeure...",
+	limiteBreak="C'est... Parti !",
+	onKill="Faut pas négliger sa santé tant que ça voyons",
+	onResurect="Arf... Merci {caster}",
+	blueWinAlive="Prenez ça bande d'anti-vaxs !",
+	reactEnnemyKilled="Wooow. C'était pas mal ça !",
+	reactAllyLb="Tu leur en a fait voir de toutes les couleurs {caster} !",
+	getHealed="Thx"
 )
 
 victoireTeleportBehindYou = copy.deepcopy(shortTeleport)
 victoireTeleportBehindYou.say = "Nothing personal kid."
 
 victoireSays=says(
-    start="Que Dieu nous montre la voie !",
-    ultimate="REPENTEZ VOUS !",
-    limiteBreak="C'est l'heure du JUGEMENT !",
-    onKill="Puisse Dieu te pardonner",
-    onResurect="Merci pour ce miracle",
-    blueWinAlive="Yupey !",
-    takeHit="Prépare-toi pour ma rétribution divine, {caster} !",
-    getHealed="J'te remercie pour ta miséricorde, {caster}"
+	start="Que Dieu nous montre la voie !",
+	ultimate="REPENTEZ VOUS !",
+	limiteBreak="C'est l'heure du JUGEMENT !",
+	onKill="Puisse Dieu te pardonner",
+	onResurect="Merci pour ce miracle",
+	blueWinAlive="Yupey !",
+	takeHit="Prépare-toi pour ma rétribution divine, {caster} !",
+	getHealed="J'te remercie pour ta miséricorde, {caster}"
 )
 
 alexandreSays=says(
-    start="Qui veut se prendre un bon coup de marteau ?",
-    ultimate="Voyez ! Ceci est le pouvoir des nains ?",
-    takeHit="Ah ! Il va falloir faire mieux que ça pour me faire tomber !",
-    blueWinAlive="Ahah ! C'est tout ce que vous savez faire ?",
-    reactAllyKilled="Hé bah {target}, on fatigue ?"
+	start="Qui veut se prendre un bon coup de marteau ?",
+	ultimate="Voyez ! Ceci est le pouvoir des nains ?",
+	takeHit="Ah ! Il va falloir faire mieux que ça pour me faire tomber !",
+	blueWinAlive="Ahah ! C'est tout ce que vous savez faire ?",
+	reactAllyKilled="Hé bah {target}, on fatigue ?"
 )
 
 jadeSays = says(
-    start = "Evitez de trop en faire cette fois...",
-    ultimate="Bouchez vous les oreilles !",
-    blueWinAlive="`Fredonne joyeusement`",
-    reactEnnemyKilled="Ew...",
-    onKill="Désolée..."
+	start = "Evitez de trop en faire cette fois...",
+	ultimate="Bouchez vous les oreilles !",
+	blueWinAlive="`Fredonne joyeusement`",
+	reactEnnemyKilled="Ew...",
+	onKill="Désolée..."
 )
 
 heleneSays= says(
-    start="Et c'est qui qui va encore vous sauver le cul ? Ewi c'est mwaaaa. Sérieusement...",
-    ultimate="Tu me donne vraiment trop de taff supplémentaire {target}, tu sais ?",
-    limiteBreak="Ok là je suis à bout.",
-    onKill="Oh fait pas genre {target}, tu l'as cherché",
-    onResurect="Si c'est pas ironique",
-    blueWinAlive="Pas trop tôt",blueWinDead="Doooonc vous m'avez fait venir pour rien enfaite ?",
-    reactAllyKilled="Huh, tu sais, je peux soigner plein de trucs mais pas la mort",
-    getHealed="Tps. Merci.",
-    takeHit="Tps."
+	start="Et c'est qui qui va encore vous sauver le cul ? Ewi c'est mwaaaa. Sérieusement...",
+	ultimate="Tu me donne vraiment trop de taff supplémentaire {target}, tu sais ?",
+	limiteBreak="Ok là je suis à bout.",
+	onKill="Oh fait pas genre {target}, tu l'as cherché",
+	onResurect="Si c'est pas ironique",
+	blueWinAlive="Pas trop tôt",blueWinDead="Doooonc vous m'avez fait venir pour rien enfaite ?",
+	reactAllyKilled="Huh, tu sais, je peux soigner plein de trucs mais pas la mort",
+	getHealed="Tps. Merci.",
+	takeHit="Tps."
 )
 
 aliceExStuff = [
-    stuff("Barrette de la chauve-souris","aliceExStuff1",0,charisma=125,endurance=15,resistance=10,agility=20,precision=35,magie=25),
-    stuff("Robe de scène","aliceExStuff2",1,charisma=125,endurance=15,resistance=10,magie=25,agility=20,precision=30),
-    stuff("Bottines de scène","aliceExStuff3",2,charisma=125,endurance=15,resistance=10,magie=25,agility=20,precision=35)
+	stuff("Barrette de la chauve-souris","aliceExStuff1",0,charisma=125,endurance=15,resistance=10,agility=20,precision=35,magie=25),
+	stuff("Robe de scène","aliceExStuff2",1,charisma=125,endurance=15,resistance=10,magie=25,agility=20,precision=30),
+	stuff("Bottines de scène","aliceExStuff3",2,charisma=125,endurance=15,resistance=10,magie=25,agility=20,precision=35)
 ]
 
 aliceExWeapEff1 = effect("Chant Motivant","aliceExWeapEff1",CHARISMA,strength=5,magie=5,charisma=3,intelligence=3,silentRemove=True)
@@ -614,9 +626,9 @@ aliceSkill3eff = effect("Bouclier de foi","aliceSkill3eff",PURCENTAGE,overhealth
 aliceSkill3 = skill("Ascendance","aliceSkill3",TYPE_RESURECTION,power=300,use=CHARISMA,range=AREA_CIRCLE_7,emoji='<:dvinRegen:1104496736845713440>',group=SKILL_GROUP_HOLY,maxHpCost=10,description="Réanime l'allié ciblé au prix de 10% de vos PV max et lui octroie une armure",effects=aliceSkill3eff)
 
 clemTmpStuff = [
-    stuff("Barrête de la chauve-souris","clemTmpStuff",0,strength=15,endurance=30,charisma=20,agility=30,precision=35,intelligence=50,magie=250,resistance=15,percing=15),
-    stuff("Robe gothique rouge","clemTmpStuff",1,strength=15,endurance=30,charisma=20,agility=30,precision=35,intelligence=50,magie=250,resistance=20,percing=20),
-    stuff("Bottines à lacet à talon","clemTmpStuff",2,strength=15,endurance=30,charisma=20,agility=30,precision=35,intelligence=50,magie=250,resistance=15,percing=15)
+	stuff("Barrête de la chauve-souris","clemTmpStuff",0,strength=15,endurance=30,charisma=20,agility=30,precision=35,intelligence=50,magie=250,resistance=15,percing=15),
+	stuff("Robe gothique rouge","clemTmpStuff",1,strength=15,endurance=30,charisma=20,agility=30,precision=35,intelligence=50,magie=250,resistance=20,percing=20),
+	stuff("Bottines à lacet à talon","clemTmpStuff",2,strength=15,endurance=30,charisma=20,agility=30,precision=35,intelligence=50,magie=250,resistance=15,percing=15)
 ]
 
 clemTmpBloodJauge = copy.deepcopy(bloodJauge)
@@ -658,9 +670,9 @@ clemTmpSkill5_2.power, clemTmpSkill5_2.effectOnSelf, clemTmpSkill5_2.url = 0, cl
 clemTmpSkill5 = skill("Explosion","clemTmpSkill5",TYPE_DAMAGE,become=[clemTmpSkill5_2,clemTmpSkill5_1],ultimate=True,emoji=clemTmpSkill5_2.emoji,description="Vous permet d'utiliser {0}. Si votre {1} est suffisament remplie, permet d'utiliser {2}, une version plus puissante de {0}, à la place".format(clemTmpSkill5_2, clemBloodJauge, clemTmpSkill5_1))
 
 iliTmpStuff = [
-    stuff("Boucle d'Oreilles Lumineuse","iliTmpSutff",0,strength=50,endurance=175,charisma=100,agility=50,precision=75,intelligence=50,magie=100,resistance=30,critical=-10,emoji='<:lightPldPendant:1216758201488380016>'),
-    stuff("Robe Lumineuse","iliTmpSutff",1,strength=50,endurance=175,charisma=135,agility=50,precision=75,intelligence=50,magie=100,resistance=30,critical=-10,emoji='<:lightPldDress:1216620247294021723>'),
-    stuff("Sandales Lumineuses Compensées","iliTmpSutff",2,strength=50,endurance=175,charisma=100,agility=50,precision=75,intelligence=50,magie=100,resistance=30,critical=-10,emoji='<:lightPldSandals:1216618164427685898>'),
+	stuff("Boucle d'Oreilles Lumineuse","iliTmpSutff",0,strength=50,endurance=175,charisma=100,agility=50,precision=75,intelligence=50,magie=100,resistance=30,critical=-10,emoji='<:lightPldPendant:1216758201488380016>'),
+	stuff("Robe Lumineuse","iliTmpSutff",1,strength=50,endurance=175,charisma=135,agility=50,precision=75,intelligence=50,magie=100,resistance=30,critical=-10,emoji='<:lightPldDress:1216620247294021723>'),
+	stuff("Sandales Lumineuses Compensées","iliTmpSutff",2,strength=50,endurance=175,charisma=100,agility=50,precision=75,intelligence=50,magie=100,resistance=30,critical=-10,emoji='<:lightPldSandals:1216618164427685898>'),
 ]
 
 iliTmpWeapEff = effect("Aura de Lumière","iliTmpWeapEff",CHARISMA,area=AREA_CIRCLE_2,type=TYPE_INDIRECT_HEAL,trigger=TRIGGER_WEAPON_USE,power=50,aggro=50,block=25,turnInit=-1,unclearable=True,emoji='<:iliShieldStans:1072554524260188285>')
@@ -701,26 +713,26 @@ clemSmnEff = effect("Garde maternelle","clemSmnEff",trigger=TRIGGER_DEATH,turnIn
 aliceSmnEff = effect("Princess des chauve-souris","aliceSmnEff",trigger=TRIGGER_DEATH,turnInit=21,type=TYPE_SUMMON,callOnTrigger=batInvoc,emoji='<:batPrincess:1197056891688321094>',area=AREA_CIRCLE_2,lvl=3)
 
 tmpFeliStuff = [
-    stuff("Bandeau Blanc","",0,strength=200,endurance=100,agility=55,precision=50,charisma=20,intelligence=35,magie=75,resistance=15,percing=5,critical=5),
-    stuff("Tee-Shirt Rouge","",1,strength=200,endurance=100,agility=55,precision=50,charisma=20,intelligence=35,magie=75,resistance=15,percing=5,critical=5),
-    stuff("Sneakers Blanches","",0,strength=200,endurance=100,agility=55,precision=50,charisma=20,intelligence=35,magie=75,resistance=15,percing=5,critical=5)
+	stuff("Bandeau Blanc","",0,strength=200,endurance=120,agility=55,precision=50,charisma=20,intelligence=35,magie=75,resistance=15,percing=5,critical=5),
+	stuff("Tee-Shirt Rouge","",1,strength=200,endurance=120,agility=55,precision=50,charisma=20,intelligence=35,magie=75,resistance=15,percing=5,critical=5),
+	stuff("Sneakers Blanches","",0,strength=200,endurance=120,agility=55,precision=50,charisma=20,intelligence=35,magie=75,resistance=15,percing=5,critical=5)
 ]
 
 tmpFeliWeap = copy.deepcopy(dtsword)
 tmpFeliWeap.priority = WEAPON_PRIORITY_NONE
 tmpFeliSkill1ElementTabl = []
 for indx in range(ELEMENT_FIRE,ELEMENT_TIME+1):
-    tmpFeliSkill1ElementTabl.append(effect("Maîtrise {0}".format(elemNames[indx]),"feliTmpMaitrise{0}".format(indx),turnInit=-1,unclearable=True,emoji=elemEmojis[indx]))
+	tmpFeliSkill1ElementTabl.append(effect("Maîtrise {0}".format(elemNames[indx]),"feliTmpMaitrise{0}".format(indx),turnInit=-1,unclearable=True,emoji=elemEmojis[indx]))
 
 tmpFeliSkill1BecomeList, listInitSkills = [], [firePhysCombo,waterPhysCombo,airPhysCombo,earthPhysCombo,darknessPhysCombo,lightPhysCombo,spacePhysCombo,timePhysCombo]
 for indx, tmpInitSkills in enumerate(listInitSkills):
-    tmpSkill1, tmpSkill2, tmpSkill3 = copy.deepcopy(tmpInitSkills.become[0]), copy.deepcopy(tmpInitSkills.become[1]), copy.deepcopy(tmpInitSkills.become[2])
-    tmpSkill2.needEffect.append(tmpFeliSkill1ElementTabl[indx]), tmpSkill3.needEffect.append(tmpFeliSkill1ElementTabl[indx])
-    tmpSkill1.needEffect = [tmpFeliSkill1ElementTabl[indx]]
-    tmpSkill1.iaPow, tmpSkill2.iaPow, tmpSkill3.iaPow = 10, 20, 30
-    tmpSkill1.id = tmpSkill2.id = tmpSkill3.id = "tmpFeliSkill1"
-    tmpSkill1.cooldown = tmpSkill2.cooldown = tmpSkill3.cooldown = 1
-    tmpFeliSkill1BecomeList += [tmpSkill1, tmpSkill2, tmpSkill3]
+	tmpSkill1, tmpSkill2, tmpSkill3 = copy.deepcopy(tmpInitSkills.become[0]), copy.deepcopy(tmpInitSkills.become[1]), copy.deepcopy(tmpInitSkills.become[2])
+	tmpSkill2.needEffect.append(tmpFeliSkill1ElementTabl[indx]), tmpSkill3.needEffect.append(tmpFeliSkill1ElementTabl[indx])
+	tmpSkill1.needEffect = [tmpFeliSkill1ElementTabl[indx]]
+	tmpSkill1.iaPow, tmpSkill2.iaPow, tmpSkill3.iaPow = 10, 20, 30
+	tmpSkill1.id = tmpSkill2.id = tmpSkill3.id = "tmpFeliSkill1"
+	tmpSkill1.cooldown = tmpSkill2.cooldown = tmpSkill3.cooldown = 1
+	tmpFeliSkill1BecomeList += [tmpSkill1, tmpSkill2, tmpSkill3]
 
 tmpFeliSkill1Eff = effect("Maîtrise Universelle","feliTmpMaitrise-1",trigger=TRIGGER_INSTANT,emoji=elemEmojis[ELEMENT_UNIVERSALIS])
 tmpFeliSkill1 = skill("Maîtrise Universelle","tmpFeliSkill1",TYPE_PASSIVE,become=tmpFeliSkill1BecomeList,emoji=elemEmojis[ELEMENT_UNIVERSALIS],effects=tmpFeliSkill1Eff)
@@ -738,9 +750,360 @@ iliTmpSkill6 = copy.deepcopy(dicetiny)
 iliTmpSkill6.power, iliTmpSkill6.initPower, iliTmpSkill6.maxPower, iliTmpSkill6.cooldown = 100, 100, 200, 3
 
 sixtineSkill5 = copy.deepcopy(backupdancer)
-sixtineSkill5.effects[0].power, sixtineSkill5.effects[2].callOnTrigger.power, sixtineSkill5.ultimate = 100, 50, False
+sixtineSkill5.effects[0].power, sixtineSkill5.ultimate = 100, False
 
 tmpFeliSkill3 = skill("Taillade Sautée","tmpFeliSkill3",TYPE_DAMAGE,power=150,range=AREA_CIRCLE_3,tpCac=True,emoji='<:feliSlash:916208942974132245>',cooldown=5,damageOnArmor=2)
 
 lenaExSkill6 = copy.deepcopy(amethysArcane)
 lenaExSkill6.use, lenaExSkill6.effectAroundCaster, lenaExSkill6.effectOnSelf, lenaExSkill6.power = STRENGTH, [TYPE_HEAL,lenaExSkill6.effectOnSelf.callOnTrigger.area, lenaExSkill6.effectOnSelf.callOnTrigger.power*1.5], None, lenaExSkill6.power*2
+
+alliedAnaisPas = copy.deepcopy(anaisPassif)
+tmpEff = copy.deepcopy(aconstEff)
+tmpEff.turnInit, tmpEff.power, tmpEff.stat, tmpEff.unclearable = -1, 50, PURCENTAGE, True
+alliedAnaisPas.effects.append(tmpEff)
+
+## LIZ EX
+lizExSays = says(
+	start="C'est l'heure de tous les réduires en cendre...",
+	ultimate="ÇA SUFFIT !",
+	onKill="Hm !",
+	onDeath="Tss... désolée...",
+	reactEnemyLb="T'enflamme pas trop vite {caster}.",
+	onHit=["Arrête de te la ramener... Tu n'es pas fireproof !", "Ce n'est que l'échauffement !"],
+	onMiss=["Ne tente pas trop ta chance...", "Tu ne pourras pas échapper à mes flammes bien longtemps"],
+	specDeath={"Lia Ex":"Heu... C'était prévu ça ?", "Liu": "Tu t'es sur-estimée Liu..."}
+)
+
+lizExStuffs = [
+	stuff("Ruban Flamboyant", "lizExStuff0", 0, magie=235, charisma=175, endurance=125, strength=35, agility=50, precision=100, intelligence=50, resistance=13.5, percing=10, critical=-15),
+	stuff("Tenue Flamboyante", "lizExStuff1", 1, magie=235, charisma=200, endurance=125, strength=35, agility=50, precision=100, intelligence=50, resistance=13.5, percing=5, critical=-10),
+	stuff("Sandales à talons Flamboyant", "lizExStuff2", 2, magie=235, charisma=175, endurance=125, strength=35, agility=50, precision=100, intelligence=50, resistance=13.5, percing=10, critical=-15)
+]
+lizExWeapEff = effect("Flamboyance", "lizExWeapEff", callOnTrigger=lizExDot, turnInit=-1, unclearable=True, description="Lorsqu'elle inflige des dégâts à un ennemi, Liz Ex lui inflige {0} ({1} si les dégâts sont indirects)\nDe plus, lorsqu'elle inflige des dégâts directs, Liz Ex inflige {2} aux cibles effectés (puissance réduite à {3} sur les cibles secondaires)".format(kitsuneExCharmEff, charming, lizExDot, lizExDotWeak.power), emoji='<:lizExWeap:1328737057694158899>')
+lizExWeap = weapon("Sceptre Flamboyant", "lizExWeap", range=RANGE_LONG, effectiveRange=AREA_CIRCLE_5, power=80, magie=100, effects=lizExWeapEff, emoji=lizExWeapEff.emoji[0][0], priority=WEAPON_PRIORITY_NONE)
+
+lizExPasEff1 = effect("Honō no ōra", "lizExPasEff1", callOnTrigger=lizExDotWeak, emoji='<:lizExUltCast:1075074712146825357>', area=AREA_CIRCLE_5, trigger=TRIGGER_END_OF_TURN, silentRemove=True)
+lizExPasEff2 = effect("Moeru ōra", "lizExPasEff2", callOnTrigger=lizExDotWeak, emoji='<:lizExUltCast:1075074712146825357>', trigger=TRIGGER_AFTER_DAMAGE, thornEff=True, silentRemove=True, lvl=99)
+lizExPassive = skill("Honō no ōra", "lizExPassive", TYPE_PASSIVE, effects=[lizExPasEff1, lizExPasEff2], description="Lorsqu'elle canalise un sort, les ennemis autour d'elle ainsi que ceux qui lui inflige des dégâts directs la ciblant directement subissent l'effet {0}".format(lizExDotWeak))
+
+lizExSkill1_3r = effect("", "", turnInit=3, silent=True)
+lizExSkill1_11r = effect("Faiga", "lizExSkill1_11r", turnInit=lizExSkill1_3r.turnInit, silent=True, emoji='<:fire3:1328760396122685502>')
+lizExSkill1_3 = skill("Haifaira", "lizExSkill1", TYPE_DAMAGE, power=120, area=AREA_CIRCLE_1, needEffect=lizExSkill1_3r, use=MAGIE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_FIRE], effectOnSelf=lizExSkill1_11r, emoji='<:majorFire2:1042349795353825320>', setAoEDamage=True, description="Inflige des dégâts aux ennemis ciblés sans prendre en compte la réduction de dégâts de zone")
+lizExSkill1_2r = effect("", "", turnInit=3, silent=True)
+lizExSkill1_2 = skill("Faija", "lizExSkill1", TYPE_DAMAGE, power=110, area=AREA_CIRCLE_1, needEffect=lizExSkill1_2r, use=MAGIE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_FIRE], effectOnSelf=lizExSkill1_3r, emoji='<:fire3:1042349767411376148>', setAoEDamage=True, description="Inflige des dégâts aux ennemis ciblés sans prendre en compte la réduction de dégâts de zone")
+lizExSkill1_11 = skill("Faiga", "lizExSkill1", TYPE_DAMAGE, power=100, area=AREA_CIRCLE_1, needEffect=lizExSkill1_11r, use=MAGIE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_FIRE], effectOnSelf=lizExSkill1_2r, emoji=lizExSkill1_11r.emoji[0][0], description="Inflige des dégâts aux ennemis ciblés")
+lizExSkill1_1 = skill("Faia", "lizExSkill1", TYPE_DAMAGE, power=80, use=MAGIE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_FIRE], effectOnSelf=lizExSkill1_2r, emoji='<:enemyFire:1042312985407930428>', description="Inflige des à l'ennemis ciblé", rejectEffect=[lizExSkill1_11r, lizExSkill1_2r, lizExSkill1_3r])
+lizExSkill1_3.description += " et renforce votre prochain {0} en {1}".format(lizExSkill1_1, lizExSkill1_11)
+lizExSkill1 = skill("Combo - Haifaira", "lizExSkill1", TYPE_DAMAGE, become=[lizExSkill1_1, lizExSkill1_11, lizExSkill1_2, lizExSkill1_3], description="Permet d'utiliser le combo Extra Feu Majeur Ex\n\n{0} :\n{4}\n\n{1} : {5}\n\n{2} :\n{6}\n\n{3} :\n{7}".format(lizExSkill1_1, lizExSkill1_11, lizExSkill1_2, lizExSkill1_3, lizExSkill1_1.description, lizExSkill1_11.description, lizExSkill1_2.description, lizExSkill1_3.description))
+
+lizExSkill2_2e = effect("Jigoku no honō", "lizExSkill2_2e", MAGIE, type=TYPE_DAMAGE, power=150, area=AREA_BIGDONUT, emoji='<:mudraLacer:1189975861068320768>', trigger=TRIGGER_INSTANT)
+lizExSkill2_2 = skill("Jigoku no honō", "lizExSkill2_2", TYPE_DAMAGE, use=MAGIE, power=300, setAoEDamage=True, cooldown=7, area=AREA_CIRCLE_1, effects=lizExSkill2_2e, emoji=lizExSkill2_2e.emoji[0][0], description="Après un tour de chargement, inflige des dégâts massifs dans une large zone en ignorant la réduction de dégâts de zone. Les ennemis en bordure de la zone d'effet reçoivent des dégâts moindres")
+lizExSkill2_2c = effect("Cast - {replicaName}", "lizExSkill2_2c", turnInit=2, silent=True, replique=lizExSkill2_2, emoji=lizExPasEff1.emoji)
+lizExSkill2 = copy.deepcopy(lizExSkill2_2)
+lizExSkill2.power, lizExSkill2.effects, lizExSkill2.effectOnSelf = 0, [None], lizExSkill2_2c
+
+lizExSkill3_2e = effect("Hanabi", "lizExSkill3_2e", MAGIE, type=TYPE_DAMAGE, power=100, trigger=TRIGGER_INSTANT, area=AREA_CIRCLE_1, emoji='<:pyromaniac:1075074652763856970>')
+lizExSkill3_2 = skill(lizExSkill3_2e.name, "lizExSkill3", TYPE_INDIRECT_DAMAGE, effects=[lizExSkill3_2e], area=AREA_RANDOMENNEMI_5, cooldown=7, condition=[EXCLUSIVE, ELEMENT, ELEMENT_FIRE], description="Après un tour de chargement, inflige des dégâts de zone sur cinq ennemis aléatoirement, et les ennemis qui sont proches de chaque cibles", emoji=lizExSkill3_2e.emoji[0][0])
+lizExSkill3_2c = effect("Cast - {replicaName}", "lizExSkill3e", silent=True, replique=lizExSkill3_2, turnInit=2, emoji=lizExSkill2_2c.emoji)
+lizExSkill3 = copy.deepcopy(lizExSkill3_2)
+lizExSkill3.effects, lizExSkill3.effectOnSelf = [None], lizExSkill3_2c
+
+lizExSkill4_1e = effect("Bakuhatsu", "lizExSkill4_1", MAGIE, power=200, area=AREA_DIST_5, emoji=explosion.emoji, trigger=TRIGGER_INSTANT, type=TYPE_DAMAGE)
+lizExSkill4_1 = skill(lizExSkill4_1e.name, "lizExSkill4", TYPE_DAMAGE, power=400, cooldown=7, area=AREA_CIRCLE_2, use=MAGIE, effects=lizExSkill4_1e, emoji=lizExSkill4_1e.emoji[0][0], url=explosion.url, condition=[EXCLUSIVE, ELEMENT, ELEMENT_FIRE], description="Après un tour de chargement, inflige des dégâts dans une zone giganteste")
+lizExSkill4_c = effect("Cast - {replicaName}", "lizExSkill4_c", silent=True, replique=lizExSkill4_1, emoji=lizExSkill2_2c.emoji, turnInit=2)
+lizExSkill4 = copy.deepcopy(lizExSkill4_1)
+lizExSkill4.power, lizExSkill4.effects, lizExSkill4.effectOnSelf, lizExSkill4.url = 0, [None], lizExSkill4_c, None
+
+clemLifeStealShareEff = effect("Partage de vol de vie", "clemLifeStealShareEff", power=50, turnInit=-1, unclearable=True, emoji='<:clemHeritage:1090171016841547846>')
+johnGuardEff = effect("Protection Lycantropique", "johnGuardingEff", power=20, redirection=90, turnInit=-1, unclearable=True, hide=True)
+johnGuardEff2 = effect("Protecteur Vampirique", "johnGuardingEff2", power=50, turnInit=-1, unclearable=True, silent=True)
+
+powehiPassiveDmgEff = effect("Compression Gravitationnelle", "powehiPassiveDmgEff", HARMONIE, power=100, area=AREA_CIRCLE_1, type=TYPE_DAMAGE, trigger=TRIGGER_INSTANT, emoji='<:pulsationGrav2:1097521800352632832>')
+powehiPassiveEff = effect("Dilatation Gravitationnelle", "powehiPassiveEff", turnInit=-1, unclearable=True, power=1, emoji='<:chipPresence:1221466077943562312>', callOnTrigger=powehiPassiveDmgEff)
+
+
+# LIO EX
+lioExStuffs = [
+	stuff("Ruban Traditionnel", "lioExStuff0", 0, magie=175, charisma=225, endurance=200, strength=35, agility=50, precision=120, intelligence=50, resistance=15),
+	stuff("Tenue Traditionnelle", "lioExStuff1", 1, magie=200, charisma=200, endurance=100, strength=35, agility=50, precision=120, intelligence=50, resistance=15),
+	stuff("Sandales Traditionnelles", "lioExStuff2", 2, magie=175, charisma=225, endurance=100, strength=35, agility=50, precision=120, intelligence=50, resistance=15)
+]
+
+lioExWeap = weapon("AquaMage","noneWeap",RANGE_LONG,AREA_CIRCLE_5,0,0,charisma=35, precision=20, emoji='<:lioWeap:908859876812415036>', priority=WEAPON_PRIORITY_NONE, effects=altOHEff)
+
+lioExSkill1_3ne = effect("", "", turnInit=5, silent=True)
+lioExSkill1_3 = skill("Hōshū", "lioExSkill1", TYPE_DAMAGE, power=80, use=MAGIE, needEffect=lioExSkill1_3ne, condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], emoji='<:glare3:1353151385939476572>', group=SKILL_GROUP_HOLY, effectAroundCaster=[TYPE_HEAL, AREA_LOWEST_HP_ALLIE, 35])
+lioExSkill1_2ne = effect("", "", turnInit=5, silent=True)
+lioExSkill1_2 = skill("Kirameki", "lioExSkill1", TYPE_DAMAGE, power=75, use=MAGIE, needEffect=lioExSkill1_2ne, effectOnSelf=lioExSkill1_3ne, emoji='<:glare2:1353151370072428574>', condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], group=SKILL_GROUP_HOLY, effectAroundCaster=[TYPE_HEAL, AREA_LOWEST_HP_ALLIE, 30])
+lioExSkill1_1 = skill("Hantei", "lioExSkill1", TYPE_DAMAGE, power=70, use=MAGIE, effectOnSelf=lioExSkill1_2ne, rejectEffect=[lioExSkill1_2ne, lioExSkill1_3ne], emoji='<:glare1:1353151350736818268>', condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], group=SKILL_GROUP_HOLY, effectAroundCaster=[TYPE_HEAL, AREA_LOWEST_HP_ALLIE, 25])
+lioExSkill1 = skill(lioExSkill1_3.name, lioExSkill1_3.id, TYPE_DAMAGE, become=[lioExSkill1_1, lioExSkill1_2, lioExSkill1_3], emoji=lioExSkill1_3.emoji, use=MAGIE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER])
+
+for indx in range(len(lioExSkill1.become)):
+	lioExSkill1.become[indx].effects = [effect(lioExSkill1.become[indx].name, lioExSkill1.become[indx].id+"e", MAGIE, power=lioExSkill1.become[indx].power/2, trigger=TRIGGER_INSTANT, area=AREA_DONUT_1, type=TYPE_DAMAGE, emoji=lioExSkill1.become[indx].emoji)]
+	lioExSkill1.become[indx].iaPow += lioExSkill1.become[indx].power/2
+
+lioExSkill2_eff = effect("VibrAqua","lioExSkill2_eff", stat=MAGIE,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_INSTANT,area=AREA_DONUT_2,power=85,emoji='<:water3:1065647689129271397>')
+lioExSkill2 = skill("VibrAqua","lioExSkill2",TYPE_DAMAGE, power=80, use=MAGIE, effects=lioExSkill2_eff, cooldown=5, emoji='<:vibraqua:1123874146678489118>', effectAroundCaster=[TYPE_HEAL,AREA_LOWEST_HP_ALLIE,50],description="Inflige des dégâts à l'ennemi ciblé, des dégâts indirects autour de lui et soigne votre allié le plus blessé")
+
+lioExSkill3_eff1, lioExSkill3_eff2, lioExSkill3_eff3 = copy.deepcopy(defenseUp), effect("AquaPurification","lioExSkill3_eff2", stat=CHARISMA,power=35,turnInit=3, trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_HEAL,emoji='<:water1:1065647748826791966>'),  effect("Bulle Nacrée","lioExSkill3_eff3", stat=CHARISMA, overhealth=50,turnInit=3, type=TYPE_ARMOR, emoji='<:aquavoile:982349320835727400>')
+lioExSkill3_eff1.power, lioExSkill3_eff1.stat, lioExSkill3_eff1.turnInit = 3.5, CHARISMA, lioExSkill3_eff2.turnInit
+lioExSkill3 = skill("Aqua Voile","lioExSKill3",TYPE_INDIRECT_HEAL, effects=[lioExSkill3_eff2,lioExSkill3_eff1, lioExSkill3_eff3], cooldown=3, effPowerPurcent=150, emoji=lioExSkill3_eff3.emoji[0][0], description="Octroie un effet régénérant, réduit les dégâts subis et octroi une armure à l'allié ciblé")
+
+lioExSkill4_eff1 = effect("Charme","lioExSkill4_eff1", trigger=TRIGGER_INSTANT, area=AREA_DONUT_3, callOnTrigger=charming2, emoji='<:waterKitsune:917670866626707516>')
+lioExSkill4_eff2 = effect("Charme","lioExSkill4_eff2", trigger=TRIGGER_INSTANT, area=AREA_LINE_5, callOnTrigger=charming, emoji='<:waterKitsune:917670866626707516>')
+lioExSkill4 = skill("Gekiryū","lioExSkill4",TYPE_DAMAGE, power=120, use=MAGIE, area=lioExSkill4_eff2.area, effects=lioExSkill4_eff2, effectOnSelf=lioExSkill4_eff1, effectAroundCaster=[TYPE_INDIRECT_HEAL,AREA_CIRCLE_2,lioExSkill3_eff2],cooldown=5, ultimate=True, emoji=lioLB.emoji, url=lioLB.url, description="Inflige des dégâts aux ennemis ciblés, réduit leurs statistiques et augmente celles des alliés alentours tout en leur octroyant un effet régénérant")
+
+lioExSkill5_eff = effect("Oeudème","lioExSKill5_eff", stat=MAGIE, power=35, trigger=TRIGGER_START_OF_TURN,type=TYPE_INDIRECT_DAMAGE,turnInit=3, emoji='<:oedeme:1349772062214062181>')
+lioExSkill5 = skill("Aqua Bulle","lioExSkill5",TYPE_INDIRECT_DAMAGE,area=AREA_CIRCLE_1,effects=lioExSkill5_eff,cooldown=3,effectAroundCaster=[TYPE_INDIRECT_HEAL,AREA_LOWEST_HP_ALLIE,lioExSkill3_eff2],emoji='<:lioSkill:922328964926697505>',description="Inflige un effet de dégâts périodiques aux ennemis ciblés et octroie un effet régénérant à l'allié le plus blessé")
+
+lioExSkill6 = skill("Déluge","liaExSkill6",TYPE_DAMAGE, power=100, use=MAGIE, area=AREA_CIRCLE_2,range=AREA_MONO,knockback=3,cooldown=3,description="Inflige des dégâts aux ennemis ciblés et les repousse, tout en vous soignant",emoji="<:enemyWater:1042313114487636038>", effectAroundCaster=[TYPE_HEAL, AREA_MONO, 150])
+
+lioSmnWeapEff2 = effect("Armure écailleuse", "lioSmnWeapEff2", PURCENTAGE, overhealth=5, turnInit=2, silentRemove=True, stackable=True, type=TYPE_ARMOR, emoji='<:nacre:931666050322419732>')
+lioSmnWeapEff = effect("Écailles protectrices", "lioSmnWeapEff", turnInit=-1, unclearable=True, callOnTrigger=lioSmnWeapEff2, trigger=TRIGGER_START_OF_TURN, emoji=lioSmnWeapEff2.emoji)
+lioSummonWeap = weapon("Ecailles aquatiques", "lioSmnWeap", range=RANGE_DIST, power=0, effectiveRange=AREA_CIRCLE_4, priority=WEAPON_PRIORITY_NONE, resistance=20, magie=30, endurance=20)
+
+lioSmnSkill1pas1 = effect("Soutien du dragon", "lioSmnSkill1pas", MAGIE, power=35, area=AREA_CIRCLE_1, turnInit=8, replace=True, lvl=7, emoji='<:blueShockWave:1231542914950365277>')
+lioSmnSkill1pas = effect(lioSmnSkill1pas1.name, lioSmnSkill1pas1.id, callOnTrigger=lioSmnSkill1pas1, area=AREA_SUMMONER, trigger=TRIGGER_INSTANT, emoji=lioSmnSkill1pas1.emoji)
+
+lioSmnSkill1 = skill("Écailles Protectrices", "lioSmnSkill1", TYPE_PASSIVE, effects=[absDefenseUpEff, lioSmnWeapEff, lioSmnSkill1pas], emoji=lioSmnSkill1pas1.emoji[0][0])
+lioSmnSkill2_1 = skill("Aqua Souffle", "lioSmnSkill2", TYPE_DAMAGE, power=500/5, repetition=5, area=AREA_CIRCLE_1, use=MAGIE, sharedDamage=True, condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], cooldown=7, ultimate=True, emoji='<:smallWaterStrike:1208847264592691291>')
+lioSmnSkill2c = effect("Cast - {replicaName}", "lioSmnSkill2c", silent=True, turnInit=2, replique=lioSmnSkill2_1)
+lioSmnSkill2 = skill(lioSmnSkill2_1.name, lioSmnSkill2_1.id, TYPE_DAMAGE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], use=MAGIE, cooldown=lioSmnSkill2_1.cooldown, ultimate=True, effectOnSelf=lioSmnSkill2c, emoji=lioSmnSkill2_1.emoji)
+
+lioSmnSkill3eff = effect("Résistance réduites", "lioSmnSkill3Eff", PURCENTAGE, resistance=-35)
+lioSmnSkill3 = skill("Aqua Ray", "lioSmnSkill3", TYPE_DAMAGE, use=MAGIE, power=120, garCrit=True, initCooldown=2, accuracy=200, effects=[weakGuard, lioSmnSkill3eff], effBeforePow=True, cooldown=3, area=AREA_LINE_5, condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], emoji=lioLB.emoji)
+
+lioSmnSkill4eff = effect("Éclaboussures", "lioSmnSkill4eff", MAGIE, area=AREA_DONUT_1, power=50, trigger=TRIGGER_INSTANT, type=TYPE_DAMAGE, emoji='<:waterCircle:906219492135276594>')
+lioSmnSkill4 = skill("Aqua Orbe", "lioSmnSkill4", TYPE_DAMAGE, power=100, initCooldown=2, effects=lioSmnSkill4eff, use=MAGIE, condition=[EXCLUSIVE, ELEMENT, ELEMENT_WATER], emoji='<:water2:1065647727708483654>')
+
+lioSmn = invoc("Léviathan", [HARMONIE, 0.7], [HARMONIE, 1], [HARMONIE, 0.5], [HARMONIE, 0.3], [HARMONIE, 1], [HARMONIE, 0.7], [HARMONIE, 0.65], 50, 0, 0, ENCHANTEUR, ["<:leviathanB:1353108363843469322>", "<:leviathanR:1353108390506663977>"], lioSummonWeap, [lioSmnSkill1, lioSmnSkill2, lioSmnSkill3, lioSmnSkill4], description="Un Dragon Marrin spécialisé dans l'offensive", element=[ELEMENT_WATER, ELEMENT_AIR], lifeTime=7)
+lioExSkill7 = skill("Appel de Léviathan", "lioExSkill7", TYPE_SUMMON, cooldown=7, invocation=lioSmn, range=AREA_CIRCLE_4, emoji=lioSmn.icon[0])
+
+# Celeste Ex
+celesteExStuff = [
+	stuff("Barrête étoilée", "celesteExStuff1", 0, strength=175, endurance=100, charisma=30, agility=40, precision=45, intelligence=40, magie=175, resistance=20, percing=5),
+	stuff("Armure étoilée", "celesteExStuff2", 1, strength=175, endurance=100, charisma=30, agility=40, precision=45, intelligence=40, magie=200, resistance=25, percing=10),
+	stuff("Sorolets étoilée", "celesteExStuff3", 2, strength=175, endurance=100, charisma=30, agility=40, precision=45, intelligence=40, magie=175, resistance=20, percing=5)
+]
+
+celesteExWeapEff = copy.deepcopy(defenseUp)
+celesteExWeapEff.turnInit, celesteExWeapEff.power, celesteExWeapEff.block = -1, 25, 25
+celesteExWeap = weapon("Lame Céleste", "celesteExWeap", RANGE_MELEE, AREA_CIRCLE_1, 0, 0, priority=WEAPON_PRIORITY_NONE, magie=35, strength=35, endurance=20, resistance=20, emoji='<:lsCombo1:1131081594417991700>')
+
+celesteExSkill1_3ne = effect("", "", turnInit=5, silent=True)
+celesteExSkill1_3e = copy.deepcopy(lavenderShield)
+celesteExSkill1_3e.power, celesteExSkill1_3e.stat = 35, MAGIE
+celesteExSkill1_3 = skill("Dévoreur d'âme céleste", "celesteExSkill1", TYPE_DAMAGE, power=135, use=STRENGTH, range=AREA_CIRCLE_2, lifeSteal=35, effectAroundCaster=[TYPE_ARMOR, AREA_MONO, celesteExSkill1_3e], emoji='<:lsCombo3:1131081663460413491>', needEffect=celesteExSkill1_3ne)
+celesteExSkill1_2ne = effect("", "", turnInit=5, silent=True)
+celesteExSkill1_2e = copy.deepcopy(celesteExSkill1_3e)
+celesteExSkill1_2e.power = 30
+celesteExSkill1_2 = skill("Frappe siphon céleste", "celesteExSkill1", TYPE_DAMAGE, power=115, use=STRENGTH, range=AREA_CIRCLE_2, lifeSteal=35, effectAroundCaster=[TYPE_ARMOR, AREA_MONO, celesteExSkill1_2e], emoji='<:lsCombo2:1131081625220943963>', needEffect=celesteExSkill1_2ne, effectOnSelf=celesteExSkill1_3ne)
+celesteExSkill1_1ne = effect("", "", turnInit=5, silent=True)
+celesteExSkill1_1e = copy.deepcopy(celesteExSkill1_3e)
+celesteExSkill1_1e.power = 25
+celesteExSkill1_1 = skill("Taillade violente céleste", "celesteExSkill1", TYPE_DAMAGE, power=100, use=STRENGTH, range=AREA_CIRCLE_2, lifeSteal=35, effectAroundCaster=[TYPE_ARMOR, AREA_MONO, celesteExSkill1_1e], emoji='<:lsCombo1:1131081594417991700>', rejectEffect=[celesteExSkill1_2ne, celesteExSkill1_1ne], effectOnSelf=celesteExSkill1_2ne)
+
+celesteExSkill1 = skill("Combo {0}".format(celesteExSkill1_3.name), celesteExSkill1_3.id, TYPE_DAMAGE, become=[celesteExSkill1_1, celesteExSkill1_2, celesteExSkill1_3], emoji=celesteExSkill1_3.emoji)
+celesteExSkill1_3.iaPow = celesteExSkill1_2.iaPow = celesteExSkill1_3.iaPow = 10
+
+celesteExSkill3ne = effect("Puissance Céleste", "celesteExSkill3ne", turnInit=5, emoji='<:selfMemoria:1129044261237686483>')
+celesteExSkill2e = copy.deepcopy(celesteExSkill1_3e)
+celesteExSkill2e2 = effect("Brisure céleste", "celesteExSkill2e2", PURCENTAGE, turnInit=weakGuard.turnInit, resistance=-50, type=TYPE_MALUS)
+celesteExSkill2 = skill("Ruée céleste", "celesteExSkill2", TYPE_DAMAGE, use=STRENGTH, power=125, accuracy=135, area=AREA_CONE_2, effects=[weakGuard, celesteExSkill2e2], garCrit=True, effectAroundCaster=[TYPE_ARMOR, AREA_CIRCLE_2, celesteExSkill2e], effectOnSelf=celesteExSkill3ne, cooldown=3, emoji='<:seraphStrike:1009830399352000562>', tpCac=True, range=AREA_CIRCLE_4)
+
+celesteExSkill3_1_2 = skill("Multi-Taillade (Final)", "celesteExSkill3", TYPE_DAMAGE, power=100, accuracy=200, use=STRENGTH, area=AREA_CIRCLE_1, tpCac=True, garCrit=True, emoji='<:celestialChoc:1137424264929235004>', affSkillMsg=False)
+celesteExSkill3_1_2c = effect(celesteExSkill3_1_2.name, celesteExSkill3_1_2.id, silent=True, replique=celesteExSkill3_1_2, emoji=celesteExSkill3_1_2.emoji)
+celesteExSkill3_1e = effect("Tailladé", "celesteExSkill3_1e", PURCENTAGE, resistance=-20, stackable=True, decateEndOfTurn=True)
+celesteExSkill3_1 = skill("Multi-Taillade", "celesteExSkill3", TYPE_DAMAGE, replay=True, effects=celesteExSkill3_1e, repetition=4, power=50, use=STRENGTH, range=AREA_CIRCLE_3, tpCac=True, emoji='<:erupStell:1083754013582971010>', effectOnSelf=celesteExSkill3_1_2c, needEffect=celesteExSkill3ne)
+celesteExSkill3_2 = skill("Comète céleste", celesteExSkill3_1.id, TYPE_DAMAGE, power=200, area=AREA_CIRCLE_1, garCrit=True, emoji='<:spaceComet:1191496284859801650>', needEffect=celesteExSkill3_1.needEffect)
+celesteExSkill3 = skill("Puissance céleste", celesteExSkill3_2.id, TYPE_DAMAGE, become=[celesteExSkill3_1, celesteExSkill3_2], emoji=celesteExSkill3_2.needEffect[0].emoji[0][0])
+
+celesteExSkill4eff1 = effect("Galvanisation céleste", "celesteExSkill4eff1", MAGIE, strength=12, magie=12, intelligence=7.5, charisma=7.5, agility=3.5, precision=3.5, turnInit=3, emoji='<:buffStellaire:1083755558517100677>')
+celesteExSkill4eff2 = copy.deepcopy(celesteExSkill1_3e)
+celesteExSkill4eff2.power = 50
+celesteExSkill4eff3 = effect("Garde Lavande", "celesteExSkill4eff3", trigger=TRIGGER_HP_UNDER_50, callOnTrigger=celesteExSkill4eff2, replace=True, emoji='<:rhs:1315685295760347176>')
+celesteExSkill4 = skill("Galvanisation Lavande", "celesteExSkill4", TYPE_BOOST, effects=[celesteExSkill4eff1, celesteExSkill4eff2, celesteExSkill4eff3], cooldown=7, range=AREA_MONO, area=AREA_CIRCLE_4, emoji=celesteExSkill4eff3.emoji[0][0])
+
+celesteExSkill5_fe1 = effect("Final céleste", "celesteExSkill5fe1", MAGIE, power=75, area=AREA_DONUT_2, type=TYPE_DAMAGE, trigger=TRIGGER_INSTANT, emoji='<:celesteShockwave:1358504431238250718>')
+celesteExSkill5_f = skill("Final céleste", "celesteExSkill5", TYPE_DAMAGE, power=125, garCrit=True, cooldown=7, accuracy=200, effects=[celesteExSkill5_fe1], use=STRENGTH, ultimate=True, emoji='<:celestialChoc:1183652099620360252>', affSkillMsg=False, effectAroundCaster=[TYPE_ARMOR, AREA_CIRCLE_2, celesteExSkill1_3e])
+celesteExSkill5_fc = effect(celesteExSkill5_f.name, celesteExSkill5_f.id, replique=celesteExSkill5_f, silent=True, emoji=celesteExSkill5_f.emoji)
+celesteExSkill5_1 = skill("Final Céleste", "celesteExSkill5", TYPE_DAMAGE, power=75, repetition=2, use=MAGIE, effects=celesteExSkill3_1e, area=AREA_ARC_1, accuracy=120, affSkillMsg=False, replay=True, ultimate=True, effectOnSelf=celesteExSkill5_fc)
+celesteExSkill5_1c = effect(celesteExSkill5_1.name, celesteExSkill5_1.id, replique=celesteExSkill5_1, silent=True, emoji=celesteExSkill5_1.emoji)
+celesteExSkill5 = skill("Final Céleste", "celesteExSkill5", TYPE_DAMAGE, power=75, effBeforePow=True, effects=weakGuard, replay=True, effectOnSelf=celesteExSkill5_1c, ultimate=True, tpCac=True, range=AREA_CIRCLE_4)
+
+celesteMemWeap = copy.deepcopy(celesteExWeap)
+celesteMemWeap.effects = None
+
+celesteMemSkill1 = copy.deepcopy(celesteExSkill1)
+for indx in range(len(celesteMemSkill1.become)):
+	celesteMemSkill1.become[indx].effectAroundCaster = None
+celesteMemSkill2 = copy.deepcopy(celesteExSkill2)
+celesteMemSkill2.effectAroundCaster = None
+celesteMemSkill3 = copy.deepcopy(celesteExSkill3)
+celesteMemSkill4 = copy.deepcopy(celesteExSkill5)
+celesteMemSkill4.effectOnSelf.replica.effectOnSelf.replica.effectAroundCaster = None
+
+celesteMem = invoc("Écho Céleste", [PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT], 85, 15, 10, ENCHANTEUR, ['<:memMagicalCeleste:1358437399000121374>', '<:memMagicalCeleste:1358437399000121374>'], celesteMemWeap, [celesteMemSkill1, celesteMemSkill2, celesteMemSkill3, celesteMemSkill4], GENDER_FEMALE, element=[ELEMENT_SPACE, ELEMENT_DARKNESS], trait=[TRAIT_CATGIRL], lifeTime=99)
+celesteExSkill6e = effect("Écho Céleste", "celesteExSkill6e", type=TYPE_SUMMON, callOnTrigger=celesteMem, area=AREA_CIRCLE_3, trigger=TRIGGER_INSTANT)
+celesteExSkill6 = skill(celesteExSkill6e.name, 'celesteExSkill6', TYPE_PASSIVE, effects=celesteExSkill6e)
+
+# Kiku
+kikuStuff = [
+	stuff('Cristaux bleutés', "kukuStuff1", 0, strength=125, magie=135, intelligence=100, endurance=200, charisma=50, precision=35, resistance=5, agility=15),
+	stuff('Robe feuillage', "kukuStuff2", 1, strength=125, magie=135, intelligence=100, endurance=200, charisma=50, precision=35, resistance=5, agility=15),
+	stuff('Bracelet de cheville', "kukuStuff3", 2, strength=125, magie=135, intelligence=100, endurance=200, charisma=50, precision=35, resistance=5, agility=15),
+]
+
+kikuExWeap = weapon("Orbe magique", "kikuExWeap", RANGE_DIST, AREA_CIRCLE_4, 0, 0, priority=WEAPON_PRIORITY_NONE, magie=35, endurance=20, emoji=witchWeapon.emoji)
+
+kikuExSkill1 = skill("Orbes Nécromantiques", "kikuExSkill1", TYPE_DAMAGE, power=50, repetition=2, accuracy=200, emoji=witchWeapon.emoji, use=MAGIE, erosion=25)
+kikuExSkill1.iaPow = 10
+
+kikuExSmnWeap = weapon("Épée en fer", "kikuExSmnWeap", RANGE_MELEE, AREA_CIRCLE_1, power=75, accuracy=200, effects=shieltron, area=AREA_ARC_1, emoji=ironSword.emoji)
+kikuExSmnPassive = skill("Equilibrage absolue", "kikuExSmnPassive", TYPE_PASSIVE, effects=absDefenseUpEff)
+kikuExSmnSkill1ne = effect("Galvanisation", "kikuExSmnSkill1ne", turnInit=3, emoji='<:sinisterLight:1084263936599265381>')
+kikuExSmnSkill1_1 = skill("Lame étripante", "kikuExSmnSkill1", TYPE_DAMAGE, power=int(kikuExSmnWeap.power * 1.5), area=AREA_CIRCLE_1, range=kikuExSmnWeap.range, needEffect=kikuExSmnSkill1ne, emoji='<:killStrike:936470659389849622>')
+kikuExSmnSkill1 = skill("Lame étripante", "kikuExSmnSkill1", TYPE_DAMAGE, become=[kikuExSmnSkill1_1], emoji='<:killStrike:936470659389849622>')
+
+kikuExSmn = invoc("Zombie", [HARMONIE, 0.7], [PURCENTAGE, 1], 0, 0, 100, 10, 0, 25, 0, 0, BERSERK, ["<a:smnZombie:1054310191266529290>", "<a:smnZombie:1054310191266529290>"], kikuExSmnWeap, [kikuExSmnPassive, kikuExSmnSkill1], team=NPC_UNDEAD, slowMove=True, lifeTime=5)
+
+kikuExSkill2_2ne = effect("", "", silent=True, turnInit=5)
+kikuExSkill2_1re = effect("Pouvoir Nécromantique", "kikuExSkill2_1re", silent=True, turnInit=5, emoji='<:unepidemic:1016788322246471801>')
+kikuExSkill2_2e = effect("Lueur Nécrosante", "kikuExSkill2_2e", MAGIE, power=50, area=AREA_DONUT_2, trigger=TRIGGER_INSTANT, type=TYPE_DAMAGE, emoji='<:carbSkill2:919859581381926933>')
+kikuExSkill2_2 = skill("Lueur Nécrosante", "kikuExSkill2", TYPE_DAMAGE, power=100, use=MAGIE, effects=kikuExSkill2_2e, erosion=35, effectAroundCaster=[TYPE_BOOST, AREA_SUMMONS, kikuExSmnSkill1ne], emoji=kikuExSmnSkill1ne.emoji[0][0], needEffect=kikuExSkill2_2ne)
+kikuExSkill2_1 = skill("Invocation Nécromantique", "kikuExSkill2", TYPE_SUMMON, invocation=kikuExSmn, nbSummon=3, rejectEffect=[kikuExSkill2_1re, kikuExSkill2_2ne], effectOnSelf=kikuExSkill2_2ne, effectAroundCaster=[TYPE_BOOST, AREA_MONO, kikuExSkill2_1re], emoji='<:kikuHellCircle:1044269043911249921>')
+kikuExSkill2 = skill(kikuExSkill2_1.name, kikuExSkill2_1.id, TYPE_SUMMON, become=[kikuExSkill2_1, kikuExSkill2_2], emoji=kikuExSkill2_1.emoji)
+
+kikuExSkill3Eff1 = effect("Putréfaction", "kikuExSkill3Eff1", MAGIE, power=35, turnInit=5, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, emoji='<:epidemic:1016787710666616902>', strength=-5, magie=-5, charisma=-2.5, intelligence=-2.5)
+kikuExSkill3Eff2 = effect("Infection", "kikuExSkill3Eff2", MAGIE, power=35, turnInit=4, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, emoji='<:infect:904164445268369428>', strength=-4, magie=-4, charisma=-2, intelligence=-2)
+kikuExSkill3Eff3 = effect("Bactérie", "kikuExSkill3Eff3", MAGIE, power=35, turnInit=3, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, emoji='<:intox:1016787678299177070>', strength=-3, magie=-3, charisma=-1.5, intelligence=-1.5)
+kikuExSkill3Eff4 = effect("Cercle d'Infection", "kikuExSkill3Eff4", type=TYPE_MALUS, callOnTrigger=kikuExSkill3Eff2, area=AREA_DONUT_1, trigger=TRIGGER_INSTANT, emoji='<:infirm:904164428545683457>')
+kikuExSkill3Eff5 = effect("Cercle de Bactérie", "kikuExSkill3Eff5", type=TYPE_MALUS, callOnTrigger=kikuExSkill3Eff3, area=AREA_BIGDONUT, trigger=TRIGGER_INSTANT, emoji='<:infirm:904164428545683457>')
+kikuExSkill3Eff6 = copy.deepcopy(aconstEff)
+kikuExSkill3Eff6.power, kikuExSkill3Eff6.stat, kikuExSkill3Eff6.turnInit = 25, PURCENTAGE, kikuExSkill3Eff1.turnInit
+kikuExSkill3Eff7 = copy.deepcopy(kikuExSkill3Eff6)
+kikuExSkill3Eff7.power, kikuExSkill3Eff7.turnInit = 20, kikuExSkill3Eff2.turnInit
+kikuExSkill3Eff8 = copy.deepcopy(kikuExSkill3Eff6)
+kikuExSkill3Eff8.power, kikuExSkill3Eff8.turnInit = 15, kikuExSkill3Eff3.turnInit
+kikuExSkill3Eff9 = effect("Cercle d'Infection", "kikuExSkill3Eff9", type=TYPE_MALUS, callOnTrigger=kikuExSkill3Eff7, area=AREA_DONUT_1, trigger=TRIGGER_INSTANT, emoji='<:infirm:904164428545683457>')
+kikuExSkill3Eff10 = effect("Cercle de Bactérie", "kikuExSkill3Eff10", type=TYPE_MALUS, callOnTrigger=kikuExSkill3Eff8, area=AREA_BIGDONUT, trigger=TRIGGER_INSTANT, emoji='<:infirm:904164428545683457>')
+
+kikuExSkill3 = skill("Fléau", "kikuExSkill3", TYPE_INDIRECT_DAMAGE, effects=[kikuExSkill3Eff1, kikuExSkill3Eff4, kikuExSkill3Eff9, kikuExSkill3Eff5, kikuExSkill3Eff10], cooldown=kikuExSkill3Eff1.turnInit, emoji=kikuExSkill3Eff5.emoji[0][0])
+
+kikuExSkill4_2_eff1 = effect("Lame Mortuaire", "kafkaUltEff", MAGIE, power=150, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_INSTANT, emoji='<:deathBlade3:1164997666837635113>')
+kikuExSkill4_2_eff2 = effect("Lame Mortuaire", "kikuExSkill4_2_eff4", MAGIE, power=100, type=TYPE_DAMAGE, trigger=TRIGGER_INSTANT, emoji='<:kikuUltraVoca:1044270141338308648>')
+kikuExSkill4_2_eff3 = effect("Lame Mortuaire", "kafkaUltEff", MAGIE, power=100, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_INSTANT, emoji='<:deathBlade3:1164997666837635113>')
+kikuExSkill4_2_eff4 = effect("Lame Mortuaire", "kikuExSkill4_2_eff4", trigger=TRIGGER_INSTANT, area=AREA_DONUT_2, callOnTrigger=kikuExSkill4_2_eff3, type=TYPE_MALUS, emoji='<:kikuUltraVoca:1044270141338308648>')
+kikuExSkill4_2 = skill("Lame Mortuaire", "kikuExSkill4", TYPE_DAMAGE, use=MAGIE, power=200, accuracy=250, effects=[kikuExSkill4_2_eff1, kikuExSkill4_2_eff2, kikuExSkill4_2_eff4], ultimate=True, cooldown=7, emoji='<:deathBlade2:1164997642296766475>')
+kikuExSkukk4_2_c = effect("Cast - {replicaName}", "kikuExSjukk4_2_c", turnInit=2, replique=kikuExSkill4_2, emoji='<:deathBlade1:1164997616384364624>', silent=True)
+kikuExSkill4 = skill("Lame Mortuaire", "kikuExSkill4", TYPE_DAMAGE, use=MAGIE, ultimate=True, effectOnSelf=kikuExSkukk4_2_c, emoji=kikuExSkukk4_2_c.emoji[0][0])
+
+churiExStuff = [
+	stuff("Tiare flamboyante", "churiExStuff1", 0, endurance=150, charisma=100, agility=75, precision=75, intelligence=75, magie=125, resistance=25, percing=5),
+	stuff("Robe du Phénix", "churiExStuff2", 1, endurance=200, charisma=100, agility=75, precision=50, intelligence=75, magie=125, resistance=30),
+	stuff("Bracelet de cheville flamboyante", "churiExStuff3", 2, endurance=150, charisma=100, agility=75, precision=75, intelligence=75, magie=125, resistance=25, percing=5)
+]
+
+churiExWeap = weapon("Plûmes de Phénix", "churiExWeap", RANGE_MELEE, AREA_CIRCLE_3, 0, 0, priority=WEAPON_PRIORITY_NONE, endurance=20, magie=35)
+
+churiExPassive1Eff2 = effect("Brûlure", "churiExPassive1Eff2", MAGIE, power=25, lvl=2, replace=True, silentRemove=True, emoji='<:lizExDot2:1328815968084037683>', type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN)
+churiExPassive1Eff = effect("Aura de Flamme", "churiExPassive1Eff", trigger=TRIGGER_END_OF_TURN, callOnTrigger=churiExPassive1Eff2, area=AREA_CIRCLE_2, turnInit=-1, unclearable=True, emoji='<:lifeFlame:1084263863874228414>')
+churiExPassive = skill("Aura Flamboyante", "churiExPassive", TYPE_PASSIVE, effects=[churiExPassive1Eff])
+
+churiExSkill1Eff = effect("Brûlure", "churiExSkill1Eff", MAGIE, power=25, turnInit=3, replace=True, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, emoji='<:fireKitsune:917670925904785408>')
+churiExSkill1 = skill("Plûmes emflammées", "churiExSkill1", TYPE_DAMAGE, use=MAGIE, power=100, range=AREA_CIRCLE_3, area=AREA_CONE_2, emoji='<:phenpl:992946043161411694>', effects=[churiExSkill1Eff])
+churiExSkill1.iaPow = 20
+
+churiExSkill2Eff1 = effect("Révélation", "churiExSkill2Eff1", MAGIE, power=35, turnInit=3, replace=True, type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, emoji='<:fireKitsune:917670925904785408>')
+churiExSkill2Eff2 = effect("Révélation", "churiExSkill2Eff", callOnTrigger=churiExSkill1Eff, trigger=TRIGGER_INSTANT, area=AREA_DONUT_1)
+churiExSkill2 = skill("Révélation", "churiExSkill2", TYPE_DAMAGE, use=MAGIE, power=100, garCrit=True, effects=[churiExSkill2Eff1, churiExSkill2Eff2], cooldown=3, area=AREA_CIRCLE_1, percing=25, emoji='<:phenixSkill2:1066006837637427242>')
+
+churiExSkill3SmnPas = skill("Equilibrage Absolue", 'churiExSkill3SmnPas', TYPE_PASSIVE, effects=absDefenseUpEff)
+churiExSkill3Smn = copy.deepcopy(hinoro)
+churiExSkill3Smn.skills = [churiExSkill3SmnPas]+hinoro.skills[:7]
+churiExSkill3eff = effect("Envolée du Phénix", "churiExSkill3eff", type=TYPE_SUMMON, callOnTrigger=churiExSkill3Smn, trigger=TRIGGER_INSTANT, area=AREA_CIRCLE_3, emoji='<:summonHinoro:1066006465225171005>')
+churiExSkill3 = skill("Envolée du Phénix", "churiExSkill3", TYPE_DAMAGE, power=125, setAoEDamage=True, use=MAGIE, area=AREA_CIRCLE_3, cooldown=hinoro.lifeTime, range=AREA_MONO, effectAroundCaster=[TYPE_HEAL, AREA_ALL_ALLIES, 100], ultimate=True, effectOnSelf=churiExSkill3eff, emoji='<:rizePhenix:992940415080726688>')
+
+churiExSkill4Eff3 = effect("Couronne de feu", "dualCastEff", MAGIE, power=35, emoji='<:couronneDeFeu:1357619234670247987>', lvl=5, turnInit=4, area=AREA_CIRCLE_1)
+churiExSkill4Eff1 = effect("Brûlures", "churiExSkill4Eff1", MAGIE, power=35, turnInit=5, emoji='<:revelation:1357617734170574888>', trigger=TRIGGER_START_OF_TURN, type=TYPE_INDIRECT_DAMAGE)
+churiExSkill4Eff2 = effect("Vol du Phénix", "churiExSkill4Eff2", MAGIE, power=20, turnInit=5, emoji='<:phenixFlight:1066023587305234484>', trigger=TRIGGER_START_OF_TURN, type=TYPE_INDIRECT_HEAL)
+churiExSkill4 = skill("Danse du Phénix", "churiExSkill4", TYPE_INDIRECT_DAMAGE, range=AREA_MONO, area=AREA_CIRCLE_3, effects=[churiExSkill4Eff1], effectAroundCaster=[TYPE_INDIRECT_HEAL, AREA_CIRCLE_5, churiExSkill4Eff2], effectOnSelf=churiExSkill4Eff3, cooldown=5, emoji='<:phenixDance:1065647282046898176>')
+
+lyExStuff = [
+	stuff("Bandeau", "lyexStuff1", 0, strength=150, endurance=50, charisma=75, agility=35, precision=75, intelligence=75, magie=35, resistance=10, percing=7.5, critical=5),
+	stuff("Tee-shirt ample", "lyexStuff2", 1, strength=150, endurance=50, charisma=75, agility=35, precision=75, intelligence=75, magie=35, resistance=10, percing=7.5, critical=5),
+	stuff("Bottines", "lyexStuff3", 2, strength=150, endurance=50, charisma=75, agility=35, precision=75, intelligence=75, magie=35, resistance=10, percing=7.5, critical=5)
+]
+
+lyExWeap = weapon("Arbalette", "lyExWeap", range=RANGE_LONG, effectiveRange=AREA_CIRCLE_5, power=0, accuracy=0, strength=35, precision=20, effects=focusJauge)
+
+lyExDot = effect("Arcsenic", "lyExDot", STRENGTH, power=40, turnInit=3, emoji='<:arsenic:995361025773817916>', type=TYPE_INDIRECT_DAMAGE, trigger=TRIGGER_START_OF_TURN, stackable=True)
+lyExSkill1_2 = skill("Carreau Rayonnant", "lyExSkill1", TYPE_DAMAGE, power=125, effects=lyExDot, area=AREA_CIRCLE_1, emoji='<:rayArrow:1180550192718692373>', effPowerPurcent=150, jaugeEff=focusJauge, minJaugeValue=25)
+lyExSkill1_1 = skill("Carreau Puissant", "lyExSkill1", TYPE_DAMAGE, power=100, effects=lyExDot, emoji='<:apexArrow:1046129746704093204>', effPowerPurcent=85, rejectJaugeVal = [focusJauge, 25], effectOnSelf=copy.deepcopy(cherchArrowEff))
+lyExSkill1 = skill("Carreau", "lyExSkill1", TYPE_DAMAGE, become=[lyExSkill1_1, lyExSkill1_2])
+
+lyExSkill1_1.iaPow, lyExSkill1_2.iaPow = lyExSkill1_1.iaPow*0.5, lyExSkill1_2.iaPow*0.5
+lyExSkill1_1.effectOnSelf.name, lyExSkill1_1.effectOnSelf.emoji, lyExSkill1_1.effectOnSelf.power = lyExSkill1_1.name, uniqueEmoji(lyExSkill1_1.emoji), 15
+
+lyExSkill2_2_eff = effect("Tir Multiple Criblant", "lyExSkill2_2_eff", callOnTrigger=cribArrowEff, area=AREA_RANDOMENNEMI_2, trigger=TRIGGER_INSTANT, emoji=cribArrowEff.emoji, type=TYPE_DAMAGE, power=50)
+lyExSkill2 = skill("Tir Multiple Criblant", "lyExSkill2_2", TYPE_DAMAGE, power=125, effects=[cribArrowEff, lyExSkill2_2_eff], cooldown=5, emoji=lyExSkill2_2_eff.emoji[0][0], effectOnSelf=copy.deepcopy(cherchArrowEff))
+lyExSkill2.effectOnSelf.name, lyExSkill2.effectOnSelf.emoji, lyExSkill2.effectOnSelf.power = lyExSkill2.name, uniqueEmoji(lyExSkill2.emoji), 25
+
+lyExSkill3_3_eff = effect("Pluie empoisonée", "lyExSkill3_3_eff", trigger=TRIGGER_INSTANT, callOnTrigger=lyExDot, area=AREA_CIRCLE_2, emoji='<:acidRain:995360946241417388>')
+lyExSkill3_3 = skill("Pluie empoisonée", "lyExSkill3", TYPE_DAMAGE, power=125, setAoEDamage=True, accuracy=200, effects=lyExSkill3_3_eff, area=lyExSkill3_3_eff.area, emoji=lyExSkill3_3_eff.emoji[0][0], cooldown=5, jaugeEff=focusJauge, minJaugeValue=50)
+lyExSkill3_2 = skill("Carreaux explosifs", "lyExSkill3_2", TYPE_DAMAGE, power=75, repetition=3, accuracy=200, area=lyExSkill3_3_eff.area, cooldown=lyExSkill3_3.cooldown, jaugeEff=focusJauge, minJaugeValue=lyExSkill3_3.minJaugeValue, emoji='<:tripleExploArrows:1135274685358145747>')
+lyExSkill3_1 = skill("Tir de barrage", "lyExSkill3_2", TYPE_DAMAGE, power=20, repetition=4, cooldown=3, rejectJaugeVal = [focusJauge, lyExSkill3_3.minJaugeValue], emoji='<:barrage:1180550222435324055>', effectOnSelf=copy.deepcopy(cherchArrowEff))
+lyExSkill3 = skill("Barrage", "lyExSkill3", TYPE_DAMAGE, become=[lyExSkill3_1, lyExSkill3_2, lyExSkill3_3])
+lyExSkill3_1.effectOnSelf.name, lyExSkill3_1.effectOnSelf.emoji, lyExSkill3_1.effectOnSelf.power = lyExSkill3_1.name, uniqueEmoji(lyExSkill3_1.emoji), 25
+
+lyExSkill4_e1 = effect("Tir Fractioné", "lyExSkill4_e1", trigger=TRIGGER_INSTANT, area=AREA_CIRCLE_2, callOnTrigger=weakGuard, emoji='<:flecheDestructrice:1243191974597759091>')
+lyExSkill4_e2 = effect("Tir Fractioné", "lyExSkill4_e2", PURCENTAGE, resistance=-35, turnInit=weakGuard.turnInit)
+lyExSkill4_e3 = effect("Tir Fractioné", "lyExSkill4_e3", trigger=TRIGGER_INSTANT, area=lyExSkill4_e1.area, callOnTrigger=lyExSkill4_e2, emoji=lyExSkill4_e1.emoji)
+
+lyExSkill4 = skill("Tir Fractionné", 'lyExSkill4', TYPE_DAMAGE, power=1000, area=lyExSkill4_e1.area, effects=[lyExSkill4_e1, lyExSkill4_e3], effBeforePow=True, sharedDamage=True, ultimate=True, emoji=lyExSkill4_e1.emoji[0][0], jaugeEff=focusJauge, minJaugeValue=75, cooldown=7, garCrit=True)
+
+## Liu Ex
+
+liuExStuff = [
+	stuff("Bandeau", "liuExStuff", 0, strength=150, endurance=250, magie=100, charisma=50, agility=25, precision=50, intelligence=75, resistance=25, percing=5),
+	stuff("Tenue sportive", "liuExStuff", 1, strength=100, endurance=300, magie=100, charisma=50, agility=25, precision=50, intelligence=75, resistance=35, percing=5),
+	stuff("Baskets", "liuExStuff", 2, strength=150, endurance=250, magie=100, charisma=50, agility=25, precision=50, intelligence=75, resistance=25, percing=5)
+]
+
+liuExWeap = weapon("Queues Reocheuses", "liuExWeap", range=RANGE_MELEE, effectiveRange=AREA_CIRCLE_1, power=0, accuracy=0, resistance=20, endurance=35, priority=WEAPON_PRIORITY_NONE, emoji='<:liuSkill:922328931502280774>')
+
+LIUEXSKILL1TRIGGERMINPOWER = 20
+LIUEXSKILL1TRIGGERMAXPOWER = 250
+LIUEXSKILL1TRIGGERMINPARVAL = 0.1
+LIUEXSKILL1TRIGGERMAXPARVAL = 25
+liuExSkill1e2 = effect("Brissure Rocheuse", "liuExSkill1e2", MAGIE, type=TYPE_DAMAGE, trigger=TRIGGER_INSTANT, area=AREA_DONUT_1, power=LIUEXSKILL1TRIGGERMAXPOWER, emoji='<:furTellu:951700536732823622>')
+liuExSkill1e1 = effect("Garde Rocheuse", "liuExSkill1e1", turnInit=-1, unclearable=True, block=35, counterOnBlock=35, aggro=100, trigger=TRIGGER_START_OF_TURN, callOnTrigger=liuExSkill1e2, emoji='<:earthEnigma:1106676312057319484>')
+liuExSkill1 = skill("Garde Rocheuse", 'liuExSkill1', TYPE_PASSIVE, effects=liuExSkill1e1, emoji=liuExSkill1e1.callOnTrigger.emoji[0][0], description="Augmente la probabilité de bloquer, d'effectuer une contre attaque lors d'un blocage et d'être prise pour cible de Liu. De plus, à chaque début de tour, consomme jusqu'à {0}% des PAr de Liu pour infliger une attaque à ses ennemis au corps à corps. Empêche également Liu d'être repoussée".format(LIUEXSKILL1TRIGGERMAXPARVAL))
+
+liuExComboEff2 = effect("Enchaînement 2", "liuExComboEff2", turnInit=5, silent=True)
+liuExComboEff1 = effect("Enchaînement 1", "liuExComboEff1", turnInit=5, silent=True)
+
+liuExSkill2_3 = skill("Earth Smash", "liuExSkill2", TYPE_DAMAGE, power=125, use=STRENGTH, needEffect=liuExComboEff2, armorConvert=50, aoeArmorConvert=25, emoji='<:smallEarthStrike:1208847304543571998>', range=AREA_CIRCLE_1, area=AREA_CIRCLE_1, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH])
+liuExSkill2_2 = skill("Earth Stomp", "liuExSkill2", TYPE_DAMAGE, power=110, use=STRENGTH, needEffect=liuExComboEff1, effectOnSelf=liuExComboEff1, armorConvert=25, aoeArmorConvert=12.5, emoji='<:naciaStomp:1208777355750019162>', range=AREA_CIRCLE_1, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH])
+liuExSkill2_1 = skill("Earth Punch", "liuExSkill2", TYPE_DAMAGE, power=100, use=STRENGTH, rejectEffect=[liuExComboEff1, liuExComboEff2], effectOnSelf=liuExSkill2_2.needEffect[0], armorConvert=12.5, emoji='<:earthStrike:906219563832709142>', range=AREA_CIRCLE_1, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH])
+
+liuExSkill2 = skill("Earth Combo", "liuExSkill2", TYPE_DAMAGE, become=[liuExSkill2_1, liuExSkill2_2, liuExSkill2_3], emoji=liuExSkill2_3.emoji)
+
+liuExSkill3_3_2 = skill("Dévastation", "liuExSkill3", TYPE_DAMAGE, use=STRENGTH, range=AREA_MONO, area=AREA_CIRCLE_2, armorConvert=100, aoeArmorConvert=25, power=100, cooldown=5, emoji='<:rockSpike:1208778908632227882>', condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH])
+liuExSkill3_3_2c = effect("Enchaînement - {replicaName}", 'liuExSkill3_3_2c', replique=liuExSkill3_3_2, silent=True)
+liuExSkill3_3_1 = skill("Sables mouvants", liuExSkill3_3_2.id, TYPE_DAMAGE, use=MAGIE, power=50, setAoEDamage=True, range=AREA_MONO, area=AREA_CIRCLE_3, pull=2, needEffect=liuExComboEff2, effectOnSelf=liuExSkill3_3_2c, cooldown=liuExSkill3_3_2.cooldown, replay=True, description="Liu attire vers elle les ennemis aux alentours puis effectue une nouvelle attaque physique autour d'elle", emoji='<:earthCircle:906219450129317908>', condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH])
+liuExSkill3_2 = skill("Échauffement", "liuExSkill3", TYPE_DAMAGE, use=STRENGTH, power=100, range=AREA_MONO, area=AREA_CIRCLE_2, armorConvert=50, aoeArmorConvert=12.5, cooldown=liuExSkill3_3_1.cooldown, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH], description="Liu inflige des dégâts physiques aux ennemis alentours", needEffect=liuExComboEff1, effectOnSelf=liuExComboEff2)
+liuExSkill3_1 = skill("Cercle de Terre", "liuExSkill3", TYPE_DAMAGE, use=MAGIE, power=100, range=AREA_MONO, area=AREA_CIRCLE_2, armorConvert=50, aoeArmorConvert=12.5, cooldown=liuExSkill3_3_1.cooldown, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH], description="Liu inflige des dégâts magiques aux ennemis alentours", effectOnSelf=liuExComboEff1, rejectEffect=[liuExComboEff1, liuExComboEff2])
+
+liuExSkill3 = skill("Maitrisse Terrestre 1", "liuExSkill3", TYPE_DAMAGE, become=[liuExSkill3_1, liuExSkill3_2, liuExSkill3_3_1])
+
+liuExSkill4Shield = effect("Armure Rocheuse", "liuExSkill4Shield", ENDURANCE, turnInit=3, overhealth=150, aggro=100, emoji=liuSkillEff.emoji, type=TYPE_ARMOR)
+liuExSkill4_3_2 = skill("Plongeon Tellurique", "liuExSkill4", TYPE_DAMAGE, range=AREA_CIRCLE_3, area=AREA_CIRCLE_1, garCrit=True, power=100, tpCac=True, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH], cooldown=3)
+liuExSkill4_3_2c = effect("Enchainement - {replicaName}", 'liuExSkill4_3_2c', silent=True, replique=liuExSkill4_3_2)
+liuExSkill4_3_1 = skill("Charge Tellurique", liuExSkill4_3_2.id, TYPE_DAMAGE, range=AREA_CIRCLE_4, replay=True, tpCac=True, area=AREA_ARC_1, knockback=3, effectOnSelf=liuExSkill4_3_2c, power=50, setAoEDamage=True, emoji='<:liuSkill:922328931502280774>', needEffect=liuExComboEff2, cooldown=liuExSkill4_3_2.cooldown, description="Liu saute sur l'ennemi ciblé, lui inflige une attaque physique le repoussant, puis ressaute sur lui en lui infligeant une nouvelle attaque physique critique de zone. Octroi également à Liu une armure")
+liuExSkill4_2_2 = skill("Plongeon Rocheux", liuExSkill4_3_2.id, TYPE_DAMAGE, power=50, garCrit=True, range=AREA_CIRCLE_3, cooldown=liuExSkill4_3_2.cooldown, condition=[EXCLUSIVE, ELEMENT, ELEMENT_EARTH], effectOnSelf=liuExComboEff2, effectAroundCaster=[TYPE_BOOST, AREA_MONO, liuExSkill4Shield], effPowerPurcent=50)
+liuExSkill4_2_2c = effect("Enchainement - {replicaName}", 'liuExSkill4_2_2c', silent=True, replique=liuExSkill4_2_2)
+liuExSkill4_2_1 = skill("Charge Rocheuse", liuExSkill4_3_2.id, TYPE_DAMAGE, range=AREA_CIRCLE_3, replay=True, tpCac=True, knockback=2, effectOnSelf=liuExSkill4_2_2c, power=50, emoji='<:liuSkill:922328931502280774>', needEffect=liuExComboEff1, cooldown=liuExSkill4_3_2.cooldown, description="Liu saute sur l'ennemi ciblé, lui inflige une attaque physique le repoussant, puis ressaute sur lui en lui infligeant une nouvelle attaque physique critique. Octroi également à Liu une armure")
+liuExSkill4_1 = skill("Charge Terrestre", liuExSkill4_3_2.id, TYPE_DAMAGE, power=65, range=AREA_CIRCLE_3, tpCac=True, cooldown=liuExSkill4_3_2.cooldown, effectOnSelf=liuExComboEff1, rejectEffect=[liuExComboEff1, liuExComboEff2], description="Liu charge un ennemi et lui inflige une attaque physique")
+
+liuExSkill4 = skill("Charge Tellurique", liuExSkill4_3_2.id, TYPE_DAMAGE, become=[liuExSkill4_1, liuExSkill4_2_1,liuExSkill4_3_1])

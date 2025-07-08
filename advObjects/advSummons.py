@@ -80,7 +80,7 @@ titSkill2 = skill("Rune de Gel","titSkill2",TYPE_DAMAGE,0,120,range=AREA_DIST_5,
 titSkill3_1 = skill("Rune d'Illusion","titSkill3",TYPE_DAMAGE,power=150,range=AREA_MONO,area=AREA_CIRCLE_2,setAoEDamage=True,cooldown=3,use=MAGIE)
 titSkill3_2 = skill("Rune d'Illusion","titSkill3",TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_DIST_7,setAoEDamage=True,cooldown=3,use=MAGIE)
 titSkill3 = skill("Rune d'Illusion","titSkill3",TYPE_DAMAGE,become=[titSkill3_1,titSkill3_2],use=MAGE,description="Effectue des dégâts magiques autour de Titania ou dans un donut large centrée autour d'elle\n__Puissances :__ **{0}**, **{1}**\nNon affecté par la réduction de dégâts de zone".format(titSkill3_1.power,titSkill3_2.power),area=AREA_CIRCLE_1)
-titPassiveEff = effect("Bonus de Magie","titPassiveEff", stat=PURCENTAGE,magie=15,emoji=statsEmojis[MAGIE],turnInit=5)
+titPassiveEff = effect("Bonus de Magie","titPassiveEff", stat=PURCENTAGE,magie=15,emoji=statEmojis[MAGIE],turnInit=5)
 titPassiveEff1 = effect("Bonus de Magie (effet)","titPassiveEff1",callOnTrigger=titPassiveEff,area=AREA_DONUT_3,trigger=TRIGGER_INSTANT,emoji=titPassiveEff.emoji)
 titPassive = skill("Rune de Magie","titPassive",TYPE_PASSIVE,effects=titPassiveEff1,emoji=titPassiveEff1.emoji[0][0],description="Lors de son invocation, Titania augmente temporairement la magie des alliés autour d'elle")
 autTourWeap = weapon("Tir à la volée","autoTourWeap",RANGE_LONG,AREA_CIRCLE_6,125,100,ignoreAutoVerif=True,emoji='<:rookWeap:983594054199701544>',use=PRECISION)
@@ -128,14 +128,14 @@ carbuncleE = invoc("Carbuncle Emeraude",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCE
 carbuncleT = invoc("Carbuncle Topaze",[PURCENTAGE,0.5],[HARMONIE,0.6],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.1],0,10,PROTECTEUR,["<:ct1:884889748274028666>","<:ct2:884889807111749662>"],carbunTWeap,[carbunTSKill],description="Une invocation résistante qui n'a pas froid au yeux et viendra sauter dans la mêlée",element=ELEMENT_EARTH)
 feeInv = invoc("Fée Soignante",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[HARMONIE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],10,0,0,ALTRUISTE,["<:fee1:885076945333805086>","<:fee2:885076961695760386>"],feeWeap,[feeSkill,feeSkill2],gender=GENDER_FEMALE,description="Une fée qui soigne ses alliés grace à sa magie curative pouvant également augmenter les soins reçus par les alliés",element=ELEMENT_LIGHT)
 titania = invoc("Titania",[PURCENTAGE,0.3],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[HARMONIE,0.7],25,10,20,ENCHANTEUR,["<:tita1:886663550796431390>","<:tita2:886663565220651028>"],titWeap,[titPassive,titSkill1,titSkill2,titSkill3],GENDER_FEMALE,element=ELEMENT_UNIVERSALIS,description="Une invocation magique qui inflige de lourd dégâts de zone",lifeTime=5)
-lapino = invoc("Lapino",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[HARMONIE,0.5],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],10,0,0,ALTRUISTE,['<:lapino1:885899366966112266>','<:lapino2:885899382539571221>'],lapinoWeap,[lapinoSkill,lapSkill3,lapinoSkill2],description="Fidèle Lapino d'Hélène, il la suit partout là où elle aura besoin de lui",element=ELEMENT_LIGHT)
+lapino = invoc("Lapino",[PURCENTAGE,0.5],[PURCENTAGE,0.5],[HARMONIE,0.65],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.5],10,0,0,ALTRUISTE,['<:lapino1:885899366966112266>','<:lapino2:885899382539571221>'],lapinoWeap,[lapinoSkill,lapSkill3,lapinoSkill2],description="Fidèle Lapino d'Hélène, il la suit partout là où elle aura besoin de lui",element=ELEMENT_LIGHT)
 autoBomb = invoc("Bombe Robot",[HARMONIE,0.8],50,0,0,0,0,0,20,0,0,POIDS_PLUME,["<:auto1:887747795497394267>","<:auto2:887747819866312735>"],autoWeap,[autoSkill])
 darkness = invoc("Conviction des Ténèbres",0,-25,0,0,0,0,0,0,0,0,ASPI_NEUTRAL,['<:infiniteDarkness:898497770531455008>','<:infiniteDarkness:898497770531455008>'],autoWeap,gender=GENDER_FEMALE,element=ELEMENT_DARKNESS)
 cutyBat = invoc("Chauve-Souris II",strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.3],charisma=[HARMONIE,0.7],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.5],intelligence=[PURCENTAGE,0.7],magie=[PURCENTAGE,0.5],resistance=[PURCENTAGE,1],percing=0,critical=0,aspiration=IDOLE,icon=['<:bat2B:904368975952085012>','<:bat2R:904368991710101515>'],weapon=cutyBatWeap,skills=[cutyBatSkill1,cutyBatSkill2,cutyBatSkill3],gender=GENDER_FEMALE,description="Une chauve-souris spécialisée dans le soutien")
 carbunR = invoc("Carbuncle Rubis",strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.7],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.7],precision=[PURCENTAGE,0.7],intelligence=[PURCENTAGE,0.5],magie=[HARMONIE,0.6],resistance=[PURCENTAGE,1],percing=[PURCENTAGE,1],critical=25,aspiration=ENCHANTEUR,icon=['<:carbunRB:904368034200834089>','<:carbunRR:904368049547776010>'],weapon=carbunRWeap,skills=[carbunRSkill1,carbunRSkill2,carbunRSKill3],description="Un carbuncle de mêlée infligeant des dégâts magiques",element=ELEMENT_FIRE)
 seraf = invoc("Fée protectrice",strength=[PURCENTAGE,0.5],endurance=[PURCENTAGE,0.5],charisma=[PURCENTAGE,0.5],agility=[PURCENTAGE,0.3],precision=[PURCENTAGE,0.5],intelligence=[HARMONIE,0.55],magie=[PURCENTAGE,0.5],resistance=[PURCENTAGE,1],percing=0,critical=0,aspiration=PREVOYANT,icon=['<:seraphB:911078241404608522>','<:seraphR:911078257078706256>'],weapon=serafWeapon,skills=[serafSkill,serafSkill2],description="Une fée octroyant des armures aux alliés et réduisant les dégâts qu'ils subissent",element=ELEMENT_LIGHT,gender=GENDER_FEMALE)
 
-TGESL1 = invoc("Patte de The Giant Enemy Spider",[PURCENTAGE,0.5],[PURCENTAGE,0.3],0,[PURCENTAGE,0.7],[PURCENTAGE,0.7],0,0,[PURCENTAGE,0.3],0,0,ASPI_NEUTRAL,['<:TGESlegs2:917303003936063538>','<:TGESlegs2:917303003936063538>'],GESLweap,[GESLskill],gender=GENDER_FEMALE,lifeTime=99)
+TGESL1 = invoc("Patte de The Giant Enemy Spider",[PURCENTAGE,0.75],[PURCENTAGE,0.3],0,[PURCENTAGE,0.7],[PURCENTAGE,0.7],0,0,[PURCENTAGE,0.3],0,0,ASPI_NEUTRAL,['<:TGESlegs2:917303003936063538>','<:TGESlegs2:917303003936063538>'],GESLweap,[GESLskill],gender=GENDER_FEMALE,lifeTime=99)
 TGESL2 = copy.deepcopy(TGESL1)
 TGESL2.strength, TGESL2.magie, TGESL2.icon, TGESL2.skills[0] = 0,TGESL1.strength,['<:TGESlegs1:917302968104144906>','<:TGESlegs1:917302968104144906>'],GESRskill
 
@@ -160,7 +160,7 @@ lenaDrone1Skill3ne = effect("Tir Surchargé","lenaDrone1Skill3ne",emoji='<:rookW
 lenaDrone1Skill3_1 = skill("Tir Surchargé","lenaDrone1Skill3",TYPE_DAMAGE,power=lenaDrone1Skill1.power*1.25,garCrit=True,needEffect=lenaDrone1Skill3ne,emoji=lenaDrone1Skill3ne.emoji[0][0],effectFinisher=True)
 lenaDrone1Skill3 = skill(lenaDrone1Skill3_1.name, lenaDrone1Skill3_1.id, TYPE_PASSIVE, emoji=lenaDrone1Skill3_1.emoji, effects=lenaDrone1Skill3ne, become=[lenaDrone1Skill3_1],description="Lors de son dernier tour de vie, le Drone inflige de gros dégâts monocibles")
 lenaDrone1Skill3.initCooldown, lenaDrone1Skill3.cooldown = 1, 1
-lenaDrone1Smn = invoc("Drone Artilleur",[HARMONIE,0.6],[PURCENTAGE,0.3],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,1],[PURCENTAGE,0.5],[PURCENTAGE,0.3],20,10,15,OBSERVATEUR,["<:lenaDrone1B:1116262917868888185>","<:lenaDrone1R:1116262947178680320>"],lenaDrone1Weap,[lenaDrone1Skill1,lenaDrone1Skill2,lenaDrone1Skill3],description="Un drone automatique infligeant des dégâts ({0}) aux ennemis et pouvant augmenter les dégâts critiques qu'ils subissent".format(statsEmojis[lenaDrone1Weap.use]))
+lenaDrone1Smn = invoc("Drone Artilleur",[HARMONIE,0.6],[PURCENTAGE,0.3],[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,1],[PURCENTAGE,0.5],[PURCENTAGE,0.3],20,10,15,OBSERVATEUR,["<:lenaDrone1B:1116262917868888185>","<:lenaDrone1R:1116262947178680320>"],lenaDrone1Weap,[lenaDrone1Skill1,lenaDrone1Skill2,lenaDrone1Skill3],description="Un drone automatique infligeant des dégâts ({0}) aux ennemis et pouvant augmenter les dégâts critiques qu'ils subissent".format(statEmojis[lenaDrone1Weap.use]))
 lenaDrone2Smn = copy.deepcopy(lenaDrone1Smn)
 lenaDrone2Smn.strength = [HARMONIE,1]
 
@@ -194,19 +194,17 @@ spaceTuretSkill1 = skill("Oeuil de Faucon","spaceTuretSkill1",TYPE_DAMAGE,power=
 spaceTuret = invoc("Tourelle Galactique",[HARMONIE,0.6],[PURCENTAGE,0.35],[PURCENTAGE,0.2],[PURCENTAGE,0.3],[PURCENTAGE,0.7],[PURCENTAGE,0.7],[PURCENTAGE,0.0],15,15,15,OBSERVATEUR,["<:autoTourGB:1131083026147852318>","<:autoTourGR:1131083046448283678>"],spaceTuretWeap,[spaceTuretSkill1],description="Une tourelle stationnaire infligeant des dégâts élevée aux armures avec une bonne précision",canMove=False)
 
 myrlopeWeap = weapon("Morsure","myrlopeWeap",RANGE_MELEE,AREA_CIRCLE_1,50,150,strength=10,agility=10,priority=WEAPON_PRIORITY_LOWEST,emoji='<:bite:1186675220065570847>')
-myrlopeSkill1Eff = effect("Entoilé","myrlopeSkill1Eff",dodge=-20,type=TYPE_MALUS,emoji="<:webbed:1186675170094612570>")
+myrlopeSkill1Eff = effect("Entoilé","myrlopeSkill1Eff",dodge=-25,type=TYPE_MALUS,emoji="<:webbed:1186675170094612570>")
 myrlopeSkill1 = skill("Jet de toile","myroleSkill1",TYPE_DAMAGE,power=70,cooldown=3,effects=myrlopeSkill1Eff,range=AREA_CIRCLE_3,emoji='<:webthrow:1186675113219850260>',description="Tir une toile sur l'ennemi ciblé, réduisant sa probabilité d'esquiver les attaques tout en lui infligeant quelques dégâts")
 myrlopeSkill1.iaPow = 10
 myrlopeSkill2Eff1 = effect("Morsure Empoisonné","myrolpeSkill2eff1", stat=STRENGTH,power=20,turnInit=3,type=TYPE_INDIRECT_DAMAGE,trigger=TRIGGER_START_OF_TURN,emoji='<:PoisonCard:1239301604625223721>',stackable=True)
-myrlopeSkill2Eff2 = effect("Résistance Indirecte Réduites","myrlopeSkill2Eff2", stat=INTELLIGENCE,inkResistance=-5,turnInit=3,type=TYPE_MALUS)
-myrlopeSkill2Eff3 = copy.deepcopy(incurable)
-myrlopeSkill2Eff3.power, myrlopeSkill2Eff3.turnInit = 35, 3
-myrlopeSkill2 = skill("Morsure Vénimeuse","myrlopeSkill2",TYPE_DAMAGE,power=50,effects=[myrlopeSkill2Eff1,myrlopeSkill2Eff2,myrlopeSkill2Eff3],cooldown=1,range=AREA_CIRCLE_1,emoji=myrlopeWeap.emoji,description="Inflige des dégâts à un ennemi au corps à corps, lui inflige un effet de poison et augmente les dégâts indirects qu'il reçoit tout en réduisant également les soins qu'il reçoit")
-myrlopeSkill3Eff1 = effect("Marque Létale","myrlopeSkill3Eff1",STRENGTH,power=25,lvl=5,trigger=TRIGGER_AFTER_DAMAGE,type=TYPE_INDIRECT_DAMAGE,emoji='<:letalMark:1190587564105678959>',turnInit=3)
-myrlopeSkill3 = skill("Morsure Marquante","myrlopeSkill3",TYPE_DAMAGE,power=50,effects=myrlopeSkill3Eff1,cooldown=myrlopeSkill3Eff1.turnInit,range=AREA_CIRCLE_1,emoji=myrlopeSkill2.emoji,description="Inflige des dégâts à l'ennemi ciblé et le marque, infligeant des dégâts indirects à chaques fois qu'il reçoit des dégâts")
+myrlopeSkill2Eff2 = effect("Résistance Réduites","myrlopeSkill2Eff2", stat=PURCENTAGE, resistance=-35,turnInit=3,type=TYPE_MALUS)
+myrlopeSkill2 = skill("Morsure Vénimeuse","myrlopeSkill2",TYPE_DAMAGE,power=50,effects=[myrlopeSkill2Eff1,myrlopeSkill2Eff2],cooldown=1,range=AREA_CIRCLE_1,emoji=myrlopeWeap.emoji,description="Inflige des dégâts à un ennemi au corps à corps, lui inflige un effet de poison et augmente les dégâts indirects qu'il reçoit tout en réduisant également les soins qu'il reçoit")
+myrlopeSkill3Eff1 = effect("Marque Létale","myrlopeSkill3Eff1",STRENGTH,power=20,lvl=5,trigger=TRIGGER_AFTER_DAMAGE,type=TYPE_MALUS, superBreak=True, emoji='<:letalMark:1190587564105678959>',turnInit=1)
+myrlopeSkill3 = skill("Morsure Marquante","myrlopeSkill3",TYPE_DAMAGE,power=50,effects=myrlopeSkill3Eff1,cooldown=3,range=AREA_CIRCLE_1,emoji=myrlopeSkill2.emoji,description="Inflige des dégâts à l'ennemi ciblé et le marque, infligeant des dégâts indirects à chaques fois qu'il reçoit des dégâts")
 myrlopePassifEff = effect("Petite Araignée","myrlopePAssifEff",dodge=30,turnInit=-1,emoji='<:osaSmn21:1171873951673237537>',aggro=-20,translucide=True,effPrio=-1)
 myrlopePassif = skill("Taille Mini","myrlopePassif",TYPE_PASSIVE,effects=myrlopePassifEff,emoji=myrlopePassifEff.emoji[0][0],description="Par sa petite taille, Myrlopé est moins facilement prise pour cible, a plus de chances d'esquiver les attaques ennemis et ne bloque pas les lignes de vues")
-myrlope = invoc("Myrlopé",strength=[HARMONIE,0.65],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.3],agility=[PURCENTAGE,1.2],precision=[PURCENTAGE,1.2],intelligence=[PURCENTAGE,0.7],magie=[PURCENTAGE,0.3],resistance=10,percing=10,critical=5,aspiration=ATTENTIF,icon=["<:myrideB:1186673309656559677>","<:myrideR:1186673396323463249>"],weapon=myrlopeWeap,skills=[myrlopePassif,myrlopeSkill1,myrlopeSkill2,myrlopeSkill3],gender=GENDER_FEMALE,description="Fidèle mygale de compagnie de Shehisa, cette araigné a plus d'un tour dans sa toile",team=NPC_SPIDER,slowMove=True)
+myrlope = invoc("Myrlopé",strength=[HARMONIE,0.65],endurance=[PURCENTAGE,0.3],charisma=[PURCENTAGE,0.3],agility=[PURCENTAGE,1.2],precision=[PURCENTAGE,1.2],intelligence=[PURCENTAGE,0.7],magie=[PURCENTAGE,0.3],resistance=10,percing=10,critical=5,aspiration=ATTENTIF,icon=["<:myrlopeB:1351998629350477906>","<:myrlopeR:1351998646576611399>"],weapon=myrlopeWeap,skills=[myrlopePassif,myrlopeSkill1,myrlopeSkill2,myrlopeSkill3],gender=GENDER_FEMALE,description="Fidèle mygale de compagnie de Shehisa, cette araigné a plus d'un tour dans sa toile",team=NPC_SPIDER,slowMove=True)
 
 webSpitterWeap = weapon("Crachat de toile","webspitterWeap",RANGE_LONG,AREA_CIRCLE_4,power=50,use=PRECISION,effectOnUse=myrlopeSkill1Eff,emoji=myrlopeSkill1.emoji,precision=20,accuracy=100)
 webSpitter = invoc("Cracheur de toile glyphique",[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.3],[PURCENTAGE,0.3],[PURCENTAGE,1],[PURCENTAGE,0.5],[PURCENTAGE,0.3],20,0,25,OBSERVATEUR,["<:wbSpitter:1190969513966059591>","<:wbSpitter:1190969513966059591>"],webSpitterWeap,[],description="Un glyphique qui crache des toiles à bonne distance",team=NPC_GLYPHIQUE)
@@ -215,13 +213,13 @@ inkFistWeap = weapon("None","noneWeap",RANGE_MELEE,AREA_MONO,0,0)
 inkFist = invoc("Poings d'Encre",0,0,0,0,0,0,0,0,0,0,ASPI_NEUTRAL,["<:inkFistB:1193167199280574564>","<:inkFistR:1193167236131721286>"],inkFistWeap,[],lifeTime=0)
 
 lavenderSmallProtectEff = copy.deepcopy(lavenderShield)
-lavenderSmallProtectEff.power = 20
+lavenderSmallProtectEff.power = 15
 
 lavenderProtectEff1, lavenderProtectEff2 = copy.deepcopy(lavenderShield),copy.deepcopy(lavenderShield)
 lavenderProtectEff1.overhealth, lavenderProtectEff2.overhealth = 40, 30
 lavenderProtectEff3 = effect("Protection Lavande","lavenderProtectEff3",callOnTrigger=lavenderProtectEff2,area=AREA_DONUT_1,trigger=TRIGGER_INSTANT,emoji='<:lavenderRes:1213880496149504190>')
-lavenderProtect = skill("Protection Lavande","lavenderProtect",TYPE_ARMOR,effects=[lavenderProtectEff1,lavenderProtectEff3],cooldown=3,description="Octroie {0} à la cible principale, et aux alliés proches de la cible, avec une moindre puissance".format(lavenderProtectEff1),emoji=lavenderProtectEff3.emoji[0][0],effectAroundCaster=[TYPE_ARMOR,AREA_SUMMONER,lavenderSmallProtectEff])
-anaisPassifEff = effect("Petite Fée","myrlopePAssifEff",dodge=30,turnInit=-1,aggro=-20,translucide=True,effPrio=-1,silent=True)
+lavenderProtect = skill("Protection Lavande","lavenderProtect",TYPE_ARMOR,effects=[lavenderProtectEff1,lavenderProtectEff3],cooldown=3,description="Octroie {0} à la cible principale, et aux alliés proches de la cible, avec une moindre puissance".format(lavenderProtectEff1),emoji=lavenderProtectEff3.emoji[0][0],effectAroundCaster=[TYPE_ARMOR, AREA_SUMMONER, lavenderSmallProtectEff])
+anaisPassifEff = effect("Pixie","myrlopePAssifEff", dodge=30, turnInit=-1, aggro=-20,translucide=True,effPrio=-1,silent=True, emoji='<:anais:1166806279042375780>')
 anaisPassif = skill("Taille Mini","myrlopePassif",TYPE_PASSIVE,effects=anaisPassifEff,description="Par sa petite taille, Anais est moins facilement prise pour cible, a plus de chances d'esquiver les attaques ennemis et ne bloque pas les lignes de vues")
 
 anaisPassif2eff1_1 = copy.deepcopy(defenseUp)
@@ -229,8 +227,8 @@ anaisPassif2eff1_1.power, anaisPassif2eff1_1.turnInit, anaisPassif2eff1_1.silent
 anaisPassif2eff = effect("Protection Pixie","anaisPassif2Eff",callOnTrigger=anaisPassif2eff1_1, area=AREA_SUMMONER, trigger=TRIGGER_START_OF_TURN, emoji='<:lavenderProtect:1213882569372737556>', turnInit=-1, unclearable=True)
 anaisPassif2 = skill("Protection Pixie","anaisPassif2",TYPE_PASSIVE,effects=[anaisPassif2eff], emoji=anaisPassif2eff.emoji[0][0], description="Tant qu'elle est en vie, Anais réduit les dégâts subis par son invocateur de 20% et sa probabilité de blocage de 15%")
 
-anaisWeapon = weapon("Pouvoir de la nature","anaisWeap",RANGE_DIST,AREA_CIRCLE_4,lavenderSmallProtectEff.overhealth,100,use=INTELLIGENCE,type=TYPE_HEAL,endurance=20,resistance=10,target=ALLIES,effectOnUse=lavenderSmallProtectEff,emoji='<:lavenderProtect:1213882569372737556>')
-anais = invoc("Anaïs",[PURCENTAGE,0.3],[PURCENTAGE,0.5],[PURCENTAGE,0.5],[PURCENTAGE,0.7],[PURCENTAGE,0.5],[HARMONIE,0.5],[PURCENTAGE,0.7],40,0,0,PROTECTEUR,["<:anaisB:1213885124173897728>","<:anaisR:1213885143291535451>"],anaisWeapon,[anaisPassif,lavenderProtect,lavenderViel,anaisPassif2],lifeTime=99,gender=GENDER_FEMALE,description="Une Pixie spécialisée dans la protection de son invocateur et ses alliés",element=ELEMENT_EARTH,team=NPC_FAIRY,)
+anaisWeapon = weapon("Pouvoir de la nature","anaisWeap",RANGE_DIST,AREA_CIRCLE_4, lavenderSmallProtectEff.overhealth, 100,use=INTELLIGENCE,type=TYPE_HEAL,endurance=20,resistance=10,target=ALLIES,effectOnUse=lavenderSmallProtectEff,emoji='<:lavenderProtect:1213882569372737556>')
+anaisSmn = invoc("Anaïs",[PURCENTAGE,0.3], [PURCENTAGE,0.5], [PURCENTAGE,0.5], [PURCENTAGE,0.7], [PURCENTAGE,0.5], [HARMONIE,0.4], [PURCENTAGE,0.7],40,0,0,PROTECTEUR,["<:anaisSmnBlue:1312065685261783040>","<:anaisSmnRed:1312065734800703489>"], anaisWeapon, [anaisPassif, anaisPassif2, lavenderProtect, lavenderViel, RHS], lifeTime=99,gender=GENDER_FEMALE,description="Une Pixie spécialisée dans la protection de son invocateur et ses alliés",element=ELEMENT_EARTH,team=NPC_FAIRY,)
 
 smallBombEff = effect("Timer","smallBombEff",turnInit=3,silent=True,emoji=flambe.emoji)
 smallBombSkill = skill("Explosion","smallBombSkill",TYPE_DAMAGE,power=30,range=AREA_MONO,area=AREA_CIRCLE_1,needEffect=smallBombEff,effectFinisher=True,emoji='<:concenR:1138879459307556889>',initCooldown=3)
@@ -239,13 +237,17 @@ smallBombWeap = weapon("Timer","smallbombWeap",RANGE_MELEE,AREA_CIRCLE_2,25,100,
 smallBombSmn = invoc("Petit Bombe",aspiration=ASPI_NEUTRAL,strength=[HARMONIE,0.5],endurance=[PURCENTAGE,0.3],charisma=0,agility=0,precision=[PURCENTAGE,1],intelligence=0,magie=0,resistance=[PURCENTAGE,1],percing=[PURCENTAGE,1],critical=[PURCENTAGE,1],weapon=smallBombWeap,skills=[smallBombSkill,smallBombSkill2],icon=["<:terrabombB:1155475225979408454>","<:terrabombR:1155475352643174481>"],canMove=False,description="Une petite bombe qui ne bouge pas. Lorsqu'elle commence son tour, la puissance de l'explosion augmente. La bombe explose si elle est vaincue ou après 3 tours",team=NPC_BOMB)
 bombThrowEff.callOnTrigger = smallBombSmn
 
-tacticoolerSkillEff1, tacticoolerSkillEff2 = effect("TactiBoost","tacticoolerSkillEff1",INTELLIGENCE,agility=5,strength=5,magie=5,charisma=5,intelligence=5,precision=5,turnInit=3,emoji='<:tacticooler:1014240041960231043>'), effect("TactiRedirect","tacticoolerEff2",redirection=25,turnInit=3,emoji=sameSpeciesEmoji('<:concenB:1138879438738706453>','<:concenR:1138879459307556889>'))
-tacticoolerSkill = skill("Tacticooler","tacticoolerSkill",TYPE_PASSIVE,area=AREA_DONUT_2,range=AREA_MONO,effects=[tacticoolerSkillEff1, tacticoolerSkillEff2], emoji=tacticoolerSkillEff1.emoji[0][0],description="Lors de son invocation, le Distribucool octroie {0} et {1} aux alliés alentours".format(tacticoolerSkillEff1, tacticoolerSkillEff2))
-tacticoolerWeap = weapon("Canette","tacticoolerWeap",RANGE_DIST,tacticoolerSkill.area,0,0,priority=WEAPON_PRIORITY_NONE,emoji='<:krysCan:916117137339322388>', use=INTELLIGENCE)
-tacticoolerSmn = invoc("Distribucool",0,[PURCENTAGE,1],0,0,0,[HARMONIE,0.5],0,999,0,0,ASPI_NEUTRAL,[tacticoolerSkill.emoji,tacticoolerSkill.emoji],tacticoolerWeap,[tacticoolerSkill],canMove=False)
+tacticoolerSkillEff1, tacticoolerSkillEff2 = effect("TactiBoost","tacticoolerSkillEff1", INTELLIGENCE, agility=5, strength=5, magie=5, charisma=5, intelligence=5, precision=5, turnInit=5, emoji='<:tacticooler:1014240041960231043>'), effect("TactiRedirect","tacticoolerEff2", redirection=25, turnInit=4, emoji=sameSpeciesEmoji('<:concenB:1138879438738706453>','<:concenR:1138879459307556889>'), silentRemove=True)
+
+tacticoolerSkillEff3 = effect("TactiBoost", "tactiboost", trigger=TRIGGER_INSTANT, area=AREA_DONUT_2, callOnTrigger=tacticoolerSkillEff1, emoji=tacticoolerSkillEff1.emoji[0][0])
+tacticoolerSkillEff4 = effect("TactiRedirect", "tactiRedirect", trigger=TRIGGER_INSTANT, area=AREA_DONUT_2, callOnTrigger=tacticoolerSkillEff2, emoji=tacticoolerSkillEff2.emoji[0][0])
+
+tacticoolerSkill = skill("Tacticooler","tacticoolerSkill",TYPE_PASSIVE,area=AREA_DONUT_2,range=AREA_MONO,effects=[tacticoolerSkillEff3, tacticoolerSkillEff4], emoji=tacticoolerSkillEff1.emoji[0][0],description="Lors de son invocation, le Distribucool octroie {0} et {1} aux alliés alentours".format(tacticoolerSkillEff1, tacticoolerSkillEff2))
+tacticoolerWeap = weapon("Canette","tacticoolerWeap",RANGE_DIST,tacticoolerSkill.area,0,0,intelligence=20,priority=WEAPON_PRIORITY_NONE,emoji='<:krysCan:916117137339322388>', use=INTELLIGENCE)
+tacticoolerSmn = invoc("Distribucool", 0, [PURCENTAGE,1], 0, 0, 0,[HARMONIE,0.75], 0, 50,0,0,IDOLE,[tacticoolerSkill.emoji,tacticoolerSkill.emoji],tacticoolerWeap,[tacticoolerSkill],canMove=False)
 
 # Invocations
-invocTabl = [tacticoolerSmn,anais,lenaDrone2Smn,webSpitter,myrlope,spaceTuret,lightZombi,skeletonBow,skeletonMage,glyphidGrunt,lenaDrone1Smn,sonarPafSmn,hinoro,skeleton,seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR,autTour,autFou,autQueen,pipis,lightButterfly,mrLifeSavor,
+invocTabl = [tacticoolerSmn,anaisSmn,lenaDrone2Smn,webSpitter,myrlope,spaceTuret,lightZombi,skeletonBow,skeletonMage,glyphidGrunt,lenaDrone1Smn,sonarPafSmn,hinoro,skeleton,seraf,carbObsi,carbSaphir,seeker,killerWailSum,darkness,autoBomb,lapino,titania,feeInv,carbuncleT,carbuncleE,batInvoc,cutyBat,carbunR,autTour,autFou,autQueen,pipis,lightButterfly,mrLifeSavor,
 ]
 
 def findSummon(name) -> invoc:
@@ -260,5 +262,6 @@ def findSummon(name) -> invoc:
 MEMORIASTATCONVERT = 0.5
 memoriaEff = effect("In Memoria","memoriaEff",translucide=True,immunity=True,turnInit=-1,unclearable=True)
 memoriaWeap = weapon("In Memoria","noneWeap",RANGE_DIST,AREA_CIRCLE_5,0,0,ignoreAutoVerif=True,effects=memoriaEff)
-memoria = invoc("Memoria",[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,MEMORIASTATCONVERT],0,0,0,ASPI_NEUTRAL,["<:ghostB:1119951487032901722>","<:ghostR:1119951498395271218>"],memoriaWeap,[],team=NPC_UNDEAD,description="Une invocation qui se base sur une autre entité. Un mémoria copie toutes les compétences de cette entité ainsi que **{0}%** de ses statistiques".format(int(MEMORIASTATCONVERT*100)))
+memoria = invoc("Memoria",[PURCENTAGE,MEMORIASTATCONVERT],[PURCENTAGE,1],[PURCENTAGE,0.75],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,1],[PURCENTAGE,MEMORIASTATCONVERT]
+                ,0,0,0,ASPI_NEUTRAL,["<:ghostB:1119951487032901722>","<:ghostR:1119951498395271218>"],memoriaWeap,[],team=NPC_UNDEAD,description="Une invocation qui se base sur une autre entité. Un mémoria copie toutes les compétences de cette entité ainsi que **{0}%** de ses statistiques".format(int(MEMORIASTATCONVERT*100)))
 invocTabl.append(memoria)

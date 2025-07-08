@@ -9,459 +9,500 @@ from asyncio import sleep
 from interactions import *
 
 async def procuration(ctx : interactions.Message,toProcur:interactions.User):
-    if os.path.exists("./userProfile/" + str(ctx.author.id) + ".json"):
-        user = loadCharFile("./userProfile/" + str(ctx.author.id) + ".json")
-        user.procuration.append(toProcur.id)
-        user2 = loadCharFile("./userProfile/" + str(toProcur.id) + ".json")
-        user2.haveProcurOn	.append(user.owner)
+	if os.path.exists("./userProfile/" + str(ctx.author.id) + ".json"):
+		user = loadCharFile("./userProfile/" + str(ctx.author.id) + ".json")
+		user.procuration.append(toProcur.id)
+		user2 = loadCharFile("./userProfile/" + str(toProcur.id) + ".json")
+		user2.haveProcurOn	.append(user.owner)
 
-        try:
-            saveCharFile(user=user)
-            saveCharFile(user=user2)
-            await ctx.send(f"{toProcur.name} à bien été rajouté à la liste des personnes ayant procuration sur votre inventaire")
-        except:
-            await ctx.send(embeds = errorEmbed("Procuration","Une erreure est survenue"))
+		try:
+			saveCharFile(user=user)
+			saveCharFile(user=user2)
+			await ctx.send(f"{toProcur.name} à bien été rajouté à la liste des personnes ayant procuration sur votre inventaire")
+		except:
+			await ctx.send(embeds = errorEmbed("Procuration","Une erreure est survenue"))
 
-    else:
-        await ctx.send(embeds = errorEmbed("Procuration","Vous n'avez pas commencé l'aventure"))
+	else:
+		await ctx.send(embeds = errorEmbed("Procuration","Vous n'avez pas commencé l'aventure"))
 
 noneSuffisantJetonButton = interactions.Button(style=ButtonStyle.SECONDARY, label="Vous ne possédez pas de jetons", emoji=getEmojiObject('<:jeton:917793426949435402>'),disabled=True)
 randomRouletteMsg = [
-    "Les jeux sont fait, rien ne va plus !",
-    "Tenter le diable",
-    "Tentons le diable !",
-    "Je sens que la chance est de mon côté !",
+	"Les jeux sont fait, rien ne va plus !",
+	"Tenter le diable",
+	"Tentons le diable !",
+	"Je sens que la chance est de mon côté !",
 ]
 
 async def roulette(bot: interactions.Client, ctx: interactions.Message, user: char):
-    userJetonsCount = aliceStatsDb.getUserJetons(user)
-    baseDesc = """\nLa roulette est un moyen supplémentaire d'obtenir des équipements ou de l'argent.\nAprès chaque combat, si le lanceur n'a pas réussi à obtenir quelque chose après une victoire, il a une probabilité d'obtenir un __<:jeton:917793426949435402> Jeton de Roulette__, nécessaire pour pouvoir lancer celle dernière.\n\nLes objets obtenables dans la roulette sont les mêmes que ceux disponibles dans le magasin et en butin. Leurs probabilités d'appararition dépend du pourcentage d'objet obtenu :\n<:coins:862425847523704832>, <:blocked:897631107602841600>, <:blocked:897631107602841600>, <:blocked:897631107602841600>, <:blocked:897631107602841600> : < 25%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:blocked:897631107602841600>, <:blocked:897631107602841600>, <:blocked:897631107602841600> : 25% -> 50%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:blocked:897631107602841600>, <:blocked:897631107602841600> : 50% -> 75%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:blocked:897631107602841600> : 75% -> 100%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832> : 100%\n\nIl n'est pas possible d'obtenir des objets déjà aquis dans la roulette. La quantité de pièces obtenue est égale au prix d'un équipement obtenable.\n\nVous possédez **{0} __<:jeton:917793426949435402> Jeton de Roulette__**""".format(userJetonsCount)
+	userJetonsCount = aliceStatsDb.getUserJetons(user)
+	baseDesc = """\nLa roulette est un moyen supplémentaire d'obtenir des équipements ou de l'argent.\nAprès chaque combat, si le lanceur n'a pas réussi à obtenir quelque chose après une victoire, il a une probabilité d'obtenir un __<:jeton:917793426949435402> Jeton de Roulette__, nécessaire pour pouvoir lancer celle dernière.\n\nLes objets obtenables dans la roulette sont les mêmes que ceux disponibles dans le magasin et en butin. Leurs probabilités d'appararition dépend du pourcentage d'objet obtenu :\n<:coins:862425847523704832>, <:blocked:897631107602841600>, <:blocked:897631107602841600>, <:blocked:897631107602841600>, <:blocked:897631107602841600> : < 25%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:blocked:897631107602841600>, <:blocked:897631107602841600>, <:blocked:897631107602841600> : 25% -> 50%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:blocked:897631107602841600>, <:blocked:897631107602841600> : 50% -> 75%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:blocked:897631107602841600> : 75% -> 100%\n<:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832>, <:coins:862425847523704832> : 100%\n\nIl n'est pas possible d'obtenir des objets déjà aquis dans la roulette. La quantité de pièces obtenue est égale au prix d'un équipement obtenable.\n\nVous possédez **{0} __<:jeton:917793426949435402> Jeton de Roulette__**""".format(userJetonsCount)
 
-    emb = interactions.Embed(title="__Roulette :__",color=light_blue,description=baseDesc)
-    if userJetonsCount == 0:
-        await ctx.send(embeds=emb,components=[interactions.ActionRow(noneSuffisantJetonButton)])
-        return 0
+	emb = interactions.Embed(title="__Roulette :__",color=light_blue,description=baseDesc)
+	if userJetonsCount == 0:
+		await ctx.send(embeds=emb,components=[interactions.ActionRow(noneSuffisantJetonButton)])
+		return 0
 
-    if userJetonsCount >= 3:
-        allButon = [interactions.ActionRow(interactions.Button(style=ButtonStyle.SECONDARY,label="Utiliser tous vos jetons",emoji=getEmojiObject('<:jeton:917793426949435402>'),custom_id="all"))]
-    else:
-        allButon = []
+	if userJetonsCount >= 3:
+		allButon = [interactions.ActionRow(interactions.Button(style=ButtonStyle.SECONDARY,label="Utiliser tous vos jetons",emoji=getEmojiObject('<:jeton:917793426949435402>'),custom_id="all"))]
+	else:
+		allButon = []
 
-    button = interactions.Button(style=ButtonStyle.PRIMARY,label=randomRouletteMsg[random.randint(0,len(randomRouletteMsg)-1)],emoji=getEmojiObject('<:jeton:917793426949435402>'),custom_id="go")
+	button = interactions.Button(style=ButtonStyle.PRIMARY,label=randomRouletteMsg[random.randint(0,len(randomRouletteMsg)-1)],emoji=getEmojiObject('<:jeton:917793426949435402>'),custom_id="go")
 
-    msg = await ctx.send(embeds=emb,components=[interactions.ActionRow(button)]+allButon)
+	msg = await ctx.send(embeds=emb,components=[interactions.ActionRow(button)]+allButon)
 
-    def check(m):
-        m = m.ctx
-        return int(m.author.id) == int(ctx.author.id)
+	def check(m):
+		m = m.ctx
+		return int(m.author.id) == int(ctx.author.id)
 
-    try:
-        react = await bot.wait_for_component(msg,check=check,timeout=60)
-        react: ComponentContext = react.ctx
-    except:
-        await msg.edit(embeds=emb,components=[])
-        return 0
+	try:
+		react = await bot.wait_for_component(msg,check=check,timeout=60)
+		react: ComponentContext = react.ctx
+	except:
+		await msg.edit(embeds=emb,components=[])
+		return 0
 
-    if react.custom_id == "go":
-        aliceStatsDb.updateJetonsCount(user,-1)
-        gettenShop = userShopPurcent(user)
-        if gettenShop < 25:
-            toGet = [False,True,True,True,True]
-        elif gettenShop < 50:
-            toGet = [False,False,True,True,True]
-        elif gettenShop < 75:
-            toGet = [False,False,False,True,True]
-        elif gettenShop < 100:
-            toGet = [False,False,False,False,True]
-        else:
-            toGet = [False,False,False,False,False]
-        noneAllreadyGet = []
-        for b in listAllBuyableShop:
-            if not(user.have(obj=b)):
-                noneAllreadyGet.append(b)
-                if type(b) == stuff and b.minLvl//5 == user.level//5:
-                    noneAllreadyGet.append(b)
-                    noneAllreadyGet.append(b)
+	if react.custom_id == "go":
+		aliceStatsDb.updateJetonsCount(user,-1)
+		gettenShop = userShopPurcent(user)
+		if gettenShop < 25:
+			toGet = [False,True,True,True,True]
+		elif gettenShop < 50:
+			toGet = [False,False,True,True,True]
+		elif gettenShop < 75:
+			toGet = [False,False,False,True,True]
+		elif gettenShop < 100:
+			toGet = [False,False,False,False,True]
+		else:
+			toGet = [False,False,False,False,False]
+		noneAllreadyGet = []
+		for b in listAllBuyableShop:
+			if not(user.have(obj=b)):
+				noneAllreadyGet.append(b)
+				if type(b) == stuff and b.minLvl//5 == user.level//5:
+					noneAllreadyGet.append(b)
+					noneAllreadyGet.append(b)
 
-        coinsList=['<:mehPileOfCoins:918042096076722197>','<:goodPileOfCoins:918042081224716309>','<:multiplesCoins:918042117899681792>','<a:rotativeYPositiveCoin:917927342918221865>','<a:rotatingPositiveXCoin:917927242888269864>']
-        bigRolly = []
-        for a in toGet:
-            if a:
-                bigRolly.append(noneAllreadyGet[random.randint(0,len(noneAllreadyGet)-1)])
-            else:
-                bigRolly.append(listAllBuyableShop[random.randint(0,len(listAllBuyableShop)-1)].price)
+		coinsList=['<:mehPileOfCoins:918042096076722197>','<:goodPileOfCoins:918042081224716309>','<:multiplesCoins:918042117899681792>','<a:rotativeYPositiveCoin:917927342918221865>','<a:rotatingPositiveXCoin:917927242888269864>']
+		bigRolly = []
+		for a in toGet:
+			if a:
+				bigRolly.append(noneAllreadyGet[random.randint(0,len(noneAllreadyGet)-1)])
+			else:
+				bigRolly.append(listAllBuyableShop[random.randint(0,len(listAllBuyableShop)-1)].price)
 
-        possibleGainList = "__Liste des possibles gains :__"
-        for a in range(len(bigRolly)):
-            if type(bigRolly[a]) == int:
-                possibleGainList += "\n{1} : {0} <:coins:862425847523704832>".format(bigRolly[a],coinsList[a])
-            else:
-                possibleGainList += "\n{0} : {1}".format(bigRolly[a].emoji,bigRolly[a].name)
+		possibleGainList = "__Liste des possibles gains :__"
+		for a in range(len(bigRolly)):
+			if type(bigRolly[a]) == int:
+				possibleGainList += "\n{1} : {0} <:coins:862425847523704832>".format(bigRolly[a],coinsList[a])
+			else:
+				possibleGainList += "\n{0} : {1}".format(bigRolly[a].emoji,bigRolly[a].name)
 
-        gain = random.randint(0,4)
+		gain = random.randint(0,4)
 
-        listPossibleEmojis=["<a:giveup:902383022354079814>",'<a:CHAOS:762276118224961556>','<a:spamton:892749040205316138>','<:ConfusedStonks:782072496693706794>','<a:menacing:917007335220711434>','<a:PhoenixMarteauPiqueur:800831991389749249>','<:descartes:885240392860188672>']
-        for cmpt in range(len(listPossibleEmojis)):
-            listPossibleEmojis.append('<:em:866459463568850954>')
-        if random.randint(0,99) == 66:
-            listPossibleEmojis.append('<a:lostSilver:917783593441456198>')
+		listPossibleEmojis=["<a:giveup:902383022354079814>",'<a:CHAOS:762276118224961556>','<a:spamton:892749040205316138>','<:ConfusedStonks:782072496693706794>','<a:menacing:917007335220711434>','<a:PhoenixMarteauPiqueur:800831991389749249>','<:descartes:885240392860188672>']
+		for cmpt in range(len(listPossibleEmojis)):
+			listPossibleEmojis.append('<:em:866459463568850954>')
+		if random.randint(0,99) == 66:
+			listPossibleEmojis.append('<a:lostSilver:917783593441456198>')
 
-        hidden = "\n"
+		hidden = "\n"
 
-        whereToHide = random.randint(0,8)
-        for cmpt in (0,1,2,3,4,5,6,7,8):
-            if cmpt == whereToHide:
-                if type(bigRolly[gain]) == int:
-                    hidden += "||{0}||".format(coinsList[gain])
-                else:
-                    hidden += "||{0}||".format(bigRolly[gain].emoji)
-            else:
-                hidden += "||{0}||".format(listPossibleEmojis[random.randint(0,len(listPossibleEmojis)-1)])
-            if cmpt in [2,5]:
-                hidden += "\n"
+		whereToHide = random.randint(0,8)
+		for cmpt in (0,1,2,3,4,5,6,7,8):
+			if cmpt == whereToHide:
+				if type(bigRolly[gain]) == int:
+					hidden += "||{0}||".format(coinsList[gain])
+				else:
+					hidden += "||{0}||".format(bigRolly[gain].emoji)
+			else:
+				hidden += "||{0}||".format(listPossibleEmojis[random.randint(0,len(listPossibleEmojis)-1)])
+			if cmpt in [2,5]:
+				hidden += "\n"
 
-        user = loadCharFile("./userProfile/{0}.json".format(user.owner))
-        if type(bigRolly[gain]) == weapon:
-            user.weaponInventory += [bigRolly[gain]]
-        elif type(bigRolly[gain]) == skill:
-            user.skillInventory += [bigRolly[gain]]
-        elif type(bigRolly[gain]) == stuff:
-            user.stuffInventory += [bigRolly[gain]]
-        else:
-            user.currencies += bigRolly[gain]
+		user = loadCharFile("./userProfile/{0}.json".format(user.owner))
+		if type(bigRolly[gain]) == weapon:
+			user.weaponInventory += [bigRolly[gain]]
+		elif type(bigRolly[gain]) == skill:
+			user.skillInventory += [bigRolly[gain]]
+		elif type(bigRolly[gain]) == stuff:
+			user.stuffInventory += [bigRolly[gain]]
+		else:
+			user.currencies += bigRolly[gain]
 
-        saveCharFile("./userProfile/{0}.json".format(user.owner),user)
+		saveCharFile("./userProfile/{0}.json".format(user.owner),user)
 
-        hidden += "\n\nVotre gain a été ajouté à votre inventaire"
-        await msg.edit(embeds=interactions.Embed(title="__Roulette :__",color=light_blue,description=possibleGainList+"\n\n"+"__Découvrez ce que vous avez gagné :__\n"+hidden),components=[])
-        await sleep(60)
-        await msg.edit(embeds=interactions.Embed(title="__Roulette :__",color=light_blue,description=possibleGainList+"\n\n"+"__Découvrez ce que vous avez gagné :__\n"+hidden.replace("||","")),components=[])
-    else:
-        await msg.edit(embeds= await getRandomStatsEmbed(bot,[user],text="Utilisation de tous vos jetons... (Reste encore {0} jetons)".format(aliceStatsDb.getUserJetons(user))),components=[])
-        now = datetime.now(parisTimeZone)
-        allGains, coinGain, jetonsCount, shopTotalCount, userHaveCount = [], 0, aliceStatsDb.getUserJetons(user), len(listAllBuyableShop), 0
-        jetonsCountInit = jetonsCount
+		hidden += "\n\nVotre gain a été ajouté à votre inventaire"
+		await msg.edit(embeds=interactions.Embed(title="__Roulette :__",color=light_blue,description=possibleGainList+"\n\n"+"__Découvrez ce que vous avez gagné :__\n"+hidden),components=[])
+		await sleep(60)
+		await msg.edit(embeds=interactions.Embed(title="__Roulette :__",color=light_blue,description=possibleGainList+"\n\n"+"__Découvrez ce que vous avez gagné :__\n"+hidden.replace("||","")),components=[])
+	else:
+		await msg.edit(embeds= await getRandomStatsEmbed(bot,[user],text="Utilisation de tous vos jetons... (Reste encore {0} jetons)".format(aliceStatsDb.getUserJetons(user))),components=[])
+		now = datetime.now(parisTimeZone)
+		allGains, coinGain, jetonsCount, shopTotalCount, userHaveCount = [], 0, aliceStatsDb.getUserJetons(user), len(listAllBuyableShop), 0
+		jetonsCountInit = jetonsCount
 
-        for a in listAllBuyableShop:
-            if user.have(a):
-                userHaveCount+=1
+		for a in listAllBuyableShop:
+			if user.have(a):
+				userHaveCount+=1
 
-        noneAllreadyGet = []
-        for b in listAllBuyableShop:
-            if not(user.have(obj=b)):
-                noneAllreadyGet.append(b)
-                if type(b) == stuff and b.minLvl//5 == user.level//5:
-                    noneAllreadyGet.append(b)
-                    noneAllreadyGet.append(b)
+		noneAllreadyGet = []
+		for b in listAllBuyableShop:
+			if not(user.have(obj=b)):
+				noneAllreadyGet.append(b)
+				if type(b) == stuff and b.minLvl//5 == user.level//5:
+					noneAllreadyGet.append(b)
+					noneAllreadyGet.append(b)
 
-        while jetonsCount > 0:
-            if datetime.now(parisTimeZone) > now + timedelta(seconds=3):
-                await msg.edit(embeds= await getRandomStatsEmbed(bot,[user],text="Utilisation de tous vos jetons... (Reste encore {0} jetons)".format(jetonsCount)),components=[])
-                now = datetime.now(parisTimeZone)
-            gettenShop = userHaveCount/shopTotalCount*100
-            if gettenShop < 25:
-                toGet = [False,True,True,True,True]
-            elif gettenShop < 50:
-                toGet = [False,False,True,True,True]
-            elif gettenShop < 75:
-                toGet = [False,False,False,True,True]
-            elif gettenShop < 100:
-                toGet = [False,False,False,False,True]
-            else:
-                toGet = [False,False,False,False,False]
+		while jetonsCount > 0:
+			if datetime.now(parisTimeZone) > now + timedelta(seconds=3):
+				await msg.edit(embeds= await getRandomStatsEmbed(bot,[user],text="Utilisation de tous vos jetons... (Reste encore {0} jetons)".format(jetonsCount)),components=[])
+				now = datetime.now(parisTimeZone)
+			gettenShop = userHaveCount/shopTotalCount*100
+			if gettenShop < 25:
+				toGet = [False,True,True,True,True]
+			elif gettenShop < 50:
+				toGet = [False,False,True,True,True]
+			elif gettenShop < 75:
+				toGet = [False,False,False,True,True]
+			elif gettenShop < 100:
+				toGet = [False,False,False,False,True]
+			else:
+				toGet = [False,False,False,False,False]
 
-            bigRolly = []
-            for a in toGet:
-                if a:
-                    bigRolly.append(noneAllreadyGet[random.randint(0,len(noneAllreadyGet)-1)])
-                else:
-                    bigRolly.append(listAllBuyableShop[random.randint(0,len(listAllBuyableShop)-1)].price//2)
-            gain = random.randint(0,4)
+			bigRolly = []
+			for a in toGet:
+				if a:
+					bigRolly.append(noneAllreadyGet[random.randint(0,len(noneAllreadyGet)-1)])
+				else:
+					bigRolly.append(listAllBuyableShop[random.randint(0,len(listAllBuyableShop)-1)].price//2)
+			gain = random.randint(0,4)
 
-            if type(bigRolly[gain]) == int:
-                coinGain += bigRolly[gain]
-            else:
-                allGains.append(bigRolly[gain])
-                for toUnlock in noneAllreadyGet[:]:
-                    if toUnlock.id == bigRolly[gain].id:
-                        try:
-                            noneAllreadyGet.remove(toUnlock)
-                        except:
-                            pass
+			if type(bigRolly[gain]) == int:
+				coinGain += bigRolly[gain]
+			else:
+				allGains.append(bigRolly[gain])
+				for toUnlock in noneAllreadyGet[:]:
+					if toUnlock.id == bigRolly[gain].id:
+						try:
+							noneAllreadyGet.remove(toUnlock)
+						except:
+							pass
 
-            jetonsCount -= 1
+			jetonsCount -= 1
 
-        user = loadCharFile(user=user)
-        user.currencies += coinGain
-        for item in allGains:
-            if item.__class__ == classes.weapon:
-                user.weaponInventory.append(item)
-            elif item.__class__ == classes.skill:
-                user.skillInventory.append(item)
-            elif item.__class__ == classes.stuff:
-                user.stuffInventory.append(item)
-        
-        aliceStatsDb.updateJetonsCount(user,jetonsCountInit*-1)
-        saveCharFile(user=user)
+		user = loadCharFile(user=user)
+		user.currencies += coinGain
+		for item in allGains:
+			if item.__class__ == classes.weapon:
+				user.weaponInventory.append(item)
+			elif item.__class__ == classes.skill:
+				user.skillInventory.append(item)
+			elif item.__class__ == classes.stuff:
+				user.stuffInventory.append(item)
+		
+		aliceStatsDb.updateJetonsCount(user,jetonsCountInit*-1)
+		saveCharFile(user=user)
 
-        toSend, hasEditied = "\n{0} <:co:862425847523704832>".format(coinGain), False
-        for a in allGains:
-            toSend += "\n{1} {0}".format(a.name,a.emoji)
+		toSend, hasEditied = "\n{0} <:co:862425847523704832>".format(coinGain), False
+		for a in allGains:
+			toSend += "\n{1} {0}".format(a.name,a.emoji)
 
-        toSend = reduceEmojiNames(toSend)
+		toSend = reduceEmojiNames(toSend)
 
-        if len(toSend) > 4000:
-            tempSend = ""
-            for txt in toSend.splitlines():
-                if len(tempSend)+len(txt) > 4000:
-                    if hasEditied:
-                        await ctx.send(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend))
-                    else:
-                        await msg.edit(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend),components=[])
-                        hasEditied = True
-                    tempSend = txt
-                else:
-                    tempSend += "\n"+txt
-            if hasEditied:
-                await ctx.send(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend))
-            else:
-                await msg.edit(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend),components=[])
-        else:
-            await msg.edit(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=toSend),components=[])
+		if len(toSend) > 4000:
+			tempSend = ""
+			for txt in toSend.splitlines():
+				if len(tempSend)+len(txt) > 4000:
+					if hasEditied:
+						await ctx.send(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend))
+					else:
+						await msg.edit(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend),components=[])
+						hasEditied = True
+					tempSend = txt
+				else:
+					tempSend += "\n"+txt
+			if hasEditied:
+				await ctx.send(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend))
+			else:
+				await msg.edit(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=tempSend),components=[])
+		else:
+			await msg.edit(embeds=interactions.Embed(title="__Vous avez obtenus :__",color=user.color,description=toSend),components=[])
 
 async def seeAllInfo(bot:interactions.Client, user:char)-> interactions.Embed:
-    desc = ""
-    try:            # User owner
-        owner = await bot.get_user(user.owner)
-        desc += "__Compte associé :__ {0}\n".format(owner.mention)
-    except:
-        desc += "`Le compte associé n'a pas pu être récupéré`\n"
+	desc = ""
+	try:			# User owner
+		owner = await bot.get_user(user.owner)
+		desc += "__Compte associé :__ {0}\n".format(owner.mention)
+	except:
+		desc += "`Le compte associé n'a pas pu être récupéré`\n"
 
-    desc += "__Nom :__ {0}, __Niveau :__ {1}<:littleStar:925860806602682369>{2}, __Exp :__ {3}, __Argent :__ {4}\n".format(user.name,user.level,user.stars,user.exp,user.currencies)
-    desc += "__Espèce :__ {0}, __Couleur :__ {1}, __Hexa :__ {2}, __Forme d'icone :__ {3}\n".format(['<:ikaLBlue:866459302319226910>','<:takoLBlue:866459095875190804>'][user.species-1],user.color,user.colorHex,['<:spIka:866465882540605470>','<:komoriOut:930798849969246208>','<:birdOut:930906560811646996>','<:outSkeleton:930910463951249479>'][user.iconForm])
-    emb = interactions.Embed(title="Page de {0}".format(user.name),color=user.color,description=desc)
-    emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id))
+	desc += "__Nom :__ {0}, __Niveau :__ {1}<:littleStar:925860806602682369>{2}, __Exp :__ {3}, __Argent :__ {4}\n".format(user.name,user.level,user.stars,user.exp,user.currencies)
+	desc += "__Espèce :__ {0}, __Couleur :__ {1}, __Hexa :__ {2}, __Forme d'icone :__ {3}\n".format(['<:ikaLBlue:1362015691049533450>','<:takoLBlue:866459095875190804>'][user.species-1],user.color,user.colorHex,['<:spIka:866465882540605470>','<:komoriOut:930798849969246208>','<:birdOut:930906560811646996>','<:outSkeleton:930910463951249479>'][user.iconForm])
+	emb = interactions.Embed(title="Page de {0}".format(user.name),color=user.color,description=desc)
+	emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(await getUserIcon(bot,user)).id))
 
-    tablSays = user.says.tabl()
-    tempSays = ""
+	tablSays = user.says.tabl()
+	tempSays = ""
 
-    for cmpt in range(len(tablSays)):
-        tempReplace = {"Réaction":"Réac.","Victoire":"Vic.","Défaite":"Déf.","réanimation":"réa.","élimination":"élim."}
-        tempCatCmpp, tempo = tablCat[cmpt], tablSays[cmpt]
-        for a in tempReplace:
-            tempCatCmpp = tempCatCmpp.replace(a,tempReplace[a])
+	for cmpt in range(len(tablSays)):
+		tempReplace = {"Réaction":"Réac.","Victoire":"Vic.","Défaite":"Déf.","réanimation":"réa.","élimination":"élim."}
+		tempCatCmpp, tempo = tablCat[cmpt], tablSays[cmpt]
+		for a in tempReplace:
+			tempCatCmpp = tempCatCmpp.replace(a,tempReplace[a])
 
-        if tempo == None:
-            tempo = "-"
-        elif len(tempo) > 30:
-            tempo = tempo[:30]+"(...)"
+		if tempo == None:
+			tempo = "-"
+		elif len(tempo) > 30:
+			tempo = tempo[:30]+"(...)"
 
-        tempSays += "{0} : {1}\n".format(tempCatCmpp,tempo)
-    
-    emb.add_field(name="__Blablator :__",value=tempSays)
-    return emb
+		tempSays += "{0} : {1}\n".format(tempCatCmpp,tempo)
+	
+	emb.add_field(name="__Blablator :__",value=tempSays)
+	return emb
 
 async def userSettings(bot:interactions.Client, user:char, ctx:interactions.SlashContext):
-    msg, state = None, 0
-    while 1:
-        user = loadCharFile(user=user)
-        userIcon = await getUserIcon(bot,user)
+	msg, state = None, 0
+	while 1:
+		user = loadCharFile(user=user)
+		userIcon = await getUserIcon(bot,user)
 
-        if state == 0:
-            typeIA = "Personnalisée"
-            for presetIA1 in preDefCharSet:
-                if user.aspiration in presetIA1[0]:
-                    for presetIA2 in presetIA1[1]:
-                        if user.charSettings == presetIA2[2]:
-                            typeIA = presetIA2[0]
-                            break
-            emb = interactions.Embed(title="__Paramètres de personnage :__",color=user.color,description="__**Type d'IA** :__ {0}".format(typeIA))
-            temp = ""
-            for cmpt in range(len(charsetCatNamesUse)):
-                temp += "__{0} :__ {1}\n".format(charsetCatNamesUse[cmpt],skillProbTxt[user.charSettings[charsetUseNames[cmpt]]])
-            emb.add_field(name="__Utilisations des moyens :__",value=temp,inline=False)
-            temp = ""
-            for cmpt in range(len(charsetCatNamesTarget)):
-                temp += "__{0} :__ {1}\n".format(charsetCatNamesTarget[cmpt],charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]])
-            emb.add_field(name="<:em:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
+		if state == 0:
+			typeIA = "Personnalisée"
+			for presetIA1 in preDefCharSet:
+				if user.aspiration in presetIA1[0]:
+					for presetIA2 in presetIA1[1]:
+						if user.charSettings == presetIA2[2]:
+							typeIA = presetIA2[0]
+							break
+			emb = interactions.Embed(title="__Paramètres de personnage :__",color=user.color,description="__**Type d'IA** :__ *{0}*".format(typeIA))
+			temp = ""
+			for cmpt in range(len(charsetCatNamesUse)):
+				temp += "- {0} : *{1}*\n".format(charsetCatNamesUse[cmpt],skillProbTxt[user.charSettings[charsetUseNames[cmpt]]])
+			emb.add_field(name="<:sinisterLight:1084263936599265381> **__Utilisations des moyens :__**",value=temp,inline=False)
+			temp = ""
+			for cmpt in range(len(charsetCatNamesTarget)):
+				temp += "- {0} : *{1}*\n".format(charsetCatNamesTarget[cmpt],charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]])
+			emb.add_field(name="<:em:866459463568850954>\n<:tirParfait:961187760134311996> **__Cibles Priviligiés :__**",value=temp,inline=False)
 
-            temp, iconSet, iconSetNames, iconSetOption = "", [user.handed,user.showElement,user.showWeapon,user.showAcc], ["Main dominante","Elément","Arme","Accessoire"], [["Gauche","Droite"],["Masqué","Affiché"],["Masquée","Affichée"],["Masqué","Affiché"]]
-            for cmpt in range(len(iconSet)):
-                temp += "__{0} :__ {1}\n".format(iconSetNames[cmpt],iconSetOption[cmpt][iconSet[cmpt]])
-            emb.add_field(name="<:em:866459463568850954>\n__Paramètres d'icon :__",value=temp,inline=False)
-            emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
+			temp, iconSet, iconSetNames, iconSetOption = "", [user.handed,user.showElement,user.showWeapon,user.showAcc], ["Main dominante","Elément","Arme","Accessoire"], [["Gauche","Droite"],["Masqué","Affiché"],["Masquée","Affichée"],["Masqué","Affiché"]]
+			for cmpt in range(len(iconSet)):
+				temp += "- {0} : *{1}*\n".format(iconSetNames[cmpt],iconSetOption[cmpt][iconSet[cmpt]])
+			emb.add_field(name="<:em:866459463568850954>\n<:voixDivine:1085991767834370108> **__Paramètres d'icon :__**", value=temp, inline=False)
+			emb.add_field(name="<:em:866459463568850954>\n<:celestialChoc:1183652099620360252> **__Paramètres d'affichage :__**", value="- Booster de puces journalier : *{0}*\n- Rapport d'expédition automatique : *{1}*\n - Gains de puces en combats : *{2}*".format(["Désactivé", "Activé"][user.showDaily], ["Désactivé", "Activé"][user.showAutoExpe], ["Désactivé", "Soi Uniquement", "Equipe complète"][user.showChip]))
+			emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
 
-            changeIAOptions = interactions.ActionRow(interactions.StringSelectMenu([
-                interactions.StringSelectOption(label="Modifier l'IA",value="changeIA",description="Permet de sélectionner une IA prédéfinie ou de changer ses paramètres d'IA"),
-                interactions.StringSelectOption(label="Modifier l'Icone",value="changeIcon",description="Permet de modifier certains paramètres de votre icon")
-                ],placeholder="Modifier des paramètres",custom_id = "changeIaSelect"))
-            if msg == None:
-                try:
-                    msg = await ctx.send(embeds=emb, components=[changeIAOptions])
-                except:
-                    msg = await ctx.channel.send(embeds=emb, components=[changeIAOptions])
-            else:
-                await msg.edit(embeds=emb, components=[changeIAOptions])
-            
-            def check(m):
-                m = m.ctx
-                return m.author.id == ctx.author.id
-            rep = None
-            try:
-                rep = await bot.wait_for_component(msg,changeIAOptions,check,60)
-                rep: ComponentContext = rep.ctx
-            except asyncio.TimeoutError:
-                await msg.edit(embeds=emb, components=[])
-                return 1
+			changeIAOptions = interactions.ActionRow(interactions.StringSelectMenu([
+				interactions.StringSelectOption(label="Modifier l'IA", value="changeIA", description="Permet de sélectionner une IA prédéfinie ou de changer ses paramètres d'IA"),
+				interactions.StringSelectOption(label="Modifier l'Icone", value="changeIcon", description="Permet de modifier certains paramètres de votre icon"),
+				interactions.StringSelectOption(label="Modifier Affichage", value="changeShow", description="Modifie l'affichage de certains messages")
+				],
+				placeholder="Modifier des paramètres",custom_id = "changeIaSelect"))
+			if msg == None:
+				try:
+					msg = await ctx.send(embeds=emb, components=[changeIAOptions])
+				except:
+					msg = await ctx.channel.send(embeds=emb, components=[changeIAOptions])
+			else:
+				await msg.edit(embeds=emb, components=[changeIAOptions])
+			
+			def check(m):
+				m = m.ctx
+				return m.author.id == ctx.author.id
+			rep = None
+			try:
+				rep = await bot.wait_for_component(msg, changeIAOptions, check, 300)
+				rep: ComponentContext = rep.ctx
+			except asyncio.TimeoutError:
+				await msg.edit(embeds=emb, components=[])
+				return 1
 
-            rep = rep.values[0]
+			rep = rep.values[0]
 
-            if rep == "changeIcon":
-                state = 1
-            elif rep == "changeIA":
-                temp = ""
-                selectIAOptions = []
-                for roleIA in preDefCharSet:
-                    if user.aspiration in roleIA[0]:
-                        for cmpt in range(len(roleIA[1])):
-                            presetIA = roleIA[1][cmpt]
-                            temp += "__**{0}**__\n> - {1}\n\n".format(presetIA[0],presetIA[1].replace("\n","\n> -"))
-                            selectIAOptions.append(interactions.StringSelectOption(label=presetIA[0],value=str(cmpt)))
-                        break
-                
-                selectIAOptions.append(interactions.StringSelectOption(label="Personnaliser",value="-1"))
-                selectIAOptions.append(interactions.StringSelectOption(label="Retour",value="-2"))
-                emb = interactions.Embed(title="__Paramètres de Personnage__",color=user.color,description="__Paramètres Prédéfinies :__\n"+temp)
-                selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "selectIASelect",placeholder="Choisir une IA Préféfinie pour personnaliser la sienne"))
+			if rep == "changeIcon":
+				state = 1
+			elif rep == "changeIA":
+				temp = ""
+				selectIAOptions = []
+				for roleIA in preDefCharSet:
+					if user.aspiration in roleIA[0]:
+						for cmpt in range(len(roleIA[1])):
+							presetIA = roleIA[1][cmpt]
+							temp += "__**{0}**__\n> - {1}\n\n".format(presetIA[0],presetIA[1].replace("\n","\n> -"))
+							selectIAOptions.append(interactions.StringSelectOption(label=presetIA[0],value=str(cmpt)))
+						break
+				
+				selectIAOptions.append(interactions.StringSelectOption(label="Personnaliser",value="-1"))
+				selectIAOptions.append(interactions.StringSelectOption(label="Retour",value="-2"))
+				emb = interactions.Embed(title="__Paramètres de Personnage__",color=user.color,description="__Paramètres Prédéfinies :__\n"+temp)
+				selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "selectIASelect",placeholder="Choisir une IA Préféfinie pour personnaliser la sienne"))
 
-                await msg.edit(embeds=emb,components=[selectIA])
+				await msg.edit(embeds=emb,components=[selectIA])
 
-                try:
-                    rep = await bot.wait_for_component(msg,selectIA,check,timeout=60)
-                    rep: ComponentContext = rep.ctx
-                except asyncio.TimeoutError:
-                    await msg.edit(embeds=emb,components=[])
-                
-                rep = int(rep.values[0])
-                if rep >= 0:
-                    for roleIA in preDefCharSet:
-                        if user.aspiration in roleIA[0]:
-                            print(roleIA[1][rep][0])
-                            user.charSettings = roleIA[1][rep][2]
-                            saveCharFile(user=user)
-                            break
-                elif rep == -2:
-                    pass
-                elif rep == -1:
-                    while 1:
-                        emb = interactions.Embed(title="__Paramètres de personnage :__",color=user.color,description="__**Type d'IA** :__ {0}".format(typeIA))
-                        temp = ""
-                        for cmpt in range(len(charsetCatNamesUse)):
-                            temp += "__{0} :__ {1}\n".format(charsetCatNamesUse[cmpt],skillProbTxt[user.charSettings[charsetUseNames[cmpt]]])
-                        emb.add_field(name="__Utilisations des moyens :__",value=temp,inline=False)
-                        temp = ""
-                        for cmpt in range(len(charsetCatNamesTarget)):
-                            temp += "__{0} :__ {1}\n".format(charsetCatNamesTarget[cmpt],charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]])
-                        emb.add_field(name="<:em:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
-                        emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
-                        selectIAOptions = []
-                        for cmpt in range(len(charsetCatNamesUse)):
-                            selectIAOptions.append(interactions.StringSelectOption(label="Utilisation "+charsetCatNamesUse[cmpt],value=str(cmpt),description=skillProbTxt[user.charSettings[charsetUseNames[cmpt]]]))
-                        for cmpt in range(len(charsetCatNamesTarget)):
-                            selectIAOptions.append(interactions.StringSelectOption(label="Cible "+charsetCatNamesTarget[cmpt],value=str(cmpt+len(charsetCatNamesUse)),description=charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]]))
+				try:
+					rep = await bot.wait_for_component(msg,selectIA,check,timeout=60)
+					rep: ComponentContext = rep.ctx
+				except asyncio.TimeoutError:
+					await msg.edit(embeds=emb,components=[])
+				
+				rep = int(rep.values[0])
+				if rep >= 0:
+					for roleIA in preDefCharSet:
+						if user.aspiration in roleIA[0]:
+							print(roleIA[1][rep][0])
+							user.charSettings = roleIA[1][rep][2]
+							saveCharFile(user=user)
+							break
+				elif rep == -2:
+					pass
+				elif rep == -1:
+					while 1:
+						emb = interactions.Embed(title="__Paramètres de personnage :__",color=user.color,description="__**Type d'IA** :__ {0}".format(typeIA))
+						temp = ""
+						for cmpt in range(len(charsetCatNamesUse)):
+							temp += "__{0} :__ {1}\n".format(charsetCatNamesUse[cmpt],skillProbTxt[user.charSettings[charsetUseNames[cmpt]]])
+						emb.add_field(name="__Utilisations des moyens :__",value=temp,inline=False)
+						temp = ""
+						for cmpt in range(len(charsetCatNamesTarget)):
+							temp += "__{0} :__ {1}\n".format(charsetCatNamesTarget[cmpt],charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]])
+						emb.add_field(name="<:em:866459463568850954>\n__Cibles Priviligiés :__",value=temp,inline=False)
+						emb.set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
+						selectIAOptions = []
+						for cmpt in range(len(charsetCatNamesUse)):
+							selectIAOptions.append(interactions.StringSelectOption(label="Utilisation "+charsetCatNamesUse[cmpt],value=str(cmpt),description=skillProbTxt[user.charSettings[charsetUseNames[cmpt]]]))
+						for cmpt in range(len(charsetCatNamesTarget)):
+							selectIAOptions.append(interactions.StringSelectOption(label="Cible "+charsetCatNamesTarget[cmpt],value=str(cmpt+len(charsetCatNamesUse)),description=charsetTargetOptions[cmpt][user.charSettings[charsetTargetsNames[cmpt]]]))
 
-                        selectIAOptions.append(interactions.StringSelectOption(label="Retour",value = str(-1)))
-                        selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "selectIASelectMenu",placeholder="Choisissez une catégorie à modifier"))
-                        await msg.edit(embeds=emb,components=[selectIA])
+						selectIAOptions.append(interactions.StringSelectOption(label="Retour",value = str(-1)))
+						selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "selectIASelectMenu",placeholder="Choisissez une catégorie à modifier"))
+						await msg.edit(embeds=emb,components=[selectIA])
 
-                        try:
-                            rep3 = await bot.wait_for_component(msg,selectIA,check,60)
-                            rep3: ComponentContext = rep3.ctx
-                        except asyncio.TimeoutError:
-                            await msg.edit(embeds=emb,components=[])
-                            rep = -2
-                            break
+						try:
+							rep3 = await bot.wait_for_component(msg,selectIA,check,60)
+							rep3: ComponentContext = rep3.ctx
+						except asyncio.TimeoutError:
+							await msg.edit(embeds=emb,components=[])
+							rep = -2
+							break
 
-                        rep3 = int(rep3.values[0])
-                        if rep3 == -1:
-                            break
-                        elif rep3 < len(charsetCatNamesUse):
-                            desc = "__Utilisation **{0}**__ :\n> - {1}\n> - {2}\n> - {3}".format(charsetCatNamesUse[rep3],skillProbTxt[0],skillProbTxt[1],skillProbTxt[2])
-                            selectIAOptions = []
-                            for cmpt in range(len(skillProbTxt)):
-                                selectIAOptions.append(interactions.StringSelectOption(label=skillProbTxt[cmpt],value=str(cmpt)))
-                            
-                            selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "selectIATheThird",placeholder="Choissez un paramètre"))
-                            await msg.edit(embeds=interactions.Embed(title="__Paramètres de personnage__",description=desc,color=user.color),components=[selectIA])
+						rep3 = int(rep3.values[0])
+						if rep3 == -1:
+							break
+						elif rep3 < len(charsetCatNamesUse):
+							desc = "__Utilisation **{0}**__ :\n> - {1}\n> - {2}\n> - {3}".format(charsetCatNamesUse[rep3],skillProbTxt[0],skillProbTxt[1],skillProbTxt[2])
+							selectIAOptions = []
+							for cmpt in range(len(skillProbTxt)):
+								selectIAOptions.append(interactions.StringSelectOption(label=skillProbTxt[cmpt],value=str(cmpt)))
+							
+							selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "selectIATheThird",placeholder="Choissez un paramètre"))
+							await msg.edit(embeds=interactions.Embed(title="__Paramètres de personnage__",description=desc,color=user.color),components=[selectIA])
 
-                            try:
-                                rep2 = await bot.wait_for_component(msg,selectIA,check,60)
-                                rep2: ComponentContext = rep2.ctx
-                            except asyncio.TimeoutError:
-                                await msg.edit(embeds=emb,components=[])
-                                break
+							try:
+								rep2 = await bot.wait_for_component(msg,selectIA,check,60)
+								rep2: ComponentContext = rep2.ctx
+							except asyncio.TimeoutError:
+								await msg.edit(embeds=emb,components=[])
+								break
 
-                            user.charSettings[charsetUseNames[rep3]] = int(rep2.values[0])
-                            saveCharFile(user=user)
-                        else:
-                            rep3 -= len(charsetCatNamesUse)
-                            desc = "__Cible **{0}**__ :".format(charsetCatNamesTarget[rep3])
-                            selectIAOptions = []
-                            for cmpt in range(len(charsetTargetOptions[rep3])):
-                                selectIAOptions.append(interactions.StringSelectOption(label=charsetTargetOptions[rep3][cmpt],value=str(cmpt)))
-                                desc += "\n> - {0}".format(charsetTargetOptions[rep3][cmpt])
-                            
-                            selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "anotherSelectIA",placeholder="Choissez un paramètre"))
-                            await msg.edit(embeds=interactions.Embed(title="__Paramètres de personnage__",description=desc,color=user.color),components=[selectIA])
+							user.charSettings[charsetUseNames[rep3]] = int(rep2.values[0])
+							saveCharFile(user=user)
+						else:
+							rep3 -= len(charsetCatNamesUse)
+							desc = "__Cible **{0}**__ :".format(charsetCatNamesTarget[rep3])
+							selectIAOptions = []
+							for cmpt in range(len(charsetTargetOptions[rep3])):
+								selectIAOptions.append(interactions.StringSelectOption(label=charsetTargetOptions[rep3][cmpt],value=str(cmpt)))
+								desc += "\n> - {0}".format(charsetTargetOptions[rep3][cmpt])
+							
+							selectIA = interactions.ActionRow(interactions.StringSelectMenu(selectIAOptions,custom_id = "anotherSelectIA",placeholder="Choissez un paramètre"))
+							await msg.edit(embeds=interactions.Embed(title="__Paramètres de personnage__",description=desc,color=user.color),components=[selectIA])
 
-                            try:
-                                rep2 = await bot.wait_for_component(msg,selectIA,check,60)
-                                rep2: ComponentContext = rep2.ctx
-                            except asyncio.TimeoutError:
-                                await msg.edit(embeds=emb,components=[])
-                                break
+							try:
+								rep2 = await bot.wait_for_component(msg,selectIA,check,60)
+								rep2: ComponentContext = rep2.ctx
+							except asyncio.TimeoutError:
+								await msg.edit(embeds=emb,components=[])
+								break
 
-                            user.charSettings[charsetTargetsNames[rep3]] = int(rep2.values[0])
-                            saveCharFile(user=user)
+							user.charSettings[charsetTargetsNames[rep3]] = int(rep2.values[0])
+							saveCharFile(user=user)
+			elif rep == "changeShow":
+				tmpDesc = "__Booster de puces journalier :__ **{0}**\n> - Désactivé : Le message ne s'affichera que si le bouton correspondant est pressé en fin de combat\n> - Activé : Le message sera envoyé dans le salon avant le premier combat du jour\n\n__Rapport d'expédition automatique :__ **{1}**\n> - Désactivé : Le message ne s'affichera que si le bouton correspondant est pressé en fin de comba\n> - Activé : Le message sera envoyé dans le salon avant le combat qui a mit fin à l'expédition\n\n__Gains de puces en combats :__ **{2}**\n> - Désactivé : Le message ne s'affichera que si le bouton correspondant est pressé en fin de combat\n> - Soi uniquement : Si vous avez obtenu un booster de puce, son message d'ouverture sera toujours envoyé en fin de combat. Pour pouvoir voir les puces obtenu par vos coéquipiers, vous pourrez presser un bouton sous la fênetre de résultats\n> - Equipe complète : Le message affichant les puces obtenus par toute l'équipe sera toujours envoyé à la fin du combat".format(["Désactivé", "Activé"][user.showDaily], ["Désactivé", "Activé"][user.showAutoExpe], ["Désactivé", "Soi Uniquement", "Equipe complète"][user.showChip])
+				buttonDaily = interactions.Button(style=[ButtonStyle.BLUE, ButtonStyle.GREY][user.showDaily], label="Booster Journalier : {0}".format(["Activer", "Désactiver"][user.showDaily]), custom_id="daily_{0}".format(int(not(user.showDaily))), emoji=PartialEmoji.from_str("<:time1:907474383034023977>"))
+				buttonExpe = interactions.Button(style=[ButtonStyle.BLUE, ButtonStyle.GREY][user.showAutoExpe], label="Expédition Auto : {0}".format(["Activer", "Désactiver"][user.showAutoExpe]), custom_id="expe_{0}".format(int(not(user.showAutoExpe))), emoji=PartialEmoji.from_str("<:analyse:1116225083904626748>"))
+				buttonChipDisabled = interactions.Button(style=ButtonStyle.GREY, label="Puces : Désactiver", custom_id = "chip_0", disabled=user.showChip == 0, emoji=PartialEmoji.from_str("<:mythicalChip:1217569212642365520>"))
+				buttonChipSelf = interactions.Button(style=ButtonStyle.GREEN, label="Puces : Soi uniquement", custom_id = "chip_1", disabled=user.showChip == 1, emoji=PartialEmoji.from_str("<:mythicalChip:1220026683634094102>"))
+				buttonChipTeam = interactions.Button(style=ButtonStyle.BLUE, label="Puces : Equipe Complète", custom_id = "chip_2", disabled=user.showChip == 2, emoji=PartialEmoji.from_str("<:communChip:1217187986085646427>"))
+				actionRow = [interactions.ActionRow(buttonDaily, buttonExpe), interactions.ActionRow(buttonChipDisabled, buttonChipSelf, buttonChipTeam)]
 
-        elif state == 1:
-            desc = "__Main dominante :__ {0}\n__Aff. élément :__ {1}\n__Aff. arme :__ {2}\n__Aff. accessoire :__ {3}".format(["Gauche","Droite"][user.handed],["Non","Oui"][user.showElement],["Non","Oui"][user.showWeapon],["Non","Oui"][user.showAcc])
+				await msg.edit(embeds=Embed(title="__User Settings__", description=tmpDesc, color=user.color), components=actionRow)
+				def check(m):
+					m = m.ctx
+					return int(m.author.id) == int(ctx.author.id)
 
-            boutonHand = interactions.Button(style=2, label=["Main droite","Main gauche"][user.handed],custom_id="hand")
-            boutonElem = interactions.Button(style=[ButtonStyle.PRIMARY,2][user.showElement],label=["Afficher l'élément","Cacher l'élément"][user.showElement],custom_id="elem")
-            boutonArme = interactions.Button(style=[ButtonStyle.PRIMARY,2][user.showWeapon],label=["Afficher l'arme","Cacher l'arme"][user.showWeapon],custom_id="weap")
-            boutonAcc = interactions.Button(style=[ButtonStyle.PRIMARY,2][user.showAcc],label=["Afficher l'accessoire","Cacher l'accessoire"][user.showAcc],custom_id="acc")
-            boutonReturn = interactions.Button(style=2,label="Retour",custom_id="back")
-            actionRow = [interactions.ActionRow(boutonHand,boutonElem,boutonArme,boutonAcc,boutonReturn)]
+				try:
+					react = await bot.wait_for_component(messages=msg, check=check, timeout=30)
+					react: ComponentContext = react.ctx
+				except asyncio.TimeoutError:
+					await msg.edit(embeds=emb,components=[])
+					return 0
+				except:
+					await ctx.send(embeds=Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue", description=format_exc()), ephemiral=True)
+					await msg.edit(embeds=emb, components=[])
+					return 0
+				
+				try:
+					print(react.custom_id)
+					if react.custom_id.startswith("daily_"):
+						user.showDaily = int(react.custom_id[-1])
+					elif react.custom_id.startswith("expe_"):
+						user.showAutoExpe = int(react.custom_id[-1])
+					elif react.custom_id.startswith("chip_"):
+						user.showChip = int(react.custom_id[-1])
+					saveCharFile(user=user)
+					await react.respond("Votre modification a bien été prise en compte", ephemeral=True)
+				except Exception as e:
+					print_exc()
+					await react.respond("Une erreur est survenue :\n{0}".format(e))
+			
+		elif state == 1:
+			desc = "__Main dominante :__ {0}\n__Aff. élément :__ {1}\n__Aff. arme :__ {2}\n__Aff. accessoire :__ {3}".format(["Gauche","Droite"][user.handed],["Non","Oui"][user.showElement],["Non","Oui"][user.showWeapon],["Non","Oui"][user.showAcc])
 
-            emb = interactions.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
-            await msg.edit(embeds=emb,components=actionRow)
+			boutonHand = interactions.Button(style=2, label=["Main droite","Main gauche"][user.handed],custom_id="hand")
+			boutonElem = interactions.Button(style=[ButtonStyle.PRIMARY,2][user.showElement],label=["Afficher l'élément","Cacher l'élément"][user.showElement],custom_id="elem")
+			boutonArme = interactions.Button(style=[ButtonStyle.PRIMARY,2][user.showWeapon],label=["Afficher l'arme","Cacher l'arme"][user.showWeapon],custom_id="weap")
+			boutonAcc = interactions.Button(style=[ButtonStyle.PRIMARY,2][user.showAcc],label=["Afficher l'accessoire","Cacher l'accessoire"][user.showAcc],custom_id="acc")
+			boutonReturn = interactions.Button(style=2,label="Retour",custom_id="back")
+			actionRow = [interactions.ActionRow(boutonHand,boutonElem,boutonArme,boutonAcc,boutonReturn)]
 
-            def check(m):
-                m = m.ctx
-                return int(m.author.id) == int(ctx.author.id)
+			emb = interactions.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id))
+			await msg.edit(embeds=emb,components=actionRow)
 
-            try:
-                react = await bot.wait_for_component(messages=msg,check=check,timeout=30)
-                react: ComponentContext = react.ctx
-            except asyncio.TimeoutError:
-                await msg.edit(embeds=emb,components=[])
-                return 0
-            except:
-                await ctx.send(embeds=Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=format_exc()),ephemiral=True)
-                await msg.edit(embeds=emb,components=[])
-                return 0
+			def check(m):
+				m = m.ctx
+				return int(m.author.id) == int(ctx.author.id)
 
-            if react.custom_id != "back":
-                await msg.edit(embeds=interactions.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id)),components=[interactions.ActionRow(interactions.Button(style=2,label="Chargment...",emoji=getEmojiObject('<a:loading:862459118912667678>'),custom_id="loading",disabled=True))])
-                tablTemp, tablTempId = [user.handed,user.showElement,user.showWeapon,user.showAcc], ["hand","elem","weap","acc"]
-                for cmpt in range(4):
-                    if react.custom_id == tablTempId[cmpt]:
-                        tablTemp[cmpt] = [not(tablTemp[cmpt]),int(not(bool(tablTemp[cmpt])))][cmpt == 0]
+			try:
+				react = await bot.wait_for_component(messages=msg,check=check,timeout=30)
+				react: ComponentContext = react.ctx
+			except asyncio.TimeoutError:
+				await msg.edit(embeds=emb,components=[])
+				return 0
+			except:
+				await ctx.send(embeds=Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=format_exc()),ephemiral=True)
+				await msg.edit(embeds=emb,components=[])
+				return 0
 
-                user.handed,user.showElement,user.showWeapon,user.showAcc = tablTemp[0],tablTemp[1],tablTemp[2],tablTemp[3]
+			if react.custom_id != "back":
+				await msg.edit(embeds=interactions.Embed(title="__User Settings__",description=desc,color=user.color).set_thumbnail(url="https://cdn.discordapp.com/emojis/{0}.png".format(getEmojiObject(userIcon).id)),components=[interactions.ActionRow(interactions.Button(style=2,label="Chargment...",emoji=getEmojiObject('<a:loading:862459118912667678>'),custom_id="loading",disabled=True))])
+				tablTemp, tablTempId = [user.handed,user.showElement,user.showWeapon,user.showAcc], ["hand","elem","weap","acc"]
+				for cmpt in range(4):
+					if react.custom_id == tablTempId[cmpt]:
+						tablTemp[cmpt] = [not(tablTemp[cmpt]),int(not(bool(tablTemp[cmpt])))][cmpt == 0]
 
-                saveCharFile(user=user)
-                await makeCustomIcon(bot,user)
-            else:
-                state = 0
+				user.handed,user.showElement,user.showWeapon,user.showAcc = tablTemp[0],tablTemp[1],tablTemp[2],tablTemp[3]
+
+				saveCharFile(user=user)
+				await makeCustomIcon(bot,user)
+			else:
+				state = 0

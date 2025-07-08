@@ -14,7 +14,7 @@ asileSkillEff.power = 10
 asileSkill = skill("Asile","asileSkill",TYPE_HEAL,power=35,effects=asileSkillEff,range=AREA_MONO,area=AREA_CIRCLE_2,use=CHARISMA,effBeforePow=True)
 asileDepl = depl("Asile",asileSkill,["<:asileB:1013751801742372947>","<:asileR:1013751836412489820>"],["<:tasileB:1013751863386046556>","<:tasileR:1013751895938048060>"],"Place une zone sur une cellule qui augmentera les soins reçus par les alliés de **{0}%** et les soigneras (Puissance : **{1}**)".format(asileSkillEff.power,asileSkill.power))
 
-liaTornadeSkill = skill("Tatsumaki","liaTornadeSkill",TYPE_DAMAGE,power=100,range=AREA_MONO,area=AREA_CIRCLE_2,use=MAGIE,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_3,50])
+liaTornadeSkill = skill("Tatsumaki","liaTornadeSkill",TYPE_DAMAGE,power=50,range=AREA_MONO,area=AREA_CIRCLE_2,use=MAGIE,effectAroundCaster=[TYPE_HEAL,AREA_CIRCLE_3,100])
 liaTornade = depl("Tatsumaki",liaTornadeSkill,["<:liaDepl:1013912739728592896>","<:liaDepl:1013912739728592896>"],["<:tliaDepl:1013912690877550664>","<:tliaDepl:1013912690877550664>"],"Lia invoque une tornade sur la cellule ciblée, infligeant des dégâts avec une puissance de **{0}** et soigne la kitsune si celle-ci se trouve à l'intérieur avec une puissance de **{1}**".format(liaTornadeSkill.power,liaTornadeSkill.effectAroundCaster[2]))
 
 lohicaDeplSkill = skill("Brouillard Empoisonné","lohicaDeplSkill",TYPE_INDIRECT_DAMAGE,range=AREA_MONO,area=AREA_CIRCLE_2,effects="me",effPowerPurcent=70,emoji="<:poisonusMist:1059084936100970556>",use=MAGIE)
@@ -39,7 +39,7 @@ corruptusAreaDepl = depl("Zone Corrompue",corruptusAreaSkill,["<:fa:101408185025
 
 snowFallGlypheEff = effect("Avalanche","snowFallGlyphe", stat=INTELLIGENCE,resistance=3)
 snowFallGlypheSkill = skill("Glyphe Avalanche","snowfallGlypheSkill",TYPE_DAMAGE,power=35,range=AREA_MONO,area=AREA_CIRCLE_2,use=INTELLIGENCE,emoji='<:imea1:1020057856772419605>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_WATER],effectAroundCaster=[TYPE_BOOST,AREA_CIRCLE_2,snowFallGlypheEff])
-snowFallGlypheDepl = depl("Glyphe Avalanche",snowFallGlypheSkill,["<:snowfall:1116430780445495497>","<:snowfall:1116430780445495497>"],description="Un glyphe qui inflige des dégâts ({0}) aux ennemis et augmente la résistance ({1}) des alliés".format(statsEmojis[snowFallGlypheSkill.use],statsEmojis[snowFallGlypheEff.stat]))
+snowFallGlypheDepl = depl("Glyphe Avalanche",snowFallGlypheSkill,["<:snowfall:1116430780445495497>","<:snowfall:1116430780445495497>"],description="Un glyphe qui inflige des dégâts ({0}) aux ennemis et augmente la résistance ({1}) des alliés".format(statEmojis[snowFallGlypheSkill.use],statEmojis[snowFallGlypheEff.stat]))
 
 holyGroundIEff1 = copy.deepcopy(defenseUp)
 holyGroundIEff1.power, holyGroundIEff1.stat, holyGroundIEff1.turnInit = 5, INTELLIGENCE, 1

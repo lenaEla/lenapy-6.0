@@ -1,7 +1,7 @@
 from classes import *
 from advObjects.advWeapons import *
 from advObjects.advSkills import *
-from advObjects.advStuffs import *
+from advObjects.gearSetList import *
 from advObjects.advSummons import *
 from advObjects.advEffects import *
 from advObjects.advEnnemies import *
@@ -49,7 +49,7 @@ previewDict = {
 
 changeIconForm = [grandNouveau,ilianaGrelot,aliceBatEarRing,birdup,Megalovania,amary]
 
-smnAnaisEff.callOnTrigger=anais
+smnAnaisEff.callOnTrigger= findSummon(anaisSmn)
 
 # Specials skills ================================================================================
 # Total Kboum
@@ -195,8 +195,17 @@ def seeAllStuffAtMinLvl(level:int):
 
 	return toReturn
 
+def bundleRepartition():
+	result = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+	for tmpBundle in gearSetList:
+		result[int(tmpBundle.gearSetLevel//10)] += 1
+
+	print("Build repartition :")
+	for tmp in range(11):
+		print("Lvl {} : {}".format(tmp * 10, result[tmp]))
+
 # Stuff verifications ===========================================================================
-if not(isLenapy):
+if not(isLenapy) and 0:
 	print("=============================\nVérification de l'équilibrage des stuffs...")
 	print("Nombre d'équipements :", len(stuffs))
 	allstats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -212,19 +221,19 @@ if not(isLenapy):
 			for b in babie:
 				sumation -= b
 
-			if sumation < 18 and summation > 22 and a.effects == None and a.name != "Claquettes chaussettes":
-				print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
+			if sumation < 18 and sumation > 22 and a.effects == None and a.name != "Claquettes chaussettes":
+				print("{0} n'a pas le bon cumul de stats : {1}".format(a.name, sumation))
 
 			elif sumation != 10 and a.effects != None:
-				print("{0} n'a pas le bon cumul de stats : {1}".format(a.name,sumation))
+				print("{0} n'a pas le bon cumul de stats : {1}".format(a.name, sumation))
 
 	temp = "\nDistribution des statistiques :\n"
 	total = 0
 	for a in allstats:
 		total += a
 
-	for a in range(0,len(allStatsNames)):
-		temp += "{0} : {1}% ({2})\n".format(allStatsNames[a],round(allstats[a]/total*100,2),allstats[a])
+	for a in range(0,len(nameAllStats)):
+		temp += "{0} : {1}% ({2})\n".format(nameAllStats[a],round(allstats[a]/total*100,2),allstats[a])
 	#print(temp)
 
 	lvlTabl = [{"level":0,"nombre":0}]
@@ -333,6 +342,7 @@ if not(isLenapy):
 
 #print(seeSimilarStuffNameMinLvl("papillon rose"))
 #print(seeAllStuffAtMinLvl(0))
+#bundleRepartition()
 
 """for stuffy in stuffs:
 	if stuffy.emoji in ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']:
@@ -530,7 +540,6 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
 		icon=enemy.icon,
 		say=enemy.says,
 		splashArt=enemy.splashArt,
-		splashIcon=enemy.splashIcon,
 		team = ennemi.npcTeam)
 
 	if toReturn.name == "Marinier Sabreur":
@@ -539,12 +548,17 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
 			toReturn.species, toReturn.icon = 1, "<:pirSab1:1059519845177249812>"
 		else:
 			toReturn.species, toReturn.icon = 2, "<:pirSan2:1059519736347631696>"
+		toReturn.color == 0xE572FE
+		toReturn.equippedChips = [getChip("Altruisme", "Constitution II", "Vampirisme I", "Blocage augmenté", "Dégâts indirects reçus réduits", "Cicatrisation"), getChip("Diffraction", "Dégâts directs augmentés", "Lune de Sang", "Vampirisme I", "Blocage augmenté")]
 	elif toReturn.name == "Marinier Tireur":
 		toReturn.name = "Pirate Tireur"
 		if random.randint(0,1) < 1:
 			toReturn.species, toReturn.icon = 1, "<:pirGun1:1059519820376330351>"
 		else:
 			toReturn.species, toReturn.icon = 2, "<:pirGun2:1059519760284528640>"
+		toReturn.color == 0xE572FE
+		toReturn.equippedChips = [getChip("Démolition", "Incurable", "Précision Critique", "Précision augmentée I", "Force augmentée I"), getChip("Diffraction", "Dégâts directs augmentés", "Lune de Sang", "Vampirisme I", "Force augmentée I")]
+
 
 	toReturn.standAlone = enemy.standAlone
 	toReturn.changeLevel(lvl,False,0)
@@ -567,4 +581,4 @@ def aformRandomiser(entity: octarien, nb: int = None):
 		entity.skills = newData[3]
 		entity.strength, entity.endurance, entity.charisma, entity.agility, entity.precision, entity.intelligence, entity.magie, entity.resistance, entity.percing, entity.critical = newData[4][0], newData[4][1], newData[4][2], newData[4][3], newData[4][4], newData[4][5], newData[4][6], newData[4][7], newData[4][8], newData[4][9]
 		entity.aspiration = newData[5]
-	return entity
+	return copy.deepcopy(entity)

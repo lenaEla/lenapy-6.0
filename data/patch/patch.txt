@@ -1,19 +1,41 @@
-Patch 6.8.5
-__Combat :__
-- Au début du combat, les Aformités d'Ombres, de Lumières et d'Espaces s'affinent en une aformité précise, modifiant leurs statistiques et compétences
-> Il est possible de consulter chaque concrétisation via les compétences des aformités concernée dans l'encyclopédie
-- Ajout d'un combat spécial ou une groupe prédéfini d'alliés ou votre propre équipe affrontent un groupe d'afformité
+Patch 7.0.0
+__Components v2 :__
+Les fênetres suivantes utilisent désormais les compenents v2 et on reçus des changements estétiques :__
+- Mimikator
+- Comparaison entre deux équipements
 
-__Equilibrage:__
-- L'effet Soins et Armures augmentés est désormais cumulable
-- L'effet Acharnement se déclanche désormais après les dégâts directes qui l'ont déclanché et plus avant
-- Clémence ne prend plus sa forme enfantine si au moins une aformité est présente dans l'équipe ennemie
+Les fênetres suivantes ont été retravaillées pour les rendre plus simple d'utilisation :
+- Éléments
+- Blablator
+- Création de personnage
+
+__Equipement :__
+- Tous les équipements ont désormais une orientation automatique, en fonction de plusieurs critères parmis leurs statistiques
+> - Cette modification est principalement estétique afin de permettre de comprendre plus rapidement pour quel type de build est prévu un équipements
+- Les équipements ne peuvent plus avoir d'affinité élémentaires
+
+__Éléments :__
+- Les cristaux élémentaires servent désormais à changer l'élément principal d'un personnage uniquement
+> - N'importe quel élément peut désormais être sélectionné en consommant un cristal élémentaire
+- Les cristaux dimentionnels servent désormais à changer l'élément secondaire d'un personnage uniquement
+> - N'importe quel élément peut désormais être sélectionné en consommant un cristal dimentionnel
+- Les restrinctions de niveau ne s'applique plus aux personnages ayant prestige au moins une fois
+
+__Aspiration :__
+- Berserk :
+> - La description du passif précise désormais que les Berserks infligent plus de dégâts quand leurs PVs sont critiques
+> -# Ce passif était déjà effectif, juste non mentionné
+
+- Poids-Plume : 
+> - L'Endurance et le Charisme des statistiques octroyés par l'aspiration Poids-Plume a été réduit, tandis que la Magie a été augmenté à la même valeur que la Force
+> - Les statistiques recommandés ont été modifié pour être désormais "Agilité", "Précision" et "Résistance"
+> - La description du passif a été remaniée pour être plus explicite
+
+- Observateur, Mascotte, Protecteur, Vigilant, Enchanteur :
+> - La description du passif a été remaniée pour être plus explicite
 
 __Autre :__
-- Icealia a désormais un splashicon
-- La probabilité de tomber sur Phy sont revenues à la normale
-- La probabilité de tomber sur le combat spécial du Main Crew est revenue à la normale
-- La probabilité de tomber sur le combat spécial contre les aformités a été accrue
-
-__Corrections :__
-- Optimisation de la procédure de retour d'expéditions
+- Il est désormais directement possible de rentrer une couleur personnalisée lors de la création de personnage
+- Il est désormais directement possible de rentrer une couleur personnalisée lors d'un changement d'apparance
+- L'objet "Couleur personnalisé" étant désormais obscelette, il ne peut plus apparaitre au shop, ni être utlisé depuis l'inventaire
+- Les descriptions de certaines compétences ont été réécrites

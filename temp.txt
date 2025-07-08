@@ -1,0 +1,53 @@
+Carnage Mortel ==============================
+0  :  <SectionComponent type=9 components=[<TextDisplayComponent type=10 style=### <:deathSentance:1242736904953135144> __Carnage Mortel__
+
+__Description :__
+*Vous octroie <:soulJauge:983595647292829716> __Jauge d'Âme__ et vous permet d'utiliser <:carnage:1030489266784059472> __Carnage__, une compétence infligeant des dégâts autour de vous et réduit les soins reçus par les ennemis touchés. Si votre <:soulJauge:983595647292829716> __Jauge d'Âme__ dépasse les 75 points, <:carnage:1030489266784059472> __Carnage__ devient <:deathSentance:1242736904953135144> __Mise à Mort__, une compétence infligeant de fort dégâts de zone centré sur un ennemi au corps à corps tout en réduisant ses soins reçus et lui infligeant en plus des dégâts en fonction de ses PVs manquants*>] accessory=<ThumbnailComponent type=11 media=<UnfurledMediaItem url=https://cdn.discordapp.com/emojis/1242736904953135144.webp> description=None spoiler=False>>
+1  :  <SeparatorComponent type=14 divider=False spacing=1>
+2  :  <SectionComponent type=9 components=[<TextDisplayComponent type=10 style=
+__Puissance :__
+- <:carnage:1030489266784059472> *Carnage* <:strength:1137363979950375022> **85** (<:rangeMono:1032293272783179796><:areaCircle:1032293380379656192>(1))
+- <:deathSentance:1242736904953135144> *Mise à Mort* <:strength:1137363979950375022> **125** (<:rangeCircle:1032293347869593691>(1)<:areaCircle:1032293380379656192>(1))
+
+__Temps de rechargement :__
+- <:carnage:1030489266784059472> Carnage : **5** tours
+- <:deathSentance:1242736904953135144> Mise à Mort : **5** tours
+>] accessory=<Button type=2 style=2 label=Détails des zones d'effets emoji=⬇️ custom_id=areaButton sku_id=None url=None disabled=False>>
+3  :  <TextDisplayComponent type=10 style=Inflige l'effet <:assassination:1157411186514596002> __Mise à Mort__ à la cible>
+4  :  <TextDisplayComponent type=10 style=**__Inflige l'effet <:assassination:1157411186514596002> Mise à Mort à la cible :__**
+__Type :__ <:indirect:1137364330237673542> Dégâts indirects
+__Puissance :__ **20% PV manquants** (*<:areaMono:1032293314130616400> Monocible*)
+
+Cet effet se déclanche lors de la pose de cet effet>
+5  :  <TextDisplayComponent type=10 style=Inflige l'effet <:incurB:1143285329391001762> __Incurable__ à la cible>
+6  :  <TextDisplayComponent type=10 style=**__Inflige l'effet <:incurB:1143285329391001762> Incurable à la cible :__**
+__Type :__ <:boost:1137364341591638126> Malus
+__Puissance :__ **30** (Fixe) (*<:areaMono:1032293314130616400> Monocible*)
+__Durée :__ 1 tour
+
+Cet effet est **cumulable**
+
+__Description :__
+Diminue les soins reçus par la cible de **30**%.
+Seul l'effet Incurable le plus puissant est pris en compte
+>
+7  :  <SeparatorComponent type=14 divider=False spacing=1>
+8  :  <SectionComponent type=9 components=[<TextDisplayComponent type=10 style=**Effet spéciaux :**
+- <:deathSentance:1242736904953135144> __Mise à Mort__ : <:critical:1137364347308494849>
+>] accessory=<Button type=2 style=2 label=Détails des effets spéciaux emoji=⬇️ custom_id=legendeButton sku_id=None url=None disabled=False>>
+9  :  <SeparatorComponent type=14 divider=False spacing=1>
+10  :  <SectionComponent type=9 components=[<TextDisplayComponent type=10 style=**Effet spéciaux :**
+- <:deathSentance:1242736904953135144> __Mise à Mort__ : <:critical:1137364347308494849>
+>] accessory=<Button type=2 style=2 label=Détails des effets spéciaux emoji=⬇️ custom_id=legendeButton sku_id=None url=None disabled=False>>
+11  :  <SeparatorComponent type=14 divider=False spacing=1>
+12  :  <SectionComponent type=9 components=[<TextDisplayComponent type=10 style=
+**Consommation de <:soulJauge:983595647292829716> __Jauge d'Âme__ :**
+- <:carnage:1030489266784059472> __Carnage__ n'est utilisable uniquement si la <:soulJauge:983595647292829716> __Jauge d'Âme__ est inférieure à 75 points
+- <:deathSentance:1242736904953135144> __Mise à Mort__ : **75** points
+>] accessory=<Button type=2 style=2 label=Jauge d'Âme emoji=<:soulJauge:983595647292829716> custom_id=jaugeButton sku_id=None url=None disabled=False>>
+13  :  <SeparatorComponent type=14 divider=False spacing=1>
+14  :  <SectionComponent type=9 components=[<TextDisplayComponent type=10 style=
+**Consommation de <:soulJauge:983595647292829716> __Jauge d'Âme__ :**
+- <:carnage:1030489266784059472> __Carnage__ n'est utilisable uniquement si la <:soulJauge:983595647292829716> __Jauge d'Âme__ est inférieure à 75 points
+- <:deathSentance:1242736904953135144> __Mise à Mort__ : **75** points
+>] accessory=<Button type=2 style=2 label=Jauge d'Âme emoji=<:soulJauge:983595647292829716> custom_id=jaugeButton sku_id=None url=None disabled=False>>

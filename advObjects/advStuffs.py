@@ -2,68 +2,68 @@ from classes import *
 from constantes import *
 
 def allowIdToStuffTabl(tablSuff, lastKnowedId):
-    lenTablAddStuff = len(tablSuff)
-    tablAddStuffId = getArrayAutoId(lastKnowedId,lenTablAddStuff)
-    for cmpt in range(lenTablAddStuff):
-        tablSuff[cmpt].id = tablAddStuffId[cmpt]
+	lenTablAddStuff = len(tablSuff)
+	tablAddStuffId = getArrayAutoId(lastKnowedId,lenTablAddStuff)
+	for cmpt in range(lenTablAddStuff):
+		tablSuff[cmpt].id = tablAddStuffId[cmpt]
 
 def autoGenerateStuff(fromTabl:List[stuff],lastKnowedId:str,toLevel=MAXLEVEL):
-    tablAddStuff, tablDefaultEmojis = [], ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']+["<:60ruban:1216382821879255131>","<:60dress:1216382843375325335>","<:60babies:1216382863663169606>","<:70ruban:1216382891907481721>","<:70dress:1216382913520861215>","<:70babies:1216382938485100724>","<:80ruban:1216383006084960256>","<:80dress:1216382982785466399>","<:80babies:1216382961671208961>","<:90ruban:1216383080940568577>","<:90dress:1216383060032094370>","<:90babies:1216383030973960192>","<:100ruban:1216383134615212205>","<:100dress:1216383152738795551>","<:100babies:1216383175396163624>"]
-    for cmpt in range((toLevel-fromTabl[0].minLvl)//10):
-        for indx, eStuff in enumerate(fromTabl):
-            stats, credit = {}, 20*(cmpt+1)
-            for indx2, stat in enumerate(eStuff.allStats()+[eStuff.resistance,eStuff.percing,eStuff.critical,eStuff.negativeHeal*-1,eStuff.negativeBoost*-1,eStuff.negativeShield*-1,eStuff.negativeDirect*-1,eStuff.negativeIndirect*-1]):
-                stats[indx2]=stat
+	tablAddStuff, tablDefaultEmojis = [], ['<:defHead:896928743967301703>','<:defMid:896928729673109535>','<:defShoes:896928709330731018>']+["<:60ruban:1216382821879255131>","<:60dress:1216382843375325335>","<:60babies:1216382863663169606>","<:70ruban:1216382891907481721>","<:70dress:1216382913520861215>","<:70babies:1216382938485100724>","<:80ruban:1216383006084960256>","<:80dress:1216382982785466399>","<:80babies:1216382961671208961>","<:90ruban:1216383080940568577>","<:90dress:1216383060032094370>","<:90babies:1216383030973960192>","<:100ruban:1216383134615212205>","<:100dress:1216383152738795551>","<:100babies:1216383175396163624>"]
+	for cmpt in range((toLevel-fromTabl[0].minLvl)//10):
+		for indx, eStuff in enumerate(fromTabl):
+			stats, credit = {}, 20*(cmpt+1)
+			for indx2, stat in enumerate(eStuff.allStats()+[eStuff.resistance,eStuff.percing,eStuff.critical,eStuff.negativeHeal*-1,eStuff.negativeBoost*-1,eStuff.negativeShield*-1,eStuff.negativeDirect*-1,eStuff.negativeIndirect*-1]):
+				stats[indx2]=stat
 
-            stats = {k: v for k, v in sorted(stats.items(), key = lambda item: item[1], reverse=True)}
-            nameStats = {}
-            for k in stats:
-                nameStats[allStatsNames[k]]=stats[k]
+			stats = {k: v for k, v in sorted(stats.items(), key = lambda item: item[1], reverse=True)}
+			nameStats = {}
+			for k in stats:
+				nameStats[nameAllStats[k]]=stats[k]
 
-            tempStats, toAdd, creditToBeSpend = [ENDURANCE,AGILITY,PRECISION], [], (cmpt+1)*5
-            statsKeys = list(stats.keys())
+			tempStats, toAdd, creditToBeSpend = [ENDURANCE,AGILITY,PRECISION], [], (cmpt+1)*5
+			statsKeys = list(stats.keys())
 
-            for x in tempStats:
-                if stats[x] > 0 and x not in statsKeys[:3]:
-                    toAdd.append(x)
+			for x in tempStats:
+				if stats[x] > 0 and x not in statsKeys[:3]:
+					toAdd.append(x)
 
-            lenToAdd = len(toAdd)
-            if lenToAdd > 0:
-                for x in toAdd:
-                    stats[x] += math.floor(creditToBeSpend/lenToAdd)
-                credit -= creditToBeSpend
-            elif cmpt > eStuff.type:
-                stats[RESISTANCE] += 5
-                credit -= 5
+			lenToAdd = len(toAdd)
+			if lenToAdd > 0:
+				for x in toAdd:
+					stats[x] += math.floor(creditToBeSpend/lenToAdd)
+				credit -= creditToBeSpend
+			elif cmpt > eStuff.type:
+				stats[RESISTANCE] += 5
+				credit -= 5
 
-            for k in statsKeys[:3]:
-                stats[k] += math.floor(credit/3)
-            for k in statsKeys[-2:]:
-                stats[k] -= 10*(cmpt+1)
+			for k in statsKeys[:3]:
+				stats[k] += math.floor(credit/3)
+			for k in statsKeys[-2:]:
+				stats[k] -= 10*(cmpt+1)
 
-            tempStuff = stuff(
-                    eStuff.name+" +"+str(cmpt+1),"", eStuff.type, position=eStuff.position, emoji=[None,eStuff.emoji][eStuff.emoji not in tablDefaultEmojis],
-                    strength=stats[STRENGTH],
-                    endurance=stats[ENDURANCE],
-                    charisma=stats[CHARISMA],
-                    agility=stats[AGILITY],
-                    precision=stats[PRECISION],
-                    intelligence=stats[INTELLIGENCE],
-                    magie=stats[MAGIE],
-                    resistance=stats[RESISTANCE],
-                    percing=stats[PERCING],
-                    critical=stats[CRITICAL],
-                    negativeHeal=stats[ACT_HEAL_FULL]*-1,
-                    negativeBoost=stats[ACT_BOOST_FULL]*-1,
-                    negativeShield=stats[ACT_SHIELD_FULL]*-1,
-                    negativeDirect=stats[ACT_DIRECT_FULL]*-1,
-                    negativeIndirect=stats[ACT_INDIRECT_FULL]*-1
-                )
+			tempStuff = stuff(
+					eStuff.name+" +"+str(cmpt+1),"", eStuff.type, position=eStuff.position, emoji=[None,eStuff.emoji][eStuff.emoji not in tablDefaultEmojis],
+					strength=stats[STRENGTH],
+					endurance=stats[ENDURANCE],
+					charisma=stats[CHARISMA],
+					agility=stats[AGILITY],
+					precision=stats[PRECISION],
+					intelligence=stats[INTELLIGENCE],
+					magie=stats[MAGIE],
+					resistance=stats[RESISTANCE],
+					percing=stats[PERCING],
+					critical=stats[CRITICAL],
+					negativeHeal=stats[ACT_HEAL_FULL]*-1,
+					negativeBoost=stats[ACT_BOOST_FULL]*-1,
+					negativeShield=stats[ACT_SHIELD_FULL]*-1,
+					negativeDirect=stats[ACT_DIRECT_FULL]*-1,
+					negativeIndirect=stats[ACT_INDIRECT_FULL]*-1
+				)
 
-            tablAddStuff.append(tempStuff)
+			tablAddStuff.append(tempStuff)
 
-    allowIdToStuffTabl(tablAddStuff, lastKnowedId)
-    return tablAddStuff
+	allowIdToStuffTabl(tablAddStuff, lastKnowedId)
+	return tablAddStuff
 
 shieltron = effect("Shieltron","shieltron",turnInit=-1,unclearable=True,block=20,counterOnBlock=15,emoji='<:shieltron:971788721915592725>',description="Accorde **20%** de blocage, non cumulable avec les autres effets \"Shieltron\" octroyé par des armes ou équipement")
  
@@ -95,18 +95,22 @@ heartLocket = stuff("Heart Locket","ih",0,300,resistance=20,emoji='<:heartLocket
 catEars = stuff("Oreilles de chat","ii",0,150,charisma=10,agility=10,emoji='<:catEars:871886070025957388>',orientation=[None,HEALER],affinity=ELEMENT_AIR,position=6)
 batPendant = stuff("Pendantif Chauve-Souris","ij",0,200,5,5,magie=10,emoji='<:batPendant:871887272469995560>',position=2)
 bikini = stuff("Tenue Provocante","ik",1,69,endurance=-15,charisma=40,resistance=-10,percing=5,emoji='<:tenueProvoquante:871889591127388201>',orientation=[LONG_DIST,HEALER])
+
 headSG = stuff("Chapeau Squid Girl","il",0,200,strength=5,agility=10,precision=10,endurance=-5,emoji='<:headSG:874266872340680785>',orientation=[DISTANCE,DPT_PHYS])
 bodySG = stuff("Tunique Squid Girl","im",1,200,10,resistance=10,emoji="<:tuniqueSG:874266874299437126>",orientation=[DISTANCE,DPT_PHYS])
 shoeSG = stuff("Chaussures Squid Girl","in",2,200,5,agility=10,critical=5,emoji="<:shoeSG:874266873099857930>",orientation=[DISTANCE,DPT_PHYS])
+
 flum = stuff("Fleur lumineuse","io",0,150,charisma=10,effects="lz",emoji='<:flum:876079513954557952>',orientation=[None,HEALER],position=3,affinity=ELEMENT_LIGHT)
 pinkShirt = stuff("Veste et jupe rose","ip",1,300,-20,charisma=25,agility=10,critical=5,emoji='<:VesteEtJupeRose:877658944045219871>',orientation=[None,HEALER])
 redDress = stuff("Robe rouge et noire","iq",1,300,20,endurance=-10,percing=5,critical=5,emoji='<:gothicRednBlackDress:877665554033414217>',orientation=[DISTANCE,DPT_PHYS])
 pataarmor = stuff("Armure patapoulpe","ir",1,300,-10,20,-5,resistance=15,emoji='<:octoArmor:876783724237303829>',orientation=[TANK])
 barrette = stuff("Barette Seiche","is",0,100,charisma=10,precision=10,emoji='<:squidBar:878718467434491934>',position=3)
 squidEarRings = stuff("Boucles d'oreilles Seiche","it",0,150,charisma=15,intelligence=10,precision=-5,emoji='<:squidEarRings:878718445171126313>',orientation=[None,BOOSTER],position=1,affinity=ELEMENT_NEUTRAL)
+
 maidDress = stuff("Robe de soubrette","iu",1,300,-10,25,20,agility=-10,resistance=15,negativeHeal=-10,negativeBoost=30,emoji='<:maidDress:878716791789080637>',orientation=[TANK,HEALER])
 maidHeels = stuff("Escarpins de soubrette","iv",2,300,charisma=30,endurance=20,agility=-20,resistance=10,negativeHeal=-10,negativeShield=30,emoji='<:maidHeels:878716728346050600>',orientation=[TANK,HEALER])
 maidHat = stuff("Coiffe de soubrette","iw",0,200,charisma=25,endurance=20,resistance=10,negativeHeal=-10,strength=-20,precision=-25,emoji='<:maidHat:878716744305356812>',orientation=[TANK,HEALER],position=6)
+
 pinkRuban = stuff("Ruban Rose","ix",0,100,charisma=20,emoji='<:pinkRuban:878718698469335060>',orientation=[DISTANCE,HEALER],position=3)
 pinkSneakers = stuff("Tennis Montantes Roses","iy",2,300,charisma=35,negativeBoost=-35,endurance=-10,precision=-10,negativeHeal=10,negativeShield=20,emoji='<:PinkHotTop:877664496737472602>',orientation=[DISTANCE,BOOSTER])
 abobination = stuff("Claquettes chaussettes","iz",2,1,1,1,-100,1,1,1,1,1,1,1,'<:claquetteChaussette:871880745998770258>')
@@ -144,9 +148,11 @@ fecaShield = stuff("Bouclier Feca","kg",0,1000,-15,35,resistance=20,magie=-20,ne
 kanisand = stuff("Sandales Kannivore","kh",2,250,agility=20,emoji="<:sandaleskannivores:887755801161240577>",affinity=ELEMENT_AIR)
 tsarine = stuff("Starine","ki",0,500,resistance=10,intelligence=10,endurance=10,precision=-10,charisma=-10,effects="mk",emoji='<:tsarine:887755891913396245>',orientation=[TANK,None])
 dracBoot = stuff("Bottes Draconiques","kj",2,500,-10,20,resistance=10,intelligence=10,agility=-10,emoji='<:bottesdraco:885080377234968608>',orientation=[TANK,None])
+
 darkMaidFlats = stuff("Ballerines de la soubrette des Ténèbres","kk",2,500,strength=25,endurance=20,agility=25,resistance=10,charisma=-20,precision=-15,magie=-25,emoji='<:linaflats:890598400624586763>',orientation=[TANK,DPT_PHYS],affinity=ELEMENT_DARKNESS)
 darkMaidDress = stuff("Robe de la soubrette des Ténèbres","kl",1,500,strength=25,endurance=10,agility=25,resistance=15,precision=-15,charisma=-20,magie=-20,emoji="<:linadress:890598423152185364>",orientation=[TANK,DPT_PHYS],affinity=ELEMENT_DARKNESS)
-darkMaidPendants = stuff("Boucles d'oreilles de soubrette la soubrette des Ténèbres","km",0,500,strength=30,endurance=20,charisma=-20,agility=20,precision=-10,intelligence=-30,resistance=10,emoji='<:linapendant:890599104902754326>',orientation=[TANK,DPT_PHYS],affinity=ELEMENT_DARKNESS,position=1)
+darkMaidPendants = stuff("Boucles d'oreilles de la soubrette des Ténèbres","km",0,500,strength=30,endurance=20,charisma=-20,agility=20,precision=-10,intelligence=-30,resistance=10,emoji='<:linapendant:890599104902754326>',orientation=[TANK,DPT_PHYS],affinity=ELEMENT_DARKNESS,position=1)
+
 darkbabie = stuff("Babies noires","kn",2,250,20,-20,precision=20,emoji='<:bbabies:892351703230320670>',affinity=ELEMENT_DARKNESS,orientation=[DISTANCE,DPT_PHYS])
 krysCorn = stuff("Serre-Tête en KrysTal","ko",0,250,endurance=15,resistance=10,agility=-5,emoji='<:krysCorn:892350678620586004>',affinity=ELEMENT_EARTH)
 shihuDress = stuff("Robe de matelot noire d'encre","kp",1,750,-10,0,magie=45,negativeDirect=-15,negativeIndirect=30,emoji='<:shihudress:896916995948302336>',orientation=[DISTANCE,DPT_MAGIC])
@@ -160,21 +166,26 @@ shihuHat = stuff("Beret de matelot noir d'encre",'kw',0,750,magie=35,negativeInd
 indeci1 = stuff("Fleur du mage indécis",'kx',0,750,strength=15,magie=15,intelligence=-5,charisma=-5,emoji='<:rmhat:921348103364280341>',position=barrette.position)
 indeci2 = stuff("Veste du mage indécis",'ky',1,750,strength=15,magie=15,precision=-5,agility=-5,emoji='<:rmjakect:897631127760691240>')
 indeci3 = stuff("Bottes du mage indécis",'k7',2,750,strength=15,magie=15,charisma=-5,agility=-5,emoji='<:rmboots:897631140557516840>')
+
 hyperlink = stuff("[[Hyperlink blocked]]",'kz',2,1997,35,intelligence=30,endurance=15,charisma=-30,magie=-30,emoji='<:blocked:897631107602841600>')
 heartSphapeObject = stuff("[[Heart Shaped Object](https://deltarune.fandom.com/wiki/SOUL)]","la",1,1997,20,20,-20,0,0,20,-20,20,critical=-20,emoji=determination.emoji,affinity=ELEMENT_TIME)
 vigilant1 = stuff("Echarpe Temporelle","yt",0,500,intelligence=35,charisma=-15,negativeShield=-25,resistance=-10,endurance=-15,orientation=[None,SHIELDER],emoji='<:tempoCharpe:900148919248502894>',position=intemCharpe.position,affinity=ELEMENT_TIME)
 vigilant2 = stuff("Veste Temporelle","lc",1,500,intelligence=30,resistance=-10,negativeShield=-30,endurance=-10,negativeHeal=20,orientation=[None,SHIELDER],emoji='<:tempoVeste:900148936088625152>',affinity=ELEMENT_TIME)
 vigilant3 = stuff("Tennis Montantes Temporelles","ld",2,500,intelligence=35,negativeShield=-25,magie=-25,negativeHeal=15,orientation=[None,SHIELDER],emoji='<:tempoBoots:900148968808402997>')
+
 vigilant4 = stuff("Heaume du vigilant","le",0,750,strength=-10,endurance=30,intelligence=20,magie=-20,resistance=15,charisma=-15,orientation=[TANK,BOOSTER],emoji='<:prevHead:904171171300384838>')
 vigilant5 = stuff("Armure du vigilant","lf",1,750,strength=-30,endurance=20,intelligence=20,magie=-15,resistance=25,orientation=[TANK,BOOSTER],emoji='<:prevArmor:904171199108628492>')
 vigilant6 = stuff("Soleret du vigilant","lp",2,750,strength=-15,endurance=30,intelligence=20,magie=-15,resistance=15,charisma=-15,orientation=[TANK,BOOSTER],emoji='<:prevShoe:904171185191915590>')
+
 lunetteDeVisee = stuff("Lunette de visée","lg",0,500,strength=25,precision=25,resistance=-10,endurance=-20,orientation=[LONG_DIST,DPT_PHYS],emoji='<:emoji_47:905277620055330846>',position=fecaShield.position)
 magicHeal1 = stuff("Broche du mage blanc","lh",0,500,strength=-15,charisma=30,magie=20,intelligence=-15,affinity=ELEMENT_LIGHT,position=barrette.position,emoji='<:whiteMage:912915963110916097>',orientation=[DISTANCE,DPT_MAGIC])
 magicHeal2 = stuff("Robe du mage blanc","li",1,500,endurance=-15,charisma=35,magie=25,resistance=-10,precision=-15,affinity=ELEMENT_LIGHT,orientation=[DISTANCE,DPT_MAGIC])
 magicHeal3 = stuff("Souliers du mage blanc","lj",2,500,strength=-15,charisma=30,magie=20,intelligence=-15,affinity=ELEMENT_LIGHT,orientation=[DISTANCE,DPT_MAGIC])
+
 shehisaBody = stuff("Tenue de la tiseuse","lk",1,500,strength=35,endurance=10,resistance=10,magie=-20,critical=-5,negativeDirect=10,orientation=[TANK,DPT_PHYS])
 shehisaBoots = stuff("Bottes de la tiseuse","ll",2,500,strength=45,resistance=5,agility=10,critical=-10,magie=-10,negativeDirect=20)
 shehisaMask = stuff("Masque de la tiseuse","lo",0,500,strength=35,intelligence=10,resistance=5,agility=-10,magie=-10,emoji='<:shiMask:901850537132171334>',negativeDirect=10,position=barrette.position)
+
 # LP alreay taken
 darkFlum = stuff("Fleur ténèbreuse","lm",0,150,magie=10,effects="nt",emoji='<:darkFlum:901849622685814814>',orientation=[None,DPT_MAGIC],position=3,affinity=ELEMENT_DARKNESS)
 hockey = stuff("Masque de hockey","ln",0,250,strength=30,magie=-10,charisma=-10,percing=10,emoji='<:hockeymask:881326947597164564>',orientation=[None,DPT_PHYS],position=3)
@@ -346,6 +357,7 @@ nemeBottes = stuff("Bottes cloutés","hdj",2,1,strength=25,negativeDirect=-10,en
 ilHat = stuff("Collier à grelots","hdk",0,1,endurance=20,resistance=10,charisma=20,negativeHeal=-10,strength=-20,magie=-20,emoji='<:ilianaCollier:926879998139334656>',orientation=[TANK,HEALER],position=foulard.position)
 ilBody = stuff("T-shirt à grelot","hdl",1,1,endurance=15,resistance=20,charisma=15,negativeHeal=-10,intelligence=-20,precision=-20,emoji='<:ilianaShirt:926880013805060116>',orientation=[TANK,HEALER])
 ilShoes = stuff("Bottines à grelots","hdm",2,1,endurance=20,resistance=10,charisma=20,negativeHeal=-10,agility=-20,percing=-20,emoji='<:ilianaBoots:926880028170526770>',orientation=[TANK,HEALER])
+
 pinkbutterflysandals = stuff("Sandales du papillon rose","hdn",2,1,emoji='<:pinkButSan:926904344014647306>',charisma=30,negativeBoost=-30,negativeHeal=20,negativeShield=20,orientation=[LONG_DIST,BOOSTER])
 pinkbutterflyshirt = stuff("T-shirt du papillon rose","hdo",1,1,emoji='<:pinkButShirt:926911711217320076>',charisma=30,negativeBoost=-30,negativeHeal=20,negativeShield=20,orientation=[LONG_DIST,BOOSTER])
 whitebutterflysandals = stuff("Sandales du papillon blanc","hdp",2,1,emoji='<:whiteButSand:926904396955152385>',charisma=30,negativeHeal=-30,negativeBoost=20,negativeShield=20,orientation=[LONG_DIST,HEALER])
@@ -605,13 +617,13 @@ dans5Hat.id,dans5Dress.id,dans5Shoes.id,dans10Hat.id,dans10Dress.id,dans10Shoes.
 
 tablDsnFlats = [dans5Shoes,dans10Shoes,dans15Shoes,dans20Shoes,dans25Shoes,dans30Shoes,dans35Shoes,dans40Shoes,dans45Shoes,dans50Shoes]
 for cmpt in range(len(tablDsnFlats)):
-    tablDsnFlats[cmpt].emoji, tablDsnFlats[cmpt].orientation = ["<:dsnFlats5:1006417706540601394>","<:dsnFlats10:1006417738559918100>","<:dsnFlats15:1006417770478575706>","<:dsnFlats20:1006417808772567061>","<:dsnFlats25:1006417839399383101>","<:dsnFlats30:1006417860136017990>","<:dsnFlats35:1006417890737672303>","<:dsnFlats40:1006418968359223387>","<:dsnFlats45:1006418987778850887>","<:dsnFlats50:1006419005378142248>"][cmpt], "Dégâts, Boost, Critique"
+	tablDsnFlats[cmpt].emoji, tablDsnFlats[cmpt].orientation = ["<:dsnFlats5:1006417706540601394>","<:dsnFlats10:1006417738559918100>","<:dsnFlats15:1006417770478575706>","<:dsnFlats20:1006417808772567061>","<:dsnFlats25:1006417839399383101>","<:dsnFlats30:1006417860136017990>","<:dsnFlats35:1006417890737672303>","<:dsnFlats40:1006418968359223387>","<:dsnFlats45:1006418987778850887>","<:dsnFlats50:1006419005378142248>"][cmpt], "Dégâts, Boost, Critique"
 tablDsnDress = [dans5Dress,dans10Dress,dans15Dress,dans20Dress,dans25Dress,dans30Dress,dans35Dress,dans40Dress,dans45Dress,dans50Dress]
 for cmpt in range(len(tablDsnDress)):
-    tablDsnDress[cmpt].emoji, tablDsnDress[cmpt].orientation = ["<:dsnDress5:1006420880324317275>","<:dsnDress10:1006420904571584542>","<:dsnDress15:1006420928558800906>","<:dsnDress20:1006420959894458409>","<:dsnDress25:1006420985165131916>","<:dsnDress30:1006421015070527509>","<:dsnDress35:1006421034469179472>","<:dsnDress40:1006421051779067974>","<:dsnDress45:1006421068724060160>","<:dsnDress50:1006421592819114055>"][cmpt], "Dégâts, Boost, Critique"
+	tablDsnDress[cmpt].emoji, tablDsnDress[cmpt].orientation = ["<:dsnDress5:1006420880324317275>","<:dsnDress10:1006420904571584542>","<:dsnDress15:1006420928558800906>","<:dsnDress20:1006420959894458409>","<:dsnDress25:1006420985165131916>","<:dsnDress30:1006421015070527509>","<:dsnDress35:1006421034469179472>","<:dsnDress40:1006421051779067974>","<:dsnDress45:1006421068724060160>","<:dsnDress50:1006421592819114055>"][cmpt], "Dégâts, Boost, Critique"
 tablDsnBars = [dans5Hat,dans10Hat,dans15Hat,dans20Hat,dans25Hat,dans30Hat,dans35Hat,dans40Hat,dans45Hat,dans50Hat]
 for cmpt in range(len(tablDsnBars)):
-    tablDsnBars[cmpt].emoji, tablDsnBars[cmpt].orientation, tablDsnBars[cmpt].position = ["<:dsnBar5:1006425194157580419>","<:dsnBar10:1006425218539065484>","<:dsnBar15:1006425242115248150>","<:dsnBar20:1006425266953912360>","<:dsnBar25:1006425294246264912>","<:dsnBar30:1006425328215937064>","<:dsnBar35:1006425350340882442>","<:dsnBar40:1006425372709105725>","<:dsnBar45:1006425390622986280>","<:dsnBar50:1006425410533331015>"][cmpt], "Dégâts, Boost, Critique", barrette.position
+	tablDsnBars[cmpt].emoji, tablDsnBars[cmpt].orientation, tablDsnBars[cmpt].position = ["<:dsnBar5:1006425194157580419>","<:dsnBar10:1006425218539065484>","<:dsnBar15:1006425242115248150>","<:dsnBar20:1006425266953912360>","<:dsnBar25:1006425294246264912>","<:dsnBar30:1006425328215937064>","<:dsnBar35:1006425350340882442>","<:dsnBar40:1006425372709105725>","<:dsnBar45:1006425390622986280>","<:dsnBar50:1006425410533331015>"][cmpt], "Dégâts, Boost, Critique", barrette.position
 
 on5Hat = stuff("Barette Onirique","bidule",0,1,magie=10,agility=10,endurance=5,resistance=5,negativeShield=10,orientation="Enchanteur, Poids Plume",emoji='<:dSixtBar:987216007665975326>',position=barrette.position)
 on5Dress = stuff("Tee-shirt Onirique","bidule",1,1,magie=10,agility=10,resistance=10,negativeHeal=10,orientation="Enchanteur, Poids Plume",emoji='<:dSixtShirt:987215979257921546>')
@@ -774,7 +786,7 @@ ninEnt35Shoes = stuff("Bottes du Ninja Entraveur","aa",2,1,strength=40,agility=2
 ninEntTabl = [ninEnt50Hat,ninEnt50Mid,ninEnt50Shoes,ninEnt45Hat,ninEnt45Mid,ninEnt45Shoes,ninEnt40Hat,ninEnt40Mid,ninEnt40Shoes,ninEnt35Hat,ninEnt35Mid,ninEnt35Shoes]
 ninEntTablId = getArrayAutoId(tunBleu.id,len(ninEntTabl))
 for cmpt in range(len(ninEntTabl)):
-    ninEntTabl[cmpt].id = ninEntTablId[cmpt]
+	ninEntTabl[cmpt].id = ninEntTablId[cmpt]
 
 
 gwenStuffBar = stuff("Barette de la Protectrice Agressive","jhg",0,1,intelligence=45,resistance=25,endurance=30,negativeDirect=-15,emoji='<:gwenyBar:1102510427302277201>',orientation="Protecteur, Convertion d'Armure",negativeIndirect=30,negativeBoost=30,strength=-15,magie=-20)
@@ -784,7 +796,7 @@ gwenStuffShoes = stuff("Ballerines de la Protectrice Agressive","jhg",2,1,intell
 gwenStuffTabl = [gwenStuffBar,gwenStuffDress,gwenStuffShoes]
 gwenStuffTablId = getArrayAutoId(ninEntTabl[-1].id,len(gwenStuffTabl))
 for cmpt in range(len(gwenStuffTabl)):
-    gwenStuffTabl[cmpt].id = gwenStuffTablId[cmpt]
+	gwenStuffTabl[cmpt].id = gwenStuffTablId[cmpt]
 
 altyStuffBar = stuff("Noeud de la Vigilante Agressive","jhg",0,1,charisma=45,resistance=25,endurance=30,negativeDirect=-15,emoji='<:altyRub:1102510452287750144>',orientation="Vigilant, Vol de Vie",negativeIndirect=30,negativeBoost=30,strength=-15,magie=-20)
 altyStuffDress = stuff("Robe de la Vigilante Agressive","jhg",1,1,charisma=45,resistance=25,endurance=30,negativeDirect=-15,emoji='<:altyDress:1102510342225014825>',orientation="Vigilant, Vol de Vie",negativeIndirect=30,negativeBoost=30,strength=-15,intelligence=-20)
@@ -884,20 +896,20 @@ magicAssArmor = stuff("Top de l'Assassin Mage","",1,magie=50,endurance=10,resist
 magicAssBoots = stuff("Bottes de l'Assassin Mage","",2,magie=50,endurance=10,resistance=10,agility=25,precision=10,negativeDirect=-30,strength=-50,negativeBoost=50,charisma=-15)
 
 stuffsLvl60Tabl = [lightPaladinHead,lightPaladinArmor,lightPaladinBoots,
-                   nightPaladinHead,nightPaladinArmor,nightPaladinBoots,
-                   shadowNinjaHead,shadowNinjaArmor,shadowNinjaBoots,
-                   healer60Head,healer60Armor,healer60Boots,
-                   shielder60Head,shielder60Armor,shielder60Boots,
-                   charBoost60Head,charBoost60Armor,charBoost60Boots,
-                   intBoost60Head,intBoost60Armor,intBoost60Boots,
-                   starPaladinHead,starPaladinArmor,starPaladinBoots,
-                   ranged60Head,ranged60Armor,ranged60Boots,
-                   mage60Head,mage60Armor,mage60Boots,
-                   rangedPoi60Head,rangedPoi60Armor,rangedPoi60Boots,
-                   magePoi60Head,magePoi60Armor,magePoi60Boots,
-                   plugilHead,plugilArmor,plugilBoots,
-                   battleMageHead,battleMageArmor,battleMageBoots
-                   ,magicAssHead,magicAssArmor,magicAssBoots]
+				   nightPaladinHead,nightPaladinArmor,nightPaladinBoots,
+				   shadowNinjaHead,shadowNinjaArmor,shadowNinjaBoots,
+				   healer60Head,healer60Armor,healer60Boots,
+				   shielder60Head,shielder60Armor,shielder60Boots,
+				   charBoost60Head,charBoost60Armor,charBoost60Boots,
+				   intBoost60Head,intBoost60Armor,intBoost60Boots,
+				   starPaladinHead,starPaladinArmor,starPaladinBoots,
+				   ranged60Head,ranged60Armor,ranged60Boots,
+				   mage60Head,mage60Armor,mage60Boots,
+				   rangedPoi60Head,rangedPoi60Armor,rangedPoi60Boots,
+				   magePoi60Head,magePoi60Armor,magePoi60Boots,
+				   plugilHead,plugilArmor,plugilBoots,
+				   battleMageHead,battleMageArmor,battleMageBoots
+				   ,magicAssHead,magicAssArmor,magicAssBoots]
 allowIdToStuffTabl(stuffsLvl60Tabl,gardStuffTabl[-1].id)
 
 # 180 - 160
@@ -960,7 +972,7 @@ allowIdToStuffTabl(stuffsHealerHybrLvl70Tabl,tablStuff80to100[-1].id)
 
 tablStuffhealerHybr80to100 = autoGenerateStuff(stuffsHealerHybrLvl70Tabl,stuffsHealerHybrLvl70Tabl[-1].id)
 for tempStuff in tablStuffhealerHybr80to100: 
-    if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
+	if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
 
 charStrenthBoost70Head = stuff("Diadème du Tireur Charismatique","",0,charisma=50,strength=40,precision=20,endurance=10,resistance=10,negativeBoost=-30,agility=-35,magie=-35,negativeShield=35,negativeIndirect=35,emoji='<:shotCharHat:1244368719115714732>')
 charStrenthBoost70Armor = stuff("Robe du Tireur Charismatique","",1,charisma=50,strength=40,precision=10,endurance=20,resistance=10,negativeBoost=-30,agility=-35,magie=-35,negativeShield=35,negativeIndirect=35,emoji='<:shotCharDress:1244368771158769718>')
@@ -973,66 +985,81 @@ tablStuffHybrDmgBoostDist70 = [charStrenthBoost70Head,charStrenthBoost70Armor,ch
 allowIdToStuffTabl(tablStuffHybrDmgBoostDist70,tablStuffhealerHybr80to100[-1].id)
 tablStuffHybrDmgBoostDist80to100 = autoGenerateStuff(tablStuffHybrDmgBoostDist70,tablStuffHybrDmgBoostDist70[-1].id)
 for tempStuff in tablStuffHybrDmgBoostDist80to100: 
-    if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
+	if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
+
+getAutoId(tablStuffHybrDmgBoostDist80to100[-1])
+
+fullEnd70Head = stuff("Couronne de la Singularité", "", 0, endurance=100, resistance=35, agility=15, intelligence=10, charisma=-35, negativeIndirect=35, strength=-35, magie=-35, emoji='<:singHead:1341459483792248872>')
+fullEnd70Armor = stuff("Armure de la Singularité","",1, endurance=120, resistance=40, negativeDirect=35, negativeShield=45, negativeHeal=45, emoji='<:singTorso:1341459655423037481>')
+fullEnd70Boots = stuff("Sorelet de la Singularité","",2, endurance=100, resistance=35, agility=15, intelligence=10, charisma=-35, negativeIndirect=35, strength=-35, magie=-35, emoji='<:singShoes:1341459672850366497>')
+
+tablFullEnd = [fullEnd70Head, fullEnd70Armor, fullEnd70Boots]
+allowIdToStuffTabl(tablFullEnd, tablStuffHybrDmgBoostDist80to100[-1].id)
+tablFullEnd80to100 = autoGenerateStuff(tablFullEnd,tablFullEnd[-1].id)
+for tempStuff in tablStuffHybrDmgBoostDist80to100: 
+	if tempStuff.minLvl%10 != 0: print(tempStuff.name, tempStuff.minLvl)
 
 # Stuff
-stuffs = tablStuffHybrDmgBoostDist80to100 + stuffsHealerHybrLvl70Tabl + tablStuffhealerHybr80to100 + tablStuff80to100+stuffsLvl70Tabl+stuffsLvl60Tabl + [ninjaArmored10Hat, ninjaArmored10Dress, ninjaArmored10Shoes, ninjaArmored20Hat, ninjaArmored20Dress, ninjaArmored20Shoes, ninjaArmored30Hat, ninjaArmored30Dress, ninjaArmored30Shoes, ninjaArmored40Hat, ninjaArmored40Dress, ninjaArmored40Shoes, ninjaArmored50Hat, ninjaArmored50Dress, ninjaArmored50Shoes,
-    meleeOra1Hat, meleeOra1Dress, meleeOra1Shoes, meleeOra10Hat, meleeOra10Dress, meleeOra10Shoes, meleeOra20Hat, meleeOra20Dress, meleeOra20Shoes, meleeOra30Hat, meleeOra30Dress, meleeOra30Shoes, meleeOra40Hat, meleeOra40Dress, meleeOra40Shoes, meleeOra50Hat, meleeOra50Dress, meleeOra50Shoes,
-    bardMagHat50,bardMagDress50,bardMagShoes50, bardMagHat40, bardMagDress40, bardMagShoes40, bardMagHat30, bardMagDress30, bardMagShoes30, bardMagHat20, bardMagDress20, bardMagShoes20, bardMagHat10, bardMagDress10, bardMagShoes10,
-    bardIntHat50,bardIntDress50,bardIntShoes50, bardIntHat40, bardIntDress40, bardIntShoes40, bardIntHat30, bardIntDress30, bardIntShoes30, bardIntHat20, bardIntDress20, bardIntShoes20, bardIntHat10, bardIntDress10, bardIntShoes10,
-    balRubButLBlue,chemRubButLBlue,rubButLBlue,balRubButGreen,chemRubButGreen,rubButGreen,
-    balRubButPink,chemRubButPink,rubButPink,balRubButBlue,chemRubButBlue,rubButBlue,balRubButWhite,chemRubButWhite,rubButWhite,balRubButRed,chemRubButRed,rubButRed,balRubButPurple,chemRubButPurple,rubButPurple,rubButBlack,chemRubButBlack,balRubButBlack,rubButDBlue,chemRubButDBlue,balRubButDBlue,
-    ora1Hat, ora1Dress, ora1Shoes, ora10Hat, ora10Dress, ora10Shoes, ora20Hat, ora20Dress, ora20Shoes, ora30Hat, ora30Dress, ora30Shoes, ora40Hat, ora40Dress, ora40Shoes, ora50Hat, ora50Dress, ora50Shoes,
-    on5Hat, on5Dress, on5Shoes, on15Hat, on15Dress, on15Shoes, on25Hat, on25Dress, on25Shoes, on35Hat, on35Dress, on35Shoes, on45Hat, on45Dress, on45Shoes,
-    dans5Hat,dans5Dress,dans5Shoes,dans10Hat,dans10Dress,dans10Shoes,dans15Hat,dans15Dress,dans15Shoes,dans20Hat,dans20Dress,dans20Shoes,dans25Hat,dans25Dress,dans25Shoes,dans30Hat,dans30Dress,dans30Shoes,dans35Hat,dans35Dress,dans35Shoes,dans40Hat,dans40Dress,dans40Shoes,dans45Hat,dans45Dress,dans45Shoes,dans50Hat,dans50Dress,dans50Shoes,
-    critIntStrHat10,critIntStrBody10,critIntStrShoes10,critIntStrHat20,critIntStrBody20,critIntStrShoes30,critIntStrHat40,critIntStrBody40,critIntStrShoes40,critIntStrHat50,critIntStrBody50,critIntStrShoes50,critIndHat10,critIndBody10,critIndShoes10,critIndHat20,critIndBody20,critIndShoes20,critIndHat30,critIndBody30,critIndShoes30,critIndHat40,critIndBody40,critIndShoes40,critIndHat50,critIndBody50,critIndShoes50,beginChirHat2,beginChirShirt2,beginChirShoes2,interChirHat2,interChirVeste2,interChirShoes2,proChirHat2,expChirDress2,expChirShoes2,urgChirHat2,urgChirDress2,urgChirShoes2,proChirDress2,proChirShoes2,expChirHat2,critIndStrHat5,critIndStrBody5,critIndStrShoes5,critIndStrHat15,critIndStrBody15,critIndStrShoes15,critIndStrHat25,critIndStrBody25,critIndStrShoes25,critIndStrHat35,critIndStrBody35,critIndStrShoes35,critIndStrHat45,critIndStrBody45,critIndStrShoes45,critIndHat5,critIndBody5,critIndShoes5,critIndHat15,critIndBody15,critIndShoes15,critIndHat25,critIndBody25,critIndShoes25,critIndHat35,critIndBody35,critIndShoes35,critIndHat45,critIndBody45,critIndShoes45,batRedChemVeste,redBatBoots,redBatsandals,redBatshirt,redBatPendantred,redBatEarRingsred,redBatbar,beginChirHat,beginChirShirt,beginChirShoes,interChirHat,interChirVeste,interChirShoes,proChirHat,proChirDress,proChirShoes,expChirHat,expChirDress,expChirShoes,urgChirHat,urgChirDress,urgChirShoes,beginArmHat,beginArmShirt,beginArmShoes,interArmHat,interArmVeste,interArmShoes,proArmHat,proArmDress,proArmShoes,expArmHat,expArmDress,expArmShoes,urgArmHat,urgArmDress,urgArmShoes,orangeBatbar,BatEarRingsorange,BatPendantorange,orangeBatshirt,orangeBatsandals,orangeBatBoots,orangeChemVeste,appleGreenChemVeste,appleGreenBatBoots,appleGreenBatsandals,appleGreenBatshirt,BatPendantappleGreen,BatEarRingsappleGreen,appleGreenBatbar,yellowChemVeste,yellowBatBoots,yellowBatsandals,yellowBatshirt,BatPendantyellow,BatEarRingsyellow,yellowBatbar,sixitnePull,sixitneBoots,sixitneBarrette,butterflyPendantPink,butterflyPendantWhite,butterflyPendantBlue,butterflyPendantRed,butterflyPendantPurple,butterflyPendantLightBlue,butterflyPendantDarkBlue,butterflyPendantDark,butterflyPendantGreen,highIlianaBoots,LittleIlianaBoots,goldenArmoreBoots,silverArmoreBoots,bronzeArmoreBoots,butterflyEarRingsPink,butterflyEarRingsWhite,butterflyEarRingsBlue,butterflyEarRingsRed,butterflyEarRingsPurple,butterflyEarRingsLightBlue,butterflyEarRingsDarkBlue,butterflyEarRingsGreen,lunarshirt,skullShirt,clowdyShirt,matDress,jeanVest2,linDress,greenFlat,greenHeels,looseHat,chemAndJupePink,chemAndJupeWhite,chemAndJupeBlue,chemAndJupeRed,chemAndJupepurple,chemAndJupeblack,chemAndJupedarkblue,chemAndJupegreen,chemAndJupelightBlue,lightBluebutterflysandals,lightBluebutterflyshirt,lightBlueChemVeste,lightBlueButterFlyBoots,lightBluebutbar,greenbutterflysandals,greenbutterflyshirt,greenChemVeste,greenButterFlyBoots,greenbutbar,blueHeels,barkblueHeels,lightBlueHeels,darkbutterflysandals,darkbutterflyshirt,darkChemVeste,darkButterFlyBoots,darkbutbar,purpleSnekers,whiteSneakersLong,blackBlueSnelers,prupleHeels,pinkHeels,purpleFlat,whiteFlat,darkbluebutterflysandals,darkbluebutterflyshirt,darkblueChemVeste,darkblueButterFlyBoots,pinkbutbar,whitebutbar,bluebutbar,darkbluebutbar,purplebutbar,redbutbar,ilHat,ilBody,ilShoes,pinkbutterflysandals,pinkbutterflyshirt,whitebutterflysandals,whitebutterflyshirt,bluebutterflysandals,redbutterflysandals,bluebutterflyshirt,redbutterflyshirt,purplebutterflysandals,purplebutterflyshirt,nemeBracelet,nemeManteau,nemeBottes,chrismasHat,chrismasPull,chrismasBoots,canotier,deb,friendshipbracelet,annakiDriveTee,annakiBeret,annakiShoe,UnnamedTorso,UnnamedBoots,pruneGiverBand,pruneGiverVeste,pruneGiverBoots,berserkHelmet,berserkTorso,berserkBoots,UnnamedHelmet,clemBoots,clemVeste,clemEarRings,icealiaHat,icealiaManteau,icealiaBoots,foulard,corruptRedBoots,corruptRedVeste,corruptPurpleBoots,corruptPurpleVeste,flumOr,darFlumOr,fullTempCharp,fullTempVest,fullTempShoes,firstBar,firstShoes,firstUniform,scienceHat,scienceBody,scienceShoes,battleHealHat,battleHealUnif,battleHealShoes,kryscharpe,krysshirt,kryschains,battleShieldHat,battleShieldUnif,battleShieldShoes,crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,dragoonHelmet,dragoonArmor,dragoonBoots,whiteLily,bloodLily,pompomHat,pompomBody,pompomShoes,lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
+stuffs: List[stuff] = tablFullEnd80to100 + tablFullEnd + tablStuffHybrDmgBoostDist80to100 + stuffsHealerHybrLvl70Tabl + tablStuffhealerHybr80to100 + tablStuff80to100+stuffsLvl70Tabl+stuffsLvl60Tabl + [ninjaArmored10Hat, ninjaArmored10Dress, ninjaArmored10Shoes, ninjaArmored20Hat, ninjaArmored20Dress, ninjaArmored20Shoes, ninjaArmored30Hat, ninjaArmored30Dress, ninjaArmored30Shoes, ninjaArmored40Hat, ninjaArmored40Dress, ninjaArmored40Shoes, ninjaArmored50Hat, ninjaArmored50Dress, ninjaArmored50Shoes,
+	meleeOra10Hat, meleeOra10Dress, meleeOra10Shoes, meleeOra20Hat, meleeOra20Dress, meleeOra20Shoes, meleeOra30Hat, meleeOra30Dress, meleeOra30Shoes, meleeOra40Hat, meleeOra40Dress, meleeOra40Shoes, meleeOra50Hat, meleeOra50Dress, meleeOra50Shoes,
+	bardMagHat50,bardMagDress50,bardMagShoes50, bardMagHat40, bardMagDress40, bardMagShoes40, bardMagHat30, bardMagDress30, bardMagShoes30, bardMagHat20, bardMagDress20, bardMagShoes20, bardMagHat10, bardMagDress10, bardMagShoes10,
+	bardIntHat50,bardIntDress50,bardIntShoes50, bardIntHat40, bardIntDress40, bardIntShoes40, bardIntHat30, bardIntDress30, bardIntShoes30, bardIntHat20, bardIntDress20, bardIntShoes20, bardIntHat10, bardIntDress10, bardIntShoes10,
+	balRubButLBlue,chemRubButLBlue,rubButLBlue,balRubButGreen,chemRubButGreen,rubButGreen,
+	balRubButPink,chemRubButPink,rubButPink,balRubButBlue,chemRubButBlue,rubButBlue,balRubButWhite,chemRubButWhite,rubButWhite,balRubButRed,chemRubButRed,rubButRed,balRubButPurple,chemRubButPurple,rubButPurple,rubButBlack,chemRubButBlack,balRubButBlack,rubButDBlue,chemRubButDBlue,balRubButDBlue,
+	ora10Hat, ora10Dress, ora10Shoes, ora20Hat, ora20Dress, ora20Shoes, ora30Hat, ora30Dress, ora30Shoes, ora40Hat, ora40Dress, ora40Shoes, ora50Hat, ora50Dress, ora50Shoes,
+	dans10Hat,dans10Dress,dans10Shoes,dans20Hat,dans20Dress,dans20Shoes,dans30Hat,dans30Dress,dans30Shoes,dans40Hat,dans40Dress,dans40Shoes,dans50Hat,dans50Dress,dans50Shoes,
+	critIntStrHat10,critIntStrBody10,critIntStrShoes10,critIntStrHat20,critIntStrBody20,critIntStrShoes30,critIntStrHat40,critIntStrBody40,critIntStrShoes40,critIntStrHat50,critIntStrBody50,critIntStrShoes50,critIndHat10,critIndBody10,critIndShoes10,critIndHat20,critIndBody20,critIndShoes20,critIndHat30,critIndBody30,critIndShoes30,critIndHat40,critIndBody40,critIndShoes40,critIndHat50,critIndBody50,critIndShoes50,beginChirHat2,beginChirShirt2,beginChirShoes2,interChirHat2,interChirVeste2,interChirShoes2,proChirHat2,expChirDress2,expChirShoes2,urgChirHat2,urgChirDress2,urgChirShoes2,proChirDress2,proChirShoes2,expChirHat2,
+	batRedChemVeste,redBatBoots,redBatsandals,redBatshirt,redBatPendantred,redBatEarRingsred,redBatbar,beginChirHat,beginChirShirt,beginChirShoes,interChirHat,interChirVeste,interChirShoes,proChirHat,proChirDress,proChirShoes,expChirHat,expChirDress,expChirShoes,urgChirHat,urgChirDress,urgChirShoes,beginArmHat,beginArmShirt,beginArmShoes,interArmHat,interArmVeste,interArmShoes,proArmHat,proArmDress,proArmShoes,expArmHat,expArmDress,expArmShoes,urgArmHat,urgArmDress,urgArmShoes,orangeBatbar,BatEarRingsorange,BatPendantorange,orangeBatshirt,orangeBatsandals,orangeBatBoots,orangeChemVeste,appleGreenChemVeste,appleGreenBatBoots,appleGreenBatsandals,appleGreenBatshirt,BatPendantappleGreen,BatEarRingsappleGreen,appleGreenBatbar,yellowChemVeste,yellowBatBoots,yellowBatsandals,yellowBatshirt,BatPendantyellow,BatEarRingsyellow,yellowBatbar,sixitnePull,sixitneBoots,sixitneBarrette,butterflyPendantPink,butterflyPendantWhite,butterflyPendantBlue,butterflyPendantRed,butterflyPendantPurple,butterflyPendantLightBlue,butterflyPendantDarkBlue,butterflyPendantDark,butterflyPendantGreen,highIlianaBoots,LittleIlianaBoots,goldenArmoreBoots,silverArmoreBoots,bronzeArmoreBoots,butterflyEarRingsPink,butterflyEarRingsWhite,butterflyEarRingsBlue,butterflyEarRingsRed,butterflyEarRingsPurple,butterflyEarRingsLightBlue,butterflyEarRingsDarkBlue,butterflyEarRingsGreen,lunarshirt,skullShirt,clowdyShirt,matDress,jeanVest2,linDress,greenFlat,greenHeels,looseHat,chemAndJupePink,chemAndJupeWhite,chemAndJupeBlue,chemAndJupeRed,chemAndJupepurple,chemAndJupeblack,chemAndJupedarkblue,chemAndJupegreen,chemAndJupelightBlue,lightBluebutterflysandals,lightBluebutterflyshirt,lightBlueChemVeste,lightBlueButterFlyBoots,lightBluebutbar,greenbutterflysandals,greenbutterflyshirt,greenChemVeste,greenButterFlyBoots,greenbutbar,blueHeels,barkblueHeels,lightBlueHeels,darkbutterflysandals,darkbutterflyshirt,darkChemVeste,darkButterFlyBoots,darkbutbar,purpleSnekers,whiteSneakersLong,blackBlueSnelers,prupleHeels,pinkHeels,purpleFlat,whiteFlat,darkbluebutterflysandals,darkbluebutterflyshirt,darkblueChemVeste,darkblueButterFlyBoots,pinkbutbar,whitebutbar,bluebutbar,darkbluebutbar,purplebutbar,redbutbar,ilHat,ilBody,ilShoes,pinkbutterflysandals,pinkbutterflyshirt,whitebutterflysandals,whitebutterflyshirt,bluebutterflysandals,redbutterflysandals,bluebutterflyshirt,redbutterflyshirt,purplebutterflysandals,purplebutterflyshirt,nemeBracelet,nemeManteau,nemeBottes,chrismasHat,chrismasPull,chrismasBoots,canotier,deb,friendshipbracelet,annakiDriveTee,annakiBeret,annakiShoe,UnnamedTorso,UnnamedBoots,pruneGiverBand,pruneGiverVeste,pruneGiverBoots,berserkHelmet,berserkTorso,berserkBoots,UnnamedHelmet,clemBoots,clemVeste,clemEarRings,icealiaHat,icealiaManteau,icealiaBoots,foulard,corruptRedBoots,corruptRedVeste,corruptPurpleBoots,corruptPurpleVeste,flumOr,darFlumOr,fullTempCharp,fullTempVest,fullTempShoes,firstBar,firstShoes,firstUniform,scienceHat,scienceBody,scienceShoes,battleHealHat,battleHealUnif,battleHealShoes,kryscharpe,krysshirt,kryschains,battleShieldHat,battleShieldUnif,battleShieldShoes,crepuHat,crepuArmor,crepuBoots,zenithHat,zenithArmor,zenithBoots,bardHat,bardShoes,bardBody,dragoonHelmet,dragoonArmor,dragoonBoots,whiteLily,bloodLily,pompomHat,pompomBody,pompomShoes,lunaPandan,lunaDress,lunaBoots,coalHat,coalDress,coalBoots,redButterFlyBoots,redChemVeste,newMoonHat,newMoonArmor,newMoonBoots,fullMoonHat,fullMoonArmor,fullMoonBoots,bunnyEars,bunnyBody,bunnyShoes,pinkChemVeste,whiteChemVeste,blueCharpe,bandNoir,blueVC,bhBoots,bhPull,julieHat,julieShoes,julieDress,obsiHelmet,obsiBody,obsiBoots,magicArmorHelmet,magicArmorBody,magicArmorBoots,mysticHat,mysticBody,mysticBoots,whiteButterFlyBoots,pinkButterFlyBoots,purpleButterFlyBoots,purpleChemVeste,blueChemVeste,blueButterFlyBoots,celestBronzeHat,celestBronzeArmor,celestBronzeBoots,armyBoots,armyArmor,hinaAcc,hinaBody,hinaShoes,starDress,starFlats,starBar,starPull,starBoots,jeanCas,pullPol,heartBask,mocas,sandPlage,pullHeart,pullJoliReve,surveste,tshirMatelot,tshirtNoue,motarVeste,babiesRose,babiesVert,carid,chemLB,chemV,chemB,chemN,chemR,coiffeInfirmR,coiffeInfirmB,blueNoeud,whiteNoeud,giletShirt,LBBerer,aliceShoes,lightBlueFlats,rangers,lightBlueJacket,encrifugeBoots,lunetteDeVisee,magicHeal1,magicHeal2,magicHeal3,shehisaBody,shehisaBoots,shehisaMask,darkFlum,hockey,laurier,lentille,kaviboots,purpleGlass,legolass,aliceDress,yellowpull,blackGhoticDress,vigilant4,vigilant5,vigilant6,vigilant1,vigilant2,vigilant3,heartSphapeObject,shihuDress,shihuShoe,mageDress,mageShoe,tankmage1,tankmage2,tankmage3,shihuHat,indeci1,indeci2,indeci3,hyperlink,darkbabie,krysCorn,darkMaidDress,darkMaidFlats,darkMaidPendants,dracBoot,tsarine,kanisand,fecaShield,ggshield,corset,heleneShoe,heleneDress,FIACNf,FIACNh,batRuban,old,robeLoliBlue,legendaryHat,robeDrac,blingbling,lunettesOv,masqueTub,casqueColor,patacasque,patabottes,intemNorak,intemShoe,intemCharpe,heroHead,heroBody,heroShoe,blackHeels,whiteHeels,redHeels,redFlat,blueFlat,camoHat,purpleBasket,amethystEarRings,legendaryBoots,legendaryTunic,pinkSneakers,pinkRuban,maidHat,maidHeels,maidDress,squidEarRings,barrette,pataarmor,redDress,pinkShirt,flum,headSG,bodySG,shoeSG,bikini,batPendant,catEars,heartLocket,blackSnelers,schoolShoes,woodenSandals,abobination,pullCamo,blackShirt,pullBrown,uniform,blueSnekers,redSnekers,encrifuge,pinkFlat,blackFlat,batEarRings,ironHelmet,determination,pinkDress,oldBooks,jeanJacket,blackJeanJacket,whiteSneakers,anakiMask,whiteBoots,mustangBoots
 ]+baseStuffs+ninEntTabl+shihuStuffTabl+gwenStuffTabl+altyStuffTabl+gardStuffTabl
 
-dictListStuff = {}
+dictListStuff, dictMoyResStuff = {}, {}
 listMaxLevelStuff: List[stuff] = []
 for stuffy in stuffs:
-    try:
-        dictListStuff[stuffy.id[:2]].append(stuffy)
-    except KeyError:
-        dictListStuff[stuffy.id[:2]] = [stuffy]
-    if stuffy.minLvl >= MAXLEVEL:
-        listMaxLevelStuff.append(stuffy)
+	try: dictListStuff[stuffy.id[:2]].append(stuffy)
+	except KeyError: dictListStuff[stuffy.id[:2]] = [stuffy]
+	if stuffy.minLvl >= MAXLEVEL: listMaxLevelStuff.append(stuffy)
+
+	try:
+		dictMoyResStuff[stuffy.minLvl].append(stuffy.resistance)
+	except KeyError: dictMoyResStuff[stuffy.minLvl] = [stuffy.resistance]
 
 dictStuffs = {}
 for stuffy in stuffs:
-    dictStuffs[stuffy.id] = stuffy
+	dictStuffs[stuffy.id] = stuffy
 
 # find stuff
 def findStuff(stuffId) -> stuff:
-    """Renvoie un équipement Stuff, si trouvé"""
-    typi = type(stuffId)
-    if typi == stuff:
-        return stuffId
-    elif typi != str:
-        return None
-    else:
-        if stuffId.startswith("\n"):
-            stuffId = stuffId.replace("\n","")
-        try:
-            return dictStuffs[stuffId]
-        except KeyError:
-            for stuffy in stuffs:
-                if stuffy.name.lower() == stuffId.lower():
-                    return stuffy
+	"""Renvoie un équipement Stuff, si trouvé"""
+	typi = type(stuffId)
+	if typi == stuff:
+		return stuffId
+	elif typi != str:
+		return None
+	else:
+		if stuffId.startswith("\n"):
+			stuffId = stuffId.replace("\n","")
+		try:
+			return dictStuffs[stuffId]
+		except KeyError:
+			for stuffy in stuffs:
+				if stuffy.name.lower() == stuffId.lower():
+					return stuffy
 
 akiaStuffPreDef = [
-    [berserkHelmet,berserkTorso,berserkBoots],
-    [amethystEarRings,lightBlueJacket,lightBlueFlats],
-    [lunaPandan, lunaDress, lunaBoots],
-    [pompomHat,pompomBody,pompomShoes],
-    [battleShieldHat,battleShieldUnif,battleShieldShoes],
-    [berserkHelmet,berserkTorso,berserkBoots],
-    [coalHat,coalDress,coalBoots],
-    [battleHealHat,battleHealUnif,battleHealShoes],
-    [magicArmorHelmet,magicArmorBody,magicArmorBoots],
-    [fullMoonHat,fullMoonArmor,fullMoonBoots],
-    [zenithHat,zenithHat,zenithBoots],
-    [critIndHat50,critIndBody50,critIndShoes50],
-    [scienceHat,scienceBody,scienceShoes],
-    [critIntStrHat50,critIntStrBody50,critIntStrShoes50]
+	[berserkHelmet,berserkTorso,berserkBoots],
+	[amethystEarRings,lightBlueJacket,lightBlueFlats],
+	[lunaPandan, lunaDress, lunaBoots],
+	[pompomHat,pompomBody,pompomShoes],
+	[battleShieldHat,battleShieldUnif,battleShieldShoes],
+	[berserkHelmet,berserkTorso,berserkBoots],
+	[coalHat,coalDress,coalBoots],
+	[battleHealHat,battleHealUnif,battleHealShoes],
+	[magicArmorHelmet,magicArmorBody,magicArmorBoots],
+	[fullMoonHat,fullMoonArmor,fullMoonBoots],
+	[zenithHat,zenithHat,zenithBoots],
+	[critIndHat50,critIndBody50,critIndShoes50],
+	[scienceHat,scienceBody,scienceShoes],
+	[critIntStrHat50,critIntStrBody50,critIntStrShoes50]
 ]
+
+

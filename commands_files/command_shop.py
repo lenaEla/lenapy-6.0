@@ -27,7 +27,7 @@ allTeamHaveIcon = "<:teamBought:906621631143743538>"
 
 npcIcons = {}
 for npc in tablAllAllies+tablVarAllies+tablUniqueEnnemies+tablBoss+tablRaidBoss+tablBossPlus:
-	npcIcons[npc.name] = [npc.icon, npc.splashIcon][npc.splashIcon != None]
+	npcIcons[npc.name] = npc.icon
 
 npcIcons["Akia"] = '<a:akia:993550766415564831>'
 
@@ -51,23 +51,24 @@ def formatShop(txt:str) -> str:
 		lena = npcIcons["Lena"],
 		alice = npcIcons["Alice"],
 		shushi = npcIcons["Shushi"],timeo="<:timeoB:1104517210728308746>",
-		clemence = npcIcons["Clémence"], john = npcIcons["John"], sclem = '<:smallClemence:1236329023219437630>',
-		luna = npcIcons["Luna"], stella = npcIcons["Stella"], celeste = npcIcons["Céleste"], abigail = abigail, oceane = "<:oceane:1243448244944638023>", glan = "<:glan:1218268667960098879>",
+		clemence = npcIcons["Clémence"], john = npcIcons["John"], sclem = '<:smallClemence:1236329023219437630>', sClem = '<:smallClemence:1236329023219437630>', scClem="<:scClem:1369180712514617365>", clem = npcIcons["Clémence"],
+		luna = npcIcons["Luna"], stella = npcIcons["Stella"], celeste = npcIcons["Céleste"], celesteEx = npcIcons["Céleste"], abigail = abigail, oceane = "<:oceane:1243448244944638023>", glan = "<:glan:1218268667960098879>",
 		feli = npcIcons["Félicité"], felicite = npcIcons["Félicité"],
 		icealia = npcIcons["Icealia"], lohica=npcIcons["Lohica"],ly=npcIcons["Ly"],amary=npcIcons["Amary"],pirate='<:pirSab1:1059519845177249812>',pirate1='<:pirSab1:1059519845177249812>',pirate2='<:pirGun1:1059519820376330351>',pirate3='<:pirGun2:1059519760284528640>',
-		shihu = npcIcons["Shihu"], stimeo = '<:stimeo:1089164206336647168>', itimeo = "<:itimeo:1103217741172846614>",
-		shehisa = npcIcons["Shehisa"], helene = npcIcons["Hélène"], astra = npcIcons["Astra"],
+		shihu = npcIcons["Shihu"], stimeo = '<:stimeo:1089164206336647168>', sTimeo='<:stimeo:1089164206336647168>', itimeo = "<:itimeo:1103217741172846614>",
+		shehisa = npcIcons["Shehisa"], helene = npcIcons["Hélène"], astra = npcIcons["Astra"], myrlope = "<:myrlope:1351998603236741142>", myrlopé="<:myrlope:1351998603236741142>",
 		sixtine = npcIcons["Sixtine"], lily = npcIcons["Lily"], dSixtine = "<:dreamSixtine:1100793996483235851>",
-		iliana = npcIcons["Iliana"], catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1089607519380443229>", miniIli = "<:miniIli:1089607564548898876>", aurora = npcIcons["Aurora"], gaurora = "<:gaurora:1103332091594281050>",
-		gweny = npcIcons["Gwendoline"], alty = npcIcons["Altikia"], klikli = npcIcons["Klironovia"], karai = '<:karai:974079383197339699>',
+		iliana = npcIcons["Iliana"], catili = '<:catIli:1006440617146060850>', childIli = "<:childIli:1341518469971185755>", miniIli = "<:miniIli:1089607564548898876>", aurora = npcIcons["Aurora"], gaurora = "<:gaurora:1103332091594281050>",
+		gweny = npcIcons["Gwendoline"], alty = npcIcons["Altikia"], klikli = npcIcons["Klironovia"], karail = '<:karai:974079383197339699>',
+		milo1 = "<:milo1:1311220878767292469>", milo2 = "<:milo2:1311571912710950932>", milo3 = "<:milo3:1311571957866561546>", milo4 = "<:milo4:1311571979811295242>", milo5 = "<:milo5:1311572004981309540>", milo6 = "<:milo6:1311772654360854649>",
 		lio = npcIcons["Lio"], liu = npcIcons["Liu"], liz = npcIcons["Liz"], lia = npcIcons["Lia"], kitsune = npcIcons["Kitsune"], penelope = "<:penelope:1178446515459588106>", lei = '<:lei:1257691823170785372>',
-		anna = npcIcons["Anna"], belle = npcIcons["Belle"],
+		anna = npcIcons["Anna"], belle = npcIcons["Belle"], elina= npcIcons["Elina"],
 		edelweiss = npcIcons["Edelweiss"], epiphyllum = npcIcons["Epiphyllum"],
 		ruby = npcIcons["Ruby"], julie = npcIcons["Julie"],
 		akia = npcIcons["Akia"],  ailill = npcIcons["Ailill"],
 		nacialisla = npcIcons["Nacialisla"], silicia = "<:silicia:1045109225615003729>", powehi = npcIcons["Powehi"], aNacia = "<:airNacia:1208074166297952278>", fNacia = "<:fireNacia:1208074195888504902>", wNacia = "<:waterNacia:1208074216973410405>", eNacia = "<:earthNacia:1208074102569566209>",
 		benedicte = npcIcons["Bénédicte"], amandine = npcIcons["Amandine"], candy = npcIcons["Candy"],
-		kiku = npcIcons["Kiku"], churi = npcIcons["Chûri"], skeleton = "<a:smnMage:1054312154452471838>", churHin = npcIcons["Chûri-Hinoro"], anais="<:anais:1166806279042375780>",
+		kiku = npcIcons["Kiku"], churi = npcIcons["Chûri"], skeleton = "<a:smnMage:1054312154452471838>", churHin = npcIcons["Chûri-Hinoro"], anais="<:anais:1311811363009462313>",
 		akira = npcIcons["Akira"], krys = npcIcons["Krys"],
 		baddy1 = baddyTabl[0], baddy2 = baddyTabl[1], baddy3 = baddyTabl[2], baddy4 = baddyTabl[3], baddy5 = baddyTabl[4],
 		maraine = "Mara{0}ne".format(shopMaraine), chauvesouris = "🦇", thomas = "Thomas",
@@ -75,8 +76,10 @@ def formatShop(txt:str) -> str:
 		soul = "<:ghostB:1119951487032901722>", jade = npcIcons["Jade"], alexandre = npcIcons["Alexandre"], zeneca = npcIcons["Zénéca"], kaleb='<:kaleb:1183176411452813433>', keuleyong = "<:keuleyong:1205465540337078292>",
 		necro = "<:graveyard:1164906144339341424>", batiste = "<:batiste:1203788655240679534>", victoire = npcIcons["Victoire"],
 		random1 = randomTabl[0], random2 = randomTabl[1], random3 = randomTabl[2], random4 = randomTabl[3], random5 = randomTabl[4],
-		unknow="<:blocked:897631107602841600>", dzeneca=npcIcons["Phy"], krosnos = "<:kronos:1279709026015514668>", salestaly = "<:takoRed:866459004439756810>", halsta="<:ikaRed:866459224664702977>",
-		elio = npcIcons["Lio"], eliu = npcIcons["Liu"], eliz = npcIcons["Liz"], elia = npcIcons["Lia Ex"])
+		unknow="<:blocked:897631107602841600>", dzeneca=npcIcons["Phy"], phy=npcIcons["Phy"], krosnos = "<:kronos:1279709026015514668>", salestaly = "<:takoRed:866459004439756810>", halsta="<:ikaRed:1362015771055886528>",
+		elio = npcIcons["Lio Ex"], eliu = npcIcons["Liu"], eliz = npcIcons["Liz Ex"], elia = npcIcons["Lia Ex"], archedon = "<a:smnMage:1054312154452471838>", blackSlime="<:blackSlime:1342607265223413790>",
+		hood1 = "Encapuchonée 1", hood2 = "Encapuchonée 2", stryder="<:stryder:1351995678515003402>", lostral="Lostral",
+		mae="Maé", ines="Inès", aymer="Aymer", blanche="Blanche", eliath="Eliath", enzo="Enzo", diane="Diane", zayn="Zayn")
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
 	pathUserProfile, overloadShopMsg = absPath + "/userProfile/" + str(ctx.author.id) + ".json", None
@@ -88,9 +91,11 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
 	dateNow = datetime.now(parisTimeZone).replace(tzinfo=None)
 	years = dateNow.year
 
-	if randRoll < 10: shopTotalRandom = shopRandomMsg[:]
+	if dateNow.month == 12 and random.randint(0, 99) < 35: shopTotalRandom = shopAliceChristmasSong[:]
+	elif dateNow.month != 11 and random.randint(0, 99) < 1: shopTotalRandom = shopAliceChristmasSong[:] 
+	elif randRoll < 10: shopTotalRandom = shopRandomMsg[:]
 	elif randRoll < 25: shopTotalRandom = singingShopMsg[:]
-	elif randRoll < 75: shopTotalRandom = shopMonthlyMsg[dateNow.month-1][:]
+	elif randRoll < 75 and len(shopMonthlyMsg[dateNow.month-1]) > 0: shopTotalRandom = shopMonthlyMsg[dateNow.month-1][:]
 	else: shopTotalRandom = shopLastMonthlyMsg[dateNow.month-1][:]
 
 	if dateNow > datetime.strptime("23/12/{0}".format(years),"%d/%m/%Y") and dateNow < datetime.strptime("4/1/{0}".format(years+1),"%d/%m/%Y"): shopTotalRandom += shopEventEndYears 
@@ -98,9 +103,13 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
 	for shopDict in shopEventOneDay:
 		if shopDict["date"] == [dateNow.day,dateNow.month]: shopTotalRandom = shopDict["tabl"]; break
 
-	tmp = shopTotalRandom[random.randint(0,len(shopTotalRandom)-1)]
+	tmp = randRep(shopTotalRandom)
 	if type(tmp) == list: tmp = tmp[1]
-	shopRdMsg = formatShop(tmp)
+	try:
+		shopRdMsg = formatShop(tmp)
+	except Exception as e:
+		shopRdMsg = "*An error occured while formating the shop msg :\n{0}*".format(e)
+	
 	
 	initMsg = None
 
