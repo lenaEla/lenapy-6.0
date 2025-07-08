@@ -79,7 +79,7 @@ def formatShop(txt:str) -> str:
 		unknow="<:blocked:897631107602841600>", dzeneca=npcIcons["Phy"], phy=npcIcons["Phy"], krosnos = "<:kronos:1279709026015514668>", salestaly = "<:takoRed:866459004439756810>", halsta="<:ikaRed:1362015771055886528>",
 		elio = npcIcons["Lio Ex"], eliu = npcIcons["Liu"], eliz = npcIcons["Liz Ex"], elia = npcIcons["Lia Ex"], archedon = "<a:smnMage:1054312154452471838>", blackSlime="<:blackSlime:1342607265223413790>",
 		hood1 = "Encapuchonée 1", hood2 = "Encapuchonée 2", stryder="<:stryder:1351995678515003402>", lostral="Lostral",
-		mae="Maé", ines="Inès", aymer="Aymer", blanche="Blanche", eliath="Eliath", enzo="Enzo", diane="Diane", zayn="Zayn")
+		mae="Maé", ines="Inès", aymer="Aymer", blanche="Blanche", eliath="Eliath", enzo="Enzo", diane="Diane", zayn="Zayn", basile="Basile")
 
 async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping : list):
 	pathUserProfile, overloadShopMsg = absPath + "/userProfile/" + str(ctx.author.id) + ".json", None

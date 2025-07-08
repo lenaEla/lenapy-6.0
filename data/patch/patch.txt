@@ -34,6 +34,9 @@ __Aspiration :__
 - Observateur, Mascotte, Protecteur, Vigilant, Enchanteur :
 > - La description du passif a été remaniée pour être plus explicite
 
+__Equilibrage :__
+- Carnage Mortel : La compétence Mise à Mort inflige désormais Incurable à tous les ennemis dans la zone d'effet, au lieu d'uniquement la cible principale
+
 __Autre :__
 - Il est désormais directement possible de rentrer une couleur personnalisée lors de la création de personnage
 - Il est désormais directement possible de rentrer une couleur personnalisée lors d'un changement d'apparance

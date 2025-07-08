@@ -224,6 +224,7 @@ TYPE_DEPL = 12
 allTypeNames = ["Armure", "Dégâts indirects", "Soins Indirects", "Résurection indirecte","Boost", "Resurection", "Dégâts", "Malus", "Soins", "Unique", "Invocation", "Passif", "Déployable"]
 friendlyTypes, hostileTypes = [TYPE_ARMOR, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_REZ, TYPE_HEAL, TYPE_BOOST, TYPE_RESURECTION], [TYPE_INDIRECT_DAMAGE, TYPE_DAMAGE, TYPE_MALUS]
 allTypes = range(0, 12)
+typeEmojis = ["<:armor:1137364335581212682>", "<:indirect:1137364330237673542>", "<:healing:1137364338374623333>", "<:renisurection:873723658315644938>", "<:boost:1137364341591638126>", "<:renisurection:873723658315644938>", "<:direct:1137364333526007880>," "<:boost:1137364341591638126>", "<:healing:1137364338374623333>", "Unique", "Invocation", "Passif", "Déployable"]
 
 EXCLUSIVE, BECOME = 0, 1
 WEAPON, ASPIRATION, ELEMENT = 0,1,2

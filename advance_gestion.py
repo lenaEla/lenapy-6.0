@@ -94,11 +94,12 @@ class cellule:
 BOARD_NORMAL = 0
 BOARD_BIG = 1
 BOARD_DISPLAY = 2
+BOARD_SMALL = 3
 
 class cellBoard:
 	def __init__(self, length=BOARD_NORMAL):
-		self.lenX = {BOARD_NORMAL:5, BOARD_BIG:5, BOARD_DISPLAY:7}[length]
-		self.lenY = {BOARD_NORMAL:5, BOARD_BIG:7, BOARD_DISPLAY:7}[length]
+		self.lenX = {BOARD_NORMAL:5, BOARD_BIG:7, BOARD_DISPLAY:5, BOARD_SMALL:3}[length]
+		self.lenY = {BOARD_NORMAL:6, BOARD_BIG:5, BOARD_DISPLAY:5, BOARD_SMALL:3}[length]
 		self.tablCells = []
 
 		cellId = 0
@@ -151,7 +152,7 @@ class cellBoard:
 					if self.distance(cell2=tmpCell, cell1=mainCell) <= 4:
 						rep.remove(tmpCell)
 		elif area in [AREA_ALL_ALLIES,AREA_ALL_ENEMIES,AREA_ALL_ENTITES]:
-			return self.tablCell
+			return self.getSingleTabl()
 		elif area in [AREA_CONE_2,AREA_CONE_3,AREA_CONE_4,AREA_CONE_5,AREA_CONE_6,AREA_CONE_7]:
 			areaTabl, coneLength, direction = [mainCell],area-(AREA_CONE_2-2), getDirection(fromCell,mainCell)
 			if direction in [FROM_RIGHT,FROM_POINT]:

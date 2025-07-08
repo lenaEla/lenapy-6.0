@@ -2982,10 +2982,10 @@ async def verifDefaultSkillIcons(ctx):
 
 @slash_command(name="test", scopes=adminServ)
 async def boosterTest(ctx):
-	toTest = 17
+	toTest = 0
 
 	if toTest in [0, 3]:
-		tablToTest = [explosion]
+		tablToTest = [susieIdea, fanVirBundle, mineUlt, deathSentenceBundle, cymCombo]
 
 		listMsg = []
 		for itm in tablToTest:
@@ -3001,8 +3001,21 @@ async def boosterTest(ctx):
 				await ctx.send(components=ContainerComponent(TextDisplayComponent(format_exc())), accent_color=red)
 				print_exc()
 				print(itm)
+
+		while 1:
+			try:
+				react = await slash.wait_for_component(messages=listMsg, timeout=60)
+				react = react.ctx
+			except TimeoutError:
+				return 0
+
+			for indx, tmpMsg in enumerate(listMsg):
+				if tmpMsg.id == react.message.id:
+					await react.send(components=ContainerComponent(*getSkillVisuArea(tablToTest[indx]), accent_color=light_blue), ephemeral=True)
+
+
 	if toTest in [1, 3]:
-		toTestSkill = [explosion]
+		toTestSkill = [susieIdea]
 		try: await ctx.defer(ephemeral=True)
 		except: pass
 
@@ -3015,10 +3028,18 @@ async def boosterTest(ctx):
 				listToSee += tmpSkill.become
 
 		for tmpSkill in listToSee:
-			listComp += [skillVisuArea(itm=tmpSkill), SeparatorComponent(divider=True)]
+			tmpLen, tmpVisu = 0, skillVisuArea(itm=tmpSkill)
+			for tmpComp in listComp:
+				if tmpComp.type == 10:
+					tmpLen += len(tmpComp.content)
+
+			if tmpLen + len(tmpVisu.content) > 4000:
+				await ctx.send(components=containerReduceEmojiNames(ContainerComponent(*listComp, accent_color=light_blue)), ephemeral=True)
+				listComp = [skillVisuArea(itm=tmpSkill), SeparatorComponent(divider=True)]
+			else: listComp += [skillVisuArea(itm=tmpSkill), SeparatorComponent(divider=True)]
 		
-		listComp += [legend_visuArea]
-		await ctx.send(components=containerReduceEmojiNames(ContainerComponent(*listComp, accent_color=light_blue)))
+		listComp = listComp[:-1]
+		await ctx.send(components=containerReduceEmojiNames(ContainerComponent(*listComp, accent_color=light_blue)), ephemeral=True)
 
 @slash_command(name="area_test",scopes=adminServ)
 async def areaTest(ctx):

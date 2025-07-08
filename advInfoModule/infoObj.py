@@ -113,10 +113,10 @@ def getMultiPow(itm: skill, statDict = {}, key:skill = None):
 		toReturn = toReturn[:-1] +"\n"
 	return toReturn
 
-legendButton = Button(style=ButtonStyle.SECONDARY, label="Détails des attributs", emoji=PartialEmoji(name="⬇️"), custom_id="legendeButton")
-areaButton = Button(style=ButtonStyle.SECONDARY, label="Détails des zones d'effets", emoji=PartialEmoji(name="⬇️"), custom_id="areaButton")
+legendButton = Button(style=ButtonStyle.SECONDARY, label="Détail des attributs", emoji=PartialEmoji(name="⬇️"), custom_id="legendeButton")
+areaButton = Button(style=ButtonStyle.SECONDARY, label="Détail des zones d'effets", emoji=PartialEmoji(name="⬇️"), custom_id="areaButton")
 jaugeButton = Button(style=ButtonStyle.SECONDARY, custom_id="jaugeButton", label="tmp")
-effButton = Button(style=ButtonStyle.SECONDARY, label="Détails des effets", emoji=PartialEmoji(name="⬇️"), custom_id="effButton")
+effButton = Button(style=ButtonStyle.SECONDARY, label="Détail des effets", emoji=PartialEmoji(name="⬇️"), custom_id="effButton")
 
 def getTablFromVisuArea(area:int, wanted:int, fromDir:int):
 	mainTabl, tmp, indx = [[]], "", 0
@@ -136,43 +136,11 @@ def getTablFromVisuArea(area:int, wanted:int, fromDir:int):
 	
 	return mainTabl
 
-EMPTY_CELL = "<:em:866459463568850954>"
-SELF_TARGETED = "<:ikaWhiteTargeted1:873118129021157377>"
-ENEMY_TARGETED = "<:ir:873118129541238814>"
-ALLY_TARGETED = "<:ib:873118128958214166>"
-ENEMY_NOT_TARGETED = "<:ir:866459224664702977>"
-ALLY_NOT_TARGETED = "<:ib:866459302319226910>"
-SELF_NOT_TARGETED = "<:ikaWhite:871149538554044466>"
-
-ALLY_IN_AOE = "<:allyTarget:1391876784340992221>"
-ENEMY_IN_AOE = "<:targeted24:1391872863669190838>"
-ALLY_AOE_IN_RANGE = "<:target13:1391875628331958272>"
-ENEMY_AOE_IN_RANGE = "<:target24:1391875646036115486>"
-
-SELF_IN_AOE = "<:targeted13:1391872976261091338>"
-SELF_TARGETED_ENEMY_AOE = "<:selfTargetedDmg:1391881319952420954>"
-
-ENEMY_TARGET = "<:Targeted2:873118129130192947>"
-SEC_ENEMY_TARGET = "<:target4:1391875660850663505>"
-ALLY_TARGET = "<:Targeted1:873118129214083102>"
-SEC_ALLY_TARGET = "<:target3:1391875610535530607>"
-
-dictColor = {
-	0: ALLY_TARGET,
-	1: ENEMY_TARGET,
-	2: SEC_ALLY_TARGET,
-	3: SEC_ENEMY_TARGET
-}
-
 def colorTablVisuArea(value: List[List[List[int]]], tablInit: List[cellule], color:int):
-	colorIndx = 0
-	match (color -1) // 2:
-		case 1: colorIndx = 2
-		case 2: colorIndx = 3
-		case _: colorIndx = 1
+	colorIndx = color // 2 + 1
 	
 	for tmpCell in tablInit:
-		value[tmpCell.x][tmpCell.y][colorIndx] = color
+		value[tmpCell.x][tmpCell.y][colorIndx] = color%2 + 1
 
 	return value
 
@@ -180,7 +148,8 @@ def getStrFromCellList(value: List[List[List[int]]]):
 	toReturn = ""
 	for a in range(len(value)):
 		for b in range(len(value[a])):
-			toReturn += "{}|".format(targetEmojis['{}{}{}{}'].format(value[a][b][0], value[a][b][1], value[a][b][2], value[a][b][3]))
+			key = '{}{}{}{}'.format(value[a][b][0], value[a][b][1], value[a][b][2], value[a][b][3])
+			toReturn += "{}|".format([targetEmojis[key], key][targetEmojis[key] == "MISSING"])
 		toReturn = toReturn[:-1]+"\n"
 	return toReturn
 
@@ -189,17 +158,19 @@ def skillVisuArea(itm: Union[str, skill]):
 	if itm == None:
 		return ContainerComponent(TextDisplayComponent("Le skill n'a pas été trouvé"), accent_color=red)
 
-	bigMap = itm.range not in [AREA_MONO, AREA_CIRCLE_1, AREA_CIRCLE_2, AREA_CIRCLE_3]
-	board, toReturn, containerComp, isHostile = cellBoard(), [], [], int(itm.type in hostileTypes)
+	boardSize = BOARD_NORMAL
+	if itm.range in [AREA_MONO, AREA_CIRCLE_1] and itm.area in [AREA_MONO, AREA_CIRCLE_1]:
+		boardSize = BOARD_SMALL
+	elif itm.range in [AREA_MONO, AREA_CIRCLE_1, AREA_CIRCLE_2, AREA_CIRCLE_3]:
+		boardSize = BOARD_DISPLAY
+
+	board, toReturn, containerComp, isHostile = cellBoard(boardSize), [], [], int(itm.type in hostileTypes)
 	for x in range(board.lenX):
 		toReturn.append([])
 		for y in range(board.lenY):
 			toReturn[x].append([0, 0, 0, 0])
 
-	if bigMap:
-		mainCell: cellule = board.findCell(2, 0)
-	else:
-		mainCell: cellule = board.findCell(2, 1)
+	else: mainCell: cellule = board.findCell(*{BOARD_NORMAL:(2, 1), BOARD_SMALL:(1,[0, 1][itm.range == AREA_MONO]), BOARD_DISPLAY:(2,1)}[boardSize])
 	
 	toReturn[mainCell.x][mainCell.y][0] = 1
 
@@ -207,24 +178,46 @@ def skillVisuArea(itm: Union[str, skill]):
 	toReturn = colorTablVisuArea(toReturn, mainRange, isHostile)
 
 	if itm.range != AREA_MONO:
-		if bigMap: targetCell: cellule = board.findCell(2, 4)
-		else: targetCell: cellule = board.findCell(2, 3)
-
+		targetCell: cellule = board.findCell(*{BOARD_NORMAL:(2, 4), BOARD_SMALL:(1,1), BOARD_DISPLAY:(2,3)}[boardSize])
 		toReturn[targetCell.x][targetCell.y][0] = 2 + int(isHostile)
-	else:
-		targetCell = mainCell
+	else: targetCell = mainCell
 
 	targetArea = board.getArea(mainCell=targetCell, area=itm.area, team=0, fromCell=mainCell)
 	toReturn = colorTablVisuArea(toReturn, targetArea, 2+isHostile)
 
-	return TextDisplayComponent(reduceEmojiNames("### {0} : Détail des aires d'effet\n\n{1}\n{3} *{4}* / {6} *{7}*".format(
-			itm, getStrFromCellList(toReturn), [ALLY_TARGET, ENEMY_TARGET][isHostile], rangeAreaEmojis[itm.range], areaNames[itm.range], [SEC_ALLY_TARGET, SEC_ENEMY_TARGET][isHostile], areaEmojis[itm.area], areaNames[itm.area]
+	areaMsg = "{0} {1} *{2}*\n{3} {4} *{5}*".format(targetEmojis["0{}00".format(1+ int(isHostile))],  rangeAreaEmojis[itm.range], areaNames[itm.range], targetEmojis["00{}0".format(1+ int(isHostile))], areaEmojis[itm.area], areaNames[itm.area])
+	biggestArea, effType, effName, effArea = [], -1, "", -1
+	for eff in itm.effects:
+		eff = findEffect(eff)
+		if eff != None:
+			tmpArea = board.getArea(mainCell=targetCell, area=eff.area, team=0, fromCell=mainCell)
+			if len(tmpArea) > len(biggestArea): biggestArea, effType, effName, effArea = tmpArea, int(eff.type in hostileTypes), eff.__str__(), eff.area
+
+	if len(biggestArea) > 1:
+		toReturn = colorTablVisuArea(toReturn, biggestArea, 4+effType)
+		areaMsg += "\n-# {} {} : {} *{}*".format(targetEmojis["000"+str(effType+1)], effName.replace("__", "*"), areaEmojis[effArea], areaNames[effArea])
+
+	if itm.effectAroundCaster != None:
+		toReturn = colorTablVisuArea(toReturn, board.getArea(mainCell=mainCell, area=itm.effectAroundCaster[1], team=0, fromCell=mainCell), 4+int(itm.effectAroundCaster[0] in hostileTypes))
+
+		try:
+			if type(itm.effectAroundCaster[2]) == int:
+				areaMsg += "\n-# {} {}{}*{}* : {} *{}*".format(targetEmojis["000"+str(int(itm.effectAroundCaster[2].type in hostileTypes)+1)], typeEmojis[itm.effectAroundCaster[0]], statEmojis[itm.use], itm.effectAroundCaster[2], areaEmojis[itm.effectAroundCaster[1]], areaNames[itm.effectAroundCaster[1]])
+			else:
+				areaMsg += "\n-# {} {} : {} *{}*".format(targetEmojis["000"+str(int(itm.effectAroundCaster[2].type in hostileTypes)+1)], itm.effectAroundCaster[2].__str__().replace("__", "*"), areaEmojis[itm.effectAroundCaster[1]], areaNames[itm.effectAroundCaster[1]])
+		except:
+			print_exc()
+			print(itm.name, itm.effectAroundCaster)
+	return TextDisplayComponent(reduceEmojiNames("### {0} : Détail des zones d'effets\n\n{1}\n{2}".format(
+			itm, getStrFromCellList(toReturn), areaMsg 
 		))
 	)
 
-legend_visuArea = TextDisplayComponent("-# {} : Lanceur, {} : Cible alliée, {} : Cible ennemie\n-# {} / {} : Cellule à portée, {} / {} : Cellule dans l'aire d'effet".format(
-	SELF_NOT_TARGETED, ALLY_NOT_TARGETED, ENEMY_NOT_TARGETED, ALLY_TARGET, ENEMY_TARGET, SEC_ALLY_TARGET, SEC_ENEMY_TARGET
+legend_visuArea = TextDisplayComponent("-# {} : Lanceur, {} : Cible alliée, {} : Cible ennemie\n-# {} / {} : Cellule à portée\n-# {} / {} : Cellule dans l'aire d'effet principale\n-# {} / {} : Cellule dans l'aire d'effet secondaire".format(
+	targetEmojis["1000"], targetEmojis["2000"], targetEmojis["3000"], targetEmojis["0100"], targetEmojis["0200"], targetEmojis["0010"], targetEmojis["0020"], targetEmojis["0001"], targetEmojis["0002"]
 ))
+
+lenLegendVisuArea = len(legend_visuArea.content)
 
 def infoSkill2(itm: Union[str, skill], subTabl = []):
 	itm = findSkill(itm)
@@ -566,3 +559,31 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 		testCompListFull.append(MediaGalleryComponent([MediaGalleryItem(UnfurledMediaItem(url=itm.url))]))
 	if lenContainer(ContainerComponent(*testCompListFull)) > 4000: return testCompListLight
 	else: return testCompListFull
+
+def getSkillVisuArea(itm: skill):
+	itm = findSkill(itm)
+	if itm == None: raise AttributeError("Given itm is not a skill")
+
+	tablToSee, tablToReturn = [], []
+	if itm.become == None:
+		tablToSee = [itm]
+	else:
+		tablToSee = itm.become
+
+	for tmpSkill in tablToSee:
+		tmp, finded = skillVisuArea(tmpSkill), False
+		for tmpStr in tablToReturn:
+			if tmpStr.content.splitlines()[1:] == tmp.content.splitlines()[1:]:
+				tmp2 = "\n".join(tmpStr.content.splitlines()[1:])
+				tmpStr.content = tmpStr.content[:4] + tmpSkill.__str__() + ", " + tmpStr.content.splitlines()[0][4:] + "\n" + tmp2
+				finded = True
+
+		if not(finded):
+			tablToReturn.append(tmp)
+	
+	tablFinal = []
+	for tmp in tablToReturn:
+		tmp.content = reduceEmojiNames(tmp.content)
+		tablFinal += [tmp, SeparatorComponent(divider=True)]
+	
+	return tablFinal[:-1]
