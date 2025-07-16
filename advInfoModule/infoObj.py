@@ -3,7 +3,7 @@ from classes import *
 from adv import findSkill, findStuff, findWeapon, findEffect
 from advance_gestion import *
 
-def infoEff2(eff: Union[str, effect], txt: str = "{}", powerPurcent=100, compList: list = None, rangeInt: str= None):
+def infoEff2(eff: Union[str, effect], txt: str = "{}", powerPurcent=100, compList: list = None, rangeInt: str= None) -> list:
 	eff = findEffect(eff)
 	if eff == None: return [TextDisplayComponent("L'effet n'est pas été trouvé")]
 	else:
@@ -12,11 +12,13 @@ def infoEff2(eff: Union[str, effect], txt: str = "{}", powerPurcent=100, compLis
 		if eff.callOnTrigger != None:
 			eff2 = findEffect(eff.callOnTrigger)
 			if eff2 != None:
-				if eff2.trigger==TRIGGER_INSTANT:
-					if eff2.type == TYPE_DAMAGE: return infoEff2(eff=findEffect(eff.callOnTrigger), txt="Inflige une attaque supplémentaire {} la cible ".format(["à", "autour de"][eff2.area != AREA_MONO]))
-					elif eff2.type in [TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_DAMAGE]: return infoEff2(eff=findEffect(eff.callOnTrigger), txt=["Inflige", "Octroi"][eff2.type in friendlyTypes] + " {}" + " {} la cible ".format(["à", "autour de"][eff2.area != AREA_MONO]))
-					elif eff2.type == TYPE_HEAL: return infoEff2(eff=findEffect(eff.callOnTrigger), txt="Soigne les alliés {} la cible ".format(["sur ", "autour de"][eff2.area != AREA_MONO]))
+				if eff2.trigger in [TRIGGER_INSTANT, TRIGGER_ON_REMOVE]:
+					if eff2.trigger == TRIGGER_ON_REMOVE: toAdd = "après {} tours ".format(eff2.turnInit)
+					else: toAdd = ""
 
+					if eff2.type == TYPE_DAMAGE: return infoEff2(eff=findEffect(eff.callOnTrigger), txt="Inflige une attaque supplémentaire {} la cible {}".format(["à", "autour de"][eff2.area != AREA_MONO], toAdd))
+					elif eff2.type in [TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_DAMAGE]: return infoEff2(eff=findEffect(eff.callOnTrigger), txt=["Inflige", "Octroi"][eff2.type in friendlyTypes] + " {}" + " {} la cible {}".format(["à", "autour de"][eff2.area != AREA_MONO], toAdd))
+					elif eff2.type == TYPE_HEAL: return infoEff2(eff=findEffect(eff.callOnTrigger), txt="Soigne les alliés {} la cible {}".format(["sur ", "autour de"][eff2.area != AREA_MONO], toAdd))
 		bonusStr, malusStr = "", ""
 
 		typeEmoji = ""
@@ -154,7 +156,10 @@ def getStrFromCellList(value: List[List[List[int]]]):
 	return toReturn
 
 def skillVisuArea(itm: Union[str, skill]):
-	itm = findSkill(itm)
+	if type(itm) == str:
+		itm2 = findSkill(itm)
+		if itm2 == None: itm = findWeapon(itm)
+		else: itm = itm2
 	if itm == None:
 		return ContainerComponent(TextDisplayComponent("Le skill n'a pas été trouvé"), accent_color=red)
 
@@ -211,6 +216,48 @@ def skillVisuArea(itm: Union[str, skill]):
 	return TextDisplayComponent(reduceEmojiNames("### {0} : Détail des zones d'effets\n\n{1}\n{2}".format(
 			itm, getStrFromCellList(toReturn), areaMsg 
 		))
+	)
+
+def weaponVisuArea(itm: Union[str, weapon]):
+	itm = findWeapon(itm)
+	if itm == None:
+		return ContainerComponent(TextDisplayComponent("Le skill n'a pas été trouvé"), accent_color=red)
+
+	boardSize = BOARD_NORMAL
+
+	board, toReturn, containerComp, isHostile = cellBoard(boardSize), [], [], int(itm.target == ENEMIES)
+	for x in range(board.lenX):
+		toReturn.append([])
+		for y in range(board.lenY):
+			toReturn[x].append([0, 0, 0, 0])
+
+	else: mainCell: cellule = board.findCell(2, 1)
+	
+	toReturn[mainCell.x][mainCell.y][0] = 1
+
+	mainRange = board.getArea(mainCell=mainCell, area=itm.effectiveRange, team=0, fromCell=mainCell)
+	toReturn = colorTablVisuArea(toReturn, mainRange, isHostile)
+
+	if itm.effectiveRange != AREA_MONO:
+		targetCell: cellule = board.findCell(2, 4)
+		toReturn[targetCell.x][targetCell.y][0] = 2 + isHostile
+	else: targetCell = mainCell
+
+	targetArea = board.getArea(mainCell=targetCell, area=itm.area, team=0, fromCell=mainCell)
+	toReturn = colorTablVisuArea(toReturn, targetArea, 2+isHostile)
+
+	areaMsg = "{0} {1} *{2}*\n{3} {4} *{5}*".format(targetEmojis["0{}00".format(1+ int(isHostile))], rangeAreaEmojis[itm.effectiveRange], areaNames[itm.effectiveRange], targetEmojis["00{}0".format(1+ int(isHostile))], areaEmojis[itm.area], areaNames[itm.area])
+	biggestArea, effType, effName, effArea = [], -1, "", -1
+	
+	if itm.effectOnUse != None:
+		tmpArea = board.getArea(mainCell=targetCell, area=eff.area, team=0, fromCell=mainCell)
+		if len(tmpArea) > len(biggestArea): biggestArea, effType, effName, effArea = tmpArea, int(eff.type in hostileTypes), eff.__str__(), eff.area
+	
+	if len(biggestArea) > 1:
+		toReturn = colorTablVisuArea(toReturn, biggestArea, 4+effType)
+		areaMsg += "\n-# {} {} : {} *{}*".format(targetEmojis["000"+str(effType+1)], effName.replace("__", "*"), areaEmojis[effArea], areaNames[effArea])
+
+	return TextDisplayComponent(reduceEmojiNames("### __Portée et zone d'effet :__\n\n{1}\n{2}".format(itm, getStrFromCellList(toReturn), areaMsg))
 	)
 
 legend_visuArea = TextDisplayComponent("-# {} : Lanceur, {} : Cible alliée, {} : Cible ennemie\n-# {} / {} : Cellule à portée\n-# {} / {} : Cellule dans l'aire d'effet principale\n-# {} / {} : Cellule dans l'aire d'effet secondaire".format(
@@ -504,7 +551,6 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 			]
 
 
-
 	tmpStr, tmpList = "", []
 	for tmp in tablEff:
 		tmpStr += tmp[0]
@@ -560,22 +606,33 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 	if lenContainer(ContainerComponent(*testCompListFull)) > 4000: return testCompListLight
 	else: return testCompListFull
 
-def getSkillVisuArea(itm: skill):
-	itm = findSkill(itm)
-	if itm == None: raise AttributeError("Given itm is not a skill")
+def getItmVisuArea(itm: Union[skill, weapon]):
+	if type(itm) == str:
+		itm2 = findSkill(itm)
+		if itm2 == None:
+			itm = findWeapon(itm)
+		else:
+			itm = itm2
+
+	if itm == None: raise AttributeError("Given itm is not a skill or a weapon")
 
 	tablToSee, tablToReturn = [], []
-	if itm.become == None:
-		tablToSee = [itm]
-	else:
-		tablToSee = itm.become
+	
+	if type(itm) == skill:
+		if itm.become == None: tablToSee = [itm]
+		else: tablToSee = itm.become
+	else: tablToSee = [itm]
 
-	for tmpSkill in tablToSee:
-		tmp, finded = skillVisuArea(tmpSkill), False
+	for tmpItm in tablToSee:
+		tmp = None
+		if type(tmpItm) == skill: tmp = skillVisuArea(tmpItm)
+		if type(tmpItm) == weapon: tmp = weaponVisuArea(tmpItm)
+
+		finded = False
 		for tmpStr in tablToReturn:
 			if tmpStr.content.splitlines()[1:] == tmp.content.splitlines()[1:]:
 				tmp2 = "\n".join(tmpStr.content.splitlines()[1:])
-				tmpStr.content = tmpStr.content[:4] + tmpSkill.__str__() + ", " + tmpStr.content.splitlines()[0][4:] + "\n" + tmp2
+				tmpStr.content = tmpStr.content[:4] + tmpItm.__str__() + ", " + tmpStr.content.splitlines()[0][4:] + "\n" + tmp2
 				finded = True
 
 		if not(finded):
@@ -587,3 +644,61 @@ def getSkillVisuArea(itm: skill):
 		tablFinal += [tmp, SeparatorComponent(divider=True)]
 	
 	return tablFinal[:-1]
+
+def infoWeapon2(itm: Union[str, weapon]) -> list:
+	itm = findWeapon(itm)
+	if itm == None: return [TextDisplayComponent("La compétence n'a pas été retrouvée")]
+
+	mainTitle = "### {}".format(itm)
+
+	typeEmoji = ""
+	if itm.type in [TYPE_DAMAGE]: typeEmoji = statEmojis[ACT_DIRECT_FULL]
+	elif itm.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION]: typeEmoji = statEmojis[ACT_HEAL_FULL]
+	elif itm.type in [TYPE_INDIRECT_DAMAGE]: typeEmoji = statEmojis[ACT_INDIRECT_FULL]
+	elif itm.type in [TYPE_ARMOR]: typeEmoji = statEmojis[ACT_SHIELD_FULL]
+	elif itm.type in [TYPE_BOOST,TYPE_MALUS]: typeEmoji = statEmojis[ACT_BOOST_FULL]
+	elif itm.type in [TYPE_SUMMON,TYPE_DEPL]: typeEmoji = "<:sprink1:887747751339757599>"
+
+	mainDesc = "__Type :__ {} {}\n".format(typeEmoji, allTypeNames[itm.type])
+	mainDesc += "__Puissance :__ {} {} ({}%) {}".format(statEmojis[itm.use], itm.power, itm.accuracy, ["", " x{}".format(itm.repetition)][itm.repetition])
+
+	stats = ""
+	for indx, stat in enumerate(itm.allStats()):
+		if stat != 0: stats += "{} {} +{}\n".format(statEmojis[indx], nameAllStats[  indx], stat)
+
+	toReturnCompList = [
+		SectionComponent(components=[TextDisplayComponent(mainTitle), TextDisplayComponent(mainDesc)], accessory=ThumbnailComponent(media=UnfurledMediaItem(url="https://cdn.discordapp.com/emojis/{}.webp".format(PartialEmoji.from_str(itm.emoji).id)))),
+		TextDisplayComponent("**__Bonus de statistiques :__**\n"+stats),
+		SeparatorComponent()
+	] + getItmVisuArea(itm)
+
+	if itm.effects != None:
+		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "Octroi le passif \"{}\" lorsque cette arme est equipée", powerPurcent=100)
+	if itm.effectOnUse != None:
+		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "{}".format(["Octroi", "Inflige"][isHostile]) +"le passif \"{}\" à la cible lors de l'utilisation", powerPurcent=100)
+
+	return toReturnCompList
+
+def infoStuff2(itm = Union[str, stuff]) -> list:
+	itm = findStuff(itm)
+
+	if itm == None: return [TextDisplayComponent("L'équiment n'a pas été retrouvée")]
+	mainTitle = "### {}".format(itm)
+
+	mainDesc = "__Type__ : {}\n__Orientation :__ {}\n__Niveau :__ {}+".format({0: "Accessoire", 1: "Vêtement", 2: "Chaussures"}[itm.type], itm.orientation, itm.minLvl)
+
+	statStrPlus, statStrMinus = "", ""
+	for indx, tmpStat in enumerate(itm.allStatsFull()):
+		if tmpStat > 0: statStrPlus += "{} *{}* **+{}**\n".format(statEmojis[indx], nameAllStats[indx], tmpStat)
+		elif tmpStat < 0: statStrMinus += "-# {} *{}* {}\n".format(statEmojis[indx], nameAllStats[indx], tmpStat)
+
+	toReturnCompList = [
+		SectionComponent(components=[TextDisplayComponent(mainTitle), TextDisplayComponent(mainDesc)], accessory=(ThumbnailComponent(media=UnfurledMediaItem(url="https://cdn.discordapp.com/emojis/{}.webp".format(PartialEmoji.from_str(itm.emoji).id))))),
+		SeparatorComponent(),
+		TextDisplayComponent("**__Statistiques :__**\n"+statStrPlus+statStrMinus)
+	]
+
+	if itm.effects != None:
+		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "Octroi le passif \"{}\" lorsque cette arme est equipée", powerPurcent=100)
+
+	return toReturnCompList 

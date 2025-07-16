@@ -2982,7 +2982,7 @@ async def verifDefaultSkillIcons(ctx):
 
 @slash_command(name="test", scopes=adminServ)
 async def boosterTest(ctx):
-	toTest = 0
+	toTest = 5
 
 	if toTest in [0, 3]:
 		tablToTest = [susieIdea, fanVirBundle, mineUlt, deathSentenceBundle, cymCombo]
@@ -3011,8 +3011,7 @@ async def boosterTest(ctx):
 
 			for indx, tmpMsg in enumerate(listMsg):
 				if tmpMsg.id == react.message.id:
-					await react.send(components=ContainerComponent(*getSkillVisuArea(tablToTest[indx]), accent_color=light_blue), ephemeral=True)
-
+					await react.send(components=ContainerComponent(*getItmVisuArea(tablToTest[indx]), accent_color=light_blue), ephemeral=True)
 
 	if toTest in [1, 3]:
 		toTestSkill = [susieIdea]
@@ -3041,6 +3040,17 @@ async def boosterTest(ctx):
 		listComp = listComp[:-1]
 		await ctx.send(components=containerReduceEmojiNames(ContainerComponent(*listComp, accent_color=light_blue)), ephemeral=True)
 
+	if toTest in [4]:
+		toTest = [eclatanaDoto, splatcharger]
+		for tmpItm in toTest:
+			await ctx.send(components=containerReduceEmojiNames(ContainerComponent(*infoWeapon2(itm=tmpItm), accent_color=light_blue)))
+	
+	if toTest in [5]:
+		toTest = [lightBlueFlats, whiteChemVeste]
+		user = classes.char(owner=int(ctx.author_id), name = "Lena", level = 99, species=1, color=light_blue)
+		for tmpItm in toTest:
+			await ctx.send(embeds=[infoStuff(stuff=tmpItm, user=user, ctx=ctx)])
+			await ctx.send(components=containerReduceEmojiNames(ContainerComponent(*infoStuff2(itm=tmpItm), accent_color=light_blue)))
 @slash_command(name="area_test",scopes=adminServ)
 async def areaTest(ctx):
 	first = True

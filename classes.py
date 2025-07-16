@@ -239,7 +239,6 @@ class effect:
 		"""Return a list with the mains stats of the effect"""
 		return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
-
 # Basic effects :
 incurable = effect("Incurable","incur",type=TYPE_MALUS,power=100,replace=True,description="Diminue les soins reçus par la cible de **{0}**%.\nSeul l'effet Incurable le plus puissant est pris en compte",emoji=sameSpeciesEmoji('<:incurB:1143285329391001762>','<:incurR:1143285244477317233>'),stackable=True)
 armorPackEff = effect("Armure","armorPack", stat = INTELLIGENCE,overhealth=35,turnInit=3,type=TYPE_ARMOR,trigger=TRIGGER_DAMAGE)
