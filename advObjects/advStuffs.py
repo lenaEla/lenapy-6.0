@@ -18,7 +18,7 @@ def autoGenerateStuff(fromTabl:List[stuff],lastKnowedId:str,toLevel=MAXLEVEL):
 			stats = {k: v for k, v in sorted(stats.items(), key = lambda item: item[1], reverse=True)}
 			nameStats = {}
 			for k in stats:
-				nameStats[nameAllStats[k]]=stats[k]
+				nameStats[allStatNames[k]]=stats[k]
 
 			tempStats, toAdd, creditToBeSpend = [ENDURANCE,AGILITY,PRECISION], [], (cmpt+1)*5
 			statsKeys = list(stats.keys())

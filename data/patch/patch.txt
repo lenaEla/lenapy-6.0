@@ -42,3 +42,4 @@ __Autre :__
 - Il est désormais directement possible de rentrer une couleur personnalisée lors d'un changement d'apparance
 - L'objet "Couleur personnalisé" étant désormais obscelette, il ne peut plus apparaitre au shop, ni être utlisé depuis l'inventaire
 - Les descriptions de certaines compétences ont été réécrites
+- Le type de compétence "Résurection indirecte", utilisée par 0 compétence, a été supprimé

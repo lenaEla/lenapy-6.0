@@ -69,6 +69,6 @@ for cmpt in range(1,len(chapter[2])):
 
 for cmpt in range(1,len(tablPage)):
 	if cmpt != 24:
-		for cmpt2 in range(len(nameAllStats)):
-			if nameAllStats[cmpt2] in tablPage[cmpt][1] and not(statEmojis[cmpt2] in tablPage[cmpt][1]):
-				tablPage[cmpt][1] = tablPage[cmpt][1].replace(nameAllStats[cmpt2],"{0} {1}".format(statEmojis[cmpt2], nameAllStats[cmpt2]))
+		for cmpt2 in range(len(allStatNames)):
+			if allStatNames[cmpt2] in tablPage[cmpt][1] and not(statEmojis[cmpt2] in tablPage[cmpt][1]):
+				tablPage[cmpt][1] = tablPage[cmpt][1].replace(allStatNames[cmpt2],"{0} {1}".format(statEmojis[cmpt2], allStatNames[cmpt2]))

@@ -110,8 +110,8 @@ tablVarAllies = [
 	tmpAllie("Kiku", 1, 0x2d074b, SORCELER, kikuExWeap, kikuStuff, GENDER_FEMALE, [kikuExSkill1, kikuExSkill2, kikuExSkill3, kikuExSkill4], variant=True, icon="<:kiku:1176581413403906200>", element=[ELEMENT_DARKNESS, ELEMENT_EARTH], deadIcon='<:fairyOut:935335430814068786>'),
 	]
 
-# FindAllies
-def findAllie(name: str) -> tmpAllie:
+# findAllys
+def findAlly(name: str) -> tmpAllie:
 	for a in tablAllAllies+tablVarAllies:
 		if a.name == name:
 			return a
@@ -136,7 +136,7 @@ clemExKillReact = [
 	"C'est tout {target} ?"
 ]
 
-findAllie("Iliana prê.").standAlone = findAllie("Lia Ex").standAlone = findAllie("Clémence Exaltée").standAlone = findAllie("Luna prê.").standAlone = True
+findAlly("Iliana prê.").standAlone = findAlly("Lia Ex").standAlone = findAlly("Clémence Exaltée").standAlone = findAlly("Luna prê.").standAlone = True
 # Balancing
 
 PROBLENAMSG = 15
@@ -161,7 +161,7 @@ if datetime.now(parisTimeZone).month == 9:
 iliLightCombo = copy.deepcopy(lightPillar)
 iliLightCombo.become[0].use = iliLightCombo.become[1].use = iliLightCombo.become[2].use = iliLightCombo.use = CHARISMA
 
-anais = findAllie("Anaïs")
+anais = findAlly("Anaïs")
 for indx, tmpSkill in enumerate(anais.skills):
 	if type(tmpSkill) == skill and tmpSkill.effectAroundCaster != None and tmpSkill.effectAroundCaster[1] == AREA_SUMMONER:
 		tmpSkill = copy.deepcopy(anais.skills[indx])
@@ -184,85 +184,85 @@ heleneReactMyrlope = [
 	"`Soupire`"
 ]
 
-findAllie("Alice").changeDict = [
+findAlly("Alice").changeDict = [
 	tempAltBuild(35, skills=[aliceDance, courage, charmingPandant, holyVoice, onStage, corGra, inconsCollect], splashIcon='<:alice:1183197636153577482>', chips=[getChip("Spotlight","Aura Galvanisante","Charisme augmenté I","Charisme augmenté II","Sur-Vie")], buildName="En scène !", buildIcon = onStage.emoji),
 	tempAltBuild(20, POIDS_PLUME, aliceFan, getStuffSet("Assassin de l'Ombre Nocturne"), [finalTech,swordDance,aliceFanDanse,fanRevol,danseStarFall,tangoEnd,fanVirBundle],[ELEMENT_SPACE,ELEMENT_SPACE],[AGILITY,CHARISMA], buildName="Danse des éventails", buildIcon="<:fanDangeAlice:1334653468756938793>", icon="<:fanDangeAlice:1334653468756938793>"),
 	tempAltBuild(20, stuffs=getStuffSet("Tireur Charismatique"), skills=[mageBalad, martialPean, vanderManuet, apexArrow, heroicFantasy, blastArrow, courage],splashIcon='<:alice:1183197636153577482>',bonusPoints=[STRENGTH,CHARISMA],aspiration=OBSERVATEUR, buildName="Barde", buildIcon="<:voixDivine:1085991767834370108>", chips=[getChip("Charisme augmenté I", "Charisme augmenté II", "Rappel", "Aura Galvanisante", "Spotlight")]),
 	tempAltBuild(0, IDOLE, stuffs=aliceExStuff, skills=[aliceSongBundle,aliceSkill2,aliceSkill3], weap=aliceExWeap, elements=[ELEMENT_SPACE,ELEMENT_LIGHT], chips=[getChip("Spotlight","Médaille de la Chauve-Souris")])
 	]
-findAllie("Hélène").changeDict = [
+findAlly("Hélène").changeDict = [
 	tempAltBuild(20,SORCELER,butterflyP,getStuffSet("Mage Ultraviolet Légendaire"),[infectFiole,epidemic,intox,funDraw,propaUltLaunch,infDraw,quadFleau],[ELEMENT_DARKNESS,ELEMENT_LIGHT],[MAGIE,INTELLIGENCE]),
 	tempAltBuild(35,weap=whiteSpiritWings,skills=[propagPas,lightHeal2,lightShot,lapSkill,invocFee,sumLightButterfly,shareMark],elements=[ELEMENT_LIGHT,ELEMENT_WATER])
 	]
-findAllie("Amary").changeDict = [
+findAlly("Amary").changeDict = [
 	tempAltBuild(25, ALTRUISTE, stuffs=getStuffSet("Soigneur Légendaire"), skills=[mend, lifeSeed, lillyTransform, healingField, roseeHeal, exclusionem, asile], elements=[ELEMENT_LIGHT, ELEMENT_WATER], bonusPoints=[CHARISMA, PRECISION], chips=[getChip("Soins augmentés II", "Soins et armures réalisés augmentés", "Bénédiction", "Aura Galvanisante", "Sourire Bienveillant")]),
 	tempAltBuild(25, ALTRUISTE, stuffs=getStuffSet("Soigneur Légendaire"), skills=[bundleOffr,tetragramme,exclusionem,asile,healingField,misery,temperance], elements=[ELEMENT_LIGHT, ELEMENT_WATER], bonusPoints=[CHARISMA, PRECISION], chips=[getChip("Soins augmentés II", "Soins et armures réalisés augmentés", "Bénédiction", "Aura Galvanisante", "Sourire Bienveillant")])]
-findAllie("Shehisa").changeDict = [
+findAlly("Shehisa").changeDict = [
 	tempAltBuild(-1,ATTENTIF,stuffs=getStuffSet("Stratège Légendaire"), skills=[focus, physTraqnard, bleedingPuit, hemoBomb, kafkaUlt, denoument, trappedField], elements=[ELEMENT_DARKNESS,ELEMENT_DARKNESS],bonusPoints=[STRENGTH, INTELLIGENCE, AGILITY], chips=[getChip("Force augmentée I","Esquive augmentée","Myrlopé","Héritage Lesath","Dissimulation")]),
 	tempAltBuild(-1,skills=[ombralStrike,dreamInADream,physTraqnard,trickAttack,assasinate,redrum,bundleSurpriseJump], chips=[getChip("Réprimande", "Agilité augmentée I", "Force augmentée II", "Esquive augmentée", "Myrlopé")]),
 	tempAltBuild(-1,skills=[trickAttack, seitonTenchu, deathPercing, physTraqnard, echecEtMat, ripping, weakPoint], chips=[getChip("Réprimande", "Agilité augmentée I", "Force augmentée II", "Esquive augmentée", "Myrlopé")]),
 	tempAltBuild(-1,aspiration=POIDS_PLUME,skills=[deathSentenceBundle, bleedingStrikeBundle, traumatismeBundle, physTraqnard, UmbralTravel, bhavacakra], chips=[getChip("Réprimande", "Agilité augmentée I", "Force augmentée II", "Esquive augmentée", "Myrlopé")])
 ]
-findAllie("Julie").changeDict = [
-	tempAltBuild(20,SORCELER,magicWood,stuffs=findAllie("Lohica").stuff, icon='<:julie2:1335317874830610515>', skills=[dephaIncant,ice2,lizSKillSus,clock,hourglass,magAchSkill,fairyTraqnard],elements=[ELEMENT_TIME,ELEMENT_DARKNESS],bonusPoints=[MAGIE,INTELLIGENCE], chips=[getChip("Magie augmentée II", "Dégâts indirects augmentés", "Vampirisme II", "Radiance Toxique", "Héritage d'Estialba")]),
+findAlly("Julie").changeDict = [
+	tempAltBuild(20,SORCELER,magicWood,stuffs=findAlly("Lohica").stuff, icon='<:julie2:1335317874830610515>', skills=[dephaIncant,ice2,lizSKillSus,clock,hourglass,magAchSkill,fairyTraqnard],elements=[ELEMENT_TIME,ELEMENT_DARKNESS],bonusPoints=[MAGIE,INTELLIGENCE], chips=[getChip("Magie augmentée II", "Dégâts indirects augmentés", "Vampirisme II", "Radiance Toxique", "Héritage d'Estialba")]),
 	tempAltBuild(30, skills=[rajeunissement,healingTimebomb,inconsCollect,julieUlt,extraMedica,extraEting,vampirisme2]),
 	tempAltBuild(25, POIDS_PLUME, eclatanaDoto, stuffs=getStuffSet("Assassin Mage Légendaire"), icon="<:julie2:1335317874830610515>",skills=[periodStrike,descynNeg,quartzArcane,timeMagicCombo,timeRip,counterTime],chips=[getChip("Magie augmentée I","Esquive augmentée","Réflex","Partage","Agilité augmentée I")],bonusPoints=[MAGIE,AGILITY,ENDURANCE])
 	]
-findAllie("Gwendoline").changeDict = [
+findAlly("Gwendoline").changeDict = [
 	tempAltBuild(30,POIDS_PLUME,mainLibre,stuffs=getStuffSet("Assassin de l'Ombre Nocturne"),skills=[elipseTerrestre,piedVolt,earthStrike,hearthFrac,ebranlement, retourneImpactant, forbiddenChakra], chips=[getChip("Friable", "Démolition", "Contre-Coup", "Critique universel", "Bout-Portant")]),
 	tempAltBuild(30,POIDS_PLUME,mainLibre,stuffs=getStuffSet("Assassin de l'Ombre Nocturne"),skills=[defi, earthStrike, justiceEnigma, quickJabCombo, erodStrike, gwenyStrike, forbiddenChakra], chips=[getChip("Friable", "Démolition", "Précision Critique", "Critique universel", "Bout-Portant")]),
 	tempAltBuild(0,PROTECTEUR,gwenyWeap,stuffs=gwenyExStuff,skills=gwenyExSkillList)
 ]
-findAllie("Klironovia").changeDict = [
+findAlly("Klironovia").changeDict = [
 	tempAltBuild(-1,weap=mainLibre,stuffs=getStuffSet("Assassin de l'Ombre Nocturne"),skills=[fracas,piedVolt,revolutionFracas,plongeFracas,pentastrike,quickJabCombo,retourneImpactant]),
 	tempAltBuild(0,BERSERK,kliWeap,stuffs=klikliExStuff,skills=klikliExSkillList)
 ]
-findAllie("Altikia").changeDict = [
+findAlly("Altikia").changeDict = [
 	tempAltBuild(0, VIGILANT, aWeap, getStuffSet("Paladin Radieux"), skills=[ironWillSkill, altyCover, aegis, healingSacrifice, convictionVigilante, altyStrike, altyQCombo], chips=[getChip("Charisme augmenté II", "Endurance augmenté II", "Constitution II", "Bouclier Sacrificiel", "Altruisme")]),
 	tempAltBuild(0, VIGILANT, altyWeap, stuffs=altyExStuff, skills=altyExSkillList)
 ]
-findAllie("Lily").changeDict = [
-	tempAltBuild(-1,PREVOYANT,epiphyllum,stuffs=findAllie("Epiphyllum").stuff,skills=[demonArmor,demonArmor2,dmonReconstitution,dmonReconstitution2,demonConst,inkarmor,firstArmor],bonusPoints=[INTELLIGENCE,PRECISION]),
+findAlly("Lily").changeDict = [
+	tempAltBuild(-1,PREVOYANT,epiphyllum,stuffs=findAlly("Epiphyllum").stuff,skills=[demonArmor,demonArmor2,dmonReconstitution,dmonReconstitution2,demonConst,inkarmor,firstArmor],bonusPoints=[INTELLIGENCE,PRECISION]),
 	tempAltBuild(-1,INOVATEUR,luth,skills=[prettySmile,aeraCharm,corruptusArea,infirm,toxicon,findSkill("Blocage Démoniaque"),findSkill("DistribuCool")]),
 	tempAltBuild(-1,MAGE,magicWood,stuffs=getStuffSet("Mage écarlate Légendaire"),skills=[demonSpell1,demonMissile,comboVerBrasier,sterialSoil,magicMissile,dualEnergyDrain,daemoniumTerraeMotus],bonusPoints=[MAGIE,PRECISION,ENDURANCE],chips=[getChip("Aura Galvanisante","Démaniaque","Démolition","Absorbtion","Magie augmentée I")]),
 	tempAltBuild(-1, aspiration=MASCOTTE, weap=magicSword, stuffs=getStuffSet("Paladin étoilé"), skills=[aeraCharm, charmingPandant, prettySmile, trouble, rivCel, entraide, transfert], chips=[getChip("Sourire Mazo","Démaniaque","Soins augmentés I","Sourire Bienveillant","Charisme augmenté I")])
 	]
 
-findAllie("Sixtine").changeDict = [
+findAlly("Sixtine").changeDict = [
 	tempAltBuild(30, stuffs=getStuffSet('Sage'), skills=[stigmate,dissonance,vibrSon,enhardissement,sernade,manafication,descart], bonusPoints=[MAGIE,CHARISMA], aspiration=MAGE,icon="<:dreamSixtine:1100793996483235851>",buildName="Barde Onirique", buildIcon='<:sixtineSkill2:1205624341488865290>', chips=[getChip("Charisme augmenté I", "Charisme augmenté II", "Rappel", "Aura Galvanisante", "Spotlight")]),
 	tempAltBuild(20, aspiration=ENCHANTEUR,weap=dSixtineWeap,stuffs=getStuffSet("Assassin Mage Légendaire"),skills=[ferocite,spaceCrush,spacePulse,hexadecaComb,findSkill("Percée du Capricorne"),findSkill("Frappe Runique")],elements=[ELEMENT_SPACE,ELEMENT_DARKNESS],bonusPoints=[MAGIE,ENDURANCE],icon='<:dreamSixtine:1100793996483235851>', buildName = "Escrimeuse Onirique", buildIcon="<:dreamSixtine:1100793996483235851>"),
 	tempAltBuild(0, weap=sixtineWeap, aspiration=INOVATEUR,stuffs=[sixtineStuff1,sixtineStuff2,sixtineStuff3],skills=[sixtineSkill1,sixtineSkill2,sixtineSkill3,sixtineSkill4,sixtineSkill5 ],elements=[ELEMENT_SPACE,ELEMENT_LIGHT],bonusPoints=[INTELLIGENCE,MAGIE])
 	]
-findAllie("Icealia").changeDict = [
+findAlly("Icealia").changeDict = [
 	tempAltBuild(40,PROTECTEUR,icealiaShield,stuffs=getStuffSet("Paladin Nocturne"),skills=[royaleGardeSkill,snowFall, findSkill("Onde"), findSkill("Aura Armurière"),findSkill("Orbe défensif"),royalShield,findSkill("Inconscient collectif")],bonusPoints=[ENDURANCE,INTELLIGENCE],elements=[ELEMENT_LIGHT,ELEMENT_WATER]),
 	tempAltBuild(25,MASCOTTE,constShield,stuffs=getStuffSet("Guerrier Mage Légendaire"),skills=[royaleGardeSkill,bastion,orage,magma, findSkill("Aegis"),findSkill("Coeur de Lumière"),findSkill("Inconscient collectif")],bonusPoints=[ENDURANCE,INTELLIGENCE],elements=[ELEMENT_LIGHT,ELEMENT_WATER])
 	]
-findAllie("Bénédicte").changeDict = [
+findAlly("Bénédicte").changeDict = [
 	tempAltBuild(20,IDOLE,dvinWand,skills=[findSkill("Terre Sacrée Étendue"),findSkill("Guide Divin"),findSkill("Equilibre de la Balance"),findSkill("Astrodynamie"),findSkill("Lotus Pourpre"),findSkill("Manafication"),findSkill("Eruption Solaire")],bonusPoints=[CHARISMA,MAGIE],elements=[ELEMENT_SPACE,ELEMENT_DARKNESS]),
-	tempAltBuild(20,ALTRUISTE,dvinWand,stuffs=findAllie("Elina").stuff,skills=[findSkill("Constitution Divine"),findSkill("Bénédiction Avancée"),findSkill("Purification"),findSkill("Extra Medica"),findSkill("Pulsation Vitale"),findSkill("Offrande de Misère")],elements=[ELEMENT_LIGHT,ELEMENT_FIRE]),
+	tempAltBuild(20,ALTRUISTE,dvinWand,stuffs=findAlly("Elina").stuff,skills=[findSkill("Constitution Divine"),findSkill("Bénédiction Avancée"),findSkill("Purification"),findSkill("Extra Medica"),findSkill("Pulsation Vitale"),findSkill("Offrande de Misère")],elements=[ELEMENT_LIGHT,ELEMENT_FIRE]),
 	tempAltBuild(20,MASCOTTE,sacredSword,stuffs=getStuffSet("Paladin étoilé"),skills=[findSkill("Volontée de Fer"),findSkill("Frappe Séraphique"),findSkill("Miracle"),findSkill("Invincible"),findSkill('Rivière Céleste'),findSkill('ssj'),findSkill('Bénidiction de la Vièrge')],elements=[ELEMENT_SPACE,ELEMENT_FIRE],bonusPoints=[CHARISMA,MAGIE,ENDURANCE])
 ]
-findAllie("Lena").changeDict = [
+findAlly("Lena").changeDict = [
 	tempAltBuild(-1, OBSERVATEUR, splatcharger,skills=[findSkill("Flèche Gelante"),findSkill("Flèche Givrante"),findSkill("Flèche de glace"),findSkill("Aqua ferrum"),findSkill("Tir Parfait"),rapidFire,findSkill("Tir Critique")],splashIcon='<:lena:1177723779548446842>'),
 	tempAltBuild(-1, OBSERVATEUR, splatcharger,skills=[comboHeatedCleanShot,leadShot,dismantle,exploShot,dechargeGausseSolo,findSkill("Tir Parfait"),sagArrow]),
 	tempAltBuild(-1, INOVATEUR, bleuSpiritWings, skills=[electrochoc, malfunction, toxicon, demonCore, invocAutQueen, lenaDrone1, renf2], stuffs=getStuffSet("Barde Légendaire"), buildIcon='<:demonCore2:1313204144592519228>', chips=[getChip("Intelligence augmentée II", "Boosts augmenté I", "Dégâts universels augmentés", "Plot Armor", "Intelligence augmentée I")]),
 	tempAltBuild(-1, MAGE, eternalInkStaff, getStuffSet("Mage écarlate Légendaire"), [rbgCombo, cymCombo, whiteComet, mirasmPrims, pictoLenaRainbowDrop, tempera, magicRune], buildName="Pictomancienne", icon='<:pictoLena:1361398504479522988>', buildIcon='<:pictoLena:1361398504479522988>', elements=[ELEMENT_WATER, ELEMENT_DARKNESS], chips=[getChip("Précision augmentée II", "Magie augmentée II", "Diffraction", "Précision Critique", "Démolition")], say=pictoLenaSays),
 	tempAltBuild(0, weap=lenaExWeapon,stuffs=[lenaExStuff1,lenaExStuff2,lenaExStuff3], skills=[lenaExSkill1,lenaExSkill2,lenaExSkill3,lenaExSkill4,lenaExSkill5,lenaExSkill6],buildName="Main Crew Fight", buildIcon="<:lenaRailgun:1209368562750201886>")
 ]
-findAllie("Ly").changeDict = [
+findAlly("Ly").changeDict = [
 	tempAltBuild(-1,OBSERVATEUR,stuffs=getStuffSet("Sniper Légendaire"), skills=[findSkill("Tir Feu"),findSkill("Pyro-Hypercharge"),findSkill("Flèche d'Immolation"),findSkill("Barrage"),findSkill("Flèche Explosive"),findSkill("Flèche emflammée"),tactician],elements=[ELEMENT_FIRE,ELEMENT_SPACE]),
 	tempAltBuild(-1,skills=[lanceTox,lanceTox2,lanceTox3,machDeFer,morsTempSkill,morsCaudiqueSkill,ultraSignal]),
 	tempAltBuild(-1,OBSERVATEUR,stuffs=getStuffSet("Sniper Légendaire"), skills=[cribArrow, rapidFire, rayoArrow, destrucArrow, holyShot, quickShot, cherchArrow], chips=[getChip("Force augmentée I","Dégâts universels augmentés","Friable","Diffraction","Démolition")]),
 	tempAltBuild(0, aspiration=ATTENTIF, weap=lyExWeap, stuffs=lyExStuff, skills=[lyExSkill1, lyExSkill2, lyExSkill3, lyExSkill4])
 ]
-findAllie("Astra").changeDict = [
-	tempAltBuild(-1,VIGILANT,constShield,stuffs=findAllie("Iliana").stuff,skills=[clemency,astraRegenPhase,astraIncurStrike,astraRegenEarth,findSkill("Medicamentum"),extraEting,astraBeam], elements=[ELEMENT_TIME, ELEMENT_WATER],bonusPoints=[CHARISMA,ENDURANCE], chips=[getChip("Constutition I", "Cicatrisation", "Myrlopé", "Partage", "Barrière")]),
+findAlly("Astra").changeDict = [
+	tempAltBuild(-1,VIGILANT,constShield,stuffs=findAlly("Iliana").stuff,skills=[clemency,astraRegenPhase,astraIncurStrike,astraRegenEarth,findSkill("Medicamentum"),extraEting,astraBeam], elements=[ELEMENT_TIME, ELEMENT_WATER],bonusPoints=[CHARISMA,ENDURANCE], chips=[getChip("Constutition I", "Cicatrisation", "Myrlopé", "Partage", "Barrière")]),
 	tempAltBuild(-1, POIDS_PLUME, depha, getStuffSet("Assassin de l'Ombre Nocturne"), [vipCombo1, vipCombo2, bundleCaC, timePhysCombo, reminiscence, bhavacakra, seitonTenchu], [ELEMENT_TIME, ELEMENT_DARKNESS], [STRENGTH, AGILITY, PRECISION], chips=[getChip('Agilité augmentée I', 'Esquive augmentée', 'Réflex', 'Myrlopé', 'Achèvement')]),
 ]
-findAllie("Akira").changeDict = [
+findAlly("Akira").changeDict = [
 	tempAltBuild(-1, weap=mainLibre, skills=[quickJabCombo, quickEventCombo, legStrike, piedVolt, bundleCaC, darknessPhysCombo, findSkill('Combo - Dévoreur d\'Âme')], chips=[getChip('Vampirisme I', 'Lune de Sang', 'Contre-Coup', 'Force augmentée II', 'Pénétration')], elements=[ELEMENT_DARKNESS, ELEMENT_EARTH])
 ]
-findAllie("Ruby").changeDict = [
+findAlly("Ruby").changeDict = [
 	tempAltBuild(-1,weap=fireMetRuneLong,skills=[fireMagicCombo,pyroSparkle,findSkill("Flammes infernales"),pyroBlast,findSkill("Brasier"),magicBarrier],elements=[ELEMENT_FIRE,ELEMENT_SPACE], buildIcon = elemEmojis[ELEMENT_FIRE]),
 	tempAltBuild(-1,weap=waterMetRuneLong,skills=[waterMagicCombo,bouncingWater,findSkill("Geyser"),waterBlast,findSkill("Pluie Glacée"),magicBarrier],elements=[ELEMENT_WATER,ELEMENT_SPACE], buildIcon = elemEmojis[ELEMENT_WATER]),
 	tempAltBuild(-1,aspiration=ENCHANTEUR,stuffs=getStuffSet("Assassin Mage Légendaire"),weap=airMetRuneMel,skills=[airMagicCombo,windBlast,findSkill("Sillage"),windCutter,findSkill("Tempête Jupiterrienne"),magicBarrier], buildIcon = elemEmojis[ELEMENT_AIR],elements=[ELEMENT_AIR,ELEMENT_SPACE],bonusPoints=[AGILITY,MAGIE,PRECISION], chips=[getChip("Magie augmentée I","Agilité augmentée I","Esquive augmentée","Vampirisme I","Réflex")]),
@@ -271,26 +271,26 @@ findAllie("Ruby").changeDict = [
 	tempAltBuild(-1,weap=lightMetRuneLong,skills=[lightMagicCombo,lightPillar,eternalLight,dualSupp,demonMissile,magicMissile,magicBarrier],elements=[ELEMENT_LIGHT,ELEMENT_SPACE], buildIcon = elemEmojis[ELEMENT_LIGHT]),
 	tempAltBuild(-1,aspiration=ENCHANTEUR,stuffs=getStuffSet("Assassin Mage Légendaire"),weap=timeMetRuneMid,skills=[timeMagicCombo,accelerant,descynNeg,counterTime,timeRip,timeBomb,magicBarrier], buildIcon = elemEmojis[ELEMENT_TIME], elements=[ELEMENT_TIME,ELEMENT_SPACE],bonusPoints=[AGILITY,MAGIE,PRECISION], chips=[getChip("Magie augmentée I","Agilité augmentée I","Esquive augmentée","Vampirisme II","Réflex")]),
 ]
-findAllie("Clémence").changeDict = [
+findAlly("Clémence").changeDict = [
 	tempAltBuild(-1,aspiration=MAGE,skills=[sanguisGladio,sanguisGladio2,bloodDemonBundle,findSkill("Umbra Mortis"), memClem, magicRune, findSkill("Anticipation")],weap=findWeapon("Baguette en argent")),
 	tempAltBuild(-1, aspiration=MAGE, skills=[amethysArcane, quartzArcane, rubyArcane, obsiArcane, saphirArc, topazeArcane, emeraudeArcane], buildName="Septistone", buildIcon=rubyArcane.emoji),
 	tempAltBuild(0,aspiration=MAGE,weap=clemTmpWeap,stuffs=clemTmpStuff,skills=[clemTmpSkill3,clemTmpSkill1,clemTmpSkill2,clemTmpSkill4,clemTmpSkill5],chips=[getChip("Goût du Sang","Lune de Sang","Magie augmentée II","Sur-Vie","Convertion Vitale")])
 ]
-findAllie("Powehi").changeDict = [tempAltBuild(35, aspiration=ENCHANTEUR,stuffs=getStuffSet("Guerrier Mage Légendaire"),skills=[findSkill("Trou Noir"),vibrSon,spaceMagicCombo,findSkill("Trou noir Avancé"),gravPulse,findSkill("Combo Confiteor"),findSkill("Conviction de l'Enchanteur")])]
-findAllie("Luna").changeDict = [tempAltBuild(-1, skills=[findSkill("Foulée Légère"),findSkill("Danse du Phénix"),findSkill("Pied Voltige"),expultion,findSkill("Triple Impact"),findSkill("Frappe Convertissante"),findSkill("Envolée féérique")])]
-findAllie("Lohica").changeDict = [tempAltBuild(-1, skills=[findSkill("Focalisation"),findSkill("Intraveineuse"),findSkill("Propagation"),fairyRay,lohicaUltLauch,exploMark,soulSceal],weap=butterflyP)]
-findAllie("Chûri").changeDict = [tempAltBuild(-1, aspiration=ENCHANTEUR, skills=[galvanisation,fireCircle,inMemoria,darkSweetHeat,phenixRevive,summonHinoro,fireMagicCombo],elements=[ELEMENT_FIRE,ELEMENT_FIRE])]
-findAllie("Iliana").changeDict = [
+findAlly("Powehi").changeDict = [tempAltBuild(35, aspiration=ENCHANTEUR,stuffs=getStuffSet("Guerrier Mage Légendaire"),skills=[findSkill("Trou Noir"),vibrSon,spaceMagicCombo,findSkill("Trou noir Avancé"),gravPulse,findSkill("Combo Confiteor"),findSkill("Conviction de l'Enchanteur")])]
+findAlly("Luna").changeDict = [tempAltBuild(-1, skills=[findSkill("Foulée Légère"),findSkill("Danse du Phénix"),findSkill("Pied Voltige"),expultion,findSkill("Triple Impact"),findSkill("Frappe Convertissante"),findSkill("Envolée féérique")])]
+findAlly("Lohica").changeDict = [tempAltBuild(-1, skills=[findSkill("Focalisation"),findSkill("Intraveineuse"),findSkill("Propagation"),fairyRay,lohicaUltLauch,exploMark,soulSceal],weap=butterflyP)]
+findAlly("Chûri").changeDict = [tempAltBuild(-1, aspiration=ENCHANTEUR, skills=[galvanisation,fireCircle,inMemoria,darkSweetHeat,phenixRevive,summonHinoro,fireMagicCombo],elements=[ELEMENT_FIRE,ELEMENT_FIRE])]
+findAlly("Iliana").changeDict = [
 	tempAltBuild(-1,skills=[ironWillSkill,holyShieltron,convictionVigilante,altyQCombo,inspiration,lightAura,iliLightCombo], buildIcon='<:shieltron:971787905758560267>'),
 	tempAltBuild(0,weap=iliTmpWeap,stuffs=iliTmpStuff,skills=[iliTmpSkill1,iliTmpSkill2,iliTmpSkill3,iliTmpSkill4,iliTmpSkill5,iliTmpSkill6], chips=[getChip("Blocage augmenté","Constitution II","Bouclier d'épines","Barrière","Bouclier Sacrificiel")], buildIcon='<:ilianaStans:969819202032664596>')
 ]
-findAllie("Céleste").changeDict = [
+findAlly("Céleste").changeDict = [
 	tempAltBuild(35,aspiration=BERSERK,stuffs=getStuffSet("Plugiliste Légendaire"), skills=[defi, drkCombo, meditate, fireflyUlt, chiStrike, quickJabCombo, physicRune], chips=[getChip("Solidité", "Barrière", "Force augmentée I", "Force augmentée II", "Vampirisme I")]),
 	tempAltBuild(0, aspiration=ENCHANTEUR, weap=celesteExWeap, stuffs=celesteExStuff, skills=[celesteExSkill6, celesteExSkill1, celesteExSkill2, celesteExSkill3, celesteExSkill4, celesteExSkill5], icon='<:magicalCeleste:1357786934751006730>')]
 
 lenaShuRedirect = effect("Protection Maternelle","materProtect",redirection=100,unclearable=True,turnInit=-1,emoji='<:analyse:1003645750225412257>')
-findAllie("Shushi").changeDict = [tempAltBuild(0,weap=shushiWeapon,stuffs=[shushiStuff1,shushiStuff2,shushiStuff3],skills=[shushiSkill1,shushiSkill2,shushiSkill3],chips=[getChip("Dégâts indirects reçus réduits","Esquive augmentée","Totem de Protection","Barrière","Présence")])]
-findAllie("Félicité").changeDict = [
+findAlly("Shushi").changeDict = [tempAltBuild(0,weap=shushiWeapon,stuffs=[shushiStuff1,shushiStuff2,shushiStuff3],skills=[shushiSkill1,shushiSkill2,shushiSkill3],chips=[getChip("Dégâts indirects reçus réduits","Esquive augmentée","Totem de Protection","Barrière","Présence")])]
+findAlly("Félicité").changeDict = [
 	tempAltBuild(-1,skills=[firePhysCombo,ironStormBundle,trancheCombo,hissatsu,higanbana,fragmentation,strengthOfWillCast], buildName=elemNames[1], buildIcon = elemEmojis[1]),
 	tempAltBuild(-1,skills=[waterPhysCombo,ironStormBundle,trancheCombo,meditate,brotherHood,fragmentation,strengthOfWillCast], buildName=elemNames[2], buildIcon = elemEmojis[2]),
 	tempAltBuild(-1,skills=[airPhysCombo,ironStormBundle,trancheCombo,hissatsu,higanbana,fragmentation,strengthOfWillCast], buildName=elemNames[3], buildIcon = elemEmojis[3]),
@@ -301,14 +301,14 @@ findAllie("Félicité").changeDict = [
 	tempAltBuild(-1,skills=[timePhysCombo,ironStormBundle,drkCombo,trancheCombo,higanbana,fragmentation,ikishoten], buildName=elemNames[8], buildIcon = elemEmojis[8]),
 	tempAltBuild(0,weap=tmpFeliWeap,skills=[tmpFeliSkill1,tmpFeliSkill2,tmpFeliSkill3], buildName="Main Crew Procur", buildIcon = "<:felicite:1116861426556997653>")
 ]
-findAllie("Elina").changeDict = [tempAltBuild(40,stuffs=getStuffSet('Infirmier Prévoyant'),skills=[adrenaline,pepsis,matriceShield,onde,armaturaMetrica,lightElemUse,vaccin], bonusPoints=[INTELLIGENCE, PRECISION], chips=[getChip("Précision augmentée I","Critique universel","Intelligence augmentée I",'Soins et armures réalisés augmentés',"Précision Chirurgicale")],buildName="Hybride Armure",buildIcon = adrenaline.emoji)]
-findAllie("Zénéca").changeDict = [
+findAlly("Elina").changeDict = [tempAltBuild(40,stuffs=getStuffSet('Infirmier Prévoyant'),skills=[adrenaline,pepsis,matriceShield,onde,armaturaMetrica,lightElemUse,vaccin], bonusPoints=[INTELLIGENCE, PRECISION], chips=[getChip("Précision augmentée I","Critique universel","Intelligence augmentée I",'Soins et armures réalisés augmentés',"Précision Chirurgicale")],buildName="Hybride Armure",buildIcon = adrenaline.emoji)]
+findAlly("Zénéca").changeDict = [
 	tempAltBuild(proba=35, aspiration=ALTRUISTE, weap=butterfly, stuffs=getStuffSet("Soigneur Légendaire"), skills=[astraRegenPhase, fairyGarde, canceling, extraMedica, dvinRegen, radiance, healerGlare], chips=[getChip('Soins augmentés II', 'Soins et armures réalisés augmentés', 'Ambivalance', 'Constitution III', 'Crucifix')], bonusPoints=[CHARISMA, PRECISION], elements=[ELEMENT_TIME, ELEMENT_WATER])
 ]
-findAllie("John").changeDict = [
+findAlly("John").changeDict = [
 	tempAltBuild(proba=50, skills=[quickJabCombo, quickEventCombo, burningClaw, tripleAttaque, festin, griffeSanglante, airPhysCombo], chips=[getChip("Vampirisme I", "Lune de Sang", "Démolition", "Plot Armor", "Lithophage")])
 ]
-findAllie("Chûri-Hinoro").changeDict = [
+findAlly("Chûri-Hinoro").changeDict = [
 	tempAltBuild(proba=0, aspiration=ENCHANTEUR, weap=churiExWeap, stuffs=churiExStuff, skills=[churiExPassive, churiExSkill1, churiExSkill2, churiExSkill3, churiExSkill4])
 ]
 
@@ -317,7 +317,7 @@ tablEveryAllies, dictAlliesVar = [], {}
 for ally in tablEveryAllies[:]:
 	if ally.variantTabl != None:
 		for allieName in ally.variantTabl:
-			tablEveryAllies.append(findAllie(allieName))
+			tablEveryAllies.append(findAlly(allieName))
 			if ally.name in dictAlliesVar.keys():
 				dictAlliesVar[ally.name].append(allieName)
 			else:

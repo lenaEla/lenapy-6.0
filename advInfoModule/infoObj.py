@@ -11,14 +11,16 @@ def infoEff2(eff: Union[str, effect], txt: str = "{}", powerPurcent=100, compLis
 
 		if eff.callOnTrigger != None:
 			eff2 = findEffect(eff.callOnTrigger)
-			if eff2 != None:
-				if eff2.trigger in [TRIGGER_INSTANT, TRIGGER_ON_REMOVE]:
-					if eff2.trigger == TRIGGER_ON_REMOVE: toAdd = "après {} tours ".format(eff2.turnInit)
-					else: toAdd = ""
+			if eff2 != None and eff.trigger in [TRIGGER_INSTANT, TRIGGER_ON_REMOVE]:
+				if eff.trigger == TRIGGER_ON_REMOVE: toAdd = "après {} tours ".format(eff2.turnInit)
+				else: toAdd = ""
 
-					if eff2.type == TYPE_DAMAGE: return infoEff2(eff=findEffect(eff.callOnTrigger), txt="Inflige une attaque supplémentaire {} la cible {}".format(["à", "autour de"][eff2.area != AREA_MONO], toAdd))
-					elif eff2.type in [TYPE_BOOST, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_DAMAGE]: return infoEff2(eff=findEffect(eff.callOnTrigger), txt=["Inflige", "Octroi"][eff2.type in friendlyTypes] + " {}" + " {} la cible {}".format(["à", "autour de"][eff2.area != AREA_MONO], toAdd))
-					elif eff2.type == TYPE_HEAL: return infoEff2(eff=findEffect(eff.callOnTrigger), txt="Soigne les alliés {} la cible {}".format(["sur ", "autour de"][eff2.area != AREA_MONO], toAdd))
+				tmpEff = copy.deepcopy(eff2)
+				if tmpEff.area == AREA_MONO: tmpEff.area = eff.area
+				
+				if eff2.type == TYPE_DAMAGE: return infoEff2(eff=tmpEff, txt="Inflige une attaque supplémentaire {} la cible {}".format(["à", "autour de"][eff2.area != AREA_MONO], toAdd))
+				elif eff2.type in [TYPE_BOOST, TYPE_MALUS, TYPE_INDIRECT_HEAL, TYPE_INDIRECT_DAMAGE]: return infoEff2(eff=tmpEff, txt=["Inflige", "Octroi"][eff2.type in friendlyTypes] + " {}" + " {} la cible {}".format(["à", "autour de"][eff2.area != AREA_MONO], toAdd))
+				elif eff2.type == TYPE_HEAL: return infoEff2(eff=tmpEff, txt="Soigne les alliés {} la cible {}".format(["sur ", "autour de"][eff2.area != AREA_MONO], toAdd))
 		bonusStr, malusStr = "", ""
 
 		typeEmoji = ""
@@ -40,7 +42,7 @@ def infoEff2(eff: Union[str, effect], txt: str = "{}", powerPurcent=100, compLis
 			elif eff.stat == HARMONIE: effTmp += "__Puissance :__ **{}** (Harmonie) (*{} {}*)".format(int(powa), areaEmojis[eff.area], areaNames[eff.area])
 			else: effTmp += "__Puissance :__ **{}** (Fixe) (*{} {}*)".format( int(powa), areaEmojis[eff.area], areaNames[eff.area])
 
-		else: effTmp += "__Statistique :__ **{} {}**".format(extraStatEmojis[eff.stat], extraNameAllStats[eff.stat])
+		else: effTmp += "__Statistique :__ **{} {}**".format(extraStatEmojis[eff.stat], extraallStatNames[eff.stat])
 
 		if eff.turnInit == -1: effTmp += "\n__Durée :__ Infinie\n"
 		elif eff.trigger!=TRIGGER_INSTANT: effTmp += "\n__Durée :__ {0} tour{1}\n".format(eff.turnInit,["","s"][eff.turnInit>1])
@@ -209,7 +211,7 @@ def skillVisuArea(itm: Union[str, skill]):
 			if type(itm.effectAroundCaster[2]) == int:
 				areaMsg += "\n-# {} {}{}*{}* : {} *{}*".format(targetEmojis["000"+str(int(itm.effectAroundCaster[2].type in hostileTypes)+1)], typeEmojis[itm.effectAroundCaster[0]], statEmojis[itm.use], itm.effectAroundCaster[2], areaEmojis[itm.effectAroundCaster[1]], areaNames[itm.effectAroundCaster[1]])
 			else:
-				areaMsg += "\n-# {} {} : {} *{}*".format(targetEmojis["000"+str(int(itm.effectAroundCaster[2].type in hostileTypes)+1)], itm.effectAroundCaster[2].__str__().replace("__", "*"), areaEmojis[itm.effectAroundCaster[1]], areaNames[itm.effectAroundCaster[1]])
+				areaMsg += "\n-# {} {} : {} *{}*".format(targetEmojis["000"+str(int(itm.effectAroundCaster[2].type in hostileTypes)+1)], itm.effectAroundCaster[2].replace("__", "*"), areaEmojis[itm.effectAroundCaster[1]], areaNames[itm.effectAroundCaster[1]])
 		except:
 			print_exc()
 			print(itm.name, itm.effectAroundCaster)
@@ -318,7 +320,7 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 	powerComp = ""
 
 	if itm.become == None and itm.power > 0:
-		if subTabl == []: powerComp += "__Puissance :__ {0} **{1}**{2} (Précision : *{3}*%) ({4} {5} )\n> *Tour{6} de rechargement{6} : {7}*".format(statEmojis[itm.use], itm.power, ["", " x{}".format(itm.repetition)][itm.repetition > 1], itm.accuracy, rangeAreaEmojis[itm.range], areaEmojis[itm.area], ["", "s"][itm.cooldown > 1], itm.cooldown)
+		if subTabl == []: powerComp += "__Puissance :__ **{1}**{2} {0} (Précision : *{3}*%) ({4} {5} )\n> *Tour{6} de rechargement{6} : {7}*".format(extraStatEmojis[itm.use], itm.power, ["", " x{}".format(itm.repetition)][itm.repetition > 1], itm.accuracy, rangeAreaEmojis[itm.range], areaEmojis[itm.area], ["", "s"][itm.cooldown > 1], itm.cooldown)
 		else:
 			tmp, totalPow, areaEm = "", {}, ""
 			for tmpSkill in subTabl+[itm]:
@@ -331,7 +333,7 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 
 			powerComp += "__Puissance :__ Total : "
 			for key, obj in totalPow.items():
-				powerComp += "{} **{}** + ".format(statEmojis[key], obj)
+				powerComp += "**{1}** {0} + ".format(statEmojis[key], obj)
 			powerComp = powerComp[:-3]
 			if lenCast+lenChannel > 0: powerComp += " / {} tours".format(lenCast+lenChannel+1)
 			powerComp += " ({})".format(areaEm) + tmp + "\n> *Tour{0} de rechargement{0} : {1}*".format(["", "s"][itm.cooldown > 1], itm.cooldown)
@@ -664,7 +666,7 @@ def infoWeapon2(itm: Union[str, weapon]) -> list:
 
 	stats = ""
 	for indx, stat in enumerate(itm.allStats()):
-		if stat != 0: stats += "{} {} +{}\n".format(statEmojis[indx], nameAllStats[  indx], stat)
+		if stat != 0: stats += "{} {} +{}\n".format(statEmojis[indx], allStatNames[  indx], stat)
 
 	toReturnCompList = [
 		SectionComponent(components=[TextDisplayComponent(mainTitle), TextDisplayComponent(mainDesc)], accessory=ThumbnailComponent(media=UnfurledMediaItem(url="https://cdn.discordapp.com/emojis/{}.webp".format(PartialEmoji.from_str(itm.emoji).id)))),
@@ -675,11 +677,11 @@ def infoWeapon2(itm: Union[str, weapon]) -> list:
 	if itm.effects != None:
 		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "Octroi le passif \"{}\" lorsque cette arme est equipée", powerPurcent=100)
 	if itm.effectOnUse != None:
-		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "{}".format(["Octroi", "Inflige"][isHostile]) +"le passif \"{}\" à la cible lors de l'utilisation", powerPurcent=100)
+		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "{}".format(["Octroi", "Inflige"][int(itm.target == ENEMIES)]) +"le passif \"{}\" à la cible lors de l'utilisation", powerPurcent=100)
 
 	return toReturnCompList
 
-def infoStuff2(itm = Union[str, stuff]) -> list:
+def infoStuff2(itm = Union[str, stuff], user: char = None) -> list:
 	itm = findStuff(itm)
 
 	if itm == None: return [TextDisplayComponent("L'équiment n'a pas été retrouvée")]
@@ -687,18 +689,72 @@ def infoStuff2(itm = Union[str, stuff]) -> list:
 
 	mainDesc = "__Type__ : {}\n__Orientation :__ {}\n__Niveau :__ {}+".format({0: "Accessoire", 1: "Vêtement", 2: "Chaussures"}[itm.type], itm.orientation, itm.minLvl)
 
-	statStrPlus, statStrMinus = "", ""
-	for indx, tmpStat in enumerate(itm.allStatsFull()):
-		if tmpStat > 0: statStrPlus += "{} *{}* **+{}**\n".format(statEmojis[indx], nameAllStats[indx], tmpStat)
-		elif tmpStat < 0: statStrMinus += "-# {} *{}* {}\n".format(statEmojis[indx], nameAllStats[indx], tmpStat)
+	if user != None and not(user.stuff[itm.type].id == itm.id):
+		statsStr, sumDif = "", 0
+		equippedItm = user.stuff[itm.type]
+		equippedStats = equippedItm.getAllStats()
+
+		for indx, tmpStat in enumerate(itm.getAllStats()):
+			tmp = "{0} *{1}* {2}{3}".format(statEmojis[indx], allStatNames[indx], ["", "+"][tmpStat >= 0], tmpStat)
+
+			statDif = tmpStat - equippedStats[indx]
+
+			if indx in recommandedStuffStat[user.aspiration] and statDif != 0:
+				if statDif > 0:
+					tmp = STAT_UP_EM + " **"+tmp+" (+{})**\n".format(statDif)
+					sumDif += statDif
+				else: 
+					tmp = "-# " + STAT_DOWN_EM + " " + tmp + " ({})\n".format(statDif)
+					sumDif += statDif
+			else:
+				tmp = ["-# ", "**"][tmpStat > 0] + STAT_NEUTRAL_EM + " " + tmp + " ({}{})".format(["", "+"][statDif > 0], statDif) + ["", "**"][tmpStat > 0] + "\n"
+
+
+			if not(tmpStat == 0 and statDif == 0):
+				statsStr += tmp
+				sumDif += statDif
+			if indx in [CRITICAL, MAGIE] and statsStr[-2:] != "\n\n": statsStr += "\n"
+
+		if sumDif != 0: statsStr += "\n{} {} de statistiques importantes : **{}**".format([STAT_DOWN_EM, STAT_UP_EM][sumDif > 0], ["Pertes", "Gains"][sumDif > 0], abs(sumDif))
+
+		statComponent = TextDisplayComponent("**__Statistiques :__**\n"+statsStr)
+	else:
+		statStrPlus, statStrMinus = "", ""
+		for indx, tmpStat in enumerate(itm.getAllStats()):
+			if tmpStat > 0: statStrPlus += "- {} *{}* **+{}**\n".format(statEmojis[indx], allStatNames[indx], tmpStat)
+			elif tmpStat < 0: statStrMinus += "-# - {} *{}* {}\n".format(statEmojis[indx], allStatNames[indx], tmpStat)
+
+		statComponent = TextDisplayComponent("**__Statistiques :__**\n"+statStrPlus +"\n"+statStrMinus)
 
 	toReturnCompList = [
 		SectionComponent(components=[TextDisplayComponent(mainTitle), TextDisplayComponent(mainDesc)], accessory=(ThumbnailComponent(media=UnfurledMediaItem(url="https://cdn.discordapp.com/emojis/{}.webp".format(PartialEmoji.from_str(itm.emoji).id))))),
 		SeparatorComponent(),
-		TextDisplayComponent("**__Statistiques :__**\n"+statStrPlus+statStrMinus)
+		statComponent
 	]
 
 	if itm.effects != None:
-		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "Octroi le passif \"{}\" lorsque cette arme est equipée", powerPurcent=100)
+		toReturnCompList += [SeparatorComponent()] + infoEff2(eff=itm.effects, txt = "Octroi le passif \"{}\" lorsque cet équipement est equipée", powerPurcent=100)
 
 	return toReturnCompList 
+
+def infoJaugeEff(itm = skill):
+	temp2 = "\nCette compétence octroie et utilise **{}**. La valeur de cette jauge augmente dans les conditions suivantes :\n".format(itm.jaugeEff)
+	jaugeVal: jaugeValue = itm.jaugeEff.jaugeValue
+	for conds in jaugeVal.conds:
+		temp2 += "- "+incCondsStr[conds.type] + "** +{0}**\n".format(conds.value)
+		if conds.type == INC_USE_SKILL:
+			for condSkill in conds.add:
+				temp2 += "> - {0} {1}\n".format(condSkill.emoji, condSkill.name)
+		elif conds.type == INC_EFFECT_TRIGGERED:
+			for condEff in conds.add:
+				temp2 += "> - {0} {1}\n".format(condEff.emoji[0][0], condEff.name)
+		elif conds.type == INC_USE_ELEMENT_SKILL:
+			temp2 += "> - {0} {1}\n".format(elemEmojis[conds.add],elemNames[conds.add])
+		elif conds.type == INC_USE_GROUP_SKILL:
+			temp2 += "> - {0} Compétences {1}\n".format(["","<:dvin:1004737746377654383>","<:dmon:1004737763771433130>"][conds.add],["Normales","Divines","Démoniaques"])
+
+	if itm.jaugeEff.id == lycanJauge.id: temp2 += "\nDe plus, lorsque vous attaquez un ennemi, lui inflige {0} (vous pouvez placez qu'un seul effet {0} à la fois)\n> {1}\n".format(hunterMarkEff, hunterMarkEff.description)
+	elif itm.jaugeEff.id == bloodJauge.id: temp2 += "\nDe plus, lorsque vous attaquez un ennemi, 30% de chance de lui infliger {0}\n> {1}\n".format(bloodButterfly, bloodButterfly.description)
+	elif itm.jaugeEff.id == planJauge.id: temp2 += "\nDe plus, lorsque vous attaquez un ennemi, lui inflige {0} si il n'en était pas sous l'emprise. Si l'effet était déjà présent utlisant une compétence qui consomme cette jauge, {0} est consommé pour infliger une attaque supplémentaire en fonction des PVs manquant de la cible et de la quantité minimale de jauge consommée par la compétence".format(deathMark)
+
+	return TextDisplayComponent(temp2)

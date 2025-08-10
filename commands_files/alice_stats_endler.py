@@ -1,7 +1,7 @@
 """The module for the database that keeps the User's fighting stats, and their progress in the Adventure"""
 
 import sqlite3, os, interactions
-from adv import findAllie, tmpAllie, findEnnemi, tablUniqueEnnemies, tablBoss, tablRaidBoss
+from adv import findAlly, tmpAllie, findEnnemi, tablUniqueEnnemies, tablBoss, tablRaidBoss
 from gestion import *
 from classes import char, statTabl
 from typing import Union, List
@@ -893,7 +893,7 @@ class aliceStatsdbEndler:
 				
 			tabl = tempTabl
 			for cmpt in range(len(tabl)):
-				temp = findAllie(tabl[cmpt])
+				temp = findAlly(tabl[cmpt])
 				if temp != None:
 					tabl[cmpt] = temp
 				else:
@@ -904,8 +904,8 @@ class aliceStatsdbEndler:
 			return None
 
 	def addEnemyStats(self, enemy: Union[octarien,tmpAllie], tablStats: statTabl, winner:bool, isAlive:bool, overTime=False):
-		if [findEnnemi(enemy.name), findAllie(enemy.name)][type(enemy) == tmpAllie] != None:
-			if enemy.name == "Chûri-Hinoro": enemy = copy.deepcopy(findAllie("Chûri"))
+		if [findEnnemi(enemy.name), findAlly(enemy.name)][type(enemy) == tmpAllie] != None:
+			if enemy.name == "Chûri-Hinoro": enemy = copy.deepcopy(findAlly("Chûri"))
 
 			cursor = self.con.cursor()
 			nameEnemy = enemy.name.replace(" ","")
@@ -1133,7 +1133,7 @@ def getNpcStats(npcType:int, npcName: str = None):
 
 	for entityName in dataResultDict:
 		entityDict = dataResultDict[entityName]
-		entity: Union[octarien, tmpAllie] = [findEnnemi(entityName), findAllie(entityName)][npcType]
+		entity: Union[octarien, tmpAllie] = [findEnnemi(entityName), findAlly(entityName)][npcType]
 		if entity == None:
 			continue
 		for buildId in entityDict:
@@ -1246,7 +1246,7 @@ async def npcStatsFunction(ctx: interactions.SlashContext, npcName:str, npcType:
 	if npcType == None:
 		npcType = 1
 
-	entity = [findEnnemi(npcName), findAllie(npcName)][npcType]
+	entity = [findEnnemi(npcName), findAlly(npcName)][npcType]
 	if entity != None:
 		dictData = getNpcStats(npcType=npcType, npcName=npcName)
 		await respond(ctx, embeds=getGeneralStat(dictStats=dictData, entity=entity, entityType=npcType))
@@ -1282,7 +1282,7 @@ def npcGetLowestBuild():
 
 	while stew[0]["ownerName"] == "Akia":
 		stew.pop(0)
-	entity = findAllie(stew[0]["ownerName"])
+	entity = findAlly(stew[0]["ownerName"])
 
 	print("> Current lowest count build : {0} ({1}), {2}".format(entity.name, ["Default", "Alt Build #{0}".format(stew[0]["buildId"] -1)][stew[0]["buildId"] > 0], stew[0]["nbFight"]))
 	if stew[0]["buildId"] == 0:

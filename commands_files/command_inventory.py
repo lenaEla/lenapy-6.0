@@ -9,7 +9,7 @@ from advInfoModule.infoObj import *
 from commands_files.command_start import startFunc
 
 ENC_ACC, ENC_GEAR, ENC_SHOE, ENC_WEAP, ENC_SKILL, ENC_ALLIES, ENC_ENEMIES, ENC_BOSS, ENC_LOCKED, ENC_ACHIV = tuple(range(10))
-INV_GEAR, INV_WEAPON, INV_SKILL, INV_OBJ, INV_ELEMENT, INV_CHIP = tuple(range(6))
+INV_WEAPON, INV_SKILL, INV_GEAR, INV_OBJ, INV_ELEMENT, INV_CHIP = tuple(range(6))
 
 inventoryMenu = interactions.StringSelectMenu([
 		interactions.StringSelectOption(label="Inventaire d'Arme",value="0",emoji=getEmojiObject('<:splattershot:866367647113543730>')),
@@ -33,17 +33,18 @@ changeElemEnable4 = interactions.Button(style=1,label="Utiliser comme élément 
 changeElemDisabled4 = interactions.Button(style=1,label="Utiliser comme élément secondaire",emoji=getEmojiObject('<:krysTal2:907638077307097088>'),custom_id="change2",disabled=True)
 
 confirmButton = interactions.Button(style=ButtonStyle.SUCCESS,label="Équiper",emoji=PartialEmoji(name="✅"),custom_id="confirm")
-useMimikator = interactions.Button(style=ButtonStyle.SECONDARY,label="Utiliser votre Mimikator",emoji=getEmojiObject(mimique.emoji),custom_id="mimikator")
+useMimikator = interactions.Button(style=ButtonStyle.SECONDARY,label="Utiliser votre Mimikator",emoji=getEmojiObject(mimikator.emoji),custom_id="mimikator")
 hideNonEquip = interactions.Button(style=ButtonStyle.PRIMARY,label="Cacher Non équipables",custom_id="hideNoneEquip",emoji=getEmojiObject('<:invisible:899788326691823656>'))
 affExclu = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher Exclusivité",custom_id="affExclu",emoji=getEmojiObject(matriseElemEff.emoji[0][0]))
 affNonEquip = interactions.Button(style=2,label="Afficher Non équipables",custom_id="affNoneEquip",emoji=getEmojiObject("<:noeuil:887743235131322398>"))
 allType = interactions.Button(style=ButtonStyle.SECONDARY,label="Afficher Tout",custom_id="allDamages",emoji=getEmojiObject('<:targeted:912415337088159744>'))
 onlyPhys = interactions.Button(style=ButtonStyle.SUCCESS,label="Physique",custom_id="onlyPhys",emoji=getEmojiObject(mainLibre.emoji))
 onlyMag = interactions.Button(style=ButtonStyle.PRIMARY,label="Psychique",custom_id="onlyMag",emoji=getEmojiObject(witchWeapon.emoji))
-affAcc = interactions.Button(style=ButtonStyle.SUCCESS,label="Accessoire",emoji=getEmojiObject(amethystEarRings.emoji),custom_id="acc")
-affBody = interactions.Button(style=ButtonStyle.SUCCESS,label="Tenue",emoji=getEmojiObject(lightBlueJacket.emoji),custom_id="dress")
-affShoes = interactions.Button(style=ButtonStyle.PRIMARY,label="Chaussures",emoji=getEmojiObject(lightBlueFlats.emoji),custom_id="flats")
-affAllStuff = interactions.Button(style=2,label="Tout Type",emoji=getEmojiObject('<:dualMagie:899628510463803393>'),custom_id="all")
+
+affAcc = interactions.Button(style=ButtonStyle.SECONDARY,label="Accessoire",emoji=getEmojiObject(amethystEarRings.emoji),custom_id="gearType:0")
+affBody = interactions.Button(style=ButtonStyle.SECONDARY,label="Tenue",emoji=getEmojiObject(lightBlueJacket.emoji),custom_id="gearType:1")
+affShoes = interactions.Button(style=ButtonStyle.SECONDARY,label="Chaussures",emoji=getEmojiObject(lightBlueFlats.emoji),custom_id="gearType:2")
+affAllStuff = interactions.Button(style=ButtonStyle.SECONDARY,label="Tout Type",emoji=getEmojiObject('<:allStuffType:1399088979025989772>'),custom_id="gearType:all")
 
 affCompMelee = interactions.Button(style=ButtonStyle.DANGER,label="Comptétences Mêlée",emoji=getEmojiObject(absorbingStrike.emoji),custom_id="melee_range")
 affCompDist = interactions.Button(style=ButtonStyle.DANGER,label="Compétences Distance",emoji=getEmojiObject(absorbingArrow.emoji),custom_id="dist_range")
@@ -53,6 +54,13 @@ weapRangeMelee = interactions.Button(style=ButtonStyle.GRAY,label="Mêlée",emoj
 weapRangeDist = interactions.Button(style=ButtonStyle.GRAY,label="Courte Distance",emoji=getEmojiObject(splattershot.emoji),custom_id="range_dist")
 weapRangeLong = interactions.Button(style=ButtonStyle.GRAY,label="Longue Distance",emoji=getEmojiObject(concentraceurZoom.emoji),custom_id="range_long")
 weapRangeAll = interactions.Button(style=ButtonStyle.GRAY,label="Toute Portée",emoji=getEmojiObject(elemEmojis[ELEMENT_UNIVERSALIS]),custom_id="range_all")
+
+previousPageButton = Button(style=ButtonStyle.GRAY,label="Page précédente",emoji=getEmojiObject('◀️'),custom_id="previousPage")
+nextPageButton = Button(style=ButtonStyle.GRAY,label="Page suivante",emoji=getEmojiObject('▶'),custom_id="nextPage")
+firstPageButton = Button(style=ButtonStyle.GRAY,emoji=getEmojiObject('⏮'),custom_id="firstPage")
+lastPageButton = Button(style=ButtonStyle.GRAY,emoji=getEmojiObject('⏭'),custom_id="lastPage")
+
+pageButtonTabl = [firstPageButton, previousPageButton, nextPageButton, lastPageButton]
 
 skillult, skillnonult, skillMono, skillAoe = [], [], [], []
 for skilly in skills:
@@ -155,7 +163,7 @@ async def mimikThat(bot : interactions.Client, ctx : ComponentContext, msg : int
 		if index: user.apparaAcc = toChange
 		else: user.apparaWeap = toChange
 
-		user.otherInventory.remove(mimique)
+		user.otherInventory.remove(mimikator)
 		saveCharFile("./userProfile/{0}.json".format(user.owner),user)
 
 		await msg.edit(components=ContainerComponent(
@@ -178,7 +186,7 @@ async def compare(ctx : ComponentContext, user : char, see : Union[weapon,stuff]
 
 	compBonus = ""
 	compMalus = ""
-	allStaty = nameAllStats
+	allStaty = allStatNames
 	allStatsCompare = toCompare.allStats() + [toCompare.resistance,toCompare.percing,toCompare.critical,toCompare.negativeHeal*-1,toCompare.negativeBoost*-1,toCompare.negativeShield*-1,toCompare.negativeDirect*-1,toCompare.negativeIndirect*-1]
 	allStatsSee = see.allStats() + [see.resistance,see.percing,see.critical,see.negativeHeal*-1,see.negativeBoost*-1,see.negativeShield*-1,see.negativeDirect*-1,see.negativeIndirect*-1]
 
@@ -208,7 +216,7 @@ async def compare(ctx : ComponentContext, user : char, see : Union[weapon,stuff]
 			else: comp += "{0} : {1}\n".format(tabl1[cmpt],tabl2[cmpt])
 
 		comp += "\n"
-		if see.use != toCompare.use: comp += "Statistique de base : ~~{0}~~ -> {1}\n".format(nameAllStats[toCompare.use],nameAllStats[see.use])
+		if see.use != toCompare.use: comp += "Statistique de base : ~~{0}~~ -> {1}\n".format(allStatNames[toCompare.use],allStatNames[see.use])
 
 		toReturnCompList += [
 			SeparatorComponent(),
@@ -510,7 +518,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
 						componentList[0].add_component(confirmButton)
 						componentList.append(interactions.ActionRow(interactions.Button(style=2,label="Comparer",emoji=getEmojiObject(user.weapon.emoji),custom_id="compare")))
 
-					if user.have(mimique) and (user.apparaWeap != None and user.apparaWeap.id != weap.id):
+					if user.have(mimikator) and (user.apparaWeap != None and user.apparaWeap.id != weap.id):
 						componentList[-1].add_component(useMimikator)
 
 				await oldMsg.edit(embeds=emb, components=componentList)
@@ -710,7 +718,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
 						if user.aimedStuff[invStuff.type] != None and user.aimedStuff[invStuff.type] != invStuff.id: componentList[-1].add_component(interactions.Button(style=2,label="Changer Equipement Visé",emoji=getEmojiObject(findStuff(user.aimedStuff[invStuff.type]).emoji),custom_id="aimed"))
 
 
-					if user.have(mimique) and invStuff.type == 0 and (user.apparaAcc != None and user.apparaAcc.id != invStuff.id): componentList[-1].add_component(useMimikator)
+					if user.have(mimikator) and invStuff.type == 0 and (user.apparaAcc != None and user.apparaAcc.id != invStuff.id): componentList[-1].add_component(useMimikator)
 				await oldMsg.edit(embeds=emb, components=componentList)
 
 				def check(m):
@@ -777,7 +785,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
 
 				if obj == autoStuff:
 					emb.add_field(name ='<:em:866459463568850954>\n__Status de votre {0} :__'.format(obj.name),value=["Activé","Désactivé"][not(user.autoStuff)],inline=False)
-					emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(nameAllStats[recommandedStuffStat[user.aspiration][0]],nameAllStats[recommandedStuffStat[user.aspiration][1]],nameAllStats[recommandedStuffStat[user.aspiration][2]]),inline=False)
+					emb.add_field(name ='<:em:866459463568850954>\n__Statistiques recommandées pour votre aspiration :__',value="{0}\n{1}\n{2}".format(allStatNames[recommandedStuffStat[user.aspiration][0]],allStatNames[recommandedStuffStat[user.aspiration][1]],allStatNames[recommandedStuffStat[user.aspiration][2]]),inline=False)
 
 				trouv = False
 				for a in user.otherInventory:
@@ -792,7 +800,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
 					if obj == elementalCristal:
 						emb.set_footer(text = "Cet objet s'utilise avec /inventory destination: Élément")
 
-					if obj not in [elementalCristal,dimentioCristal,mimique,dailyCardBooster1,dailyCardBooster2]:
+					if obj not in [elementalCristal,dimentioCristal,mimikator,dailyCardBooster1,dailyCardBooster2]:
 						oldMsgCompo = ActionRow(
 							Button(style=ButtonStyle.SECONDARY,label="Retour",emoji=getEmojiObject("◀️"),custom_id="Return"),
 							Button(style=ButtonStyle.SUCCESS,label="Utiliser l'objet",emoji=getEmojiObject(obj.emoji),custom_id="use")
@@ -956,7 +964,7 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
 								user.autoStuff = True
 								user.otherInventory.remove(obj)
 								saveCharFile(user=user)
-								await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(nameAllStats[recommandedStuffStat[user.aspiration][0]],nameAllStats[recommandedStuffStat[user.aspiration][1]],nameAllStats[recommandedStuffStat[user.aspiration][2]])))
+								await oldMsg.edit(embeds=interactions.Embed(title="__Garde-robe de la Fée Niante :__",color=user.color,description="Votre Garde-robe de la Fée Niante a bien été activé.\n\n__Vos futurs équipements seront sélectionnés selon les statistiques suivantes :__\n{0}\n{1}\n{2}".format(allStatNames[recommandedStuffStat[user.aspiration][0]],allStatNames[recommandedStuffStat[user.aspiration][1]],allStatNames[recommandedStuffStat[user.aspiration][2]])))
 							else:
 								await oldMsg.edit(embeds=interactions.Embed(title="_Garde-robe de la Fée Niante :__",color=user.color,description="Vous n'avez pas le niveau requis pour utiliser cet objet"))
 					else:
@@ -966,11 +974,13 @@ async def inventory(bot : interactions.Client, ctx : interactions.Message, ident
 
 affult = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher tout type",emoji=getEmojiObject(splatbomb.emoji),custom_id="aff_ult")
 hideult = interactions.Button(style=ButtonStyle.PRIMARY,label="Cacher Ultimes",emoji=getEmojiObject(burst.emoji),custom_id="hide_ult")
-affonlyult = interactions.Button(style=2,label="Afficher Uniquement Ultimes",emoji=getEmojiObject(splashdown.emoji),custom_id="affonly_ult")
+affonlyult = interactions.Button(style=ButtonStyle.SECONDARY,label="Ultimes",emoji=getEmojiObject("<:littleStar:925860806602682369>"),custom_id="filter:ultimate")
 tablShowUltButton = [affult,hideult,affonlyult]
-affmono = interactions.Button(style=ButtonStyle.SUCCESS,label="Afficher Compétences monocibles",emoji=getEmojiObject(fragmentation.emoji),custom_id="mono_area")
-affaoe = interactions.Button(style=ButtonStyle.PRIMARY,label="Afficher Compétences Zone",emoji=getEmojiObject(multishot.emoji),custom_id="aoe_area")
-affallarea = interactions.Button(style=2,label="Afficher toutes zones",emoji=getEmojiObject(coroShot.emoji),custom_id="all_area")
+
+affmono = interactions.Button(style=ButtonStyle.SECONDARY,label="Monocibles",emoji=getEmojiObject(fragmentation.emoji),custom_id="area:0")
+affaoe = interactions.Button(style=ButtonStyle.SECONDARY,label="Zones",emoji=getEmojiObject(multishot.emoji),custom_id="area:1")
+affallarea = interactions.Button(style=ButtonStyle.SECONDARY,label="Afficher toutes zones",emoji=getEmojiObject(coroShot.emoji),custom_id="area:None")
+
 tablSkillArea = [affmono,affaoe,affallarea]
 tablRangeSkill = [affAllRange,affCompMelee,affCompDist]
 affReplaySkills2 = interactions.Button(style=ButtonStyle.BLUE,label="Afficher Compétences Rapides",emoji=getEmojiObject(suppuration.emoji),custom_id="replayAff")
@@ -1193,7 +1203,7 @@ async def inventoryV2(bot : interactions.Client, ctx : interactions.SlashContext
 				if destination in [INV_GEAR, INV_WEAPON]:
 					if not(stuffMenuStatus):
 						for cmpt in range(4,ACT_INDIRECT_FULL+5):
-							options.append(interactions.StringSelectOption(label=nameAllStats[cmpt-4],value=str(cmpt),emoji=getEmojiObject(statEmojis[cmpt-4]),default=cmpt==tri))
+							options.append(interactions.StringSelectOption(label=allStatNames[cmpt-4],value=str(cmpt),emoji=getEmojiObject(statEmojis[cmpt-4]),default=cmpt==tri))
 						options.append(interactions.StringSelectOption(label="Autre cat.",value="autCat_1",emoji=PartialEmoji(name="➡️")))
 					else:
 						options +=[
@@ -1254,7 +1264,7 @@ async def inventoryV2(bot : interactions.Client, ctx : interactions.SlashContext
 								tablToSee.remove(obj)
 
 							if tri >= 14:
-								typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
+								typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
 								see = typeTabl[tri-14]
 								if type(see) != list:
 									for ski in tablToSee[:]:
@@ -1462,7 +1472,7 @@ async def inventoryV2(bot : interactions.Client, ctx : interactions.SlashContext
 					except:
 						formatedExc = format_exc()
 						if len(formatedExc) > EMBED_MAX_DESC_LENGTH: formatedExc.slipt("\n\n")[-1]
-						await msg.edit(embeds=[interactions.Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=formatedExc),interactions.Embed(title="Variable",description="FirstSelect = {0}".format(firstSelect.__dict__.__str__().replace("<StringSelectOption","\n<StringSelectOption")))],components=[])
+						await msg.edit(embeds=[interactions.Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=formatedExc),interactions.Embed(title="Variable",description="FirstSelect = {0}".format(firstSelect.__dict__.replace("<StringSelectOption","\n<StringSelectOption")))],components=[])
 						return 0
 				try: respond: ComponentContext = await bot.wait_for_component(msg,check=check,timeout=180);  respond: ComponentContext = respond.ctx
 				except:
@@ -1521,36 +1531,129 @@ async def inventoryV2(bot : interactions.Client, ctx : interactions.SlashContext
 				await ctx.send(embeds=Embed(title="<:aliceBoude:1179656601083322470> Une erreur est survenue",description=errorForm))
 				return 0
 
-buttonShowPlus = Button(style=ButtonStyle.SECONDARY, label="Étendre", emoji=PartialEmoji(name="⬇️"), custom_id="show")
-buttonShowMinus = Button(style=ButtonStyle.SECONDARY, label="Réduire", emoji=PartialEmoji(name="⏏️"), custom_id=buttonShowPlus.custom_id)
+buttonShowPlus = Button(style=ButtonStyle.SECONDARY, label="Détails", emoji=PartialEmoji(name="⬇️"), custom_id="show")
 
 statSortTabl = []
-for indx, val in enumerate(nameAllStats): statSortTabl.append(StringSelectOption(label=val, value=str(indx), emoji=PartialEmoji.from_str(statEmojis[indx])))
+for indx, val in enumerate(allStatNames): statSortTabl.append(StringSelectOption(label=val, value=str(indx), emoji=PartialEmoji.from_str(statEmojis[indx])))
 
 statSortMenu = StringSelectMenu(statSortTabl, placeholder="Trier par statistique (max 3)", max_values=3, custom_id="statSortMenu")
 
-MAX_INV_PER_PAGE_COMPTACT, MAX_INV_PER_PAGE_DISPLAYED = 12, 5
+MAX_INV_PER_PAGE_COMPTACT, MAX_INV_PER_PAGE_DISPLAYED = 8, 5
 
-def objSorter(itm: Union[weapon, stuff, skill], sortStat: List[int] = None):
-	if type(itm) in [weapon, stuff] and sortStat != None:
-		statPool, statTabl = 0, itm.allStatsFull()
-		for indx in range(len(nameAllStats)):
-			if indx in sortStat: statPool += statTabl[indx]
-		return statPool
+inv3FilterStatsOption = []
+for indx, tmp in enumerate(allStatNames):
+	inv3FilterStatsOption.append(StringSelectOption(label=tmp, emoji=PartialEmoji.from_str(statEmojis[indx]), value="statFilter:{}".format(indx)))
+Inv3FilterStatsSelect = StringSelectMenu(inv3FilterStatsOption, placeholder="Filtrer par statistiques", max_values=3, custom_id="statFilter")
 
-	else:
-		return 0
+inv3SkillTypeOption = []
+for indx, tmp in enumerate(allTypeNames):
+	inv3SkillTypeOption.append(StringSelectOption(label=tmp, emoji=PartialEmoji.from_str(typeEmojis[indx]), value="typeFilter:{}".format(indx)))
+Inv3FilterSkillType = StringSelectMenu(inv3SkillTypeOption, placeholder="Filtrer par type", custom_id="typeFilter:{}".format(indx))
+
+DEF_DICTFILTER_STAT = [1]*(ACT_INDIRECT_FULL+1)
+
+rangeButtonMelee = Button(style=ButtonStyle.SECONDARY, label="Mêlée", custom_id="range:0", emoji=PartialEmoji(name=""))
+rangeButtonDist = Button(style=ButtonStyle.SECONDARY, label="Mi-Distance", custom_id="range:1")
+rangeButtonLong = Button(style=ButtonStyle.SECONDARY, label="Longue Distance", custom_id="range:2")
+
+def getItmSortValue(itm: Union[weapon, skill, stuff], dictFilter: dict):
+	tmpSum = 0
+	if type(itm) in [stuff, weapon]:
+		tmpSum = 0
+		for indx, itmStat in enumerate(itm.getAllStats()):
+			if dictFilter["stats"]: tmpSum += itmStat
+
+	return tmpSum
+
+def getSortedList(tabl: List[Union[weapon, skill, stuff]], dictFilter: dict):
+	if type(tabl[0]) == weapon:
+		if dictFilter["stats"] != DEF_DICTFILTER_STAT:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				for indx, tmpStat in enumerate(tmpItm.getAllStats()):
+					if dictFilter["stats"][indx] and tmpStat <= 0:
+						tabl.remove(tmpItm)
+						break
+
+			tabl.sort(key=lambda itm: getItmSortValue(itm, dictFilter), reverse=True)
+		
+		if dictFilter["type"] != None:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if tmpItm.type != dictFilter["type"]:
+					tabl.remove(tmpItm)
+
+		# AREA
+		if dictFilter["area"] == [1, 0]:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if tmpItm.area != AREA_MONO: tabl.remove(tmpItm)
+		elif dictFilter["area"] == [0, 1]:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if tmpItm.area == AREA_MONO:
+					eff = findEffect(tmpItm.effectOnUse)
+					if not(eff != None and eff.area != AREA_MONO): tabl.remove(tmpItm)
+
+	elif type(tabl[0]) == stuff:
+		if dictFilter["stats"] != DEF_DICTFILTER_STAT:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				for indx, tmpStat in enumerate(tmpItm.getAllStats()):
+					if dictFilter["stats"][indx] and tmpStat <= 0:
+						tabl.remove(tmpItm)
+						break
+
+			tabl.sort(key=lambda itm: getItmSortValue(itm, dictFilter), reverse=True)
+		
+		if dictFilter["type"] != None:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if tmpItm.type != dictFilter["type"]:
+					tabl.remove(tmpItm)
+
+	elif type(tabl[0]) == skill:
+		tmpTabl = tabl[:]
+		if dictFilter["type"] != None:
+			for tmpItm in tmpTabl:
+				if not(tmpItm.type == dictFilter["type"] or (tmpItm.effAroundCaster != [] and tmpItm.effAroundCaster[0] == dictFilter["type"])):
+					tmpTabl.remove(tmpItm)
+		
+		# AREA
+		if dictFilter["area"] == [1, 0]:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if tmpItm.area != AREA_MONO: tabl.remove(tmpItm)
+		elif dictFilter["area"] == [0, 1]:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if tmpItm.area == AREA_MONO:
+					finded = False
+					for eff in tmpItm.effects:
+						eff = findEffect(eff)
+						if eff != None and eff.area != AREA_MONO: finded = True
+						break
+
+					if not(finded): tabl.remove(tmpItm)
+
+		if dictFilter["ultimate"]:
+			tmpTabl = tabl[:]
+			for tmpItm in tmpTabl:
+				if not(tmpItm.ultimate): tabl.remove(tmpItm)
+
+	return tabl
 
 async def inventory_v3(bot : interactions.Client, ctx : interactions.SlashContext, user: char, invCat : int = 0, procurId: int = None):
-	msg, secMsg, invCat = await ctx.send(components=waitingEmbed), await ctx.channel.send(components=waitingEmbed), int(invCat)
+	msg, invCat = await ctx.send(components=waitingEmbed), int(invCat)
 
 	mainUser = loadCharFile(id=int(ctx.author.id))
 
 	userIcon = PartialEmoji.from_str(await getUserIcon(bot, mainUser))
+	if user.owner == 20010119: userIcon = PartialEmoji.from_str(findAlly("Lena").icon)
+	
 	userProcurList = [StringSelectOption(label=mainUser.name, value=str(mainUser.owner), emoji=userIcon, default=True)]
 	showAllEquippedStats = 0
 	needRemake = True
-	statSortTabl = []
 
 	def check(m): return m.ctx.author_id == ctx.author_id
 	
@@ -1562,17 +1665,24 @@ async def inventory_v3(bot : interactions.Client, ctx : interactions.SlashContex
 	userProcurMenu = StringSelectMenu(*userProcurList, disabled=len(userProcurList) <= 1, custom_id="procurSelect")
 	categorySelectMenu = StringSelectMenu(
 		StringSelectOption(label="Armes", value="0", emoji=PartialEmoji.from_str(randRep(weapons).emoji)),
-		StringSelectOption(label="Équipements", value="1", emoji=PartialEmoji.from_str(randRep(stuffs).emoji)),
-		StringSelectOption(label="Compétences", value="2", emoji=PartialEmoji.from_str(randRep(skills).emoji)),
+		StringSelectOption(label="Compétences", value="1", emoji=PartialEmoji.from_str(randRep(skills).emoji)),
+		StringSelectOption(label="Équipements", value="2", emoji=PartialEmoji.from_str(randRep(stuffs).emoji)),
 		StringSelectOption(label="Objets Spéciaux", value="3", emoji=PartialEmoji.from_str(randRep(others).emoji)),
 		StringSelectOption(label="Éléments", value="4", emoji=PartialEmoji.from_str(randRep(elemEmojis))),
 		StringSelectOption(label="Puces", value="5", emoji=PartialEmoji.from_str(randRep(chipWithEmoji).emoji)),
 		custom_id = "catSelect"
 	)
 
-	if invCat == 4:
+	filterDict = {
+		"stats":DEF_DICTFILTER_STAT,
+		"type":None,
+		"area":[0, 0],
+		"ultimate":0
+	}
+
+	if invCat == INV_ELEMENT:
 		await elements(bot=bot, ctx=ctx, msg=msg, user=user)
-		invCat = 0
+		invCat = INV_WEAPON
 
 	while 1:
 		for indx in range(len(categorySelectMenu.options)): categorySelectMenu.options[indx].default = invCat == indx
@@ -1591,9 +1701,6 @@ async def inventory_v3(bot : interactions.Client, ctx : interactions.SlashContex
 				actEquipedBig = "### __Arme équipée :__\n**{}**\n{}".format(str(user.weapon), user.weapon.getSummary())
 				actEquipedLight = "### __Arme équipée :__\n{}".format(str(user.weapon).replace("_", ""))
 			case 1:
-				actEquipedBig = "### __Équipements équipés :__\n**{}**\n{}\n\n**{}**\n{}\n\n**{}**\n{}".format(user.stuff[0], user.stuff[0].getSummary(), user.stuff[1], user.stuff[1].getSummary(), user.stuff[2], user.stuff[2].getSummary())
-				actEquipedLight = "### __Équipements équipés :__\n{}\n{}\n{}".format(str(user.stuff[0]).replace("_",""), str(user.stuff[1]).replace("_",""), str(user.stuff[2]).replace("_",""))
-			case 2:
 				actEquipedLight = actEquipedBig = "### __Compétences équipés :__\n"
 				for tmpSkill in user.skills:
 					tmpSkill = findSkill(tmpSkill)
@@ -1603,76 +1710,309 @@ async def inventory_v3(bot : interactions.Client, ctx : interactions.SlashContex
 					else:
 						actEquipedLight += "\- \n"
 						actEquipedBig += "- -# Pas de compétence\n"
-
+			case 2:
+				actEquipedBig = "### __Équipements équipés :__\n**{}**\n{}\n\n**{}**\n{}\n\n**{}**\n{}".format(user.stuff[0], user.stuff[0].getSummary(), user.stuff[1], user.stuff[1].getSummary(), user.stuff[2], user.stuff[2].getSummary())
+				actEquipedLight = "### __Équipements équipés :__\n{}\n{}\n{}".format(str(user.stuff[0]).replace("_",""), str(user.stuff[1]).replace("_",""), str(user.stuff[2]).replace("_",""))
 			case _: actEquipedBig = actEquipedLight = "case _ (invCat : {}, {})".format(invCat, type(invCat))
 
-		if invCat in [0, 1, 2]: mainWindowsCompList.append(SectionComponent(components=[TextDisplayComponent([actEquipedLight, actEquipedBig][showAllEquippedStats])], accessory=[buttonShowPlus, buttonShowMinus][showAllEquippedStats]))
+		if invCat in [0, 1, 2]: mainWindowsCompList.append(SectionComponent(components=[TextDisplayComponent([actEquipedLight, actEquipedBig][showAllEquippedStats])], accessory=buttonShowPlus))
 		
 		### ObjToSee
 		if needRemake:
-			listObjToSee, page, maxPage, nbOwned, nbTotal = [], 0, 0, 0, 0
+			listObjToSeeFull, page, maxPage, nbOwned, nbTotal = [], 0, 0, 0, 0
 			match invCat:
 				case 0:
-					listObjToSee = copy.deepcopy(user.weaponInventory)
-					nbOwned, nbTotal = len(listObjToSee), len(weapons)
-					if statSortTabl != []: listObjToSee.sort(lambda itm: objSorter(itm, statSortTabl), reverse=True)
+					listObjToSeeFull = copy.deepcopy(user.weaponInventory)
+					nbOwned, nbTotal = len(listObjToSeeFull), len(weapons)
 				case 1:
-					listObjToSee = copy.deepcopy(user.stuffInventory)
-					nbOwned, nbTotal = len(listObjToSee), len(stuffs)
-					if statSortTabl != []: listObjToSee.sort(lambda itm: objSorter(itm, statSortTabl), reverse=True)
+					listObjToSeeFull = copy.deepcopy(user.skillInventory)
+					nbOwned, nbTotal = len(listObjToSeeFull), len(skills)
 				case 2:
-					listObjToSee = copy.deepcopy(user.skillInventory)
-					nbOwned, nbTotal = len(listObjToSee), len(skills)
+					listObjToSeeFull = copy.deepcopy(user.stuffInventory)
+					nbOwned, nbTotal = len(listObjToSeeFull), len(stuffs)
 
-				case _: listObjToSee = [lightBlueFlats]
+				case _: listObjToSeeFull = [lightBlueFlats]
+			
+			listObjToSeeFull = getSortedList(tabl = listObjToSeeFull, dictFilter=filterDict)
 			needRemake = False
 
-		MAX_INV_PER_PAGE = [MAX_INV_PER_PAGE_COMPTACT, MAX_INV_PER_PAGE_DISPLAYED][showAllEquippedStats]
-		maxPage = (len(listObjToSee)-1) // MAX_INV_PER_PAGE
-		if maxPage == page: listObjToSee = listObjToSee[page*MAX_INV_PER_PAGE:]
-		else: listObjToSee = listObjToSee[page*MAX_INV_PER_PAGE: (page+1)*MAX_INV_PER_PAGE]
+			MAX_INV_PER_PAGE = [MAX_INV_PER_PAGE_COMPTACT, MAX_INV_PER_PAGE_DISPLAYED][showAllEquippedStats]
+			maxPage = (len(listObjToSeeFull)-1) // MAX_INV_PER_PAGE
+
+		if maxPage == page: listObjToSee = listObjToSeeFull[page*MAX_INV_PER_PAGE:]
+		else: listObjToSee = listObjToSeeFull[page*MAX_INV_PER_PAGE: (page+1)*MAX_INV_PER_PAGE]
+
+		print("page :", page, "\nmaxPage :", maxPage, "\nlen(listObjToSee) :", len(listObjToSee))
 
 		invWinSelectOptions, invWinTxtSmall, invWinTxtBig = [], "", ""
 		for itm in listObjToSee:
-			invWinTxtSmall += "- {}\n*{}*\n".format(itm, itm.getSummary().splitlines()[0])
-			invWinTxtBig += "- {}\n{}\n\n".format(itm, itm.getSummary())
+			if invCat == INV_GEAR:
+				toAdd = itm.getComparaisonEm(user)
+				tmpMin, tmpMax = "{} {}\n> -# - *{}*\n".format(toAdd, itm, itm.getSummary().splitlines()[0]), "{} {}\n> -# {}\n\n".format(toAdd, itm, itm.getSummary())
+			elif invCat == INV_SKILL:
+				tmpMin, tmpMax = "- {}\n> -# - *{}*\n".format(itm, itm.getSummary().splitlines()[0]), "- {}\n-# {}\n\n".format(itm, itm.getSummary())
+			elif invCat == INV_WEAPON:
+				tmpMin, tmpMax = "- {}\n> -# - {}\n".format(itm, itm.getSummary().replace("\n", "\n> -# - ")), "- {}\n-# {}\n\n".format(itm, itm.getSummary())
+			
+			invWinTxtSmall += tmpMin
+			invWinTxtBig += tmpMax
+
 			invWinSelectOptions.append(StringSelectOption(label=itm.name, emoji=PartialEmoji.from_str(itm.emoji), value=itm.id))
 
-		footerTxt = '\n-# Page **{}** / {} - Nombres {} obtenus : **{}** / {} ({}%)'.format(page, maxPage, ["d'armes", "d'équipements", "de compétences"][invCat], nbOwned, nbTotal, round(nbOwned/nbTotal, 2))
-		
-		secWindowsCompList = [
+		footerTxt = '\n-# Page **{}** / {} - Nombres {} obtenus : **{}** / {} ({}%)'.format(page+1, maxPage+1, ["d'armes", "d'équipements", "de compétences"][invCat], nbOwned, nbTotal, round(nbOwned/nbTotal*100, 2))
+
+		if invCat in [INV_WEAPON, INV_SKILL]:
+			secWindowsCompList = [
 			TextDisplayComponent("-# __Légende :__\n-# 🕑 Temps de chargement / 🕓 Temps de rechargement / ⭐ Compétence ultime\n-# 🗡️ Courte Portée / ⚔️ Moyenne Portée / 🏹 Longue Portée\n-# 🎯 Monocible / 💥 Effet de zone"),
 			SeparatorComponent(),
+			]
+		else:secWindowsCompList = []
+
+		tmpButtonTabl = copy.deepcopy(pageButtonTabl)
+		if page == 0:
+			tmpButtonTabl[0].disabled = True
+			tmpButtonTabl[1].disabled = True
+		if page == maxPage:
+			tmpButtonTabl[2].disabled = True
+			tmpButtonTabl[3].disabled = True
+
+		secWindowsCompList += [
 			TextDisplayComponent([invWinTxtSmall, invWinTxtBig][showAllEquippedStats] + footerTxt),
 			SeparatorComponent(divider=True),
-			ActionRow(StringSelectMenu(invWinSelectOptions, placeholder="Sélectionnez un objet", custom_id="mainWinMenu"))
+			ActionRow(StringSelectMenu(invWinSelectOptions, placeholder="Sélectionnez un objet", custom_id="mainWinMenu")),
+			ActionRow(*tmpButtonTabl)
 		]
+
+		filterComp = [
+			ActionRow([Inv3FilterStatsSelect, Inv3FilterSkillType][invCat == INV_SKILL])
+		]
+
+		if invCat == INV_GEAR:
+			if filterDict["type"] == None: typeButtons = ActionRow(affAcc, affBody, affShoes)
+			elif filterDict["type"] == 0: typeButtons = ActionRow(affAllStuff, affBody, affShoes)
+			elif filterDict["type"] == 1: typeButtons = ActionRow(affAllStuff, affAcc, affShoes)
+			elif filterDict["type"] == 2: typeButtons = ActionRow(affAllStuff, affAcc, affBody)
+
+			filterComp.append(typeButtons)
+		if invCat in [INV_SKILL, INV_WEAPON]:
+			areaButtons = ActionRow(copy.deepcopy(affmono), copy.deepcopy(affaoe))
+			if filterDict["area"][0]: areaButtons.components[0].style = ButtonStyle.PRIMARY
+			if filterDict["area"][1]: areaButtons.components[1].style = ButtonStyle.PRIMARY
+
+			filterComp.append(areaButtons)
+		
+		if invCat == INV_SKILL:
+			ultButon = copy.deepcopy(affonlyult)
+			if filterDict["ultimate"]: ultButon.style = ButtonStyle.PRIMARY
+
+			filterComp[-1].add_component(ultButon)
+
+		secWindowsCompList = filterComp + [SeparatorComponent(divider=True, spacing=SeparatorSpacingSize.LARGE)] + secWindowsCompList
 
 		########################################
 		mainWindow = containerReduceEmojiNames(ContainerComponent(*mainWindowsCompList, accent_color=user.color))
 		secWindow = containerReduceEmojiNames(ContainerComponent(*secWindowsCompList, accent_color=user.color))
-		await msg.edit(components=mainWindow)
-		await secMsg.edit(components=secWindow)
+
+		print("mainWindow :", lenContainer(mainWindow), "secWindow :", lenContainer(secWindow))
+		try: await msg.edit(components=[mainWindow, secWindow])
+		except: 
+			compListViewer([mainWindow, secWindow])
+			print_exc()
 		
 		try:
-			react = await bot.wait_for_component(messages=[msg, secMsg], check=check, timeout=180)
+			react = await bot.wait_for_component(messages=[msg], check=check, timeout=180)
 			react = react.ctx
 		except TimeoutError:
 			await lockMsg(msg)
 			break
 		else:
-			match react.custom_id:
-				case buttonShowPlus.custom_id:
-					showAllEquippedStats = not(showAllEquippedStats)
+			if react.custom_id == buttonShowPlus.custom_id:
+				if invCat == INV_GEAR:
+					tmpStr, sumStats = "", [0]*(ACT_INDIRECT_FULL+1)
+					for tmpItm in user.stuff:
+						tmpStr += "**{}** :\n> ".format(tmpItm) + tmpItm.getSummary().replace("\n", "\n> ") + "\n"
+						for indx, tmpStat in enumerate(tmpItm.getAllStats()): sumStats[indx] += tmpStat
+
+					tmpStr += "\n__**Total (Statistiques principales) :**__"
+					for indx in range(0, MAGIE+1):
+						tmpStr += "\n{}{} {}: {}{}".format(["", "-# "][sumStats[indx] <= 0], statEmojis[indx], allStatNames[indx], ["", "+"][sumStats[indx] > 0], sumStats[indx])
+
+					tmpStr += "\n\n__**Total (Statistiques secondaires) :**__"
+					for indx in range(RESISTANCE, CRITICAL+1):
+						tmpStr += "\n{}{} {}: {}{}".format(["", "-# "][sumStats[indx] <= 0], statEmojis[indx], allStatNames[indx], ["", "+"][sumStats[indx] > 0], sumStats[indx])
+
+					tmpStr += "\n\n__**Total (Statistiques d'actions) :**__"
+					for indx in range(CRITICAL+1, ACT_INDIRECT_FULL+1):
+						tmpStr += "\n{}{} {}: {}{}".format(["", "-# "][sumStats[indx] <= 0], statEmojis[indx], allStatNames[indx], ["", "+"][sumStats[indx] > 0], sumStats[indx])
+
+					await react.send(components=[ContainerComponent(TextDisplayComponent(tmpStr), accent_color=user.color)], ephemeral=True)
+				elif invCat == INV_WEAPON:
+					await react.send(components=[ContainerComponent(*infoWeapon2(user.weapon), accent_color=user.color)], ephemeral=True)
+				elif invCat == INV_SKILL:
+					detailCompList = []
+					for tmpSkill in user.skills:
+						tmpSkill = findSkill(tmpSkill)
+						if tmpSkill != None:
+							detailCompList += [
+								TextDisplayComponent("**{} :**\n> {}".format(tmpSkill, tmpSkill.getSummary().replace("\n", "\n> ").replace("> > ", "> "))),
+								SeparatorComponent()
+							]
+					if detailCompList == []:
+						detailCompList = [
+							TextDisplayComponent("-# Aucune compétence n'est actuellement équipée")
+						]
+					await react.send(components=[containerReduceEmojiNames(ContainerComponent(*detailCompList, accent_color=user.color))], ephemeral=True)
+
+				else:
+					await react.send(components=[ContainerComponent(TextDisplayComponent("Undefied situation. Pls report"), accent_color=light_blue)], ephemeral=True)
+			elif react.custom_id == "catSelect":
+				val = int(react.values[0])
+				if val <= 3:
+					invCat = val
+					showAllEquippedStats = 0
 					needRemake = True
-				case "catSelect":
-					val = int(react.values[0])
-					if val <= 3:
-						invCat =  val
-						showAllEquippedStats = 0
-						needRemake = True
-					elif val == 4:
-						await elements(bot=bot, ctx=react, msg=msg, user=user)
-				case "mainWinMenu":
-					pass
-				case _: await react.send(content="No matching React.custom_id ({})".format(react.custom_id))
+				elif val == 4:
+					await elements(bot=bot, ctx=react, msg=msg, user=user)
+			elif react.custom_id == "mainWinMenu":
+				await react.defer()
+				await lockMsg(msg)
+
+				listComp = []
+				if invCat == INV_GEAR:
+					itm = findStuff(react.values[0])
+					if itm != None:
+						if itm.minLvl > user.level: equipButton = Button(style=ButtonStyle.SECONDARY, label="Votre niveau est trop faible", disabled=True, custom_id="equip")
+						else: equipButton = Button(style=ButtonStyle.PRIMARY, label="Équipper", emoji=PartialEmoji.from_str(itm.getComparaisonEm(user)), custom_id="equip")
+
+						listButtons = [returnButton, equipButton]
+						
+						if (user.stars >= 1):
+							if user.aimedStuff[itm.type] == None:
+								listButtons += [Button(style=ButtonStyle.SECONDARY, label="Définir comme équipement visé", custom_id="aimed")]
+							elif user.aimedStuff[itm.type].id != itm.id:
+								listButtons += [Button(style=ButtonStyle.SECONDARY, label="Définir équi. visé", custom_id="aimed", emoji=PartialEmoji.from_str(user.aimedStuff[itm.type].emoji))]
+						if itm.type == 0 and user.have(mimikator):
+							listButtons += [Button(style=ButtonStyle.SECONDARY, label="Mimikator", custom_id="mimikator", emoji=PartialEmoji.from_str(mimikator.emoji), disabled = (user.apparaAcc != None and user.apparaAcc.id == itm.id))]
+						listComp += infoStuff2(itm, user)
+						listComp += [
+							SeparatorComponent(divider=True),
+							ActionRow(*listButtons)
+						]
+				elif invCat == INV_WEAPON:
+					itm = findWeapon(react.values[0])
+					if itm != None:
+						equipButton = Button(style=ButtonStyle.PRIMARY, label="Équipper", emoji=PartialEmoji.from_str(itm.emoji), custom_id="equip")
+						listButtons = [returnButton, equipButton]
+						
+						if user.have(mimikator):
+							listButtons += [Button(style=ButtonStyle.SECONDARY, label="Mimikator", custom_id="mimikator", emoji=PartialEmoji.from_str(mimikator.emoji), disabled = (user.apparaWeap != None and user.apparaWeap.id == itm.id))]
+						listComp += infoWeapon2(itm)
+						listComp += [
+							SeparatorComponent(divider=True),
+							ActionRow(*listButtons)
+						]
+				elif invCat == INV_SKILL:
+					itm = findSkill(react.values[0])
+					if itm != None:
+						listButtons = [returnButton]
+						
+						listComp += infoSkill2(itm, subTabl = [])
+						listComp += [
+							SeparatorComponent(divider=True),
+							ActionRow(*listButtons)
+						]
+
+						tmpOptions, haveUltimate, haveSkillGroup, canEquip = [], 0, 0, []
+						for indx, tmpSkill in enumerate(user.skills):
+							if type(tmpSkill) == skill:
+								if tmpSkill.ultimate: haveUltimate = True
+								if tmpSkill.group != 0: haveSkillGroup = tmpSkill.group
+
+						if haveSkillGroup != 0 and haveSkillGroup != itm.group:
+							canEquip += ["-# Vous ne pouvez pas équiper des compétences divines et démoniaques simultanément"]
+						if itm.condition != []:
+							if itm.condition[1] == ELEMENT and itm.condition[2] not in [user.element, user.secElement]:
+								canEquip += ["-# Cette compétence n'est pas compatible avec vos éléments"]
+							elif itm.condition[1] == ASPIRATION and itm.condition[2] != user.aspiration:
+								canEquip += ["-# Cette compétence n'est pas compatible avec votre aspiration"]
+
+						if canEquip == []:
+							for indx, tmpSkill in enumerate(user.skills):
+								if type(tmpSkill) != skill and not(haveUltimate and itm.ultimate):
+									tmpOptions.append(StringSelectOption(label="Emplacement {}".format(indx+1), emoji=PartialEmoji(name=EmCount[indx+1]), value=indx))
+								elif not(itm.ultimate) or not(haveUltimate) or (haveUltimate and itm.ultimate):
+									tmpOptions.append(StringSelectOption(label=tmpSkill.name, emoji=PartialEmoji.from_str(tmpSkill.emoji), value=indx))
+							listComp += [
+								SeparatorComponent(divider = True),
+								ActionRow(StringSelectMenu(tmpOptions, placeholder="Équiper", custom_id="equip"))
+							]
+						else:
+							listComp += [
+								SeparatorComponent(divider=True),
+								TextDisplayComponent("-# Vous ne pouvez pas équiper cette compétence :\n" + "\n".join(canEquip))
+							]
+				else:
+					print(invCat)
+
+				if listComp != []: secMsg = await react.send(components=[ContainerComponent(*listComp, accent_color=user.color)])
+				else: secMsg = await react.send(components=[ContainerComponent(TextDisplayComponent("listcomp empty ? {}".format(invCat)), accent_color=user.color)])
+			
+				while 1:
+					try:
+						trdRespond = await bot.wait_for_component(messages=[secMsg], check=check, timeout=180)
+						trdRespond = trdRespond.ctx
+					except TimeoutError:
+						try: await secMsg.delete()
+						except: pass
+						break
+					else:
+						match trdRespond.custom_id:
+							case returnButton.custom_id:
+								try: await secMsg.delete()
+								except: pass
+								break
+							case areaButton.custom_id:
+								await trdRespond.send(components=[ContainerComponent(skillVisuArea(itm), accent_color=user.color)], ephemeral=True)
+							case jaugeButton.custom_id:
+								tmpEff = findEffect(itm.jaugeEff)
+								if tmpEff != None: await trdRespond.send(components=[ContainerComponent(infoJaugeEff(itm), accent_color=user.color)], ephemeral=True)
+							case "equip":
+								user = loadCharFile(user=user)
+
+								if invCat == INV_WEAPON: user.weapon = itm
+								elif invCat == INV_GEAR: user.stuff[itm.type] = itm
+								elif invCat == INV_SKILL: user.skills[int(trdRespond.values[-1])] = itm
+
+								saveCharFile(user=user)
+								user = loadCharFile(user=user)
+
+								await trdRespond.send(components=[ContainerComponent(TextDisplayComponent("Votre {} a été équipé".format({INV_WEAPON: "arme", INV_GEAR: "équipement", INV_SKILL: "compétence"}[invCat])), accent_color=user.color)], ephemeral=True)
+								try: await secMsg.delete()
+								except: pass
+								secMsg = None
+								break
+			elif react.custom_id ==firstPageButton.custom_id: page = 0
+			elif react.custom_id ==previousPageButton.custom_id: page = max(0, page-1)
+			elif react.custom_id ==nextPageButton.custom_id: page = min(maxPage, page+1)
+			elif react.custom_id ==lastPageButton.custom_id: page = maxPage
+			elif react.custom_id =="statFilter":
+				filterDict["stats"] = [0]*(ACT_INDIRECT_FULL+1)
+				for tmp in react.values:
+					filterDict["stats"][int(tmp.split(":")[-1])] = 1
+					needRemake = True
+			elif react.custom_id.startswith("gearType"):
+				if react.custom_id == "gearType:all": filterDict["type"] = None
+				else: filterDict["type"] = int(react.custom_id.split(":")[-1])
+				needRemake = True
+			elif react.custom_id.startswith("area"):
+				val = int(react.custom_id.split(":")[-1])
+				
+				if filterDict["area"][val]: filterDict["area"] = [0, 0]
+				elif val == 0: filterDict["area"] = [1, 0]
+				elif val == 1: filterDict["area"] = [0, 1]
+
+				needRemake = True
+			elif react.custom_id == "filter:ultimate":
+				filterDict["ultimate"] = not(filterDict["ultimate"])
+				needRemake = True
+			else: await react.send(content="No matching React.custom_id ({})".format(react.custom_id))

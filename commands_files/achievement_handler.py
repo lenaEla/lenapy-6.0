@@ -2,7 +2,7 @@ import sqlite3, os
 from gestion import *
 from advance_gestion import *
 from advObjects.advSkills import *
-from advObjects.advAllies import findAllie
+from advObjects.advAllies import findAlly
 from adv import *
 
 if not(os.path.exists("./data/database/success.db")):
@@ -32,27 +32,27 @@ class achivement:
 
 class achiveTabl:
 	def __init__(self):
-		self.alice = achivement("Oubliez pas qu'une rose a des épines",10,"alice",recompense="jz",description="Affrontez ou faites équipe avec Alice {0} fois",emoji=findAllie("Alice").icon)
-		self.clemence = achivement("La quête de la nuit",10,"clemence",recompense="bg",description="Affrontez ou faites équipe avec Clémence {0} fois",emoji=findAllie("Clémence").icon)
-		self.akira = achivement("Seconde impression",10,"akira",recompense="bh",description="Affrontez ou faites équipe avec Akira {0} fois",emoji=findAllie("Akira").icon)
+		self.alice = achivement("Oubliez pas qu'une rose a des épines",10,"alice",recompense="jz",description="Affrontez ou faites équipe avec Alice {0} fois",emoji=findAlly("Alice").icon)
+		self.clemence = achivement("La quête de la nuit",10,"clemence",recompense="bg",description="Affrontez ou faites équipe avec Clémence {0} fois",emoji=findAlly("Clémence").icon)
+		self.akira = achivement("Seconde impression",10,"akira",recompense="bh",description="Affrontez ou faites équipe avec Akira {0} fois",emoji=findAlly("Akira").icon)
 		self.fight = achivement("L'ivresse du combat",1,"fight",recompense="ys",description="Faire {0} combat manuel",emoji='<:splattershotJR:866367630465433611>')
-		self.gwen = achivement("Une histoire de vangeance",3,"gwen",["ka","kb",gwenyStrike.id],"Affrontez ou faites équipe avec Gwendoline {0} fois",emoji=findAllie("Gwendoline").icon)
+		self.gwen = achivement("Une histoire de vangeance",3,"gwen",["ka","kb",gwenyStrike.id],"Affrontez ou faites équipe avec Gwendoline {0} fois",emoji=findAlly("Gwendoline").icon)
 		self.quickFight = achivement("Le temps c'est de l'argent",10,"quickFight",None,"Lancez {0} combats rapides",'<:hourglass1:872181651801772052>')
-		self.helene = achivement("Là où mes ailes me porteront",10,"helene","yr","Affrontez ou faites équipe avec Hélène {0} fois",findAllie("Hélène").icon)
+		self.helene = achivement("Là où mes ailes me porteront",10,"helene","yr","Affrontez ou faites équipe avec Hélène {0} fois",findAlly("Hélène").icon)
 		self.school = achivement("Je ne veux pas d'écolière pour défendre nos terres",30,"school",None,"Combattre {0} fois !",'<:splattershot:866367647113543730>')
 		self.elemental = achivement("Elémentaire mon cher Watson",1,"elemental","qe","Combattre {0} fois en étant niveau 10 ou plus",'<:neutral:887847377917050930>')
 		self.notHealBut = achivement("Situation désespérée Mesure désespérée",500,"notHealBut",None,"Sans être Altruiste, Idole ou Erudit, soignez un total de {0} PV",'<:bandage:873542442484396073>')
 		self.greatHeal = achivement("Soigneur de compétiton",5000,"greatHeal",["kc","kd"],"Soignez un total de {0} PV",'<:seringue:887402558665142343>')
 		self.greatDps = achivement("La meilleure défense c'est l'attaque",5000,"greatDps",None,"Infligez un total de {0} dégâts directs",'<:splatcharger:866367658752213024>')
 		self.poison = achivement("Notre pire ennemi, c'est nous même",5000,"poison",None,"Infligez un total de {0} dégâts indirects",'<:butterflyV:883627142615805962>')
-		self.icealia = achivement("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",findAllie("Icealia").icon)
-		self.shehisa = achivement("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",findAllie("Shehisa").icon)
-		self.heriteEstialba = achivement("Savoir utiliser ses atouts",25000,"estialba",description="Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"",emoji=findAllie("Lohica").icon)
+		self.icealia = achivement("Prévoir l'imprévisible",10,"icea","vn","Faite équipe ou affrontez {0} fois Icealia",findAlly("Icealia").icon)
+		self.shehisa = achivement("Pas vue, pas prise",10,"sram","vq","Faite équipe ou affrontez {0} fois Shehisa",findAlly("Shehisa").icon)
+		self.heriteEstialba = achivement("Savoir utiliser ses atouts",25000,"estialba",description="Infligez {0} dégâts indirects à l'aide de l'effet \"__<:est:884223390804766740> Poison d'Estialba__\"",emoji=findAlly("Lohica").icon)
 		self.heriteLesath = achivement("Il faut que ça sorte",25000,"lesath",description="Infligez {0} dégâts indirects à l'aide de l'effet \"__<:bleeding:1133258052225745048> Hémorragie__\"",emoji="<:ombralStrike:900083085708771349>")
-		self.powehi = achivement("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois",findAllie("Powehi").icon)
+		self.powehi = achivement("La fin de tout, et renouvellement",10,"powehi","uj","Affrontez ou faites équipe avec Powehi {0} fois",findAlly("Powehi").icon)
 		self.dimentio = achivement("Le secret de l'imperceptible",1,"dimentio","qh","Combattre {0} fois en étant niveau 20 ou plus","<:krysTal2:907638077307097088>")
-		self.feli = achivement("Ne jamais abandonner",10,"feli","tl","Affrontez ou faites équipe avec Félicité {0} fois",findAllie("Félicité").icon)
-		self.sixtine = achivement("Tomber dans les bras de Morphée",10,"sixtine","tk","Affrontez ou faites équipe avec Sixtine {0} fois",findAllie("Sixtine").icon)
+		self.feli = achivement("Ne jamais abandonner",10,"feli","tl","Affrontez ou faites équipe avec Félicité {0} fois",findAlly("Félicité").icon)
+		self.sixtine = achivement("Tomber dans les bras de Morphée",10,"sixtine","tk","Affrontez ou faites équipe avec Sixtine {0} fois",findAlly("Sixtine").icon)
 		self.hina = achivement("Voler à la recousse",10,"hina","tj","Affrontez ou faites équipe avec Hina {0} fois","<:hina:908820821185810454>")
 		self.luna = achivement("La prêtresse obsitnée",3,"luna",description="Vainquez {0} le boss \"Luna\"",emoji="<:luna:909047362868105227>",recompense=["oq","or","os","ot","ou","ov"])
 		self.julie = achivement("Être dans les temps",10,"julie","ti","Affrontez ou faites équipe avec Julie {0} fois","<:julie:910185448951906325>")
@@ -88,8 +88,8 @@ class achiveTabl:
 		self.masterDamage = achivement("Quête de la puissance",500,"masterDamage",description="Infligez l'équivalent de **{0} fois** vos PV Max en dégâts",emoji='<a:dmgBuffB:954429227657224272>',recompense=[renforPhys.id,dualCast.id])
 		self.masterTank = achivement("Quête de la résistance",500,"masterTank",description="Recevoir l'équivalent de **{0} fois** vos PV Max de dégâts",emoji='<a:defBuffB:954537632543682620>')
 		self.marineDealer = achivement("Do what you want 'cause a pirate is free",50,"marineDealer",[fairyLiberation.id,exploPetal.id],description="Vaincre **{0} ennemis** ayant une affinité avec les **Marines**",emoji='<:pirSan2:1059519736347631696>')
-		self.celeste = achivement("Le début d'une aventure céleste",10,"celeste",selfMemoria.id,"Affrontez ou faites équipe avec Céleste {0} fois",emoji=findAllie("Céleste").icon)
-		self.shushi = achivement("Filer telle une anguille",10,"shushi",squidRoll.id,"Affrontez ou faites équipe avec Shushi {0} fois",emoji=findAllie("Shushi").icon)
+		self.celeste = achivement("Le début d'une aventure céleste",10,"celeste",selfMemoria.id,"Affrontez ou faites équipe avec Céleste {0} fois",emoji=findAlly("Céleste").icon)
+		self.shushi = achivement("Filer telle une anguille",10,"shushi",squidRoll.id,"Affrontez ou faites équipe avec Shushi {0} fois",emoji=findAlly("Shushi").icon)
 		self.convicStar1 = achivement("Conviction des étoiles 1",1,"convicStar1",description="Soyez témoins de la compétence \"Conviction de Silicia\" lors de **{0}** combats",emoji="<:silicia:1045109225615003729>",recompense=[tripleCommunCards.id])
 		self.convicStar2 = achivement("Conviction des étoiles 2",5,"convicStar2",description="Soyez témoins de la compétence \"Conviction de Silicia\" lors de **{0}** combats",emoji="<:silicia:1045109225615003729>",recompense=[tripleCommunCards.id,dailyCardBooster1.id])
 		self.convicStar3 = achivement("Conviction des étoiles 3",20,"convicStar3",description="Soyez témoins de la compétence \"Conviction de Silicia\" lors de **{0}** combats",emoji="<:silicia:1045109225615003729>",recompense=[tripleCommunCards.id,singleRareCards.id,dailyCardBooster2.id])

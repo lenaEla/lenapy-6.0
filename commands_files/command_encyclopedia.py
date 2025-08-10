@@ -107,7 +107,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
 			elif destination == 4:
 				tablToSee = skills[:]
 				if tri >= 14:
-					typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_INDIRECT_REZ],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
+					typeTabl = [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE,[TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_RESURECTION],TYPE_ARMOR,TYPE_BOOST,TYPE_MALUS,TYPE_SUMMON,TYPE_PASSIVE]
 					see = typeTabl[tri-14]
 					if type(see) != list:
 						for ski in tablToSee[:]:
@@ -356,7 +356,7 @@ async def encylopedia(bot : interactions.Client, ctx : interactions.SlashContext
 				altBuildNb = -1
 				while 1:
 					lvlAdded = lvl + addLvl
-					ally = copy.deepcopy(findAllie(respond))
+					ally = copy.deepcopy(findAlly(respond))
 
 					if altBuildNb != -1:
 						tempBuild = ally.changeDict[altBuildNb]

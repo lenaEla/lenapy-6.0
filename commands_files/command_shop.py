@@ -222,7 +222,7 @@ async def shop2(bot : interactions.Client, ctx : interactions.Message,shopping :
 				tablEnnemis = fightingStatus[1].split(";")[:-1]
 				for enemyName in tablEnnemis:
 					ennemi = findEnnemi(enemyName)
-					if ennemi == None: ennemi = findAllie(enemyName)
+					if ennemi == None: ennemi = findAlly(enemyName)
 					if ennemi != None: tmpValue += "{0} {1}\n".format(ennemi.icon, ennemi.name)
 					else: tmpValue += "<:blocked:897631107602841600> L'ennemi n'a pas pu être trouvé\n"
 			elif user.team in allReadyInWait.keys():

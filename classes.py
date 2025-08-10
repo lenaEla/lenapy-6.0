@@ -144,7 +144,7 @@ class effect:
 		self.absolutShield:bool = defaultVars["absolutShield"]
 		self.onDeclancher:bool = defaultVars["onDeclancher"]
 		self.inkResistance = defaultVars["inkResistance"]
-		self.replace = defaultVars["replace"]
+		self.replacable = defaultVars["replace"]
 		self.dmgUp, self.critDmgUp, self.healUp, self.critHealUp, self.jaugeValue, self.denieWeap = defaultVars["dmgUp"], defaultVars["critDmgUp"], defaultVars["healUp"], defaultVars["critHealUp"], defaultVars["jaugeValue"], defaultVars["denieWeap"]
 		self.counterOnDodge, self.dodge, self.counterOnBlock = defaultVars["counterOnDodge"], defaultVars["dodge"], defaultVars["counterOnBlock"]
 		self.prio, self.armorDmgBonus, self.icon = defaultVars["effPrio"], defaultVars["armorDmgBonus"], ""
@@ -215,7 +215,7 @@ class effect:
 				self.emoji=[['<:ink1debuff:866828217939263548>','<:ink2debuff:866828296833466408>' ],['<:oct1debuff:866828253695705108>','<:oct2debuff:866828340470874142>'],['<:octariandebuff:866828390853247006>','<:octariandebuff:866828390853247006>']]
 			elif self.type in [TYPE_DAMAGE,TYPE_INDIRECT_DAMAGE]:
 				self.emoji=[["<:ikadamage1:895723391212978207>","<:ikadamage2:895723465389264897>"],["<:takodamage1:895723442177982516>","<:takodamage1:895723496196415508>"],[None,"<:octariandamage:895723525954998272>"]]
-			elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ]:
+			elif self.type in [TYPE_HEAL,TYPE_INDIRECT_HEAL]:
 				self.emoji=[["<:ikaheal1:895722730664632321>","<:ikaheal2:895722783034732594>"],["<:takoheal1:895722755025162281>","<:takoheal2:895722806430548001>"],[None,"<:octarianheal:895722827188166698>"]]
 			elif self.type in [TYPE_ARMOR]:
 				self.emoji=[["<:ikashield:895723993351458877>","<:ikashield2:895724022501892217>"],["<:takoshield1:895724008350318602>","<:takoshield2:895724040348659772>"],[None,"<:octarianshield:895724055909515265>"]]
@@ -226,6 +226,10 @@ class effect:
 			self.type = TYPE_MALUS
 		if self.emoji.__class__ == str:
 			self.emoji = uniqueEmoji(self.emoji)
+
+		if self.type == TYPE_BOOST and self.callOnTrigger != None:
+			if type(self.callOnTrigger) != str and self.callOnTrigger.type in hostileTypes:
+				self.type == TYPE_MALUS
 
 	def __str__(self) -> str:
 		return "{0} __{1}__".format(self.emoji[0][0], self.name)
@@ -238,6 +242,8 @@ class effect:
 	def allStats(self):
 		"""Return a list with the mains stats of the effect"""
 		return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
+
+	def replace(self, val1, val2): return self.__str__().replace(val1, val2)
 
 # Basic effects :
 incurable = effect("Incurable","incur",type=TYPE_MALUS,power=100,replace=True,description="Diminue les soins reçus par la cible de **{0}**%.\nSeul l'effet Incurable le plus puissant est pris en compte",emoji=sameSpeciesEmoji('<:incurB:1143285329391001762>','<:incurR:1143285244477317233>'),stackable=True)
@@ -303,17 +309,16 @@ class defaultObj():
 			for cmpt in range(0,len(stats)):
 				if stats[cmpt] != 0:
 					toReturn += "{0}{1}{2}, ".format(statEmojis[cmpt],["","+"][stats[cmpt]>0],stats[cmpt])
-			if len(toReturn)> 0 and toReturn[:-2] == ", ":
+			if len(toReturn)> 0 :
 				toReturn = toReturn[:-2]
-			if self.affinity != None:
-				toReturn += elemEmojis[self.affinity]
+
 			toAdd = ""
 
-			if type(self.effects) == effect: toAdd += "__Passif__ : {0} {1}".format(self.effects.emoji[0][0],self.effects.name)
-			if type(self.effectOnUse) == effect: toAdd += "{0}__Effet sur la cible__ : {1} {2}".format(["","\n"][toAdd != ""],self.effectOnUse.emoji[0][0],self.effectOnUse.name)
+			if type(self.effects) == effect: toAdd += "__Passif__ : {}\n".format(self.effects.replace("__", ""))
+			if type(self.effectOnUse) == effect: toAdd += "__Effet sur la cible__ : {}\n".format(self.effectOnUse.replace("__", ""))
 			
 			if toAdd != "":
-				toReturn += "\n" + toAdd
+				toReturn += "\n" + toAdd[:-1]
 
 			return toReturn
 		elif self.__class__ == skill:
@@ -392,16 +397,13 @@ class defaultObj():
 				tabl = [None,aspiEmoji,elemEmojis][actSkill.condition[1]]
 				toReturn += " | {0}".format(tabl[actSkill.condition[2]])
 			
-			effarea = ""
-			if actSkill.type in [TYPE_INDIRECT_DAMAGE,TYPE_INDIRECT_HEAL] and type(actSkill.effects[0]) == effect:
-				effarea = " (+💥)"
 
 			if not(self.type == TYPE_PASSIVE):
 				rangeEmoji = rangeAreaEmojis[actSkill.range]
 				if actSkill.range in areaShortRange: rangeEmoji = "🗡️"
 				elif actSkill.range in areaMidRange: rangeEmoji = "⚔️"
 				elif actSkill.range in areaLongRange: rangeEmoji = "🏹"
-				toReturn += " | {0} {1}{4} | 🕓 {2}{3}{4}".format(rangeEmoji, ["💥", "🎯"][actSkill.area == AREA_MONO],actSkill.cooldown,[""," ⭐"][actSkill.ultimate],effarea,[""," ✨"][actSkill.replay])
+				toReturn += " | {} {} | 🕓 {}{}{}".format(rangeEmoji, actSkill.areaEmoji, actSkill.cooldown,[""," ⭐"][actSkill.ultimate],[""," ✨"][actSkill.replay])
 
 			if actSkill.description not in [None,'']:
 				lines = actSkill.description.splitlines()
@@ -416,7 +418,7 @@ class defaultObj():
 			for cmpt in range(0,len(stats)):
 				if stats[cmpt] != 0:
 					temp += "{0}{1}{2}, ".format(statEmojis[cmpt],["","+"][stats[cmpt]>0],stats[cmpt])
-			if len(temp)> 0 and temp[:-2] == ", ": temp = temp[:-2]
+			if len(temp)> 0: temp = temp[:-2]
 			if self.affinity != None: temp += elemEmojis[self.affinity]
 
 			if self.orientation not in [None,""]: temp += "\n-# {0}".format(self.orientation)
@@ -430,6 +432,9 @@ class defaultObj():
 
 	def __str__(self):
 		return "{0} __{1}__".format(self.emoji, self.name)
+
+	def replace(self, val1: str, val2: str):
+		return self.__str__().replace(val1, val2)
 
 class weapon(defaultObj):
 	"""The main and only class for weapons"""
@@ -530,7 +535,7 @@ class weapon(defaultObj):
 		"""Return a list with the mains stats of the weapon"""
 		return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 
-	def allStatsFull(self): return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie, self.resistance, self.percing, self.critical, self.negativeHeal*-1, self.negativeBoost*-1, self.negativeShield*-1, self.negativeDirect*-1, self.negativeIndirect*-1]
+	def getAllStats(self): return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie, self.resistance, self.percing, self.critical, self.negativeHeal*-1, self.negativeBoost*-1, self.negativeShield*-1, self.negativeDirect*-1, self.negativeIndirect*-1]
 
 mainLibre = weapon("Main Libre","aa",RANGE_MELEE,AREA_CIRCLE_1,44,45,0,strength=20,agility=15,endurance=10,resistance=5,repetition=3,emoji = '<:fist:866368882784337941>')
 splattershotJR = weapon("Liquidateur JR","af",RANGE_DIST,AREA_CIRCLE_3,47,35,0,agility=20,charisma=10,strength=20,repetition=3,emoji = '<:splattershotJR:866367630465433611>')
@@ -707,7 +712,7 @@ class skill(defaultObj):
 			elif self.type in [TYPE_BOOST,TYPE_SUMMON]: self.emoji='<:defSupp:885899082453880934>'
 			elif self.type in [TYPE_ARMOR]: self.emoji='<:defarmor:895446300848427049>'
 			elif self.type in [TYPE_MALUS]: self.emoji='<:defMalus:895448159675904001>'
-			elif self.type in [TYPE_RESURECTION,TYPE_INDIRECT_REZ]: self.emoji='<:renisurection:873723658315644938>'
+			elif self.type in [TYPE_RESURECTION]: self.emoji='<:renisurection:873723658315644938>'
 			elif self.type in [TYPE_PASSIVE]: self.emoji = self.effects[0].emoji[0][0]
 			else: self.emoji=''
 
@@ -776,7 +781,14 @@ class skill(defaultObj):
 					self.needEffect[indx].emoji = uniqueEmoji(self.emoji)
 					self.needEffect[indx].silent = True
 
-		self.areaEmoji = ["💥"," 🎯"][self.area == AREA_MONO]
+		if self.area == AREA_MONO:
+			self.areaEmoji = "🎯"
+			for eff in self.effects:
+				if type(eff) == effect and eff.area != AREA_MONO:
+					self.areaEmoji += " 💥"
+					break
+		else:
+			self.areaEmoji = "💥"
 
 	def havConds(self,user):
 		"""Verify if the User have the conditions to equip the skill"""
@@ -924,7 +936,7 @@ class stuff(defaultObj):
 
 	def allStats(self): return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie]
 	
-	def allStatsFull(self): return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie, self.resistance, self.percing, self.critical, self.negativeHeal*-1, self.negativeBoost*-1, self.negativeShield*-1, self.negativeDirect*-1, self.negativeIndirect*-1]
+	def getAllStats(self): return [self.strength,self.endurance,self.charisma,self.agility,self.precision,self.intelligence,self.magie, self.resistance, self.percing, self.critical, self.negativeHeal*-1, self.negativeBoost*-1, self.negativeShield*-1, self.negativeDirect*-1, self.negativeIndirect*-1]
 
 	def havConds(self,user): return user.level >= self.minLvl
 
@@ -961,6 +973,18 @@ class stuff(defaultObj):
 				return tmp[1]
 			
 		return "Hors catégorie"
+
+	def getComparaisonEm(self, user: "char"):
+		selfRelevantStat, itmRelevantStat, itm = 0, 0, user.stuff[self.type]
+		selfStatTabl, itmStatTabl = self.getAllStats(), itm.getAllStats()
+
+		for indx in range(len(selfStatTabl)):
+			if indx in recommandedStuffStat[user.aspiration]:
+				selfRelevantStat, itmRelevantStat = selfRelevantStat + selfStatTabl[indx], itmRelevantStat + itmStatTabl[indx]
+
+		if selfRelevantStat > itmRelevantStat: return STAT_UP_EM
+		elif selfRelevantStat == itmRelevantStat: return STAT_NEUTRAL_EM 
+		else: return STAT_DOWN_EM
 
 class gearBundle():
 	def __init__(self, gearSet: list[stuff], name: str):
@@ -1655,7 +1679,7 @@ class depl(defaultChar):
 		self.skills.accuracy = 350
 		self.icon = icon
 		self.cellIcon = cellIcon
-		self.description = description + "\n\nCe déployable utlise la statistique de {1} __{0}__ et a une durée de vie de __{2}__ tours".format(nameAllStats[skills.use],statEmojis[skills.use],lifeTime)
+		self.description = description + "\n\nCe déployable utlise la statistique de {1} __{0}__ et a une durée de vie de __{2}__ tours".format(allStatNames[skills.use],statEmojis[skills.use],lifeTime)
 		self.lifeTime = lifeTime
 		self.weapon = weapon("None weap","noneWeap",RANGE_DIST,AREA_CIRCLE_3,0,0)
 		self.says = says()

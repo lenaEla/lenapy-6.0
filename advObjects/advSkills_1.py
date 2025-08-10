@@ -1256,7 +1256,7 @@ anchor = skill("Ancre Aérienne",getAutoId(drill.id,True),TYPE_DAMAGE,750,power=
 chainsaw = skill("Tronçonneuse Rotatives",getAutoId(anchor.id,True),TYPE_DAMAGE,750,power=125,jaugeEff=focusJauge,url='https://media.discordapp.net/attachments/1130204608900386910/1131443229808656424/20230720_062306.gif',minJaugeValue=60,maxJaugeValue=60,area=AREA_LINE_3,description="Inflige des dégâts aux ennemis ciblés",cooldown=3,emoji="<:tronc:1003645821826371684>")
 mysticShot = skill("Fusil Mystique",getAutoId(chainsaw.id,True),TYPE_DAMAGE,750,power=150,maxPower=250,jaugeEff=focusJauge,minJaugeValue=50,url="https://media.discordapp.net/attachments/1006418796329848954/1007574358983704646/20220812_105247.gif",maxJaugeValue=100,ultimate=True,cooldown=5,description="Inflige des dégâts à l'ennemi ciblé. La puissance augmente en fonction de la quantité de jauge consommée",emoji="<:fusil:1003646584497655839>")
 
-bestSkill = skill("Pls Die","bestSkill",TYPE_DAMAGE,0,power=1000,area=AREA_ALL_ENEMIES,use=PURCENTAGE,emoji='<a:giveup:902383022354079814>',description="Omae wa mou shinderu",say="Omae wa mou shinderu")
+bestSkill = skill("Pls Die","bestSkill",TYPE_DAMAGE,0,power=1000, accuracy=1000,area=AREA_ALL_ENEMIES,use=PURCENTAGE,emoji='<a:giveup:902383022354079814>',description="Omae wa mou shinderu",say="Omae wa mou shinderu")
 
 pyroSparkleEff = effect("Résistance Réduite","pyroBlastEff", stat=PURCENTAGE,resistance=-20,turnInit=3,type=TYPE_MALUS)
 pyroSparkle = skill("Fire Sparkle","",TYPE_DAMAGE,500,100,area=AREA_CONE_2,cooldown=7,use=MAGIE,effects=pyroSparkleEff,emoji='<:pyroDeflag:1171159256259637310>',condition=[EXCLUSIVE,ELEMENT,ELEMENT_FIRE],description="Inflige des dégâts aux ennemis ciblés et réduit la résistance de la cible principale")

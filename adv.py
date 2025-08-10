@@ -23,7 +23,7 @@ seeshell = other("Super Coquillage","None",500,description="Ce coquillage permet
 blablator = other("Blablator","qg",500,description="Permet de définir des messages que votre personnages dira lors de certains événements",emoji='<:blablator:918073481562816532>')
 dimentioCristal = other("Cristal dimentionel",'qh',500,'<:krysTal2:907638077307097088>',"Ces cristaux vous permettent de changer l'élément de votre personnage dans /inventory element (lvl 20)\n\nCe cristal permet de choisir les éléments suivants :\n<:light:887847410141921362> Lumière\n<:darkness:887847395067568128> Ténèbre\n<:astral:907467653147410475> Astral\n<:temporel:907467620930973707> Temporel")
 token = other("Jeton de roulette","None",0,'<:jeton:917793426949435402>',"Ce jeton est à utiliser dans la Roulette\nAllez donc faire un tour à /roulette !")
-mimique = other("Mimikator","qi",500,"<:mimikator:918073466077446164>","Cet emoji vous permet de changer l'apparance de votre arme ou accessoire sur votre icone de personnage.\n\nPour ce faire, appuyez juste sur le bouton correspondant lorsque vous ouvrez une page d'information d'une arme ou accessoire avec /inventory")
+mimikator = other("Mimikator","qi",500,"<:mimikator:918073466077446164>","Cet emoji vous permet de changer l'apparance de votre arme ou accessoire sur votre icone de personnage.\n\nPour ce faire, appuyez juste sur le bouton correspondant lorsque vous ouvrez une page d'information d'une arme ou accessoire avec /inventory")
 ilianaGrelot = other("Grelot","qj",350,'<:iliGrelot:930385123130609684>',"Vous permet de changer la forme de votre icone de personnage en Inkling Chat ou Octaling Chat")
 grandNouveau = other("Boucles d'oreilles originelle","qk",350,amethystEarRings.emoji,"Vous permet de rénitialiser la forme de votre icone de personnage")
 aliceBatEarRing = other("Amulette chauve-souris","ql",350,invocBat.emoji,"Vous permet de changer la forme de votre icone de personnage en Chauve-Souris")
@@ -36,7 +36,7 @@ dailyCardBooster1 = other("Booster journalié supplémentaire 1",getAutoId("qq")
 dailyCardBooster2 = other("Booster journalié supplémentaire 2",getAutoId(dailyCardBooster1),0,"<:lS:925860806602682369>","Augmente le nombre de boosters de puce obtenus lors de votre premier combat du jour de 1")
 tripleCommunCards = other("Booster de puces commun x3",getAutoId(dailyCardBooster2),0,rarityEmojis[0],"Vous octroie trois booster de puces commun")
 singleRareCards = other("Booster de puces rare",getAutoId(tripleCommunCards),0,rarityEmojis[1],"Vous octroie un booster de puces rare")
-others = [tripleCommunCards,singleRareCards,dailyCardBooster1,dailyCardBooster2,elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimique,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint,autoStuff]
+others = [tripleCommunCards,singleRareCards,dailyCardBooster1,dailyCardBooster2,elementalCristal,customColor,changeAspi,changeAppa,changeName,restat,blablator,dimentioCristal,mimikator,ilianaGrelot,grandNouveau,aliceBatEarRing,birdup,Megalovania,amary,autoPoint,autoStuff]
 
 previewDict = {
 	ilianaGrelot.id:'https://cdn.discordapp.com/emojis/930806243461857301.png',
@@ -83,7 +83,7 @@ def findOther(otherId : Union[str,other]) -> Union[other,None]:
 
 listAllyEnemies = ["Lia","Liz","Liu","Lio"]
 for tmpName in listAllyEnemies: 
-	try: findAllie(tmpName).says = findEnnemi(tmpName).says
+	try: findAlly(tmpName).says = findEnnemi(tmpName).says
 	except: pass
 
 listAllBuyableShop, cmpt, idList = [], 0, []
@@ -110,7 +110,7 @@ for a in weapons+skills+stuffs:
 						skillEffect = findEffect(skillEffect.callOnTrigger)
 
 		for effectSeen in tablSkillsEff:
-			if (effectSeen.replace or effectSeen.reject != None) and not(effectSeen.id in idList):
+			if (effectSeen.replacable or effectSeen.reject != None) and not(effectSeen.id in idList):
 				effects.append(effectSeen)
 				idList.append(effectSeen.id)
 				cmpt += 1
@@ -232,8 +232,8 @@ if not(isLenapy) and 0:
 	for a in allstats:
 		total += a
 
-	for a in range(0,len(nameAllStats)):
-		temp += "{0} : {1}% ({2})\n".format(nameAllStats[a],round(allstats[a]/total*100,2),allstats[a])
+	for a in range(0,len(allStatNames)):
+		temp += "{0} : {1}% ({2})\n".format(allStatNames[a],round(allstats[a]/total*100,2),allstats[a])
 	#print(temp)
 
 	lvlTabl = [{"level":0,"nombre":0}]
@@ -380,7 +380,7 @@ for cmpt in range(ASPI_NEUTRAL):
 		dictPreDefSkillSet[cmpt] = []
 
 varAllies = [
-	findAllie("Shihu"),findAllie("Belle"),findAllie("Klironovia"),findAllie("Altikia"),findAllie("Luna"),findAllie("Chûri-Hinoro")
+	findAlly("Shihu"),findAlly("Belle"),findAlly("Klironovia"),findAlly("Altikia"),findAlly("Luna"),findAlly("Chûri-Hinoro")
 ]
 
 for ally in tablAllAllies+varAllies:
@@ -565,7 +565,7 @@ def getAllieFromEnemy(enemy:octarien,lvl:int,gearEmotes:List[str]=[None,None,Non
 
 	return toReturn
 
-findAllie("Shehisa").counterEmoji, findAllie("Luna").counterEmoji, findAllie("Klironovia").counterEmoji, findAllie("Félicité").counterEmoji, findAllie("Alice").counterEmoji = "<:chiphidenBlade:1223632204421140610>", fracas.emoji, fracas.emoji, uppercut.emoji, "<:aliceCounter:1190621769581727755>"
+findAlly("Shehisa").counterEmoji, findAlly("Luna").counterEmoji, findAlly("Klironovia").counterEmoji, findAlly("Félicité").counterEmoji, findAlly("Alice").counterEmoji = "<:chiphidenBlade:1223632204421140610>", fracas.emoji, fracas.emoji, uppercut.emoji, "<:aliceCounter:1190621769581727755>"
 findEnnemi("Lia").counterEmoji, findEnnemi("Liu").counterEmoji = "<:liaCounter:998001563379437568>", "<:liuSkill:922328931502280774>"
 
 importantSkills.append(lenaExSkill5)

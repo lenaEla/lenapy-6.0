@@ -3522,7 +3522,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 				self.recalculate()
 				nonlocal logs
 
-				if self.skills.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_INDIRECT_DAMAGE,TYPE_MALUS] and self.skills.effects != [None]:
+				if self.skills.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL, TYPE_INDIRECT_DAMAGE,TYPE_MALUS] and self.skills.effects != [None]:
 					ballerine = groupAddEffect(caster=self, target=self, area=self.skills.area, effect=self.skills.effects, skillIcon=self.skills.emoji, actionStats=self.skills.useActionStat, effPurcent = self.skills.effPowerPurcent)
 					toReturn += ballerine
 					logs += ballerine
@@ -3795,7 +3795,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 					
 							for cmpt in range(CRITICAL+1):
 								if tablTemp[cmpt] != 0:
-									logs += " {0} : {1} [BaseValue : {2}] ;".format(nameAllStats[cmpt],round(tablTemp[cmpt],2),baseStats[cmpt])
+									logs += " {0} : {1} [BaseValue : {2}] ;".format(allStatNames[cmpt],round(tablTemp[cmpt],2),baseStats[cmpt])
 						logs += "]\n"
 				except:
 					print_exc()
@@ -3922,22 +3922,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 			def triggerDeath(self,killer=None) -> str:
 				"""Déclanche l'effet"""
 				toReturn = ""
-				if self.type==TYPE_INDIRECT_REZ:
-					self.on.status = STATUS_RESURECTED
-					self.caster.stats.allieResurected += 1
-
-					if self.effects.stat == None:
-						heal = self.effects.power
-
-					elif self.effects.stat == PURCENTAGE:
-						heal = round(self.on.maxHp * self.effects.power /100)
-
-					self.on.hp = heal
-					self.caster.stats.heals += heal
-					toReturn += f"{self.on.char.name} ({self.on.icon}) est réanimé{self.on.accord()} !\n{self.caster.icon} {self.icon}→ {self.on.icon} +{heal} PV\n"
-					self.decate(value=1)
-
-				elif self.type == TYPE_INDIRECT_DAMAGE and self.value> 0:
+				if self.type == TYPE_INDIRECT_DAMAGE and self.value> 0:
 					toReturn = self.triggeredIndDamage(self.on)
 
 				elif self.type == TYPE_UNIQUE:
@@ -4696,8 +4681,8 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 				elif effect.id == charming.id and caster.isNpc("Lia Ex", "Liz Ex", "Lio Ex"): effect = kitsuneExCharmEff
 				elif effect.id == charmingHalf.id and caster.isNpc("Lia Ex", "Liz Ex", "Lio Ex"): effect = charming
 				# Does the effect can be applied ?
-				if not(effect.stackable) or effect.reject != None or effect.replace:
-					if effect.replace:
+				if not(effect.stackable) or effect.reject != None or effect.replacable:
+					if effect.replacable:
 						initEff = findEffect(effect)
 						if initEff == None: print("Could not find the {0} effect !".format(effect.name))
 						else:
@@ -5339,7 +5324,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
 					for key, value in alea.variantTabl.items():
 						randVal = random.randint(0,99)
-						if randVal < value: alea = copy.deepcopy(findAllie(key)); break
+						if randVal < value: alea = copy.deepcopy(findAlly(key)); break
 						else: randVal - value
 					
 					alea.changeLevel(lvlMax,stars=starLevel)
@@ -5663,7 +5648,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 										try:
 											charDescList = []
 											if ent.isNpc("Gwendoline") and ent.char.weapon.id == gwenyWeap.id:
-												tempKlikli, tempAlty = findAllie("Klironovia"), findAllie("Altikia")
+												tempKlikli, tempAlty = findAlly("Klironovia"), findAlly("Altikia")
 												charList = [ent.char,getAllieFromBuild(tempKlikli,tempKlikli.changeDict[-1]),getAllieFromBuild(tempAlty,tempAlty.changeDict[-1])]
 												for gwenPersonality in charList:
 													charDescList.append(gwenPersonality.getSkillsDescription())
@@ -5912,7 +5897,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
 		for cmpt, tablEff in enumerate([contexte.giveEffToTeam1, contexte.giveEffToTeam2]):
 			if len(tablEff) > 0:
-				lenPy = entity(0, copy.deepcopy(findAllie("Lena")),cmpt,False,True)
+				lenPy = entity(0, copy.deepcopy(findAlly("Lena")),cmpt,False,True)
 				groupAddEffect(lenPy, tablEntTeam[cmpt][0], tablEntTeam[cmpt], tablEff)
 
 		if tablEntTeam[1][0].isNpc("The Giant Enemy Spider"):		   # Giant Enemy Spider's legs summoning
@@ -5943,7 +5928,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 			for ent in tablEntTeam[team]:
 				for skilly in ent.skills + ent.effects:
 					if type(skilly)==skill:
-						if skilly.type in [TYPE_INDIRECT_REZ,TYPE_RESURECTION] or (skilly.effectAroundCaster != None and skilly.effectAroundCaster[0] == TYPE_RESURECTION):
+						if skilly.type in [TYPE_RESURECTION] or (skilly.effectAroundCaster != None and skilly.effectAroundCaster[0] == TYPE_RESURECTION):
 							for ent2 in tablEntTeam[team]:
 								ent2.ressurectable = True
 							break
@@ -6028,7 +6013,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 									b.stats.selfBurn += lose
 									if b.hp <= 0: funnyTempVarName += b.death(killer=b,trueDeath=True)
 									for skil in range(len(b.skills)):
-										if type(b.skills[skil]) == skill and b.skills[skil].type in [TYPE_RESURECTION,TYPE_INDIRECT_REZ]: b.cooldowns[skil] = 99
+										if type(b.skills[skil]) == skill and b.skills[skil].type in [TYPE_RESURECTION]: b.cooldowns[skil] = 99
 
 						if not(auto):
 							if len(funnyTempVarName) > 4096:
@@ -6213,7 +6198,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 						elif a == 9:
 							temp += f"\n__Taux de coup critique__ : {min(temp2[a],80)}%"
 						else:
-							temp += f"\n__{nameAllStats[a]}__ : {temp2[a]}"
+							temp += f"\n__{allStatNames[a]}__ : {temp2[a]}"
 
 					level = str(actTurn.char.level) + ["","<:littleStar:925860806602682369>{0}".format(actTurn.char.stars)][actTurn.char.stars>0]
 					embInfo.add_field(name = f"__{actTurn.icon} {unhyperlink(actTurn.char.name)}__ (Niveau {level})",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
@@ -6588,7 +6573,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 												haveOption = True
 
 										elif type(react) == skill:
-											skillToUse,targetAtRangeSkill,a, funnyTempVarName, funnyTempVarNameButTheSecond = react,[],-1, [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
+											skillToUse,targetAtRangeSkill,a, funnyTempVarName, funnyTempVarNameButTheSecond = react,[],-1, [TYPE_ARMOR,TYPE_BOOST,TYPE_INDIRECT_HEAL,TYPE_RESURECTION,TYPE_HEAL],[TYPE_INDIRECT_DAMAGE,TYPE_MALUS,TYPE_DAMAGE]
 
 											if skillToUse.type == TYPE_UNIQUE:
 												targetAtRangeSkill = actTurn.cell.getEntityOnArea(area=skillToUse.area,team=actTurn.team,wanted=ALL,fromCell=actTurn.cell)
@@ -7941,7 +7926,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 												celly.on.endOfTurn()
 
 								elif skillToUse.id == gwenyExChangeSkill.id:
-									ally: classes.tmpAllie = findAllie(skillToUse.name.split(" - ")[-1])
+									ally: classes.tmpAllie = findAlly(skillToUse.name.split(" - ")[-1])
 									ally = getAllieFromBuild(ally,ally.changeDict[-1])
 									ally.changeLevel(level=actTurn.char.level, changeDict=False, stars=actTurn.char.stars)
 
@@ -8025,7 +8010,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 												skillToUse.useActionStat = cmpt
 										actTurn.stats.nbLB += 1
 
-									if skillToUse.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL,TYPE_INDIRECT_REZ] and skillToUse.effects != [None]:
+									if skillToUse.type in [TYPE_BOOST,TYPE_ARMOR,TYPE_INDIRECT_HEAL] and skillToUse.effects != [None]:
 										if skillToUse.id == bolide.id:
 											tempTurnMsg += "{0} {1} → {0} -{2} PV\n".format(actTurn.icon,skillToUse.emoji,actTurn.hp -1)
 											actTurn.stats.selfBurn += actTurn.hp -1
@@ -8276,12 +8261,12 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 												if ent.hp < 0 and type(ent.char) not in [invoc,depl] :
 													tempTurnMsg += actTurn.summonMemoria(ent)
 												elif ent.isNpc("Anna"):
-													belle = copy.deepcopy(findAllie("Belle"))
+													belle = copy.deepcopy(findAlly("Belle"))
 													belle.changeLevel(ent.char.level,False,ent.char.stars)
 													belle = entity(ent.id, belle, ent.team, False, auto=True)
 													tempTurnMsg += actTurn.summonMemoria(belle)
 												elif ent.isNpc("Iliana"):
-													belle = copy.deepcopy(findAllie("Aurora"))
+													belle = copy.deepcopy(findAlly("Aurora"))
 													belle.changeLevel(ent.char.level,False,ent.char.stars)
 													belle = entity(ent.id, belle, ent.team, False, auto=True)
 													tempTurnMsg += actTurn.summonMemoria(belle)
@@ -8901,7 +8886,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 									for eff in actTurn.effects:
 										if eff.effects.id == tablElemEff[ELEMENT_EARTH].id:
 											eff.replaceEffect(tablElemEff[ELEMENT_FIRE])
-									ally = copy.deepcopy(findAllie("Chûri-Hinoro"))
+									ally = copy.deepcopy(findAlly("Chûri-Hinoro"))
 									ally.changeLevel(level=team1[0].level,stars=team1[0].stars)
 									await actTurn.changeNpc(ally)
 									tempTurnMsg += "{0}\n{1} __{2}__ prend sa forme de Demi-Phenix !\n".format(["\n",""][tempTurnMsg[-1] == "\n"], actTurn.icon, actTurn.name)
@@ -9274,7 +9259,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 									elif statId == PERCING: tempEmbInfoCharStatsTxt += f"\n__Pénétration__ : {tempEmbInfoChar.rawPercing} ({tempEmbInfoCharStats[statId]}%)"
 									elif statId == CRITICAL: tempEmbInfoCharStatsTxt += f"\n__Taux de coup critique__ : {min(tempEmbInfoCharStats[statId],80)}%"
 									else:
-										tempEmbInfoCharStatsTxt += f"\n{statEmojis[statId]} __{nameAllStats[statId]}__ : **{tempEmbInfoCharStats[statId]}**"
+										tempEmbInfoCharStatsTxt += f"\n{statEmojis[statId]} __{allStatNames[statId]}__ : **{tempEmbInfoCharStats[statId]}**"
 										if tempEmbInfoChar.baseStats[statId] != tempEmbInfoCharStats[statId]: 
 											statDif = tempEmbInfoCharStats[statId]-tempEmbInfoChar.baseStats[statId]
 											tempEmbInfoCharStatsTxt += " `({2} {0} {1})`".format(["-","+"][statDif>0],abs(statDif),tempEmbInfoChar.baseStats[statId])
