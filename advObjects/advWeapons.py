@@ -207,8 +207,12 @@ ailillPassiveEff = effect("Acharnement","aillilPassiv",power=15,emoji=deepWound.
 chainsaw = weapon("Tronçonneuse",getAutoId(enchantedShotgun),RANGE_MELEE,AREA_CIRCLE_1,80,75,1,strength=15,precision=10,endurance=5,effects=ailillPassiveEff,emoji='<:chainsaw:1189299410794979479>')
 bigHammer = weapon("Masse d'Arme",getAutoId(chainsaw),range=RANGE_MELEE, effectiveRange=AREA_CIRCLE_1,power=80, accuracy=80, price=1, endurance=20, strength=20, resistance=10, damageOnArmor=1.25, emoji='<:mace:1261602201822957589>')
 
+TENACITY_CAP = 20
+tenacityEff = effect("Ténécité", "tenacityEff", turnInit=-1, unclearable=True, emoji='<:saphirshield:1416831828308004995>', power=15, description="Réduit vos dégâts subis et augmente vos soins reçus. Plus vos PVs sont bas, plus cet effet est puissant, puisqu'à **15%** lorsque vos PVs sont égaux ou en dessous de {}% de vos PV Max".format(TENACITY_CAP))
+saphirShield = weapon("Bouclier de Saphir", getAutoId(bigHammer), emoji='<:saphirshield:1416831828308004995>', range=RANGE_MELEE, effectiveRange=AREA_CIRCLE_1, power=1, accuracy=100, price=1, effects=tenacityEff, endurance=20, resistance=10, use=ENDURANCE)
+
 # Weapon
-weapons = [bigHammer,chainsaw,shotgun,enchantedShotgun,toxicBrush,elinaWeap,heleneBrush,icealiaShield,eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
+weapons = [saphirShield, bigHammer,chainsaw,shotgun,enchantedShotgun,toxicBrush,elinaWeap,heleneBrush,icealiaShield,eclatana,eclatanaDoto,dvinWand,dvinSeptre,gWeap,aWeap,kWeap,triStringer,dSixtineWeap,phenixLeath,liaKatana,epiphyllum,sacredSword,
     iliSwoShield,flumShield,flumWand,dflumShield,dflumWand,constShield,aliceFan,
     fireMetRuneLong,fireMetRuneMel,waterMetRuneLong,waterMetRuneMel,airMetRuneMid,airMetRuneMel,earthMetRuneMid,earthMetRuneMel,lightMetRuneMid,lightMetRuneLong,darkMetRuneMid,darkMetRuneLong,spaceMetRuneMid,spaceMetRuneLong,timeMetRuneLong,timeMetRuneMid,
     magicWood,magicMass,magicSwordnShield,keyblade,fleau,micPurple,micRed,explosher,explosher2,trislosher,miltrilPlanisphere,

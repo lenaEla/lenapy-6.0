@@ -391,7 +391,7 @@ shieldBubble = copy.deepcopy(bigBubbler)
 shieldBubble.use = shieldBubble.depl.skills.use = shieldBubble.depl.skills.effects[0].stat = ENDURANCE
 shieldBubble.depl.skills.effects[0].overhealth = int(shieldBubble.depl.skills.effects[0].overhealth*0.5)
 shieldBubble.name = shieldBubble.name + " (Endurance)"
-shieldBubble.depl.description = shieldBubble.depl.description.replace("{0} __{1}__".format(statEmojis[sonarPaf.use],allStatNames[sonarPaf.use]), "{0} __{1}__".format(statEmojis[shieldBubble.depl.skills.use],allStatNames[shieldBubble.depl.skills.use]))
+shieldBubble.depl.description = shieldBubble.depl.description.replace("{0} __{1}__".format(statEmojis[sonarPaf.use],allStatsNames[sonarPaf.use]), "{0} __{1}__".format(statEmojis[shieldBubble.depl.skills.use],allStatsNames[shieldBubble.depl.skills.use]))
 
 # BigShot
 bigShotWeapon = weapon("Canon à gros boulets","noneweap",RANGE_LONG,AREA_BOMB_6,ignoreAutoVerif=True,power=0,accuracy=0)

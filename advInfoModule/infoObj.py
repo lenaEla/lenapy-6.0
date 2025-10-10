@@ -68,8 +68,10 @@ def infoEff2(eff: Union[str, effect], txt: str = "{}", powerPurcent=100, compLis
 
 		if addTxt != "": effTmp += "\n"+addTxt
 		if eff.description != "Pas de description":
-			if eff.stat not in [FIXE,None,PURCENTAGE]: statEm = " ({})".format(statEmojis[eff.stat])
-			else: statEm = ""
+			try:
+				if eff.stat not in [FIXE,None,PURCENTAGE]: statEm = " ({})".format(statEmojis[eff.stat])
+				else: statEm = ""
+			except: statEm = ""
 			effTmp += "\n\n{1}__Description :__\n{0}\n".format(eff.description.format(str([round(eff.power*(powerPurcent/100),1),eff.power][type(eff.power)==int])+statEm, str(int(eff.power*powerPurcent/100)//2)+statEm),["","\n"][effTmp[-1] == "\n"])
 		for a in range(len(stats)):
 			if stats[a] > 0: bonusStr += "{2} __{0}__ : +{1}\n".format(names[a],int(stats[a]*powerPurcent/100),[statEmojis[a],""][a>CRITICAL])
@@ -478,6 +480,7 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 						infoEff2(eff=eff, txt=tmpTxt, powerPurcent=tmpSkill.effPowerPurcent, compList = None)
 					]
 				)
+
 		if tmpSkill.effectOnSelf != None:
 			eff = findEffect(tmpSkill.effectOnSelf)
 			if eff != None and not(eff.silent):
@@ -514,8 +517,21 @@ def infoSkill2(itm: Union[str, skill], subTabl = []):
 							infoEff2(eff=eff, txt=tmpTxt2, powerPurcent=tmpSkill.selfEffPurcent, compList = None, rangeInt=tmpSkill.effectAroundCaster[1])
 						]
 					)
+			else:
+				aroundCast = str(tmpSkill.effectAroundCaster[0])
+				if tmpSkill.effectAroundCaster[0] == TYPE_DAMAGE:
+					aroundCast = "**Inflige des dégâts aux ennemis autour du lanceur :**\n"
+				elif tmpSkill.effectAroundCaster[0] == TYPE_HEAL:
+					aroundCast = "**Soigne les alliés autour du lanceur :**\n"
+				elif tmpSkill.effectAroundCaster[0] == TYPE_RESURECTION:
+					aroundCast = "**Réanime les alliés autour du lanceur :**\n"
 
-		# Combo
+				aroundCast += "> __Puissance :__ {} {}\n> __Zone d'effet :__ {} {}".format(tmpSkill.effectAroundCaster[2], statEmojis[tmpSkill.use], areaEmojis[tmpSkill.effectAroundCaster[1]], areaNames[tmpSkill.effectAroundCaster[1]])
+				testCompListFull += [
+					SeparatorComponent(),
+					TextDisplayComponent(aroundCast)
+				]
+	# Combo
 	if itm.become != None:
 		comboDict = {}
 		for tmpSkill in itm.become:
@@ -666,7 +682,7 @@ def infoWeapon2(itm: Union[str, weapon]) -> list:
 
 	stats = ""
 	for indx, stat in enumerate(itm.allStats()):
-		if stat != 0: stats += "{} {} +{}\n".format(statEmojis[indx], allStatNames[  indx], stat)
+		if stat != 0: stats += "{} {} +{}\n".format(statEmojis[indx], allStatsNames[  indx], stat)
 
 	toReturnCompList = [
 		SectionComponent(components=[TextDisplayComponent(mainTitle), TextDisplayComponent(mainDesc)], accessory=ThumbnailComponent(media=UnfurledMediaItem(url="https://cdn.discordapp.com/emojis/{}.webp".format(PartialEmoji.from_str(itm.emoji).id)))),
@@ -695,7 +711,7 @@ def infoStuff2(itm = Union[str, stuff], user: char = None) -> list:
 		equippedStats = equippedItm.getAllStats()
 
 		for indx, tmpStat in enumerate(itm.getAllStats()):
-			tmp = "{0} *{1}* {2}{3}".format(statEmojis[indx], allStatNames[indx], ["", "+"][tmpStat >= 0], tmpStat)
+			tmp = "{0} *{1}* {2}{3}".format(statEmojis[indx], allStatsNames[indx], ["", "+"][tmpStat >= 0], tmpStat)
 
 			statDif = tmpStat - equippedStats[indx]
 
@@ -721,8 +737,8 @@ def infoStuff2(itm = Union[str, stuff], user: char = None) -> list:
 	else:
 		statStrPlus, statStrMinus = "", ""
 		for indx, tmpStat in enumerate(itm.getAllStats()):
-			if tmpStat > 0: statStrPlus += "- {} *{}* **+{}**\n".format(statEmojis[indx], allStatNames[indx], tmpStat)
-			elif tmpStat < 0: statStrMinus += "-# - {} *{}* {}\n".format(statEmojis[indx], allStatNames[indx], tmpStat)
+			if tmpStat > 0: statStrPlus += "- {} *{}* **+{}**\n".format(statEmojis[indx], allStatsNames[indx], tmpStat)
+			elif tmpStat < 0: statStrMinus += "-# - {} *{}* {}\n".format(statEmojis[indx], allStatsNames[indx], tmpStat)
 
 		statComponent = TextDisplayComponent("**__Statistiques :__**\n"+statStrPlus +"\n"+statStrMinus)
 

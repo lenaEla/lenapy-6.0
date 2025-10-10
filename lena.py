@@ -1677,12 +1677,17 @@ async def chipInvCmd(ctx):
 	SlashCommandOption(name="item", type=3, required=False, description="Quel est le nom de votre object ?")
 ])
 async def invent3(ctx, destination=0, procuration=None, item=None):
-	await inventory_v3(slash, ctx, mockLenaUser, destination)
+	if item != None:
+		nameResult = await getInvLookFor(slash, item, ctx, mockLenaUser)
+		if nameResult == 0:
+			return 0
+
+	#await inventory_v3(slash, ctx, mockLenaUser, destination)
 
 # -------------------------------------------- POINTS --------------------------------------------
 choicesTabl = []
 for cmpt in range(MAGIE+1):
-	choicesTabl.append(SlashCommandChoice(name=allStatNames[cmpt],value=cmpt))
+	choicesTabl.append(SlashCommandChoice(name=allStatsNames[cmpt],value=cmpt))
 
 @slash_command(name="points", description="Vous permet de répartir vos points bonus", options=[
 	SlashCommandOption(name="procuration", description="De qui voulez vous consulter les points bonus ?", type=6, required=False),
@@ -2005,11 +2010,11 @@ async def statsCmd(ctx, joueur=None):
 		allStatsUser = user.allStats()+[user.resistance,user.percing,user.critical,user.majorPoints[ACT_BOOST_FULL],user.majorPoints[ACT_HEAL_FULL],user.majorPoints[ACT_SHIELD_FULL],user.majorPoints[ACT_DIRECT_FULL],user.majorPoints[ACT_INDIRECT_FULL]]
 		for cmpt in range(0,MAGIE+1):
 			userStats = int((allStatsUser[cmpt]+sumStatsBonus[cmpt]) * (1+user.limitBreaks[cmpt]/100))
-			value += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatNames[cmpt],userStats)
+			value += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatsNames[cmpt],userStats)
 		rep.add_field(name="<:em:866459463568850954>\n__Stats. principaux :__",value=value, inline=False)
 		value = ""
 		for cmpt in range(RESISTANCE,CRITICAL+1):
-			value += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
+			value += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
 			if cmpt == RESISTANCE:
 				value += "\n> Réduction de dégâts : {0}%".format(round(getResistance(allStatsUser[RESISTANCE]+sumStatsBonus[RESISTANCE])))
 			elif cmpt == PERCING: 
@@ -2018,7 +2023,7 @@ async def statsCmd(ctx, joueur=None):
 		rep.add_field(name="<:em:866459463568850954>\n__Stats. secondaires :__",value=value, inline=True)
 		value = ""
 		for cmpt in range(ACT_HEAL_FULL,ACT_INDIRECT_FULL+1):
-			value += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
+			value += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatsNames[cmpt],allStatsUser[cmpt]+sumStatsBonus[cmpt])
 		rep.add_field(name="<:em:866459463568850954>\n__Stats. d'actions :__",value=value, inline=True)
 		tempStuff, tempSkill = "", ""
 		

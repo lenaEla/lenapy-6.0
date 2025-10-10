@@ -1176,7 +1176,12 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 
 										for tmpEff in entityInArea.effects:
 											incDmg = 0
-											if tmpEff.effects.id in [vulne.id,defenseUp.id,iliStans1_1.id] or tmpEff.effects.id in [krysWaterWeakness.id] and (type(skillUsed) == classes.skill and skillUsed.condition==[EXCLUSIVE,ELEMENT,ELEMENT_WATER]): incDmg = damage * tmpEff.effects.power/100 * [-1, 1][tmpEff.effects.type in hostileTypes]
+											if (tmpEff.effects.id in [vulne.id, defenseUp.id, iliStans1_1.id]) or  (tmpEff.effects.id in [krysWaterWeakness.id] and (type(skillUsed) == classes.skill and skillUsed.condition==[EXCLUSIVE,ELEMENT,ELEMENT_WATER])):
+												tmpBoost = tmpEff.effects.power
+												if tmpEff.effects.id == tenacityEff.id:
+													tmpBoost = clamp(0, tmpEff.effects.power*(missingHp/(entityInArea.maxHp*((100-TENACITY_CAP)/100))), tmpEff.effects.power)
+													print(tmpEff.name, "missing hp %", missingHp/entityInArea.maxHp*100, "tmpVal", tmpBoost)
+												incDmg = damage * tmpBoost/100 * [-1, 1][tmpEff.effects.type in hostileTypes]
 											elif tmpEff.effects.id in [reaperEff.id,deathMark.id] and tmpEff.caster.id == self.id: incDmg = damage * REAPEREFFDMGBUFF/100
 											elif tmpEff.effects.id in [charming.id,kitsuneExCharmEff.id,charmingHalf.id] and self.char.npcTeam == NPC_KITSUNE: incDmg = damage * {charming.id:KITCHARMVULNE, kitsuneExCharmEff.id:KITCHARM2VULNE,charmingHalf.id:KITCHARMVULNE//2}[tmpEff.effects.id] / 100
 											elif tmpEff.trigger == TRIGGER_DAMAGE and not(tmpEff.effects.overhealth > 0 or tmpEff.effects.redirection > 0):
@@ -2566,8 +2571,12 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 							elif eff.effects.type == TYPE_INDIRECT_DAMAGE:
 								if eff.caster.char.aspiration == ATTENTIF: attIncurPower += eff.effects.power
 								if eff.caster.char.secElement == ELEMENT_FIRE: fireIncur += FIREINCURVALUE
-							elif eff.effects.id in [absEff.id,holmgangEff.id]:
+							
+							elif eff.effects.id in [absEff.id, holmgangEff.id, tenacityEff.id]:
 								healBonus += eff.effects.power/100
+								if eff.effects.id in tenacityEff.id:
+									healBonus += clamp(0, eff.effects.power*(missingHp/(target.maxHp*((100-TENACITY_CAP)/100))), eff.effects.power)
+									print(eff.name, "missing hp %", missingHp/target.maxHp*100, "tmpVal", tmpVal)
 								finded = False
 								for key in healBuffer:
 									if key == eff.caster:
@@ -2577,6 +2586,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 								if not(finded):
 									healBuffer[eff.caster] = [eff.effects.power,0]
 								healBuffer["total"] += eff.effects.power
+							
 							elif eff.effects.id == bloodButterfly.id: bloodButterflyFlag = eff
 							elif eff.effects.id == deepWound.id: deepWoundList.append(eff)
 						for eff in self.effects:
@@ -3795,7 +3805,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 					
 							for cmpt in range(CRITICAL+1):
 								if tablTemp[cmpt] != 0:
-									logs += " {0} : {1} [BaseValue : {2}] ;".format(allStatNames[cmpt],round(tablTemp[cmpt],2),baseStats[cmpt])
+									logs += " {0} : {1} [BaseValue : {2}] ;".format(allStatsNames[cmpt],round(tablTemp[cmpt],2),baseStats[cmpt])
 						logs += "]\n"
 				except:
 					print_exc()
@@ -6198,7 +6208,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 						elif a == 9:
 							temp += f"\n__Taux de coup critique__ : {min(temp2[a],80)}%"
 						else:
-							temp += f"\n__{allStatNames[a]}__ : {temp2[a]}"
+							temp += f"\n__{allStatsNames[a]}__ : {temp2[a]}"
 
 					level = str(actTurn.char.level) + ["","<:littleStar:925860806602682369>{0}".format(actTurn.char.stars)][actTurn.char.stars>0]
 					embInfo.add_field(name = f"__{actTurn.icon} {unhyperlink(actTurn.char.name)}__ (Niveau {level})",value=f"PV : {max(0,actTurn.hp)} / {actTurn.maxHp}",inline = False)
@@ -9259,7 +9269,7 @@ async def fight(bot : interactions.Client , team1 : list, team2 : list, ctx : in
 									elif statId == PERCING: tempEmbInfoCharStatsTxt += f"\n__Pénétration__ : {tempEmbInfoChar.rawPercing} ({tempEmbInfoCharStats[statId]}%)"
 									elif statId == CRITICAL: tempEmbInfoCharStatsTxt += f"\n__Taux de coup critique__ : {min(tempEmbInfoCharStats[statId],80)}%"
 									else:
-										tempEmbInfoCharStatsTxt += f"\n{statEmojis[statId]} __{allStatNames[statId]}__ : **{tempEmbInfoCharStats[statId]}**"
+										tempEmbInfoCharStatsTxt += f"\n{statEmojis[statId]} __{allStatsNames[statId]}__ : **{tempEmbInfoCharStats[statId]}**"
 										if tempEmbInfoChar.baseStats[statId] != tempEmbInfoCharStats[statId]: 
 											statDif = tempEmbInfoCharStats[statId]-tempEmbInfoChar.baseStats[statId]
 											tempEmbInfoCharStatsTxt += " `({2} {0} {1})`".format(["-","+"][statDif>0],abs(statDif),tempEmbInfoChar.baseStats[statId])

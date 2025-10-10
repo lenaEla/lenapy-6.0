@@ -232,8 +232,8 @@ if not(isLenapy) and 0:
 	for a in allstats:
 		total += a
 
-	for a in range(0,len(allStatNames)):
-		temp += "{0} : {1}% ({2})\n".format(allStatNames[a],round(allstats[a]/total*100,2),allstats[a])
+	for a in range(0,len(allStatsNames)):
+		temp += "{0} : {1}% ({2})\n".format(allStatsNames[a],round(allstats[a]/total*100,2),allstats[a])
 	#print(temp)
 
 	lvlTabl = [{"level":0,"nombre":0}]

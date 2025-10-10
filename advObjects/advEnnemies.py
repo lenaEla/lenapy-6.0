@@ -166,7 +166,7 @@ def simulEnnemisStats(name:str,lvl=MAXLEVEL):
 		toPrint = "{0} (lvl {1}) :".format(name,ent.level)
 		for statName, statValue in baseStats.items():
 			if statName <= CRITICAL:
-				toPrint += "\n{0} : {1}".format(allStatNames[statName],statValue)
+				toPrint += "\n{0} : {1}".format(allStatsNames[statName],statValue)
 
 		toPrint += "\nPVs estimés : {0}".format(round((90+ent.level*10)*((baseStats[ENDURANCE])/100+1)))
 

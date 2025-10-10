@@ -75,7 +75,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
 
 			selectCatOptions = []
 			for cmpt in range(ACT_INDIRECT_FULL+1):
-				selectCatOptions.append(interactions.StringSelectOption(label=allStatNames[cmpt] + " (Majeur)",value=str(cmpt),emoji=getEmojiObject(statEmojis[cmpt])))
+				selectCatOptions.append(interactions.StringSelectOption(label=allStatsNames[cmpt] + " (Majeur)",value=str(cmpt),emoji=getEmojiObject(statEmojis[cmpt])))
 
 			select2 = interactions.StringSelectMenu(selectCatOptions,custom_id = "selectACatMaj",
 				placeholder=["Utiliser vos points majeurs","Vous n'avez pas de points majeurs à répartir"][user.majorPointsCount == 0],
@@ -143,7 +143,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
 				user.bonusPoints[stat] += points
 				saveCharFile(pathUserProfile,user)
 
-				toRespondEmb = interactions.Embed(title = f"__stats__ : {nameStats[stat]}", color = user.color, description = "Vos points ont bien été attribué !\n\n{0} : {1} +{2} */{3}*".format(allStatNames[stat],userStats[stat]-user.bonusPoints[stat],user.bonusPoints[stat],MAXBONUSPERSTAT))
+				toRespondEmb = interactions.Embed(title = f"__stats__ : {nameStats[stat]}", color = user.color, description = "Vos points ont bien été attribué !\n\n{0} : {1} +{2} */{3}*".format(allStatsNames[stat],userStats[stat]-user.bonusPoints[stat],user.bonusPoints[stat],MAXBONUSPERSTAT))
 				if not(ctx.responded):
 					await ctx.send(embeds = toRespondEmb)
 				else:
@@ -177,7 +177,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
 					return message.author.id == ctx.author.id
 
 				conf = interactions.Button(style=ButtonStyle.SUCCESS,label="Utiliser votre point majeur",emoji=PartialEmoji(name='✅'),custom_id='✅')
-				tmpEmb = interactions.Embed(title="__/points__ : {0}".format(allStatNames[stat]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format(allStatNames[stat],[10,MAJORBONUS][stat not in [RESISTANCE,PERCING,CRITICAL]]))
+				tmpEmb = interactions.Embed(title="__/points__ : {0}".format(allStatsNames[stat]),color=user.color,description="Voulez vous attribuer un point majeur en {0} pour obtenir __{1}__ points de statistiques ?".format(allStatsNames[stat],[10,MAJORBONUS][stat not in [RESISTANCE,PERCING,CRITICAL]]))
 				
 				if babie == None:
 					babie = await ballerine.send(embeds=tmpEmb,components=[interactions.ActionRow(conf)])
@@ -195,7 +195,7 @@ async def pointsCmd(bot: interactions.Client, ctx: interactions.SlashContext, pr
 					user.majorPointsCount -= 1
 					saveCharFile(user=user)
 
-					toRespondEmb = interactions.Embed(title = f"__stats__ : {allStatNames[stat]}", color = user.color, description = "Vos points ont bien été attribué !\n\n{0} : {1} +**{2}**/{3}".format(allStatNames[stat],0,user.majorPoints[stat],[10,MAJORBONUS][stat not in [RESISTANCE,PERCING,CRITICAL]]))
+					toRespondEmb = interactions.Embed(title = f"__stats__ : {allStatsNames[stat]}", color = user.color, description = "Vos points ont bien été attribué !\n\n{0} : {1} +**{2}**/{3}".format(allStatsNames[stat],0,user.majorPoints[stat],[10,MAJORBONUS][stat not in [RESISTANCE,PERCING,CRITICAL]]))
 					if not(ctx.responded):
 						await ctx.send(embeds = toRespondEmb)
 					else:

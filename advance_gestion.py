@@ -1191,11 +1191,11 @@ def infoInvoc(invoc: invoc, emb: interactions.Embed):
 	for a in range(0, len(stats)):
 		if type(stats[a]) == list:
 			if stats[a][0] in [PURCENTAGE,HARMONIE]:
-				rep += "\n__{0} {1} :__ {2}%".format(statEmojis[a],allStatNames[a],highlight(round(stats[a][1]*100)))
+				rep += "\n__{0} {1} :__ {2}%".format(statEmojis[a],allStatsNames[a],highlight(round(stats[a][1]*100)))
 				if stats[a][0] == HARMONIE:
 					rep += " (Harmonie)"
 		else:
-			rep += "\n__{0} {1} :__ {2}".format(statEmojis[a],allStatNames[a],highlight(stats[a]))
+			rep += "\n__{0} {1} :__ {2}".format(statEmojis[a],allStatsNames[a],highlight(stats[a]))
 
 	emb.add_field(name="<:em:866459463568850954>\n__Statistiques :__", value=reduceEmojiNames(rep), inline=False)
 	
@@ -1520,7 +1520,7 @@ async def getFullTeamEmbed(bot: interactions.Client, team: List[char], mainUser:
 			allStatsUser = ent.allStats()+[ent.resistance,ent.percing,ent.critical,ent.majorPoints[ACT_BOOST_FULL],ent.majorPoints[ACT_HEAL_FULL],ent.majorPoints[ACT_SHIELD_FULL],ent.majorPoints[ACT_DIRECT_FULL],ent.majorPoints[ACT_INDIRECT_FULL]]
 			for cmpt in range(0,MAGIE+1):
 				userStats = int((allStatsUser[cmpt]+sumStatsBonus[cmpt]) * (1+ent.limitBreaks[cmpt]/100))
-				entDesc += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatNames[cmpt],userStats)
+				entDesc += "\n{0} __{1}__ : {2}".format(statEmojis[cmpt],allStatsNames[cmpt],userStats)
 
 		entDesc = reduceEmojiNames(entDesc)
 		toReturn.add_field("{0} __{1} :__\n".format(await getUserIcon(bot,ent),ent.name),inline=True,value=entDesc)

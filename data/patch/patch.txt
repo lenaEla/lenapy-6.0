@@ -43,3 +43,4 @@ __Autre :__
 - L'objet "Couleur personnalisé" étant désormais obscelette, il ne peut plus apparaitre au shop, ni être utlisé depuis l'inventaire
 - Les descriptions de certaines compétences ont été réécrites
 - Le type de compétence "Résurection indirecte", utilisée par 0 compétence, a été supprimé
+- Les types de compétence suivantes ont désormais leur propre icone : Soins, Soins indirects, Résurection, Bonus, Malus

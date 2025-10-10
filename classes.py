@@ -92,7 +92,7 @@ class jaugeValue:
 		self.emoji = emoji
 		self.conds = conds
 
-defaultVarsEffInit: Dict[str, Union[None,int,str]] = {"strength":0, "endurance":0, "charisma":0, "agility":0, "precision":0, "intelligence":0, "magie":0, "resistance":0, "percing":0, "critical":0, "emoji":None, "overhealth":0, "redirection":0, "reject":None, "description":"Pas de description", "turnInit":1, "immunity":False, "trigger":TRIGGER_PASSIVE, "callOnTrigger":None, "silent":False, "power":0, "lvl":None, "type":TYPE_BOOST, "ignoreImmunity":False, "area":AREA_MONO, "unclearable":False, "stun":False, "stackable":False, "replique":None, "translucide":False, "untargetable":False, "invisible":False, "aggro":0, "absolutShield": False, "lightShield": False, "onDeclancher": False, "inkResistance":0, "dmgUp": 0, "critDmgUp": 0, "healUp": 0, "critHealUp": 0, "block":0, "jaugeValue":None, "denieWeap": False, "lifeSteal":0,"lifeStealOnOn": False,"counterOnDodge":0,"dodge": 0,"replace":False,"effPrio": 0,"counterOnBlock":0,"iaPow": 0,"armorDmgBonus": 0,"incHealJauge": True,"thornEff": False,"afterchocEff": False,"silentRemove": False,"knockback":0,"decateOnTurn":False,"decateEndOfTurn":False,"hide":False, "superBreak": False}
+defaultVarsEffInit: Dict[str, Union[None,int,str]] = {"strength":0, "endurance":0, "charisma":0, "agility":0, "precision":0, "intelligence":0, "magie":0, "resistance":0, "percing":0, "critical":0, "emoji":None, "overhealth":0, "redirection":0, "reject":None, "description":"Pas de description", "turnInit":1, "immunity":False, "trigger":TRIGGER_PASSIVE, "callOnTrigger":None, "silent":False, "power":0, "lvl":None, "type":TYPE_BOOST, "ignoreImmunity":False, "area":AREA_MONO, "unclearable":False, "stun":False, "stackable":False, "replique":None, "translucide":False, "untargetable":False, "invisible":False, "aggro":0, "absolutShield": False, "lightShield": False, "onDeclancher": False, "inkResistance":0, "dmgUp": 0, "critDmgUp": 0, "healUp": 0, "critHealUp": 0, "block":0, "jaugeValue":None, "denieWeap": False, "lifeSteal":0,"lifeStealOnOn": False,"counterOnDodge":0,"dodge": 0,"replace":False,"effPrio": 0,"counterOnBlock":0,"iaPow": 0,"armorDmgBonus": 0,"incHealJauge": True,"thornEff": False,"afterchocEff": False,"silentRemove": False,"knockback":0,"decateOnTurn":False,"decateEndOfTurn":False,"hide":False, "superBreak": False, "secEff": None, "triggerEff": None, "triggerSecEff": None, "triggerOnBreak": False}
 defaultKeysEff = list(defaultVarsEffInit.keys())
 
 EM_DEFAULT_EMOJI = ["<:immunity:1063118365738160209>", '<:inkResB:1143285391009529896>', '<:indVulnB:1143285431077707828>', statEmojis[PERCING], '<:i1b:866828199156252682>', "<:ink1debuff:866828217939263548>", "<:ikadamage1:895723391212978207>", "<:ikaheal1:895722730664632321>", "<:ikashield:895723993351458877>", "<:lenapy:892372680777539594>"]
@@ -151,7 +151,10 @@ class effect:
 		self.incHealJauge = defaultVars["incHealJauge"]
 		self.thornEff, self.afterchocEff, self.iaPow, self.emoji = defaultVars["thornEff"], defaultVars["afterchocEff"], defaultVars["iaPow"], defaultVars["emoji"]
 		self.decateOnTurn, self.decateEndOfTurn =  defaultVars["decateOnTurn"], defaultVars["decateEndOfTurn"]
-
+		self.secEff = defaultVars["secEff"]
+		self.triggerEff = defaultVars["triggerEff"]
+		self.triggerSecEff = defaultVars["triggerSecEff"]
+		self.triggerOnBreak = defaultVars["triggerOnBreak"]
 		self.lvl:int = defaultVars["lvl"]					  # How many times can the effects trigger ?
 		if self.lvl == None:
 			self.lvl = [[[self.turnInit,99][self.turnInit==-1],0][self.jaugeValue != None],1][self.trigger in [TRIGGER_ON_REMOVE,TRIGGER_HP_UNDER_70,TRIGGER_HP_UNDER_50,TRIGGER_HP_UNDER_25]]
@@ -1679,7 +1682,7 @@ class depl(defaultChar):
 		self.skills.accuracy = 350
 		self.icon = icon
 		self.cellIcon = cellIcon
-		self.description = description + "\n\nCe déployable utlise la statistique de {1} __{0}__ et a une durée de vie de __{2}__ tours".format(allStatNames[skills.use],statEmojis[skills.use],lifeTime)
+		self.description = description + "\n\nCe déployable utlise la statistique de {1} __{0}__ et a une durée de vie de __{2}__ tours".format(allStatsNames[skills.use],statEmojis[skills.use],lifeTime)
 		self.lifeTime = lifeTime
 		self.weapon = weapon("None weap","noneWeap",RANGE_DIST,AREA_CIRCLE_3,0,0)
 		self.says = says()

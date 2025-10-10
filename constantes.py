@@ -105,8 +105,9 @@ areaShortRange = [
 	AREA_DONUT_2,
 	AREA_ARC_1,
 	AREA_ARC_2,
-	AREA_INLINE_2,
+	AREA_INLINE_2
 ]
+
 areaMidRange = [
 	AREA_CIRCLE_3,
 	AREA_CIRCLE_4,
@@ -117,8 +118,8 @@ areaMidRange = [
 	AREA_ARC_3,
 	AREA_INLINE_3,
 	AREA_INLINE_4,
-	AREA_BIGDONUT,
-],
+	AREA_BIGDONUT
+]
 
 areaLongRange = [
 	AREA_CIRCLE_5,
@@ -229,7 +230,7 @@ TYPE_DEPL = 11
 allTypeNames = ["Armure", "Dégâts indirects", "Soins Indirects" ,"Boost", "Resurection", "Dégâts", "Malus", "Soins", "Unique", "Invocation", "Passif", "Déployable"]
 friendlyTypes, hostileTypes = [TYPE_ARMOR, TYPE_INDIRECT_HEAL, TYPE_HEAL, TYPE_BOOST, TYPE_RESURECTION], [TYPE_INDIRECT_DAMAGE, TYPE_DAMAGE, TYPE_MALUS]
 allTypes = range(0, TYPE_DEPL+1)
-typeEmojis = ["<:armor:1137364335581212682>", "<:indirect:1137364330237673542>", "<:healing:1137364338374623333>", "<:boost:1137364341591638126>", "<:renisurection:873723658315644938>", "<:direct:1137364333526007880>", "<:boost:1137364341591638126>", "<:healing:1137364338374623333>", "<:littleStar:925860806602682369>", "<:sprink1:887747751339757599>", "<:littleStar:925860806602682369>", "<:inkStorm:1014240016328835083>"]
+typeEmojis = ["<:armor:1137364335581212682>", "<:indirect:1137364330237673542>", "<:indheal:1409379254814113814>", "<:buff:1409379273042690131>", "<:raise:1409379312896839690>", "<:direct:1137364333526007880>", "<:debuff:1409379294370861066>", "<:directheal:1409379234115485876>", "<:littleStar:925860806602682369>", "<:sprink1:887747751339757599>", "<:littleStar:925860806602682369>", "<:inkStorm:1014240016328835083>"]
 
 EXCLUSIVE, BECOME = 0, 1
 WEAPON, ASPIRATION, ELEMENT = 0,1,2
@@ -264,8 +265,8 @@ ACT_INDIRECT = 4
 BONUSPOINTPERLEVEL, MAXBONUSPERSTAT, MAJORBONUS = 2, 85, 75
 
 nameStats, nameStats2 = ["Force", "Endurance", "Charisme", "Agilité","Précision", "Intelligence", "Magie"], ["Résistance", "Pénétration", "Critique"]
-allStatNames = nameStats+nameStats2+["Soins","Boosts","Armures","Dégâts Directs","Dégâts Indirects"]
-extraallStatNames = allStatNames + ["?"]*5 +["Pourcentage", "Fixe", "Harmonie", "PVs Manquants"]
+allStatsNames = nameStats+nameStats2+["Soins","Boosts","Armures","Dégâts Directs","Dégâts Indirects"]
+extraallStatNames = allStatsNames + ["?"]*5 +["Pourcentage", "Fixe", "Harmonie", "PVs Manquants"]
 statEmojis = ["<:strength:1137363979950375022>","<:stamina:1137363976934674462>","<:charisma:1137363972606152745>","<:agility:1137363969464619079>","<:precision:1137363966981574716>","<:intelligence:1137364357823602749>","<:magie:1137363963257028688>","<:resistance:1137364355537715280>","<:percing:1137364352266149908>","<:critical:1137364347308494849>","<:healing:1137364338374623333>","<:boost:1137364341591638126>","<:armor:1137364335581212682>","<:direct:1137364333526007880>","<:indirect:1137364330237673542>"]
 extraStatEmojis = statEmojis + ["?"]*5 + ["% PV Max", "-", "<:littleStar:925860806602682369>", "% PV Manquants"]
 
